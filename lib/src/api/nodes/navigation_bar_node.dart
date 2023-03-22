@@ -9,7 +9,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
-import '../serializable_mixin.dart';
 import '../utils.dart';
 import 'nodes.dart';
 

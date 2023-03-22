@@ -5,7 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../../api.dart';
+import '../../../../codelessly_api.dart';
 
 part 'set_variant_action.g.dart';
 

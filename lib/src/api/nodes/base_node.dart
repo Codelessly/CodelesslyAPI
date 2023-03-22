@@ -9,7 +9,11 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../api.dart';
+import '../constants.dart';
+import '../math_helper.dart';
+import '../mixins.dart';
+import '../models/models.dart';
+import '../utils.dart';
 
 part '../node_processor.dart';
 

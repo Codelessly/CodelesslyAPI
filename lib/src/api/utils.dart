@@ -4,7 +4,7 @@
 
 import 'package:collection/collection.dart';
 
-import '../../api.dart';
+import '../../codelessly_api.dart';
 
 /// Defines a function that returns a node by its id.
 typedef GetNode = BaseNode Function(String id);

@@ -5,7 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../serializable_mixin.dart';
+import '../../mixins.dart';
 import 'action.dart';
 
 part 'navigation_action.g.dart';

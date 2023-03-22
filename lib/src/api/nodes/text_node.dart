@@ -5,7 +5,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../../api.dart';
+import '../mixins.dart';
+import '../models/models.dart';
+import 'nodes.dart';
 
 part 'text_node.g.dart';
 

@@ -1,7 +1,7 @@
 ### Creating a new node
 
 ```dart
-import 'package:codelessly_api/api.dart';
+import 'package:codelessly_api/codelessly_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'my_cool_node.g.dart';

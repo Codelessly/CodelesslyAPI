@@ -35,7 +35,7 @@ refer to one of the many nodes under `codelessly_api/lib/api/nodes` for addition
 examples.
 
 ```dart
-import 'package:codelessly_api/api.dart';
+import 'package:codelessly_api/codelessly_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'my_cool_node.g.dart';

@@ -6,7 +6,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 
-import '../serializable_mixin.dart';
+import '../mixins.dart';
 import 'models.dart';
 
 /// The [NodeBox] class is a utility class that represents a rectangle with a
