@@ -1,0 +1,60 @@
+// Copyright (c) 2022, Codelessly.
+// All rights reserved. Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE.md file.
+
+import 'package:equatable/equatable.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../serializable_mixin.dart';
+import 'models.dart';
+part 'border_side.g.dart';
+
+/// Represents the border style for a border.
+enum BorderStyleEnum {
+  /// Solid border as the name suggests.
+  solid,
+
+  /// No border.
+  none;
+}
+
+/// Represents the border style for a border side.
+@JsonSerializable()
+class BorderSideModel with EquatableMixin, SerializableMixin {
+  /// Color of the border side.
+  final ColorRGBA color;
+
+  /// Style of the border side.
+  final BorderStyleEnum style;
+
+  /// Thickness of the border side.
+  final double width;
+
+  /// Default constructor for creating a border side.
+  const BorderSideModel({
+    this.color = ColorRGBA.black,
+    this.style = BorderStyleEnum.solid,
+    this.width = 1,
+  });
+
+  /// Duplicates an instance of this class with the given values as overrides.
+  BorderSideModel copyWith({
+    ColorRGBA? color,
+    BorderStyleEnum? style,
+    double? width,
+  }) =>
+      BorderSideModel(
+        color: color ?? this.color,
+        style: style ?? this.style,
+        width: width ?? this.width,
+      );
+
+  @override
+  List<Object?> get props => [color, style, width];
+
+  /// Creates a new instance of this class from a JSON object.
+  factory BorderSideModel.fromJson(Map json) => _$BorderSideModelFromJson(json);
+
+  @override
+  Map toJson() => _$BorderSideModelToJson(this);
+}

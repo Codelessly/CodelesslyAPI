@@ -1,0 +1,5 @@
+deps: dart pub get
+format: dart format --fix .
+codegen: dart run build_runner build --delete-conflicting-outputs
+publish:
+  dry: dart pub publish --dry-run
