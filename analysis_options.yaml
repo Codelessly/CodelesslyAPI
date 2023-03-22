@@ -1,0 +1,20 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - lib/**/*.pb*.dart
+    - lib/**/*.g.dart
+  errors:
+    missing_required_param: error
+    missing_return: error
+    todo: ignore
+
+linter:
+  rules:
+    public_member_api_docs: true
+    prefer_single_quotes: true
+    constant_identifier_names: false
+    # allow nodes to override type.
+    overridden_fields: false
+    use_super_parameters: true
+    prefer_relative_imports: true
