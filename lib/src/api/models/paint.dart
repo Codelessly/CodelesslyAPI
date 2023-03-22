@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../serializable_mixin.dart';
+import '../mixins.dart';
 import 'models.dart';
 
 part 'paint.g.dart';

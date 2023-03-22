@@ -10,7 +10,6 @@ import 'package:json_annotation/json_annotation.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
-import '../serializable_mixin.dart';
 
 part 'slider_node.g.dart';
 

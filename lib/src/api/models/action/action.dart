@@ -4,7 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import '../../serializable_mixin.dart';
+import '../../mixins.dart';
 
 part 'action.g.dart';
 

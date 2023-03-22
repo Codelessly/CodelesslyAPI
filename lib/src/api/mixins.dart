@@ -1076,3 +1076,11 @@ mixin DelegatedPropertiesMixin on BaseNode {
 
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
+
+/// This mixin is extended by every Undo Action and api models
+/// so .toJson() can be called regardless of the class.
+/// It is used for storing actions on server.
+mixin SerializableMixin {
+  /// Returns a serializable map representation of the object.
+  Map toJson();
+}

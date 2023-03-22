@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'models/models.dart';
-import 'serializable_mixin.dart';
+import 'mixins.dart';
 import 'utils.dart';
 
 part 'custom_component.g.dart';

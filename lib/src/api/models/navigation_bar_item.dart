@@ -6,7 +6,6 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
-import '../serializable_mixin.dart';
 import 'models.dart';
 
 part 'navigation_bar_item.g.dart';
