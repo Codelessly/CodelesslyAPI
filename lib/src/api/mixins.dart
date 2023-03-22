@@ -414,17 +414,21 @@ enum StrokeAlignC {
   /// the stroke will be drawn in such a way that half of the stroke is
   /// outside the node boundary and half of the stroke is inside the node
   /// boundary. This partially affects the contents/children of the node.
-  center,
+  center(0),
 
   /// Aligns the stroke at the outside of the node boundary. This means that
   /// the stroke will be drawn completely outside node boundary not affecting
   /// the contents/children of the node at all.
-  outside,
+  outside(1),
 
   /// Aligns the stroke at the inside of the node boundary. This means that
   /// the stroke will be drawn completely inside node boundary affecting the
   /// contents/children of the node.
-  inside;
+  inside(-1);
+
+  final double alignment;
+
+  const StrokeAlignC(this.alignment);
 }
 
 /// Styles to use for line endings on a stroke. This is directly related to
