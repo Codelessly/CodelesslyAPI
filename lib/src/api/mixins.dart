@@ -426,8 +426,10 @@ enum StrokeAlignC {
   /// contents/children of the node.
   inside(-1);
 
+  /// The alignment value that is used for the final double alignment;
   final double alignment;
 
+  /// Creates a [StrokeAlignC] with the given [alignment].
   const StrokeAlignC(this.alignment);
 }
 
