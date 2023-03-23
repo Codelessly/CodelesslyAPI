@@ -37,7 +37,54 @@ enum FontWeightNumeric {
   w800,
 
   /// Black
-  w900,
+  w900;
+
+  /// Displayable string representation of the object.
+  String get prettify {
+    switch (this) {
+      case FontWeightNumeric.w100:
+        return 'Thin';
+      case FontWeightNumeric.w200:
+        return 'Extra Light';
+      case FontWeightNumeric.w300:
+        return 'Light';
+      case FontWeightNumeric.w400:
+        return 'Normal';
+      case FontWeightNumeric.w500:
+        return 'Medium';
+      case FontWeightNumeric.w600:
+        return 'Semibold';
+      case FontWeightNumeric.w700:
+        return 'Bold';
+      case FontWeightNumeric.w800:
+        return 'Extra Bold';
+      case FontWeightNumeric.w900:
+        return 'Black';
+    }
+  }
+
+  /// Whether the weight is considered bold, i.e., all weights heavier than
+  /// medium.
+  bool get isBold {
+    if (compare(FontWeightNumeric.w500) < 0) return true;
+    return false;
+  }
+
+  /// Compares [this] weight with the input weight.
+  /// Returns 1 if the input weight is heavier than [this] weight.
+  /// Returns -1 if the input weight is lighter than [this] weight.
+  /// Returns 0 if both the weights are equal.
+  int compare(FontWeightNumeric weight) {
+    final int indexOfThisWeight = FontWeightNumeric.values.indexOf(this);
+    final int indexOfInputWeight = FontWeightNumeric.values.indexOf(weight);
+    if (indexOfInputWeight > indexOfThisWeight) {
+      return 1;
+    } else if (indexOfInputWeight < indexOfThisWeight) {
+      return -1;
+    } else {
+      return 0;
+    }
+  }
 }
 
 /// A solid color, gradient, or image texture that
