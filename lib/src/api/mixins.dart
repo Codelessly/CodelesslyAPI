@@ -1041,45 +1041,6 @@ mixin ScrollLinkableMixin on BaseNode {
   }
 }
 
-/// If you have a node that should apply its editor properties data from some
-/// other node instead, this mixin can help with that.
-///
-/// The best example of what this does is [ScaffoldNode]. Scaffolds can't
-/// support padding directly, but the body of it can.
-///
-/// The body is a [FreeformPlaceholderNode] internally, so instead of the
-/// scaffold's padding property updating the padding in the [ScaffoldNode], it
-/// instead updates the padding in the [FreeformPlaceholderNode].
-///
-/// Rendering is also accounted for. The padding renders for the
-/// [FreeformPlaceholderNode] even when the [ScaffoldNode] is selected.
-mixin DelegatedPropertiesMixin on BaseNode {
-  /// Returns delegated node ID for the edge insets properties.
-  String delegatedEdgeInsetsID() => id;
-
-  /// Returns delegated node ID for the fill properties.
-  String delegatedFillID() => id;
-
-  /// Returns delegated node ID for stroke properties.
-  String delegatedStrokeID() => id;
-
-  /// Returns delegated node ID for opacity property.
-  String delegatedOpacityID() => id;
-
-  /// Returns delegated node ID for effect property.
-  String delegatedEffectID() => id;
-
-  /// Returns all the node Ids to which this node is delegating one or more
-  /// of its properties.
-  Set<String> get delegatedIDs => {
-        delegatedStrokeID(),
-        delegatedFillID(),
-        delegatedEdgeInsetsID(),
-        delegatedOpacityID(),
-        delegatedEffectID(),
-      };
-}
-
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 
