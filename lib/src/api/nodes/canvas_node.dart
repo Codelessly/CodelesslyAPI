@@ -23,8 +23,7 @@ class CanvasNode extends ParentNode
         IsolatedMixin,
         ScrollableMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin,
-        DelegatedPropertiesMixin {
+        VariablePropertiesMixin{
   @override
   final String type = 'canvas';
 
@@ -44,20 +43,6 @@ class CanvasNode extends ParentNode
   /// Whether this canvas is a scaffold.
   bool get isAScaffold => properties.isAScaffold;
 
-  @override
-  String delegatedEdgeInsetsID() => properties.bodyId;
-
-  @override
-  String delegatedFillID() => id;
-
-  @override
-  String delegatedStrokeID() => properties.bodyId;
-
-  @override
-  String delegatedOpacityID() => properties.bodyId;
-
-  @override
-  String delegatedEffectID() => properties.bodyId;
 
   /// Creates a new [CanvasNode] with given data.
   CanvasNode({
