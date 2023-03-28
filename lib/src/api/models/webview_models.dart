@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE.md file.
 
 /// Type of source for a webview.
-enum WebviewWebpageSourceType {
+enum WebViewWebpageSourceType {
   /// A URL address of some website.
   url('URL link'),
 
@@ -17,11 +17,11 @@ enum WebviewWebpageSourceType {
   final String label;
 
   /// Default constructor for this enum.
-  const WebviewWebpageSourceType(this.label);
+  const WebViewWebpageSourceType(this.label);
 }
 
 /// Different types of supported webviews.
-enum WebviewType {
+enum WebViewType {
   /// A webpage on the web.
   webpage('Webpage'),
 
@@ -35,11 +35,11 @@ enum WebviewType {
   final String label;
 
   /// Default constructor for this enum.
-  const WebviewType(this.label);
+  const WebViewType(this.label);
 }
 
 /// Represents media playback policy for a webview.
-enum WebviewMediaAutoPlaybackPolicy {
+enum WebViewMediaAutoPlaybackPolicy {
   /// Initiate media playback only on user interaction.
   requireUserActionForAllMedia('Never autoplay any media'),
 
@@ -50,5 +50,5 @@ enum WebviewMediaAutoPlaybackPolicy {
   final String label;
 
   /// Default constructor for this enum.
-  const WebviewMediaAutoPlaybackPolicy(this.label);
+  const WebViewMediaAutoPlaybackPolicy(this.label);
 }
