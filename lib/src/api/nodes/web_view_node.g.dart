@@ -1,12 +1,12 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'webview_node.dart';
+part of 'web_view_node.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-WebviewNode _$WebviewNodeFromJson(Map json) => WebviewNode(
+WebViewNode _$WebViewNodeFromJson(Map json) => WebViewNode(
       id: json['id'] as String,
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
@@ -46,7 +46,7 @@ WebviewNode _$WebviewNodeFromJson(Map json) => WebviewNode(
           ? EdgePinsModel.standard
           : EdgePinsModel.fromJson(
               Map<String, dynamic>.from(json['edgePins'] as Map)),
-      properties: WebviewProperties.fromJson(json['properties'] as Map),
+      properties: WebViewProperties.fromJson(json['properties'] as Map),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -59,7 +59,7 @@ WebviewNode _$WebviewNodeFromJson(Map json) => WebviewNode(
           {}
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$WebviewNodeToJson(WebviewNode instance) =>
+Map<String, dynamic> _$WebViewNodeToJson(WebViewNode instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
@@ -97,10 +97,10 @@ const _$PositioningModeEnumMap = {
   PositioningMode.pin: 'pin',
 };
 
-WebPageWebviewProperties _$WebPageWebviewPropertiesFromJson(Map json) =>
-    WebPageWebviewProperties(
+WebPageWebViewProperties _$WebPageWebViewPropertiesFromJson(Map json) =>
+    WebPageWebViewProperties(
       pageSourceType: $enumDecode(
-          _$WebviewWebpageSourceTypeEnumMap, json['pageSourceType']),
+          _$WebViewWebpageSourceTypeEnumMap, json['pageSourceType']),
       input: json['input'] as String,
       controlVerticalScrollGesture:
           json['controlVerticalScrollGesture'] as bool?,
@@ -112,19 +112,19 @@ WebPageWebviewProperties _$WebPageWebviewPropertiesFromJson(Map json) =>
       controlForcePressGesture: json['controlForcePressGesture'] as bool?,
       allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
       mediaAutoPlaybackPolicy: $enumDecodeNullable(
-              _$WebviewMediaAutoPlaybackPolicyEnumMap,
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
               json['mediaAutoPlaybackPolicy']) ??
-          WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
           : ColorRGBA.fromJson(json['backgroundColor'] as Map),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
-      ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType']);
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType']);
 
-Map<String, dynamic> _$WebPageWebviewPropertiesToJson(
-    WebPageWebviewProperties instance) {
+Map<String, dynamic> _$WebPageWebViewPropertiesToJson(
+    WebPageWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -143,26 +143,26 @@ Map<String, dynamic> _$WebPageWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   val['pageSourceType'] =
-      _$WebviewWebpageSourceTypeEnumMap[instance.pageSourceType]!;
+      _$WebViewWebpageSourceTypeEnumMap[instance.pageSourceType]!;
   val['input'] = instance.input;
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   return val;
 }
 
-const _$WebviewWebpageSourceTypeEnumMap = {
-  WebviewWebpageSourceType.url: 'url',
-  WebviewWebpageSourceType.html: 'html',
-  WebviewWebpageSourceType.asset: 'asset',
+const _$WebViewWebpageSourceTypeEnumMap = {
+  WebViewWebpageSourceType.url: 'url',
+  WebViewWebpageSourceType.html: 'html',
+  WebViewWebpageSourceType.asset: 'asset',
 };
 
-const _$WebviewMediaAutoPlaybackPolicyEnumMap = {
-  WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia:
+const _$WebViewMediaAutoPlaybackPolicyEnumMap = {
+  WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia:
       'requireUserActionForAllMedia',
-  WebviewMediaAutoPlaybackPolicy.alwaysPlayAllMedia: 'alwaysPlayAllMedia',
+  WebViewMediaAutoPlaybackPolicy.alwaysPlayAllMedia: 'alwaysPlayAllMedia',
 };
 
 Value? _$JsonConverterFromJson<Json, Value>(
@@ -171,8 +171,8 @@ Value? _$JsonConverterFromJson<Json, Value>(
 ) =>
     json == null ? null : fromJson(json as Json);
 
-const _$WebviewTypeEnumMap = {
-  WebviewType.webpage: 'webpage',
-  WebviewType.googleMaps: 'googleMaps',
-  WebviewType.twitter: 'twitter',
+const _$WebViewTypeEnumMap = {
+  WebViewType.webpage: 'webpage',
+  WebViewType.googleMaps: 'googleMaps',
+  WebViewType.twitter: 'twitter',
 };

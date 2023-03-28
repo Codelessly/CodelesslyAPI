@@ -5,24 +5,24 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../models/models.dart';
-import 'webview_node.dart';
+import 'web_view_node.dart';
 
-part 'webview_google_maps_properties.g.dart';
+part 'web_view_google_maps_properties.g.dart';
 
-/// A [WebviewProperties] implementation that displays a Google Maps webview.
+/// A [WebViewProperties] implementation that displays a Google Maps webview.
 ///
-/// There are multiple kinds of [GoogleMapsWebviewProperties], which is why
+/// There are multiple kinds of [GoogleMapsWebViewProperties], which is why
 /// this class is abstract and provides a base for all of them.
 ///
-/// See: [PlacesGoogleMapsWebviewProperties], [ViewGoogleMapsWebviewProperties],
-/// [DirectionsGoogleMapsWebviewProperties],
-/// [StreetViewGoogleMapsWebviewProperties], and
-/// [SearchGoogleMapsWebviewProperties].
-abstract class GoogleMapsWebviewProperties extends WebviewProperties {
+/// See: [PlacesGoogleMapsWebViewProperties], [ViewGoogleMapsWebViewProperties],
+/// [DirectionsGoogleMapsWebViewProperties],
+/// [StreetViewGoogleMapsWebViewProperties], and
+/// [SearchGoogleMapsWebViewProperties].
+abstract class GoogleMapsWebViewProperties extends WebViewProperties {
   /// The API key from the Google Cloud Platform Console.
   ///
   /// This is required for all types and sub-types of
-  /// [GoogleMapsWebviewProperties].
+  /// [GoogleMapsWebViewProperties].
   String? apiKey;
 
   /// Sets initial zoom level of the map.
@@ -56,15 +56,15 @@ abstract class GoogleMapsWebviewProperties extends WebviewProperties {
   String? region;
 
   @override
-  late WebviewType webviewType = WebviewType.googleMaps;
+  late WebViewType webviewType = WebViewType.googleMaps;
 
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps';
 
   /// The map mode that helps disambiguate what kind of map is being displayed.
-  /// This is used to determine which sub-type of [GoogleMapsWebviewProperties]
-  /// a common [GoogleMapsWebviewProperties] instance should or can be casted
+  /// This is used to determine which sub-type of [GoogleMapsWebViewProperties]
+  /// a common [GoogleMapsWebViewProperties] instance should or can be casted
   /// to.
   late GoogleMapsMapMode mapMode;
 
@@ -75,8 +75,8 @@ abstract class GoogleMapsWebviewProperties extends WebviewProperties {
   /// field.
   late String url;
 
-  /// Creates a new [GoogleMapsWebviewProperties] instance given an [apiKey].
-  GoogleMapsWebviewProperties({
+  /// Creates a new [GoogleMapsWebViewProperties] instance given an [apiKey].
+  GoogleMapsWebViewProperties({
     required this.apiKey,
     this.zoom,
     this.mapType,
@@ -94,27 +94,27 @@ abstract class GoogleMapsWebviewProperties extends WebviewProperties {
     super.backgroundColor,
   });
 
-  /// Creates a new [GoogleMapsWebviewProperties] instance from a [json] map.
+  /// Creates a new [GoogleMapsWebViewProperties] instance from a [json] map.
   ///
   /// The [mapMode] is checked manually in order to return the most appropriate
-  /// sub-type of [GoogleMapsWebviewProperties] instance.
+  /// sub-type of [GoogleMapsWebViewProperties] instance.
   ///
   /// TODO: This function is not extendable. If a new type of
-  /// [GoogleMapsWebviewProperties] is added, this function will need to be
+  /// [GoogleMapsWebViewProperties] is added, this function will need to be
   /// updated manually and it inherently disallows any third-party plugins to
-  /// add their own types of [GoogleMapsWebviewProperties].
-  factory GoogleMapsWebviewProperties.fromJson(Map json) {
+  /// add their own types of [GoogleMapsWebViewProperties].
+  factory GoogleMapsWebViewProperties.fromJson(Map json) {
     switch (GoogleMapsMapMode.values.byName(json['mapMode'])) {
       case GoogleMapsMapMode.places:
-        return PlacesGoogleMapsWebviewProperties.fromJson(json);
+        return PlacesGoogleMapsWebViewProperties.fromJson(json);
       case GoogleMapsMapMode.view:
-        return ViewGoogleMapsWebviewProperties.fromJson(json);
+        return ViewGoogleMapsWebViewProperties.fromJson(json);
       case GoogleMapsMapMode.directions:
-        return DirectionsGoogleMapsWebviewProperties.fromJson(json);
+        return DirectionsGoogleMapsWebViewProperties.fromJson(json);
       case GoogleMapsMapMode.streetView:
-        return StreetViewGoogleMapsWebviewProperties.fromJson(json);
+        return StreetViewGoogleMapsWebViewProperties.fromJson(json);
       case GoogleMapsMapMode.search:
-        return SearchGoogleMapsWebviewProperties.fromJson(json);
+        return SearchGoogleMapsWebViewProperties.fromJson(json);
     }
   }
 
@@ -148,7 +148,7 @@ abstract class GoogleMapsWebviewProperties extends WebviewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#place_mode
 @JsonSerializable()
-class PlacesGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
+class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   /// Defines map marker location.
   ///
   /// URL-escaped place name, address, plus code, or place ID.
@@ -164,9 +164,9 @@ class PlacesGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - Places';
 
-  /// Creates a new [PlacesGoogleMapsWebviewProperties] instance given an
+  /// Creates a new [PlacesGoogleMapsWebViewProperties] instance given an
   /// [apiKey] and a [query].
-  PlacesGoogleMapsWebviewProperties({
+  PlacesGoogleMapsWebViewProperties({
     required super.apiKey,
     required this.query,
     super.zoom,
@@ -208,12 +208,12 @@ class PlacesGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   }
 
   @override
-  Map toJson() => _$PlacesGoogleMapsWebviewPropertiesToJson(this);
+  Map toJson() => _$PlacesGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [PlacesGoogleMapsWebviewProperties] instance from a [json]
+  /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a [json]
   /// map.
-  factory PlacesGoogleMapsWebviewProperties.fromJson(Map json) =>
-      _$PlacesGoogleMapsWebviewPropertiesFromJson(json);
+  factory PlacesGoogleMapsWebViewProperties.fromJson(Map json) =>
+      _$PlacesGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -230,7 +230,7 @@ class PlacesGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#view_mode
 @JsonSerializable()
-class ViewGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
+class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   /// Defines center of the map view.
   ///
   /// Accepts comma-separated latitude and longitude value;
@@ -244,9 +244,9 @@ class ViewGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - View';
 
-  /// Creates a new [ViewGoogleMapsWebviewProperties] instance given an
+  /// Creates a new [ViewGoogleMapsWebViewProperties] instance given an
   /// [apiKey] and a [center].
-  ViewGoogleMapsWebviewProperties({
+  ViewGoogleMapsWebViewProperties({
     required super.apiKey,
     required this.center,
     super.zoom,
@@ -288,12 +288,12 @@ class ViewGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   }
 
   @override
-  Map toJson() => _$ViewGoogleMapsWebviewPropertiesToJson(this);
+  Map toJson() => _$ViewGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [ViewGoogleMapsWebviewProperties] instance from a [json]
+  /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a [json]
   /// map.
-  factory ViewGoogleMapsWebviewProperties.fromJson(Map json) =>
-      _$ViewGoogleMapsWebviewPropertiesFromJson(json);
+  factory ViewGoogleMapsWebViewProperties.fromJson(Map json) =>
+      _$ViewGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -310,8 +310,8 @@ class ViewGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#directions_mode
 @JsonSerializable()
-class DirectionsGoogleMapsWebviewProperties
-    extends GoogleMapsWebviewProperties {
+class DirectionsGoogleMapsWebViewProperties
+    extends GoogleMapsWebViewProperties {
   /// Defines the starting point from which to display directions.
   ///
   /// URL-escaped place name, address, plus code, latitude/longitude
@@ -374,9 +374,9 @@ class DirectionsGoogleMapsWebviewProperties
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - Directions';
 
-  /// Creates a new [DirectionsGoogleMapsWebviewProperties] instance given an
+  /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance given an
   /// [apiKey], an [origin], a [destination], [waypoints], and an [avoid] set.
-  DirectionsGoogleMapsWebviewProperties({
+  DirectionsGoogleMapsWebViewProperties({
     required super.apiKey,
     required this.origin,
     required this.destination,
@@ -446,12 +446,12 @@ class DirectionsGoogleMapsWebviewProperties
   }
 
   @override
-  Map toJson() => _$DirectionsGoogleMapsWebviewPropertiesToJson(this);
+  Map toJson() => _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [DirectionsGoogleMapsWebviewProperties] instance from a
+  /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a
   /// [json] map.
-  factory DirectionsGoogleMapsWebviewProperties.fromJson(Map json) =>
-      _$DirectionsGoogleMapsWebviewPropertiesFromJson(json);
+  factory DirectionsGoogleMapsWebViewProperties.fromJson(Map json) =>
+      _$DirectionsGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -469,8 +469,8 @@ class DirectionsGoogleMapsWebviewProperties
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#streetview_mode
 @JsonSerializable()
-class StreetViewGoogleMapsWebviewProperties
-    extends GoogleMapsWebviewProperties {
+class StreetViewGoogleMapsWebViewProperties
+    extends GoogleMapsWebViewProperties {
   /// location accepts a latitude and a longitude as comma-separated
   /// values (46.414382,10.013988). The API will display the panorama
   /// photographed closest to this location.
@@ -524,10 +524,10 @@ class StreetViewGoogleMapsWebviewProperties
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - Street View';
 
-  /// Creates a new [StreetViewGoogleMapsWebviewProperties] instance given an
+  /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance given an
   /// [apiKey] and optionally a [location], [pano], [heading], [pitch], [fov],
   /// or [center].
-  StreetViewGoogleMapsWebviewProperties({
+  StreetViewGoogleMapsWebViewProperties({
     required super.apiKey,
     this.location,
     this.pano,
@@ -600,12 +600,12 @@ class StreetViewGoogleMapsWebviewProperties
   }
 
   @override
-  Map toJson() => _$StreetViewGoogleMapsWebviewPropertiesToJson(this);
+  Map toJson() => _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [StreetViewGoogleMapsWebviewProperties] instance from a
+  /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a
   /// [json] map.
-  factory StreetViewGoogleMapsWebviewProperties.fromJson(Map json) =>
-      _$StreetViewGoogleMapsWebviewPropertiesFromJson(json);
+  factory StreetViewGoogleMapsWebViewProperties.fromJson(Map json) =>
+      _$StreetViewGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -625,7 +625,7 @@ class StreetViewGoogleMapsWebviewProperties
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#search_mode
 @JsonSerializable()
-class SearchGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
+class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   /// Defines the search term.
   ///
   /// It can include a geographic restriction, such as in+Seattle or near+98033.
@@ -638,9 +638,9 @@ class SearchGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - Search';
 
-  /// Creates a new [SearchGoogleMapsWebviewProperties] instance given an
+  /// Creates a new [SearchGoogleMapsWebViewProperties] instance given an
   /// [apiKey] and a [query].
-  SearchGoogleMapsWebviewProperties({
+  SearchGoogleMapsWebViewProperties({
     required super.apiKey,
     required this.query,
     super.zoom,
@@ -683,12 +683,12 @@ class SearchGoogleMapsWebviewProperties extends GoogleMapsWebviewProperties {
   }
 
   @override
-  Map toJson() => _$SearchGoogleMapsWebviewPropertiesToJson(this);
+  Map toJson() => _$SearchGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [SearchGoogleMapsWebviewProperties] instance from a
+  /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a
   /// [json] map.
-  factory SearchGoogleMapsWebviewProperties.fromJson(Map json) =>
-      _$SearchGoogleMapsWebviewPropertiesFromJson(json);
+  factory SearchGoogleMapsWebViewProperties.fromJson(Map json) =>
+      _$SearchGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
