@@ -67,10 +67,11 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'embeddedVideo': EmbeddedVideoNode.fromJson,
       'divider': DividerNode.fromJson,
       'loadingIndicator': LoadingIndicatorNode.fromJson,
-      'webview': WebviewNode.fromJson,
+      'webView': WebViewNode.fromJson,
       'dropdown': DropdownNode.fromJson,
       'progressBar': ProgressBarNode.fromJson,
       'variance': VarianceNode.fromJson,
+      'listView': ListViewNode.fromJson,
     };
   }
 

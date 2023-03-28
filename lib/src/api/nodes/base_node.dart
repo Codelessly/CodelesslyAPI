@@ -65,7 +65,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// it to true. Otherwise, the padding control won't show up in the editor.
   ///
   /// Nodes that can't support external padding modifications are like
-  /// [EmbeddedVideoNode], [WebviewNode], [IconNode], [TextNode], etc.
+  /// [EmbeddedVideoNode], [WebViewNode], [IconNode], [TextNode], etc.
   final bool supportsPadding = false;
 
   /// Constraints apply to the [middleBoxLocal]

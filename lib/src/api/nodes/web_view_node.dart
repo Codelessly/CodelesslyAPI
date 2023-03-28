@@ -11,31 +11,31 @@ import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
 
-part 'webview_node.g.dart';
+part 'web_view_node.g.dart';
 
-/// A Webview is a rectangle that displays or embeds a web page or web element.
+/// A WebView is a rectangle that displays or embeds a web page or web element.
 ///
 /// It is only available on Android and iOS.
 ///
 /// This node utilizes the webview_flutter package.
 @JsonSerializable()
-class WebviewNode extends SceneNode
+class WebViewNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
   @override
-  final String type = 'webview';
+  final String type = 'webView';
 
   /// Accesses the properties of the webview. There are multiple versions of
-  /// webview properties, [WebPageWebviewProperties],
-  /// [TwitterWebviewProperties], and [GoogleMapsWebviewProperties].
-  WebviewProperties properties;
+  /// webview properties, [WebPageWebViewProperties],
+  /// [TwitterWebViewProperties], and [GoogleMapsWebViewProperties].
+  WebViewProperties properties;
 
   /// [returns] whether this webview holds actual content in its
-  /// [WebviewProperties.src].
+  /// [WebViewProperties.src].
   bool get hasData =>
       properties.src != null && properties.src!.trim().isNotEmpty;
 
-  /// Creates a new [WebviewNode] instance given the required parameters.
-  WebviewNode({
+  /// Creates a new [WebViewNode] instance given the required parameters.
+  WebViewNode({
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -62,14 +62,14 @@ class WebviewNode extends SceneNode
     setVariablesMixin(variables: variables);
   }
 
-  /// Creates a new [WebviewNode] instance from a [json] map.
-  factory WebviewNode.fromJson(Map json) => _$WebviewNodeFromJson(json);
+  /// Creates a new [WebViewNode] instance from a [json] map.
+  factory WebViewNode.fromJson(Map json) => _$WebViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$WebviewNodeToJson(this);
+  Map toJson() => _$WebViewNodeToJson(this);
 }
 
-/// A custom serializer and deserializer for the [WebviewProperties.src] field
+/// A custom serializer and deserializer for the [WebViewProperties.src] field
 /// to encode and decode the src to and from a base64 string.
 ///
 /// The [src] can be a URL, an actual HTML string, etc... So we serialize
@@ -87,24 +87,24 @@ class Base64JsonConverter implements JsonConverter<String?, String> {
       base64.encode(utf8.encode(decodedString ?? ''));
 }
 
-/// An abstract class that holds the common properties that any [WebviewNode]
+/// An abstract class that holds the common properties that any [WebViewNode]
 /// can have.
 ///
 /// There are three classes that implement this class:
-/// [WebPageWebviewProperties], [TwitterWebviewProperties], and
-/// [GoogleMapsWebviewProperties].
-abstract class WebviewProperties with SerializableMixin, EquatableMixin {
+/// [WebPageWebViewProperties], [TwitterWebViewProperties], and
+/// [GoogleMapsWebViewProperties].
+abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// The [src] holds the actual content of the webview. It can be either a URL,
   /// an actual HTML string, an asset path, etc...
   @Base64JsonConverter()
   String? src;
 
-  /// The type of webview this instance of [WebviewProperties] is.
-  late WebviewType webviewType;
+  /// The type of webview this instance of [WebViewProperties] is.
+  late WebViewType webviewType;
 
-  /// A human-readable label that represents this type of [WebviewProperties].
+  /// A human-readable label that represents this type of [WebViewProperties].
   @JsonKey(includeFromJson: false, includeToJson: false)
-  late String label = 'Webview';
+  late String label = 'WebView';
 
   /// Whether this webview should consume any vertical scroll gestures.
   ///
@@ -139,7 +139,7 @@ abstract class WebviewProperties with SerializableMixin, EquatableMixin {
   /// scaling gestures into it and disallow parent containers from zooming/
   /// scaling when the event is triggered inside the bounds of this webview.
   ///
-  /// This is most evident inside [GoogleMapsWebviewProperties] where the
+  /// This is most evident inside [GoogleMapsWebViewProperties] where the
   /// webview is zoomable/scalable.
   bool? controlScaleGesture;
 
@@ -188,7 +188,7 @@ abstract class WebviewProperties with SerializableMixin, EquatableMixin {
   /// Media auto playback policy is used to control whether HTML5 media
   /// (audio/video) should automatically start playing when the webview is
   /// loaded.
-  WebviewMediaAutoPlaybackPolicy mediaAutoPlaybackPolicy;
+  WebViewMediaAutoPlaybackPolicy mediaAutoPlaybackPolicy;
 
   /// The background color of the webview is the color that will be shown
   /// behind the webview content. This is the web-engine rendered background
@@ -200,8 +200,8 @@ abstract class WebviewProperties with SerializableMixin, EquatableMixin {
   /// background color is shown until the webpage is loaded.
   ColorRGBA? backgroundColor;
 
-  /// Creates a new [WebviewProperties] instance.
-  WebviewProperties({
+  /// Creates a new [WebViewProperties] instance.
+  WebViewProperties({
     this.src,
     this.controlVerticalScrollGesture,
     this.controlHorizontalScrollGesture,
@@ -211,44 +211,44 @@ abstract class WebviewProperties with SerializableMixin, EquatableMixin {
     this.controlForcePressGesture,
     this.allowsInlineMediaPlayback,
     this.mediaAutoPlaybackPolicy =
-        WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
     this.backgroundColor,
   });
 
   /// Regenerates the [src] field in whatever way is desired. Some webviews
   /// need extremely specific [src] to work properly.
   ///
-  /// See: [TwitterWebviewProperties] and [GoogleMapsWebviewProperties].
+  /// See: [TwitterWebViewProperties] and [GoogleMapsWebViewProperties].
   void regenSource();
 
-  /// Creates a new [WebviewProperties] instance from a [json] map.
+  /// Creates a new [WebViewProperties] instance from a [json] map.
   ///
   /// The [webviewType] is checked manually in order to return the most
-  /// appropriate type of [WebviewProperties] instance.
+  /// appropriate type of [WebViewProperties] instance.
   ///
   /// TODO: This function is not extendable. If a new type of
-  /// [WebviewProperties] is added, this function will need to be updated
+  /// [WebViewProperties] is added, this function will need to be updated
   /// manually and it inherently disallows any third-party plugins to add
-  /// their own [WebviewProperties] types.
-  factory WebviewProperties.fromJson(Map json) {
-    switch (WebviewType.values.byName(json['webviewType'])) {
-      case WebviewType.webpage:
-        return WebPageWebviewProperties.fromJson(json);
-      case WebviewType.googleMaps:
-        return GoogleMapsWebviewProperties.fromJson(json);
-      case WebviewType.twitter:
-        return TwitterWebviewProperties.fromJson(json);
+  /// their own [WebViewProperties] types.
+  factory WebViewProperties.fromJson(Map json) {
+    switch (WebViewType.values.byName(json['webviewType'])) {
+      case WebViewType.webpage:
+        return WebPageWebViewProperties.fromJson(json);
+      case WebViewType.googleMaps:
+        return GoogleMapsWebViewProperties.fromJson(json);
+      case WebViewType.twitter:
+        return TwitterWebViewProperties.fromJson(json);
     }
   }
 
   /// This is not a normal copy function. This specifically copies the base
-  /// fields inside this abstract [WebviewProperties] instance from [other]
-  /// into this instance of [WebviewProperties].
+  /// fields inside this abstract [WebViewProperties] instance from [other]
+  /// into this instance of [WebViewProperties].
   ///
   /// It only copies the "base" properties, IE: the properties that are
-  /// common to all [WebviewProperties] types ONLY, the ones in THIS specific
+  /// common to all [WebViewProperties] types ONLY, the ones in THIS specific
   /// abstract class.
-  void copyBase(WebviewProperties other) {
+  void copyBase(WebViewProperties other) {
     controlVerticalScrollGesture = other.controlVerticalScrollGesture;
     controlHorizontalScrollGesture = other.controlHorizontalScrollGesture;
     controlScaleGesture = other.controlScaleGesture;
@@ -264,17 +264,17 @@ abstract class WebviewProperties with SerializableMixin, EquatableMixin {
   List<Object?> get props => [src];
 }
 
-/// A [WebviewProperties] implementation that is used to display a webpage
+/// A [WebViewProperties] implementation that is used to display a webpage
 /// given an appropriate input.
 @JsonSerializable()
-class WebPageWebviewProperties extends WebviewProperties {
+class WebPageWebViewProperties extends WebViewProperties {
   /// The source of the webpage to be displayed. This can be a URL, an
   /// HTML string, or a file path from the assets folder.
   ///
   /// This field is required as it disambiguates user intent. Even if it's
   /// unused for the webview itself, it provides rich information to us as
   /// developers and allows us to build better UI/UX experiences.
-  WebviewWebpageSourceType pageSourceType;
+  WebViewWebpageSourceType pageSourceType;
 
   /// Can be a URL, an HTML string, or an asset path.
   ///
@@ -283,14 +283,14 @@ class WebPageWebviewProperties extends WebviewProperties {
   String input;
 
   @override
-  late WebviewType webviewType = WebviewType.webpage;
+  late WebViewType webviewType = WebViewType.webpage;
 
   @override
   late String label = 'Webpage';
 
-  /// Creates a new [WebPageWebviewProperties] instance given a [pageSourceType]
+  /// Creates a new [WebPageWebViewProperties] instance given a [pageSourceType]
   /// and an [input].
-  WebPageWebviewProperties({
+  WebPageWebViewProperties({
     required this.pageSourceType,
     required this.input,
     // inherited
@@ -315,11 +315,11 @@ class WebPageWebviewProperties extends WebviewProperties {
   }
 
   @override
-  Map toJson() => _$WebPageWebviewPropertiesToJson(this);
+  Map toJson() => _$WebPageWebViewPropertiesToJson(this);
 
-  /// Creates a new [WebPageWebviewProperties] instance from a [json] map.
-  factory WebPageWebviewProperties.fromJson(Map json) =>
-      _$WebPageWebviewPropertiesFromJson(json);
+  /// Creates a new [WebPageWebViewProperties] instance from a [json] map.
+  factory WebPageWebViewProperties.fromJson(Map json) =>
+      _$WebPageWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [pageSourceType, src];

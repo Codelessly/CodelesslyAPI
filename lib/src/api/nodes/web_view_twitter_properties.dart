@@ -5,20 +5,20 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../models/models.dart';
-import 'webview_node.dart';
+import 'web_view_node.dart';
 
-part 'webview_twitter_properties.g.dart';
+part 'web_view_twitter_properties.g.dart';
 
-/// A [WebviewProperties] implementation that displays a Twitter webview.
+/// A [WebViewProperties] implementation that displays a Twitter webview.
 ///
-/// There are multiple kinds of [TwitterWebviewProperties], which is why
+/// There are multiple kinds of [TwitterWebViewProperties], which is why
 /// this class is abstract and provides a base for all of them.
 ///
-/// See: [TweetTwitterWebviewProperties], [TimelineTwitterWebviewProperties],
-/// [FollowButtonTwitterWebviewProperties],
-/// [MentionButtonTwitterWebviewProperties],
-/// [HashtagButtonTwitterWebviewProperties],
-abstract class TwitterWebviewProperties extends WebviewProperties {
+/// See: [TweetTwitterWebViewProperties], [TimelineTwitterWebViewProperties],
+/// [FollowButtonTwitterWebViewProperties],
+/// [MentionButtonTwitterWebViewProperties],
+/// [HashtagButtonTwitterWebViewProperties],
+abstract class TwitterWebViewProperties extends WebViewProperties {
   /// The color theme that the Twitter webview should use.
   TwitterEmbedTheme? theme;
 
@@ -61,18 +61,18 @@ abstract class TwitterWebviewProperties extends WebviewProperties {
   String? languageCode;
 
   @override
-  late WebviewType webviewType = WebviewType.twitter;
+  late WebViewType webviewType = WebViewType.twitter;
 
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter';
 
   /// The type of Twitter webview to display. This is set by each sub-type
-  /// of [TwitterWebviewProperties].
+  /// of [TwitterWebViewProperties].
   late TwitterEmbedType embedType;
 
-  /// Creates a new [TwitterWebviewProperties].
-  TwitterWebviewProperties({
+  /// Creates a new [TwitterWebViewProperties].
+  TwitterWebViewProperties({
     this.theme,
     this.twitterTailoring,
     this.languageCode,
@@ -89,34 +89,34 @@ abstract class TwitterWebviewProperties extends WebviewProperties {
     super.backgroundColor,
   });
 
-  /// Creates a new [TwitterWebviewProperties] from a [json] map.
+  /// Creates a new [TwitterWebViewProperties] from a [json] map.
   ///
   /// The [embedType] is checked manually in order to return the most
-  /// appropriate sub-type of [TwitterWebviewProperties] instance.
+  /// appropriate sub-type of [TwitterWebViewProperties] instance.
   ///
   /// TODO: This function is not extendable. If a new type of
-  /// [TwitterWebviewProperties] is added, this function will need to be
+  /// [TwitterWebViewProperties] is added, this function will need to be
   /// updated manually and it inherently disallows any third-party plugins to
-  /// add their own types of [TwitterWebviewProperties].
-  factory TwitterWebviewProperties.fromJson(Map json) {
+  /// add their own types of [TwitterWebViewProperties].
+  factory TwitterWebViewProperties.fromJson(Map json) {
     switch (TwitterEmbedType.values.byName(json['embedType'])) {
       case TwitterEmbedType.timeline:
-        return TimelineTwitterWebviewProperties.fromJson(json);
+        return TimelineTwitterWebViewProperties.fromJson(json);
       case TwitterEmbedType.tweet:
-        return TweetTwitterWebviewProperties.fromJson(json);
+        return TweetTwitterWebViewProperties.fromJson(json);
       case TwitterEmbedType.mention:
-        return MentionButtonTwitterWebviewProperties.fromJson(json);
+        return MentionButtonTwitterWebViewProperties.fromJson(json);
       case TwitterEmbedType.hashtag:
-        return HashtagButtonTwitterWebviewProperties.fromJson(json);
+        return HashtagButtonTwitterWebViewProperties.fromJson(json);
       case TwitterEmbedType.follow:
-        return FollowButtonTwitterWebviewProperties.fromJson(json);
+        return FollowButtonTwitterWebViewProperties.fromJson(json);
     }
   }
 }
 
 /// Implements the Twitter Tweet embed.
 @JsonSerializable()
-class TweetTwitterWebviewProperties extends TwitterWebviewProperties {
+class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The URL of the tweet to use.
   String tweetURL;
 
@@ -130,8 +130,8 @@ class TweetTwitterWebviewProperties extends TwitterWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter - Tweet';
 
-  /// Creates a new [TweetTwitterWebviewProperties] instance given a [tweetURL].
-  TweetTwitterWebviewProperties({
+  /// Creates a new [TweetTwitterWebViewProperties] instance given a [tweetURL].
+  TweetTwitterWebViewProperties({
     required this.tweetURL,
     this.hideConversation,
     super.theme,
@@ -153,26 +153,26 @@ class TweetTwitterWebviewProperties extends TwitterWebviewProperties {
   }
 
   @override
-  Map toJson() => _$TweetTwitterWebviewPropertiesToJson(this);
+  Map toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [TweetTwitterWebviewProperties] instance from a [json] map.
-  factory TweetTwitterWebviewProperties.fromJson(Map json) =>
-      _$TweetTwitterWebviewPropertiesFromJson(json);
+  /// Creates a new [TweetTwitterWebViewProperties] instance from a [json] map.
+  factory TweetTwitterWebViewProperties.fromJson(Map json) =>
+      _$TweetTwitterWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props =>
       [tweetURL, hideConversation, theme, twitterTailoring, languageCode];
 
-  /// Copies this [TweetTwitterWebviewProperties] instance into a new instance
+  /// Copies this [TweetTwitterWebViewProperties] instance into a new instance
   /// with optionally changed parameters.
-  TweetTwitterWebviewProperties copyWith({
+  TweetTwitterWebViewProperties copyWith({
     String? tweetURL,
     bool? hideConversation,
     TwitterEmbedTheme? theme,
     bool? twitterTailoring,
     String? languageCode,
   }) {
-    return TweetTwitterWebviewProperties(
+    return TweetTwitterWebViewProperties(
       tweetURL: tweetURL ?? this.tweetURL,
       hideConversation: hideConversation ?? this.hideConversation,
       theme: theme ?? this.theme,
@@ -184,7 +184,7 @@ class TweetTwitterWebviewProperties extends TwitterWebviewProperties {
 
 /// Implements the Twitter Timeline embed.
 @JsonSerializable()
-class TimelineTwitterWebviewProperties extends TwitterWebviewProperties {
+class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The URL of the timeline to be displayed.
   String timelineURL;
 
@@ -201,9 +201,9 @@ class TimelineTwitterWebviewProperties extends TwitterWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter - Timeline';
 
-  /// Creates a new [TimelineTwitterWebviewProperties] instance given a
+  /// Creates a new [TimelineTwitterWebViewProperties] instance given a
   /// [timelineURL].
-  TimelineTwitterWebviewProperties({
+  TimelineTwitterWebViewProperties({
     required this.timelineURL,
     this.width,
     this.height,
@@ -238,20 +238,20 @@ class TimelineTwitterWebviewProperties extends TwitterWebviewProperties {
   }
 
   @override
-  Map toJson() => _$TimelineTwitterWebviewPropertiesToJson(this);
+  Map toJson() => _$TimelineTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [TimelineTwitterWebviewProperties] instance from a [json]
+  /// Creates a new [TimelineTwitterWebViewProperties] instance from a [json]
   /// map.
-  factory TimelineTwitterWebviewProperties.fromJson(Map json) =>
-      _$TimelineTwitterWebviewPropertiesFromJson(json);
+  factory TimelineTwitterWebViewProperties.fromJson(Map json) =>
+      _$TimelineTwitterWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props =>
       [timelineURL, width, height, theme, twitterTailoring, languageCode];
 
-  /// Copies this [TimelineTwitterWebviewProperties] instance into a new
+  /// Copies this [TimelineTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
-  TimelineTwitterWebviewProperties copyWith({
+  TimelineTwitterWebViewProperties copyWith({
     String? timelineURL,
     double? width,
     double? height,
@@ -259,7 +259,7 @@ class TimelineTwitterWebviewProperties extends TwitterWebviewProperties {
     bool? twitterTailoring,
     String? languageCode,
   }) {
-    return TimelineTwitterWebviewProperties(
+    return TimelineTwitterWebViewProperties(
       timelineURL: timelineURL ?? this.timelineURL,
       width: width ?? this.width,
       height: height ?? this.height,
@@ -272,7 +272,7 @@ class TimelineTwitterWebviewProperties extends TwitterWebviewProperties {
 
 /// Implements the Twitter Follow button embed.
 @JsonSerializable()
-class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
+class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The handle of the user to follow.
   String handle;
 
@@ -289,9 +289,9 @@ class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter - Follow Button';
 
-  /// Creates a new [FollowButtonTwitterWebviewProperties] instance given a
+  /// Creates a new [FollowButtonTwitterWebViewProperties] instance given a
   /// [handle].
-  FollowButtonTwitterWebviewProperties({
+  FollowButtonTwitterWebViewProperties({
     required this.handle,
     this.hideUsername,
     this.largeButton,
@@ -330,12 +330,12 @@ class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   }
 
   @override
-  Map toJson() => _$FollowButtonTwitterWebviewPropertiesToJson(this);
+  Map toJson() => _$FollowButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [FollowButtonTwitterWebviewProperties] instance from a
+  /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a
   /// [json] map.
-  factory FollowButtonTwitterWebviewProperties.fromJson(Map json) =>
-      _$FollowButtonTwitterWebviewPropertiesFromJson(json);
+  factory FollowButtonTwitterWebViewProperties.fromJson(Map json) =>
+      _$FollowButtonTwitterWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -347,9 +347,9 @@ class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
         languageCode
       ];
 
-  /// Copies this [FollowButtonTwitterWebviewProperties] instance into a new
+  /// Copies this [FollowButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
-  FollowButtonTwitterWebviewProperties copyWith({
+  FollowButtonTwitterWebViewProperties copyWith({
     String? handle,
     bool? hideUsername,
     bool? largeButton,
@@ -357,7 +357,7 @@ class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
     bool? twitterTailoring,
     String? languageCode,
   }) {
-    return FollowButtonTwitterWebviewProperties(
+    return FollowButtonTwitterWebViewProperties(
       handle: handle ?? this.handle,
       hideUsername: hideUsername ?? this.hideUsername,
       largeButton: largeButton ?? this.largeButton,
@@ -370,7 +370,7 @@ class FollowButtonTwitterWebviewProperties extends TwitterWebviewProperties {
 
 /// Implements the Twitter Mention button embed.
 @JsonSerializable()
-class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
+class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The handle of the user to mention.
   String handle;
 
@@ -391,9 +391,9 @@ class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter - Mention Button';
 
-  /// Creates a new [MentionButtonTwitterWebviewProperties] instance given a
+  /// Creates a new [MentionButtonTwitterWebViewProperties] instance given a
   /// [handle].
-  MentionButtonTwitterWebviewProperties({
+  MentionButtonTwitterWebViewProperties({
     required this.handle,
     this.largeButton,
     this.prefilledText,
@@ -441,12 +441,12 @@ class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   }
 
   @override
-  Map toJson() => _$MentionButtonTwitterWebviewPropertiesToJson(this);
+  Map toJson() => _$MentionButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [MentionButtonTwitterWebviewProperties] instance from a
+  /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a
   /// [json] map.
-  factory MentionButtonTwitterWebviewProperties.fromJson(Map json) =>
-      _$MentionButtonTwitterWebviewPropertiesFromJson(json);
+  factory MentionButtonTwitterWebViewProperties.fromJson(Map json) =>
+      _$MentionButtonTwitterWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -459,9 +459,9 @@ class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
         languageCode
       ];
 
-  /// Copies this [MentionButtonTwitterWebviewProperties] instance into a new
+  /// Copies this [MentionButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
-  MentionButtonTwitterWebviewProperties copyWith({
+  MentionButtonTwitterWebViewProperties copyWith({
     String? handle,
     bool? largeButton,
     String? prefilledText,
@@ -470,7 +470,7 @@ class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
     bool? twitterTailoring,
     String? languageCode,
   }) {
-    return MentionButtonTwitterWebviewProperties(
+    return MentionButtonTwitterWebViewProperties(
       handle: handle ?? this.handle,
       largeButton: largeButton ?? this.largeButton,
       prefilledText: prefilledText ?? this.prefilledText,
@@ -484,7 +484,7 @@ class MentionButtonTwitterWebviewProperties extends TwitterWebviewProperties {
 
 /// Implements the Twitter Hashtag button embed.
 @JsonSerializable()
-class HashtagButtonTwitterWebviewProperties extends TwitterWebviewProperties {
+class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The hashtag to search for.
   String hashtag;
 
@@ -508,9 +508,9 @@ class HashtagButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Twitter - Hashtag Button';
 
-  /// Creates a new [HashtagButtonTwitterWebviewProperties] instance given a
+  /// Creates a new [HashtagButtonTwitterWebViewProperties] instance given a
   /// [hashtag].
-  HashtagButtonTwitterWebviewProperties({
+  HashtagButtonTwitterWebViewProperties({
     required this.hashtag,
     this.largeButton,
     this.prefilledText,
@@ -563,12 +563,12 @@ class HashtagButtonTwitterWebviewProperties extends TwitterWebviewProperties {
   }
 
   @override
-  Map toJson() => _$HashtagButtonTwitterWebviewPropertiesToJson(this);
+  Map toJson() => _$HashtagButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [HashtagButtonTwitterWebviewProperties] instance from a
+  /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a
   /// [json] map.
-  factory HashtagButtonTwitterWebviewProperties.fromJson(Map json) =>
-      _$HashtagButtonTwitterWebviewPropertiesFromJson(json);
+  factory HashtagButtonTwitterWebViewProperties.fromJson(Map json) =>
+      _$HashtagButtonTwitterWebViewPropertiesFromJson(json);
 
   @override
   List<Object?> get props => [
@@ -582,9 +582,9 @@ class HashtagButtonTwitterWebviewProperties extends TwitterWebviewProperties {
         languageCode
       ];
 
-  /// Copies this [HashtagButtonTwitterWebviewProperties] instance into a new
+  /// Copies this [HashtagButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
-  HashtagButtonTwitterWebviewProperties copyWith({
+  HashtagButtonTwitterWebViewProperties copyWith({
     String? hashtag,
     bool? largeButton,
     String? prefilledText,
@@ -594,7 +594,7 @@ class HashtagButtonTwitterWebviewProperties extends TwitterWebviewProperties {
     bool? twitterTailoring,
     String? languageCode,
   }) {
-    return HashtagButtonTwitterWebviewProperties(
+    return HashtagButtonTwitterWebViewProperties(
       hashtag: hashtag ?? this.hashtag,
       largeButton: largeButton ?? this.largeButton,
       prefilledText: prefilledText ?? this.prefilledText,

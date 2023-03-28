@@ -1,14 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'webview_twitter_properties.dart';
+part of 'web_view_twitter_properties.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-TweetTwitterWebviewProperties _$TweetTwitterWebviewPropertiesFromJson(
+TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
         Map json) =>
-    TweetTwitterWebviewProperties(
+    TweetTwitterWebViewProperties(
       tweetURL: json['tweetURL'] as String,
       hideConversation: json['hideConversation'] as bool?,
       theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
@@ -27,16 +27,16 @@ TweetTwitterWebviewProperties _$TweetTwitterWebviewPropertiesFromJson(
       ..controlForcePressGesture = json['controlForcePressGesture'] as bool?
       ..allowsInlineMediaPlayback = json['allowsInlineMediaPlayback'] as bool?
       ..mediaAutoPlaybackPolicy = $enumDecode(
-          _$WebviewMediaAutoPlaybackPolicyEnumMap,
+          _$WebViewMediaAutoPlaybackPolicyEnumMap,
           json['mediaAutoPlaybackPolicy'])
       ..backgroundColor = json['backgroundColor'] == null
           ? null
           : ColorRGBA.fromJson(json['backgroundColor'] as Map)
-      ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType'])
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
-Map<String, dynamic> _$TweetTwitterWebviewPropertiesToJson(
-    TweetTwitterWebviewProperties instance) {
+Map<String, dynamic> _$TweetTwitterWebViewPropertiesToJson(
+    TweetTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -55,13 +55,13 @@ Map<String, dynamic> _$TweetTwitterWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
   writeNotNull('twitterTailoring', instance.twitterTailoring);
   writeNotNull('languageCode', instance.languageCode);
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['tweetURL'] = instance.tweetURL;
   writeNotNull('hideConversation', instance.hideConversation);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
@@ -79,16 +79,16 @@ Value? _$JsonConverterFromJson<Json, Value>(
 ) =>
     json == null ? null : fromJson(json as Json);
 
-const _$WebviewMediaAutoPlaybackPolicyEnumMap = {
-  WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia:
+const _$WebViewMediaAutoPlaybackPolicyEnumMap = {
+  WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia:
       'requireUserActionForAllMedia',
-  WebviewMediaAutoPlaybackPolicy.alwaysPlayAllMedia: 'alwaysPlayAllMedia',
+  WebViewMediaAutoPlaybackPolicy.alwaysPlayAllMedia: 'alwaysPlayAllMedia',
 };
 
-const _$WebviewTypeEnumMap = {
-  WebviewType.webpage: 'webpage',
-  WebviewType.googleMaps: 'googleMaps',
-  WebviewType.twitter: 'twitter',
+const _$WebViewTypeEnumMap = {
+  WebViewType.webpage: 'webpage',
+  WebViewType.googleMaps: 'googleMaps',
+  WebViewType.twitter: 'twitter',
 };
 
 const _$TwitterEmbedTypeEnumMap = {
@@ -99,9 +99,9 @@ const _$TwitterEmbedTypeEnumMap = {
   TwitterEmbedType.follow: 'follow',
 };
 
-TimelineTwitterWebviewProperties _$TimelineTwitterWebviewPropertiesFromJson(
+TimelineTwitterWebViewProperties _$TimelineTwitterWebViewPropertiesFromJson(
         Map json) =>
-    TimelineTwitterWebviewProperties(
+    TimelineTwitterWebViewProperties(
       timelineURL: json['timelineURL'] as String,
       width: (json['width'] as num?)?.toDouble(),
       height: (json['height'] as num?)?.toDouble(),
@@ -118,20 +118,20 @@ TimelineTwitterWebviewProperties _$TimelineTwitterWebviewPropertiesFromJson(
       controlForcePressGesture: json['controlForcePressGesture'] as bool?,
       allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
       mediaAutoPlaybackPolicy: $enumDecodeNullable(
-              _$WebviewMediaAutoPlaybackPolicyEnumMap,
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
               json['mediaAutoPlaybackPolicy']) ??
-          WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
           : ColorRGBA.fromJson(json['backgroundColor'] as Map),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
-      ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType'])
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
-Map<String, dynamic> _$TimelineTwitterWebviewPropertiesToJson(
-    TimelineTwitterWebviewProperties instance) {
+Map<String, dynamic> _$TimelineTwitterWebViewPropertiesToJson(
+    TimelineTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -150,13 +150,13 @@ Map<String, dynamic> _$TimelineTwitterWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
   writeNotNull('twitterTailoring', instance.twitterTailoring);
   writeNotNull('languageCode', instance.languageCode);
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['timelineURL'] = instance.timelineURL;
   writeNotNull('width', instance.width);
   writeNotNull('height', instance.height);
@@ -164,9 +164,9 @@ Map<String, dynamic> _$TimelineTwitterWebviewPropertiesToJson(
   return val;
 }
 
-FollowButtonTwitterWebviewProperties
-    _$FollowButtonTwitterWebviewPropertiesFromJson(Map json) =>
-        FollowButtonTwitterWebviewProperties(
+FollowButtonTwitterWebViewProperties
+    _$FollowButtonTwitterWebViewPropertiesFromJson(Map json) =>
+        FollowButtonTwitterWebViewProperties(
           handle: json['handle'] as String,
           hideUsername: json['hideUsername'] as bool?,
           largeButton: json['largeButton'] as bool?,
@@ -183,21 +183,21 @@ FollowButtonTwitterWebviewProperties
           controlForcePressGesture: json['controlForcePressGesture'] as bool?,
           allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
           mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebviewMediaAutoPlaybackPolicyEnumMap,
+                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
                   json['mediaAutoPlaybackPolicy']) ??
-              WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
               : ColorRGBA.fromJson(json['backgroundColor'] as Map),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType'])
+          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
           ..embedType =
               $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
-Map<String, dynamic> _$FollowButtonTwitterWebviewPropertiesToJson(
-    FollowButtonTwitterWebviewProperties instance) {
+Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesToJson(
+    FollowButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -216,13 +216,13 @@ Map<String, dynamic> _$FollowButtonTwitterWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
   writeNotNull('twitterTailoring', instance.twitterTailoring);
   writeNotNull('languageCode', instance.languageCode);
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['handle'] = instance.handle;
   writeNotNull('hideUsername', instance.hideUsername);
   writeNotNull('largeButton', instance.largeButton);
@@ -230,9 +230,9 @@ Map<String, dynamic> _$FollowButtonTwitterWebviewPropertiesToJson(
   return val;
 }
 
-MentionButtonTwitterWebviewProperties
-    _$MentionButtonTwitterWebviewPropertiesFromJson(Map json) =>
-        MentionButtonTwitterWebviewProperties(
+MentionButtonTwitterWebViewProperties
+    _$MentionButtonTwitterWebViewPropertiesFromJson(Map json) =>
+        MentionButtonTwitterWebViewProperties(
           handle: json['handle'] as String,
           largeButton: json['largeButton'] as bool?,
           prefilledText: json['prefilledText'] as String?,
@@ -252,21 +252,21 @@ MentionButtonTwitterWebviewProperties
           controlForcePressGesture: json['controlForcePressGesture'] as bool?,
           allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
           mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebviewMediaAutoPlaybackPolicyEnumMap,
+                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
                   json['mediaAutoPlaybackPolicy']) ??
-              WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
               : ColorRGBA.fromJson(json['backgroundColor'] as Map),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType'])
+          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
           ..embedType =
               $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
-Map<String, dynamic> _$MentionButtonTwitterWebviewPropertiesToJson(
-    MentionButtonTwitterWebviewProperties instance) {
+Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesToJson(
+    MentionButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -285,13 +285,13 @@ Map<String, dynamic> _$MentionButtonTwitterWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
   writeNotNull('twitterTailoring', instance.twitterTailoring);
   writeNotNull('languageCode', instance.languageCode);
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['handle'] = instance.handle;
   writeNotNull('largeButton', instance.largeButton);
   writeNotNull('prefilledText', instance.prefilledText);
@@ -300,9 +300,9 @@ Map<String, dynamic> _$MentionButtonTwitterWebviewPropertiesToJson(
   return val;
 }
 
-HashtagButtonTwitterWebviewProperties
-    _$HashtagButtonTwitterWebviewPropertiesFromJson(Map json) =>
-        HashtagButtonTwitterWebviewProperties(
+HashtagButtonTwitterWebViewProperties
+    _$HashtagButtonTwitterWebViewPropertiesFromJson(Map json) =>
+        HashtagButtonTwitterWebViewProperties(
           hashtag: json['hashtag'] as String,
           largeButton: json['largeButton'] as bool?,
           prefilledText: json['prefilledText'] as String?,
@@ -323,21 +323,21 @@ HashtagButtonTwitterWebviewProperties
           controlForcePressGesture: json['controlForcePressGesture'] as bool?,
           allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
           mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebviewMediaAutoPlaybackPolicyEnumMap,
+                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
                   json['mediaAutoPlaybackPolicy']) ??
-              WebviewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
               : ColorRGBA.fromJson(json['backgroundColor'] as Map),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebviewTypeEnumMap, json['webviewType'])
+          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
           ..embedType =
               $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
-Map<String, dynamic> _$HashtagButtonTwitterWebviewPropertiesToJson(
-    HashtagButtonTwitterWebviewProperties instance) {
+Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesToJson(
+    HashtagButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
   void writeNotNull(String key, dynamic value) {
@@ -356,13 +356,13 @@ Map<String, dynamic> _$HashtagButtonTwitterWebviewPropertiesToJson(
   writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
   writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
   writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebviewMediaAutoPlaybackPolicyEnumMap[
+  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
   writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
   writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
   writeNotNull('twitterTailoring', instance.twitterTailoring);
   writeNotNull('languageCode', instance.languageCode);
-  val['webviewType'] = _$WebviewTypeEnumMap[instance.webviewType]!;
+  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['hashtag'] = instance.hashtag;
   writeNotNull('largeButton', instance.largeButton);
   writeNotNull('prefilledText', instance.prefilledText);
