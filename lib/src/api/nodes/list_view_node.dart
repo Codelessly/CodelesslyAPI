@@ -23,6 +23,9 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   final bool supportsPadding = true;
 
+  @override
+  bool get isScrollingEnforced => true;
+
   /// The properties of the [ListView].
   ListViewProperties properties;
 

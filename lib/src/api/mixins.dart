@@ -966,6 +966,13 @@ enum ScrollViewKeyboardDismissBehaviorC {
 /// Nodes like [ListViewNode], [RowColumnNode] and [CanvasNode] uses this to
 /// provide options for its scroll behavior.
 mixin ScrollableMixin on BaseNode {
+  /// Whether this widget enforces its scrollable behavior.
+  /// [CanvasNode]s do not need to be scrollable but can.
+  /// [ListViewNode]s, on the other hand, must be scrollable.
+  ///
+  /// If this is set to true, [isScrollable] becomes meaningless.
+  bool get isScrollingEnforced => false;
+
   /// Whether the scrolling is enabled.
   late bool isScrollable;
 
