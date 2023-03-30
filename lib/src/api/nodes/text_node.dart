@@ -77,6 +77,9 @@ class TextNode extends SceneNode
   @override
   List<FontName> get fonts => textMixedProps.map((e) => e.fontName).toList();
 
+  @override
+  bool get supportsPadding => false;
+
   /// Creates a [TextNode] instance with the given data.
   TextNode({
     required super.id,
