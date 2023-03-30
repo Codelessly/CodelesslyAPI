@@ -60,14 +60,6 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// through the [codelessly_sdk] is wrapped in a [Visibility] widget.
   bool visible;
 
-  /// Since a lot of components can't support padding, the default value is set
-  /// to false. Any node that supports padding must override this and and set
-  /// it to true. Otherwise, the padding control won't show up in the editor.
-  ///
-  /// Nodes that can't support external padding modifications are like
-  /// [EmbeddedVideoNode], [WebViewNode], [IconNode], [TextNode], etc.
-  final bool supportsPadding = false;
-
   /// Constraints apply to the [middleBoxLocal]
   /// See [BoxConstraintsModel] for more info on how to define the
   /// constraints.
@@ -376,6 +368,15 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// A simple label for easy console debugging.
   @JsonKey(includeFromJson: false, includeToJson: false)
   String get debugLabel => '$name [$id]';
+
+  /// Since a lot of components can't support padding, the default value is set
+  /// to false. Any node that supports padding must override this and and set
+  /// it to true. Otherwise, the padding control won't show up in the editor.
+  ///
+  /// Nodes that can't support external padding modifications are like
+  /// [EmbeddedVideoNode], [WebViewNode], [IconNode], [TextNode], etc.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get supportsPadding => false;
 
   /// Default constructor of this class.
   BaseNode({

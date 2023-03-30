@@ -34,6 +34,9 @@ class WebViewNode extends SceneNode
   bool get hasData =>
       properties.src != null && properties.src!.trim().isNotEmpty;
 
+  @override
+  bool get supportsPadding => false;
+
   /// Creates a new [WebViewNode] instance given the required parameters.
   WebViewNode({
     required super.id,

@@ -44,6 +44,12 @@ class IconNode extends SceneNode
   @override
   final String type = 'icon';
 
+  @override
+  bool get supportsPadding => false;
+
+  @override
+  double get aspectRatio => 1;
+
   /// Creates an [IconNode] with the given data.
   IconNode({
     required this.icon,
@@ -84,7 +90,4 @@ class IconNode extends SceneNode
 
   @override
   Map toJson() => _$IconNodeToJson(this);
-
-  @override
-  double get aspectRatio => 1;
 }

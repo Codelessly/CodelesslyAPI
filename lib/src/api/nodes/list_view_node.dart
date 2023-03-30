@@ -153,6 +153,7 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
   ListViewProperties copyWith({
+    String? bodyId,
     int? itemCount,
     ScrollPhysicsC? physics,
     AxisC? scrollDirection,
