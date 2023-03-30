@@ -35,6 +35,9 @@ class EmbeddedVideoNode extends SceneNode
   bool get hasUrl =>
       properties.url != null && properties.url!.trim().isNotEmpty;
 
+  @override
+  bool get supportsPadding => false;
+
   /// Creates a blank embedded video preview.
   EmbeddedVideoNode.empty()
       : properties = EmbeddedYoutubeVideoProperties(),
