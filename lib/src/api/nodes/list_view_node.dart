@@ -84,39 +84,6 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   Map toJson() => _$ListViewNodeToJson(this);
 
-  // @override
-  // SizeC minimumInternalSize({
-  //   required SizeFit horizontalFit,
-  //   required SizeFit verticalFit,
-  // }) {
-  //   if (children.isEmpty || properties.itemCount == null) return SizeC.zero;
-  //   if (properties.itemExtent != null && !properties.hasSeparator) {
-  //     if (scrollDirection.isVertical) {
-  //       return SizeC(0, properties.itemExtent! * properties.itemCount!);
-  //     } else {
-  //       return SizeC(properties.itemExtent! * properties.itemCount!, 0);
-  //     }
-  //   }
-  //
-  //   // If the scroll direction axis's SizeFit is shrinkwrap.
-  //   final child = nodeDelegate.getNodeByID(children.first);
-  //   if (scrollDirection.isVertical && verticalFit == SizeFit.shrinkWrap) {
-  //     final itemsHeight = child.outerBoxLocal.height * properties.itemCount!;
-  //     final separatorsHeight = properties.hasSeparator
-  //         ? properties.separatorSpacing * (properties.itemCount! - 1)
-  //         : 0;
-  //     return SizeC(0, itemsHeight + separatorsHeight);
-  //   } else if (scrollDirection.isHorizontal &&
-  //       horizontalFit == SizeFit.shrinkWrap) {
-  //     final itemsWidth = child.outerBoxLocal.width * properties.itemCount!;
-  //     final separatorsWidth = properties.hasSeparator
-  //         ? properties.separatorSpacing * (properties.itemCount! - 1)
-  //         : 0;
-  //     return SizeC(itemsWidth + separatorsWidth, 0);
-  //   }
-  //   return SizeC.zero;
-  // }
-
   AlignmentModel childAlignment() {
     switch (scrollDirection) {
       case AxisC.horizontal:
