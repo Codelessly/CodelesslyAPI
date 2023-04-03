@@ -23,7 +23,7 @@ class CanvasNode extends ParentNode
         IsolatedMixin,
         ScrollableMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin{
+        VariablePropertiesMixin {
   @override
   final String type = 'canvas';
 
@@ -42,7 +42,6 @@ class CanvasNode extends ParentNode
 
   /// Whether this canvas is a scaffold.
   bool get isAScaffold => properties.isAScaffold;
-
 
   /// Creates a new [CanvasNode] with given data.
   CanvasNode({
