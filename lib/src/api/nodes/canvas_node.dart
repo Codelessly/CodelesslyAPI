@@ -12,9 +12,6 @@ import 'nodes.dart';
 
 part 'canvas_node.g.dart';
 
-/// To avoid "node is Canvas || node is ExpansionTileNode || ..." we use this mixin.
-mixin IsolatedMixin {}
-
 /// Represents a canvas or a screen.
 @JsonSerializable()
 class CanvasNode extends ParentNode

@@ -7,6 +7,9 @@ import 'package:json_annotation/json_annotation.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
+/// To avoid "node is Canvas || node is ExpansionTileNode || ..." we use this mixin.
+mixin IsolatedMixin {}
+
 /// A base class for nodes that can have blends and decoration.
 abstract class DefaultShapeNode extends SceneNode
     with BlendMixin, GeometryMixin {

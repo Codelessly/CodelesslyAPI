@@ -1,10 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mixins.dart';
-import '../models/models.dart';
-import 'divider_node.dart';
-import 'single_placeholder_node.dart';
+import '../../../codelessly_api.dart';
 
 part 'list_view_node.g.dart';
 
@@ -16,7 +13,8 @@ class ListViewNode extends SinglePlaceholderNode
         ScrollableMixin,
         CustomPropertiesMixin,
         VariablePropertiesMixin,
-        ClipMixin {
+        ClipMixin,
+        IsolatedMixin {
   @override
   final String type = 'listView';
 
@@ -154,12 +152,12 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
 
   @override
   List<Object?> get props => [
-    itemCount,
-    itemExtent,
-    cacheExtent,
-    separator,
-    separatorSpacing,
-    hasSeparator,
-    dividerProperties,
-  ];
+        itemCount,
+        itemExtent,
+        cacheExtent,
+        separator,
+        separatorSpacing,
+        hasSeparator,
+        dividerProperties,
+      ];
 }
