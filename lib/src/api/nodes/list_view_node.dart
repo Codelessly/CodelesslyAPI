@@ -59,7 +59,13 @@ class ListViewNode extends SinglePlaceholderNode
     bool primary = false,
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
-  }) : super(children: [], allowedTypes: [], deniedTypes: []) {
+  }) : super(
+          children: [],
+          allowedTypes: [],
+          deniedTypes: [
+            'listView',
+          ],
+        ) {
     setChildrenMixin(children: children);
     setVariablesMixin(variables: variables);
     setClipMixin(clipsContent: clipsContent);
@@ -82,6 +88,8 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   Map toJson() => _$ListViewNodeToJson(this);
 
+  /// [returns] the appropriate alignment of the child based on the
+  /// [scrollDirection] and [reverse] properties.
   AlignmentModel childAlignment() {
     switch (scrollDirection) {
       case AxisC.horizontal:
@@ -92,21 +100,45 @@ class ListViewNode extends SinglePlaceholderNode
   }
 }
 
+/// Defines the type of separator to use between list view items.
 enum ListItemSeparator {
+
+  /// A customizable divider. See [DividerNode] for more details.
   divider,
+
+  /// A simple spacing between items.
   space;
 }
 
+/// The properties of a [ListViewNode].
 @JsonSerializable()
 class ListViewProperties with SerializableMixin, EquatableMixin {
+
+  /// The number of items to display in the list view. Can be null if the list
+  /// is infinite.
   int? itemCount;
+
+  /// The forced-size of each item in the list view in the scroll axis.
   double? itemExtent;
+
+  /// The number of pixels by which to allow pre-rendering of items outside
+  /// the visible area.
   double? cacheExtent;
+
+  /// The amount of pixels the spacing separator should have, if enabled.
   double separatorSpacing;
+
+  /// The type of separator to use between list view items.
   ListItemSeparator separator;
+
+  /// Whether to use a separator between list view items.
   bool hasSeparator;
+
+  /// The properties of the divider to use as a separator between list view
+  /// items, if enabled.
   DividerProperties dividerProperties;
 
+  /// Creates a new [ListViewProperties].
   ListViewProperties({
     this.itemCount,
     this.itemExtent,
@@ -117,6 +149,8 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
+  /// Creates a copy of this [ListViewProperties] with the specified parameters
+  /// overridden.
   ListViewProperties copyWith({
     String? bodyId,
     int? itemCount,
@@ -147,6 +181,7 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
   @override
   Map toJson() => _$ListViewPropertiesToJson(this);
 
+  /// Creates a [ListViewProperties] from a JSON object.
   factory ListViewProperties.fromJson(Map json) =>
       _$ListViewPropertiesFromJson(json);
 

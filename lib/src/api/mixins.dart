@@ -1024,33 +1024,6 @@ mixin ScrollableMixin on BaseNode {
   }
 }
 
-/// Will link this node to a provided [CanvasId] to render it as a scrollable
-/// list view.
-///
-/// This is meant to be for defining a simple rectangle node into a "view" into
-/// a canvas, where-in the output simply puts the entire canvas tree as a child
-/// of rectangle.
-@Deprecated(
-  'This feature has been de-scoped and might be removed in the future. We have '
-  'dedicated [ListViewNode]s and [PageViewNode]s now.',
-)
-mixin ScrollLinkableMixin on BaseNode {
-  /// Whether the scroll link is enabled.
-  late bool scrollLinkEnabled;
-
-  /// The ID of the canvas node to link to.
-  late String? scrollableCanvasId;
-
-  /// Sets the properties of this mixin.
-  void setScrollLinkableMixin({
-    required bool scrollLinkEnabled,
-    required String? scrollableCanvasId,
-  }) {
-    this.scrollLinkEnabled = scrollLinkEnabled;
-    this.scrollableCanvasId = scrollableCanvasId;
-  }
-}
-
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 
