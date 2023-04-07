@@ -838,6 +838,12 @@ enum RowColumnType {
 
   /// lays out its children vertically.
   column;
+
+  /// Whether this is a row.
+  bool get isRow => this == RowColumnType.row;
+
+  /// Whether this is a column.
+  bool get isColumn => this == RowColumnType.column;
 }
 
 /// A mixin that allows node to have sequential children layout like row and
