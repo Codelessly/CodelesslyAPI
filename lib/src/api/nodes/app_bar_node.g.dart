@@ -48,6 +48,8 @@ AppBarNode _$AppBarNodeFromJson(Map json) => AppBarNode(
           PositioningMode.align,
       properties: AppBarProperties.fromJson(json['properties'] as Map),
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -59,30 +61,41 @@ AppBarNode _$AppBarNodeFromJson(Map json) => AppBarNode(
           {}
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$AppBarNodeToJson(AppBarNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'alignment': instance.alignment.toJson(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'type': instance.type,
-      'properties': instance.properties.toJson(),
-    };
+Map<String, dynamic> _$AppBarNodeToJson(AppBarNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'alignment': instance.alignment.toJson(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'margin': instance.margin.toJson(),
+    'padding': instance.padding.toJson(),
+    'rotation': instance.rotationDegrees,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['type'] = instance.type;
+  val['properties'] = instance.properties.toJson();
+  return val;
+}
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',

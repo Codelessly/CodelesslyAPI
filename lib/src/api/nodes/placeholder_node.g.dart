@@ -48,7 +48,10 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) => PlaceholderNode(
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           const [],
-    )..type = json['type'] as String;
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..type = json['type'] as String;
 
 Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) {
   final val = <String, dynamic>{
@@ -69,7 +72,6 @@ Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'type': instance.type,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -78,6 +80,9 @@ Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['type'] = instance.type;
   writeNotNull('leadingAsset', instance.leadingAsset);
   writeNotNull('text', instance.text);
   return val;

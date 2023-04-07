@@ -59,6 +59,8 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
           .toList()
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
@@ -88,6 +90,8 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
   writeNotNull('color', instance.color?.toJson());
   val['opacity'] = instance.opacity;
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;

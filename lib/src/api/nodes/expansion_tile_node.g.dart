@@ -53,6 +53,8 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
       children:
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -89,16 +91,6 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'children': instance.children,
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
-    'mainAxisAlignment':
-        _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
-    'crossAxisAlignment':
-        _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
-    'type': instance.type,
-    'isExpanded': instance.isExpanded,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -107,6 +99,18 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
+  val['mainAxisAlignment'] =
+      _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
+  val['crossAxisAlignment'] =
+      _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  val['type'] = instance.type;
+  val['isExpanded'] = instance.isExpanded;
   writeNotNull('listTileChild', instance.listTileChild);
   val['properties'] = instance.properties.toJson();
   return val;

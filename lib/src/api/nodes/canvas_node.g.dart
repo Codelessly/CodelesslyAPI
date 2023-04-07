@@ -111,6 +111,8 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
           ) ??
           {},
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
@@ -118,59 +120,70 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
           {}
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'alignment': instance.alignment.toJson(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'children': instance.children,
-      'opacity': instance.opacity,
-      'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
-      'isMask': instance.isMask,
-      'effects': instance.effects.map((e) => e.toJson()).toList(),
-      'fills': instance.fills.map((e) => e.toJson()).toList(),
-      'strokes': instance.strokes.map((e) => e.toJson()).toList(),
-      'strokeWeight': instance.strokeWeight,
-      'strokeMiterLimit': instance.strokeMiterLimit,
-      'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,
-      'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
-      'dashPattern': instance.dashPattern,
-      'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
-      'clipsContent': instance.clipsContent,
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
-      'mainAxisAlignment':
-          _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
-      'crossAxisAlignment':
-          _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
-      'isScrollable': instance.isScrollable,
-      'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
-      'reverse': instance.reverse,
-      'primary': instance.primary,
-      'physics': _$ScrollPhysicsCEnumMap[instance.physics]!,
-      'keyboardDismissBehavior': _$ScrollViewKeyboardDismissBehaviorCEnumMap[
-          instance.keyboardDismissBehavior]!,
-      'useFlutterListView': instance.useFlutterListView,
-      'type': instance.type,
-      'createdTimestamp': dateToJson(instance.createdTimestamp),
-      'properties': instance.properties.toJson(),
-      'scaleMode': _$ScaleModeEnumMap[instance.scaleMode]!,
-    };
+Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'alignment': instance.alignment.toJson(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'margin': instance.margin.toJson(),
+    'padding': instance.padding.toJson(),
+    'rotation': instance.rotationDegrees,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['opacity'] = instance.opacity;
+  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
+  val['isMask'] = instance.isMask;
+  val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  val['fills'] = instance.fills.map((e) => e.toJson()).toList();
+  val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
+  val['strokeWeight'] = instance.strokeWeight;
+  val['strokeMiterLimit'] = instance.strokeMiterLimit;
+  val['strokeAlign'] = _$StrokeAlignCEnumMap[instance.strokeAlign]!;
+  val['strokeCap'] = _$StrokeCapEnumEnumMap[instance.strokeCap]!;
+  val['dashPattern'] = instance.dashPattern;
+  val['strokeSide'] = _$StrokeSideEnumMap[instance.strokeSide]!;
+  val['clipsContent'] = instance.clipsContent;
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
+  val['mainAxisAlignment'] =
+      _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
+  val['crossAxisAlignment'] =
+      _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  val['isScrollable'] = instance.isScrollable;
+  val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
+  val['reverse'] = instance.reverse;
+  val['primary'] = instance.primary;
+  val['physics'] = _$ScrollPhysicsCEnumMap[instance.physics]!;
+  val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
+      instance.keyboardDismissBehavior]!;
+  val['useFlutterListView'] = instance.useFlutterListView;
+  val['type'] = instance.type;
+  val['createdTimestamp'] = dateToJson(instance.createdTimestamp);
+  val['properties'] = instance.properties.toJson();
+  val['scaleMode'] = _$ScaleModeEnumMap[instance.scaleMode]!;
+  return val;
+}
 
 const _$RowColumnTypeEnumMap = {
   RowColumnType.row: 'row',

@@ -59,6 +59,8 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
       isExpanded: json['isExpanded'] as bool? ?? true,
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -70,36 +72,47 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
           {}
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'alignment': instance.alignment.toJson(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'children': instance.children,
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
-      'mainAxisAlignment':
-          _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
-      'crossAxisAlignment':
-          _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
-      'type': instance.type,
-      'isExpanded': instance.isExpanded,
-    };
+Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'alignment': instance.alignment.toJson(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'margin': instance.margin.toJson(),
+    'padding': instance.padding.toJson(),
+    'rotation': instance.rotationDegrees,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
+  val['mainAxisAlignment'] =
+      _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
+  val['crossAxisAlignment'] =
+      _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  val['type'] = instance.type;
+  val['isExpanded'] = instance.isExpanded;
+  return val;
+}
 
 const _$RowColumnTypeEnumMap = {
   RowColumnType.row: 'row',
