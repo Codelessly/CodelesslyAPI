@@ -58,7 +58,10 @@ SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
           const [],
       children:
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
-    )..type = json['type'] as String;
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..type = json['type'] as String;
 
 Map<String, dynamic> _$SinglePlaceholderNodeToJson(
     SinglePlaceholderNode instance) {
@@ -80,10 +83,6 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'children': instance.children,
-    'type': instance.type,
-    'allowedTypes': instance.allowedTypes,
-    'deniedTypes': instance.deniedTypes,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -92,6 +91,12 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['type'] = instance.type;
+  val['allowedTypes'] = instance.allowedTypes;
+  val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize?.toJson());
   return val;
 }

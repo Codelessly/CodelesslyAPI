@@ -378,6 +378,16 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get supportsPadding => false;
 
+  double? widthFactor;
+
+  double? heightFactor;
+
+  bool get isFractionallySized => widthFactor != null || heightFactor != null;
+
+  bool get isFractionallySizedHorizontally => widthFactor != null;
+
+  bool get isFractionallySizedVertically => heightFactor != null;
+
   /// Default constructor of this class.
   BaseNode({
     required this.id,
@@ -398,6 +408,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     this.aspectRatioLock = false,
     this.positioningMode = PositioningMode.align,
     this.parentID = '',
+    this.widthFactor,
+    this.heightFactor,
   })  : _basicBoxLocal = basicBoxLocal,
         _rotationDegrees = rotationDegrees,
         globalRotationDegrees = rotationDegrees,

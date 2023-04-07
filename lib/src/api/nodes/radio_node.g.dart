@@ -54,6 +54,8 @@ RadioNode _$RadioNodeFromJson(Map json) => RadioNode(
           ) ??
           {},
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
@@ -80,11 +82,6 @@ Map<String, dynamic> _$RadioNodeToJson(RadioNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'type': instance.type,
-    'properties': instance.properties.toJson(),
-    'value': instance.value,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -93,6 +90,13 @@ Map<String, dynamic> _$RadioNodeToJson(RadioNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['type'] = instance.type;
+  val['properties'] = instance.properties.toJson();
+  val['value'] = instance.value;
   writeNotNull('groupValue', instance.groupValue);
   return val;
 }

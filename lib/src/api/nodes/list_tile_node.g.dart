@@ -54,6 +54,8 @@ ListTileNode _$ListTileNodeFromJson(Map json) => ListTileNode(
       children:
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -84,10 +86,6 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'children': instance.children,
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'type': instance.type,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -96,6 +94,12 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['type'] = instance.type;
   writeNotNull('leading', instance.leading);
   writeNotNull('title', instance.title);
   writeNotNull('subtitle', instance.subtitle);
