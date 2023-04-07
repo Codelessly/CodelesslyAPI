@@ -91,7 +91,10 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {},
-    )..type = json['type'] as String;
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   final val = <String, dynamic>{
@@ -130,6 +133,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   val['margin'] = instance.margin.toJson();
   val['padding'] = instance.padding.toJson();
   val['rotation'] = instance.rotationDegrees;
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
   val['opacity'] = instance.opacity;
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;

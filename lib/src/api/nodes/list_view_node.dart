@@ -102,7 +102,6 @@ class ListViewNode extends SinglePlaceholderNode
 
 /// Defines the type of separator to use between list view items.
 enum ListItemSeparator {
-
   /// A customizable divider. See [DividerNode] for more details.
   divider,
 
@@ -113,7 +112,6 @@ enum ListItemSeparator {
 /// The properties of a [ListViewNode].
 @JsonSerializable()
 class ListViewProperties with SerializableMixin, EquatableMixin {
-
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;

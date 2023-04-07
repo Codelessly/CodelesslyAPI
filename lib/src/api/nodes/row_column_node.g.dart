@@ -88,6 +88,8 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
           const [],
       clipsContent: json['clipsContent'] as bool? ?? false,
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String
       ..belongsToCanvas = json['belongsToCanvas'] as String?;
 
@@ -110,26 +112,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'children': instance.children,
-    'opacity': instance.opacity,
-    'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
-    'isMask': instance.isMask,
-    'effects': instance.effects.map((e) => e.toJson()).toList(),
-    'fills': instance.fills.map((e) => e.toJson()).toList(),
-    'strokes': instance.strokes.map((e) => e.toJson()).toList(),
-    'strokeWeight': instance.strokeWeight,
-    'strokeMiterLimit': instance.strokeMiterLimit,
-    'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,
-    'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
-    'dashPattern': instance.dashPattern,
-    'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
-    'clipsContent': instance.clipsContent,
-    'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
-    'mainAxisAlignment':
-        _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
-    'crossAxisAlignment':
-        _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
-    'type': instance.type,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -138,6 +120,28 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['opacity'] = instance.opacity;
+  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
+  val['isMask'] = instance.isMask;
+  val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  val['fills'] = instance.fills.map((e) => e.toJson()).toList();
+  val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
+  val['strokeWeight'] = instance.strokeWeight;
+  val['strokeMiterLimit'] = instance.strokeMiterLimit;
+  val['strokeAlign'] = _$StrokeAlignCEnumMap[instance.strokeAlign]!;
+  val['strokeCap'] = _$StrokeCapEnumEnumMap[instance.strokeCap]!;
+  val['dashPattern'] = instance.dashPattern;
+  val['strokeSide'] = _$StrokeSideEnumMap[instance.strokeSide]!;
+  val['clipsContent'] = instance.clipsContent;
+  val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
+  val['mainAxisAlignment'] =
+      _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
+  val['crossAxisAlignment'] =
+      _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  val['type'] = instance.type;
   writeNotNull('belongsToCanvas', instance.belongsToCanvas);
   return val;
 }

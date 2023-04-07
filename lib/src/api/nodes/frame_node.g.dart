@@ -84,44 +84,59 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       clipsContent: json['clipsContent'] as bool? ?? true,
-    )..type = json['type'] as String;
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..type = json['type'] as String;
 
-Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'alignment': instance.alignment.toJson(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'children': instance.children,
-      'opacity': instance.opacity,
-      'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
-      'isMask': instance.isMask,
-      'effects': instance.effects.map((e) => e.toJson()).toList(),
-      'fills': instance.fills.map((e) => e.toJson()).toList(),
-      'strokes': instance.strokes.map((e) => e.toJson()).toList(),
-      'strokeWeight': instance.strokeWeight,
-      'strokeMiterLimit': instance.strokeMiterLimit,
-      'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,
-      'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
-      'dashPattern': instance.dashPattern,
-      'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
-      'clipsContent': instance.clipsContent,
-      'cornerSmoothing': instance.cornerSmoothing,
-      'cornerRadius': instance.cornerRadius.toJson(),
-      'type': instance.type,
-    };
+Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'alignment': instance.alignment.toJson(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'margin': instance.margin.toJson(),
+    'padding': instance.padding.toJson(),
+    'rotation': instance.rotationDegrees,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['children'] = instance.children;
+  val['opacity'] = instance.opacity;
+  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
+  val['isMask'] = instance.isMask;
+  val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  val['fills'] = instance.fills.map((e) => e.toJson()).toList();
+  val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
+  val['strokeWeight'] = instance.strokeWeight;
+  val['strokeMiterLimit'] = instance.strokeMiterLimit;
+  val['strokeAlign'] = _$StrokeAlignCEnumMap[instance.strokeAlign]!;
+  val['strokeCap'] = _$StrokeCapEnumEnumMap[instance.strokeCap]!;
+  val['dashPattern'] = instance.dashPattern;
+  val['strokeSide'] = _$StrokeSideEnumMap[instance.strokeSide]!;
+  val['clipsContent'] = instance.clipsContent;
+  val['cornerSmoothing'] = instance.cornerSmoothing;
+  val['cornerRadius'] = instance.cornerRadius.toJson();
+  val['type'] = instance.type;
+  return val;
+}
 
 const _$BlendModeCEnumMap = {
   BlendModeC.clear: 'clear',

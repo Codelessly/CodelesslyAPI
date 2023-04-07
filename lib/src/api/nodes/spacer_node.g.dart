@@ -32,25 +32,38 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
           .toList()
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'type': instance.type,
-    };
+Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['type'] = instance.type;
+  return val;
+}
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',

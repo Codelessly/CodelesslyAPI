@@ -57,33 +57,47 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {},
-    )..type = json['type'] as String;
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..type = json['type'] as String;
 
-Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'alignment': instance.alignment.toJson(),
-      'outerBoxLocal': instance.outerBoxLocal.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'type': instance.type,
-      'properties': instance.properties.toJson(),
-      'currentValue': instance.currentValue,
-    };
+Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+    'visible': instance.visible,
+    'constraints': instance.constraints.toJson(),
+    'edgePins': instance.edgePins.toJson(),
+    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'flex': instance.flex,
+    'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'alignment': instance.alignment.toJson(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'margin': instance.margin.toJson(),
+    'padding': instance.padding.toJson(),
+    'rotation': instance.rotationDegrees,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
+  val['type'] = instance.type;
+  val['properties'] = instance.properties.toJson();
+  val['currentValue'] = instance.currentValue;
+  return val;
+}
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',

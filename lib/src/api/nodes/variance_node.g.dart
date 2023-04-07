@@ -51,6 +51,8 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
           const [],
       currentVariantId: json['currentVariantId'] as String?,
     )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -81,8 +83,6 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
     'margin': instance.margin.toJson(),
     'padding': instance.padding.toJson(),
     'rotation': instance.rotationDegrees,
-    'allowedTypes': instance.allowedTypes,
-    'deniedTypes': instance.deniedTypes,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -91,6 +91,10 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
     }
   }
 
+  writeNotNull('widthFactor', instance.widthFactor);
+  writeNotNull('heightFactor', instance.heightFactor);
+  val['allowedTypes'] = instance.allowedTypes;
+  val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize?.toJson());
   val['type'] = instance.type;
   val['currentVariantId'] = instance.currentVariantId;
