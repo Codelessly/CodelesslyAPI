@@ -378,14 +378,21 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get supportsPadding => false;
 
+  /// Width of the node in fraction of the parent's width. widthFactor of 0.5
+  /// means that the node will be half the width of the parent.
   double? widthFactor;
 
+  /// Height of the node in fraction of the parent's height. heightFactor of 0.5
+  /// means that the node will be half the height of the parent.
   double? heightFactor;
 
+  /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 
+  /// Whether the node's width is sized in fraction of the parent's width.
   bool get isFractionallySizedHorizontally => widthFactor != null;
 
+  /// Whether the node's height is sized in fraction of the parent's height.
   bool get isFractionallySizedVertically => heightFactor != null;
 
   /// Default constructor of this class.
