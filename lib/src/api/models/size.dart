@@ -60,16 +60,16 @@ class SizeC with SerializableMixin, EquatableMixin {
   SizeC scaleTo(SizeC size) => SizeC(width / size.width, height / size.height);
 
   /// Adds given [size] to this size and returns the result.
-  operator +(SizeC size) => SizeC(width + size.width, height + size.height);
+  SizeC operator +(SizeC size) => SizeC(width + size.width, height + size.height);
 
   /// Subtracts given [size] from this size and returns the result.
-  operator -(SizeC size) => SizeC(width - size.width, height - size.height);
+  SizeC operator -(SizeC size) => SizeC(width - size.width, height - size.height);
 
   /// Returns scaled up size by given [scale].
-  operator *(double scale) => SizeC(width * scale, height * scale);
+  SizeC operator *(double scale) => SizeC(width * scale, height * scale);
 
   /// Returns scaled down size by given [scale].
-  operator /(double scale) => SizeC(width / scale, height / scale);
+  SizeC operator /(double scale) => SizeC(width / scale, height / scale);
 
   /// Max of two sizes operator.
   operator |(SizeC size) =>
@@ -89,6 +89,9 @@ class SizeC with SerializableMixin, EquatableMixin {
 
   /// Returns scaled down size by given [scale].
   SizeC divide(double scale) => SizeC(width / scale, height / scale);
+
+  /// Returns a new size with the absolute value of each component.
+  SizeC abs() => SizeC(width.abs(), height.abs());
 
   @override
   List<Object?> get props => [width, height];

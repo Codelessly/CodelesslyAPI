@@ -203,7 +203,7 @@ class RectC with SerializableMixin, EquatableMixin {
   RectC deflate(double value) => inflate(-value);
 
   /// Subtracts the given [other] rect from this rectangle.
-  operator -(RectC other) => RectC.fromLTRB(
+  RectC operator -(RectC other) => RectC.fromLTRB(
         left - other.left,
         top - other.top,
         right - other.right,
@@ -211,7 +211,7 @@ class RectC with SerializableMixin, EquatableMixin {
       );
 
   /// Adds the given [other] rect to this rectangle.
-  operator +(RectC other) => RectC.fromLTRB(
+  RectC operator +(RectC other) => RectC.fromLTRB(
         left + other.left,
         top + other.top,
         right + other.right,
