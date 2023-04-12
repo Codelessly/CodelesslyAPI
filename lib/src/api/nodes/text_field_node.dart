@@ -31,6 +31,9 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
           basicBoxLocal: NodeBox(0, 0, 250, 48),
         );
 
+  @override
+  bool get supportsPadding => true;
+
   /// Creates a [TextFieldNode] instance with the given data.
   TextFieldNode({
     required super.id,
@@ -60,7 +63,7 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
     String obscuringCharacter = '•',
     super.visible,
     super.alignment,
-    super.padding,
+    super.padding = const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
     super.margin,
     super.rotationDegrees,
     super.reactions,

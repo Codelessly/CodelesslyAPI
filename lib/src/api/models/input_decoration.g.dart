@@ -43,9 +43,6 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           FloatingLabelBehaviorEnum.auto,
       isCollapsed: json['isCollapsed'] as bool? ?? false,
       isDense: json['isDense'] as bool? ?? true,
-      contentPadding: json['contentPadding'] == null
-          ? const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16)
-          : EdgeInsetsModel.fromJson(json['contentPadding'] as Map),
       prefixIcon: json['prefixIcon'] == null
           ? const MultiSourceIconModel()
           : MultiSourceIconModel.fromJson(json['prefixIcon'] as Map),
@@ -139,7 +136,6 @@ Map<String, dynamic> _$InputDecorationModelToJson(
       _$FloatingLabelBehaviorEnumEnumMap[instance.floatingLabelBehavior]!;
   val['isCollapsed'] = instance.isCollapsed;
   val['isDense'] = instance.isDense;
-  val['contentPadding'] = instance.contentPadding.toJson();
   writeNotNull('prefixText', instance.prefixText);
   val['prefixStyle'] = instance.prefixStyle.toJson();
   val['prefixIcon'] = instance.prefixIcon.toJson();
