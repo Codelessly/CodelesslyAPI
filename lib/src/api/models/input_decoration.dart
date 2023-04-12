@@ -90,9 +90,6 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   /// space).
   final bool isDense;
 
-  /// The padding for the input decoration's container.
-  final EdgeInsetsModel contentPadding;
-
   // Widget prefix;
   /// Optional text prefix to place on the line before the input.
   final String? prefixText;
@@ -213,8 +210,6 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.floatingLabelBehavior = FloatingLabelBehaviorEnum.auto,
     this.isCollapsed = false,
     this.isDense = true,
-    this.contentPadding =
-        const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
     this.prefixIcon = const MultiSourceIconModel(),
     this.prefixIconConstraints = const BoxConstraintsModel(),
     this.prefixText,
@@ -316,7 +311,6 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
             floatingLabelBehavior ?? this.floatingLabelBehavior,
         isCollapsed: isCollapsed ?? this.isCollapsed,
         isDense: isDense ?? this.isDense,
-        contentPadding: contentPadding ?? this.contentPadding,
         prefixIcon: prefixIcon ?? this.prefixIcon,
         prefixIconConstraints:
             prefixIconConstraints ?? this.prefixIconConstraints,
@@ -363,7 +357,6 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         floatingLabelBehavior,
         isCollapsed,
         isDense,
-        contentPadding,
         prefixIcon,
         prefixIconConstraints,
         prefixText,
