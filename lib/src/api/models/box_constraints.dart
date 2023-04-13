@@ -92,25 +92,31 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// Returns new box constraints that respect the given constraints while being
   /// as close as possible to the original constraints.
   BoxConstraintsModel enforce(BoxConstraintsModel constraints) {
-    final bool doesConstrainWidth =
-        constraints.minWidth != null && constraints.maxWidth != null;
-    final bool doesConstrainHeight =
-        constraints.minHeight != null && constraints.maxHeight != null;
-
     return BoxConstraintsModel(
-      minWidth: !doesConstrainWidth
-          ? minWidth
-          : minWidth?.clamp(constraints.minWidth!, constraints.maxWidth!),
-      maxWidth: !doesConstrainWidth
-          ? maxWidth
-          : maxWidth?.clamp(constraints.minWidth!, constraints.maxWidth!),
-      minHeight: !doesConstrainHeight
-          ? minHeight
-          : minHeight?.clamp(constraints.minHeight!, constraints.maxHeight!),
-      maxHeight: !doesConstrainHeight
-          ? maxHeight
-          : maxHeight?.clamp(constraints.minHeight!, constraints.maxHeight!),
+      minWidth:
+          _clampDouble(minWidth, constraints.minWidth, constraints.maxWidth),
+      maxWidth:
+          _clampDouble(maxWidth, constraints.minWidth, constraints.maxWidth),
+      minHeight:
+          _clampDouble(minHeight, constraints.minHeight, constraints.maxHeight),
+      maxHeight:
+          _clampDouble(maxHeight, constraints.minHeight, constraints.maxHeight),
     );
+  }
+
+  double? _clampDouble(double? x, double? min, double? max) {
+    if (x == null) return max ?? min;
+    if (min != null && x < min) {
+      return min;
+    }
+    if (max != null && x > max) {
+      return max;
+    }
+    if (x.isNaN) {
+      return max;
+    }
+
+    return x;
   }
 
   /// Returns new box constraints with a tight width and/or height as close to
