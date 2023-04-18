@@ -2,7 +2,7 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-/// The different modes the Google Maps API supports.
+/// The different modes that Google Maps API supports.
 enum GoogleMapsMapMode {
   /// Google places view.
   places('Places'),
@@ -26,7 +26,7 @@ enum GoogleMapsMapMode {
   const GoogleMapsMapMode(this.label);
 }
 
-/// The different types of tile rendering the Google Maps API supports.
+/// The different types of tile rendering that Google Maps API supports.
 enum GoogleMapsMapType {
   /// Google maps in road map view with highlighted roads.
   roadmap('Roadmap'),
@@ -83,7 +83,7 @@ enum GoogleMapsDirectionsAvoid {
   const GoogleMapsDirectionsAvoid(this.label);
 }
 
-/// The different unit measurement systems the Google Maps API supports.
+/// The different unit measurement systems that Google Maps API supports.
 enum UnitSystem {
   /// Represents Metric unit system.
   metric('Metric'),

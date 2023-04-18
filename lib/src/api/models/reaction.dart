@@ -10,17 +10,17 @@ import 'models.dart';
 
 part 'reaction.g.dart';
 
-/// Holds data about a reaction in UI.
+/// [Reaction] holds the action and the trigger which performs the action.
 @JsonSerializable()
 class Reaction with EquatableMixin, SerializableMixin {
   /// Name of the reaction.
   final String name;
 
-  /// Action information about the reaction.
+  /// Action to be performed.
   @JsonKey(fromJson: actionFromJson)
   final ActionModel action;
 
-  /// Trigger information about the reaction.
+  /// Event that will trigger the action.
   final TriggerModel trigger;
 
   /// Creates a [Reaction] with the given data.
@@ -52,7 +52,7 @@ class Reaction with EquatableMixin, SerializableMixin {
   Map toJson() => _$ReactionToJson(this);
 }
 
-/// A deserializer for [ActionModel]s.
+/// A deserializer for [ActionModel].
 ActionModel actionFromJson(Map json) {
   final ActionType type = ActionModel.fromJson(json).type;
   switch (type) {

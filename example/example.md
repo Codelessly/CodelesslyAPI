@@ -4,25 +4,24 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'my_cool_node.g.dart';
+part 'my_node.g.dart';
 
-/// At it's core, this is the most basic example of how to create a complete
-/// [BaseNode].
+/// An example of how to create a new node.
 @JsonSerializable()
-class MyCoolNode extends BaseNode {
+class MyNode extends BaseNode {
   @override
-  final String type = 'myCoolNode';
+  final String type = 'myNode';
 
-  MyCoolNode({
+  MyNode({
     required super.id,
     required super.name,
     required super.basicBoxLocal,
   });
 
-  factory MyCoolNode.fromJson(Map json) => _$MyCoolNodeFromJson(json);
+  factory MyNode.fromJson(Map json) => _$MyNodeFromJson(json);
 
   @override
-  Map toJson() => _$MyCoolNodeToJson(this);
+  Map toJson() => _$MyNodeToJson(this);
 }
 
 ```

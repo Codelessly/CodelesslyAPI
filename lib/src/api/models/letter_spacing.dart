@@ -5,36 +5,35 @@ import '../mixins.dart';
 
 part 'letter_spacing.g.dart';
 
-/// LetterSpacing value unit.
+/// Letter spacing value unit.
 enum LetterSpacingUnitEnum {
-  /// LetterSpacing in pixels.
+  /// Letter spacing in pixels.
   pixels,
 
-  /// LetterSpacing in percentage.
+  /// Letter spacing in percentage.
   percent;
 }
 
-/// A solid color, gradient, or image texture that
-/// can be applied as fills or strokes
+/// The spacing between the text characters.
 @JsonSerializable()
 class LetterSpacing extends Equatable with SerializableMixin {
-  /// LetterSpacing value.
+  /// Letter spacing value.
   final double value;
 
-  /// LetterSpacing value unit.
+  /// Letter spacing value unit.
   final LetterSpacingUnitEnum unit;
 
-  /// Creates a LetterSpacing with given values.
+  /// Creates a [LetterSpacing] instance with given values.
   const LetterSpacing({required this.value, required this.unit});
 
-  /// Creates a pixel based LetterSpacing.
+  /// Creates a pixel based [LetterSpacing] instance.
   const LetterSpacing.pixels(this.value) : unit = LetterSpacingUnitEnum.pixels;
 
-  /// Creates a percentage based LetterSpacing.
+  /// Creates a percentage based [LetterSpacing] instance.
   const LetterSpacing.percent(this.value)
       : unit = LetterSpacingUnitEnum.percent;
 
-  /// Creates a LetterSpacing with zero value.
+  /// Creates a [LetterSpacing] instance with zero value.
   static const LetterSpacing zero = LetterSpacing(
     value: 0,
     unit: LetterSpacingUnitEnum.pixels,

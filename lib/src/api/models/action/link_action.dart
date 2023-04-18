@@ -10,10 +10,10 @@ import 'action.dart';
 
 part 'link_action.g.dart';
 
-/// An action that navigates/opens a link.
+/// An action that opens up a link.
 @JsonSerializable()
 class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
-  /// The link to navigate to.
+  /// The link to open.
   final String url;
 
   /// Creates a new [LinkAction] with the given data.

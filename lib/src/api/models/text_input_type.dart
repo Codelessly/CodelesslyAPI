@@ -2,8 +2,8 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-/// Represents the type of text input to use for an [TextFieldNode]. Directly
-/// translates to the [TextInputType] enum in Flutter.
+/// Represents the type of text input to use for [TextFieldNode]. Corresponds to
+/// the [TextInputType] enum in Flutter.
 enum TextInputTypeEnum {
   /// Optimize for date and time information.
   ///

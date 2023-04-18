@@ -215,161 +215,128 @@ class NodeBox with EquatableMixin, SerializableMixin {
 /// outer padded space of the rectangle. This is useful for defining a rectangle
 /// that has a margin and/or stroke.
 ///
-/// You can think of this as the green overlay that renders around the
-/// selection box of the node in the editor when margin is applied.
-/// Alternatively, you can also think of this as wrapping a Flutter [Widget]
-/// with a [Padding] widget, applying a safe-zone around your widget. The
-/// [Padding] widget has a misleading name, however. A better-named
-/// representation of this would be the [Container.margin] field inside
-/// [Container] widgets.
+/// It is similar to Flutter's [Padding] widget that applies a safe-zone around
+/// your widget.
 ///
 /// In this type of [NodeBox], the [left], [top], [right], and [bottom] values
-/// are the outer (green area) edges of the rectangle. The [width] and [height]
-/// values define the distance between the outer edges. So the outer-most green
-/// pixels from one end to the other.
+/// are the outer edges of the rectangle. The [width] and [height] values define
+/// the distance between the outer edges.
 ///
 /// The [centerX], [centerY], and [center] values are the center of the outer
 /// edges, and these are NOT the same as the normal middle-box's center because
-/// you might have asymmetrical margins applied to your rectangle.
+/// there might be asymmetrical margins applied to the rectangle.
 class OuterNodeBox extends NodeBox {
   /// The distance between the bottom edge of the marginal space and the bottom
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the bottom half of that green
-  /// area.
   late final double edgeLeft;
 
   /// The distance between the top edge of the marginal space and the top edge
   /// of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the top half of that green
-  /// area.
   late final double edgeTop;
 
   /// The distance between the right edge of the marginal space and the right
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the right half of that green
-  /// area.
   late final double edgeRight;
 
   /// The distance between the bottom edge of the marginal space and the bottom
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the bottom half of that green
-  /// area.
   late final double edgeBottom;
 
-  /// The bottom right point of the marginal space, IE: the bottom
-  /// right point of the green area. It's the same as [edgeBottom] and
-  /// [edgeRight].
+  /// The bottom right point of the marginal space. It's the same as
+  /// [edgeBottom] and [edgeRight].
   late final Vec edgeBottomRight;
 
-  /// The top left point of the marginal space, IE: the top
-  /// left point of the green area. It's the same as [edgeTop] and [edgeLeft].
+  /// The top left point of the marginal space. It's the same as [edgeTop] and
+  /// [edgeLeft].
   late final Vec edgeTopLeft;
 
   /// The total horizontal marginal space. This is the sum of [edgeLeft] and
-  /// [edgeRight], giving you the total width of the marginal space.
+  /// [edgeRight].
   late final double horizontalEdgeSpace;
 
   /// The total vertical marginal space. This is the sum of [edgeTop] and
-  /// [edgeBottom], giving you the total height of the marginal space.
+  /// [edgeBottom].
   late final double verticalEdgeSpace;
 
   /// A convenience field that is the same as [horizontalEdgeSpace] and
   /// [verticalEdgeSpace].
   late final SizeC edgeSize;
 
-  /// The x-coordinate to the left edge of the INSIDE of the marginal space, IE:
+  /// The x-coordinate to the left edge of the inside of the marginal space, IE:
   /// the left edge of the base rectangle.
   ///
-  /// If you're looking for the left edge of the marginal space, use [x] or
-  /// [left] directly since this [OuterNodeBox] tailors to the marginal space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [innerLeft] is different from [x] or [left] because they represent the
+  /// left edge of the marginal space. This [OuterNodeBox] tailors to the
+  /// marginal space and provides precomputed fields about the base rectangle
+  /// for convenience.
   late final double innerLeft;
 
-  /// The y-coordinate to the top edge of the INSIDE of the marginal space, IE:
+  /// The y-coordinate to the top edge of the inside of the marginal space, IE:
   /// the top edge of the base rectangle.
   ///
-  /// If you're looking for the top edge of the marginal space, use [y] or [top]
-  /// directly since this [OuterNodeBox] tailors to the marginal space and
-  /// provides precomputed fields about the base rectangle for convenience.
+  /// [innerTop] is different from [y] or [top] because they represent the top
+  /// edge of the marginal space. This [OuterNodeBox] tailors to the marginal
+  /// space and provides precomputed fields about the base rectangle for
+  /// convenience.
   late final double innerTop;
 
-  /// The y-coordinate to the bottom edge of the INSIDE of the marginal space,
+  /// The y-coordinate to the bottom edge of the inside of the marginal space,
   /// IE: the bottom edge of the base rectangle.
   ///
-  /// If you're looking for the bottom edge of the marginal space, use [y] or
-  /// [bottom] directly since this [OuterNodeBox] tailors to the marginal space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [innerBottom] is different from [y] or [bottom] because they represent the
+  /// bottom edge of the marginal space. This [OuterNodeBox] tailors to the
+  /// marginal space and provides precomputed fields about the base rectangle
+  /// for convenience.
   late final double innerBottom;
 
-  /// The x-coordinate to the right edge of the INSIDE of the marginal space,
+  /// The x-coordinate to the right edge of the inside of the marginal space,
   /// IE: the right edge of the base rectangle.
   ///
-  /// If you're looking for the right edge of the marginal space, use [x] or
-  /// [right] directly since this [OuterNodeBox] tailors to the marginal space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [innerRight] is different from [x] or [right] because they represent the
+  /// right edge of the marginal space. This [OuterNodeBox] tailors to the
+  /// marginal space and provides precomputed fields about the base rectangle
+  /// for convenience.
   late final double innerRight;
 
-  /// Is the top left point of the base rectangle, IE: the top left point of the
-  /// selection box. It's the same as [innerTop] and [innerLeft].
+  /// Top left point of the base rectangle. It's the same as [innerTop] and
+  /// [innerLeft].
   late final Vec innerTopLeft;
 
-  /// Is the bottom right point of the base rectangle, IE: the bottom right
-  /// point of the selection box. It's the same as [innerBottom] and
-  /// [innerRight].
+  /// Bottom right point of the base rectangle. It's the same as [innerBottom]
+  /// and [innerRight].
   late final Vec innerBottomRight;
 
-  /// The combined edge insets that make up the marginal space. You would
-  /// normally assume this is the simple margin of the box, but this can be
-  /// more complex if the box has strokes or some other type of margin on top
-  /// of the normal one.
+  /// The combined edge insets that make up the marginal space. Marginal space
+  /// may comprise of strokes or some other type of margin on top of the normal
+  /// one.
   late final EdgeInsetsModel edgeInsets;
 
-  /// The inner rectangle represents the base rectangle, IE: the selection box
-  /// in the editor. This is the same as [innerTopLeft] and [innerBottomRight].
+  /// The inner rectangle represents the base rectangle. This is the same as
+  /// [innerTopLeft] and [innerBottomRight].
   late final RectC innerRect;
 
-  /// The width of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [innerRect.width].
+  /// The width of the base rectangle. This is the same as [innerRect.width].
   late final double innerWidth;
 
-  /// The height of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [innerRect.height].
+  /// The height of the base rectangle. This is the same as [innerRect.height].
   late final double innerHeight;
 
-  /// The size of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [innerRect.size].
+  /// The size of the base rectangle. This is the same as [innerRect.size].
   late final SizeC innerSize;
 
-  /// The inner center X is the center of the base rectangle, IE: the center of
-  /// the selection box in the editor. This is the same as [innerRect.centerX].
+  /// The inner center X is the center of the base rectangle. This is the same
+  /// as [innerRect.centerX].
   late final double innerCenterX;
 
-  /// The inner center Y is the center of the base rectangle, IE: the center of
-  /// the selection box in the editor. This is the same as [innerRect.centerY].
+  /// The inner center Y is the center of the base rectangle. This is the same
+  /// as [innerRect.centerY].
   late final double innerCenterY;
 
-  /// The center of the base rectangle, IE: the center of the selection box in
-  /// the editor. This is the same as [innerRect.center].
+  /// The center of the base rectangle. This is the same as [innerRect.center].
   late final Vec innerCenter;
 
   /// The constructor for the [OuterNodeBox] class. This is the same as
-  /// [NodeBox] except it also takes in an [edgeInsets] that represents the
+  /// [NodeBox] except that it also takes in an [edgeInsets] that represents the
   /// combined marginal space of the box.
   OuterNodeBox(
     super.x,
@@ -473,156 +440,128 @@ class OuterNodeBox extends NodeBox {
 /// padded space inside of the rectangle. This is useful for defining a
 /// rectangle that has padding and/or a stroke on the inside.
 ///
-/// You can think of this as the orange overlay that renders inside the
-/// selection box of the node in the editor when padding is applied. This is
-/// similar to the [Container.padding] field inside [Container] widgets in
+/// It is similar to the [Container.padding] field of [Container] widget in
 /// Flutter.
 ///
 /// In this type of [NodeBox], the [left], [top], [right], and [bottom] values
-/// are the inner (orange area) edges of the rectangle. The [width] and
-/// [height] values define the distance between the inner edges, or the
-/// inner-most orange pixels from one end to the other.
+/// are the inner edges of the rectangle. The [width] and [height] values
+/// define the distance between the inner edges.
 ///
 /// The [centerX], [centerY], and [center] values are the center of the inner
 /// edges, and these may not be the same as the normal middle-box's center
-/// because you might have asymmetrical padding applied to your rectangle.
+/// because there might be asymmetrical padding applied to your rectangle.
 class InnerNodeBox extends NodeBox {
   /// The distance between the left edge of the padded space and the left
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the left half of that orange
-  /// area.
   late final double edgeLeft;
 
   /// The distance between the top edge of the padded space and the top
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the top half of that orange
-  /// area.
   late final double edgeTop;
 
   /// The distance between the bottom edge of the padded space and the bottom
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the bottom half of that orange
-  /// area.
   late final double edgeBottom;
 
   /// The distance between the right edge of the padded space and the right
   /// edge of the base rectangle.
-  ///
-  /// This value is always non-negative as it is a DISTANCE and NOT a
-  /// coordinate.
-  ///
-  /// This field is specifically the size of the right half of that orange
-  /// area.
   late final double edgeRight;
 
-  /// The bottom right point of the padded space, IE: the bottom
-  /// right point of the orange area. It's the same as [edgeBottom] and
-  /// [edgeRight].
+  /// The bottom right point of the padded space. It's the same as [edgeBottom]
+  /// and [edgeRight].
   late final Vec edgeBottomRight;
 
-  /// The top left point of the padded space, IE: the top
-  /// left point of the orange area. It's the same as [edgeTop] and [edgeLeft].
+  /// The top left point of the padded space. It's the same as [edgeTop] and
+  /// [edgeLeft].
   late final Vec edgeTopLeft;
 
   /// The total horizontal padded space. This is the sum of [edgeLeft] and
-  /// [edgeRight], giving you the total width of the padded space.
+  /// [edgeRight].
   late final double horizontalEdgeSpace;
 
   /// The total vertical padded space. This is the sum of [edgeTop] and
-  /// [edgeBottom], giving you the total height of the padded space.
+  /// [edgeBottom].
   late final double verticalEdgeSpace;
 
   /// A convenience field that is the same as [horizontalEdgeSpace] and
   /// [verticalEdgeSpace].
   late final SizeC edgeSize;
 
-  /// The x-coordinate to the left edge of the OUTSIDE of the padded space, IE:
+  /// The x-coordinate to the left edge of the outside of the padded space, IE:
   /// the left edge of the base rectangle.
   ///
-  /// If you're looking for the left edge of the padded space, use [x] or
-  /// [left] directly since this [InnerNodeBox] tailors to the padded space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [outerLeft] is different from [x] or [left] because they represent the
+  /// left edge of the padded space. This [InnerNodeBox] tailors to the padded
+  /// space and provides precomputed fields about the base rectangle for
+  /// convenience.
   late final double outerLeft;
 
-  /// The y-coordinate to the top edge of the OUTSIDE of the padded space, IE:
+  /// The y-coordinate to the top edge of the outside of the padded space, IE:
   /// the top edge of the base rectangle.
   ///
-  /// If you're looking for the top edge of the padded space, use [y] or
-  /// [top] directly since this [InnerNodeBox] tailors to the padded space
+  /// [outerTop] is different from [y] or [top] because they represent the top
+  /// edge of the padded space. This [InnerNodeBox] tailors to the padded space
   /// and provides precomputed fields about the base rectangle for convenience.
   late final double outerTop;
 
-  /// The x-coordinate to the right edge of the OUTSIDE of the padded space, IE:
+  /// The x-coordinate to the right edge of the outside of the padded space, IE:
   /// the right edge of the base rectangle.
   ///
-  /// If you're looking for the right edge of the padded space, use [right] or
-  /// [right] directly since this [InnerNodeBox] tailors to the padded space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [outerRight] is different from [x] or [right] because they represent the
+  /// right edge of the padded space. This [InnerNodeBox] tailors to the padded
+  /// space and provides precomputed fields about the base rectangle for
+  /// convenience.
   late final double outerRight;
 
-  /// The y-coordinate to the bottom edge of the OUTSIDE of the padded space, IE:
+  /// The y-coordinate to the bottom edge of the outside of the padded space, IE:
   /// the bottom edge of the base rectangle.
   ///
-  /// If you're looking for the bottom edge of the padded space, use [bottom] or
-  /// [bottom] directly since this [InnerNodeBox] tailors to the padded space
-  /// and provides precomputed fields about the base rectangle for convenience.
+  /// [outerBottom] is different from [y] or [bottom] because they represent the
+  /// bottom edge of the padded space. This [InnerNodeBox] tailors to the padded
+  /// space and provides precomputed fields about the base rectangle for
+  /// convenience.
   late final double outerBottom;
 
-  /// Is the top left point of the base rectangle, IE: the top left point of the
-  /// selection box. It's the same as [outerTop] and [outerLeft].
+  /// Top left point of the base rectangle. It's the same as [outerTop] and
+  /// [outerLeft].
   late final Vec outerTopLeft;
 
-  /// The bottom right point of the base rectangle, IE: the bottom right point of the
-  /// selection box. It's the same as [outerBottom] and [outerRight].
+  /// Bottom right point of the base rectangle. It's the same as [outerBottom]
+  /// and [outerRight].
   late final Vec outerBottomRight;
 
-  /// The combined edge insets that make up the padded space. You would
-  /// normally assume this is the simple padding of the box, but this can be
-  /// more complex if the box has strokes or some other type of padding on top
-  /// of the normal one.
+  /// The combined edge insets that make up the padded space. Padded space may
+  /// comprise of strokes or other type of padding on top of the normal one.
   late final EdgeInsetsModel edgeInsets;
 
-  /// The outer rectangle represents the base rectangle, IE: the selection box
-  /// in the editor. This is the same as [outerTopLeft] and [outerBottomRight].
+  /// The outer rectangle represents the base rectangle. This is the same as
+  /// [outerTopLeft] and [outerBottomRight].
   late final RectC outerRect;
 
-  /// The width of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [outerRect.width].
+  /// The width of the base rectangle.This is the same as [outerRect.width].
   late final double outerWidth;
 
-  /// The height of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [outerRect.height].
+  /// The height of the base rectangle. This is the same as [outerRect.height].
   late final double outerHeight;
 
-  /// The size of the base rectangle, IE: the selection box in the editor.
-  /// This is the same as [outerRect.size].
+  /// The size of the base rectangle.This is the same as [outerRect.size].
   late final SizeC outerSize;
 
-  /// The outer center X is the center of the base rectangle, IE: the center of
-  /// the selection box in the editor. This is the same as [outerRect.centerX].
+  /// The outer center X is the center of the base rectangle. This is the same
+  /// as [outerRect.centerX].
   late final double outerCenterX;
 
-  /// The outer center Y is the center of the base rectangle, IE: the center of
-  /// the selection box in the editor. This is the same as [outerRect.centerY].
+  /// The outer center Y is the center of the base rectangle. This is the same
+  /// as [outerRect.centerY].
   late final double outerCenterY;
 
-  /// The center of the base rectangle, IE: the center of the selection box in
-  /// the editor. This is the same as [outerRect.center].
+  /// The center of the base rectangle. This is the same as [outerRect.center].
   late final Vec outerCenter;
 
-  /// [x], [y], [width], [height] are of inner box (basic box).
+  /// The constructor for the [InnerNodeBox] class. This is the same as
+  /// [NodeBox] except that it also takes in an [edgeInsets] that represents the
+  /// combined padded space of the box.
+  /// [x], [y], [width], [height] are of inner box.
   InnerNodeBox(super.x, super.y, super.width, super.height,
       {required this.edgeInsets}) {
     assert(x.isFinite, 'x is not finite. Value: $x');
@@ -680,7 +619,7 @@ class InnerNodeBox extends NodeBox {
           edgeInsets: edgeInsets,
         );
 
-  /// Creates an [InnerNodeBox] from a json map.
+  /// Creates an [InnerNodeBox] from a JSON map.
   factory InnerNodeBox.fromJson(Map json) {
     final box = NodeBox.fromJson(json);
     return InnerNodeBox(
@@ -737,7 +676,7 @@ class RotatedNodeBox extends NodeBox {
     assert(height.isFinite, 'height is not finite. Value: $height');
   }
 
-  /// Creates a [RotatedNodeBox] from a json map.
+  /// Creates a [RotatedNodeBox] from a JSON map.
   factory RotatedNodeBox.fromJson(Map json) {
     final box = NodeBox.fromJson(json);
     return RotatedNodeBox(

@@ -10,14 +10,14 @@ import 'action.dart';
 
 part 'set_value_action.g.dart';
 
-/// An action that sets a value to a property on a node.
+/// An action that sets value of a property of the node.
 @JsonSerializable()
 class SetValueAction extends ActionModel
     with EquatableMixin, SerializableMixin {
-  /// ID of the node to set the value on.
+  /// ID of the node whose values are to be set.
   final String nodeID;
 
-  /// Values to set on the node.
+  /// List of values to be set in the node.
   @JsonKey(fromJson: valuesFromJson)
   final List<ValueModel> values;
 
@@ -52,14 +52,19 @@ enum SetValueMode {
   /// Sets the value directly.
   discrete,
 
-  /// Toggles the value before setting it. Only applies to toggleable values
-  /// like booleans.
+  /// Toggles the value before setting it.
+  /// Only applicable on toggleable values, such as booleans.
   toggle,
 
-  ///
+  /// Syncs the value with the internal value of the node that is performing the
+  /// action. [syncValue] works only if both the values are of same type.
+  /// For example, if a checkbox node is performing an action to change the
+  /// visibility of a node, the visibility will sync with checkbox's internal
+  /// value, i.e., [checked -> visible] and [unchecked -> invisible].
+  /// In this case, both the values are of type [bool].
   syncValue;
 
-  /// Displayable string representation of this enum.
+  /// Displayable string representation of [SetValueMode].
   String get prettify {
     switch (this) {
       case SetValueMode.discrete:
@@ -72,9 +77,9 @@ enum SetValueMode {
   }
 }
 
-/// Represents a value to set on a node.
+/// Represents a value to set in a node.
 abstract class ValueModel<T> with SerializableMixin {
-  /// The name of the property to set the value on.
+  /// The name of the property to set the value of.
   final String name;
 
   /// Describes how to set the value.
@@ -111,7 +116,7 @@ abstract class ValueModel<T> with SerializableMixin {
 List<ValueModel> valuesFromJson(List values) =>
     values.map((value) => ValueModel.fromJson(value)).toList();
 
-/// A boolean type of value.
+/// Value of boolean type.
 @JsonSerializable()
 class BoolValue extends ValueModel<bool?> with SerializableMixin {
   /// Whether this property is nullable.
@@ -146,7 +151,7 @@ class BoolValue extends ValueModel<bool?> with SerializableMixin {
   Map toJson() => _$BoolValueToJson(this);
 }
 
-/// An integer type of value.
+/// Value of integer type.
 @JsonSerializable()
 class IntValue extends ValueModel<int> with SerializableMixin {
   /// Creates a new [IntValue].
@@ -158,7 +163,8 @@ class IntValue extends ValueModel<int> with SerializableMixin {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
-  /// Creates a new [IntValue] where the default value is 0 and mode is discrete.
+  /// Creates a new [IntValue] where the default value is 0 and mode is
+  /// discrete.
   const IntValue.discreteZero({
     required super.name,
     super.value = 0,
@@ -183,7 +189,7 @@ class IntValue extends ValueModel<int> with SerializableMixin {
   Map toJson() => _$IntValueToJson(this);
 }
 
-/// A double type of value.
+/// Value of double type.
 @JsonSerializable()
 class DoubleValue extends ValueModel<double> with SerializableMixin {
   /// Creates a new [DoubleValue].
@@ -195,7 +201,8 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
-  /// Creates a new [DoubleValue] where the default value is 0 and mode is discrete.
+  /// Creates a new [DoubleValue] where the default value is 0 and mode is
+  /// discrete.
   const DoubleValue.discreteZero({
     required super.name,
     super.value = 0,
@@ -220,7 +227,7 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
   Map toJson() => _$DoubleValueToJson(this);
 }
 
-/// A string type of value.
+/// Value of string type.
 @JsonSerializable()
 class StringValue extends ValueModel<String> with SerializableMixin {
   /// Creates a new [StringValue].

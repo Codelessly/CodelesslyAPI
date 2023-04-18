@@ -13,10 +13,10 @@ part 'color_stop.g.dart';
 /// A position color pair representing a gradient stop.
 @JsonSerializable()
 class ColorStop extends Equatable with SerializableMixin {
-  /// Value between 0 and 1 representing position along gradient axis
+  /// Value between 0 and 1 representing position along gradient axis.
   final double position;
 
-  /// Color attached to corresponding position
+  /// Color attached to the corresponding position.
   final ColorRGBA color;
 
   /// Default constructor for creating a new instance.
@@ -25,7 +25,7 @@ class ColorStop extends Equatable with SerializableMixin {
   @override
   List<Object> get props => [position, color];
 
-  /// Duplicates this instance with the given fields replaced with the new values.
+  /// Duplicates this instance with the given value overrides.
   ColorStop copyWith({double? position, ColorRGBA? color}) => ColorStop(
         position: position ?? this.position,
         color: color ?? this.color,

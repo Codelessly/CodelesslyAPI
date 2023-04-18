@@ -12,7 +12,7 @@ part 'font_family.g.dart';
 /// Holds information about font family.
 @JsonSerializable()
 class FontFamilyModel extends Equatable {
-  /// Unique id of the font family.
+  /// Unique ID of the font family.
   final String id;
 
   /// Name of the font family.
@@ -43,7 +43,7 @@ class FontFamilyModel extends Equatable {
 /// Holds information about a font variant in a font family.
 @JsonSerializable()
 class FontVariantModel extends Equatable {
-  /// Name of the variant. e.g. Regular, thin, bold, etc.
+  /// Name of the variant. Ex. regular, thin, bold, etc.
   final String name;
 
   /// Font weight for this variant.

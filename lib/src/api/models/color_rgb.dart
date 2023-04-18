@@ -15,13 +15,13 @@ part 'color_rgb.g.dart';
 /// An opaque color with no controllable opacity/alpha.
 @JsonSerializable()
 class ColorRGB extends Equatable with SerializableMixin {
-  /// Red channel value, between 0 and 1
+  /// Red channel value, between 0 and 1.
   final double r;
 
-  /// Green channel value, between 0 and 1
+  /// Green channel value, between 0 and 1.
   final double g;
 
-  /// Blue channel value, between 0 and 1
+  /// Blue channel value, between 0 and 1.
   final double b;
 
   /// Creates a [ColorRGB] with given red, blue and green values.
@@ -42,18 +42,16 @@ class ColorRGB extends Equatable with SerializableMixin {
   /// Represents red color.
   static const ColorRGB red = ColorRGB(r: 1.0, g: 0.0, b: 0.0);
 
-  /// Gets the background color for a rectangle for a given index.
-  /// Index is the quantity of rectangles in nodeManager + 1.
-  /// This should get a darker/lighter shade, progressively.
+  /// Generates a color with darker or lighter shade based on the given index.
   static ColorRGB defaultRectangleColorWithIndex(int index) {
     const int shadesNumber = 10;
-    // [0, 80] it gets darker, [81, 160] it gets lighter, and so on..
+    // [0, 80] it gets darker, [81, 160] it gets lighter, and so on.
     final double colorIntensity;
     if ((index ~/ shadesNumber) % 2 == 0) {
-      // increasing order
+      // Increasing order.
       colorIntensity = math.min((index % shadesNumber) / shadesNumber, 1) / 5;
     } else {
-      // decreasing order
+      // Decreasing order.
       colorIntensity =
           math.min((shadesNumber - index % shadesNumber) / shadesNumber, 1) / 5;
     }

@@ -39,19 +39,19 @@ enum TextDecorationEnum {
   }
 }
 
-/// A solid color, gradient, or image texture that
-/// can be applied as fills or strokes
+/// Holds text properties in addition to start and end index of the characters
+/// which the properties belong to.
 @JsonSerializable()
 class StartEndProp extends TextProp {
-  /// Index of the start character (zero when in the first position).
+  /// Index of the first character to which the properties belong.
   final int start;
 
-  /// Index of the last character where the style is applied.
+  /// Index of the last character to which the properties belong.
   /// This is inclusive.
   final int end;
 
-  /// This can be used if it is just meant to hold style data for text. It
-  /// will ignore [start] and [end] properties.
+  /// This can be used if it is just meant to hold style data for text. It will
+  /// ignore [start] and [end] properties.
   const StartEndProp.general({
     super.fills = const [PaintModel.whitePaint],
     super.textDecoration,
@@ -131,10 +131,10 @@ class StartEndProp extends TextProp {
 /// rich text.
 @JsonSerializable()
 class TextProp extends Equatable with SerializableMixin {
-  /// Fills for the text.
+  /// Fills of the text.
   final List<PaintModel> fills;
 
-  /// Decoration for the text.
+  /// Decoration of the text.
   final TextDecorationEnum textDecoration;
 
   /// Size of the text.

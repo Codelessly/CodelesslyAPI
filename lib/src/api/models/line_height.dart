@@ -22,14 +22,13 @@ enum LineHeightUnitEnum {
   auto;
 }
 
-/// A solid color, gradient, or image texture that
-/// can be applied as fills or strokes
+/// Height of a line in a text paragraph.
 @JsonSerializable()
 class LineHeight extends Equatable with SerializableMixin {
-  /// Value for the line height.
+  /// Value of line height.
   final double? value;
 
-  /// Unit for the [value]
+  /// Unit of the [value]
   final LineHeightUnitEnum unit;
 
   /// Creates [LineHeight] with given values.
@@ -41,7 +40,7 @@ class LineHeight extends Equatable with SerializableMixin {
   /// Creates percentage based [LineHeight] with given [value].
   const LineHeight.percent([this.value]) : unit = LineHeightUnitEnum.percent;
 
-  /// A auto line height with 0 value.
+  /// Auto line height.
   static const LineHeight auto =
       LineHeight(value: 0, unit: LineHeightUnitEnum.auto);
 

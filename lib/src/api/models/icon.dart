@@ -13,14 +13,16 @@ part 'icon.g.dart';
 /// A model that represents an icon. The icon could be a standard font based
 /// icon or an image of an icon. The type of this icon is determined by the
 /// [type] property.
-/// This model is designed to hold both properties of a font based icon and an
-/// image icon.
+/// This model is designed to hold the properties of both a font based icon and
+/// an image icon.
 @JsonSerializable()
 class MultiSourceIconModel with EquatableMixin, SerializableMixin {
-  /// having [iconData] and [iconImage] despite having an enum [iconType] to
-  /// differentiate allows us to preserve user selection for both cases so
-  /// when the user toggles the type, previous selection will still be there.
-  final String? iconImage; // network image URL
+  /// Despite having [iconType] to differentiate between icon types, [iconData]
+  /// and [iconImage] allows for retention of user selection for both cases. So,
+  /// when the user toggles the type, previous selection is preserved.
+  ///
+  /// [iconImage] is the URL of a network image.
+  final String? iconImage;
 
   /// Holds information about the font based icon.
   final IconModel? icon;
@@ -91,7 +93,7 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   List<Object?> get props =>
       [type, icon, iconImage, size, color, show, imageName];
 
-  /// Duplicates this instance with the given properties overrides.
+  /// Duplicates [MultiSourceIconModel] with the given properties overrides.
   MultiSourceIconModel copyWith({
     String? iconImage,
     IconModel? icon,

@@ -68,8 +68,8 @@ class ColorRGBA with EquatableMixin, SerializableMixin {
         a: a ?? this.a,
       );
 
-  /// Imagine gradients. Each color-stop has an RGBA color. In addition to that,
-  /// the fill itself that holds the color-stops ALSO has it's own opacity.
+  /// In gradients, each color-stop has an RGBA color. In addition to that,
+  /// the fill that holds these color-stops has it's own opacity.
   ///
   /// This method multiplies the fill's opacity with the color-stop's opacity.
   ColorRGBA multiplyAlpha(double alpha) =>

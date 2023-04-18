@@ -5,20 +5,21 @@
 /// Represents different types of border shapes.
 enum CShapeBorder {
   /// Rectangle shape with sharp and pointy corners.
-  rectangle('Rectangle'), // Usually passed as null in Flutter code.
+  /// Usually passed as null in Flutter code.
+  rectangle('Rectangle'),
 
-  /// A perfect Circle shape.
+  /// Circle shape.
   circle('Circle'),
 
-  /// A border that fits a stadium-shaped border (a box with semicircles on the ends)
-  /// within the rectangle of the widget it is applied to.
+  /// A border that fits a stadium-shaped border (a box with semicircles on the
+  /// ends) within the rectangle of the widget it is applied to.
   stadium('Stadium'),
 
   /// A rectangle with circular corners.
   roundedRectangle('Rounded'),
 
-  /// A rectangular border with smooth continuous transitions between the straight
-  /// sides and the rounded corners.
+  /// A rectangular border with smooth continuous transitions between the
+  /// straight sides and the rounded corners.
   continuousRectangle('Continuous'),
 
   /// A rectangular border with flattened or "beveled" corners.

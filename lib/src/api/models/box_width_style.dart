@@ -14,7 +14,7 @@ enum BoxWidthStyleEnum {
   /// as the widest line in the paragraph.
   tight;
 
-  /// Displayable string representation of this enum.
+  /// Displayable string representation of [BoxWidthStyleEnum].
   String get prettify {
     late String text;
     switch (this) {

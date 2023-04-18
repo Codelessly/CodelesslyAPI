@@ -9,17 +9,8 @@ import '../mixins.dart';
 
 part 'alignment.g.dart';
 
-/// AlignmentModel wraps AlignmentData.
-/// Having a nullable node property causes issues in the app.
-/// The most severe case was with undoManager.registerActionEnd not knowing
-/// if the alignment was updated or not, as it uses null for missing values
-/// but on alignment, null is a valid option. On Paint there was the same issue,
-/// alignment was an optional property and there was no way to know if its value
-/// was null or its value wasn't there.
-///
-/// Even though in nodes constructor the alignment property is nullable,
-/// their inner property is not (see mixins.dart).
-/// If it is null, it gets assigned AlignmentModel.none.
+/// [AlignmentModel] wraps [AlignmentData] and provides standard alignment
+/// values such as [topRight] and [bottomCenter] for ease of use.
 @JsonSerializable()
 class AlignmentModel with EquatableMixin, SerializableMixin {
   /// Holds the actual x and y percentage information.
@@ -131,7 +122,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   static const AlignmentModel bottomRight =
       AlignmentModel(AlignmentData(1.0, 1.0));
 
-  /// Whether this alignment one of the [values].
+  /// Whether this alignment is one of the [values].
   bool get isStandard => values.contains(this);
 
   /// Whether this alignment is one of the standard alignments that represent
@@ -159,10 +150,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
     AlignmentModel.none,
   ];
 
-  /// Allows to create a new instance of this class by copying the current
-  /// instance and replacing the given fields with the new values.
+  /// Duplicates this [AlignmentModel] with given data overrides.
   AlignmentModel copyWith({AlignmentData? data}) {
-    return AlignmentModel(data ?? this.data); // Deep copy.
+    return AlignmentModel(data ?? this.data);
   }
 
   @override
@@ -198,7 +188,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   }
 }
 
-/// A data class that holds the x and y values of an alignment.
+/// A data class that holds the x and y values of the alignment.
 @JsonSerializable()
 class AlignmentData extends Equatable with SerializableMixin {
   /// The x value of the alignment that represents how far it is from
@@ -217,8 +207,7 @@ class AlignmentData extends Equatable with SerializableMixin {
   @override
   List<Object?> get props => [x, y];
 
-  /// Allows to create new instance of this class by copying the current
-  /// instance and replacing the given fields with the new values.
+  /// Duplicates this [AlignmentData] with given data overrides.
   AlignmentData copyWith({double? x, double? y}) =>
       AlignmentData(x ?? this.x, y ?? this.y);
 

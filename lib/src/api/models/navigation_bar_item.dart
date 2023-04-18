@@ -13,13 +13,13 @@ part 'navigation_bar_item.g.dart';
 /// A base class that represents a navigation bar item.
 abstract class NavigationBarItem
     with SerializableMixin, EquatableMixin, ReactionMixin {
-  /// Unique ID for this item.
+  /// Unique ID of this item.
   final String id;
 
-  /// Name/label for this item.
+  /// Name/label of this item.
   String label;
 
-  /// Icon for this item.
+  /// Icon of this item.
   MultiSourceIconModel icon;
 
   /// Icon when this item is selected. Defaults to [icon].
@@ -28,8 +28,7 @@ abstract class NavigationBarItem
   /// Whether the [selectedIcon] is different from [icon].
   bool differSelectedIcon;
 
-  /// Tooltip text when hovered.
-  /// This is equal to the [label] by default.
+  /// Tooltip text when hovered. This is equal to the [label] by default.
   String? tooltip;
 
   /// Creates new [NavigationBarItem] with given data.
@@ -53,7 +52,8 @@ abstract class NavigationBarItem
 /// A navigation bar item that adheres to material 2.0 design specs.
 @JsonSerializable()
 class M2NavigationBarItem extends NavigationBarItem {
-  /// Fills the entire navigation bar's background color when this item is selected.
+  /// Fills the entire navigation bar's background color when this item is
+  /// selected.
   /// ONLY used under the following conditions:
   /// - Navigation bar is a material 2 bar.
   /// - The navigation bar type is set to 'shifting' and NOT 'fixed'.

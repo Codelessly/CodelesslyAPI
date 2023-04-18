@@ -12,8 +12,8 @@ import 'models.dart';
 
 part 'paint.g.dart';
 
-/// How to paint any portions of a box not covered by an image.
-/// Directly translates to Flutter's [ImageRepeat].
+/// Describes how to paint any portions of the box that are not covered by the
+/// image. Directly translates to Flutter's [ImageRepeat].
 enum ImageRepeatEnum {
   /// Repeat the image in both the x and y directions until the box is filled.
   repeat('Repeat'),
@@ -34,21 +34,22 @@ enum ImageRepeatEnum {
   final String label;
 }
 
-/// A solid color, gradient, or image texture that
-/// can be applied as fills or strokes
+/// A solid color, gradient, or image texture that can be applied as fill or
+/// stroke.
 @JsonSerializable()
 class PaintModel with EquatableMixin, SerializableMixin {
-  /// Type of paint as a string enum
+  /// Type of paint.
   final PaintType type;
 
-  /// Is the paint enabled?
+  /// Whether the paint is visible.
   final bool visible;
 
-  /// Overall opacity of paint (colors within the paint can also have opacity
-  /// values which would blend with this)
+  /// Overall opacity of paint.
+  /// Colors within the paint can also have opacity
+  /// values which would blend with this.
   final double opacity;
 
-  // For solid paints:
+  // For solid paint:
 
   /// Solid color of the paint.
   /// This is used with [opacity] to generate Flutter's Color.
@@ -56,9 +57,9 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// Having two opacity fields for a single color could be confusing.
   final ColorRGB? color;
 
-  // for gradient paints:
+  // For gradient paint:
 
-  /// How this node blends with nodes behind it in the scene
+  /// Describes how this node blends with nodes behind it in the scene.
   @JsonKey(unknownEnumValue: BlendModeC.srcOver)
   final BlendModeC blendMode;
 
@@ -83,6 +84,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// neighboring gradient stops.
   final List<ColorStop>? gradientStops;
 
+  // For image paint:
+
   /// Affine transform applied to the image.
   /// A transformation matrix is standard way in computer graphics to represent
   /// translation and rotation. These are the top two rows of a 3x3 matrix.
@@ -99,18 +102,13 @@ class PaintModel with EquatableMixin, SerializableMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   final bool hasImageBytes;
 
-  /// A reference to an image embedded in this node. To download the image
-  /// using this reference, use the [FigmaClient.getImages()] method to retrieve the
-  ///  mapping from image references to image URLs
+  /// URL from which the image can be downloaded.
   final String? downloadUrl;
 
   /// File name for the image fill used when images are put into assets.
   final String? imageName;
 
   /// A reference to the GIF embedded in this node, if the image is a GIF.
-  /// To download the image using this reference, use the
-  /// [FigmaClient.getImages()] method to retrieve the mapping from image
-  /// references to image URLs
   final String? imageHash;
 
   /// The sizing behavior the image will use to fit inside its view.
@@ -118,10 +116,10 @@ class PaintModel with EquatableMixin, SerializableMixin {
   final Fit fit;
 
   /// The alignment positioning of the image relative to its view.
-  /// -1, -1 being the top left corner of the view and 1, 1 being the bottom
-  /// right corner of the view, and 0, 0 being the center of the view.
+  /// [-1, -1] being the top left corner of the view and [1, 1] being the bottom
+  /// right corner of the view, and [0, 0] being the center of the view.
   ///
-  /// This is 1-1 with Flutter's [Alignment].
+  /// This corresponds to Flutter's [Alignment].
   final AlignmentModel alignment;
 
   /// The image scale per-axis.
@@ -148,14 +146,16 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// Stores information about the crop of an image.
   final CropData? cropData;
 
+  /// URL of the cropped image.
   /// Not null if the image is cropped.
   final String? croppedImageURL;
 
-  /// Not null for [PaintModel.image]s
   /// Width of the raw source image in pixels.
+  /// Not null for [PaintModel.image].
   final double? sourceWidth;
 
   /// Height of the raw source image in pixels.
+  /// Not null for [PaintModel.image].
   final double? sourceHeight;
 
   /// Tile mode for image fill.
@@ -171,7 +171,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     color: ColorRGB.black,
   );
 
-  /// Helper constructor for when a black paint is needed, like tests.
+  /// Helper constructor for when a grey paint is needed, like tests.
   static const PaintModel greyPaint = PaintModel.solid(
     visible: true,
     opacity: 1.0,
@@ -185,7 +185,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     color: ColorRGB.white,
   );
 
-  /// Helper constructor for when a white paint is needed, like tests.
+  /// Helper constructor for when a gradient paint is needed, like tests.
   static const PaintModel linearPaint = PaintModel(
     type: PaintType.gradientLinear,
     visible: true,
@@ -395,11 +395,11 @@ class PaintModel with EquatableMixin, SerializableMixin {
         imageRepeat: imageRepeat ?? this.imageRepeat,
       );
 
-  /// PaintModel can store all type of paints at the same time to allow
-  /// going back to previous paint type. However this is not desired behavior
-  /// when applying a paint to another node. This method returns a sanitized
-  /// version of this paint model that only contains the data relevant to
-  /// the current paint type.
+  /// [PaintModel] can store all types of paints at the same time to allow
+  /// switching between different paint types. However, this is not the desired
+  /// behavior when applying a paint to another node. This method returns a
+  /// sanitized version of this paint model that only contains the data relevant
+  /// to the current paint type.
   PaintModel sanitize() {
     switch (type) {
       case PaintType.solid:
@@ -478,7 +478,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
   Map toJson() => _$PaintModelToJson(this);
 }
 
-/// Represents the crop information for a cropped image.
+/// Holds the information required to crop an image.
 @JsonSerializable()
 class CropData with EquatableMixin, SerializableMixin {
   /// The x coordinate of the top left corner of the crop rectangle.

@@ -10,8 +10,8 @@ import 'vec.dart';
 
 part 'visual_density.g.dart';
 
-/// Represents the visual density of material UI components. Directly translates
-/// to Flutter's [VisualDensity].
+/// Represents the visual density of material UI components. Corresponds to
+/// Flutter's [VisualDensity].
 enum VisualDensityType {
   /// The default profile for [VisualDensity] in [ThemeData].
   ///
@@ -40,10 +40,11 @@ enum VisualDensityType {
   /// It corresponds to a density value of -2 in both axes.
   compact('Compact'),
 
-  /// Returns a visual density that is adaptive based on the [defaultTargetPlatform].
+  /// Returns a visual density that is adaptive based on the
+  /// [defaultTargetPlatform].
   ///
-  /// For desktop platforms, this returns [compact], and for other platforms,
-  /// it returns a default-constructed [VisualDensity].
+  /// For desktop platforms, this returns [compact], and for other platforms, it
+  /// returns a default-constructed [VisualDensity].
   adaptivePlatformDensity('Adaptive'),
 
   /// The minimum allowed density.
@@ -74,7 +75,7 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
   /// Type of the density.
   final VisualDensityType type;
 
-  /// Creates a visual density model with data.
+  /// Creates a [VisualDensityModel] instance with the given data.
   const VisualDensityModel({
     this.horizontal = 0.0,
     this.vertical = 0.0,
@@ -99,7 +100,8 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
     type: VisualDensityType.compact,
   );
 
-  /// The base adjustment in logical pixels of the visual density of UI components.
+  /// The base adjustment in logical pixels of the visual density of UI
+  /// components.
   ///
   /// The input density values are multiplied by a constant to arrive at a base
   /// size adjustment that fits material design guidelines.
@@ -108,8 +110,8 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
   /// individual interpretation of density.
   Vec get baseSizeAdjustment {
     // The number of logical pixels represented by an increase or decrease in
-    // density by one. The Material Design guidelines say to increment/decrement
-    // sized in terms of four pixel increments.
+    // density by one. According to the Material Design guidelines, size should
+    // be incremented or decremented by 4 pixels.
     const double interval = 4.0;
 
     return Vec(horizontal, vertical) * interval;

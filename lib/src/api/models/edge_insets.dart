@@ -15,16 +15,16 @@ enum EdgeInsetsDirection {
   /// All directions.
   all,
 
-  /// Left
+  /// Left.
   L,
 
-  /// Top
+  /// Top.
   T,
 
-  /// Right
+  /// Right.
   R,
 
-  /// Bottom
+  /// Bottom.
   B,
 }
 
@@ -34,10 +34,10 @@ class EdgeInsetsModel with EquatableMixin, SerializableMixin {
   /// Left spacing.
   final double l;
 
-  /// Top spacing
+  /// Top spacing.
   final double t;
 
-  /// Right spacing
+  /// Right spacing.
   final double r;
 
   /// Bottom spacing.
@@ -53,13 +53,11 @@ class EdgeInsetsModel with EquatableMixin, SerializableMixin {
   const EdgeInsetsModel({this.l = 0, this.t = 0, this.r = 0, this.b = 0})
       : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
 
-  // fromLTRB
-  /// Creates [EdgeInsetsModel] with given values.
+  /// Creates [EdgeInsetsModel] by taking all directional values.
   const EdgeInsetsModel.fromLTRB(this.l, this.t, this.r, this.b)
       : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
 
-  // only
-  /// Creates [EdgeInsetsModel] with given values.
+  /// Creates [EdgeInsetsModel] by taking any of the directional values.
   const EdgeInsetsModel.only(
       {double left = 0, double top = 0, double right = 0, double bottom = 0})
       : l = left,
