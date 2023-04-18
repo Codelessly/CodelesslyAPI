@@ -135,7 +135,7 @@ class ButtonNode extends SceneNode
   }
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
@@ -149,10 +149,16 @@ class ButtonNode extends SceneNode
     final SizeC minSize =
         SizeC(iconSize + gap, iconSize + (8 - padding.vertical));
 
-    return minSize |
-        super.minimumInternalSize(
+    return super
+        .internalConstraints(
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
+        )
+        .unionNonNull(
+          BoxConstraintsModel(
+            minWidth: minSize.width,
+            minHeight: minSize.height,
+          ),
         );
   }
 

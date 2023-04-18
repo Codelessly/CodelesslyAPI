@@ -68,6 +68,11 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -77,11 +82,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String,
-                (e as List<dynamic>).map((e) => e as String).toList()),
-          ) ??
-          {}
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
       ..type = json['type'] as String;
@@ -96,9 +96,9 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
     'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
     'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -117,11 +117,11 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   writeNotNull('heightFactor', instance.heightFactor);
   val['children'] = instance.children;
   val['clipsContent'] = instance.clipsContent;
+  val['variables'] = instance.variables;
+  val['multipleVariables'] = instance.multipleVariables;
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize?.toJson());
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['isScrollable'] = instance.isScrollable;
   val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
   val['reverse'] = instance.reverse;

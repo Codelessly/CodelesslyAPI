@@ -122,7 +122,7 @@ class SliderNode extends SceneNode
   Map toJson() => _$SliderNodeToJson(this);
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
@@ -134,11 +134,12 @@ class SliderNode extends SceneNode
     final double height = properties.showThumb
         ? max(thumbSize, properties.trackHeight + trackBleedingPixels)
         : properties.trackHeight + trackBleedingPixels;
-    return SizeC(width, height) |
-        super.minimumInternalSize(
+    return super
+        .internalConstraints(
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
-        );
+        )
+        .unionNonNull(BoxConstraintsModel(minWidth: width, minHeight: height));
   }
 }
 

@@ -20,6 +20,15 @@ class SinglePlaceholderNode extends SceneNode
   @override
   final bool supportsPadding = true;
 
+  @override
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
+    return null;
+    final superRelegated = super.relegatedConstraintsToChildren(child);
+    return superRelegated == null
+        ? constraints
+        : superRelegated.unionNonNull(constraints);
+  }
+
   /// The node types that are allowed to be inside this [SinglePlaceholderNode].
   /// Example: 'APP_BAR' for AppBarNode.
   /// When empty, allow all types.

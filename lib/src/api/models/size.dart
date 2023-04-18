@@ -71,10 +71,6 @@ class SizeC with SerializableMixin, EquatableMixin {
   /// Returns scaled down size by given [scale].
   SizeC operator /(double scale) => SizeC(width / scale, height / scale);
 
-  /// Max of two sizes operator.
-  operator |(SizeC size) =>
-      SizeC(max(width, size.width), max(height, size.height));
-
   /// Adds given [size] to this size and returns the result.
   SizeC add(SizeC size) => SizeC(width + size.width, height + size.height);
 

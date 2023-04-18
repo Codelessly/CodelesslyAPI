@@ -74,13 +74,14 @@ class LoadingIndicatorNode extends SceneNode
   Map toJson() => _$LoadingIndicatorNodeToJson(this);
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
-    return SizeC.square(2) |
-        super.minimumInternalSize(
-            horizontalFit: horizontalFit, verticalFit: verticalFit);
+    return super
+        .internalConstraints(
+            horizontalFit: horizontalFit, verticalFit: verticalFit)
+        .unionNonNull(const BoxConstraintsModel(minWidth: 2, minHeight: 2));
   }
 
   @override
