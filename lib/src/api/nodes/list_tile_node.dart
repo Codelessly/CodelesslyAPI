@@ -55,6 +55,18 @@ class ListTileNode extends SceneNode
   /// Holds configurable properties for the [ListTileNode].
   ListTileProperties properties;
 
+  @override
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
+    if (child.id == leading) {
+      return BoxConstraintsModel(minWidth: properties.minLeadingWidth);
+    }
+    if (child.id == trailing) {
+      return BoxConstraintsModel(minWidth: properties.minLeadingWidth);
+    }
+
+    return const BoxConstraintsModel();
+  }
+
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.empty()
       : properties = ListTileProperties(),

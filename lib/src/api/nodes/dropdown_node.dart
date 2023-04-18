@@ -52,17 +52,17 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
       [TriggerType.click, TriggerType.changed];
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
     final double iconSize = properties.icon.size ?? 24;
-    final size = SizeC(iconSize, 0);
-    return size |
-        super.minimumInternalSize(
+    return super
+        .internalConstraints(
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
-        );
+        )
+        .unionNonNull(BoxConstraintsModel(minWidth: iconSize));
   }
 
   /// Creates a [DropdownNode] from a JSON object.

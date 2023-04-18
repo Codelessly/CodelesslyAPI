@@ -28,6 +28,15 @@ class ListViewNode extends SinglePlaceholderNode
   /// The properties of the [ListView].
   ListViewProperties properties;
 
+  @override
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
+    if (scrollDirection == AxisC.vertical) {
+      return BoxConstraintsModel(maxHeight: properties.itemExtent);
+    } else {
+      return BoxConstraintsModel(maxWidth: properties.itemExtent);
+    }
+  }
+
   /// Creates a [ListViewNode].
   ListViewNode({
     required super.id,

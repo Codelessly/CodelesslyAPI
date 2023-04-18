@@ -579,11 +579,11 @@ mixin GeometryMixin on BaseNode {
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
-    SizeC resultSize = super.minimumInternalSize(
+    BoxConstraintsModel resultSize = super.internalConstraints(
       horizontalFit: horizontalFit,
       verticalFit: verticalFit,
     );
@@ -620,7 +620,12 @@ mixin GeometryMixin on BaseNode {
           }
         }
 
-        resultSize = resultSize | size;
+        resultSize = resultSize.enforce(
+          BoxConstraintsModel(
+            minWidth: size.width,
+            minHeight: size.height,
+          ),
+        );
       }
     }
     return resultSize;
