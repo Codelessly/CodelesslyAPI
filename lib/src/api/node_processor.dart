@@ -104,6 +104,7 @@ extension BaseNodeUpdateExtension on BaseNode {
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
+    bool forceUpdateEdgePins = false,
   }) =>
       NodeProcessor.updateNode(
         node: this,
@@ -118,6 +119,7 @@ extension BaseNodeUpdateExtension on BaseNode {
         recursivelyCalculateChildrenGlobalBoxes:
             recursivelyCalculateChildrenGlobalBoxes,
         globalParentBoundingBoxPos: globalParentBoundingBoxPos,
+          forceUpdateEdgePins:forceUpdateEdgePins,
       );
 
   /// Set rotation for this node.
@@ -259,6 +261,7 @@ class NodeProcessor {
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
+    bool forceUpdateEdgePins = false,
   }) {
     final bool marginChanged = margin != null && margin != node.margin;
     final bool paddingChanged = padding != null && padding != node.padding;
@@ -312,7 +315,7 @@ class NodeProcessor {
       node._retainedOuterBoxLocal = node.outerBoxLocal.copyWith();
     }
 
-    if (node.id != kRootNode && !performLayoutRan) {
+    if (node.id != kRootNode && (forceUpdateEdgePins || !performLayoutRan)) {
       final BaseNode parentNode = getNode(node.parentID);
 
       node.edgePins = node.edgePins.copyWithLeft(
