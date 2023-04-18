@@ -9,9 +9,9 @@ import '../mixins.dart';
 
 part 'icon_model.g.dart';
 
-/// Base class for holding data for a font based icon.
+/// Base class for holding data of a font based icon.
 abstract class IconModel with EquatableMixin, SerializableMixin {
-  /// codepoint that represents the icon in the fonts.
+  /// Represents the icon in the fonts.
   final int codepoint;
 
   /// Name of the font family that contains the icon.
@@ -24,7 +24,7 @@ abstract class IconModel with EquatableMixin, SerializableMixin {
   /// for deserialization.
   abstract final String type;
 
-  /// The name of the flutter/dart package that provides this font icons if any.
+  /// The name of the flutter/dart package that provides this font icon, if any.
   final String? fontPackage = null;
 
   /// Creates an icon model with the given data.
@@ -63,6 +63,7 @@ enum MaterialIconStyle {
   /// Icons with sharp corners.
   sharp('Sharp'),
 
+  /// Icons with two tones.
   /// This is not supported by flutter out of the box.
   twoTone('Two Tone');
 

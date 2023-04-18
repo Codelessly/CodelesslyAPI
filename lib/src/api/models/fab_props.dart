@@ -61,12 +61,13 @@ enum FABLocation {
   /// See Flutter docs for more info.
   miniEndTop('Mini End Top'),
 
-  /// Start-aligned [FloatingActionButton], floating at the bottom of the screen.
+  /// Start-aligned [FloatingActionButton], floating at the bottom of the
+  /// screen.
   /// See Flutter docs for more info.
   startFloat('Start Float'),
 
-  /// Start-aligned [FloatingActionButton], floating at the bottom of the screen,
-  /// optimized for mini floating action buttons.
+  /// Start-aligned [FloatingActionButton], floating at the bottom of the
+  /// screen, optimized for mini floating action buttons.
   /// See Flutter docs for more info.
   miniStartFloat('Mini Start Float'),
 

@@ -19,11 +19,13 @@ enum BoxHeightStyleEnum {
   /// line. All boxes in the same line will be the same height.
   max,
 
-  /// Calculate box heights based on the metrics of this paragraph's [StrutStyle].
+  /// Calculate box heights based on the metrics of this paragraph's
+  /// [StrutStyle].
   strut,
 
-  /// Provide tight bounding boxes that fit heights per run. This style may result
-  /// in uneven bounding boxes that do not nicely connect with adjacent boxes.
+  /// Provide tight bounding boxes that fit heights per run. This style may
+  /// result in uneven bounding boxes that do not nicely connect with adjacent
+  /// boxes.
   tight;
 
   /// Displayable string representation of this class.

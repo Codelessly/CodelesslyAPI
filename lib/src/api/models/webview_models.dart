@@ -22,7 +22,7 @@ enum WebViewWebpageSourceType {
 
 /// Different types of supported webviews.
 enum WebViewType {
-  /// A webpage on the web.
+  /// A webpage.
   webpage('Webpage'),
 
   /// Google maps view.
@@ -38,7 +38,7 @@ enum WebViewType {
   const WebViewType(this.label);
 }
 
-/// Represents media playback policy for a webview.
+/// Defines media playback policy for a webview.
 enum WebViewMediaAutoPlaybackPolicy {
   /// Initiate media playback only on user interaction.
   requireUserActionForAllMedia('Never autoplay any media'),

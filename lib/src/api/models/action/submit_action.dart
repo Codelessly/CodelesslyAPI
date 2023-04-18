@@ -10,12 +10,12 @@ import 'action.dart';
 
 part 'submit_action.g.dart';
 
-/// Represents supported service for submit action.
+/// Represents supported services for submit action.
 enum SubmitActionService {
-  /// Mailchimp service for submit action.
+  /// Mailchimp service.
   mailchimp;
 
-  /// Displayable string representation of the service.
+  /// Displayable string representation of [SubmitActionService].
   String get prettify {
     switch (this) {
       case SubmitActionService.mailchimp:
@@ -27,13 +27,13 @@ enum SubmitActionService {
 /// An action that submits a form.
 @JsonSerializable()
 class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
-  /// Submit service to use.
+  /// Service used to submit the form.
   SubmitActionService service;
 
-  /// ID of the text field node to submit.
+  /// ID of the text field node whose content needs to be submitted.
   final String primaryTextField;
 
-  /// API key for for the submit service.
+  /// API key used to access the service.
   final String apiKey;
 
   /// Creates a new [SubmitAction].
@@ -73,11 +73,11 @@ class MailchimpSubmitAction extends SubmitAction {
   final String listID;
 
   /// Optional field to store the first name of the subscriber.
-  /// It referes to the ID of a text field node.
+  /// It refers to the ID of a text field node.
   final String firstNameField;
 
   /// Optional field to store the last name of the subscriber.
-  /// It referes to the ID of a text field node.
+  /// It refers to the ID of a text field node.
   final String lastNameField;
 
   /// Creates a new [MailchimpSubmitAction].

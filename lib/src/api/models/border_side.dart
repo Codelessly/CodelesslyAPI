@@ -9,16 +9,16 @@ import '../mixins.dart';
 import 'models.dart';
 part 'border_side.g.dart';
 
-/// Represents the border style for a border.
+/// Represents the style of the border.
 enum BorderStyleEnum {
-  /// Solid border as the name suggests.
+  /// Solid border.
   solid,
 
   /// No border.
   none;
 }
 
-/// Represents the border style for a border side.
+/// Holds data needed to decorate the border side.
 @JsonSerializable()
 class BorderSideModel with EquatableMixin, SerializableMixin {
   /// Color of the border side.
@@ -37,7 +37,8 @@ class BorderSideModel with EquatableMixin, SerializableMixin {
     this.width = 1,
   });
 
-  /// Duplicates an instance of this class with the given values as overrides.
+  /// Duplicates an instance of [BorderSideModel] with the given values as
+  /// overrides.
   BorderSideModel copyWith({
     ColorRGBA? color,
     BorderStyleEnum? style,

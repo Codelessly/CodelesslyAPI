@@ -44,8 +44,8 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   /// Optional text that describes the input field.
   final String? labelText;
 
-  /// The style to use for [InputDecorationModel.labelText] when the label is on top
-  /// of the input field.
+  /// The style to use for [InputDecorationModel.labelText] when the label is on
+  /// top of the input field.
   final TextProp labelStyle;
 
   /// The style to use for [InputDecorationModel.labelText] when the label is
@@ -80,45 +80,42 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   /// The maximum number of lines the [errorText] can occupy.
   final int errorMaxLines;
 
-  /// Defines **how** the floating label should behave.
+  /// Defines when the floating label should be displayed.
   final FloatingLabelBehaviorEnum floatingLabelBehavior;
 
   /// Whether the decoration is the same size as the input field.
   final bool isCollapsed;
 
-  /// Whether the [InputDecorator.child] is part of a dense form (i.e., uses less vertical
-  /// space).
+  /// Whether the [InputDecorator.child] is part of a dense form, i.e., uses
+  /// less vertical space.
   final bool isDense;
 
-  // Widget prefix;
   /// Optional text prefix to place on the line before the input.
   final String? prefixText;
 
   /// The style to use for the [prefixText].
   final TextProp prefixStyle;
 
-  /// An icon that appears before the [prefix] or [prefixText] and before
-  /// the editable part of the text field, within the decoration's container.
+  /// An icon that appears before the [prefixText] and before the editable part
+  /// of the text field, within the decoration's container.
   final MultiSourceIconModel prefixIcon;
 
   /// The constraints for the prefix icon.
   final BoxConstraintsModel prefixIconConstraints;
 
-  // Widget suffix;
   /// Optional text suffix to place on the line after the input.
   final String? suffixText;
 
   /// The style to use for the [suffixText].
   final TextProp suffixStyle;
 
-  /// An icon that appears after the editable part of the text field and
-  /// after the [suffix] or [suffixText], within the decoration's container.
+  /// An icon that appears after the editable part of the text field and after
+  /// the [suffixText], within the decoration's container.
   final MultiSourceIconModel suffixIcon;
 
   /// The constraints for the suffix icon.
   final BoxConstraintsModel suffixIconConstraints;
 
-  // Widget counter;
   /// Optional text to place below the line as a character count.
   final String? counterText;
 
@@ -138,8 +135,8 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   /// is being hovered over by a mouse.
   final ColorRGBA hoverColor;
 
-  /// The border to display when the [InputDecorator] does not have the focus and
-  /// is showing an error.
+  /// The border to display when the [InputDecorator] does not have the focus
+  /// and is showing an error.
   final InputBorderModel errorBorder;
 
   /// The border to display when the [InputDecorator] has the focus and is not

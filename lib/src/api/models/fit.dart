@@ -4,13 +4,14 @@
 
 /// Represents Image fits. Directly translates to Flutter's [BoxFit].
 enum Fit {
-  // As large as possible while still containing the source entirely within the
+  /// As large as possible while still containing the source entirely within the
   /// target box.
   contain,
 
   /// As small as possible while still covering the entire target box.
   cover,
-  //// Fill the target box by distorting the source's aspect ratio.
+
+  /// Fill the target box by distorting the source's aspect ratio.
   fill,
 
   /// Make sure the full height of the source is shown, regardless of
@@ -33,7 +34,7 @@ enum Fit {
   /// Whether this fit supports scaling.
   bool get isScalable => this == Fit.none;
 
-  /// Whether this fit support image repeat(Tile mode).
+  /// Whether this fit support image repeat (Tile mode).
   bool get isRepeatable =>
       this == Fit.contain || this == Fit.none || this == Fit.scaleDown;
 

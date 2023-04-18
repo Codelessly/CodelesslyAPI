@@ -36,7 +36,7 @@ class Vec with SerializableMixin, EquatableMixin {
   /// Each axis is summed separately.
   Vec operator +(Vec other) => Vec(x + other.x, y + other.y);
 
-  /// Returns the subtraction of this [Vec] instance with the given [other].
+  /// Returns the subtraction of the given [other] from this [Vec] instance.
   /// Each axis is subtracted separately.
   Vec operator -(Vec other) => Vec(x - other.x, y - other.y);
 
@@ -83,7 +83,7 @@ class Vec with SerializableMixin, EquatableMixin {
 
   /// Returns the distance to [other].
   /// Note that this is an expensive function call due to the use of [sqrt].
-  /// If you only need to compare distances, use [distanceToSq] instead.
+  /// To compare distances efficiently, use [distanceToSq].
   double distanceTo(Vec other) =>
       sqrt(pow(x - other.x, 2) + pow(y - other.y, 2));
 
@@ -96,10 +96,9 @@ class Vec with SerializableMixin, EquatableMixin {
   /// [distanceToSq] returns the squared distance, while [distanceTo] returns
   /// the actual distance.
   ///
-  /// If you would like to do a cheap but identical comparison, use this
-  /// function but compare it to the squared value of the distance you are
-  /// comparing against. For example, if you want to compare if the distance
-  /// is less than 10, compare against 10 * 10 = (100) instead.
+  /// To do a cheap but identical comparison, use this function but compare it
+  /// to the squared value of the distance. For example, to check if the
+  /// distance is less than 10, compare against 10 * 10 = (100) instead.
   ///
   /// if (vec.distanceToSq(other) < 10 * 10) {
   ///    ...
@@ -121,7 +120,7 @@ class Vec with SerializableMixin, EquatableMixin {
   /// This is an expensive function call due to the use of [sqrt].
   Vec get normalized => this / length;
 
-  /// A perpendicular vector that is only perpendicular to this [Vec].
+  /// A vector that is perpendicular to this [Vec].
   Vec get perpendicular => Vec(-y, x);
 
   /// A negated vector that inverts the direction of this [Vec].

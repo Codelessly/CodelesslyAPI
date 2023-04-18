@@ -10,7 +10,7 @@ part 'action.g.dart';
 
 /// Type of the action to perform on a user interaction.
 enum ActionType {
-  /// Navigate to something.
+  /// Navigate to a page.
   navigation,
 
   /// Open a link.
@@ -28,7 +28,7 @@ enum ActionType {
   /// Call a custom function.
   callFunction;
 
-  /// Displayable string representation of the action type.
+  /// Displayable string representation of the [ActionType].
   String get prettify {
     switch (this) {
       case ActionType.navigation:
@@ -47,8 +47,6 @@ enum ActionType {
   }
 }
 
-/// ActionModel is named that way to not conflict with 'Action' from
-/// Material file.
 /// Holds information about an action to perform on a user interaction.
 @JsonSerializable()
 class ActionModel with SerializableMixin {

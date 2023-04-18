@@ -18,25 +18,25 @@ enum FontWeightNumeric {
   /// Extra-light, Ultra-light.
   w200,
 
-  /// Light
+  /// Light.
   w300,
 
   /// Normal / regular / plain.
   w400,
 
-  /// Medium
+  /// Medium.
   w500,
 
-  /// Semi bold
+  /// Semi bold.
   w600,
 
-  /// Bold
+  /// Bold.
   w700,
 
   /// Extra bold, Ultra bold.
   w800,
 
-  /// Black
+  /// Black.
   w900;
 
   /// Displayable string representation of the object.
@@ -87,17 +87,16 @@ enum FontWeightNumeric {
   }
 }
 
-/// A solid color, gradient, or image texture that
-/// can be applied as fills or strokes
+/// Holds information about the font, i.e., its family, weight, etc.
 @JsonSerializable()
 class FontName extends Equatable with SerializableMixin {
-  /// example: SF Pro
+  /// Family of the font. Ex. Roboto.
   final String family;
 
-  /// example: Bold
+  /// Style of the font, i.e., italic or normal.
   final String style;
 
-  /// example: w400
+  /// Weight of the font.
   /// This property is null in projects older than April 30, 2021.
   final FontWeightNumeric? weight;
 
@@ -111,7 +110,7 @@ class FontName extends Equatable with SerializableMixin {
     required this.weight,
   });
 
-  /// Duplicates this instance with given data overrides.
+  /// Duplicates [FontName] with given data overrides.
   FontName copyWith({
     String? family,
     String? style,
@@ -123,21 +122,21 @@ class FontName extends Equatable with SerializableMixin {
         weight: weight ?? this.weight,
       );
 
-  /// Represents Roboto fonts.
+  /// Represents regular Roboto font.
   static const FontName robotoRegular = FontName(
     family: 'Roboto',
     style: 'Normal',
     weight: FontWeightNumeric.w400,
   );
 
-  /// Represents Poppins fonts.
+  /// Represents regular Poppins font.
   static const FontName poppinsRegular = FontName(
     family: 'Poppins',
     style: 'Normal',
     weight: FontWeightNumeric.w400,
   );
 
-  /// Represents Inter fonts.
+  /// Represents regular Inter font.
   static const FontName montserratRegular = FontName(
     family: 'Montserrat',
     style: 'Normal',

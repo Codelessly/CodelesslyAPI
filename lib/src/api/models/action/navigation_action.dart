@@ -12,7 +12,7 @@ part 'navigation_action.g.dart';
 
 /// Defines how the navigation should be performed.
 enum NavigationType {
-  /// Navigate to a specified page.
+  /// Navigate to the specified page.
   push,
 
   /// Navigate back from the current page.
@@ -21,7 +21,7 @@ enum NavigationType {
   /// Replace the current page with the specified page in the navigation stack.
   replace;
 
-  /// Displayable string representation of the action type.
+  /// Displayable string representation of [NavigationType].
   String get prettify {
     switch (this) {
       case NavigationType.push:
@@ -34,15 +34,14 @@ enum NavigationType {
   }
 }
 
-/// An action that navigates to a new route.
+/// An action that navigates to a new page.
 @JsonSerializable()
 class NavigationAction extends ActionModel
     with EquatableMixin, SerializableMixin {
   /// Defines how the navigation should be performed.
   final NavigationType navigationType;
 
-  /// Destination nodeID. Typically, a canvas, dialog or bottom sheet.
-  // TODO: Rename to "destination".
+  /// Destination canvas node's ID.
   final String destinationId;
 
   /// Creates a new [NavigationAction].

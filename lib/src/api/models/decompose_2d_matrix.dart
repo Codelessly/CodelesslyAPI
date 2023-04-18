@@ -4,7 +4,7 @@
 
 import 'dart:math' as math;
 
-/// From https://stackoverflow.com/questions/4361242/extract-rotation-scale-values-from-2d-transformation-matrix
+/// Source: [https://stackoverflow.com/questions/4361242/extract-rotation-scale-values-from-2d-transformation-matrix]
 dynamic decompose2dMatrix(List<num> matrixList) {
   final num a = matrixList[0];
   final num b = matrixList[1];

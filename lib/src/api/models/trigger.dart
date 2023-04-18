@@ -9,9 +9,9 @@ import '../mixins.dart';
 
 part 'trigger.g.dart';
 
-/// Types of different triggers.
+/// Types of triggers.
 enum TriggerType {
-  /// Triggered when the user clicks on a target.
+  /// Triggered when the user clicks on the target.
   click,
 
   /// Triggered when text is changed inside a text input field.
@@ -27,23 +27,22 @@ enum TriggerType {
   /// Triggered when the user long presses on a target.
   longPress,
 
-  /// Triggered when the user hovers over a target with mouse/cursor.
+  /// Triggered when the user hovers over a target with mouse cursor.
   hover,
 
-  /// Triggered when the user drags a target.
+  /// Triggered when the user drags the target.
   drag,
-  // unused, for now.
-  // afterTimeout,
-  /// Triggered when the cursor enters a target region.
+
+  /// Triggered when the cursor enters the target region.
   cursorEnter,
 
-  /// Triggered when the cursor exits a target region.
+  /// Triggered when the cursor exits the target region.
   cursorExit,
 
-  /// Triggered when a pointer down event is received on a target.
+  /// Triggered when a pointer down event is received on the target.
   pointerDown,
 
-  /// Triggered when a pointer up event is received on a target.
+  /// Triggered when a pointer up event is received on the target.
   pointerUp;
 
   /// Displayable string representation of the trigger type.
@@ -57,8 +56,6 @@ enum TriggerType {
         return 'Hover';
       case TriggerType.drag:
         return 'Drag';
-      // case TriggerType.afterTimeout:
-      //   return 'After Timeout';
       case TriggerType.cursorEnter:
         return 'Cursor Enter';
       case TriggerType.cursorExit:
@@ -82,10 +79,6 @@ enum TriggerType {
 class TriggerModel with EquatableMixin, SerializableMixin {
   /// The type of the trigger.
   final TriggerType type;
-
-  // TODO: We might implement timeout in future, but it is not relevant for now.
-  // // When ActionType is [afterTimeout].
-  // final double timeout;
 
   /// Creates a [TriggerModel] with given data.
   TriggerModel({required this.type});

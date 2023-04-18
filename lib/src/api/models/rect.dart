@@ -17,16 +17,16 @@ part 'rect.g.dart';
 /// are relative to a given origin.
 @JsonSerializable()
 class RectC with SerializableMixin, EquatableMixin {
-  /// The offset of the left edge of this rectangle from the x axis.
+  /// The offset of the left edge of this rectangle from the x-axis.
   final double left;
 
-  /// The offset of the top edge of this rectangle from the y axis.
+  /// The offset of the top edge of this rectangle from the y-axis.
   final double top;
 
-  /// The offset of the right edge of this rectangle from the x axis.
+  /// The offset of the right edge of this rectangle from the x-axis.
   final double right;
 
-  /// The offset of the bottom edge of this rectangle from the y axis.
+  /// The offset of the bottom edge of this rectangle from the y-axis.
   final double bottom;
 
   /// Creates new [RectC] with given data.
@@ -42,7 +42,7 @@ class RectC with SerializableMixin, EquatableMixin {
   const RectC.fromLTRB(this.left, this.top, this.right, this.bottom);
 
   /// Construct the smallest rectangle that encloses the given width and height,
-  /// from 0,0 origin.
+  /// from [0,0] origin.
   const RectC.fromSize(double width, double height)
       : left = 0,
         top = 0,
@@ -72,7 +72,7 @@ class RectC with SerializableMixin, EquatableMixin {
           center.y + height / 2,
         );
 
-  // Construct the smallest rectangle that encloses the given offsets, treating
+  /// Construct the smallest rectangle that encloses the given offsets, treating
   /// them as vectors from the origin.
   RectC.fromPoints(Vec a, Vec b)
       : this.fromLTRB(
@@ -106,16 +106,20 @@ class RectC with SerializableMixin, EquatableMixin {
   /// rectangle.
   double get longestSide => max(width, height);
 
-  /// The offset to the intersection of the top and left edges of this rectangle.
+  /// The offset to the intersection of the top and left edges of this
+  /// rectangle.
   Vec get topLeft => Vec(left, top);
 
-  /// The offset to the intersection of the top and right edges of this rectangle.
+  /// The offset to the intersection of the top and right edges of this
+  /// rectangle.
   Vec get topRight => Vec(right, top);
 
-  /// The offset to the intersection of the bottom and left edges of this rectangle.
+  /// The offset to the intersection of the bottom and left edges of this
+  /// rectangle.
   Vec get bottomLeft => Vec(left, bottom);
 
-  /// The offset to the intersection of the bottom and right edges of this rectangle.
+  /// The offset to the intersection of the bottom and right edges of this
+  /// rectangle.
   Vec get bottomRight => Vec(right, bottom);
 
   /// The offset to the point halfway between the left and right and the top and

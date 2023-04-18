@@ -9,7 +9,7 @@ import '../mixins.dart';
 
 part 'breakpoint.g.dart';
 
-/// The scale mode represents how a canvas should be displayed in a given
+/// The scale mode represents how a canvas should be displayed within a given
 /// breakpoint.
 enum ScaleMode {
   /// The size of the canvas adjusts to fit either the width of the canvas or
@@ -46,17 +46,17 @@ enum ScaleMode {
 /// Represents a breakpoint for responsiveness.
 @JsonSerializable()
 class Breakpoint with EquatableMixin, SerializableMixin {
-  /// ID of the node to which this breakpoint belongs to.
+  /// ID of the node which this breakpoint belongs to.
   final String nodeId;
 
-  /// [lowerBound] and [upperBound] are usually int, but they support infinity.
-  /// Lower bound for this breakpoint. (inclusive)
+  /// Lower bound of this breakpoint. It is an integer, but supports infinity.
+  /// Its value is inclusive in the breakpoint.
   final num lowerBound;
 
-  /// upper bound for this breakpoint.
+  /// Upper bound of this breakpoint. It is an integer, but supports infinity.
   final num upperBound;
 
-  /// Scale mode for this breakpoint.
+  /// Scale mode of this breakpoint.
   final ScaleMode scaleMode;
 
   /// Creates new [Breakpoint] with given values.

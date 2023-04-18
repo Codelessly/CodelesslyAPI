@@ -2,9 +2,9 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-/// Type of paint as a string enum
+/// Type of paint.
 enum PaintType {
-  /// Solid color paint
+  /// Solid color paint.
   solid,
 
   /// A linear gradient.
@@ -19,7 +19,7 @@ enum PaintType {
   /// A diamond gradient.
   gradientDiamond,
 
-  /// Image fill
+  /// Image fill.
   image,
 
   /// Emoji as fill.

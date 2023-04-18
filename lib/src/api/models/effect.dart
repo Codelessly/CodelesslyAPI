@@ -10,7 +10,7 @@ import 'models.dart';
 
 part 'effect.g.dart';
 
-/// Type of effect
+/// Type of effect.
 enum EffectType {
   /// A drop shadow effect applied inwards.
   innerShadow,
@@ -18,14 +18,14 @@ enum EffectType {
   /// A drop shadow effect applied outwards.
   dropShadow,
 
-  /// Blurs the layer itself.
+  /// Blurs out the layer itself.
   layerBlur,
 
-  /// A background blur effect.
+  /// Blurs out layer's background.
   backgroundBlur;
 }
 
-/// Represents a shadow property.
+/// Represents shadow property.
 enum ShadowProperty {
   /// Offset on x-axis.
   offsetX,
@@ -40,30 +40,29 @@ enum ShadowProperty {
   radius;
 }
 
-/// A visual effect such as a shadow or blur
+/// A visual effect such as a shadow or blur.
 @JsonSerializable()
 class Effect with EquatableMixin, SerializableMixin {
-  /// Type of effect as a string enum
+  /// Type of effect.
   final EffectType type;
 
-  /// Is the effect active?
+  /// Whether the affect is visible.
   final bool visible;
 
-  /// Radius of the blur effect (applies to shadows as well)
+  /// Radius of the effect.
   final double radius;
 
-  // The following properties are for shadows only:
-  /// The shadow spread, before blur is applied
+  /// The shadow spread, before blur is applied.
   final double? spread;
 
-  /// The color of the shadow
+  /// The color of the shadow.
   final ColorRGBA? color;
 
-  /// Blend mode of the shadow
+  /// Blend mode of the shadow.
   @JsonKey(unknownEnumValue: BlendModeC.srcOver)
   final BlendModeC? blendMode;
 
-  /// How far the shadow is projected in the x and y directions
+  /// How far the shadow is projected in the x and y directions.
   final Vec? offset;
 
   /// Creates new [Effect] with given data.

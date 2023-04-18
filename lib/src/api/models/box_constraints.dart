@@ -35,20 +35,6 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
     this.maxHeight,
   });
 
-  // This will set all of them to null because every value is nullable.
-  // BoxConstraintsModel copyWith({
-  //   double? minWidth,
-  //   double? maxWidth,
-  //   double? minHeight,
-  //   double? maxHeight,
-  // }) =>
-  //     BoxConstraintsModel(
-  //       minWidth: minWidth ?? this.minWidth,
-  //       maxWidth: maxWidth ?? this.maxWidth,
-  //       minHeight: minHeight ?? this.minHeight,
-  //       maxHeight: maxHeight ?? this.maxHeight,
-  //     );
-
   /// Duplicates instance of this class with given [minWidth] value override.
   BoxConstraintsModel updateMinWidth(double? value) => BoxConstraintsModel(
         minWidth: value,
@@ -81,7 +67,8 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
         maxHeight: value,
       );
 
-  /// Returns new box constraints that remove the minimum width and height requirements.
+  /// Returns new box constraints that remove the minimum width and height
+  /// requirements.
   BoxConstraintsModel loosen() {
     return BoxConstraintsModel(
       maxWidth: maxWidth,
@@ -175,8 +162,8 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
     );
   }
 
-  /// Adds a [size] to the current box constraints model's minWidth and minHeight
-  /// and returns a new box constraints model.
+  /// Adds a [size] to the current box constraints model's minWidth and
+  /// minHeight and returns a new box constraints model.
   BoxConstraintsModel add(SizeC size) {
     return BoxConstraintsModel(
       minWidth: size.width <= 0

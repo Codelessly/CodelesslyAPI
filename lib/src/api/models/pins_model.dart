@@ -65,174 +65,45 @@ enum EdgePin {
   }
 }
 
-/// Edge pins are the edges of a node that are pinned to it's parent.
+/// Edge pins are the edges of a node that are pinned to its parent. Edges refer
+/// to the [OuterNodeBox]'s edges.
 ///
-/// This model is meant to represent the behavior of the [Positioned] widget
-/// in Flutter.
+/// For example, if [left] set to zero, the node's left edge will be pinned to
+/// its parent's left edge and if [left] set to 10, the node will be 10px away
+/// from its parent's left edge.
 ///
-/// For example, if a node has left edge pin that is not null and set to zero,
-/// its left edge will be pinned to its parent's left edge. If the left pin
-/// is set to 10px, the node will be 10px away from its parent's left edge.
+/// Similarly, if the node has [bottom] set to 50, the node will be pinned to
+/// its parent's bottom edge at a distance of 50px.
 ///
-/// If both the left and right pins are set to zero, the node will be pinned
-/// to its parent's left and right edges, taking up the entire width of its
-/// parent.
+/// If two opposite edge pins on an axis are set to be non-null, the node is
+/// pinned to both the edges and stretches to take up the entire space of its
+/// parent on that axis.
 ///
-/// If the left pin is set to null and the right pin is set to some value,
-/// the node's relative positioning space will be calculated from its right
-/// edge. IE: If the right pin is set to 10px, and the parent grows its width by
-/// 100px, the node will MOVE 100px to the right, ALWAYS staying 10px away from
-/// its parent's right edge. The node no longer follows its parent's left edge,
-/// it follows its parent's right edge.
+/// Setting two opposite edge pins to [null] is invalid because it breaks the
+/// node's positioning in that axis. Both axes should have at least one non-null
+/// edge pin for positioning to work.
 ///
-/// You can have a two pins on the same axis be not null, we call this a
-/// symmetric chain, where the relevant axis is linked to both pins.
+/// By default, left and top pins are non-null and correspond to the X and Y
+/// values of node's position. If left or top pins' values are changed, X or Y
+/// change accordingly.
 ///
-/// You CANNOT have two pins on the same axis BOTH be null, as this is a
-/// physical impossibility. The left and top pins are ALWAYS not null by default
-/// and when they are not null, they are ALWAYS equal to the X and Y values
-/// of the node's position. If you change the left/top pins, the X and Y follow,
-/// and vice versa; if you change the X or Y, the left/top pins follow. This is
-/// of course only true if the left and top pins are NOT null.
-///
-/// Why is this behavior so weird? Well, in reality it is not, the top and left
-/// pins literally define the position of the node. The node's position is very
-/// literally computed based on these pins, left and top are simply the default
-/// most of the time and never given a thought.
-///
-/// When computing the global positioning of a node, we always normally sum
-/// the left and top corners of the parent-chain recursively to get a global
-/// position. This defines the behavior of "left" and "top" pins; they are
-/// always relative to the parent's left and top edges.
-///
-/// When the right and bottom pins are defined, the global positioning of the
-/// node is computed based on those pins instead rather than the top and left
-/// pins. This defines the behavior of "right" and "bottom" pins; they are
-/// always relative to the parent's right and bottom edges.
-///
-/// The reason this sounds convoluted is because we are used to thinking of
-/// relative positioning in terms of the top and left edge, but in reality
-/// the top and left edge are just the default. You can set the relativity
-/// of a node to any edge, and the node will follow that edge.
-///
-/// With all of that said, the reason it is physically impossible to have have
-/// two pins on the same axis both be null is because then there is no
-/// "position" or "positioning" anymore on that axis. If the left and right
-/// pins are both null, then the node is not positioned on the X axis at all,
-/// the node literally stops having an x axis which is a physical impossibility.
-/// At least one pin on a given axis must always be not null for reality to
-/// make sense, we don't want to create black holes now, do we?
-///
-/// In summary, if you want to change the relative positioning of a node, simply
-/// change the nullability state of a pin. A null pin means the node is NOT
-/// relative to that edge, and a non-null pin means the node IS relative to that
-/// edge. A given axis must always have at least one non-null pin.
-///
-/// A note: If a pin is symmetrically-chained on an axis, it will be as if it's
-/// [SizeFit] is set to [SizeFit.expanded], IE: the node will stretch on the
-/// axis to occupy the entire space of its parent on that axis, with the value
-/// of the pins as another kind of [margin]. It's not real margin from
-/// [BaseNode.margin], but it technically the same thing.
-///
-/// Another note: the pins are all in terms of the [OuterNodeBox],
-/// meaning that the edge engulfs the margin and stroke inside of it.
-///
-/// Please refer to the [OuterNodeBox] documentation for more information.
-///
-/// Again, also please refer to the [Positioned] widget in Flutter for more
-/// information on how this model works. Its behavior is identical.
+/// [EdgePinsModel] replicates the behavior of Flutter's [Positioned] widget.
 @JsonSerializable()
 class EdgePinsModel with EquatableMixin, SerializableMixin {
-  /// The amount of pixels from the left edge of the parent to the left edge
-  /// of the node in terms of [OuterNodeBox].
-  ///
-  /// If NOT null, the node will be pinned to the left edge. If NULL, the node
-  /// will NOT be pinned to the left edge.
-  ///
-  /// This is the default standard that we're used to, If this node is 10 pixels
-  /// away from its parent's left edge and:
-  ///
-  /// - IF the parent grows its width IN THE RIGHT DIRECTION by 100 pixels, the
-  ///   node will stay EXACTLY where it is in both the GLOBAL and LOCAL/RELATIVE
-  ///   coordinate systems since the left edge of the parent did NOT move.
-  ///   The node will be 10 pixels away from the left edge of the parent, and
-  ///   none of its global or local boxes are affected.
-  ///
-  /// - IF the parent grows its width IN THE LEFT DIRECTION by 100 pixels, the
-  ///   node will move to the LEFT by 100 pixels IN THE GLOBAL SPACE only, but
-  ///   its LOCAL/RELATIVE x-coordinate will remain the same at 10 pixels.
-  ///   The node will be 10 pixels away from the left edge of the parent, but
-  ///   its global box will be moved to the left by 100 pixels, along with
-  ///   any children inside of it.
+  /// Distance between node's left edge and its parent's left edge. Setting a
+  /// non-null value pins the node to the left edge of its parent.
   final double? left;
 
-  /// The amount of pixels from the top edge of the parent to the top edge
-  /// of the node in terms of [OuterNodeBox].
-  ///
-  /// If NOT null, the node will be pinned to the top edge. If NULL, the node
-  /// will NOT be pinned to the top edge.
-  ///
-  /// This is the default standard that we're used to, if this node is 10 pixels
-  /// away from its parent's top edge and:
-  ///
-  /// - IF the parent grows its height IN THE BOTTOM DIRECTION by 100 pixels,
-  ///   the node will stay EXACTLY where it is in both the GLOBAL and
-  ///   LOCAL/RELATIVE coordinate systems since the top edge of the parent did
-  ///   NOT move. The node will be 10 pixels away from the top edge of the
-  ///   parent, and none of its global or local boxes are affected.
-  ///
-  /// - IF the parent grows its height IN THE TOP DIRECTION by 100 pixels, the
-  ///   node will move to the TOP by 100 pixels IN THE GLOBAL SPACE only, but
-  ///   its LOCAL/RELATIVE y-coordinate will remain the same at 10 pixels.
-  ///   The node will be 10 pixels away from the top edge of the parent, but
-  ///   its global box will be moved to the top by 100 pixels, along with
-  ///   any children inside of it.
+  /// Distance between node's top edge and its parent's top edge. Setting a
+  /// non-null value pins the node to the top edge of its parent.
   final double? top;
 
-  /// The amount of pixels from the right edge of the parent to the right edge
-  /// of the node in terms of [OuterNodeBox].
-  ///
-  /// If NOT null, the node will be pinned to the right edge. If NULL, the node
-  /// will NOT be pinned to the right edge.
-  ///
-  /// This is the none-standard behavior that we're not used to, if this node is
-  /// 10 pixels away from its parent's right edge and:
-  ///
-  /// - IF the parent grows its width IN THE RIGHT DIRECTION by 100 pixels, the
-  ///   node will move to the RIGHT by 100 pixels IN THE GLOBAL SPACE only, but
-  ///   its LOCAL/RELATIVE x-coordinate will remain the same at 10 pixels.
-  ///   The node will be 10 pixels away from the right edge of the parent, but
-  ///   its global box will be moved to the right by 100 pixels, along with
-  ///   any children inside of it.
-  ///
-  /// - IF the parent grows its width IN THE LEFT DIRECTION by 100 pixels, the
-  ///   node will stay EXACTLY where it is in both the GLOBAL and LOCAL/RELATIVE
-  ///   coordinate systems since the right edge of the parent did NOT move.
-  ///   The node will be 10 pixels away from the right edge of the parent, and
-  ///   none of its global or local boxes are affected.
+  /// Distance between node's right edge and its parent's right edge. Setting a
+  /// non-null value pins the node to the right edge of its parent.
   final double? right;
 
-  /// The amount of pixels from the bottom edge of the parent to the bottom edge
-  /// of the node in terms of [OuterNodeBox].
-  ///
-  /// If NOT null, the node will be pinned to the bottom edge. If NULL, the node
-  /// will NOT be pinned to the bottom edge.
-  ///
-  /// This is the none-standard behavior that we're not used to, if this node is
-  /// 10 pixels away from its parent's bottom edge and:
-  ///
-  /// - IF the parent grows its height IN THE BOTTOM DIRECTION by 100 pixels,
-  ///   the node will move to the BOTTOM by 100 pixels IN THE GLOBAL SPACE only,
-  ///   but its LOCAL/RELATIVE y-coordinate will remain the same at 10 pixels.
-  ///   The node will be 10 pixels away from the bottom edge of the parent, but
-  ///   its global box will be moved to the bottom by 100 pixels, along with
-  ///   any children inside of it.
-  ///
-  /// - IF the parent grows its height IN THE TOP DIRECTION by 100 pixels, the
-  ///   node will stay EXACTLY where it is in both the GLOBAL and LOCAL/RELATIVE
-  ///   coordinate systems since the bottom edge of the parent did NOT move.
-  ///   The node will be 10 pixels away from the bottom edge of the parent, and
-  ///   none of its global or local boxes are affected.
+  /// Distance between node's bottom edge and its parent's bottom edge. Setting a
+  /// non-null value pins the node to the bottom edge of its parent.
   final double? bottom;
 
   /// Creates a new [EdgePinsModel] with the given [left], [top], [right], and
@@ -244,75 +115,67 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
     required this.bottom,
   });
 
-  /// Creates a standard [EdgePinsModel] that defines the left and top corners
-  /// as non-null zero values (so the top left corner of this node is pinned to
-  /// the top left corner of the parent), while the right and bottom pins are
-  /// null.
+  /// Creates a standard [EdgePinsModel] that pins the node to the parent's
+  /// top-left corner.
   static const EdgePinsModel standard =
       EdgePinsModel(left: 0, top: 0, right: null, bottom: null);
 
-  /// Standard is defined by the standard we are used to where the
-  /// local/relative coordinate system is defined by the top and left pins.
-  ///
-  /// When a node has non-null pins on the top and left pins and null pins on
-  /// the right and bottom pins, it is considered to be in standard.
+  /// Whether this [EdgePinsModel] follows the standard convention of pinning
+  /// the node to parent's top-left corner.
   bool get isStandard =>
       left != null && top != null && right == null && bottom == null;
 
-  /// [returns] True if non of the pins are null, IE: the node is double-chained
-  /// on both axes.
+  /// Whether the node is symmetric-chained on both axes, i.e., none of the pins
+  /// is null.
   bool get isDoubleChained => isHorizontalChained && isVerticalChained;
 
-  /// [returns] True if the node is symmetrically-chained on the horizontal
-  /// axis, IE: the left and right pins are not null.
+  /// Whether the node is symmetric-chained on the horizontal axis, i.e., left
+  /// and right pins are not null.
   bool get isHorizontalChained => left != null && right != null;
 
-  /// [returns] True if the node is symmetrically-chained on the vertical
-  /// axis, IE: the top and bottom pins are not null.
+  /// Whether the node is symmetric-chained on the vertical axis, i.e., top and
+  /// bottom pins are not null.
   bool get isVerticalChained => top != null && bottom != null;
 
-  /// Due to the null-pattern of the pins, we can't use the default copyWith
-  /// modal, so we have to define a copyWith for each pin separately.
+  /// Due to the null-pattern of the pins, default copyWith method does not
+  /// work. So, there's a separate copyWith method for each pin.
   ///
-  /// [returns] A new [EdgePinsModel] with the given [left] pin.
+  /// Returns A new [EdgePinsModel] with the given [left] pin.
   /// If [value] is left null, the [left] pin will be set to null.
   EdgePinsModel copyWithLeft(double? value) =>
       EdgePinsModel(left: value, top: top, right: right, bottom: bottom);
 
-  /// Due to the null-pattern of the pins, we can't use the default copyWith
-  /// modal, so we have to define a copyWith for each pin separately.
+  /// Due to the null-pattern of the pins, default copyWith method does not
+  /// work. So, there's a separate copyWith method for each pin.
   ///
-  /// [returns] A new [EdgePinsModel] with the given [top] pin.
+  /// Returns A new [EdgePinsModel] with the given [top] pin.
   /// If [value] is left null, the [top] pin will be set to null.
   EdgePinsModel copyWithTop(double? value) =>
       EdgePinsModel(left: left, top: value, right: right, bottom: bottom);
 
-  /// Due to the null-pattern of the pins, we can't use the default copyWith
-  /// modal, so we have to define a copyWith for each pin separately.
+  /// Due to the null-pattern of the pins, default copyWith method does not
+  /// work. So, there's a separate copyWith method for each pin.
   ///
-  /// [returns] A new [EdgePinsModel] with the given [right] pin.
+  /// Returns A new [EdgePinsModel] with the given [right] pin.
   /// If [value] is left null, the [right] pin will be set to null.
   EdgePinsModel copyWithRight(double? value) =>
       EdgePinsModel(left: left, top: top, right: value, bottom: bottom);
 
-  /// Due to the null-pattern of the pins, we can't use the default copyWith
-  /// modal, so we have to define a copyWith for each pin separately.
+  /// Due to the null-pattern of the pins, default copyWith method does not
+  /// work. So, there's a separate copyWith method for each pin.
   ///
-  /// [returns] A new [EdgePinsModel] with the given [bottom] pin.
+  /// Returns A new [EdgePinsModel] with the given [bottom] pin.
   /// If [value] is left null, the [bottom] pin will be set to null.
   EdgePinsModel copyWithBottom(double? value) =>
       EdgePinsModel(left: left, top: top, right: right, bottom: value);
 
-  /// Due to the null-pattern of the pins, we can't use the default copyWith
-  /// modal, so we have to define a copyWith for each pin separately.
+  /// Due to the null-pattern of the pins, default copyWith method does not
+  /// work. So, there's a separate copyWith method for each pin.
   ///
-  /// This is a null-friendly generalized version of the copyWith functions in
-  /// this class.
+  /// This is a null-friendly wrapper around the copyWith functions in this
+  /// class.
   ///
-  /// Requires a [pin] to be defined, along with the [value] it should be set
-  /// to, null or otherwise.
-  /// This function calls the copy with functions for each pin, and returns
-  /// the result.
+  /// Takes a [pin] and a [value] and returns the new [EdgePinesModel].
   EdgePinsModel copyWithPin(EdgePin pin, double? value) {
     switch (pin) {
       case EdgePin.left:
@@ -342,7 +205,7 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
     }
   }
 
-  /// [returns] whether a given [pin] is null or not.
+  /// Whether the given [pin] is null or not.
   bool containsPin(EdgePin? pin) {
     if (pin == null) return false;
     switch (pin) {
@@ -357,7 +220,7 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
     }
   }
 
-  /// [returns] whether this instance of [EdgePinsModel] contains symmetric
+  /// Whether this instance of [EdgePinsModel] contains symmetric
   /// chains on the given [axis]. IE: If both pins on the given [axis] are
   /// set to non-null values.
   bool chainedOnAxis(AxisC axis) {
@@ -375,7 +238,7 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   @override
   Map toJson() => _$EdgePinsModelToJson(this);
 
-  /// Creates a new instance of [EdgePinsModel] from a [json] map.
+  /// Creates a new instance of [EdgePinsModel] from a JSON map.
   @override
   factory EdgePinsModel.fromJson(Map<String, dynamic> json) =>
       _$EdgePinsModelFromJson(json);
