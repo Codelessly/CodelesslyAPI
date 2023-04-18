@@ -61,7 +61,7 @@ class AppBarNode extends SceneNode
   Map toJson() => _$AppBarNodeToJson(this);
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
@@ -78,7 +78,12 @@ class AppBarNode extends SceneNode
       minHeight = properties.titleStyle.fontSize + 16;
     }
     minHeight = min(56, minHeight);
-    return SizeC(0, minHeight);
+    return super
+        .internalConstraints(
+            horizontalFit: horizontalFit, verticalFit: verticalFit)
+        .unionNonNull(
+          BoxConstraintsModel(minHeight: minHeight),
+        );
   }
 }
 

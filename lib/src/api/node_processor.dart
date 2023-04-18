@@ -100,6 +100,7 @@ extension BaseNodeUpdateExtension on BaseNode {
     OuterNodeBox? outerBoxLocal,
     OuterNodeBox? outerBoxGlobal,
     NodeBox? middleBoxLocal,
+    BoxConstraintsModel? constraints,
     int? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
@@ -114,6 +115,7 @@ extension BaseNodeUpdateExtension on BaseNode {
         outerBoxLocal: outerBoxLocal,
         outerBoxGlobal: outerBoxGlobal,
         basicBoxLocal: middleBoxLocal,
+        constraints: constraints,
         rotationDegrees: rotationDegrees,
         resetRetainedBox: resetRetainedBox,
         recursivelyCalculateChildrenGlobalBoxes:
@@ -161,6 +163,41 @@ class NodeProcessor {
   /// This function is used to initialize the [getNode] function.
   static void registerNodeGetter(GetNode getNode) {
     NodeProcessor.getNode = getNode;
+  }
+
+  /// There are normal [constraints] field, but they do not tell the full
+  /// story of provided node's true constraints.
+  ///
+  /// The [constraints] field is what is manually set by the user. However,
+  /// we have additional constraints that are computed for different nodes.
+  /// Material components may provide additional internal
+  /// constraints. Images may provide their original sizes when shrink-wrapping,
+  /// ListTiles provide a minimum size that the leading node must have, etc...
+  ///
+  /// This function will take the [internalConstraints] and union them to the
+  /// [constraints] field to get a reinforced set of constraints.
+  static BoxConstraintsModel resolveConstraints(
+    BaseNode node, {
+    SizeFit? horizontalFit,
+    SizeFit? verticalFit,
+  }) {
+    BoxConstraintsModel resolved = node.internalConstraints(
+      horizontalFit: horizontalFit ?? node.horizontalFit,
+      verticalFit: verticalFit ?? node.verticalFit,
+    );
+
+    if (node.id != kRootNode) {
+      final BaseNode parent = getNode(node.parentID);
+      final BoxConstraintsModel? relegatedConstraints =
+          parent.relegatedConstraintsToChildren(node);
+      if (relegatedConstraints != null) {
+        final parentResolved =
+            relegatedConstraints.unionNonNull(resolveConstraints(parent));
+        resolved = resolved.unionNonNull(parentResolved);
+      }
+    }
+
+    return node.constraints.unionNonNull(resolved);
   }
 
   /// Update the global rotation for given [node] with [newRotationDegrees].
@@ -219,6 +256,7 @@ class NodeProcessor {
     OuterNodeBox? outerBoxLocal,
     OuterNodeBox? outerBoxGlobal,
     NodeBox? basicBoxLocal,
+    BoxConstraintsModel? constraints,
     int? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
@@ -233,6 +271,7 @@ class NodeProcessor {
         outerBoxGlobal != null && globalParentBoundingBoxPos != null;
     final bool localOuterBoxChanged = outerBoxLocal != null;
     final bool localMiddleBoxChanged = basicBoxLocal != null;
+    final bool constraintsChanged = constraints != null;
 
     if (alignmentChanged) node._alignment = alignment;
     if (marginChanged) node._margin = margin;
@@ -240,6 +279,10 @@ class NodeProcessor {
     if (localMiddleBoxChanged) node._basicBoxLocal = basicBoxLocal;
     if (localOuterBoxChanged) node._outerBoxLocal = outerBoxLocal;
     if (outerBoxGlobal != null) node._outerBoxGlobal = outerBoxGlobal;
+    if (constraintsChanged) {
+      node._constraints = constraints;
+    }
+    node._resolvedConstraints = resolveConstraints(node);
 
     node.updateNodeRotation(rotationDegrees ?? node.rotationDegrees);
 

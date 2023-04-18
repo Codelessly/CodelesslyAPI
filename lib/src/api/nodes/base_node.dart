@@ -50,10 +50,21 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether this node is visible or not.
   bool visible;
 
+  BoxConstraintsModel _constraints;
+
   /// Constraints apply to the [middleBoxLocal].
-  /// See [BoxConstraintsModel] for more info on how to define the
-  /// constraints.
-  BoxConstraintsModel constraints;
+  ///
+  /// See [BoxConstraintsModel] for more information about constraints.
+  BoxConstraintsModel get constraints => _constraints;
+
+  late BoxConstraintsModel _resolvedConstraints;
+
+  /// Resolved constraints are the constraints that are actually applied to
+  /// the [middleBoxLocal] after all the constraints are resolved.
+  ///
+  /// This is a runtime-computed value and is not serialized.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  BoxConstraintsModel get resolvedConstraints => _resolvedConstraints;
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
@@ -353,7 +364,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     this.horizontalFit = SizeFit.fixed,
     this.verticalFit = SizeFit.fixed,
     this.flex = 1,
-    this.constraints = const BoxConstraintsModel(),
+    BoxConstraintsModel constraints = const BoxConstraintsModel(),
     this.edgePins = EdgePinsModel.standard,
     this.aspectRatioLock = false,
     this.positioningMode = PositioningMode.align,
@@ -367,6 +378,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
         globalRotationRadians = rotationDegrees * pi / 180,
         _margin = margin,
         _alignment = alignment,
+        _constraints = constraints,
         _padding = padding,
         _outerBoxLocal = (outerBoxLocal ??
             OuterNodeBox.fromMiddleBox(basicBoxLocal, edgeInsets: margin)) {
@@ -379,6 +391,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
       _outerBoxGlobal.innerWidth,
       _outerBoxGlobal.innerHeight,
     );
+
+    _resolvedConstraints = _constraints;
 
     NodeProcessor._computeInnerBoxLocal(this);
     NodeProcessor._computeInnerBoxGlobal(this);
@@ -396,21 +410,24 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// helps the layout system compute the minimum size of the node.
   ///
   /// [horizontalFit] and [verticalFit] are used to determine what type of
-  /// numbers [minimumInternalSize] should use. It will normally use this
-  /// node's [horizontalFit] and [verticalFit] but these can be overriden.
+  /// numbers [internalConstraints] should use. It will normally use this
+  /// node's [horizontalFit] and [verticalFit] if not provided. These two
+  /// SizeFits properties are mainly overridden to determine the validity of
+  /// certain layout changes. For example, nodes with image fills change their
+  /// constraints based on if they are shrink-wrapping or not.
   ///
   /// More examples are [LoadingIndicatorNode], [DropdownNode], [SliderNode],
   /// [DividerNode], [AppBarNode], [NavigationBarNode], and nodes with
   /// images with particular [SizeFit]s or crop data applied through
   /// [GeometryMixin].
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) =>
-      SizeC.zero;
+      const BoxConstraintsModel();
 
   /// The value that this node's padding cannot shrink below. Similar to
-  /// [minimumInternalSize] but is not used for the same purpose. Strokes
+  /// [internalConstraints] but is not used for the same purpose. Strokes
   /// consider internal padding through [GeometryMixin] as well as
   /// [LoadingIndicatorNode], [ListTileNode], and [ExpansionTileNode].
   ///
@@ -424,7 +441,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// For example, when it comes to icon buttons, this is used when the
   /// button's type, shape, or size fits change to allow the button to adjust
   /// its padding to fit the new type, shape, or size.
-  /// Because if an icon button suddenly shrinkwraps with zero padding, it shows
+  /// Because if an icon button suddenly wraps with zero padding, it shows
   /// only the icon, which is not ideal. So, [preferredDefaultPadding] is used
   /// to set a default padding when that property changes.
   ///
@@ -432,6 +449,14 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// are performed. If it is not null, the returned padding is enforced onto
   /// the node when editor operations are performed.
   EdgeInsetsModel? preferredDefaultPadding() => null;
+
+  /// We have the [padding] field, but we also have an [minimumPadding] field.
+  ///
+  /// This function will resolve the maximum of every side of [minimumPadding]
+  /// to the [padding] field to get a complete picture of the padding.
+  EdgeInsetsModel resolvedPadding([EdgeInsetsModel? padding]) {
+    return (padding ?? _padding).max(minimumPadding());
+  }
 
   /// A convenience getter to get the list of children of this node.
   /// Normally, if a node supports children, it has to extend [ChildrenMixin],
@@ -451,7 +476,6 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether the height of this node is at the maximum height it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMaxHeight {
-    final BoxConstraintsModel constraints = resolvedConstraints();
     return constraints.maxHeight != null &&
         outerBoxLocal.height >=
             (constraints.maxHeight! + outerBoxLocal.verticalEdgeSpace);
@@ -460,7 +484,6 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether the width of this node is at the maximum width it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMaxWidth {
-    final BoxConstraintsModel constraints = resolvedConstraints();
     return constraints.maxWidth != null &&
         outerBoxLocal.width >=
             (constraints.maxWidth! + outerBoxLocal.horizontalEdgeSpace);
@@ -469,7 +492,6 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether the height of this node is at the minimum height it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMinHeight {
-    final BoxConstraintsModel constraints = resolvedConstraints();
     return constraints.minHeight != null &&
         outerBoxLocal.height <=
             (constraints.minHeight! + outerBoxLocal.verticalEdgeSpace);
@@ -478,36 +500,22 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether the width of this node is at the minimum width it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMinWidth {
-    final BoxConstraintsModel constraints = resolvedConstraints();
     return constraints.minWidth != null &&
         outerBoxLocal.width <=
             (constraints.minWidth! + outerBoxLocal.horizontalEdgeSpace);
   }
 
-  /// A node may have certain constraints in addition to the [constaints] that
-  /// are set by the user, such as internal constraints of Material components,
-  /// original size of an image, etc.
+  /// Determines whether this node relegates internal constraints to its
+  /// children.
   ///
-  /// [resolveConstraints] computes actual constraints of the node by taking
-  /// user defined [constraints] and node's [minimumInternalSize] into
-  /// consideration.
-  BoxConstraintsModel resolvedConstraints({
-    SizeFit? horizontalFit,
-    SizeFit? verticalFit,
-  }) {
-    final SizeC minInnerSize = minimumInternalSize(
-      horizontalFit: horizontalFit ?? this.horizontalFit,
-      verticalFit: verticalFit ?? this.verticalFit,
-    );
-
-    return constraints.add(minInnerSize);
-  }
-
-  /// [resolvePadding] computes the maximum of every side of [minimumPadding]
-  /// to the [padding] field to resolve the actual padding of the node.
-  EdgeInsetsModel resolvedPadding([EdgeInsetsModel? padding]) {
-    return (padding ?? _padding).max(minimumPadding());
-  }
+  /// This is used in places where a node needs to apply runtime internal
+  /// constraints on its children. For example, [ListTile]s have a
+  /// minLeadingWidth field that is enforced on the leading widget.
+  ///
+  /// The leading widget, however, is a [SinglePlaceholderNode] instead of the
+  /// leading node directly. So the [SinglePlaceholderNode] needs to relegate
+  /// its own constraints onto its child.
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) => null;
 
   /// A convenience function that will take a [value] and constraint it
   /// using the [resolvedConstraints] function.
@@ -583,18 +591,21 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     }
   }
 
-  /// A convenience function that will take a [value] and constraint it
-  /// using the [resolvedConstraints] function.
+  /// A convenience function that will take a [value] and constrain it
+  /// using the [resolvedConstraints] of this node.
   ///
   /// Since constraints represent both width and height of a given node, this
   /// function also takes an [axis] to indicate which axis to constrain the
   /// [value].
   ///
   /// It takes an additional [nodeBoundaryType] to indicate which [NodeBox]
-  /// to use to constrain the desired [value].
+  /// to use to constrain the desired [value]. You may want to constrain
+  /// some arbitrary [value] based on the outer box, the middle box, the inner
+  /// box, the outer rotated box, or the middle rotated box, or the inner
+  /// rotated box.
   ///
   /// [horizontalFit] and [verticalFit] are used to determine what type of
-  /// numbers [minimumInternalSize] should use. It will normally use this
+  /// numbers [internalConstraints] should use. It will normally use this
   /// node's [horizontalFit] and [verticalFit] but they can be overriden
   ///
   /// Returns the constrained value that cannot exceed the total constraints of
@@ -603,17 +614,10 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     double value,
     AxisC axis, {
     required NodeBoundaryType nodeBoundaryType,
-    SizeFit? horizontalFit,
-    SizeFit? verticalFit,
   }) {
-    final BoxConstraintsModel constraints = resolvedConstraints(
-      horizontalFit: horizontalFit,
-      verticalFit: verticalFit,
-    );
-
     switch (axis) {
       case AxisC.horizontal:
-        double minValue = constraints.minWidth ?? 0.0;
+        double minValue = resolvedConstraints.minWidth ?? 0.0;
         switch (nodeBoundaryType) {
           case NodeBoundaryType.middleBox:
           case NodeBoundaryType.middleRotatedBox:
@@ -632,8 +636,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
         double output = max(value, minValue);
 
-        if (constraints.maxWidth != null) {
-          double maxValue = constraints.maxWidth!;
+        if (resolvedConstraints.maxWidth != null) {
+          double maxValue = resolvedConstraints.maxWidth!;
           switch (nodeBoundaryType) {
             case NodeBoundaryType.middleBox:
             case NodeBoundaryType.middleRotatedBox:
@@ -652,7 +656,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
         return output;
       case AxisC.vertical:
-        double minValue = constraints.minHeight ?? 0.0;
+        double minValue = resolvedConstraints.minHeight ?? 0.0;
         switch (nodeBoundaryType) {
           case NodeBoundaryType.middleBox:
           case NodeBoundaryType.middleRotatedBox:
@@ -671,8 +675,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
         double output = max(value, minValue);
 
-        if (constraints.maxHeight != null) {
-          double maxValue = constraints.maxHeight!;
+        if (resolvedConstraints.maxHeight != null) {
+          double maxValue = resolvedConstraints.maxHeight!;
           switch (nodeBoundaryType) {
             case NodeBoundaryType.middleBox:
             case NodeBoundaryType.middleRotatedBox:
@@ -706,7 +710,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     SizeFit? horizontalFit,
     SizeFit? verticalFit,
   }) {
-    final SizeC minInnerSize = minimumInternalSize(
+    final BoxConstraintsModel minInnerSize = internalConstraints(
       horizontalFit: horizontalFit ?? this.horizontalFit,
       verticalFit: verticalFit ?? this.verticalFit,
     );
@@ -734,17 +738,17 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
     switch (axis) {
       case AxisC.horizontal:
-        if (constraints.minWidth != null) {
+        if (resolvedConstraints.minWidth != null) {
           final constrainedMinWidth =
-              (minInnerSize.width) + (constraints.minWidth ?? 0);
+              (minInnerSize.minWidth ?? 0) + (resolvedConstraints.minWidth ?? 0);
 
           return constrainedMinWidth + horizontalEdgeSpace;
         }
         return value;
       case AxisC.vertical:
-        if (constraints.minHeight != null) {
+        if (resolvedConstraints.minHeight != null) {
           final constrainedMinHeight =
-              (minInnerSize.height) + (constraints.minHeight ?? 0);
+              (minInnerSize.minHeight ?? 0) + (resolvedConstraints.minHeight ?? 0);
 
           return constrainedMinHeight + verticalEdgeSpace;
         }

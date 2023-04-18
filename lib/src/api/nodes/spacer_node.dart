@@ -30,6 +30,7 @@ class SpacerNode extends SceneNode {
     super.flex,
     super.edgePins,
     super.parentID,
+    super.constraints,
   });
 
   /// Creates a new [SpacerNode] from a JSON data.

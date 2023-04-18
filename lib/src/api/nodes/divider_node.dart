@@ -94,20 +94,26 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
   Map toJson() => _$DividerNodeToJson(this);
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
-    final SizeC size;
+    double? width, height;
     if (properties.isVertical) {
-      size = SizeC(properties.thickness, 0);
+      width = properties.thickness;
     } else {
-      size = SizeC(0, properties.thickness);
+      height = properties.thickness;
     }
-    return size |
-        super.minimumInternalSize(
+    return super
+        .internalConstraints(
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
+        )
+        .unionNonNull(
+          BoxConstraintsModel(
+            minWidth: width,
+            minHeight: height,
+          ),
         );
   }
 

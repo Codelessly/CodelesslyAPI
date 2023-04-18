@@ -182,7 +182,7 @@ class NavigationBarNode extends SceneNode
   Map toJson() => _$NavigationBarNodeToJson(this);
 
   @override
-  SizeC minimumInternalSize({
+  BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
   }) {
@@ -243,7 +243,17 @@ class NavigationBarNode extends SceneNode
 
           minHeight = topPadding + bottomPadding + maxIconSize + maxLabelHeight;
         }
-        return SizeC(0, max(minHeight, kDefaultBottomNavigationBarHeight) + 1);
+        return super
+            .internalConstraints(
+              horizontalFit: horizontalFit,
+              verticalFit: verticalFit,
+            )
+            .unionNonNull(
+              BoxConstraintsModel(
+                minHeight:
+                    max(minHeight, kDefaultBottomNavigationBarHeight) + 1,
+              ),
+            );
 
       case StyleDefinition.material_3:
         // Specs: https://m3.material.io/components/navigation-bar/specs#6f329e0c-c278-4ac8-9b02-1afcb2790ac3.
@@ -256,7 +266,14 @@ class NavigationBarNode extends SceneNode
             maxIconSize, max(props.unselectedIconSize, props.selectedIconSize));
 
         double minHeight = 16 + 16 + max(maxIconSize, 32 /*Indicator size*/);
-        return SizeC(0, minHeight);
+        return super
+            .internalConstraints(
+              horizontalFit: horizontalFit,
+              verticalFit: verticalFit,
+            )
+            .unionNonNull(
+              BoxConstraintsModel(minHeight: minHeight),
+            );
     }
   }
 }
