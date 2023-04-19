@@ -151,24 +151,12 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     this.autoFocus = false,
     this.enableFeedback = true,
     required this.items,
-    this.itemTextStyle = const TextProp.general(
-      fills: [PaintModel.blackPaint],
-      fontSize: 16,
-      fontName: FontName.poppinsRegular,
-    ),
+    TextProp? itemTextStyle,
     this.itemAlignment = AlignmentModel.centerLeft,
-    this.selectedItemTextStyle = const TextProp.general(
-      fills: [PaintModel.blackPaint],
-      fontSize: 16,
-      fontName: FontName.poppinsRegular,
-    ),
+    TextProp? selectedItemTextStyle,
     this.selectedItemAlignment = AlignmentModel.centerLeft,
     this.hint = '',
-    this.hintStyle = const TextProp.general(
-      fills: [PaintModel.blackPaint],
-      fontSize: 16,
-      fontName: FontName.poppinsRegular,
-    ),
+    TextProp? hintStyle,
     this.iconDisabledColor = ColorRGBA.grey,
     this.iconEnabledColor = ColorRGBA.black,
     this.iconSize = 24,
@@ -178,7 +166,24 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     this.elevation = 8,
     this.borderRadius = CornerRadius.zero,
     this.underline = true,
-  });
+  })  : itemTextStyle = itemTextStyle ??
+            TextProp.general(
+              fills: [PaintModel.blackPaint],
+              fontSize: 16,
+              fontName: FontName.poppinsRegular,
+            ),
+        hintStyle = hintStyle ??
+            TextProp.general(
+              fills: [PaintModel.blackPaint],
+              fontSize: 16,
+              fontName: FontName.poppinsRegular,
+            ),
+        selectedItemTextStyle = selectedItemTextStyle ??
+            TextProp.general(
+              fills: [PaintModel.blackPaint],
+              fontSize: 16,
+              fontName: FontName.poppinsRegular,
+            );
 
   /// Duplicates this [DropdownProperties] instance with the given data
   /// overrides.

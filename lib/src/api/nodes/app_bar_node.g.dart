@@ -120,7 +120,7 @@ AppBarProperties _$AppBarPropertiesFromJson(Map json) => AppBarProperties(
           const [],
       centerTitle: json['centerTitle'] as bool? ?? false,
       titleStyle: json['titleStyle'] == null
-          ? const TextProp.general(fills: [])
+          ? null
           : TextProp.fromJson(json['titleStyle'] as Map),
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
       automaticallyImplyLeading:

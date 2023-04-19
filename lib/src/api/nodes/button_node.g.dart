@@ -131,7 +131,7 @@ ButtonProperties _$ButtonPropertiesFromJson(Map json) => ButtonProperties(
               IconPlacementEnum.start,
       gap: (json['gap'] as num?)?.toDouble() ?? 8,
       labelStyle: json['labelStyle'] == null
-          ? const TextProp.general(fills: [])
+          ? null
           : TextProp.fromJson(json['labelStyle'] as Map),
       icon: json['icon'] == null
           ? const MultiSourceIconModel(size: 20, color: null)

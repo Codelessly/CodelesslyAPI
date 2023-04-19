@@ -5,6 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../generate_id.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -43,6 +44,9 @@ enum ShadowProperty {
 /// A visual effect such as a shadow or blur.
 @JsonSerializable()
 class Effect with EquatableMixin, SerializableMixin {
+  /// Unique identifier of the effect.
+  final String id;
+
   /// Type of effect.
   final EffectType type;
 
@@ -66,7 +70,8 @@ class Effect with EquatableMixin, SerializableMixin {
   final Vec? offset;
 
   /// Creates new [Effect] with given data.
-  const Effect({
+  Effect({
+    String? id,
     required this.type,
     required this.radius,
     this.visible = true,
@@ -74,10 +79,11 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  });
+  }) : id = id ?? generateId();
 
   /// Creates a new [Effect] with drop shadow.
-  const Effect.dropShadow({
+  Effect.dropShadow({
+    String? id,
     this.type = EffectType.dropShadow,
     required this.radius,
     this.visible = true,
@@ -85,10 +91,11 @@ class Effect with EquatableMixin, SerializableMixin {
     required this.offset,
     required this.spread,
     this.blendMode,
-  });
+  }) : id = id ?? generateId();
 
   /// Creates a new [Effect] with inner shadow.
-  const Effect.innerShadow({
+  Effect.innerShadow({
+    String? id,
     this.type = EffectType.innerShadow,
     required this.radius,
     this.visible = true,
@@ -96,10 +103,11 @@ class Effect with EquatableMixin, SerializableMixin {
     required this.offset,
     required this.spread,
     this.blendMode,
-  });
+  }) : id = id ?? generateId();
 
   /// Creates a new [Effect] with layer blur.
-  const Effect.layerBlur({
+  Effect.layerBlur({
+    String? id,
     this.type = EffectType.layerBlur,
     required this.radius,
     this.visible = true,
@@ -107,10 +115,11 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  });
+  }) : id = id ?? generateId();
 
   /// Creates a new [Effect] with background blur.
-  const Effect.backgroundBlur({
+  Effect.backgroundBlur({
+    String? id,
     this.type = EffectType.backgroundBlur,
     required this.radius,
     this.visible = true,
@@ -118,7 +127,7 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  });
+  }) : id = id ?? generateId();
 
   /// Duplicates this instance with given data overrides.
   Effect copyWith({
