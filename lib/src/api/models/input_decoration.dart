@@ -174,35 +174,19 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   final BoxConstraintsModel constraints;
 
   /// Creates [InputDecorationModel] with given data.
-  const InputDecorationModel({
+  InputDecorationModel({
     this.icon = const MultiSourceIconModel(),
     this.labelText,
-    this.labelStyle = const TextProp.general(
-      fontSize: 14,
-      fills: [PaintModel.blackPaint],
-    ),
-    this.floatingLabelStyle = const TextProp.general(
-      fontSize: 14,
-      fills: [PaintModel.blackPaint],
-    ),
+    TextProp? labelStyle,
+    TextProp? floatingLabelStyle,
     this.helperText,
-    this.helperStyle = const TextProp.general(
-      fontSize: 14,
-      fills: [PaintModel.blackPaint],
-    ),
+    TextProp? helperStyle,
     this.helperMaxLines = 1,
     this.hintText,
-    this.hintStyle = const TextProp.general(
-      fontSize: 14,
-      fills: [
-        PaintModel.solid(visible: true, opacity: 1, color: ColorRGB.grey)
-      ],
-    ),
+    TextProp? hintStyle,
     this.hintMaxLines = 1,
     this.errorText,
-    this.errorStyle = const TextProp.general(
-      fills: [PaintModel.solid(visible: true, opacity: 1, color: ColorRGB.red)],
-    ),
+    TextProp? errorStyle,
     this.errorMaxLines = 1,
     this.floatingLabelBehavior = FloatingLabelBehaviorEnum.auto,
     this.isCollapsed = false,
@@ -210,16 +194,13 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.prefixIcon = const MultiSourceIconModel(),
     this.prefixIconConstraints = const BoxConstraintsModel(),
     this.prefixText,
-    this.prefixStyle = const TextProp.general(),
+    TextProp? prefixStyle,
     this.suffixIcon = const MultiSourceIconModel(),
     this.suffixText,
-    this.suffixStyle = const TextProp.general(
-      fontSize: 14,
-      fills: [PaintModel.blackPaint],
-    ),
+    TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
     this.counterText,
-    this.counterStyle = const TextProp.general(),
+    TextProp? counterStyle,
     this.filled = false,
     this.fillColor = ColorRGBA.grey10,
     this.focusColor = ColorRGBA.black,
@@ -244,7 +225,20 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.semanticCounterText,
     this.alignLabelWithHint = true,
     this.constraints = const BoxConstraintsModel(),
-  });
+  })  : labelStyle = labelStyle ?? TextProp(fontSize: 14),
+        floatingLabelStyle = floatingLabelStyle ??
+            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+        helperStyle = helperStyle ??
+            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+        hintStyle = hintStyle ??
+            TextProp.general(
+                fontSize: 14, fills: [PaintModel.solid(color: ColorRGB.grey)]),
+        errorStyle = errorStyle ??
+            TextProp.general(fills: [PaintModel.solid(color: ColorRGB.red)]),
+        prefixStyle = prefixStyle ?? TextProp.general(),
+        suffixStyle = suffixStyle ??
+            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+        counterStyle = counterStyle ?? TextProp.general();
 
   /// Duplicates this instance with given data overrides.
   InputDecorationModel copyWith({

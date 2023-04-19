@@ -108,29 +108,20 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
       enableFeedback: json['enableFeedback'] as bool? ?? true,
       items: (json['items'] as List<dynamic>).map((e) => e as String).toList(),
       itemTextStyle: json['itemTextStyle'] == null
-          ? const TextProp.general(
-              fills: [PaintModel.blackPaint],
-              fontSize: 16,
-              fontName: FontName.poppinsRegular)
+          ? null
           : TextProp.fromJson(json['itemTextStyle'] as Map),
       itemAlignment: json['itemAlignment'] == null
           ? AlignmentModel.centerLeft
           : AlignmentModel.fromJson(json['itemAlignment'] as Map),
       selectedItemTextStyle: json['selectedItemTextStyle'] == null
-          ? const TextProp.general(
-              fills: [PaintModel.blackPaint],
-              fontSize: 16,
-              fontName: FontName.poppinsRegular)
+          ? null
           : TextProp.fromJson(json['selectedItemTextStyle'] as Map),
       selectedItemAlignment: json['selectedItemAlignment'] == null
           ? AlignmentModel.centerLeft
           : AlignmentModel.fromJson(json['selectedItemAlignment'] as Map),
       hint: json['hint'] as String? ?? '',
       hintStyle: json['hintStyle'] == null
-          ? const TextProp.general(
-              fills: [PaintModel.blackPaint],
-              fontSize: 16,
-              fontName: FontName.poppinsRegular)
+          ? null
           : TextProp.fromJson(json['hintStyle'] as Map),
       iconDisabledColor: json['iconDisabledColor'] == null
           ? ColorRGBA.grey

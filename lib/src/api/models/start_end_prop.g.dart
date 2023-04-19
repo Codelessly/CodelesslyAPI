@@ -10,9 +10,8 @@ StartEndProp _$StartEndPropFromJson(Map json) => StartEndProp(
       start: json['start'] as int,
       end: json['end'] as int,
       fills: (json['fills'] as List<dynamic>?)
-              ?.map((e) => PaintModel.fromJson(e as Map))
-              .toList() ??
-          const [PaintModel.blackPaint],
+          ?.map((e) => PaintModel.fromJson(e as Map))
+          .toList(),
       textDecoration: $enumDecodeNullable(
               _$TextDecorationEnumEnumMap, json['textDecoration']) ??
           TextDecorationEnum.none,
@@ -53,9 +52,8 @@ const _$TextDecorationEnumEnumMap = {
 
 TextProp _$TextPropFromJson(Map json) => TextProp(
       fills: (json['fills'] as List<dynamic>?)
-              ?.map((e) => PaintModel.fromJson(e as Map))
-              .toList() ??
-          const [PaintModel.blackPaint],
+          ?.map((e) => PaintModel.fromJson(e as Map))
+          .toList(),
       textDecoration: $enumDecodeNullable(
               _$TextDecorationEnumEnumMap, json['textDecoration']) ??
           TextDecorationEnum.none,

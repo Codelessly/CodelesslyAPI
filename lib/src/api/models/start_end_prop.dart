@@ -52,8 +52,8 @@ class StartEndProp extends TextProp {
 
   /// This can be used if it is just meant to hold style data for text. It will
   /// ignore [start] and [end] properties.
-  const StartEndProp.general({
-    super.fills = const [PaintModel.whitePaint],
+  StartEndProp.general({
+    List<PaintModel>? fills,
     super.textDecoration,
     super.letterSpacing,
     super.fontSize = 12,
@@ -62,10 +62,11 @@ class StartEndProp extends TextProp {
     super.link,
     super.isJsonPath,
   })  : start = 0,
-        end = 0;
+        end = 0,
+        super(fills: fills ?? [PaintModel.whitePaint]);
 
   /// Creates a [StartEndProp] with the given data.
-  const StartEndProp({
+  StartEndProp({
     required this.start,
     required this.end,
     super.fills,
@@ -156,8 +157,8 @@ class TextProp extends Equatable with SerializableMixin {
   final bool isJsonPath;
 
   /// Creates a [TextProp] with the given data.
-  const TextProp({
-    this.fills = const [PaintModel.blackPaint],
+  TextProp({
+    List<PaintModel>? fills,
     this.textDecoration = TextDecorationEnum.none,
     this.letterSpacing = LetterSpacing.zero,
     this.fontSize = 18,
@@ -165,11 +166,11 @@ class TextProp extends Equatable with SerializableMixin {
     this.lineHeight = LineHeight.auto,
     this.link = '',
     this.isJsonPath = false,
-  });
+  }) : fills = fills ?? [PaintModel.blackPaint];
 
   /// Creates a [TextProp] with the given data with white text.
-  const TextProp.general({
-    this.fills = const [PaintModel.whitePaint],
+  TextProp.general({
+    List<PaintModel>? fills,
     this.textDecoration = TextDecorationEnum.none,
     this.letterSpacing = LetterSpacing.zero,
     this.fontSize = 12,
@@ -177,7 +178,7 @@ class TextProp extends Equatable with SerializableMixin {
     this.lineHeight = LineHeight.auto,
     this.link = '',
     this.isJsonPath = false,
-  });
+  }) : fills = fills ?? [PaintModel.whitePaint];
 
   /// Duplicates this instance with given data overrides.
   TextProp copyWith({

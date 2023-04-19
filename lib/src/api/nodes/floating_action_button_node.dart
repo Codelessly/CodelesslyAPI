@@ -146,7 +146,7 @@ class FloatingActionButtonProperties
     this.type = FloatingActionButtonType.regular,
     this.location = FABLocation.endFloat,
     this.label = '',
-    this.labelStyle = const TextProp.general(fontSize: 14),
+    TextProp? labelStyle,
     this.focusColor,
     this.hoverColor,
     this.splashColor,
@@ -154,7 +154,7 @@ class FloatingActionButtonProperties
     CornerRadius cornerRadius = CornerRadius.zero,
     ColorRGBA? borderColor,
     double? borderWidth,
-  }) {
+  }) : labelStyle = labelStyle ?? TextProp.general(fontSize: 14) {
     setShapeBorderMixin(
       shape: shape,
       cornerRadius: cornerRadius,

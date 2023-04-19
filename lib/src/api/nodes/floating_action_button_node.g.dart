@@ -138,7 +138,7 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
           FABLocation.endFloat,
       label: json['label'] as String? ?? '',
       labelStyle: json['labelStyle'] == null
-          ? const TextProp.general(fontSize: 14)
+          ? null
           : TextProp.fromJson(json['labelStyle'] as Map),
       focusColor: json['focusColor'] == null
           ? null

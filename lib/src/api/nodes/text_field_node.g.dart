@@ -18,7 +18,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
-          ? EdgeInsetsModel.zero
+          ? const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16)
           : EdgeInsetsModel.fromJson(json['padding'] as Map),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
@@ -137,11 +137,10 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       minLines: json['minLines'] as int?,
       obscuringCharacter: json['obscuringCharacter'] as String? ?? '•',
       inputStyle: json['inputStyle'] == null
-          ? const StartEndProp.general(
-              fontSize: 14, fills: [PaintModel.blackPaint])
+          ? null
           : TextProp.fromJson(json['inputStyle'] as Map),
       decoration: json['decoration'] == null
-          ? const InputDecorationModel()
+          ? null
           : InputDecorationModel.fromJson(json['decoration'] as Map),
     );
 

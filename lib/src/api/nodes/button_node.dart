@@ -274,13 +274,13 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
     this.labelAlignment = TextAlignHorizontalEnum.center,
     this.placement = IconPlacementEnum.start,
     this.gap = 8,
-    this.labelStyle = const TextProp.general(fills: []),
+    TextProp? labelStyle,
     this.icon = const MultiSourceIconModel(size: 20, color: null),
     CornerRadius cornerRadius = const CornerRadius.all(RadiusModel.circular(4)),
     ColorRGBA? borderColor,
     CShapeBorder shape = CShapeBorder.roundedRectangle,
     double? borderWidth,
-  }) {
+  }) : labelStyle = labelStyle ?? TextProp.general(fills: []) {
     setShapeBorderMixin(
       shape: shape,
       cornerRadius: cornerRadius,

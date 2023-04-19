@@ -63,7 +63,8 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
     String obscuringCharacter = '•',
     super.visible,
     super.alignment,
-    super.padding = const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
+    super.padding =
+        const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
     super.margin,
     super.rotationDegrees,
     super.reactions,
@@ -206,10 +207,11 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.maxLines = 1,
     this.minLines,
     this.obscuringCharacter = '•',
-    this.inputStyle = const StartEndProp.general(
-        fontSize: 14, fills: [PaintModel.blackPaint]),
-    this.decoration = const InputDecorationModel(),
-  });
+    TextProp? inputStyle,
+    InputDecorationModel? decoration,
+  })  : inputStyle = inputStyle ??
+            StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+        decoration = decoration ?? InputDecorationModel();
 
   /// Duplicates this [TextFieldProperties] instance with the given data
   /// overrides.

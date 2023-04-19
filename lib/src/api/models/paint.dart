@@ -7,8 +7,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mixins.dart';
-import 'models.dart';
+import '../../../codelessly_api.dart';
 
 part 'paint.g.dart';
 
@@ -38,6 +37,9 @@ enum ImageRepeatEnum {
 /// stroke.
 @JsonSerializable()
 class PaintModel with EquatableMixin, SerializableMixin {
+  /// identifier of this paint.
+  final String id;
+
   /// Type of paint.
   final PaintType type;
 
@@ -165,44 +167,46 @@ class PaintModel with EquatableMixin, SerializableMixin {
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
   /// Helper constructor for when a black paint is needed, like tests.
-  static const PaintModel blackPaint = PaintModel.solid(
+  static PaintModel get blackPaint => PaintModel.solid(
     visible: true,
     opacity: 1.0,
     color: ColorRGB.black,
   );
 
   /// Helper constructor for when a grey paint is needed, like tests.
-  static const PaintModel greyPaint = PaintModel.solid(
+  static PaintModel get greyPaint => PaintModel.solid(
     visible: true,
     opacity: 1.0,
     color: ColorRGB.grey,
   );
 
   /// Helper constructor for when a white paint is needed, like tests.
-  static const PaintModel whitePaint = PaintModel.solid(
+  static PaintModel get whitePaint => PaintModel.solid(
     visible: true,
     opacity: 1.0,
     color: ColorRGB.white,
   );
 
   /// Helper constructor for when a gradient paint is needed, like tests.
-  static const PaintModel linearPaint = PaintModel(
+  static PaintModel get linearPaint => PaintModel(
     type: PaintType.gradientLinear,
     visible: true,
     opacity: 1.0,
-    gradientStops: [
+    gradientStops: const [
       ColorStop(color: ColorRGBA.black, position: 0.0),
       ColorStop(color: ColorRGBA.white, position: 1.0),
     ],
   );
 
   /// Create a Solid Paint with only the required properties.
-  const PaintModel.solid({
+  PaintModel.solid({
+    String? id,
     this.visible = true,
     this.opacity = 1,
     required this.color,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.solid,
+  })  : id = id ?? generateId(),
+        type = PaintType.solid,
         hasImageBytes = false,
         cropData = null,
         croppedImageURL = null,
@@ -221,7 +225,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         sourceHeight = null;
 
   /// Create an Image Paint with only the required properties.
-  const PaintModel.image({
+  PaintModel.image({
+    String? id,
     required this.downloadUrl,
     required this.fit,
     this.visible = true,
@@ -241,19 +246,22 @@ class PaintModel with EquatableMixin, SerializableMixin {
     required this.sourceHeight,
   })  : assert(sourceWidth != null && sourceHeight != null,
             'Images must always provide their original size.'),
+        id = id ?? generateId(),
         type = PaintType.image,
         gradientTransform = null,
         gradientStops = null,
         color = null;
 
   /// Creates [PaintModel] with linear gradient.
-  const PaintModel.linearGradient({
+  PaintModel.linearGradient({
+    String? id,
     this.visible = true,
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientLinear,
+  })  : id = id ?? generateId(),
+        type = PaintType.gradientLinear,
         color = null,
         imageTransform = null,
         hasImageBytes = false,
@@ -271,13 +279,15 @@ class PaintModel with EquatableMixin, SerializableMixin {
         sourceHeight = null;
 
   /// Creates [PaintModel] with radial gradient.
-  const PaintModel.radialGradient({
+  PaintModel.radialGradient({
+    String? id,
     this.visible = true,
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientRadial,
+  })  : id = id ?? generateId(),
+        type = PaintType.gradientRadial,
         color = null,
         imageTransform = null,
         hasImageBytes = false,
@@ -295,13 +305,15 @@ class PaintModel with EquatableMixin, SerializableMixin {
         sourceHeight = null;
 
   /// Creates [PaintModel] with angular gradient.
-  const PaintModel.angularGradient({
+  PaintModel.angularGradient({
+    String? id,
     this.visible = true,
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientAngular,
+  })  : id = id ?? generateId(),
+        type = PaintType.gradientAngular,
         color = null,
         imageTransform = null,
         hasImageBytes = false,
@@ -319,7 +331,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         sourceHeight = null;
 
   /// Creates [PaintModel] with given data.
-  const PaintModel({
+  PaintModel({
+    String? id,
     required this.type,
     this.visible = true,
     this.opacity = 1,
@@ -341,7 +354,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     this.sourceWidth,
     this.sourceHeight,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
-  });
+  }) : id = id ?? generateId();
 
   /// Duplicates this instance with given data overrides.
   PaintModel copyWith({
@@ -369,8 +382,10 @@ class PaintModel with EquatableMixin, SerializableMixin {
     double? sourceWidth,
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
+    String? id,
   }) =>
       PaintModel(
+        id: id ?? this.id,
         type: type ?? this.type,
         visible: visible ?? this.visible,
         opacity: opacity ?? this.opacity,

@@ -353,15 +353,16 @@ class M3NavigationBarProperties
     super.notchMargin,
     this.backgroundColor,
     this.elevation = 0,
-    this.selectedLabelStyle = const TextProp(fontSize: 14),
-    this.unselectedLabelStyle = const TextProp(fontSize: 12),
+    TextProp? selectedLabelStyle,
+    TextProp? unselectedLabelStyle,
     this.unselectedIconColor,
     this.selectedIconColor,
     this.indicatorColor,
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  });
+  })  : selectedLabelStyle = selectedLabelStyle ?? TextProp(fontSize: 14),
+        unselectedLabelStyle = unselectedLabelStyle ?? TextProp(fontSize: 12);
 
   /// Duplicates this [M3NavigationBarProperties] instance with the given data
   /// overrides.
@@ -464,14 +465,17 @@ class M2NavigationBarProperties
     this.elevation = 0,
     this.navigationBarType = M2NavigationBarType.fixed,
     this.landscapeLayout = M2NavigationBarLandscapeLayout.spread,
-    this.selectedLabelStyle = const TextProp.general(fontSize: 14),
-    this.unselectedLabelStyle = const TextProp.general(fontSize: 12),
+    TextProp? selectedLabelStyle,
+    TextProp? unselectedLabelStyle,
     this.selectedIconColor,
     this.unselectedIconColor,
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  });
+  })  : selectedLabelStyle =
+            selectedLabelStyle ?? TextProp.general(fontSize: 14),
+        unselectedLabelStyle =
+            unselectedLabelStyle ?? TextProp.general(fontSize: 12);
 
   /// Duplicates this [M2NavigationBarProperties] instance with the given data
   /// overrides.

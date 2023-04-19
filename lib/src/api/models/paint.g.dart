@@ -7,6 +7,7 @@ part of 'paint.dart';
 // **************************************************************************
 
 PaintModel _$PaintModelFromJson(Map json) => PaintModel(
+      id: json['id'] as String?,
       type: $enumDecode(_$PaintTypeEnumMap, json['type']),
       visible: json['visible'] as bool? ?? true,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
@@ -47,6 +48,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) {
   final val = <String, dynamic>{
+    'id': instance.id,
     'type': _$PaintTypeEnumMap[instance.type]!,
     'visible': instance.visible,
     'opacity': instance.opacity,

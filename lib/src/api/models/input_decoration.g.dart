@@ -13,28 +13,24 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           : MultiSourceIconModel.fromJson(json['icon'] as Map),
       labelText: json['labelText'] as String?,
       labelStyle: json['labelStyle'] == null
-          ? const TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint])
+          ? null
           : TextProp.fromJson(json['labelStyle'] as Map),
       floatingLabelStyle: json['floatingLabelStyle'] == null
-          ? const TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint])
+          ? null
           : TextProp.fromJson(json['floatingLabelStyle'] as Map),
       helperText: json['helperText'] as String?,
       helperStyle: json['helperStyle'] == null
-          ? const TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint])
+          ? null
           : TextProp.fromJson(json['helperStyle'] as Map),
       helperMaxLines: json['helperMaxLines'] as int? ?? 1,
       hintText: json['hintText'] as String?,
       hintStyle: json['hintStyle'] == null
-          ? const TextProp.general(fontSize: 14, fills: [
-              PaintModel.solid(visible: true, opacity: 1, color: ColorRGB.grey)
-            ])
+          ? null
           : TextProp.fromJson(json['hintStyle'] as Map),
       hintMaxLines: json['hintMaxLines'] as int? ?? 1,
       errorText: json['errorText'] as String?,
       errorStyle: json['errorStyle'] == null
-          ? const TextProp.general(fills: [
-              PaintModel.solid(visible: true, opacity: 1, color: ColorRGB.red)
-            ])
+          ? null
           : TextProp.fromJson(json['errorStyle'] as Map),
       errorMaxLines: json['errorMaxLines'] as int? ?? 1,
       floatingLabelBehavior: $enumDecodeNullable(
@@ -51,21 +47,21 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           : BoxConstraintsModel.fromJson(json['prefixIconConstraints'] as Map),
       prefixText: json['prefixText'] as String?,
       prefixStyle: json['prefixStyle'] == null
-          ? const TextProp.general()
+          ? null
           : TextProp.fromJson(json['prefixStyle'] as Map),
       suffixIcon: json['suffixIcon'] == null
           ? const MultiSourceIconModel()
           : MultiSourceIconModel.fromJson(json['suffixIcon'] as Map),
       suffixText: json['suffixText'] as String?,
       suffixStyle: json['suffixStyle'] == null
-          ? const TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint])
+          ? null
           : TextProp.fromJson(json['suffixStyle'] as Map),
       suffixIconConstraints: json['suffixIconConstraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['suffixIconConstraints'] as Map),
       counterText: json['counterText'] as String?,
       counterStyle: json['counterStyle'] == null
-          ? const TextProp.general()
+          ? null
           : TextProp.fromJson(json['counterStyle'] as Map),
       filled: json['filled'] as bool? ?? false,
       fillColor: json['fillColor'] == null

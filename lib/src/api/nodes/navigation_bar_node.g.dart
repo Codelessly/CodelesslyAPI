@@ -124,10 +124,10 @@ M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>
           : ColorRGBA.fromJson(json['backgroundColor'] as Map),
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
       selectedLabelStyle: json['selectedLabelStyle'] == null
-          ? const TextProp(fontSize: 14)
+          ? null
           : TextProp.fromJson(json['selectedLabelStyle'] as Map),
       unselectedLabelStyle: json['unselectedLabelStyle'] == null
-          ? const TextProp(fontSize: 12)
+          ? null
           : TextProp.fromJson(json['unselectedLabelStyle'] as Map),
       unselectedIconColor: json['unselectedIconColor'] == null
           ? null
@@ -208,10 +208,10 @@ M2NavigationBarProperties _$M2NavigationBarPropertiesFromJson(Map json) =>
               json['landscapeLayout']) ??
           M2NavigationBarLandscapeLayout.spread,
       selectedLabelStyle: json['selectedLabelStyle'] == null
-          ? const TextProp.general(fontSize: 14)
+          ? null
           : TextProp.fromJson(json['selectedLabelStyle'] as Map),
       unselectedLabelStyle: json['unselectedLabelStyle'] == null
-          ? const TextProp.general(fontSize: 12)
+          ? null
           : TextProp.fromJson(json['unselectedLabelStyle'] as Map),
       selectedIconColor: json['selectedIconColor'] == null
           ? null
