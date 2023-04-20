@@ -22,7 +22,6 @@ class SinglePlaceholderNode extends SceneNode
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
-    return null;
     final superRelegated = super.relegatedConstraintsToChildren(child);
     return superRelegated == null
         ? constraints
