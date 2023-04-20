@@ -154,7 +154,7 @@ class ButtonNode extends SceneNode
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
         )
-        .unionNonNull(
+        .union(
           BoxConstraintsModel(
             minWidth: minSize.width,
             minHeight: minSize.height,

@@ -81,7 +81,7 @@ class LoadingIndicatorNode extends SceneNode
     return super
         .internalConstraints(
             horizontalFit: horizontalFit, verticalFit: verticalFit)
-        .unionNonNull(const BoxConstraintsModel(minWidth: 2, minHeight: 2));
+        .union(const BoxConstraintsModel(minWidth: 2, minHeight: 2));
   }
 
   @override

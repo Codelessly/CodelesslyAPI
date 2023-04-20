@@ -591,39 +591,34 @@ mixin GeometryMixin on BaseNode {
       if (fill.type != PaintType.image) continue;
       if ((fill.sourceWidth != null && fill.sourceHeight != null) ||
           (fill.cropData != null)) {
-        final SizeC currentSize = SizeC(
-          fill.cropData?.width ?? fill.sourceWidth ?? 0,
-          fill.cropData?.height ?? fill.sourceHeight ?? 0,
-        );
-        SizeC size = SizeC.zero;
+        final double? imgWidth =
+            (fill.cropData?.width ?? fill.sourceWidth)?.roundToDouble();
+        final double? imgHeight =
+            (fill.cropData?.height ?? fill.sourceHeight)?.roundToDouble();
+
+        double? width, height;
         if (horizontalFit == SizeFit.shrinkWrap &&
             verticalFit == SizeFit.shrinkWrap) {
-          size = SizeC(currentSize.width.roundToDouble(),
-              currentSize.height.roundToDouble());
-        } else {
+          width = imgWidth;
+          height = imgHeight;
+        } else if (imgWidth != null && imgHeight != null) {
           // If this image vertically shrinkwraps, then we want to set the
           // minimum height to be equal to or less than the source height,
           // preserving aspect ratio with respect to the current node width.
           if (verticalFit == SizeFit.shrinkWrap) {
-            size = SizeC(
-              size.width,
-              (currentSize.height * (basicBoxLocal.width / currentSize.width))
-                  .roundToDouble(),
-            );
+            height =
+                (imgHeight * (basicBoxLocal.width / imgWidth)).roundToDouble();
           }
           if (horizontalFit == SizeFit.shrinkWrap) {
-            size = SizeC(
-              (currentSize.width * (basicBoxLocal.height / currentSize.height))
-                  .roundToDouble(),
-              size.height,
-            );
+            width =
+                (imgWidth * (basicBoxLocal.height / imgHeight)).roundToDouble();
           }
         }
 
-        resultSize = resultSize.enforce(
+        resultSize = resultSize.union(
           BoxConstraintsModel(
-            minWidth: size.width,
-            minHeight: size.height,
+            minWidth: width,
+            minHeight: height,
           ),
         );
       }

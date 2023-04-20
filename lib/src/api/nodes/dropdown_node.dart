@@ -62,7 +62,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
         )
-        .unionNonNull(BoxConstraintsModel(minWidth: iconSize));
+        .union(BoxConstraintsModel(minWidth: iconSize));
   }
 
   /// Creates a [DropdownNode] from a JSON object.
