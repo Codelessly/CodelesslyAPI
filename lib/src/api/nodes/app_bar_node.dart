@@ -81,7 +81,7 @@ class AppBarNode extends SceneNode
     return super
         .internalConstraints(
             horizontalFit: horizontalFit, verticalFit: verticalFit)
-        .unionNonNull(
+        .union(
           BoxConstraintsModel(minHeight: minHeight),
         );
   }

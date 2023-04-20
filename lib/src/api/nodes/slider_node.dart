@@ -139,7 +139,7 @@ class SliderNode extends SceneNode
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
         )
-        .unionNonNull(BoxConstraintsModel(minWidth: width, minHeight: height));
+        .union(BoxConstraintsModel(minWidth: width, minHeight: height));
   }
 }
 

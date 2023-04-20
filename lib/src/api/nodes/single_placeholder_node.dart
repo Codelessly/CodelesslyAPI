@@ -26,7 +26,7 @@ class SinglePlaceholderNode extends SceneNode
     final superRelegated = super.relegatedConstraintsToChildren(child);
     return superRelegated == null
         ? constraints
-        : superRelegated.unionNonNull(constraints);
+        : superRelegated.union(constraints);
   }
 
   /// The node types that are allowed to be inside this [SinglePlaceholderNode].

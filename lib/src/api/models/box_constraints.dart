@@ -194,9 +194,13 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// Creates a union [BoxConstraintsModel] from the current
   /// [BoxConstraintsModel] and the provided [constraints].
   ///
-  /// The resulting [BoxConstraintsModel] will have the minimum with and height
-  /// that's the biggest of the two, and the maximum width and height that's
-  /// the smallest of the two.
+  /// The resulting [BoxConstraintsModel] will have:
+  /// - The maximum of the two minimum widths.
+  /// - The maximum of the two minimum heights.
+  /// - The minimum of the two maximum widths.
+  /// - The minimum of the two maximum heights.
+  ///
+  /// [returns] a [BoxConstraintsModel] that has overlapping constraints.
   BoxConstraintsModel union(BoxConstraintsModel constraints) {
     return BoxConstraintsModel(
       minWidth: (minWidth == null)
@@ -219,35 +223,6 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
           : (constraints.maxHeight == null)
               ? maxHeight
               : min(maxHeight!, constraints.maxHeight!),
-    );
-  }
-
-  /// Similar to [union], but will only clamp the minimums and maximums
-  /// if the passed [constraints] of the relevant parameter is not null.
-  ///
-  /// So for example, if the passed [constraints] has a null min width,
-  /// instead of returning a [BoxConstraintsModel] with a null min width,
-  /// it just returns its own if available.
-  /// Otherwise, it takes the biggest of the two min widths.
-  ///
-  /// Another example, if the passed [constraints] has a null max width,
-  /// instead of returning a [BoxConstraintsModel] with a null max width,
-  /// it just returns its own if available.
-  /// Otherwise, it takes the smallest of the two max widths.
-  BoxConstraintsModel unionNonNull(BoxConstraintsModel constraints) {
-    return BoxConstraintsModel(
-      minWidth: constraints.minWidth == null
-          ? minWidth
-          : max(minWidth ?? 0, constraints.minWidth!),
-      maxWidth: constraints.maxWidth == null
-          ? maxWidth
-          : min(maxWidth ?? double.infinity, constraints.maxWidth!),
-      minHeight: constraints.minHeight == null
-          ? minHeight
-          : max(minHeight ?? 0, constraints.minHeight!),
-      maxHeight: constraints.maxHeight == null
-          ? maxHeight
-          : min(maxHeight ?? double.infinity, constraints.maxHeight!),
     );
   }
 

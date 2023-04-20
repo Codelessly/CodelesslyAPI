@@ -248,7 +248,7 @@ class NavigationBarNode extends SceneNode
               horizontalFit: horizontalFit,
               verticalFit: verticalFit,
             )
-            .unionNonNull(
+            .union(
               BoxConstraintsModel(
                 minHeight:
                     max(minHeight, kDefaultBottomNavigationBarHeight) + 1,
@@ -271,7 +271,7 @@ class NavigationBarNode extends SceneNode
               horizontalFit: horizontalFit,
               verticalFit: verticalFit,
             )
-            .unionNonNull(
+            .union(
               BoxConstraintsModel(minHeight: minHeight),
             );
     }
