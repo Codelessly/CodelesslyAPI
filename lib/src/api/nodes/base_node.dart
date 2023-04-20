@@ -476,33 +476,33 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// Whether the height of this node is at the maximum height it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMaxHeight {
-    return constraints.maxHeight != null &&
+    return resolvedConstraints.maxHeight != null &&
         outerBoxLocal.height >=
-            (constraints.maxHeight! + outerBoxLocal.verticalEdgeSpace);
+            (resolvedConstraints.maxHeight! + outerBoxLocal.verticalEdgeSpace);
   }
 
   /// Whether the width of this node is at the maximum width it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMaxWidth {
-    return constraints.maxWidth != null &&
+    return resolvedConstraints.maxWidth != null &&
         outerBoxLocal.width >=
-            (constraints.maxWidth! + outerBoxLocal.horizontalEdgeSpace);
+            (resolvedConstraints.maxWidth! + outerBoxLocal.horizontalEdgeSpace);
   }
 
   /// Whether the height of this node is at the minimum height it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMinHeight {
-    return constraints.minHeight != null &&
+    return resolvedConstraints.minHeight != null &&
         outerBoxLocal.height <=
-            (constraints.minHeight! + outerBoxLocal.verticalEdgeSpace);
+            (resolvedConstraints.minHeight! + outerBoxLocal.verticalEdgeSpace);
   }
 
   /// Whether the width of this node is at the minimum width it can be.
   /// This is always false if no maxHeight constraint is set.
   bool get isAtMinWidth {
-    return constraints.minWidth != null &&
+    return resolvedConstraints.minWidth != null &&
         outerBoxLocal.width <=
-            (constraints.minWidth! + outerBoxLocal.horizontalEdgeSpace);
+            (resolvedConstraints.minWidth! + outerBoxLocal.horizontalEdgeSpace);
   }
 
   /// Determines whether this node relegates internal constraints to its
