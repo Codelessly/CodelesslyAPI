@@ -109,7 +109,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
         )
-        .unionNonNull(
+        .union(
           BoxConstraintsModel(
             minWidth: width,
             minHeight: height,

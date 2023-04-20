@@ -192,12 +192,12 @@ class NodeProcessor {
           parent.relegatedConstraintsToChildren(node);
       if (relegatedConstraints != null) {
         final parentResolved =
-            relegatedConstraints.unionNonNull(resolveConstraints(parent));
-        resolved = resolved.unionNonNull(parentResolved);
+            relegatedConstraints.union(resolveConstraints(parent));
+        resolved = resolved.union(parentResolved);
       }
     }
 
-    return node.constraints.unionNonNull(resolved);
+    return node.constraints.union(resolved);
   }
 
   /// Update the global rotation for given [node] with [newRotationDegrees].
