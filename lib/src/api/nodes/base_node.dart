@@ -29,38 +29,28 @@ bool isTestLayout = false;
 /// use the [update] extension method or the [updateNode] method inside the
 /// [NodeProcessor] class.
 abstract class BaseNode with SerializableMixin, EquatableMixin {
-  /// The type is a unique string representation/identifier for this node.
-  /// It is essentially the unique key that this node will use for static
-  /// registration. It is usually the lowerCamelCase of the class's name.
+  /// [type] is a string representation for the type of this node. It is a
+  /// unique key that this node class uses for static registration. It is
+  /// usually the lowerCamelCase of the class' name. Overriding [type] is
+  /// mandatory.
   ///
-  /// Example: A [BaseNode] class called MyCoolNode would have a [type] of
-  ///          'myCoolNode'.
-  ///
-  /// This field MUST ALWAYS BE OVERRIDDEN in the child class.
+  /// Example: A [BaseNode] class called [MyNode] would have a [type] of
+  /// 'myNode'.
   late final String type;
 
-  /// The unique identifier for this node. Whenever a node is created, it will
-  /// assign this to a random unique string.
+  /// The unique identifier for this node. Whenever a node is created, [id] is
+  /// assigned a unique new string.
   String id;
 
   /// The name is a human readable string that is assigned when this node
-  /// is created. Nodes are often created with a default human readable name,
-  /// but if multiple of this node exist in one place, we try to append
-  /// a number to the end of the name to make it unique so that it is
-  /// easily distinguishable from other nodes of the same type.
-  ///
-  /// But it is still purely meant for visual purposes and can even be
-  /// modified by users.
+  /// is created. Nodes are created with a default human readable name but can
+  /// be modified by users.
   String name;
 
-  /// A simple bool that indicates whether this node is visible in the editor
-  /// or hidden.
-  ///
-  /// Determines if the widget that is produced from this node
-  /// through the [codelessly_sdk] is wrapped in a [Visibility] widget.
+  /// Whether this node is visible or not.
   bool visible;
 
-  /// Constraints apply to the [middleBoxLocal]
+  /// Constraints apply to the [middleBoxLocal].
   /// See [BoxConstraintsModel] for more info on how to define the
   /// constraints.
   BoxConstraintsModel constraints;
@@ -79,11 +69,6 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// [edgePins] are never null and will always reflect the [middleBoxLocal]
   /// in some way, while [alignment] can have a null data model inside to
   /// indicate freeform (no-alignment) positioning.
-  ///
-  /// This field does nothing computationally and is simply used to track
-  /// the desired UI state of the node inside the Codelessly editor, showing
-  /// the alignment UI or the edge pins UI depending on the value of this
-  /// field.
   PositioningMode positioningMode;
 
   /// The horizontal fit of a node determines how this node gets its box laid
@@ -92,8 +77,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// See [SizeFit] for more info.
   SizeFit horizontalFit;
 
-  /// The vertical fit of a node determines how this node gets its box laid
-  /// out on the vertical axis.
+  /// The vertical fit of a node determines how this node gets its box laid out
+  /// on the vertical axis.
   ///
   /// See [SizeFit] for more info.
   SizeFit verticalFit;
@@ -101,33 +86,22 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// The flex factor to use when this node's [SizeFit] is set to
   /// [SizeFit.expanded] or [SizeFit.flexible].
   ///
-  /// It's behavior is 1-1 with how Flutter handles flex factors and only really
-  /// takes effect if at least two or more nodes have a [SizeFit] of
-  /// [SizeFit.expanded] or [SizeFit.flexible] in a given [RowColumnNode].
-  ///
-  /// You can think of it as "how much space does this node want to take up
-  /// relative to the other nodes that are also set to [SizeFit.expanded] or
-  /// [SizeFit.flexible]?". The higher the flex factor, the more space it will
-  /// take up.
+  /// It replicates the behavior of Flutter's flex factors and takes effect only
+  /// if two or more nodes have a [SizeFit] of [SizeFit.expanded] or
+  /// [SizeFit.flexible] in the given [RowColumnNode].
   int flex;
 
-  /// This determines if the aspect ratio of the node is locked or not.
-  ///
-  /// It does not handle logic, but it signals to the layout system and to the
-  /// editor selection rectangle that the aspect ratio is locked and should be
-  /// respected.
+  /// Whether the node preserves its aspect ratio while resizing.
   bool aspectRatioLock;
 
-  /// The ID of the parent of this node. Or the ID of the node that this node
-  /// is a child of.
+  /// The ID of the parent of this node.
   ///
   /// This value is not initialized by default (It's set to an empty string),
   /// but it is specified when a project is loaded.
   ///
   /// This field is never stored on the server or json. It is exclusively
   /// specified when a project is loaded through interpretation of the
-  /// [children] list instead. The reasoning behind this is that it avoids
-  /// deserialization issues.
+  /// [children] list instead. This helps avoid deserialization issues.
   @JsonKey(includeFromJson: false, includeToJson: false)
   String parentID;
 
@@ -136,8 +110,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// The alignment that this node will use to position itself inside the
   /// [innerBoxLocal] of its parent.
   ///
-  /// This is 1-1 with Flutter's [Alignment] model with the exception of
-  /// non-nullability. If this node does NOT have an alignment and is
+  /// Replicates Flutter's [Alignment] model with the exception of
+  /// non-nullability. If this node does not have an alignment and is
   /// positioning itself purely through freeform coordinates (edge pins), then
   /// this value will have an [AlignmentModel.data] of null, but the model
   /// itself will never be null.
@@ -146,27 +120,23 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   OuterNodeBox _outerBoxLocal;
 
   /// The outer box is the box of this node with margins and strokes expanding
-  /// outside of it. In the Codelessly editor, for a node with margin, it is the
-  /// green boundary that renders outside of its selection rectangle.
+  /// outside of it.
   ///
-  /// This is the LOCAL version of the box as opposed to [outerBoxGlobal],
-  /// meaning that the box is relative to the parent's [middleBoxLocal].
+  /// This box's position is relative to the parent's [middleBoxLocal].
   /// The top left corner of the parent is the (0, 0) point of this box.
   ///
-  /// You can access the middle box from this box through
-  /// OuterNodeBox.innerX/Y/Left/Right/Top/Bottom/Width/Height and you can
-  /// access the distance between the outer box and the middle box through
+  /// Middle box can be accessed from this box through
+  /// OuterNodeBox.innerX/Y/Left/Right/Top/Bottom/Width/Height and the distance
+  /// between the outer box and the middle box can be accessed through
   /// OuterNodeBox.edgeLeft/Right/Top/Bottom.
   OuterNodeBox get outerBoxLocal => _outerBoxLocal;
 
   NodeBox _basicBoxLocal;
 
   /// The basic box, also known as the middle box, is the box of this node
-  /// without any margins or strokes expanding outside of it. In the Codelessly
-  /// editor, this is the selection rectangle that is rendered around the node.
+  /// without any margins or strokes expanding outside of it.
   ///
-  /// This is the LOCAL version of the box as opposed to [middleBoxGlobal],
-  /// meaning that the box is relative to the parent's [middleBoxLocal].
+  /// This box's position is relative to the parent's [middleBoxLocal].
   ///
   /// The top left corner of the parent is the (0, 0) point of this box unless
   /// margin/stroke is applied, in which case, the top left corner of the
@@ -181,9 +151,9 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// This is a tracker box that is used to keep track of the outer box when any
   /// sudden changes to the box occurs.
   ///
-  /// For example, if you take a rectangle inside a canvas and change its
-  /// [SizeFit] to [SizeFit.expanded], the outer box will expand to fill the
-  /// canvas. the [retainedOuterBoxLocal] will keep track of the original
+  /// For example, if a rectangle is moved inside a canvas and its [SizeFit] is
+  /// changed to [SizeFit.expanded], the outer box will expand to fill the
+  /// canvas. The [retainedOuterBoxLocal] will keep track of the original
   /// outer box so that when the [SizeFit] is changed back to [SizeFit.fixed],
   /// the outer box will be restored to its original size.
   ///
@@ -195,25 +165,22 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   late InnerNodeBox _innerBoxLocal;
 
   /// The inner box is the box of this node with padding shrinking the box
-  /// inside of it. In the Codelessly editor, for a node with padding, it is the
-  /// orange boundary that renders inside of its selection rectangle.
+  /// inside of it.
   ///
-  /// This is the LOCAL version of the box as opposed to [innerBoxGlobal],
-  /// meaning that the box is relative to the parent's [middleBoxLocal].
+  /// This box's position is relative to the parent's [middleBoxLocal].
   /// The top left corner of the parent is the (0, 0) point of this box if no
   /// padding is applied, otherwise, it's the amount of padding applied.
   ///
-  /// You can access the middle box from this box through
-  /// InnerNodeBox.outerX/Y/Left/Right/Top/Bottom/Width/Height and you can
-  /// access the distance between the inner box and the middle box through
+  /// Middle box can be accessed from this box through
+  /// InnerNodeBox.outerX/Y/Left/Right/Top/Bottom/Width/Height and the distance
+  /// between the inner box and the middle box can be accessed through
   /// InnerNodeBox.edgeLeft/Right/Top/Bottom.
   @JsonKey(includeFromJson: false, includeToJson: false)
   InnerNodeBox get innerBoxLocal => _innerBoxLocal;
 
   late OuterNodeBox _outerBoxGlobal;
 
-  /// This is the GLOBAL version of the box as opposed to [outerBoxLocal],
-  /// meaning that the box is relative to the global coordinate system.
+  /// This is the global version of the box as opposed to [outerBoxLocal].
   ///
   /// The top left corner of the [RootNode] is the (0, 0) point of this box.
   ///
@@ -223,7 +190,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
   late NodeBox _basicBoxGlobal;
 
-  /// This is the GLOBAL version of the box as opposed to [middleBoxLocal],
+  /// This is the global version of the box as opposed to [middleBoxLocal],
   ///
   /// The top left corner of the [RootNode] is the (0, 0) point of this box.
   ///
@@ -237,7 +204,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
   late InnerNodeBox _innerBoxGlobal;
 
-  /// This is the GLOBAL version of the box as opposed to [innerBoxLocal],
+  /// This is the global version of the box as opposed to [innerBoxLocal],
   ///
   /// The top left corner of the [RootNode] is the (0, 0) point of this box.
   ///
@@ -247,22 +214,17 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
   late RotatedNodeBox _middleRotatedBoxLocal;
 
-  /// The middle rotated box is the box of this node with rotation applied.
-  /// In the Codelessly editor, it is the smallest box you can make when you
-  /// rotate a node. To see it in action, rotate a node and observe the very
-  /// thin outline around the rotated selection rectangle.
+  /// The middle rotated box is the middle box of this node with rotation
+  /// applied.
   ///
-  /// This is the LOCAL version of the box as opposed to
-  /// [middleRotatedBoxGlobal], meaning that the box is relative to the parent's
-  /// [middleBoxLocal].
+  /// This box's position is relative to the parent's [middleBoxLocal].
   @JsonKey(includeFromJson: false, includeToJson: false)
   RotatedNodeBox get middleRotatedBoxLocal => _middleRotatedBoxLocal;
 
   late RotatedNodeBox _middleRotatedBoxGlobal;
 
-  /// This is the GLOBAL version of the box as opposed to
-  /// [middleRotatedBoxLocal], meaning that the box is relative to the global
-  /// coordinate system.
+  /// This is the global version of the box as opposed to
+  /// [middleRotatedBoxLocal].
   ///
   /// The top left corner of the [RootNode] is the (0, 0) point of this box.
   ///
@@ -272,17 +234,10 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
   late RotatedNodeBox _outerRotatedBoxLocal;
 
-  /// The outer rotated box is the box of this node with rotation and margins
-  /// applied. It must be noted that the margin is NOT rotated, rather only
-  /// the node's middle box only.
+  /// The outer rotated box is the outer box of this node with rotation and
+  /// margins applied. It must be noted that the margins remain unrotated.
   ///
-  /// To see it in action, rotate a node with margin and observe the very
-  /// thin outline that is holding both the rotated selection box AND the
-  /// green margin regions.
-  ///
-  /// This is the LOCAL version of the box as opposed to
-  /// [outerRotatedBoxGlobal], meaning that the box is relative to the parent's
-  /// [middleBoxLocal].
+  /// This box's position is relative to the parent's [middleBoxLocal].
   ///
   /// The top left corner of the parent is the (0, 0) point of this box.
   ///
@@ -293,8 +248,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   late RotatedNodeBox _outerRotatedBoxGlobal;
 
   /// This is the GLOBAL version of the box as opposed to
-  /// [outerRotatedBoxLocal], meaning that the box is relative to the global
-  /// coordinate system.
+  /// [outerRotatedBoxLocal].
   ///
   /// The top left corner of the [RootNode] is the (0, 0) point of this box.
   ///
@@ -304,46 +258,33 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
   EdgeInsetsModel _margin;
 
-  /// The margin to apply to the outer space of the node. You can think of this
-  /// as wrapping a Flutter widget with a [Padding] widget. Or, more accurately,
-  /// specifying the [Container.margin] property inside the [Container] widget.
+  /// The margin applied outside the node.
   ///
-  /// The thematics are correct, but Flutter's [Padding] widget may be confusing
-  /// because we also have a [padding] property but it is the INNER padding
-  /// of the node. This is the OUTER "padding" of the node. In UI/UX design,
-  /// this "outer" padding is called the "margin".
+  /// Replicates the behavior of Flutter's [Padding] widget.
   EdgeInsetsModel get margin => _margin;
 
   EdgeInsetsModel _padding;
 
-  /// The padding to apply to the inner space of the node. You can think of this
-  /// as wrapping the child of a Flutter [Container] widget with a [Padding]
-  /// widget. Or, more accurately, specifying the [Container.padding] property
-  /// inside the [Container] widget.
+  /// The padding applied inside the node.
   ///
-  /// The thematics are correct, but Flutter's [Padding] widget may be confusing
-  /// because we also have a [margin] property but it is the OUTER padding
-  /// of the node. This is the INNER "padding" of the node. In UI/UX design,
-  /// this "inner" padding is called the "padding".
+  /// Replicates the behavior of [padding] property of Flutter's [Container]
+  /// widget.
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   int _rotationDegrees;
 
   /// The rotation in degrees. This is the rotation of the node's
-  /// [middleBoxLocal], but the [middleBoxLocal] does NOT represent this
-  /// rotation. This rotation is represented by the [middleRotatedBoxLocal].
-  /// which is computed USING [middleBoxLocal] and this rotation.
+  /// [middleBoxLocal], represented by the [middleRotatedBoxLocal].
   @JsonKey(name: 'rotation', fromJson: castRotation)
   int get rotationDegrees => _rotationDegrees;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   double _rotationRadians;
 
-  /// The rotation in radians. This is computed whenever [rotationDegrees] is
-  /// updated and is meant purely as an optimization and convenience.
-  ///
-  /// It is not stored on the server.
+  /// The rotation in radians. It is not stored on the server and is
+  /// computed whenever [rotationDegrees] is updated. It is meant purely as
+  /// an optimization and convenience.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double get rotationRadians => _rotationRadians;
 
@@ -360,30 +301,32 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   double globalRotationRadians;
 
   /// A bool that is used to render the id of a node in the center. This is used
-  /// by our golden tests.
+  /// by the golden tests.
   @Deprecated('No longer used')
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool renderDebugInfo = false;
 
-  /// A simple label for easy console debugging.
+  /// A simple label for console debugging.
   @JsonKey(includeFromJson: false, includeToJson: false)
   String get debugLabel => '$name [$id]';
 
-  /// Since a lot of components can't support padding, the default value is set
+  /// Since a lot of nodes don't support padding, the default value is set
   /// to false. Any node that supports padding must override this and and set
-  /// it to true. Otherwise, the padding control won't show up in the editor.
+  /// it to true.
   ///
-  /// Nodes that can't support external padding modifications are like
-  /// [EmbeddedVideoNode], [WebViewNode], [IconNode], [TextNode], etc.
+  /// Nodes that can't support external padding modifications are [IconNode],
+  /// [EmbeddedVideoNode], [WebViewNode], [TextNode], etc.
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get supportsPadding => false;
 
-  /// Width of the node in fraction of the parent's width. widthFactor of 0.5
-  /// means that the node will be half the width of the parent.
+  /// Width of the node in fraction of the parent's width.
+  /// [widthFactor] of [0.5] means that the node will be half the width of its
+  /// parent.
   double? widthFactor;
 
-  /// Height of the node in fraction of the parent's height. heightFactor of 0.5
-  /// means that the node will be half the height of the parent.
+  /// Height of the node in fraction of the parent's height.
+  /// [heightFactor] of [0.5] means that the node will be half the height of its
+  /// parent.
   double? heightFactor;
 
   /// Whether the node is sized in fraction of the parent's size.
@@ -441,21 +384,20 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     NodeProcessor._computeInnerBoxGlobal(this);
   }
 
-  /// The minimum internal size is the red-line minimum size that this node
-  /// is not allowed to go below. Many Material widgets have an internal size
-  /// that is not transparently accessible. For example, a Flutter material
-  /// [TextButton] widget has an internal size that is equal to the icon inside
-  /// as well as some fixed padding numbers that cannot be modified.
+  /// The minimum internal size is the size that this node
+  /// is not allowed to go below.
   ///
-  /// Since we cannot access those values for the layout system to utilize
-  /// directly, we just signal to the layout system that this node has a
-  /// minimum internal size that it cannot go below. The layout system will
-  /// then use this value to compute the minimum size of the node.
+  /// Many Material widgets have an internal size that is not transparently
+  /// accessible. For example, a Flutter material [TextButton] widget has an
+  /// internal size that is equal to the icon inside as well as some fixed
+  /// padding numbers that cannot be modified.
+  ///
+  /// Since these values cannot be directly accessed, [minimumInternalSize]
+  /// helps the layout system compute the minimum size of the node.
   ///
   /// [horizontalFit] and [verticalFit] are used to determine what type of
   /// numbers [minimumInternalSize] should use. It will normally use this
-  /// node's [horizontalFit] and [verticalFit] but you can override it if
-  /// you want.
+  /// node's [horizontalFit] and [verticalFit] but these can be overriden.
   ///
   /// More examples are [LoadingIndicatorNode], [DropdownNode], [SliderNode],
   /// [DividerNode], [AppBarNode], [NavigationBarNode], and nodes with
@@ -467,27 +409,24 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   }) =>
       SizeC.zero;
 
-  /// The internal padding is a very normal padding that this node's padding
-  /// cannot shrink below. This is very similar to [minimumInternalSize] but
-  /// is not used for the same purpose. Strokes are considered internal padding
-  /// through [GeometryMixin] as well as [LoadingIndicatorNode], [ListTileNode],
-  /// and [ExpansionTileNode].
+  /// The value that this node's padding cannot shrink below. Similar to
+  /// [minimumInternalSize] but is not used for the same purpose. Strokes
+  /// consider internal padding through [GeometryMixin] as well as
+  /// [LoadingIndicatorNode], [ListTileNode], and [ExpansionTileNode].
   ///
   /// The reason this is separate from [padding] is because [padding] can be
   /// modified by users while the internal padding is padding that is fixed,
   /// static, and unchanging. It is independent of the normal padding.
   EdgeInsetsModel minimumPadding() => EdgeInsetsModel.zero;
 
-  /// Returns what this node would like its padding to be ideally to look
-  /// good.
+  /// Returns ideal default padding for the node.
   ///
   /// For example, when it comes to icon buttons, this is used when the
   /// button's type, shape, or size fits change to allow the button to adjust
   /// its padding to fit the new type, shape, or size.
-  /// Because if an icon button suddenly shrinkwraps with zero padding, it's
-  /// going to take on a very ugly form that's the size of the icon without any
-  /// padding around it, so we use this to set a default padding to it when
-  /// that property changes.
+  /// Because if an icon button suddenly shrinkwraps with zero padding, it shows
+  /// only the icon, which is not ideal. So, [preferredDefaultPadding] is used
+  /// to set a default padding when that property changes.
   ///
   /// When this is null, the padding is unaffected while editor operations
   /// are performed. If it is not null, the returned padding is enforced onto
@@ -497,9 +436,9 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// A convenience getter to get the list of children of this node.
   /// Normally, if a node supports children, it has to extend [ChildrenMixin],
   /// but it is cumbersome to always check if the type of a node extends
-  /// [ChildrenMixin] before accessing the children list. This getter
-  /// is a convenience getter that will return an empty list if the node
-  /// does not support children.
+  /// [ChildrenMixin] before accessing the children list. This getter is a
+  /// convenience getter that will return an empty list if the node does not
+  /// support children.
   List<String> get childrenOrEmpty =>
       (this is ChildrenMixin) ? (this as ChildrenMixin).children : <String>[];
 
@@ -545,15 +484,13 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
             (constraints.minWidth! + outerBoxLocal.horizontalEdgeSpace);
   }
 
-  /// We have the normal [constraints] field, but it does not tell the full
-  /// story of this node. The [constraints] field is what is manually set
-  /// by the user. However, we have additional constraints that are computed
-  /// for different nodes. Material components may provide additional internal
-  /// constraints. Images may provide their original sizes when shrink-wrapping,
-  /// etc...
+  /// A node may have certain constraints in addition to the [constaints] that
+  /// are set by the user, such as internal constraints of Material components,
+  /// original size of an image, etc.
   ///
-  /// This function will take the [minimumInternalSize] and add it to the
-  /// [constraints] field to get a complete picture of the constraints.
+  /// [resolveConstraints] computes actual constraints of the node by taking
+  /// user defined [constraints] and node's [minimumInternalSize] into
+  /// consideration.
   BoxConstraintsModel resolvedConstraints({
     SizeFit? horizontalFit,
     SizeFit? verticalFit,
@@ -566,10 +503,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     return constraints.add(minInnerSize);
   }
 
-  /// We have the [padding] field, but we also have an [minimumPadding] field.
-  ///
-  /// This function will resolve the maximum of every side of [minimumPadding]
-  /// to the [padding] field to get a complete picture of the padding.
+  /// [resolvePadding] computes the maximum of every side of [minimumPadding]
+  /// to the [padding] field to resolve the actual padding of the node.
   EdgeInsetsModel resolvedPadding([EdgeInsetsModel? padding]) {
     return (padding ?? _padding).max(minimumPadding());
   }
@@ -577,12 +512,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// A convenience function that will take a [value] and constraint it
   /// using the [resolvedConstraints] function.
   ///
-  /// It takes an additional [nodeBoundaryType] to indicate WHICH [NodeBox]
-  /// to use to constrain the desired [value]. You may want to constrain
-  /// some arbitrary [value] based on the outer box, the middle box, the inner
-  /// box, the outer ROTATED box, or the middle ROTATED box, or the inner
-  /// ROTATED box. This function will take care of all of that for you on
-  /// both the vertical and horizontal axes.
+  /// It takes an additional [nodeBoundaryType] to indicate which [NodeBox]
+  /// to use to constrain the desired [value].
   SizeC constrainSize(SizeC value,
           {required NodeBoundaryType nodeBoundaryType}) =>
       SizeC(
@@ -614,8 +545,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
         ),
       );
 
-  /// [returns] the relevant [NodeBox] given the [NodeBoundaryType] and
-  /// the [PositioningSpace] desired.
+  /// Returns the relevant [NodeBox] given the [NodeBoundaryType] and the
+  /// [PositioningSpace] desired.
   ///
   /// This is a convenience function meant for programmatic use.
   NodeBox getBox(
@@ -659,19 +590,15 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   /// function also takes an [axis] to indicate which axis to constrain the
   /// [value].
   ///
-  /// It takes an additional [nodeBoundaryType] to indicate WHICH [NodeBox]
-  /// to use to constrain the desired [value]. You may want to constrain
-  /// some arbitrary [value] based on the outer box, the middle box, the inner
-  /// box, the outer ROTATED box, or the middle ROTATED box, or the inner
-  /// ROTATED box. This function will take care of all of that for you.
+  /// It takes an additional [nodeBoundaryType] to indicate which [NodeBox]
+  /// to use to constrain the desired [value].
   ///
   /// [horizontalFit] and [verticalFit] are used to determine what type of
   /// numbers [minimumInternalSize] should use. It will normally use this
-  /// node's [horizontalFit] and [verticalFit] but you can override it if
-  /// you want.
+  /// node's [horizontalFit] and [verticalFit] but they can be overriden
   ///
-  /// [returns] the constrained value that cannot exceed the total constraints
-  ///           of this node.
+  /// Returns the constrained value that cannot exceed the total constraints of
+  /// this node.
   double constrainValue(
     double value,
     AxisC axis, {
@@ -766,12 +693,12 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     }
   }
 
-  /// If this node has minimum constraints, it returns its minimum possible
-  /// size given those values. Otherwise, it returns the [value] passed,
-  /// indicating that this node has no leeway to shrink.
+  /// If this node has minimum constraints, it returns its minimum possible size
+  /// given those values. Otherwise, it returns the [value] passed, indicating
+  /// that this node has no leeway to shrink.
   ///
-  /// By no leeway to shrink, we mean that this node has not reached its minimum
-  /// size just yet (not account for its children).
+  /// No leeway to shrink means that this node has not reached its minimum size
+  /// just yet (not account for its children).
   double hasLeewayToShrink(
     double value,
     AxisC axis, {

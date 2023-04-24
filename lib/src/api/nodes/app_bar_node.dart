@@ -17,7 +17,8 @@ part 'app_bar_node.g.dart';
 const double kAppBarDefaultHeight = 56;
 
 /// A Material Design app bar.
-/// Refer to [AppBar](https://api.flutter.dev/flutter/material/AppBar-class.html) in Flutter for more details.
+/// Refer to [AppBar](https://api.flutter.dev/flutter/material/AppBar-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class AppBarNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -68,12 +69,12 @@ class AppBarNode extends SceneNode
     if (properties.automaticallyImplyLeading) {
       minHeight = 40;
     } else if (properties.leading.icon.show) {
-      // has leading icon
+      // Has a leading icon.
       minHeight = max(properties.leading.icon.size ?? 24,
               properties.titleStyle.fontSize) +
           16;
     } else {
-      // no icon
+      // Does not have a leading icon.
       minHeight = properties.titleStyle.fontSize + 16;
     }
     minHeight = min(56, minHeight);

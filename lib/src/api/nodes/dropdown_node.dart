@@ -14,7 +14,8 @@ part 'dropdown_node.g.dart';
 /// A dropdown is a widget that lets the user choose from multiple options.
 /// This widget is a material dropdown button that shows an overlay with the
 /// options when pressed.
-/// Refer to [DropdownButton](https://api.flutter.dev/flutter/material/DropdownButton-class.html) in Flutter for more details.
+/// Refer to [DropdownButton](https://api.flutter.dev/flutter/material/DropdownButton-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class DropdownNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -142,7 +143,7 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
   /// Whether to underline dropdown button's contents.
   bool underline;
 
-  /// Creates a [DropdownProperties] with the given data.
+  /// Creates a [DropdownProperties] instance with the given data.
   DropdownProperties({
     this.value = 0,
     this.enabled = true,
@@ -246,7 +247,7 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
         borderRadius,
       ];
 
-  /// Creates a [DropdownProperties] from a JSON object.
+  /// Creates a [DropdownProperties] instance from a JSON object.
   factory DropdownProperties.fromJson(Map json) =>
       _$DropdownPropertiesFromJson(json);
 

@@ -17,7 +17,7 @@ part 'web_view_node.g.dart';
 ///
 /// It is only available on Android and iOS.
 ///
-/// This node utilizes the webview_flutter package.
+/// This node utilizes the [webview_flutter] package.
 @JsonSerializable()
 class WebViewNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -29,7 +29,7 @@ class WebViewNode extends SceneNode
   /// [TwitterWebViewProperties], and [GoogleMapsWebViewProperties].
   WebViewProperties properties;
 
-  /// [returns] whether this webview holds actual content in its
+  /// Returns whether this webview holds actual content in its
   /// [WebViewProperties.src].
   bool get hasData =>
       properties.src != null && properties.src!.trim().isNotEmpty;
@@ -37,7 +37,7 @@ class WebViewNode extends SceneNode
   @override
   bool get supportsPadding => false;
 
-  /// Creates a new [WebViewNode] instance given the required parameters.
+  /// Creates a new [WebViewNode] instance with the given parameters.
   WebViewNode({
     required super.id,
     required super.name,
@@ -58,14 +58,14 @@ class WebViewNode extends SceneNode
     super.parentID,
     super.positioningMode,
     super.edgePins,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {
     setVariablesMixin(variables: variables);
   }
 
-  /// Creates a new [WebViewNode] instance from a [json] map.
+  /// Creates a new [WebViewNode] instance from a JSON map.
   factory WebViewNode.fromJson(Map json) => _$WebViewNodeFromJson(json);
 
   @override
@@ -75,8 +75,8 @@ class WebViewNode extends SceneNode
 /// A custom serializer and deserializer for the [WebViewProperties.src] field
 /// to encode and decode the src to and from a base64 string.
 ///
-/// The [src] can be a URL, an actual HTML string, etc... So we serialize
-/// whatever it is as a base64 string.
+/// The [src] can be a URL, an actual HTML string, etc. Hence, it is serialized
+/// to a base64 string.
 class Base64JsonConverter implements JsonConverter<String?, String> {
   /// Creates a default [Base64JsonConverter] instance.
   const Base64JsonConverter();
@@ -98,7 +98,7 @@ class Base64JsonConverter implements JsonConverter<String?, String> {
 /// [GoogleMapsWebViewProperties].
 abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// The [src] holds the actual content of the webview. It can be either a URL,
-  /// an actual HTML string, an asset path, etc...
+  /// an actual HTML string, an asset path, etc.
   @Base64JsonConverter()
   String? src;
 
@@ -115,9 +115,9 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// might be inside a scrollable container itself, creating potential gesture
   /// conflicts.
   ///
-  /// Setting this to true will ensure the webview always allow vertical
-  /// scroll gestures into it and disallow parent containers from scrolling when
-  /// the event is triggered inside the bounds of this webview.
+  /// Setting this to true will ensure the webview always allow vertical scroll
+  /// gestures into it and disallow parent containers from scrolling when the
+  /// event is triggered inside the bounds of this webview.
   bool? controlVerticalScrollGesture;
 
   /// Whether this webview should consume any horizontal scroll gestures.
@@ -153,8 +153,8 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// conflicts.
   ///
   /// Setting this to true will ensure the webview always allow tap gestures
-  /// into it and disallow parent containers from triggering tap events when
-  /// the event is triggered inside the bounds of this webview.
+  /// into it and disallow parent containers from triggering tap events when the
+  /// event is triggered inside the bounds of this webview.
   bool? controlTapGesture;
 
   /// Whether this webview should consume any long press gestures.
@@ -164,9 +164,8 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// conflicts.
   ///
   /// Setting this to true will ensure the webview always allow long press
-  /// gestures into it and disallow parent containers from triggering long
-  /// press events when the event is triggered inside the bounds of this
-  /// webview.
+  /// gestures into it and disallow parent containers from triggering long press
+  /// events when the event is triggered inside the bounds of this webview.
   bool? controlLongPressGesture;
 
   /// Whether this webview should consume any force press gestures.
@@ -224,7 +223,7 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// See: [TwitterWebViewProperties] and [GoogleMapsWebViewProperties].
   void regenSource();
 
-  /// Creates a new [WebViewProperties] instance from a [json] map.
+  /// Creates a new [WebViewProperties] instance from a JSON map.
   ///
   /// The [webviewType] is checked manually in order to return the most
   /// appropriate type of [WebViewProperties] instance.
@@ -248,9 +247,9 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
   /// fields inside this abstract [WebViewProperties] instance from [other]
   /// into this instance of [WebViewProperties].
   ///
-  /// It only copies the "base" properties, IE: the properties that are
-  /// common to all [WebViewProperties] types ONLY, the ones in THIS specific
-  /// abstract class.
+  /// It only copies the "base" properties, IE: the properties that are common
+  /// to all [WebViewProperties] types only, the ones in this specific abstract
+  /// class.
   void copyBase(WebViewProperties other) {
     controlVerticalScrollGesture = other.controlVerticalScrollGesture;
     controlHorizontalScrollGesture = other.controlHorizontalScrollGesture;
@@ -271,8 +270,8 @@ abstract class WebViewProperties with SerializableMixin, EquatableMixin {
 /// given an appropriate input.
 @JsonSerializable()
 class WebPageWebViewProperties extends WebViewProperties {
-  /// The source of the webpage to be displayed. This can be a URL, an
-  /// HTML string, or a file path from the assets folder.
+  /// The source of the webpage to be displayed. This can be a URL, an HTML
+  /// string, or a file path from the assets folder.
   ///
   /// This field is required as it disambiguates user intent. Even if it's
   /// unused for the webview itself, it provides rich information to us as
@@ -281,7 +280,7 @@ class WebPageWebViewProperties extends WebViewProperties {
 
   /// Can be a URL, an HTML string, or an asset path.
   ///
-  /// Asset path must lead to a .html file suffix. It produces meaningless src
+  /// Asset path must lead to a [.html] file suffix. It produces meaningless src
   /// because the generated code will be platform dependant.
   String input;
 
@@ -296,7 +295,7 @@ class WebPageWebViewProperties extends WebViewProperties {
   WebPageWebViewProperties({
     required this.pageSourceType,
     required this.input,
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -310,8 +309,8 @@ class WebPageWebViewProperties extends WebViewProperties {
     regenSource();
   }
 
-  /// [src] for webpages equivalent to [input] as it is injected directly
-  /// into the webview as-is.
+  /// [src] for webpages equivalent to [input] as it is injected directly into
+  /// the webview as-is.
   @override
   void regenSource() {
     src = input;
@@ -320,7 +319,7 @@ class WebPageWebViewProperties extends WebViewProperties {
   @override
   Map toJson() => _$WebPageWebViewPropertiesToJson(this);
 
-  /// Creates a new [WebPageWebViewProperties] instance from a [json] map.
+  /// Creates a new [WebPageWebViewProperties] instance from a JSON map.
   factory WebPageWebViewProperties.fromJson(Map json) =>
       _$WebPageWebViewPropertiesFromJson(json);
 

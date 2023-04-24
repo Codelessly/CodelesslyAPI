@@ -8,32 +8,32 @@ import 'package:vector_math/vector_math.dart';
 
 import 'models/models.dart';
 
-/// Calculates the cosine of [degrees] in degrees
+/// Calculates the cosine of [degrees] in degrees.
 double cosDeg(int degrees) => cos(degrees * pi / 180);
 
-/// Calculates the cosine of [radians] in radians
+/// Calculates the cosine of [radians] in radians.
 double cosRad(double radians) => cos(radians);
 
-///calculates the sine of [degrees] in degrees
+/// Calculates the sine of [degrees] in degrees.
 double sinDeg(int degrees) => sin(degrees * pi / 180);
 
-///calculates the sine of [radians] in radians
+/// Calculates the sine of [radians] in radians.
 double sinRad(double radians) => sin(radians);
 
-/// Convert [a] degrees to radians.
+/// Converts [a] degrees to radians.
 double deg2rad(double a) => a * pi / 180;
 
-/// Normalize [value] between [start] and [end].
+/// Normalizes [value] between [start] and [end].
 num normalizeToInterval(num value, num start, num end) {
   final width = end - start;
   final offset = value - start;
   final res = (offset - (offset / width).floor() * width) + start;
-  // Since 180 and -180 is the same, we prefer to use 180.
+  // Since 180 and -180 is the same, 180 is preferred over -180.
   if (res == -180) return 180;
   return res;
 }
 
-/// Returns an Vec unrotated by [radians] around the center of a rectangle
+/// Returns a [Vec] unrotated by [radians] around the center of a rectangle
 /// described by [x, y, width, height].
 Vec calculateUnrotatedVecFromRotatedVec({
   required double x,
@@ -56,12 +56,8 @@ Vec calculateUnrotatedVecFromRotatedVec({
   return Vec(unrotated[0], unrotated[1]);
 }
 
-/// Returns an Vec rotated by [radians] around the center of a rectangle
-/// described by [x1, y1, x2, y2].
-/// Returns the rotated top left corner of this box.
-///
-/// The returned box is NOT translated inside the parent boxes. It only
-/// rotates the given box around it's own center point.
+/// Returns the top-left corner of a rectangle rotated by [radians] around the
+/// center.
 Vec calculateRotatedBoxTopLeftAroundSelf({
   required double radians,
   required double x2,
@@ -87,7 +83,7 @@ Vec calculateRotatedBoxTopLeftAroundSelf({
   return Vec(rotated[0], rotated[1]);
 }
 
-/// Rotates all points in [vector3] by [radians] around [origin]
+/// Rotates all points in [vector3] by [radians] around [origin].
 /// [vector3] is a flat list of one or more x,y,z triplets.
 List<double> rotatePointAroundOrigin(
     double originX, double originY, double radians, List<double> vector3) {
@@ -100,8 +96,8 @@ List<double> rotatePointAroundOrigin(
   return transform.applyToVector3Array(vector3);
 }
 
-/// Rotates a point [point] around [origin] by the given [radians]
-/// and returns the new coordinates as a [Vec] object
+/// Rotates a point [point] around [origin] by the given [radians] and returns
+/// the new coordinates as a [Vec].
 Vec rotatePointAroundVec(Vec origin, double radians, Vec point) {
   final transform = Matrix4.translationValues(origin.x, origin.y, 0)
     ..rotateZ(radians)
@@ -111,8 +107,8 @@ Vec rotatePointAroundVec(Vec origin, double radians, Vec point) {
   return Vec(rotated[0], rotated[1]);
 }
 
-/// Converts a [global] offset to [parentContext]'s local system, where [parentContext] is
-/// rotated by [radians] angle.
+/// Converts a [global] offset to [parentContext]'s local system, where
+/// [parentContext] is rotated by [radians] angle.
 Vec globalToRotatedLocalVec({
   required double globalX,
   required double globalY,
@@ -136,8 +132,8 @@ Vec globalToRotatedLocalVec({
   );
 }
 
-/// Converts a [local] offset in [parentContext]'s system, where [parentContext] is
-/// rotated by [radians] angle, to a global offset.
+/// Converts a [local] offset in [parentContext]'s system, where [parentContext]
+/// is rotated by [radians] angle, to a global offset.
 Vec localRotatedVecToGlobalVec({
   required double localX,
   required double localY,
@@ -154,8 +150,8 @@ Vec localRotatedVecToGlobalVec({
   );
 }
 
-/// Returns the size of the bounding box for a box sized
-/// [width], [height] that is rotated by [rotationDegrees] degrees.
+/// Returns the size of the bounding box for a box sized [width], [height] that
+/// is rotated by [rotationDegrees] degrees.
 SizeC getBoundsSizeAfterRotation(
     double width, double height, double rotationRad) {
   if (rotationRad == 0) return SizeC(width, height);
@@ -168,11 +164,12 @@ SizeC getBoundsSizeAfterRotation(
   );
 }
 
-/// For a box of size [width] and [height], rotated by [rotationDegrees] degrees,
-/// this returns it's bounding box, with top, left offset to [y] and [x].
+/// For a box of size [width] and [height], rotated by [rotationDegrees]
+/// degrees, this returns it's bounding box, with top, left offset to [y] and
+/// [x].
 ///
-/// The returned box is NOT translated inside the parent boxes. It only
-/// rotates the given box around it's own center point.
+/// The returned box is not translated inside the parent boxes. It only rotates
+/// the given box around it's own center point.
 RectC getRotatedBoundingBoxAroundSelf(
   double x,
   double y,
@@ -205,8 +202,8 @@ Vec projectPointToLine(Vec p1, Vec p2, Vec toProject) {
 /// First two vectors [p1] and [p2] are the first line, and the second two
 /// vectors [p3] and [p4] are the second line.
 ///
-/// [returns] The point of intersection. IF there is no intersection, then
-/// the function returns null.
+/// Returns the point of intersection. Returns [null] in case of no
+/// intersection.
 Vec? intersectionBetweenTwoLines(Vec p1, Vec p2, Vec p3, Vec p4) {
   final double t =
       ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) /
@@ -228,8 +225,8 @@ Vec? intersectionBetweenTwoLines(Vec p1, Vec p2, Vec p3, Vec p4) {
 /// The line is denoted by [inner] and [outer] vectors, and the rectangle
 /// is denoted by [rect].
 ///
-/// [returns] The point of intersection. IF there is no intersection, then
-/// the function returns null.
+/// Returns the point of intersection. Returns [null] in case of no
+/// intersection.
 Vec? intersectionBetweenLineAndRect(Vec inner, Vec outer, RectC rect) {
   final Vec topLeft = rect.topLeft;
   final Vec topRight = rect.topRight;

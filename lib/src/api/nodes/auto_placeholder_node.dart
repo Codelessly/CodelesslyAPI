@@ -11,8 +11,8 @@ import 'nodes.dart';
 part 'auto_placeholder_node.g.dart';
 
 /// An unselectable node that serves as a placeholder for Auto nodes.
-/// This behaves like an AutoCanvas, without the "Canvas" part. The behavior is similar.
-/// Related: [FreeformPlaceholderNode]
+/// Its interaction and layout behavior is same as [AutoCanvasNode].
+/// Related: [FreeformPlaceholderNode].
 @JsonSerializable()
 class AutoPlaceholderNode extends DefaultShapeNode
     with ChildrenMixin, RowColumnMixin, PlaceholderMixin, IsolatedMixin {
@@ -22,8 +22,7 @@ class AutoPlaceholderNode extends DefaultShapeNode
   @override
   final bool supportsPadding = true;
 
-  /// Frame is a Rectangle with children, which can be clipped.
-  /// In Figma it also has the AutoLayout properties, but we don't yet have it.
+  /// Creates a new [AutoPlaceholderNode] instance.
   AutoPlaceholderNode({
     required super.id,
     required super.name,
@@ -49,9 +48,9 @@ class AutoPlaceholderNode extends DefaultShapeNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
-    // ClipMixin properties
+    // ClipMixin properties.
     bool clipsContent = true,
-    // DefaultShapeNode properties
+    // DefaultShapeNode properties.
     super.opacity,
     super.isMask,
     super.effects,
@@ -73,7 +72,7 @@ class AutoPlaceholderNode extends DefaultShapeNode
     );
   }
 
-  /// Creates a [AutoPlaceholderNode] from a JSON data.
+  /// Creates an [AutoPlaceholderNode] instance from a JSON data.
   factory AutoPlaceholderNode.fromJson(Map json) =>
       _$AutoPlaceholderNodeFromJson(json);
 

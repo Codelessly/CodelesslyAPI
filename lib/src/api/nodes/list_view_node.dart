@@ -6,7 +6,8 @@ import '../../../codelessly_api.dart';
 part 'list_view_node.g.dart';
 
 /// A material design [ListView].
-/// Refer to [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html) in Flutter for more details.
+/// Refer to [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class ListViewNode extends SinglePlaceholderNode
     with
@@ -52,7 +53,7 @@ class ListViewNode extends SinglePlaceholderNode
     required List<String> children,
     Map<String, String>? variables,
     bool clipsContent = true,
-    // scrollable
+    // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
@@ -88,7 +89,7 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   Map toJson() => _$ListViewNodeToJson(this);
 
-  /// [returns] the appropriate alignment of the child based on the
+  /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
   AlignmentModel childAlignment() {
     switch (scrollDirection) {
@@ -136,7 +137,7 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
-  /// Creates a new [ListViewProperties].
+  /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
     this.itemExtent,
@@ -147,8 +148,8 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
-  /// Creates a copy of this [ListViewProperties] with the specified parameters
-  /// overridden.
+  /// Creates a copy of this [ListViewProperties] instance with the given value
+  /// overrides.
   ListViewProperties copyWith({
     String? bodyId,
     int? itemCount,

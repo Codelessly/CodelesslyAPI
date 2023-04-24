@@ -11,10 +11,6 @@ import 'nodes.dart';
 part 'single_placeholder_node.g.dart';
 
 /// An unselectable node that serves as a placeholder for a single node.
-/// The allowed node type can be specified in [allowedTypes], which, when empty
-/// allows all types.
-/// This is commonly used as the AppBar placeholder. It shows "drop an app bar"
-/// when there is none, otherwise it is invisible, displaying the content inside.
 @JsonSerializable()
 class SinglePlaceholderNode extends SceneNode
     with ChildrenMixin, PlaceholderMixin {
@@ -25,14 +21,14 @@ class SinglePlaceholderNode extends SceneNode
   final bool supportsPadding = true;
 
   /// The node types that are allowed to be inside this [SinglePlaceholderNode].
-  /// Example: "APP_BAR" for AppBarNode.
+  /// Example: 'APP_BAR' for AppBarNode.
   /// When empty, allow all types.
   List<String> allowedTypes;
 
   /// The node types that are not allowed to be inside this
   /// [SinglePlaceholderNode].
   /// Example: "TEXT" for TextNode.
-  /// When empty, do not ban any type.
+  /// When empty, allow all types.
   List<String> deniedTypes;
 
   /// If not null, this [SinglePlaceholderNode] will only accept nodes that do

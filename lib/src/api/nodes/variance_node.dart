@@ -101,8 +101,6 @@ class VarianceNode extends SinglePlaceholderNode {
 }
 
 /// [Variant] is used in [VarianceNode] to define a variation of the same node.
-/// A node can have several variants which can be switched based on certain
-/// conditions.
 @JsonSerializable()
 class Variant with SerializableMixin, EquatableMixin {
   /// Variant's name, set by user.
@@ -111,7 +109,7 @@ class Variant with SerializableMixin, EquatableMixin {
   /// ID is used to identify and switch variants.
   String id;
 
-  /// All the child nodes IDs that the variant contains.
+  /// All the child nodes' IDs that the variant contains.
   List<String> children;
 
   /// Creates a [Variant] instance with the given data.

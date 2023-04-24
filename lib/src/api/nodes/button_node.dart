@@ -14,10 +14,9 @@ part 'button_node.g.dart';
 const EdgeInsetsModel defaultButtonPadding =
     EdgeInsetsModel.symmetric(horizontal: 16, vertical: 8);
 
-/// Type of the material button
+/// Type of the material button.
 enum ButtonTypeEnum {
-  /// A Material Design "elevated button" that adds dimension to otherwise
-  /// mostly flat layouts.
+  /// Elevated buttons have a shadow that makes them look 'elevated'.
   elevated,
 
   /// Text buttons are typically used for less-pronounced actions.
@@ -58,7 +57,8 @@ enum ButtonTypeEnum {
 }
 
 /// A material button.
-/// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for more details.
+/// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for
+/// more details.
 @JsonSerializable()
 class ButtonNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -89,8 +89,8 @@ class ButtonNode extends SceneNode
         );
 
   /// An icon button can be defined by either having a buttonType of
-  /// [ButtonTypeEnum.icon], or by having a shape of [CShapeBorder.circle]
-  /// with an empty label.
+  /// [ButtonTypeEnum.icon], or by having a shape of [CShapeBorder.circle] with
+  /// an empty label.
   bool get behavesLikeAnIconButton =>
       properties.buttonType.isIconButton ||
       (properties.shape == CShapeBorder.circle &&
@@ -156,43 +156,6 @@ class ButtonNode extends SceneNode
         );
   }
 
-  // @override
-  // EdgeInsetsModel minimumPadding() {
-  //   EdgeInsetsModel minPadding = EdgeInsetsModel.zero;
-  //
-  //   final double iconSize =
-  //       properties.icon.show ? (properties.icon.size ?? 24) : 0;
-  //
-  //   // Icon buttons can shrink to the size of the icon's own size. This is
-  //   // normally expected, however, when the size fit is set to shrinkwrap,
-  //   // the icon shrinks to the size of its icon size, which looks very ugly
-  //   // because it no longer has any padding around it. So, we add a minimum
-  //   // size of 2x the icon size when this condition is met.
-  //   if (behavesLikeAnIconButton) {
-  //     if (horizontalFit.isWrap && verticalFit.isWrap) {
-  //       minPadding = EdgeInsetsModel.symmetric(
-  //         horizontal: iconSize / 2,
-  //         vertical: iconSize / 2,
-  //       );
-  //     } else {
-  //       if (horizontalFit.isWrap) {
-  //         minPadding = EdgeInsetsModel.symmetric(
-  //           horizontal: iconSize / 2,
-  //           vertical: minPadding.vertical,
-  //         );
-  //       }
-  //       if (verticalFit.isWrap) {
-  //         minPadding = EdgeInsetsModel.symmetric(
-  //           vertical: iconSize / 2,
-  //           horizontal: minPadding.horizontal,
-  //         );
-  //       }
-  //     }
-  //   }
-  //
-  //   return minPadding;
-  // }
-
   @override
   List<TriggerType> get triggerTypes =>
       [TriggerType.click, TriggerType.longPress];
@@ -227,11 +190,12 @@ class ButtonNode extends SceneNode
 /// Holds configurable properties of a [ButtonNode].
 @JsonSerializable()
 class ButtonProperties with ShapeBorderMixin, SerializableMixin {
-  // Button props
+  // Button properties.
+
   /// Type of the button.
   late ButtonTypeEnum buttonType;
 
-  /// background color of the button.
+  /// Background color of the button.
   late ColorRGBA buttonColor;
 
   /// Elevation shadow color of the button.
@@ -243,7 +207,8 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
   /// Whether the button is enabled.
   late bool enabled;
 
-  // label props
+  // Label properties.
+
   /// Text to display in the button.
   late String label;
 
@@ -253,7 +218,8 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
   /// Style of the label.
   late TextProp labelStyle;
 
-  // icon properties
+  // Icon properties.
+
   /// Describes the position of the icon.
   late IconPlacementEnum placement;
 

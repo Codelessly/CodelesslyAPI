@@ -11,8 +11,8 @@ part 'web_view_twitter_properties.g.dart';
 
 /// A [WebViewProperties] implementation that displays a Twitter webview.
 ///
-/// There are multiple kinds of [TwitterWebViewProperties], which is why
-/// this class is abstract and provides a base for all of them.
+/// There are multiple kinds of [TwitterWebViewProperties], which is why this
+/// class is abstract and provides a base for all of them.
 ///
 /// See: [TweetTwitterWebViewProperties], [TimelineTwitterWebViewProperties],
 /// [FollowButtonTwitterWebViewProperties],
@@ -35,17 +35,17 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
   ///   Learn more about the information we receive and how we use it in our
   ///   privacy policy and cookies policy.
   ///
-  /// https://developer.twitter.com/en/docs/twitter-for-websites/privacy
+  /// Source: [https://developer.twitter.com/en/docs/twitter-for-websites/privacy]
   bool? twitterTailoring;
 
   /// The language code to use for the Twitter webview.
   ///
   /// QUOTE:
-  ///   Translated widget text is available in 34 of the languages supported
-  ///   by Twitter.com.
+  ///   Translated widget text is available in 34 of the languages supported by
+  ///   Twitter.com.
   ///
-  ///   Twitter for Websites will extract the most appropriate language from
-  ///   its position in the DOM tree, if no language is provided in the widget
+  ///   Twitter for Websites will extract the most appropriate language from its
+  ///   position in the DOM tree, if no language is provided in the widget
   ///   markup. Pages which define an unsupported script or region will be
   ///   mapped to the closest available language: e.g. pt-BR will use pt if
   ///   Portuguese is available but a Brazilian regional localization is not.
@@ -57,7 +57,7 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
   ///   such as action text and timestamp display; Tweet text is always
   ///   displayed in its originally authored language.
   ///
-  /// https://developer.twitter.com/en/docs/twitter-for-websites/supported-languages
+  /// Source: [https://developer.twitter.com/en/docs/twitter-for-websites/supported-languages]
   String? languageCode;
 
   @override
@@ -71,13 +71,13 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
   /// of [TwitterWebViewProperties].
   late TwitterEmbedType embedType;
 
-  /// Creates a new [TwitterWebViewProperties].
+  /// Creates a new [TwitterWebViewProperties] instance.
   TwitterWebViewProperties({
     this.theme,
     this.twitterTailoring,
     this.languageCode,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -89,7 +89,7 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
     super.backgroundColor,
   });
 
-  /// Creates a new [TwitterWebViewProperties] from a [json] map.
+  /// Creates a new [TwitterWebViewProperties] instance from a JSON map.
   ///
   /// The [embedType] is checked manually in order to return the most
   /// appropriate sub-type of [TwitterWebViewProperties] instance.
@@ -155,7 +155,7 @@ class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
   @override
   Map toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [TweetTwitterWebViewProperties] instance from a [json] map.
+  /// Creates a new [TweetTwitterWebViewProperties] instance from a JSON map.
   factory TweetTwitterWebViewProperties.fromJson(Map json) =>
       _$TweetTwitterWebViewPropertiesFromJson(json);
 
@@ -211,7 +211,7 @@ class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
     super.twitterTailoring,
     super.languageCode,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -240,8 +240,7 @@ class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
   @override
   Map toJson() => _$TimelineTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [TimelineTwitterWebViewProperties] instance from a [json]
-  /// map.
+  /// Creates a new [TimelineTwitterWebViewProperties] instance from a JSON map.
   factory TimelineTwitterWebViewProperties.fromJson(Map json) =>
       _$TimelineTwitterWebViewPropertiesFromJson(json);
 
@@ -299,7 +298,7 @@ class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
     super.twitterTailoring,
     super.languageCode,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -332,8 +331,8 @@ class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   @override
   Map toJson() => _$FollowButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a JSON
+  /// map.
   factory FollowButtonTwitterWebViewProperties.fromJson(Map json) =>
       _$FollowButtonTwitterWebViewPropertiesFromJson(json);
 
@@ -402,7 +401,7 @@ class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
     super.twitterTailoring,
     super.languageCode,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -443,8 +442,8 @@ class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   @override
   Map toJson() => _$MentionButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a JSON
+  /// map.
   factory MentionButtonTwitterWebViewProperties.fromJson(Map json) =>
       _$MentionButtonTwitterWebViewPropertiesFromJson(json);
 
@@ -520,7 +519,7 @@ class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
     super.twitterTailoring,
     super.languageCode,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -565,8 +564,8 @@ class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   @override
   Map toJson() => _$HashtagButtonTwitterWebViewPropertiesToJson(this);
 
-  /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a JSON
+  /// map.
   factory HashtagButtonTwitterWebViewProperties.fromJson(Map json) =>
       _$HashtagButtonTwitterWebViewPropertiesFromJson(json);
 

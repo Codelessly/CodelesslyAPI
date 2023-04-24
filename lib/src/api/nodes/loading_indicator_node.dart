@@ -57,12 +57,12 @@ class LoadingIndicatorNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1,
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
-    // custom props
+    // Custom properties.
     required this.properties,
   });
 
@@ -93,9 +93,7 @@ class LoadingIndicatorNode extends SceneNode
   }
 }
 
-/// Holds configurable properties of the loading indicator. A loading indicator
-/// can be of different types. The type of the loading indicator is determined
-/// by [type] property.
+/// Holds configurable properties of the loading indicator.
 abstract class LoadingIndicatorProperties
     with EquatableMixin, SerializableMixin {
   /// Type of the loading indicator.
@@ -132,7 +130,8 @@ abstract class LoadingIndicatorProperties
 }
 
 /// Holds configurable properties of a material loading indicator.
-/// Refer to Flutter's [CircularProgressIndicator](https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html) for more information.
+/// Refer to Flutter's [CircularProgressIndicator](https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html)
+/// for more information.
 @JsonSerializable()
 class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
   @override
@@ -186,7 +185,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
 }
 
 /// Holds configurable properties of a cupertino loading indicator.
-/// Refer to Flutter's [CupertinoActivityIndicator](https://api.flutter.dev/flutter/cupertino/CupertinoActivityIndicator-class.html) for more information.
+/// Refer to Flutter's [CupertinoActivityIndicator](https://api.flutter.dev/flutter/cupertino/CupertinoActivityIndicator-class.html)
+/// for more information.
 @JsonSerializable()
 class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties {
   @override

@@ -11,7 +11,7 @@ import 'nodes.dart';
 part 'freeform_placeholder_node.g.dart';
 
 /// An unselectable node that serves as a placeholder for Freeform nodes.
-/// Related: [AutoPlaceholderNode]
+/// Related: [AutoPlaceholderNode].
 @JsonSerializable()
 class FreeformPlaceholderNode extends DefaultShapeNode
     with ChildrenMixin, PlaceholderMixin, IsolatedMixin {
@@ -44,9 +44,9 @@ class FreeformPlaceholderNode extends DefaultShapeNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
-    // ClipMixin properties
+    // [ClipMixin] properties.
     bool clipsContent = true,
-    // DefaultShapeNode properties
+    // [DefaultShapeNode] properties.
     super.opacity,
     super.isMask,
     super.effects,

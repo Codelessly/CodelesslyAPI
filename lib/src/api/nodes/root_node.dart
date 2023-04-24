@@ -7,17 +7,17 @@ import '../mixins.dart';
 import '../models/models.dart';
 
 /// A [Node] that represents the root of the project. Typically the whole
-/// canvas/art-board is the root node.
-/// This is not JSON Serializable since we don't want to set SceneNode.
-/// It needs to extend SceneNode since every other method depends on SceneNode.
-// @JsonSerializable()
+/// canvas is the root node.
+/// This is not JSON Serializable to avoid setting [BaseNode].
+/// It needs to extend [BaseNode] since every other method depends on
+/// [BaseNode].
 class RootNode extends ParentNode with ChildrenMixin {
   @override
   final String type = 'root';
 
   /// Creates a new [RootNode] with the given data.
-  /// RootNode just needs a children, but it extends SceneNode so [getNode].
-  /// works with it.
+  /// RootNode just needs a children, but it extends [BaseNode] so that
+  /// [getNode] works.
   RootNode({
     super.id = kRootNode,
     required super.children,

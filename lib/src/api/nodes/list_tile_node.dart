@@ -17,38 +17,23 @@ const double kDefaultListTileWidth = 300;
 /// Default height for the [ListTileNode].
 const double kDefaultListTileHeight = 65;
 
-/// BEGIN QUOTE from [ListTile.build]
-///
-///     horizontalTitleGap: horizontalTitleGap ?? tileTheme.horizontalTitleGap ?? 16,
-///
-/// END QUOTE
+/// Default value for [horizontalTitleGap] in [ListTile].
 const double kDefaultListTileHorizontalTitleGap = 16;
 
-/// BEGIN QUOTE from [ListTile.build]
-///
-///     minVerticalPadding: minVerticalPadding ?? tileTheme.minVerticalPadding ?? 4,
-///
-/// END QUOTE
+/// Default value for [minVerticalPadding] in [ListTile].
 const double kDefaultListTileMinVerticalPadding = 4;
 
-/// BEGIN QUOTE from [ListTile.build]
-///
-///     minLeadingWidth: minLeadingWidth ?? tileTheme.minLeadingWidth ?? 40,
-///
-/// END QUOTE
+/// Default value for [minLeadingWidth] in [ListTile].
 const double kDefaultListTileMinLeadingWidth = 40;
 
-/// BEGIN QUOTE from [ListTile.contentPadding]
-///
-///     const EdgeInsets defaultContentPadding = EdgeInsets.symmetric(horizontal: 16.0);
-///
-/// END QUOTE
+/// Default value for [contentPadding] in [ListTile].
 const EdgeInsetsModel kDefaultListTileContentPadding =
-    EdgeInsetsModel.symmetric(horizontal: 16.0);
+    EdgeInsetsModel.symmetric(horizontal: 16);
 
-/// A single fixed-height row that typically contains some text as well as
-/// a leading or trailing icon.
-/// Refer to [ListTile](https://api.flutter.dev/flutter/material/ListTile-class.html) in Flutter for more details.
+/// A single fixed-height row that typically contains some text as well as a
+/// leading or trailing icon.
+/// Refer to [ListTile](https://api.flutter.dev/flutter/material/ListTile-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class ListTileNode extends SceneNode
     with ChildrenMixin, CustomPropertiesMixin, VariablePropertiesMixin {
@@ -93,13 +78,13 @@ class ListTileNode extends SceneNode
     required super.name,
     required super.basicBoxLocal,
 
-    // Start ListTile
+    // Start [ListTile].
     this.leading,
     this.title,
     this.subtitle,
     this.trailing,
     required this.properties,
-    // End ListTile
+    // End [ListTile].
 
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
@@ -164,22 +149,16 @@ class ListTileProperties
   /// If false, the list tile is treated as having one line if the subtitle is
   /// null and treated as having two lines if the subtitle is non-null.
   ///
-  /// When using a [Text] widget for [title] and [subtitle], you can enforce
-  /// line limits using [Text.maxLines].
+  /// When using a [Text] widget for [title] and [subtitle], line limits can be
+  /// enforced using [Text.maxLines].
   bool isThreeLine;
 
-  /// Begin Quote
-  ///   bool _isDenseLayout(ThemeData theme, ListTileThemeData tileTheme) {
-  ///     return dense ?? tileTheme.dense ?? theme.listTileTheme.dense ?? false;
-  ///   }
-  /// End Quote
+  /// Whether the list tile layout is densely cramped together.
   bool dense;
 
-  /// Begin Quote
   /// The default for visual densities is zero for both vertical and horizontal
   /// densities, which corresponds to the default visual density of components
   /// in the Material Design specification.
-  /// End Quote
   VisualDensityModel visualDensity;
 
   /// Defines the color used for icons and text when the list tile is selected.
@@ -193,29 +172,14 @@ class ListTileProperties
 
   /// The tile's internal padding.
   ///
-  /// Insets a [ListTile]'s contents: its [leading], [title], [subtitle],
-  /// and [trailing] widgets.
+  /// Insets a [ListTile]'s contents: its [leading], [title], [subtitle], and
+  /// [trailing] widgets.
   EdgeInsetsModel contentPadding;
 
   /// Whether this list tile is interactive.
   bool enabled;
 
-  // MouseCursor? mouseCursor;
-
-  /// Begin Quote
-  /// If this tile is also [enabled] then icons and text are rendered with the same color.
-  ///
-  /// By default the selected color is the theme's primary color. The selected color
-  /// can be overridden with a [ListTileTheme].
-  ///
-  /// {@tool dartpad}
-  /// Here is an example of using a [StatefulWidget] to keep track of the
-  /// selected index, and using that to set the `selected` property on the
-  /// corresponding [ListTile].
-  ///
-  /// ** See code in examples/api/lib/material/list_tile/list_tile.selected.0.dart **
-  /// {@end-tool}
-  /// End Quote
+  /// Whether this list tile is selected.
   bool selected;
 
   /// The color for the tile's [Material] when it has the input focus.
@@ -229,14 +193,16 @@ class ListTileProperties
 
   /// Defines the background color of `ListTile` when [selected] is false.
   ///
-  /// When the value is null, the `tileColor` is set to [ListTileTheme.tileColor]
-  /// if it's not null and to [Colors.transparent] if it's null.
+  /// When the value is null, the `tileColor` is set to
+  /// [ListTileTheme.tileColor] if it's not null and to [Colors.transparent] if
+  /// it's null.
   ColorRGBA? tileColor;
 
   /// Defines the background color of `ListTile` when [selected] is true.
   ///
-  /// When the value if null, the `selectedTileColor` is set to [ListTileTheme.selectedTileColor]
-  /// if it's not null and to [Colors.transparent] if it's null.
+  /// When the value if null, the `selectedTileColor` is set to
+  /// [ListTileTheme.selectedTileColor] if it's not null and to
+  /// [Colors.transparent] if it's null.
   ColorRGBA? selectedTileColor;
 
   /// Whether detected gestures should provide acoustic and/or haptic feedback.
@@ -253,7 +219,8 @@ class ListTileProperties
   /// that is also null, then a default value of 16 is used.
   double? horizontalTitleGap;
 
-  /// The minimum padding on the top and bottom of the title and subtitle widgets.
+  /// The minimum padding on the top and bottom of the title and subtitle
+  /// widgets.
   ///
   /// If null, then the value of [ListTileTheme.minVerticalPadding] is used. If
   /// that is also null, then a default value of 4 is used.

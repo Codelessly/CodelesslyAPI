@@ -11,11 +11,12 @@ import 'nodes.dart';
 
 part 'floating_action_button_node.g.dart';
 
-/// A floating action button (FAB) performs the primary, or most common,
-/// action on a screen. It appears in front of all screen content, typically
-/// as a circular shape with an icon in its center.
+/// A floating action button (FAB) performs the primary, or most common, action
+/// on a screen. It appears in front of all screen content, typically as a
+/// circular shape with an icon in its center.
 /// FABs come in three types: regular, mini, and extended.
-/// Refer to [FloatingActionButton](https://api.flutter.dev/flutter/material/FloatingActionButton-class.html) in Flutter for more details.
+/// Refer to [FloatingActionButton](https://api.flutter.dev/flutter/material/FloatingActionButton-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class FloatingActionButtonNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -65,7 +66,7 @@ class FloatingActionButtonNode extends SceneNode
     super.parentID,
     super.positioningMode,
     super.edgePins,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {
@@ -105,8 +106,8 @@ class FloatingActionButtonProperties
   /// Elevation of the FAB when it is highlighted.
   double highlightElevation;
 
-  /// Type of the FAB. Mainly refers to its sizes. Extended type includes
-  /// a label as well.
+  /// Type of the FAB. Mainly refers to its sizes. Extended type includes a
+  /// label as well.
   FloatingActionButtonType type;
 
   /// Where to place the FAB on the screen.
@@ -163,8 +164,8 @@ class FloatingActionButtonProperties
     );
   }
 
-  /// Duplicate the current [FloatingActionButtonProperties] with the given
-  /// data overrides.
+  /// Duplicate the current [FloatingActionButtonProperties] with the given data
+  /// overrides.
   FloatingActionButtonProperties copyWith({
     ColorRGBA? backgroundColor,
     ColorRGBA? foregroundColor,

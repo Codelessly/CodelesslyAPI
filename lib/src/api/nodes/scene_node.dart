@@ -7,7 +7,6 @@ import '../mixins.dart';
 import '../models/models.dart';
 
 /// SceneNode should never be called directly, only inherited by other nodes.
-/// It was supposed to be an abstract class, but JsonSerializable requires it to be a class.
 abstract class SceneNode extends BaseNode
     with ReactionMixin, PropertyVariableMixin {
   /// Creates a [SceneNode] with the given data.

@@ -20,7 +20,6 @@ class FrameNode extends DefaultShapeNode
   final bool supportsPadding = true;
 
   /// Frame is a Rectangle with children, which can be clipped.
-  /// In Figma it also has the AutoLayout properties, but we don't yet have it.
   FrameNode({
     required super.id,
     required super.name,
@@ -55,9 +54,9 @@ class FrameNode extends DefaultShapeNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
-    // ClipMixin properties
+    // [ClipMixin] properties.
     bool clipsContent = true,
-    // ScrollLinkableMixin properties
+    // [ScrollLinkableMixin] properties.
     String? scrollableCanvasId,
     bool scrollLinkEnabled = false,
   }) {

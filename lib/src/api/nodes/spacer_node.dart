@@ -10,8 +10,8 @@ import 'nodes.dart';
 
 part 'spacer_node.g.dart';
 
-/// A spacer node that can be used to create space between other nodes inside
-/// a row or column or any other flexible spaces.
+/// A node that can be used to create space between other nodes inside a row or
+/// column or any other flexible spaces.
 @JsonSerializable()
 class SpacerNode extends SceneNode {
   @override

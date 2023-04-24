@@ -12,16 +12,15 @@ import 'nodes/nodes.dart';
 /// a [SceneNode].
 typedef JsonNodeDeserializer = SceneNode? Function(Map<dynamic, dynamic> json);
 
-/// Converts a JSON decoded object to a [textNode] specific instance regarding
-/// its `type` property.
-/// [NodeJsonConverter] is a singleton class by design. So creating an instance
-/// of it will always return the same object.
+/// [NodeJsonConverter] deserializes JSON and converts it into nodes.
 ///
-/// By default, this contains a registry of all the nodes types supported
-/// by Codelessly. If you want to add your own custom nodes, you can use the
-/// [registerNode] method.
+/// It is a singleton class, so creating an instance will always return the same
+/// object.
 ///
-/// If node type is not found in the registry wh ile deserializing, it will
+/// This contains a registry of all the node types supported by Codelessly.
+/// To add custom nodes, use the [registerNode] method.
+///
+/// If node type is not found in the registry while deserializing, it will
 /// throw an [UnsupportedError].
 class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   NodeJsonConverter._() {
@@ -34,7 +33,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   /// A factory constructor that returns the singleton instance of this class.
   factory NodeJsonConverter() => instance;
 
-  /// A map of node types and their deserializers.
+  /// A map of node type to its deserializer.
   late final Map<String, JsonNodeDeserializer> _registry;
 
   /// Populates registry with all the nodes supported by Codelessly.
@@ -79,8 +78,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   /// Registers a new deserializer for a specific node type. If a deserializer
   /// for the given type already exists, it will be overwritten.
   /// [type] is the type of the node to be deserialized. This must be same as
-  /// [BaseNode.type] field. [type] string is case-sensitive and must be
-  /// an exact match of [BaseNode.type].
+  /// [BaseNode.type] field.
   ///
   /// Example:
   ///

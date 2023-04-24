@@ -42,7 +42,8 @@ const ColorRGBA kSliderDefaultInactiveTrackColor =
 const double kSliderDefaultOverlayOpacity = 0.12;
 
 /// Slider is a widget that lets the user select a value from a given range.
-/// Refer to [Slider](https://api.flutter.dev/flutter/material/Slider-class.html) in Flutter for more details.
+/// Refer to [Slider](https://api.flutter.dev/flutter/material/Slider-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class SliderNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -98,7 +99,7 @@ class SliderNode extends SceneNode
     super.parentID,
     super.positioningMode,
     super.edgePins,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {
