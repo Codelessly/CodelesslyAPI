@@ -7,7 +7,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
-/// To avoid "node is Canvas || node is ExpansionTileNode || ..." we use this mixin.
+/// Defines nodes that are selectively exempted from default auto-layout
+/// interactions. Ex. auto canvas, expansion tile, list view, etc.
 mixin IsolatedMixin {}
 
 /// A base class for nodes that can have blends and decoration.
@@ -34,12 +35,12 @@ abstract class DefaultShapeNode extends SceneNode
     super.positioningMode,
     super.reactions,
     super.parentID,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1,
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
-    // GeometryMixin properties
+    // [GeometryMixin] properties.
     List<PaintModel> fills = const [],
     List<PaintModel> strokes = const [],
     double strokeWeight = 0,
@@ -109,9 +110,9 @@ abstract class ParentNode extends DefaultShapeNode
     super.strokeSide,
     super.reactions,
     super.parentID,
-    // ChildrenMixin properties
+    // [ChildrenMixin] properties.
     required List<String> children,
-    // ClipMixin properties
+    // [ClipMixin] properties.
     bool clipsContent = true,
   }) {
     setChildrenMixin(children: children);
@@ -119,7 +120,8 @@ abstract class ParentNode extends DefaultShapeNode
   }
 }
 
-/// renamed with Enum at the end to not conflict with Flutter's own TextAlignVertical
+/// Defines text node's vertical alignment.
+/// Corresponds to Flutter's [TextAlignVertical] enum.
 enum TextAlignVerticalEnum {
   /// Aligns the text on the top edge of the container.
   top,
@@ -131,8 +133,8 @@ enum TextAlignVerticalEnum {
   bottom;
 }
 
-/// renamed to be in conformity with [TextAlignVerticalEnum].
-/// Represents Flutter's [TextAlign] enum.
+/// Defines text node's horizontal alignment.
+/// Corresponds to Flutter's [TextAlign] enum.
 enum TextAlignHorizontalEnum {
   /// Align the text on the left edge of the container.
   left,
@@ -156,26 +158,25 @@ enum IconPlacementEnum {
   /// Places the icon before its sibling.
   start,
 
-  /// Places the icon after its sibling,
+  /// Places the icon after its sibling.
   end;
 }
 
 /// Defines the type of an icon.
 enum IconTypeEnum {
   /// Represents a Flutter supported font based icon.
-  /// In most cases, its a material icon but it can also be any other font
-  /// based icon.
+  /// In most cases, its a material icon but it can also be any other font based
+  /// icon.
   icon,
 
-  /// Represents an image based icon. This could be a network based image or
-  /// a local asset.
+  /// Represents an image based icon. This could be a network based image or a
+  /// local asset.
   image;
 }
 
-/// Allows to define reactions to user interactions on a node. This is directly
-/// used by the actions system in Codelessly.
+/// Defines reactions to user interactions on a node.
 mixin ReactionMixin {
-  /// Holds actions/reactions defined on a node.
+  /// Holds reactions defined on a node.
   late List<Reaction> reactions;
 
   /// Sets the reactions on a node.
@@ -188,8 +189,7 @@ mixin ReactionMixin {
       [TriggerType.click, TriggerType.longPress];
 }
 
-/// A mixin that can be used to add children functionality to a BaseNode class.
-/// In simple words, allows a node to have child/children.
+/// A mixin that allows the node to have children.
 ///
 /// To use, include the mixin in the class definition and call
 /// [ChildrenMixin.setChildrenMixin] method in the constructor of the node.
@@ -208,8 +208,7 @@ mixin ChildrenMixin on BaseNode {
   void onChildIDChanged(String oldID, String newID) {}
 }
 
-/// A mixin that can be used to add a single globally identifiable color
-/// property to a BaseNode class.
+/// Adds a single globally identifiable color property to the node.
 mixin SingleColorMixin on BaseNode {
   /// In some places, like icons, only a single color is supported.
   /// Therefore, [PaintModel] is not needed.
@@ -221,8 +220,8 @@ mixin SingleColorMixin on BaseNode {
   }
 }
 
-/// Adds blend properties to a node making the node blendable. This is very
-/// similar to Figma's blending properties.
+/// Adds blend properties to the node.
+/// Similar to Figma's blending properties.
 mixin BlendMixin on BaseNode {
   /// Overall opacity of the node.
   late double opacity;
@@ -255,9 +254,9 @@ mixin BlendMixin on BaseNode {
       "${super.toString()}\n Blend(${"opacity: $opacity, isMask: $isMask"})";
 }
 
-/// Represents the type of sizing a node can have or either axis.
+/// Represents the type of sizing a node can have on either axis.
 enum SizeFit {
-  /// We're not sure what to do with this yet. It does nothing right now.
+  /// Defines locked size fit. It does nothing right now.
   locked,
 
   /// The node has fixed size on applied axis. This is the default value.
@@ -279,19 +278,19 @@ enum SizeFit {
   /// affected by its parent but rather its children.
   shrinkWrap;
 
-  /// Whether this SizeFit is wrapping.
+  /// Whether this [SizeFit] is wrapping.
   bool get isWrap => this == SizeFit.shrinkWrap || this == SizeFit.flexible;
 
-  /// Whether this SizeFit is fixed.
+  /// Whether this [SizeFit] is fixed.
   bool get isFixed => this == SizeFit.locked || this == SizeFit.fixed;
 
-  /// Whether this SizeFit is expanded.
+  /// Whether this [SizeFit] is expanded.
   bool get isFill => this == SizeFit.expanded;
 
-  /// Whether this SizeFit allows the node to flex.
+  /// Whether this [SizeFit] allows the node to flex.
   bool get isFlex => this == SizeFit.flexible || this == SizeFit.expanded;
 
-  /// Whether this SizeFit is flexible.
+  /// Whether this [SizeFit] is [flexible].
   bool get isFlexible => this == SizeFit.flexible;
 }
 
@@ -319,15 +318,15 @@ enum NodeBoundaryType {
   outerBox,
 
   /// Represents the [innerBox] but with rotation since rotation changes these
-  /// bounds based on the rotation angel.
+  /// bounds based on the rotation angle.
   innerRotatedBox,
 
   /// Represents the [middleBox] but with rotation since rotation changes these
-  //   /// bounds based on the rotation angel.
+  /// bounds based on the rotation angle.
   middleRotatedBox,
 
   /// Represents the [outerBox] but with rotation since rotation changes these
-  //   /// bounds based on the rotation angel.
+  /// bounds based on the rotation angle.
   outerRotatedBox;
 
   /// Whether the [NodeBox] with this boundary type is rotated.
@@ -385,28 +384,18 @@ enum NodeBoundaryType {
 
 /// Defines the type of positioning used for a node inside its parent.
 enum PositioningMode {
-  /// The node is positioned relative to its parent such that it changes
-  /// its position relative to the top-left corner node when the node is
-  /// resized. Typically, this would wrap a node with [Align] inside a stack.
-  /// Upon resizing, it doesn't maintain the fixed distance from the edges of
-  /// its parent but rather maintains it on percentage basis.
+  /// Node's position is calculated relative to its parent's top-left corner,
+  /// which changes based on a certain percentage corresponding the size of the
+  /// parent.
   ///
-  /// In simple words, position is calculated in percentage basis based on the
-  /// size of the parent and its offset from the top-left edge of the parent.
+  /// Replicates the behavior of Flutter's [Align] widget.
   align,
 
-  /// The node is positioned relative to its parent based on fixed distance
-  /// from the edge of the parent. Typically, this would wrap a node with
-  /// [Positioned] inside a stack.
+  /// Node's position is caluclated relative to the specified edge of its
+  /// parent. Node maintains a fixed distance from the edge irrespective of the
+  /// size of the parent.
   ///
-  /// This allows the node to anchor itself to one/more edge/s of the parent
-  /// with some distance from the edge such that unlike [align], it would
-  /// always maintain that distance from anchored edge regardless of the size
-  /// of the parent in case of resizing.
-  ///
-  /// In simple words, position is calculated in fixed pixels based on the
-  /// anchored edges of the parent which is not influenced by the size of the
-  /// parent.
+  /// Replicates the behavior of Flutter's [Positioned] widget.
   pin,
 }
 
@@ -420,8 +409,8 @@ enum StrokeAlignC {
   center(0),
 
   /// Aligns the stroke at the outside of the node boundary. This means that
-  /// the stroke will be drawn completely outside node boundary not affecting
-  /// the contents/children of the node at all.
+  /// the stroke will be drawn completely outside node boundary without
+  /// affecting the contents/children of the node at all.
   outside(1),
 
   /// Aligns the stroke at the inside of the node boundary. This means that
@@ -429,15 +418,15 @@ enum StrokeAlignC {
   /// contents/children of the node.
   inside(-1);
 
-  /// The alignment value that is used for the final double alignment;
+  /// The value used to specify the stroke alignment.
   final double alignment;
 
   /// Creates a [StrokeAlignC] with the given [alignment].
   const StrokeAlignC(this.alignment);
 }
 
-/// Styles to use for line endings on a stroke. This is directly related to
-/// [StrokeCap] in Flutter.
+/// Styles to use for line endings on a stroke.
+/// Corresponds to [StrokeCap] in Flutter.
 enum StrokeCapEnum {
   /// Unspecified.
   none,
@@ -452,8 +441,8 @@ enum StrokeCapEnum {
   /// is the same color as the line.
   round,
 
-  /// Begin and end contours with a half square extension. This is
-  /// similar to extending each contour by half the stroke width/thickness.
+  /// Begin and end contours with a half square extension. This is similar to
+  /// extending each contour by half the stroke width/thickness.
   ///
   /// ![A square cap has a square end that effectively extends the line length
   /// by half of the stroke width.](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/square_cap.png)
@@ -463,7 +452,8 @@ enum StrokeCapEnum {
   square;
 }
 
-/// An enum representing the side or sides of a shape that a stroke should be applied to.
+/// An enum representing the side or sides of a shape that a stroke should be
+/// applied to.
 enum StrokeSide {
   /// The left side of the shape.
   left,
@@ -503,8 +493,7 @@ enum SliderTrackShapeEnum {
 /// Represents the shape of the value indicator showed above the thumb of a
 /// slider when interacted.
 enum SliderValueIndicatorShape {
-  /// The value indicator is in
-  /// the shape of an upside-down pear.
+  /// The value indicator is in the shape of an upside-down pear.
   ///
   /// ![A slider widget, consisting of 5 divisions and showing the paddle slider value indicator shape.]
   /// (https://flutter.github.io/assets-for-api-docs/assets/material/paddle_slider_value_indicator_shape.png)
@@ -527,16 +516,15 @@ enum SliderValueIndicatorShape {
   }
 }
 
-/// A mixin that adds decorative properties to a node. This includes fills and
-/// strokes.
+/// Adds decorative properties to a node. This includes fills and strokes.
 mixin GeometryMixin on BaseNode {
   /// A list of fills applied to the node. This can be a solid color or a
   /// gradient or an image. Refer [PaintModel.type] for more info on supported
   /// types of fill.
   late List<PaintModel> fills;
 
-  /// A list of strokes applied to the node. Only solid color type of fill
-  /// is supported at the moment.
+  /// A list of strokes applied to the node. Only solid color type of fill is
+  /// supported at the moment.
   List<PaintModel> strokes = [];
 
   /// Thickness/weight of the stroke.
@@ -579,8 +567,7 @@ mixin GeometryMixin on BaseNode {
     this.strokeSide = strokeSide ??= StrokeSide.all;
   }
 
-  /// Returns true if the node has any fills that can be interpreted as
-  /// strokes.
+  /// Returns true if the node has any fills that can be interpreted as strokes.
   bool get hasStroke => strokes.isNotEmpty && strokeWeight > 0;
 
   @override
@@ -640,8 +627,7 @@ mixin GeometryMixin on BaseNode {
   }
 }
 
-/// A mixin that adds clipping functionality to a node. In simple words,
-/// makes the node clip-able.
+/// Adds clipping functionality to a node.
 mixin ClipMixin on BaseNode {
   /// Whether to clip contents of the node.
   late bool clipsContent;
@@ -654,8 +640,8 @@ mixin ClipMixin on BaseNode {
   }
 }
 
-/// A mixin that adds border shape properties to a node enabling the node to
-/// have differently shaped borders.
+/// Adds border shape properties to a node enabling the node to have differently
+/// shaped borders.
 mixin ShapeBorderMixin {
   /// Represents the shape of the border.
   late CShapeBorder shape;
@@ -687,8 +673,8 @@ mixin ShapeBorderMixin {
       '${super.toString()}\n ShapeBorder(shape: $shape, cornerRadius: $cornerRadius, borderColor: $borderColor, borderWidth: $borderWidth)';
 }
 
-/// A mixin that adds rounded corner shape properties to a node enabling the
-/// node to have rounded corners.
+/// Adds rounded corner shape properties to a node enabling the node to have
+/// rounded corners.
 mixin CornerMixin on BaseNode {
   /// Level of pixel smoothing applied to the corners.
   late double cornerSmoothing;
@@ -710,21 +696,19 @@ mixin CornerMixin on BaseNode {
       '${super.toString()}\n Corner(cornerSmoothing: $cornerSmoothing, radius: ${cornerRadius.toString()})';
 }
 
-/// Indicates that the node has some custom properties. i.e. static
-/// nodes.
+/// Indicates that the node has some custom properties.
 mixin CustomPropertiesMixin on BaseNode {}
 
-/// This can be used for nodes that cannot be resized by only height or width
-/// but rather can resize proportionally preserving the aspect ratio.
-/// e.g. Switch, Radio Button, Checkbox, Icon.
+/// Defines node that preserves its aspect ratio and cannot be resized by only
+/// its width or height.
+/// Ex. Switch, Radio Button, Checkbox, Icon, etc.
 mixin FixedAspectRatioMixin on BaseNode {
   /// The aspect ratio of the node.
   double get aspectRatio;
 }
 
-/// This can be used for nodes that have fixed size and do not resize but
-/// rather can scale (e.g. using Transform.scale).
-/// e.g. Switch, Radio Button, Checkbox.
+/// Defines node that cannot be resized but can scale instead.
+/// Ex. Switch, Radio Button, Checkbox, etc.
 mixin ScalableMixin on BaseNode {
   /// The scale factor of the node.
   double get scale;
@@ -747,12 +731,12 @@ mixin ScalableMixin on BaseNode {
   /// Whether the node is scaled down beyond the allowed [minScale].
   bool get isUnderScaled => scale < minScale;
 
-  /// Whether the node scale value is in the boundaries of
-  /// [minScale] and [maxScale].
+  /// Whether the node scale value is in the boundaries of [minScale] and
+  /// [maxScale].
   bool get isScaleInBounds => scale >= minScale && scale <= maxScale;
 
-  /// Whether the node is scaled up/down beyond the
-  /// allowed [maxScale]/[minScale].
+  /// Whether the node is scaled up/down beyond the allowed
+  /// [maxScale]/[minScale].
   bool get isScaleOutOfBounds => !isScaleInBounds;
 
   /// Whether the node scale is at the minimum allowed scale.
@@ -821,7 +805,8 @@ mixin VariablePropertiesMixin on BaseNode {
   void updateVariableName({required String oldName, required String newName}) {}
 }
 
-/// A mixin that allows to define action configurable properties for a node.
+/// A mixin that allows to define properties of a node that can be set via an
+/// action.
 mixin PropertyVariableMixin on BaseNode {
   /// Properties of the node that can be used in actions or can be changed by
   /// an action.
@@ -883,22 +868,20 @@ mixin RowColumnMixin on BaseNode {
   }
 }
 
-/// A mixin that allows node behave like a container/placeholder for
-/// other nodes.
+/// A mixin that allows node behave like a placeholder for other nodes.
 mixin PlaceholderMixin on BaseNode {}
 
 /// Represents the physics for scrolling on scrollable nodes like list view.
-/// These values directly translates to [ScrollPhysics] in Flutter.
+/// Corresponds to [ScrollPhysics] in Flutter.
 enum ScrollPhysicsC {
   /// Scroll physics that always lets the user scroll.
   ///
-  /// This overrides the default behavior which is to disable scrolling
-  /// when there is no content to scroll. It does not override the
-  /// handling of over-scrolling.
+  /// This overrides the default behavior which is to disable scrolling there is
+  /// no content to scroll. It does not override the handling of over-scrolling.
   ///
   /// On Android, over-scrolls will be clamped by default and result in an
-  /// overscroll glow. On iOS, over-scrolls will load a spring that will return the
-  /// scroll view to its normal range when released.
+  /// overscroll glow. On iOS, over-scrolls will load a spring that will return
+  /// the scroll view to its normal range when released.
   ///
   /// See [AlwaysScrollableScrollPhysics] in Flutter for more details.
   alwaysScrollableScrollPhysics,
@@ -916,8 +899,8 @@ enum ScrollPhysicsC {
   /// See [BouncingScrollPhysics] in Flutter for more details.
   bouncingScrollPhysics,
 
-  /// Scroll physics for environments that prevent the scroll offset from reaching
-  /// beyond the bounds of the content.
+  /// Scroll physics for environments that prevent the scroll offset from
+  /// reaching beyond the bounds of the content.
   ///
   /// See [ClampingScrollPhysics] in Flutter for more details.
   clampingScrollPhysics,
@@ -949,14 +932,13 @@ enum ScrollPhysicsC {
 }
 
 /// A representation of how a [ScrollView] should dismiss the on-screen
-/// keyboard. Directly translates to [ScrollViewKeyboardDismissBehavior] in
-/// Flutter.
+/// keyboard. Corresponds to [ScrollViewKeyboardDismissBehavior] in Flutter.
 enum ScrollViewKeyboardDismissBehaviorC {
-  /// `manual` means there is no automatic dismissal of the on-screen keyboard.
+  /// [manual] means there is no automatic dismissal of the on-screen keyboard.
   /// It is up to the client to dismiss the keyboard.
   manual,
 
-  /// `onDrag` means that the [ScrollView] will dismiss an on-screen keyboard
+  /// [onDrag] means that the [ScrollView] will dismiss an on-screen keyboard
   /// when a drag begins.
   onDrag;
 
@@ -996,13 +978,10 @@ mixin ScrollableMixin on BaseNode {
   /// scrollable can be primary in a layout.
   late bool primary;
 
-  /// TODO
-  /// physics ?? ((primary ?? false) || (primary == null && controller == null && identical(scrollDirection, Axis.vertical)) ? const AlwaysScrollableScrollPhysics() : null),
   /// Physics to use for the scrollable.
   late ScrollPhysicsC physics;
 
-  /// A representation of how a [ScrollView] should dismiss the on-screen
-  /// keyboard.
+  /// Defines how a [ScrollView] should dismiss the on-screen keyboard.
   late ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior;
 
   /// Whether to use a [ListView] instead of [SingleChildScrollView] in flutter
@@ -1033,8 +1012,8 @@ mixin ScrollableMixin on BaseNode {
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 
-/// This mixin is extended by every Undo Action and api models
-/// so .toJson() can be called regardless of the class.
+/// This mixin is extended by every Undo Action and api models, so [toJson] can
+/// be called regardless of the class.
 /// It is used for storing actions on server.
 mixin SerializableMixin {
   /// Returns a serializable map representation of the object.

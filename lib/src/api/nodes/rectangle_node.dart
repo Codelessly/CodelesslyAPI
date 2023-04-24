@@ -51,10 +51,10 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
-    // CornerMixin properties
+    // [CornerMixin] properties.
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
-    // ClipMixin properties
+    // [ClipMixin] properties.
     bool clipsContent = true,
   }) {
     setCornerMixin(

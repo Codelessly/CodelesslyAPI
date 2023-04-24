@@ -51,7 +51,7 @@ class PageViewNode extends SinglePlaceholderNode
     required List<String> children,
     Map<String, String>? variables,
     bool clipsContent = true,
-    // scrollable
+    // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
@@ -85,7 +85,7 @@ class PageViewNode extends SinglePlaceholderNode
   @override
   Map toJson() => _$PageViewNodeToJson(this);
 
-  /// [returns] the appropriate alignment of the child based on the
+  /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
   AlignmentModel childAlignment() {
     switch (scrollDirection) {

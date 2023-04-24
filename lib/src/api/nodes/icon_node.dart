@@ -13,7 +13,7 @@ part 'icon_node.g.dart';
 /// Default size of the icon.
 const double kIconDefaultSize = 24;
 
-/// Default icon used that can be used as placeholder when no icon is provided.
+/// Default icon used as placeholder when no icon is provided.
 const MaterialIcon defaultIcon = MaterialIcon(
   name: 'add',
   codepoint: 57669,

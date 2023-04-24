@@ -25,7 +25,8 @@ const double kCheckboxDefaultSize = 32;
 /// ☑ or ☒ when checked.
 /// This is a material checkbox that has tristate support. So when [value] is
 /// null, it shows a dash instead of a checkmark.
-/// Refer to [Checkbox](https://api.flutter.dev/flutter/material/Checkbox-class.html) in Flutter for more details.
+/// Refer to [Checkbox](https://api.flutter.dev/flutter/material/Checkbox-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class CheckboxNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin, ScalableMixin {
@@ -85,12 +86,12 @@ class CheckboxNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1,
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {
@@ -120,10 +121,10 @@ class CheckboxNode extends SceneNode
 /// Holds configurable properties of the checkbox.
 @JsonSerializable()
 class CheckboxProperties with SerializableMixin, EquatableMixin {
-  /// Color of the tick mark/
+  /// Color of the tick mark.
   late ColorRGBA checkColor;
 
-  /// Color of the tick/dash mark when active..
+  /// Color of the tick/dash mark when active.
   late ColorRGBA activeColor;
 
   /// Border color of the checkbox when inactive.

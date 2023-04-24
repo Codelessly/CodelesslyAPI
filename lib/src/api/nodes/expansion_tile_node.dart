@@ -51,10 +51,10 @@ class ExpansionTileNode extends SceneNode
     required super.name,
     required super.basicBoxLocal,
     bool? isExpanded,
-    // Start ExpansionTile
+    // Start ExpansionTile.
     this.listTileChild,
     required this.properties,
-    // End ExpansionTile
+    // End ExpansionTile.
 
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
@@ -118,103 +118,83 @@ class ExpansionTileProperties with SerializableMixin, EquatableMixin {
   /// Color of the tile's background when it is collapsed.
   ColorRGBA? collapsedBackgroundColor;
 
-  /// Specifies if the list tile is initially expanded (true) or collapsed (false, the default).
+  /// Specifies if the list tile is initially expanded or collapsed (false, by
+  /// default).
   bool initiallyExpanded;
 
-  /// Specifies whether the state of the children is maintained when the tile expands and collapses.
+  /// Specifies whether the state of the children is maintained when the tile
+  /// expands and collapses.
   ///
   /// When true, the children are kept in the tree while the tile is collapsed.
-  /// When false (default), the children are removed from the tree when the tile is
-  /// collapsed and recreated upon expansion.
+  /// When false (default), the children are removed from the tree when the tile
+  /// is collapsed and recreated upon expansion.
   bool maintainState;
 
   /// Specifies padding for the [ListTile].
   ///
-  /// Analogous to [ListTile.contentPadding], this property defines the insets for
-  /// the [leading], [title], [subtitle] and [trailing] widgets. It does not inset
-  /// the expanded [children] widgets.
-  ///
-  /// If this property is null then [ExpansionTileThemeData.tilePadding] is used. If that
-  /// is also null then the tile's padding is `EdgeInsets.symmetric(horizontal: 16.0)`.
+  /// Analogous to [ListTile.contentPadding], this property defines the insets
+  /// for the [leading], [title], [subtitle] and [trailing] widgets. It does not
+  /// inset the expanded [children] widgets.
   EdgeInsetsModel? tilePadding;
 
   /// Specifies the alignment of [children], which are arranged in a column when
   /// the tile is expanded.
   ///
   /// The internals of the expanded tile make use of a [Column] widget for
-  /// [children], and [Align] widget to align the column. The `expandedAlignment`
-  /// parameter is passed directly into the [Align].
+  /// [children], and [Align] widget to align the column. The
+  /// [expandedAlignment] parameter is passed directly into the [Align].
   ///
   /// Modifying this property controls the alignment of the column within the
   /// expanded tile, not the alignment of [children] widgets within the column.
   /// To align each child within [children], see [expandedCrossAxisAlignment].
   ///
-  /// The width of the column is the width of the widest child widget in [children].
-  ///
-  /// If this property is null then [ExpansionTileThemeData.expandedAlignment]is used. If that
-  /// is also null then the value of `expandedAlignment` is [Alignment.center].
+  /// The width of the column is the width of the widest child widget in
+  /// [children].
   AlignmentModel? expandedAlignment;
 
-  /// Specifies the alignment of each child within [children] when the tile is expanded.
+  /// Specifies the alignment of each child within [children] when the tile is
+  /// expanded.
   ///
   /// The internals of the expanded tile make use of a [Column] widget for
-  /// [children], and the `crossAxisAlignment` parameter is passed directly into the [Column].
+  /// [children], and the [crossAxisAlignment] parameter is passed directly into
+  /// the [Column].
   ///
   /// Modifying this property controls the cross axis alignment of each child
   /// within its [Column]. Note that the width of the [Column] that houses
-  /// [children] will be the same as the widest child widget in [children]. It is
-  /// not necessarily the width of [Column] is equal to the width of expanded tile.
+  /// [children] will be the same as the widest child widget in [children]. It
+  /// is not necessarily the width of [Column] is equal to the width of expanded
+  /// tile.
   ///
-  /// To align the [Column] along the expanded tile, use the [expandedAlignment] property
-  /// instead.
+  /// To align the [Column] along the expanded tile, use the [expandedAlignment]
+  /// property instead.
   ///
-  /// When the value is null, the value of `expandedCrossAxisAlignment` is [CrossAxisAlignment.center].
+  /// When the value is null, the value of [expandedCrossAxisAlignment] is
+  /// [CrossAxisAlignment.center].
   CrossAxisAlignmentC expandedCrossAxisAlignment;
 
   /// Specifies padding for [children].
-  ///
-  /// If this property is null then [ExpansionTileThemeData.childrenPadding] is used. If that
-  /// is also null then the value of `childrenPadding` is [EdgeInsets.zero].
-  ///
-  /// See also:
-  ///
-  /// * [ExpansionTileTheme.of], which returns the nearest [ExpansionTileTheme]'s
-  ///   [ExpansionTileThemeData].
   EdgeInsetsModel? childrenPadding;
 
-  /// The icon color of tile's expansion arrow icon when the sublist is expanded.
-  ///
-  /// Used to override to the [ListTileThemeData.iconColor].
-  ///
-  /// If this property is null then [ExpansionTileThemeData.iconColor] is used. If that
-  /// is also null then the value of [ListTileThemeData.iconColor] is used.
+  /// The icon color of tile's expansion arrow icon when the sublist is
+  /// expanded.
   ColorRGBA? iconColor;
 
-  /// The icon color of tile's expansion arrow icon when the sublist is collapsed.
-  ///
-  /// Used to override to the [ListTileThemeData.iconColor].
+  /// The icon color of tile's expansion arrow icon when the sublist is
+  /// collapsed.
   ColorRGBA? collapsedIconColor;
 
   /// The color of the tile's titles when the sublist is expanded.
-  ///
-  /// Used to override to the [ListTileThemeData.textColor].
-  ///
-  /// If this property is null then [ExpansionTileThemeData.textColor] is used. If that
-  /// is also null then the value of [ListTileThemeData.textColor] is used.
   ColorRGBA? textColor;
 
   /// The color of the tile's titles when the sublist is collapsed.
-  ///
-  /// Used to override to the [ListTileThemeData.textColor].
-  ///
-  /// If this property is null then [ExpansionTileThemeData.collapsedTextColor] is used. If that
-  /// is also null then the value of [ListTileThemeData.textColor] is used.
   ColorRGBA? collapsedTextColor;
 
-  /// Typically used to force the expansion arrow icon to the tile's leading or trailing edge.
+  /// Typically used to force the expansion arrow icon to the tile's leading or
+  /// trailing edge.
   ///
-  /// By default, the value of `controlAffinity` is [ListTileControlAffinity.platform],
-  /// which means that the expansion arrow icon will appear on the tile's trailing edge.
+  /// By default, the value of [controlAffinity] is
+  /// [ListTileControlAffinity.platform], which means that the expansion arrow
+  /// icon will appear on the tile's trailing edge.
   ListTileControlAffinityC? controlAffinity;
 
   /// Material visual density.
@@ -235,7 +215,7 @@ class ExpansionTileProperties with SerializableMixin, EquatableMixin {
     }
   }
 
-  /// Creates a new [ExpansionTileProperties] with give data.
+  /// Creates a new [ExpansionTileProperties] instance with give data.
   ExpansionTileProperties({
     this.backgroundColor = ColorRGBA.transparent,
     this.collapsedBackgroundColor = ColorRGBA.transparent,
@@ -254,7 +234,8 @@ class ExpansionTileProperties with SerializableMixin, EquatableMixin {
     this.showDividers = true,
   });
 
-  /// Duplicates this [ExpansionTileProperties] with given data overrides.
+  /// Duplicates this [ExpansionTileProperties] instance with given data
+  /// overrides.
   ExpansionTileProperties copyWith({
     ColorRGBA? backgroundColor,
     ColorRGBA? collapsedBackgroundColor,

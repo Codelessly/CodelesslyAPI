@@ -69,7 +69,7 @@ class EmbeddedVideoNode extends SceneNode
     super.parentID,
     super.positioningMode,
     super.edgePins,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {

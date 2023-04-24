@@ -10,10 +10,10 @@ import 'nodes.dart';
 
 part 'accordion_node.g.dart';
 
-/// An accordion is a type of menu that displays a list of headers stacked
-/// on top of one another. When clicked on (or triggered by a keyboard
-/// interaction or screen reader), these headers will either reveal or hide
-/// associated content.
+/// An accordion is a type of menu that displays a list of headers stacked on
+/// top of one another. When clicked on (or triggered by a keyboard interaction
+/// or screen reader), these headers will either reveal or hide associated
+/// content.
 @JsonSerializable()
 class AccordionNode extends SceneNode
     with

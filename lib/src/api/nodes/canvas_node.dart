@@ -81,7 +81,7 @@ class CanvasNode extends ParentNode
     DateTime? createdTimestamp,
     super.clipsContent,
 
-    // ScrollableMixin properties
+    // [ScrollableMixin] properties.
     bool isScrollable = false,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
@@ -92,7 +92,7 @@ class CanvasNode extends ParentNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
 
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {
@@ -163,9 +163,9 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
   /// FAB properties if enabled.
   FloatingActionButtonProperties? floatingActionButton;
 
-  /// Whether this canvas is a scaffold. A scaffold can hold an app bar,
-  /// drawer, bottom navigation bar, and floating action button. If any of
-  /// this is present, the canvas will be a scaffold.
+  /// Whether this canvas is a scaffold. A scaffold can hold an app bar, drawer,
+  /// bottom navigation bar, and floating action button. If any of this is
+  /// present, the canvas is a scaffold.
   bool get isAScaffold =>
       navigationBarPlaceholderId != null ||
       topAppBarPlaceholderId != null ||

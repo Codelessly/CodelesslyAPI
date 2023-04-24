@@ -18,8 +18,10 @@ const double kSwitchDefaultHeight = 40;
 const double kSwitchDefaultWidth = 59;
 
 /// Switch is a widget that lets the user toggle a single boolean value.
-/// The value is TRUE when the switch is ON; and is FALSE when the switch is OFF.
-/// Refer to [Switch](https://api.flutter.dev/flutter/material/Switch-class.html) in Flutter for more details.
+/// The value is true when the switch is on; and is false when the switch is
+/// off.
+/// Refer to [Switch](https://api.flutter.dev/flutter/material/Switch-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class SwitchNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin, ScalableMixin {
@@ -79,7 +81,7 @@ class SwitchNode extends SceneNode
     super.parentID,
     super.positioningMode,
     super.edgePins,
-    // custom props
+    // Custom properties.
     required this.properties,
     Map<String, String>? variables,
   }) {

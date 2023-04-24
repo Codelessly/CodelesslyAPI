@@ -18,7 +18,8 @@ const double kDividerDefaultWidth = 150;
 const double kDividerDefaultHeight = 16;
 
 /// A divider visually segments content into groups.
-/// Refer to [Divider](https://api.flutter.dev/flutter/material/Divider-class.html) in Flutter for more details.
+/// Refer to [Divider](https://api.flutter.dev/flutter/material/Divider-class.html)
+/// in Flutter for more details.
 @JsonSerializable()
 class DividerNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -71,12 +72,12 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1,
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
-    // custom props
+    // Custom properties.
     required this.properties,
   });
 
@@ -114,11 +115,11 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
   EdgeInsetsModel? preferredDefaultPadding() {
     EdgeInsetsModel minPadding = EdgeInsetsModel.zero;
 
-    // Dividers have a height property that is separate from their thickness
-    // as a means to apply padding around the divider.
+    // Dividers have a height property that is separate from their thickness as
+    // a means to apply padding around the divider.
     // When a divider is set to shrinkwrap, it shrinkwraps to its thickness,
-    // which is not desirable. Instead, we should shrinkwrap to some
-    // padding. It's a pad of 16 by default (8 on each side).
+    // which is not desirable. Instead, we should shrinkwrap to some padding.
+    // It's a pad of 16 by default (8 on each side).
     if (horizontalFit.isWrap) {
       minPadding = const EdgeInsetsModel.symmetric(
         horizontal: kDividerDefaultHeight / 2,
@@ -139,11 +140,11 @@ class DividerProperties with SerializableMixin, EquatableMixin {
   /// Color of the divider.
   ColorRGBA color;
 
-  /// start indent of the divider. Refers to space of left for horizontal
+  /// Start indent of the divider. Refers to space of left for horizontal
   /// divider and top for vertical divider.
   double indent;
 
-  /// end indent of the divider. Refers to space of right for horizontal
+  /// End indent of the divider. Refers to space of right for horizontal
   /// divider and bottom for vertical divider.
   double endIndent;
 

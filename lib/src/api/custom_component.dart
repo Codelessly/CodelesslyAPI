@@ -12,20 +12,19 @@ import 'utils.dart';
 part 'custom_component.g.dart';
 
 /// A model to hold custom component data.
-/// [width] and [height] represents the containing rect size.
 @JsonSerializable()
 class CustomComponent with EquatableMixin, SerializableMixin {
   /// Unique identifier for the component.
   final String id;
 
-  /// Name of the component visible in the editor.
+  /// Name of the component.
   final String name;
 
-  /// Node data of the component. This is the data that will be used to
-  /// render the component.
+  /// Node data of the component. This is the data that is used to render the
+  /// component.
   final ComponentData data;
 
-  /// Date & time when the component was created.
+  /// Date and time when the component was created.
   @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
   final DateTime createdAt;
 
@@ -55,8 +54,7 @@ class CustomComponent with EquatableMixin, SerializableMixin {
         blurhash,
       ];
 
-  /// Allows to create a new instance of this class from existing one with
-  /// some fields changed.
+  /// Duplicate this [CustomComponent] instance with the given data overrides.
   CustomComponent copyWith({
     String? id,
     String? name,
@@ -83,7 +81,7 @@ class CustomComponent with EquatableMixin, SerializableMixin {
   Map toJson() => _$CustomComponentToJson(this);
 }
 
-/// Holds node data and containing rect size data for a component.
+/// Holds component's node data and containing rect size data.
 @JsonSerializable()
 class ComponentData with EquatableMixin, SerializableMixin {
   /// Width of the containing rect for [nodes].
@@ -92,12 +90,12 @@ class ComponentData with EquatableMixin, SerializableMixin {
   /// Height of the containing rect for [nodes].
   final double height;
 
-  /// JSON data of all the nodes for the component where key is the ID of the
-  /// node and value is actual node JSON that can be used to recreate a
-  /// [BaseNode] instance using fromJson constructors.
+  /// JSON data of all the nodes of the component where key is the ID of the
+  /// node and value is actual node JSON that is used to recreate a [BaseNode]
+  /// instance.
   final Map<String, dynamic> nodes;
 
-  /// Returns containing rect for the component.
+  /// Returns containing rect of the component.
   RectC get rect => RectC.fromLTWH(0, 0, width, height);
 
   /// Default constructor to create new instances.
@@ -119,8 +117,7 @@ class ComponentData with EquatableMixin, SerializableMixin {
   factory ComponentData.fromJson(Map<String, dynamic> json) =>
       _$ComponentDataFromJson(json);
 
-  /// Allows to create a new instance of this class from existing one with
-  /// some fields changed.
+  /// Duplicate this [ComponentData] instance with the given data overrides.
   ComponentData copyWith({
     double? width,
     double? height,

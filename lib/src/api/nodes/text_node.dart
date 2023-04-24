@@ -52,25 +52,29 @@ class TextNode extends SceneNode
   @override
   final String type = 'text';
 
+  /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double minTextWidth = double.infinity;
 
+  /// Minimum height the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double minTextHeight = double.infinity;
 
+  /// Maximum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double maxTextWidth = double.infinity;
 
+  /// Maximum height the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double maxTextHeight = double.infinity;
 
+  /// A map of height to the range of width values for which the height remains
+  /// constant.
   /// Calculated at runtime using Flutter TextPainter.
-  /// key is HEIGHT
-  /// value is WIDTH RANGE
   @JsonKey(includeFromJson: false, includeToJson: false)
   Map<int, WidthRange> precalculatedSizes = {};
 
@@ -101,7 +105,7 @@ class TextNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // [TextMixin] properties
+    // [TextMixin] properties.
     required String characters,
     List<StartEndProp> textMixedProps = const [],
     double paragraphIndent = 0,
@@ -110,7 +114,7 @@ class TextNode extends SceneNode
     TextAlignVerticalEnum textAlignVertical = TextAlignVerticalEnum.top,
     int? maxLines,
     TextOverflowC overflow = TextOverflowC.clip,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1.0,
     bool isMask = false,
     List<Effect> effects = const [],
@@ -146,10 +150,6 @@ class TextNode extends SceneNode
     StringValue(name: 'characters', value: characters),
   ];
 
-  // clone(): TextNode
-  // insertCharacters(start: number, characters: string, useStyle?: "BEFORE" | "AFTER"): void
-  // deleteCharacters(start: number, end: number): void
-
   @override
   String toString() => 'TextNode';
 
@@ -166,8 +166,7 @@ class TextNode extends SceneNode
   }
 }
 
-/// These are the TextNode specific properties.
-/// This is meant to be reusable, so if other nodes can use this.
+/// [TextNode] specific properties.
 mixin TextMixin {
   /// Text characters.
   late String characters;
@@ -217,8 +216,8 @@ mixin TextMixin {
   }
 }
 
-/// A mixin that retrieves the font names from the node with text support.
+/// A mixin that stores the fonts used in a [TextNode].
 mixin FontMixin {
-  /// Returns a list of font names.
+  /// List of fonts.
   List<FontName> get fonts;
 }

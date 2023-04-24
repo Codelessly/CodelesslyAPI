@@ -8,8 +8,8 @@ part of 'nodes/base_node.dart';
 extension NodeBoxHelper on NodeBox {
   /// Used to update the [NodeBox] with new values. This by default triggers
   /// computation on update.
-  /// NodeBox does not hold a reference to the node itself, this is why
-  /// we need to pass the [node] as a parameter.
+  /// NodeBox does not hold a reference to the node itself, that's why we need
+  /// to pass the [node] as a parameter.
   void update({
     required BaseNode node,
     double? x,
@@ -44,8 +44,8 @@ extension NodeBoxHelper on NodeBox {
 extension OuterBoxHelper on OuterNodeBox {
   /// Used to update the [OuterNodeBox] with new values. This by default
   /// triggers computation on update.
-  /// NodeBox does not hold a reference to the node itself, this is why
-  /// we need to pass the [node] as a parameter.
+  /// NodeBox does not hold a reference to the node itself, that's why we need
+  /// to pass the [node] as a parameter.
   void update({
     required BaseNode node,
     double? x,
@@ -80,7 +80,7 @@ extension OuterBoxHelper on OuterNodeBox {
 
 /// Extensions for [BaseNode].
 extension BaseNodeUpdateExtension on BaseNode {
-  ///Switches the parent node of this node from [oldParent] to [newParent].
+  /// Switches the parent node of this node from [oldParent] to [newParent].
   void switchParent({
     required BaseNode newParent,
     required BaseNode oldParent,
@@ -90,8 +90,8 @@ extension BaseNodeUpdateExtension on BaseNode {
     parentID = newParent.id;
   }
 
-  /// Used to update the [BaseNode] with new values. This by default
-  /// triggers computation on update.
+  /// Used to update the [BaseNode] with new values. This by default triggers
+  /// computation on update.
   /// See [updateNode] for more details.
   void update({
     EdgeInsetsModel? margin,
@@ -119,17 +119,17 @@ extension BaseNodeUpdateExtension on BaseNode {
         recursivelyCalculateChildrenGlobalBoxes:
             recursivelyCalculateChildrenGlobalBoxes,
         globalParentBoundingBoxPos: globalParentBoundingBoxPos,
-          forceUpdateEdgePins:forceUpdateEdgePins,
+        forceUpdateEdgePins: forceUpdateEdgePins,
       );
 
-  /// Set rotation for this node.
+  /// Sets rotation for this node.
   void setNodeRotation(int newRotationDegrees) {
     _rotationDegrees = newRotationDegrees;
     _rotationRadians = newRotationDegrees * pi / 180;
   }
 
-  /// Updates rotation for this node recursively for its children as well
-  /// if [updateChildren] is true.
+  /// Updates rotation for this node recursively for its children as well if
+  /// [updateChildren] is true.
   void updateNodeRotation(int newRotationDegrees,
       {bool updateChildren = true}) {
     setNodeRotation(newRotationDegrees);
@@ -196,59 +196,21 @@ class NodeProcessor {
     node.parentID = newParent.id;
   }
 
-  /// This function will ensure that any of the below properties that you change
-  /// from a given node will be done properly and be propagated adequately.
-  /// If you update the [margin] space for example, it will ensure that ever
-  /// [NodeBox] inside your [node] is updated properly to reflect those changes.
-  /// Additionally, this function will recur into all of the children of this
-  /// [node] to ensure that their relative positions all also get updated properly
-  /// to reflect your changes.
+  /// [updateNode] is responsible for updating the node and its children when
+  /// one or more of its properties change. Ex. if [margin] is changed, all the
+  /// node boxes and node's children are updated accordingly.
   ///
-  /// This function does a lot of processing to ensure that all the values of your
-  /// node's and this node's children are updated properly, therefore it is a
-  /// somewhat computationally expensive function.
+  /// [outerBoxGlobal] and [globalParentBoundingBoxPos] are automatically
+  /// updated by the layout system only, while other node boxes and
+  /// [rotationDegrees] can be changed manually.
   ///
-  /// [node] is the node that is being updated. If position or rotation changes,
-  ///        it's children will update their global boxes to reflect.
-  ///
-  /// If the [margin], [padding], [alignment] update, all of the [node]'s
-  /// [NodeBox]es will update to reflect, as well as the [node]'s children.
-  ///
-  /// If the [outerBoxLocal] updates, that mean's the node's position is manually
-  /// being changed and the layout system has not processed it yet, but will read
-  /// this updated data. It will automatically cause [basicBoxLocal] to
-  /// recalculate.
-  ///
-  /// If [outerBoxGlobal] updates, that means the layout system performed a layout
-  /// that updates this node's position. [outerBoxGlobal] ONLY changes from the
-  /// layout system because the layout system talks in global coordinates.
-  ///
-  /// If [basicBoxLocal] updates, that means the node's size is manually being
-  /// changed and the layout system has not processed it yet, but will read this
-  /// updated data. It will automatically cause [outerBoxLocal] to recalculate.
-  ///
-  /// if [rotationDegrees] updates, that means the node's rotation is manually
-  /// being changed and the layout system has not processed it yet, but will read
-  /// this updated data. It will automatically cause all the [NodeBox]es to
-  /// recalculate, including the not-rotated boxes.
-  ///
-  /// If [resetRetainedBox] is true, the [node]'s [retainedBox] will be reset to
+  /// If [resetRetainedBox] is true, the node's [retainedBox] will be reset to
   /// the [outerBoxLocal].
   ///
-  /// If [recursivelyCalculateChildrenGlobalBoxes] is true, the [node]'s children
-  /// will have their global boxes recalculated recursively. If this is false,
-  /// this node will only recalculate itself. This is useful when handling
-  /// node initialization and bulk-processing to ensure order-of-operations is
-  /// correct.
-  ///
-  /// [globalParentBoundingBoxPos] is the position of the parent's bounding box
-  /// in global coordinates. This is set by the layout system automatically
-  /// and should not be set manually. It is used to calculate this node's boxes
-  /// properly from global coordinates.
-  ///
-  /// The layout system always specifies [outerBoxGlobal] and
-  /// [globalParentBoundingBoxPos] to ensure the boxes are calculated properly.
-  /// These two parameters are never set manually.
+  /// If [recursivelyCalculateChildrenGlobalBoxes] is true, all of the node's
+  /// children are updated recursively. If it is set to false, only the node is
+  /// updated. This parameter is used during nodes initialization. Since all the
+  /// nodes are being laid out, there's no need for recursive updates.
   static void updateNode({
     required BaseNode node,
     EdgeInsetsModel? margin,
@@ -267,7 +229,6 @@ class NodeProcessor {
     final bool paddingChanged = padding != null && padding != node.padding;
     final bool alignmentChanged =
         alignment != null && alignment != node.alignment;
-    // final bool marginPaddingChanged = marginChanged || paddingChanged;
     final bool performLayoutRan =
         outerBoxGlobal != null && globalParentBoundingBoxPos != null;
     final bool localOuterBoxChanged = outerBoxLocal != null;
@@ -474,9 +435,8 @@ class NodeProcessor {
     );
   }
 
-  /// [unrotate] will de-rotate the top left point from the literal visual pointy
-  /// corner or drag handle of the box to the top left corner that holds all
-  /// 4 corners together as bounding box.
+  /// [unrotate] will unrotate the top-left corner of the rotated box to the
+  /// top-left corner of the bounding box.
   static Vec getGlobalRotatedBoxTopLeft(
     String id, {
     bool unrotate = true,
@@ -506,7 +466,7 @@ class NodeProcessor {
 
     // We traverse in parent-child direction.
     // Life is simple until no child is rotated so we try to get as far as we
-    // can without expensive calculations by just adding up the offsets
+    // can without expensive calculations by just adding up the offsets.
     int index;
     final int parentsSize = parents.length - 1;
     for (index = parentsSize; index >= 0; index--) {
@@ -554,7 +514,7 @@ class NodeProcessor {
         }
       }
 
-      // Converting it to global
+      // Converting it to global.
       rotated = localRotatedVecToGlobalVec(
         localX: rotated.x,
         localY: rotated.y,
@@ -567,7 +527,7 @@ class NodeProcessor {
       currentVec = rotated;
     }
 
-    // If our target happens to be orthogonal w global
+    // If our target happens to be orthogonal w global.
     if (globalRotation == 0 || !unrotate) return currentVec;
 
     // Otherwise were pointing to an already rotated node which is not too

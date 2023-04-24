@@ -133,7 +133,7 @@ const double kDefaultNavigationBarHeight = 80;
 /// Navigation bar is a widget that lets the user navigate to different pages by
 /// tapping on any of its items. The items are laid out in a row and the bar
 /// itself is typically located at the bottom of the screen.
-/// Inspired from: https://m3.material.io/components/navigation-bar
+/// Inspired from: https://m3.material.io/components/navigation-bar.
 @JsonSerializable()
 class NavigationBarNode extends SceneNode
     with CustomPropertiesMixin, VariablePropertiesMixin {
@@ -188,7 +188,7 @@ class NavigationBarNode extends SceneNode
   }) {
     switch (properties.styleDefinition) {
       case StyleDefinition.material_2:
-        // Specs: https://material.io/components/bottom-navigation#specs
+        // Specs: https://material.io/components/bottom-navigation#specs.
         final props = properties as M2NavigationBarProperties;
         double maxIconSize = props.items.fold<double>(
             0,
@@ -199,15 +199,17 @@ class NavigationBarNode extends SceneNode
         double minHeight;
         if (props.labelBehavior ==
             MaterialNavigationBarLabelBehavior.alwaysHide) {
-          // top padding + bottom padding + icon size
+          // Top padding + bottom padding + icon size.
           minHeight = 16 + 16 + maxIconSize;
         } else {
-          // The amount that the selected icon is bigger than the unselected icons,
-          // (or zero if the selected icon is not bigger than the unselected icons).
+          // The amount that the selected icon is bigger than the unselected
+          // icons, (or zero if the selected icon is not bigger than the
+          // unselected icons).
           final double selectedIconDiff =
               max(props.selectedIconSize - props.unselectedIconSize, 0);
-          // The amount that the unselected icons are bigger than the selected icon,
-          // (or zero if the unselected icons are not any bigger than the selected icon).
+          // The amount that the unselected icons are bigger than the selected
+          // icon, (or zero if the unselected icons are not any bigger than the
+          // selected icon).
           // final double unselectedIconDiff =
           //     max(props.unselectedIconSize - props.selectedIconSize, 0);
 
@@ -244,7 +246,7 @@ class NavigationBarNode extends SceneNode
         return SizeC(0, max(minHeight, kDefaultBottomNavigationBarHeight) + 1);
 
       case StyleDefinition.material_3:
-        // Specs: https://m3.material.io/components/navigation-bar/specs#6f329e0c-c278-4ac8-9b02-1afcb2790ac3
+        // Specs: https://m3.material.io/components/navigation-bar/specs#6f329e0c-c278-4ac8-9b02-1afcb2790ac3.
         final props = properties as M3NavigationBarProperties;
         double maxIconSize = props.items.fold<double>(
             0,

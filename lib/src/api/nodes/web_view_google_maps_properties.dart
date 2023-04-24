@@ -28,12 +28,12 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
   /// Sets initial zoom level of the map.
   ///
   /// Values ranging from 0 (the whole world) to 21 (individual buildings).
-  /// The upper limit can vary depending on the map data available at
-  /// the selected location.
+  /// The upper limit can vary depending on the map data available at the
+  /// selected location.
   int? zoom;
 
-  /// (optional) Defines type of map tiles to load.
-  /// roadmap (default) or satellite
+  /// Defines type of map tiles to load.
+  /// [roadmap] (default) or [satellite].
   GoogleMapsMapType? mapType;
 
   /// Defines the language to use for UI elements and for the display of labels
@@ -68,8 +68,8 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
   /// to.
   late GoogleMapsMapMode mapMode;
 
-  /// Google Maps webviews are simply just <iframe> web elements that hold
-  /// a Google Maps URL in their src attribute.
+  /// Google Maps webviews are simply <iframe> web elements that hold a Google
+  /// Maps URL in their src attribute.
   ///
   /// This field helps isolate the URL from the rest of the processed [src]
   /// field.
@@ -82,7 +82,7 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
     this.mapType,
     this.language,
     this.region,
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -94,7 +94,7 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
     super.backgroundColor,
   });
 
-  /// Creates a new [GoogleMapsWebViewProperties] instance from a [json] map.
+  /// Creates a new [GoogleMapsWebViewProperties] instance from a JSON map.
   ///
   /// The [mapMode] is checked manually in order to return the most appropriate
   /// sub-type of [GoogleMapsWebViewProperties] instance.
@@ -174,7 +174,7 @@ class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
     super.language,
     super.region,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -210,7 +210,7 @@ class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   @override
   Map toJson() => _$PlacesGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a [json]
+  /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a JSON
   /// map.
   factory PlacesGoogleMapsWebViewProperties.fromJson(Map json) =>
       _$PlacesGoogleMapsWebViewPropertiesFromJson(json);
@@ -244,8 +244,8 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   @JsonKey(includeFromJson: false, includeToJson: false)
   late String label = 'Google Maps - View';
 
-  /// Creates a new [ViewGoogleMapsWebViewProperties] instance given an
-  /// [apiKey] and a [center].
+  /// Creates a new [ViewGoogleMapsWebViewProperties] instance given an [apiKey]
+  /// and a [center].
   ViewGoogleMapsWebViewProperties({
     required super.apiKey,
     required this.center,
@@ -254,7 +254,7 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
     super.language,
     super.region,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -290,8 +290,7 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   @override
   Map toJson() => _$ViewGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a [json]
-  /// map.
+  /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a JSON map.
   factory ViewGoogleMapsWebViewProperties.fromJson(Map json) =>
       _$ViewGoogleMapsWebViewPropertiesFromJson(json);
 
@@ -335,30 +334,30 @@ class DirectionsGoogleMapsWebViewProperties
   /// by using the pipe character (|) to separate places
   /// (e.g. Berlin,Germany|Paris,France).
   ///
-  /// You can specify up to 20 waypoints.
+  /// Up to 20 waypoints can be specified.
   List<String> waypoints;
 
   /// Defines the method of travel. If no mode is specified the Maps Embed API
   /// will show one or more of the most relevant modes for the specified route.
   ///
-  /// driving, walking (which prefers pedestrian paths and sidewalks,
-  /// where available), bicycling (which routes via bike paths and preferred
-  /// streets where available), transit, or flying.
+  /// [driving], [walking] (which prefers pedestrian paths and sidewalks,
+  /// where available), [bicycling] (which routes via bike paths and preferred
+  /// streets where available), [transit], or [flying].
   GoogleMapsDirectionsMode? mode;
 
-  /// Specifies features to avoid in directions. Note that this doesn't
-  /// preclude routes that include the restricted feature(s); it biases the
-  /// result to more favorable routes.
+  /// Specifies features to avoid in directions. Note that this doesn't preclude
+  /// routes that include the restricted feature(s); it biases the result to
+  /// more favorable routes.
   ///
-  /// tolls, ferries and/or highways. Separate multiple values with the pipe
-  /// character (e.g. avoid=tolls|highways).
+  /// [tolls], [ferries] and/or [highways]. Separate multiple values with the
+  /// pipe character (e.g. avoid=tolls|highways).
   Set<GoogleMapsDirectionsAvoid> avoid;
 
   /// Specifies measurement method, metric or imperial, when displaying
   /// distances in the results. If units are not specified, the origin country
   /// of the query determines the units to use.
   ///
-  /// metric or imperial
+  /// [metric] or [imperial]
   UnitSystem? units;
 
   /// Defines center of the map view.
@@ -390,7 +389,7 @@ class DirectionsGoogleMapsWebViewProperties
     super.language,
     super.region,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -448,8 +447,8 @@ class DirectionsGoogleMapsWebViewProperties
   @override
   Map toJson() => _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a JSON
+  /// map.
   factory DirectionsGoogleMapsWebViewProperties.fromJson(Map json) =>
       _$DirectionsGoogleMapsWebViewPropertiesFromJson(json);
 
@@ -471,31 +470,31 @@ class DirectionsGoogleMapsWebViewProperties
 @JsonSerializable()
 class StreetViewGoogleMapsWebViewProperties
     extends GoogleMapsWebViewProperties {
-  /// location accepts a latitude and a longitude as comma-separated
-  /// values (46.414382,10.013988). The API will display the panorama
-  /// photographed closest to this location.
+  /// [location] accepts a latitude and a longitude as comma-separated values
+  /// (46.414382,10.013988). The API will display the panorama photographed
+  /// closest to this location.
   ///
   /// Because Street View imagery is periodically refreshed, and photographs
   /// may be taken from slightly different positions each time, it's possible
-  /// that your location may snap to a different panorama when imagery
-  /// is updated.
+  /// that the location may snap to a different panorama when imagery is
+  /// updated.
   Vec? location;
 
-  /// pano is a specific panorama ID. If you specify a pano you may also
-  /// specify a location. The location will be only be used if the API cannot
-  /// find the panorama ID.
+  /// [pano] is a specific panorama ID. Location may also be specified with
+  /// panorama ID. The location will be only be used if the API cannot find the
+  /// panorama ID.
   String? pano;
 
-  /// Indicates the compass heading of the camera in degrees clockwise
-  /// from North.
+  /// Indicates the compass heading of the camera in degrees clockwise from
+  /// North.
   ///
-  /// Value in degrees from -180° to 360°
+  /// Value in degrees from -180° to 360°.
   int? heading;
 
-  /// specifies the angle, up or down, of the camera. Positive values will
+  /// Specifies the angle, up or down, of the camera. Positive values will
   /// angle the camera up, while negative values will angle the camera down.
-  /// The default pitch of 0° is set based on on the position of the camera
-  /// when the image was captured.
+  /// The default pitch of 0° is set based on on the position of the camera when
+  /// the image was captured.
   ///
   /// Because of this, a pitch of 0° is often, but not always, horizontal.
   ///
@@ -503,18 +502,18 @@ class StreetViewGoogleMapsWebViewProperties
   /// that is not horizontal.
   int? pitch;
 
-  /// determines the horizontal field of view of the image. It defaults to 90°.
+  /// Determines the horizontal field of view of the image. It defaults to 90°.
   /// When dealing with a fixed-size viewport the field of view is can be
   /// considered the zoom level, with smaller numbers indicating a higher
   /// level of zoom.
   ///
-  /// Value in degrees, with a range of 10° - 100°
+  /// Value in degrees, with a range of 10° - 100°.
   int? fov;
 
   /// Defines center of the map view.
   ///
-  /// Accepts comma-separated latitude and longitude value;
-  /// for example: 37.4218,-122.0840.
+  /// Accepts comma-separated latitude and longitude value.
+  /// Ex. [37.4218,-122.0840].
   Vec? center;
 
   @override
@@ -540,7 +539,7 @@ class StreetViewGoogleMapsWebViewProperties
     super.region,
     this.center,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -602,8 +601,8 @@ class StreetViewGoogleMapsWebViewProperties
   @override
   Map toJson() => _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a JSON
+  /// map.
   factory StreetViewGoogleMapsWebViewProperties.fromJson(Map json) =>
       _$StreetViewGoogleMapsWebViewPropertiesFromJson(json);
 
@@ -648,7 +647,7 @@ class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
     super.language,
     super.region,
 
-    // inherited
+    // Inherited.
     super.controlVerticalScrollGesture,
     super.controlHorizontalScrollGesture,
     super.controlScaleGesture,
@@ -685,8 +684,8 @@ class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   @override
   Map toJson() => _$SearchGoogleMapsWebViewPropertiesToJson(this);
 
-  /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a
-  /// [json] map.
+  /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a JSON
+  /// map.
   factory SearchGoogleMapsWebViewProperties.fromJson(Map json) =>
       _$SearchGoogleMapsWebViewPropertiesFromJson(json);
 

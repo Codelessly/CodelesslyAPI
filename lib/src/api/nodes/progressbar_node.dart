@@ -77,12 +77,12 @@ class ProgressBarNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // BlendMixin properties
+    // [BlendMixin] properties.
     double opacity = 1,
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
-    // custom props
+    // Custom properties.
     this.currentValue = 0,
     required this.properties,
     Map<String, String>? variables,
