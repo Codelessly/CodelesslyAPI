@@ -7,6 +7,7 @@ part of 'effect.dart';
 // **************************************************************************
 
 Effect _$EffectFromJson(Map json) => Effect(
+      id: json['id'] as String?,
       type: $enumDecode(_$EffectTypeEnumMap, json['type']),
       radius: (json['radius'] as num).toDouble(),
       visible: json['visible'] as bool? ?? true,
@@ -22,6 +23,7 @@ Effect _$EffectFromJson(Map json) => Effect(
 
 Map<String, dynamic> _$EffectToJson(Effect instance) {
   final val = <String, dynamic>{
+    'id': instance.id,
     'type': _$EffectTypeEnumMap[instance.type]!,
     'visible': instance.visible,
     'radius': instance.radius,
