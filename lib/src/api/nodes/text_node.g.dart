@@ -109,7 +109,11 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
+    'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'characters': instance.characters,
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
     'textAlignHorizontal':
         _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,

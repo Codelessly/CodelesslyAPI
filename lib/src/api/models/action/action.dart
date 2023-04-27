@@ -26,7 +26,10 @@ enum ActionType {
   setVariant,
 
   /// Call a custom function.
-  callFunction;
+  callFunction,
+
+  /// Call an API.
+  callApi;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -43,6 +46,8 @@ enum ActionType {
         return 'Set Variant';
       case ActionType.callFunction:
         return 'Call Function';
+      case ActionType.callApi:
+        return 'Call API';
     }
   }
 }
