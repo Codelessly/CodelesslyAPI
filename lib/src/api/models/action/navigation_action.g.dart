@@ -33,4 +33,5 @@ const _$ActionTypeEnumMap = {
   ActionType.setValue: 'setValue',
   ActionType.setVariant: 'setVariant',
   ActionType.callFunction: 'callFunction',
+  ActionType.callApi: 'callApi',
 };
