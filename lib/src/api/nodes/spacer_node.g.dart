@@ -30,10 +30,10 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
     )
       ..positioningMode =
           $enumDecode(_$PositioningModeEnumMap, json['positioningMode'])
+      ..aspectRatioLock = json['aspectRatioLock'] as bool
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
           .toList()
-      ..aspectRatioLock = json['aspectRatioLock'] as bool
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
@@ -48,9 +48,9 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
     'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
     'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
   };
