@@ -41,6 +41,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       imageName: json['imageName'] as String?,
       sourceWidth: (json['sourceWidth'] as num?)?.toDouble(),
       sourceHeight: (json['sourceHeight'] as num?)?.toDouble(),
+      assetID: json['assetID'] as String?,
       imageRepeat:
           $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
               ImageRepeatEnum.noRepeat,
@@ -69,6 +70,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) {
   writeNotNull('downloadUrl', instance.downloadUrl);
   writeNotNull('imageName', instance.imageName);
   writeNotNull('imageHash', instance.imageHash);
+  writeNotNull('assetID', instance.assetID);
   val['fit'] = _$FitEnumMap[instance.fit]!;
   val['alignment'] = instance.alignment.toJson();
   val['scaleX'] = instance.scaleX;
