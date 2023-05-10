@@ -113,6 +113,10 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// A reference to the GIF embedded in this node, if the image is a GIF.
   final String? imageHash;
 
+  /// Marks this image paint model as coming from a specific asset from the
+  /// asset library.
+  final String? assetID;
+
   /// The sizing behavior the image will use to fit inside its view.
   /// This is 1-1 with Flutter's [BoxFit].
   final Fit fit;
@@ -168,35 +172,35 @@ class PaintModel with EquatableMixin, SerializableMixin {
 
   /// Helper constructor for when a black paint is needed, like tests.
   static PaintModel get blackPaint => PaintModel.solid(
-    visible: true,
-    opacity: 1.0,
-    color: ColorRGB.black,
-  );
+        visible: true,
+        opacity: 1.0,
+        color: ColorRGB.black,
+      );
 
   /// Helper constructor for when a grey paint is needed, like tests.
   static PaintModel get greyPaint => PaintModel.solid(
-    visible: true,
-    opacity: 1.0,
-    color: ColorRGB.grey,
-  );
+        visible: true,
+        opacity: 1.0,
+        color: ColorRGB.grey,
+      );
 
   /// Helper constructor for when a white paint is needed, like tests.
   static PaintModel get whitePaint => PaintModel.solid(
-    visible: true,
-    opacity: 1.0,
-    color: ColorRGB.white,
-  );
+        visible: true,
+        opacity: 1.0,
+        color: ColorRGB.white,
+      );
 
   /// Helper constructor for when a gradient paint is needed, like tests.
   static PaintModel get linearPaint => PaintModel(
-    type: PaintType.gradientLinear,
-    visible: true,
-    opacity: 1.0,
-    gradientStops: const [
-      ColorStop(color: ColorRGBA.black, position: 0.0),
-      ColorStop(color: ColorRGBA.white, position: 1.0),
-    ],
-  );
+        type: PaintType.gradientLinear,
+        visible: true,
+        opacity: 1.0,
+        gradientStops: const [
+          ColorStop(color: ColorRGBA.black, position: 0.0),
+          ColorStop(color: ColorRGBA.white, position: 1.0),
+        ],
+      );
 
   /// Create a Solid Paint with only the required properties.
   PaintModel.solid({
@@ -222,7 +226,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         scaleY = 1,
         imageRepeat = ImageRepeatEnum.noRepeat,
         sourceWidth = null,
-        sourceHeight = null;
+        sourceHeight = null,
+        assetID = null;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -244,6 +249,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     this.imageName,
     required this.sourceWidth,
     required this.sourceHeight,
+    this.assetID,
   })  : assert(sourceWidth != null && sourceHeight != null,
             'Images must always provide their original size.'),
         id = id ?? generateId(),
@@ -276,7 +282,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         imageRepeat = ImageRepeatEnum.noRepeat,
         croppedImageURL = null,
         sourceWidth = null,
-        sourceHeight = null;
+        sourceHeight = null,
+        assetID = null;
 
   /// Creates [PaintModel] with radial gradient.
   PaintModel.radialGradient({
@@ -302,7 +309,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         croppedImageURL = null,
         imageRepeat = ImageRepeatEnum.noRepeat,
         sourceWidth = null,
-        sourceHeight = null;
+        sourceHeight = null,
+        assetID = null;
 
   /// Creates [PaintModel] with angular gradient.
   PaintModel.angularGradient({
@@ -328,7 +336,8 @@ class PaintModel with EquatableMixin, SerializableMixin {
         cropData = null,
         croppedImageURL = null,
         sourceWidth = null,
-        sourceHeight = null;
+        sourceHeight = null,
+        assetID = null;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -353,6 +362,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     this.imageName,
     this.sourceWidth,
     this.sourceHeight,
+    this.assetID,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
   }) : id = id ?? generateId();
 
@@ -370,6 +380,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     String? downloadUrl,
     String? imageName,
     String? imageHash,
+    String? assetID,
     Fit? fit,
     AlignmentModel? alignment,
     double? scaleX,
@@ -407,6 +418,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         cropData: clearCropData ? null : cropData ?? this.cropData,
         croppedImageURL:
             clearCropData ? null : croppedImageURL ?? this.croppedImageURL,
+        assetID: assetID ?? this.assetID,
         imageRepeat: imageRepeat ?? this.imageRepeat,
       );
 
@@ -455,6 +467,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
           imageName: imageName,
           imageRepeat: imageRepeat,
           imageTransform: imageTransform,
+          assetID: assetID,
         );
       case PaintType.emoji:
         throw Exception('Paint type $type is not supported');
@@ -484,6 +497,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         sourceWidth,
         sourceHeight,
         imageRepeat,
+        assetID,
       ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
