@@ -739,16 +739,16 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     switch (axis) {
       case AxisC.horizontal:
         if (resolvedConstraints.minWidth != null) {
-          final constrainedMinWidth =
-              (minInnerSize.minWidth ?? 0) + (resolvedConstraints.minWidth ?? 0);
+          final constrainedMinWidth = (minInnerSize.minWidth ?? 0) +
+              (resolvedConstraints.minWidth ?? 0);
 
           return constrainedMinWidth + horizontalEdgeSpace;
         }
         return value;
       case AxisC.vertical:
         if (resolvedConstraints.minHeight != null) {
-          final constrainedMinHeight =
-              (minInnerSize.minHeight ?? 0) + (resolvedConstraints.minHeight ?? 0);
+          final constrainedMinHeight = (minInnerSize.minHeight ?? 0) +
+              (resolvedConstraints.minHeight ?? 0);
 
           return constrainedMinHeight + verticalEdgeSpace;
         }

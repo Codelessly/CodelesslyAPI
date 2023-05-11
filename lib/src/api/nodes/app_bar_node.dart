@@ -132,7 +132,7 @@ class AppBarProperties with SerializableMixin, EquatableMixin {
     this.automaticallyImplyLeading = true,
     this.titleSpacing = 16,
     this.shadowColor = ColorRGBA.black,
-  }): titleStyle = titleStyle ?? TextProp(fontSize: 20);
+  }) : titleStyle = titleStyle ?? TextProp(fontSize: 20);
 
   /// Duplicate this [AppBarProperties] instance with the given data overrides.
   AppBarProperties copyWith({
