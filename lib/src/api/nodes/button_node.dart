@@ -252,7 +252,8 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
     ColorRGBA? borderColor,
     CShapeBorder shape = CShapeBorder.roundedRectangle,
     double? borderWidth,
-  }) : labelStyle = labelStyle ?? TextProp.general(fills: []) {
+  }) : labelStyle =
+            labelStyle ?? TextProp.general(fills: List.empty(growable: true)) {
     setShapeBorderMixin(
       shape: shape,
       cornerRadius: cornerRadius,

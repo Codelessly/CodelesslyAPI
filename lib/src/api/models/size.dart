@@ -60,10 +60,12 @@ class SizeC with SerializableMixin, EquatableMixin {
   SizeC scaleTo(SizeC size) => SizeC(width / size.width, height / size.height);
 
   /// Adds given [size] to this size and returns the result.
-  SizeC operator +(SizeC size) => SizeC(width + size.width, height + size.height);
+  SizeC operator +(SizeC size) =>
+      SizeC(width + size.width, height + size.height);
 
   /// Subtracts given [size] from this size and returns the result.
-  SizeC operator -(SizeC size) => SizeC(width - size.width, height - size.height);
+  SizeC operator -(SizeC size) =>
+      SizeC(width - size.width, height - size.height);
 
   /// Returns scaled up size by given [scale].
   SizeC operator *(double scale) => SizeC(width * scale, height * scale);
