@@ -394,6 +394,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
     String? id,
+    bool forceSourceSize = false,
   }) =>
       PaintModel(
         id: id ?? this.id,
@@ -413,8 +414,10 @@ class PaintModel with EquatableMixin, SerializableMixin {
         alignment: alignment ?? this.alignment,
         scaleX: scaleX ?? this.scaleX,
         scaleY: scaleY ?? this.scaleY,
-        sourceWidth: sourceWidth ?? this.sourceWidth,
-        sourceHeight: sourceHeight ?? this.sourceHeight,
+        sourceWidth:
+            forceSourceSize ? sourceWidth : sourceWidth ?? this.sourceWidth,
+        sourceHeight:
+            forceSourceSize ? sourceHeight : sourceHeight ?? this.sourceHeight,
         cropData: clearCropData ? null : cropData ?? this.cropData,
         croppedImageURL:
             clearCropData ? null : croppedImageURL ?? this.croppedImageURL,
