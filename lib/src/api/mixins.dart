@@ -189,6 +189,12 @@ mixin ReactionMixin {
       [TriggerType.click, TriggerType.longPress];
 }
 
+/// A mixin that holds the children of the node that are reactive, i.e., can
+/// perform actions on triggers. For ex. [NavigationBarNode].
+mixin ParentReactionMixin {
+  List<ReactionMixin> get reactiveChildren;
+}
+
 /// A mixin that allows the node to have children.
 ///
 /// To use, include the mixin in the class definition and call
