@@ -1,19 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'call_function_action.dart';
+part of 'set_variable_action.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-CallFunctionAction _$CallFunctionActionFromJson(Map json) => CallFunctionAction(
-      name: json['name'] as String,
+SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
+      variable: VariableData.fromJson(
+          Map<String, dynamic>.from(json['variable'] as Map)),
+      newValue: json['newValue'] as String,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) =>
+Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
     <String, dynamic>{
       'type': _$ActionTypeEnumMap[instance.type]!,
-      'name': instance.name,
+      'variable': instance.variable.toJson(),
+      'newValue': instance.newValue,
     };
 
 const _$ActionTypeEnumMap = {
