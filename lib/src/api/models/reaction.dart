@@ -66,6 +66,8 @@ ActionModel actionFromJson(Map json) {
       return SetValueAction.fromJson(json);
     case ActionType.setVariant:
       return SetVariantAction.fromJson(json);
+    case ActionType.setVariable:
+      return SetVariableAction.fromJson(json);
     case ActionType.callFunction:
       return CallFunctionAction.fromJson(json);
     case ActionType.callApi:

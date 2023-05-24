@@ -25,6 +25,9 @@ enum ActionType {
   /// Set a variant.
   setVariant,
 
+  /// Set a variable.
+  setVariable,
+
   /// Call a custom function.
   callFunction,
 
@@ -44,6 +47,8 @@ enum ActionType {
         return 'Set Value';
       case ActionType.setVariant:
         return 'Set Variant';
+      case ActionType.setVariable:
+        return 'Set Variable';
       case ActionType.callFunction:
         return 'Call Function';
       case ActionType.callApi:

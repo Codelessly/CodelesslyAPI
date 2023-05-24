@@ -21,6 +21,7 @@ const _$ActionTypeEnumMap = {
   ActionType.submit: 'submit',
   ActionType.setValue: 'setValue',
   ActionType.setVariant: 'setVariant',
+  ActionType.setVariable: 'setVariable',
   ActionType.callFunction: 'callFunction',
   ActionType.callApi: 'callApi',
 };
