@@ -21,7 +21,7 @@ const double kAppBarDefaultHeight = 56;
 /// in Flutter for more details.
 @JsonSerializable()
 class AppBarNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin, VariablePropertiesMixin, ParentReactionMixin {
   @override
   final String type = 'appBar';
 
@@ -53,6 +53,16 @@ class AppBarNode extends SceneNode
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.click];
+
+  @override
+  List<ReactionMixin> get reactiveChildren {
+    final List<ReactionMixin> items = [...properties.actions];
+    if (properties.leading.icon.show &&
+        properties.automaticallyImplyLeading == false) {
+      items.add(properties.leading);
+    }
+    return items;
+  }
 
   /// Creates a new [AppBarNode] instance from a JSON data.
   factory AppBarNode.fromJson(Map json) => _$AppBarNodeFromJson(json);
