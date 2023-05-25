@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'models/condition.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
@@ -1035,4 +1036,8 @@ int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 mixin SerializableMixin {
   /// Returns a serializable map representation of the object.
   Map toJson();
+}
+
+mixin ConditionsMixin {
+  List<BaseCondition> conditions = [];
 }
