@@ -119,6 +119,9 @@ class TextNode extends SceneNode
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
+    InkWellModel? inkWell,
+
+    // [VariablePropertiesMixin] properties.
     Map<String, String>? variables,
     Map<String, List<String>>? multipleVariables,
   }) {
@@ -138,6 +141,7 @@ class TextNode extends SceneNode
       isMask: isMask,
       effects: effects,
       blendMode: blendMode,
+      inkWell: inkWell,
     );
 
     setVariablesMixin(

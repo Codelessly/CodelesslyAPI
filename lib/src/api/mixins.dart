@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import 'models/ink_well.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
@@ -40,6 +41,8 @@ abstract class DefaultShapeNode extends SceneNode
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
+    InkWellModel? inkWell,
+
     // [GeometryMixin] properties.
     List<PaintModel> fills = const [],
     List<PaintModel> strokes = const [],
@@ -55,6 +58,7 @@ abstract class DefaultShapeNode extends SceneNode
       effects: [...effects],
       isMask: isMask,
       blendMode: blendMode,
+      inkWell: inkWell,
     );
 
     setGeometryMixin(
@@ -242,22 +246,27 @@ mixin BlendMixin on BaseNode {
   /// List of effects applied to the node.
   late List<Effect> effects;
 
+  /// Whether to use ink well on this node, along with its properties.
+  late InkWellModel? inkWell;
+
   /// Sets the blend properties of the node.
   void setBlendMixin({
     required double opacity,
     required bool isMask,
     required List<Effect> effects,
     required BlendModeC blendMode,
+    required InkWellModel? inkWell,
   }) {
     this.opacity = opacity;
     this.isMask = isMask;
     this.effects = effects;
     this.blendMode = blendMode;
+    this.inkWell = inkWell;
   }
 
   @override
   String toString() =>
-      "${super.toString()}\n Blend(${"opacity: $opacity, isMask: $isMask"})";
+      "${super.toString()}\n Blend(${"opacity: $opacity, isMask: $isMask, effects: $effects, blendMode: $blendMode, inkWell: $inkWell"})";
 }
 
 /// Represents the type of sizing a node can have on either axis.

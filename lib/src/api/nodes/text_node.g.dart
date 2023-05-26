@@ -82,6 +82,10 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
+      inkWell: json['inkWell'] == null
+          ? null
+          : InkWellModel.fromJson(
+              Map<String, dynamic>.from(json['inkWell'] as Map)),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -108,18 +112,18 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
-    'characters': instance.characters,
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'characters': instance.characters,
     'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
     'textAlignHorizontal':
         _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
     'textAlignVertical':
         _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
     'paragraphIndent': instance.paragraphIndent,
-    'paragraphSpacing': instance.paragraphSpacing,
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
+    'paragraphSpacing': instance.paragraphSpacing,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -139,6 +143,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['variables'] = instance.variables;
   val['multipleVariables'] = instance.multipleVariables;
   val['type'] = instance.type;

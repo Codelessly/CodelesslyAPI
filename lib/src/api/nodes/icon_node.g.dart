@@ -55,6 +55,10 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
+      inkWell: json['inkWell'] == null
+          ? null
+          : InkWellModel.fromJson(
+              Map<String, dynamic>.from(json['inkWell'] as Map)),
     )
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
@@ -75,8 +79,8 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -97,6 +101,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['icon'] = instance.icon.toJson();
   val['type'] = instance.type;
   return val;

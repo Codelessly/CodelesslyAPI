@@ -113,6 +113,10 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..inkWell = json['inkWell'] == null
+          ? null
+          : InkWellModel.fromJson(
+              Map<String, dynamic>.from(json['inkWell'] as Map))
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
@@ -132,8 +136,8 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -154,6 +158,7 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['fills'] = instance.fills.map((e) => e.toJson()).toList();
   val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
   val['strokeWeight'] = instance.strokeWeight;
