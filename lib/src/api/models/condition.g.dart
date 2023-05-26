@@ -45,24 +45,18 @@ Map<String, dynamic> _$VariablePartToJson(VariablePart instance) {
 
 Expression _$ExpressionFromJson(Map json) => Expression(
       operator: $enumDecode(_$ConditionOperationEnumMap, json['operator']),
-      leftPart: json['leftPart'],
-      rightPart: json['rightPart'],
+      leftPart: ExpressionPart.fromJson(
+          Map<String, dynamic>.from(json['leftPart'] as Map)),
+      rightPart: ExpressionPart.fromJson(
+          Map<String, dynamic>.from(json['rightPart'] as Map)),
     );
 
-Map<String, dynamic> _$ExpressionToJson(Expression instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('leftPart', instance.leftPart);
-  writeNotNull('rightPart', instance.rightPart);
-  val['operator'] = _$ConditionOperationEnumMap[instance.operator]!;
-  return val;
-}
+Map<String, dynamic> _$ExpressionToJson(Expression instance) =>
+    <String, dynamic>{
+      'leftPart': instance.leftPart.toJson(),
+      'rightPart': instance.rightPart.toJson(),
+      'operator': _$ConditionOperationEnumMap[instance.operator]!,
+    };
 
 const _$ConditionOperationEnumMap = {
   ConditionOperation.EqualsTo: 'EqualsTo',
