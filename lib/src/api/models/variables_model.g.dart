@@ -34,52 +34,24 @@ const _$VariableTypeEnumMap = {
   VariableType.list: 'list',
 };
 
-ProjectVariables _$ProjectVariablesFromJson(Map json) => ProjectVariables(
-      id: json['id'] as String,
-      owner: json['owner'] as String? ?? '',
-      globalVariables: (json['globalVariables'] as Map?)?.map(
-        (k, e) => MapEntry(k as String,
-            VariableData.fromJson(Map<String, dynamic>.from(e as Map))),
-      ),
-      pageVariables:
-          pageVariablesFromJson(json['pageVariables'] as Map<String, dynamic>),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
-    );
-
-Map<String, dynamic> _$ProjectVariablesToJson(ProjectVariables instance) =>
-    <String, dynamic>{
-      'globalVariables':
-          instance.globalVariables.map((k, e) => MapEntry(k, e.toJson())),
-      'pageVariables': pageVariablesToJson(instance.pageVariables),
-      'id': instance.id,
-      'owner': instance.owner,
-      'lastUpdated': dateToJson(instance.lastUpdated),
-    };
-
-PageVariables _$PageVariablesFromJson(Map json) => PageVariables(
-      id: json['id'] as String,
-      variables:
-          canvasVariablesFromJson(json['variables'] as Map<String, dynamic>),
-    );
-
-Map<String, dynamic> _$PageVariablesToJson(PageVariables instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'variables': canvasVariablesToJson(instance.variables),
-    };
-
 CanvasVariables _$CanvasVariablesFromJson(Map json) => CanvasVariables(
       id: json['id'] as String,
       variables: (json['variables'] as Map).map(
         (k, e) => MapEntry(k as String,
             CanvasVariableData.fromJson(Map<String, dynamic>.from(e as Map))),
       ),
+      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      projectId: json['project'] as String,
+      owner: json['owner'] as String,
     );
 
 Map<String, dynamic> _$CanvasVariablesToJson(CanvasVariables instance) =>
     <String, dynamic>{
       'id': instance.id,
       'variables': instance.variables.map((k, e) => MapEntry(k, e.toJson())),
+      'lastUpdated': dateToJson(instance.lastUpdated),
+      'owner': instance.owner,
+      'project': instance.projectId,
     };
 
 CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
