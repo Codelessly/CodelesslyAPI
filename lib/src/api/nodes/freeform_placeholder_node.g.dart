@@ -83,6 +83,10 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..inkWell = json['inkWell'] == null
+          ? null
+          : InkWellModel.fromJson(
+              Map<String, dynamic>.from(json['inkWell'] as Map))
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
@@ -98,8 +102,8 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -120,6 +124,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['fills'] = instance.fills.map((e) => e.toJson()).toList();
   val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
   val['strokeWeight'] = instance.strokeWeight;

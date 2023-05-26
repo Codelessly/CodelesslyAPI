@@ -75,12 +75,14 @@ class IconNode extends SceneNode
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
+    InkWellModel? inkWell,
   }) {
     setBlendMixin(
       opacity: opacity,
       isMask: isMask,
       effects: effects,
       blendMode: blendMode,
+      inkWell: inkWell,
     );
     setSingleColorMixin(color: color);
   }
