@@ -568,6 +568,8 @@ class InnerNodeBox extends NodeBox {
     assert(y.isFinite, 'y is not finite. Value: $y');
     assert(width.isFinite, 'width is not finite. Value: $width');
     assert(height.isFinite, 'height is not finite. Value: $height');
+    assert(width.isNegative == false, 'width is negative. Value: $width');
+    assert(height.isNegative == false, 'height is negative. Value: $height');
     assert(edgeInsets.l.isFinite,
         'edgeInsets.l is not finite. Value: ${edgeInsets.l}');
     assert(edgeInsets.t.isFinite,
