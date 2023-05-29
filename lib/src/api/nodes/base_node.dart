@@ -606,7 +606,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   ///
   /// [horizontalFit] and [verticalFit] are used to determine what type of
   /// numbers [internalConstraints] should use. It will normally use this
-  /// node's [horizontalFit] and [verticalFit] but they can be overriden
+  /// node's [horizontalFit] and [verticalFit] but they can be overridden
   ///
   /// Returns the constrained value that cannot exceed the total constraints of
   /// this node.
