@@ -88,6 +88,15 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
           const [],
       clipsContent: json['clipsContent'] as bool? ?? false,
     )
+      ..variables = (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {}
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
@@ -99,6 +108,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
 
 Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,

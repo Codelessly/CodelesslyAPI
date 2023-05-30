@@ -14,7 +14,6 @@ class PageViewNode extends SinglePlaceholderNode
     with
         ScrollableMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin,
         ClipMixin,
         IsolatedMixin {
   @override
@@ -49,7 +48,7 @@ class PageViewNode extends SinglePlaceholderNode
     super.reactions,
     required this.properties,
     required List<String> children,
-    Map<String, String>? variables,
+    super.variables,
     bool clipsContent = true,
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
@@ -64,7 +63,6 @@ class PageViewNode extends SinglePlaceholderNode
           deniedTypes: ['pageView'],
         ) {
     setChildrenMixin(children: children);
-    setVariablesMixin(variables: variables);
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(

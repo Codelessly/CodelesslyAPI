@@ -21,7 +21,7 @@ const double kRadioDefaultSize = 32;
 /// in Flutter for more details.
 @JsonSerializable()
 class RadioNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin, ScalableMixin {
+    with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'radio';
 
@@ -81,10 +81,8 @@ class RadioNode extends SceneNode
     super.constraints,
     super.edgePins,
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+  });
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.click];

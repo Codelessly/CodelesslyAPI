@@ -52,18 +52,18 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
           const [],
       children:
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
-    )
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
-      ..variables = (json['variables'] as Map?)?.map(
+      variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
-          {}
-      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+          {},
+      multipleVariables: (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
-          {}
+          {},
+    )
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..rowColumnType =
           $enumDecode(_$RowColumnTypeEnumMap, json['rowColumnType'])
       ..mainAxisAlignment =
@@ -74,6 +74,8 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
 
 Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -102,8 +104,6 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
   writeNotNull('widthFactor', instance.widthFactor);
   writeNotNull('heightFactor', instance.heightFactor);
   val['children'] = instance.children;
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
   val['mainAxisAlignment'] =
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;

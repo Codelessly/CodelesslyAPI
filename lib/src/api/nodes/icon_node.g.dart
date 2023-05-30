@@ -60,6 +60,15 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map)),
     )
+      ..variables = (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {}
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
           .toList()
@@ -69,6 +78,8 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,

@@ -20,8 +20,7 @@ const double kProgressBarDefaultHeight = 10;
 /// Progress bar is a widget that displays the current progress of an ongoing
 /// process. For example, an image being downloaded.
 @JsonSerializable()
-class ProgressBarNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'progressBar';
 
@@ -85,8 +84,8 @@ class ProgressBarNode extends SceneNode
     // Custom properties.
     this.currentValue = 0,
     required this.properties,
-    Map<String, String>? variables,
-    Map<String, List<String>>? multipleVariables,
+    super.variables,
+    super.multipleVariables,
   }) {
     setVariablesMixin(
         variables: variables, multipleVariables: multipleVariables);

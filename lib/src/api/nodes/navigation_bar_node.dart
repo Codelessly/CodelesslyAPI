@@ -136,7 +136,7 @@ const double kDefaultNavigationBarHeight = 80;
 /// Inspired from: https://m3.material.io/components/navigation-bar.
 @JsonSerializable()
 class NavigationBarNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin, ParentReactionMixin {
+    with CustomPropertiesMixin, ParentReactionMixin {
   @override
   final String type = 'navigationBar';
 
@@ -169,6 +169,8 @@ class NavigationBarNode extends SceneNode
     super.positioningMode,
     this.currentIndex = 0,
     required this.properties,
+    super.variables,
+    super.multipleVariables,
   });
 
   @override

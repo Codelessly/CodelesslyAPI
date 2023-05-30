@@ -24,7 +24,7 @@ const double kSwitchDefaultWidth = 59;
 /// in Flutter for more details.
 @JsonSerializable()
 class SwitchNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin, ScalableMixin {
+    with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'switch';
 
@@ -83,10 +83,8 @@ class SwitchNode extends SceneNode
     super.edgePins,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+  });
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];

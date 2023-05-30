@@ -46,7 +46,7 @@ const double kSliderDefaultOverlayOpacity = 0.12;
 /// in Flutter for more details.
 @JsonSerializable()
 class SliderNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin {
   @override
   final String type = 'slider';
 
@@ -101,10 +101,9 @@ class SliderNode extends SceneNode
     super.edgePins,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+    super.multipleVariables,
+  });
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];

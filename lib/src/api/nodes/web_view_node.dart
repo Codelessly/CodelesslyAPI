@@ -20,7 +20,7 @@ part 'web_view_node.g.dart';
 /// This node utilizes the [webview_flutter] package.
 @JsonSerializable()
 class WebViewNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin {
   @override
   final String type = 'webView';
 
@@ -60,10 +60,8 @@ class WebViewNode extends SceneNode
     super.edgePins,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+  });
 
   /// Creates a new [WebViewNode] instance from a JSON map.
   factory WebViewNode.fromJson(Map json) => _$WebViewNodeFromJson(json);

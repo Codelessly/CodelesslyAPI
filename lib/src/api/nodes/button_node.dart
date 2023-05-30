@@ -61,7 +61,7 @@ enum ButtonTypeEnum {
 /// more details.
 @JsonSerializable()
 class ButtonNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin {
   @override
   final String type = 'button';
 
@@ -127,12 +127,9 @@ class ButtonNode extends SceneNode
     super.parentID,
     super.positioningMode,
     required this.properties,
-    Map<String, String>? variables,
-    Map<String, List<String>>? multipleVariables,
-  }) {
-    setVariablesMixin(
-        variables: variables, multipleVariables: multipleVariables);
-  }
+    super.variables,
+    super.multipleVariables,
+  });
 
   @override
   BoxConstraintsModel internalConstraints({

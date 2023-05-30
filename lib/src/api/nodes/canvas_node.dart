@@ -19,8 +19,7 @@ class CanvasNode extends ParentNode
         RowColumnMixin,
         IsolatedMixin,
         ScrollableMixin,
-        CustomPropertiesMixin,
-        VariablePropertiesMixin {
+        CustomPropertiesMixin {
   @override
   final String type = 'canvas';
 

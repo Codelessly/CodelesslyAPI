@@ -90,6 +90,15 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
     )
+      ..variables = (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {}
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
@@ -100,6 +109,8 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,

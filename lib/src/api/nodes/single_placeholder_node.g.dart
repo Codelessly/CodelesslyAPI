@@ -56,6 +56,15 @@ SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           const [],
+      variables: (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {},
+      multipleVariables: (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {},
       children:
           (json['children'] as List<dynamic>).map((e) => e as String).toList(),
     )
@@ -66,6 +75,9 @@ SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$SinglePlaceholderNodeToJson(
     SinglePlaceholderNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,

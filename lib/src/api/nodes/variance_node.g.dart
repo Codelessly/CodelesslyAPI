@@ -51,6 +51,15 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
           const [],
       currentVariantId: json['currentVariantId'] as String?,
     )
+      ..variables = (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {}
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
@@ -66,6 +75,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
 
 Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
