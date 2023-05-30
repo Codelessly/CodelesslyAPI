@@ -19,7 +19,7 @@ part 'floating_action_button_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class FloatingActionButtonNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin {
   @override
   final String type = 'floatingActionButton';
 
@@ -68,10 +68,9 @@ class FloatingActionButtonNode extends SceneNode
     super.edgePins,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+    super.multipleVariables,
+  });
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.click];

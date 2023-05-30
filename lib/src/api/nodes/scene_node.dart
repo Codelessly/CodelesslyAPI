@@ -30,6 +30,8 @@ abstract class SceneNode extends BaseNode
     super.positioningMode,
     super.parentID,
     List<Reaction> reactions = const [],
+    super.variables,
+    super.multipleVariables,
   }) {
     setReactionMixin([...reactions]);
   }

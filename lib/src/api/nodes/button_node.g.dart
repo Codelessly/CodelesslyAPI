@@ -63,6 +63,8 @@ ButtonNode _$ButtonNodeFromJson(Map json) => ButtonNode(
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -90,8 +92,6 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) {
 
   writeNotNull('widthFactor', instance.widthFactor);
   writeNotNull('heightFactor', instance.heightFactor);
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;

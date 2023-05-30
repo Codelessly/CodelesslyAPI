@@ -22,7 +22,6 @@ class ExpansionTileNode extends SceneNode
         ChildrenMixin,
         RowColumnMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin,
         IsolatedMixin {
   @override
   final String type = 'expansionTile';
@@ -73,6 +72,8 @@ class ExpansionTileNode extends SceneNode
     super.parentID,
     super.reactions,
     required List<String> children,
+    super.variables,
+    super.multipleVariables,
   }) {
     setChildrenMixin(children: children);
     setRowColumnMixin(

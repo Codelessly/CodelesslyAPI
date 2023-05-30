@@ -28,7 +28,8 @@ bool isTestLayout = false;
 /// If you wish to update the values of a node, it is highly recommended you
 /// use the [update] extension method or the [updateNode] method inside the
 /// [NodeProcessor] class.
-abstract class BaseNode with SerializableMixin, EquatableMixin {
+abstract class BaseNode
+    with SerializableMixin, EquatableMixin, VariablePropertiesMixin {
   /// [type] is a string representation for the type of this node. It is a
   /// unique key that this node class uses for static registration. It is
   /// usually the lowerCamelCase of the class' name. Overriding [type] is
@@ -383,6 +384,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
     this.parentID = '',
     this.widthFactor,
     this.heightFactor,
+    Map<String, String>? variables,
+    Map<String, List<String>>? multipleVariables,
   })  : _basicBoxLocal = basicBoxLocal,
         _rotationDegrees = rotationDegrees,
         globalRotationDegrees = rotationDegrees,
@@ -409,6 +412,8 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
 
     NodeProcessor._computeInnerBoxLocal(this);
     NodeProcessor._computeInnerBoxGlobal(this);
+    setVariablesMixin(
+        variables: variables, multipleVariables: multipleVariables);
   }
 
   /// The minimum internal size is the size that this node

@@ -48,7 +48,7 @@ class WidthRange with SerializableMixin implements EquatableMixin {
 /// Flutter for more details.
 @JsonSerializable()
 class TextNode extends SceneNode
-    with BlendMixin, TextMixin, VariablePropertiesMixin, FontMixin {
+    with BlendMixin, TextMixin, FontMixin {
   @override
   final String type = 'text';
 
@@ -119,11 +119,9 @@ class TextNode extends SceneNode
     bool isMask = false,
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
+    super.variables,
+    super.multipleVariables,
     InkWellModel? inkWell,
-
-    // [VariablePropertiesMixin] properties.
-    Map<String, String>? variables,
-    Map<String, List<String>>? multipleVariables,
   }) {
     setTextMixin(
       characters: characters,
@@ -143,9 +141,6 @@ class TextNode extends SceneNode
       blendMode: blendMode,
       inkWell: inkWell,
     );
-
-    setVariablesMixin(
-        variables: variables, multipleVariables: multipleVariables);
   }
 
   @override

@@ -24,7 +24,7 @@ enum EmbeddedVideoSource {
 /// Source of the video can be any one of the [EmbeddedVideoSource] values.
 @JsonSerializable()
 class EmbeddedVideoNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin {
+    with CustomPropertiesMixin {
   @override
   final String type = 'embeddedVideo';
 
@@ -71,10 +71,8 @@ class EmbeddedVideoNode extends SceneNode
     super.edgePins,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
-  }) {
-    setVariablesMixin(variables: variables);
-  }
+    super.variables,
+  });
 
   /// Creates a [EmbeddedVideoNode] from a JSON object.
   factory EmbeddedVideoNode.fromJson(Map json) =>

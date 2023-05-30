@@ -28,6 +28,15 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
     )
+      ..variables = (json['variables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e as String),
+          ) ??
+          {}
+      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(k as String,
+                (e as List<dynamic>).map((e) => e as String).toList()),
+          ) ??
+          {}
       ..positioningMode =
           $enumDecode(_$PositioningModeEnumMap, json['positioningMode'])
       ..aspectRatioLock = json['aspectRatioLock'] as bool
@@ -40,6 +49,8 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
 
 Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,

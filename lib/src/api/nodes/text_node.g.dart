@@ -82,10 +82,6 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
-      inkWell: json['inkWell'] == null
-          ? null
-          : InkWellModel.fromJson(
-              Map<String, dynamic>.from(json['inkWell'] as Map)),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -102,6 +98,8 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -112,17 +110,16 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
     'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'alignment': instance.alignment.toJson(),
     'characters': instance.characters,
     'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+    'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'textAlignHorizontal':
         _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
     'textAlignVertical':
         _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
     'paragraphIndent': instance.paragraphIndent,
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'paragraphSpacing': instance.paragraphSpacing,
   };
 
@@ -134,6 +131,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
 
   writeNotNull('maxLines', instance.maxLines);
   val['overflow'] = _$TextOverflowCEnumMap[instance.overflow]!;
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   val['margin'] = instance.margin.toJson();
   val['padding'] = instance.padding.toJson();
   val['rotation'] = instance.rotationDegrees;
@@ -143,9 +141,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
-  writeNotNull('inkWell', instance.inkWell?.toJson());
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['type'] = instance.type;
   return val;
 }

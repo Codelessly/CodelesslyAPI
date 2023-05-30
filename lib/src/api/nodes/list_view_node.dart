@@ -13,7 +13,6 @@ class ListViewNode extends SinglePlaceholderNode
     with
         ScrollableMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin,
         ClipMixin,
         IsolatedMixin {
   @override
@@ -60,7 +59,8 @@ class ListViewNode extends SinglePlaceholderNode
     super.reactions,
     required this.properties,
     required List<String> children,
-    Map<String, String>? variables,
+    super.variables,
+    super.multipleVariables,
     bool clipsContent = true,
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
@@ -77,7 +77,6 @@ class ListViewNode extends SinglePlaceholderNode
           ],
         ) {
     setChildrenMixin(children: children);
-    setVariablesMixin(variables: variables);
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(

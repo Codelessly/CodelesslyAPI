@@ -29,7 +29,7 @@ const double kCheckboxDefaultSize = 32;
 /// in Flutter for more details.
 @JsonSerializable()
 class CheckboxNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin, ScalableMixin {
+    with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'checkbox';
 
@@ -93,10 +93,9 @@ class CheckboxNode extends SceneNode
     BlendModeC blendMode = BlendModeC.srcOver,
     // Custom properties.
     required this.properties,
-    Map<String, String>? variables,
+    super.variables,
   }) {
     this.value = properties.tristate ? value : (value ?? false);
-    setVariablesMixin(variables: variables);
   }
 
   @override

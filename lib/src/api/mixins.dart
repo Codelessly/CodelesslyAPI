@@ -4,7 +4,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'models/condition.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
@@ -794,7 +793,7 @@ mixin ScalableMixin on BaseNode {
 
 /// A mixin that allows a node to store variables for its properties so that
 /// value of those properties can be retrieved from those variables if present.
-mixin VariablePropertiesMixin on BaseNode {
+mixin VariablePropertiesMixin {
   /// property_name -> variable_name
   @JsonKey(defaultValue: {})
   Map<String, String> variables = {};
@@ -1038,6 +1037,8 @@ mixin SerializableMixin {
   Map toJson();
 }
 
+/// A mixin that adds the ability to add conditions to a node.
 mixin ConditionsMixin {
+  /// List of conditions that are applied to this node.
   List<BaseCondition> conditions = [];
 }
