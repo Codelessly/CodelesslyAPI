@@ -51,6 +51,20 @@ enum ConditionOperation {
         return 'less than';
     }
   }
+
+  /// short description of the operation
+  String get sign {
+    switch (this) {
+      case ConditionOperation.EqualsTo:
+        return '==';
+      case ConditionOperation.NotEqualsTo:
+        return '!=';
+      case ConditionOperation.GreaterThan:
+        return '>';
+      case ConditionOperation.LessThan:
+        return '<';
+    }
+  }
 }
 
 /// join operator for complex conditions
