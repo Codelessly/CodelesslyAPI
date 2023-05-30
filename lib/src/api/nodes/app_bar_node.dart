@@ -21,7 +21,7 @@ const double kAppBarDefaultHeight = 56;
 /// in Flutter for more details.
 @JsonSerializable()
 class AppBarNode extends SceneNode
-    with CustomPropertiesMixin, VariablePropertiesMixin, ParentReactionMixin {
+    with CustomPropertiesMixin, ParentReactionMixin {
   @override
   final String type = 'appBar';
 
@@ -48,6 +48,8 @@ class AppBarNode extends SceneNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
+    super.variables,
+    super.multipleVariables,
     required this.properties,
   });
 

@@ -64,6 +64,9 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
 
 Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -91,8 +94,6 @@ Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) {
 
   writeNotNull('widthFactor', instance.widthFactor);
   writeNotNull('heightFactor', instance.heightFactor);
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   val['currentValue'] = instance.currentValue;

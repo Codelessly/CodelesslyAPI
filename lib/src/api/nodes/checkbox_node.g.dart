@@ -53,17 +53,19 @@ CheckboxNode _$CheckboxNodeFromJson(Map json) => CheckboxNode(
           ) ??
           {},
     )
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$CheckboxNodeToJson(CheckboxNode instance) {
   final val = <String, dynamic>{
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -91,8 +93,6 @@ Map<String, dynamic> _$CheckboxNodeToJson(CheckboxNode instance) {
 
   writeNotNull('widthFactor', instance.widthFactor);
   writeNotNull('heightFactor', instance.heightFactor);
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('value', instance.value);

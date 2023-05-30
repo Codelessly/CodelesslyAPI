@@ -111,21 +111,20 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
           ) ??
           {},
     )
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
-      ..inkWell = json['inkWell'] == null
-          ? null
-          : InkWellModel.fromJson(
-              Map<String, dynamic>.from(json['inkWell'] as Map))
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'variables': instance.variables,
+    'multipleVariables': instance.multipleVariables,
     'id': instance.id,
     'name': instance.name,
     'visible': instance.visible,
@@ -137,7 +136,6 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
     'alignment': instance.alignment.toJson(),
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -158,7 +156,6 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
-  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['fills'] = instance.fills.map((e) => e.toJson()).toList();
   val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
   val['strokeWeight'] = instance.strokeWeight;
@@ -168,8 +165,6 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
   val['dashPattern'] = instance.dashPattern;
   val['strokeSide'] = _$StrokeSideEnumMap[instance.strokeSide]!;
   val['clipsContent'] = instance.clipsContent;
-  val['variables'] = instance.variables;
-  val['multipleVariables'] = instance.multipleVariables;
   val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
   val['mainAxisAlignment'] =
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;

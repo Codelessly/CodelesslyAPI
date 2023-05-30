@@ -20,7 +20,6 @@ class AccordionNode extends SceneNode
         ChildrenMixin,
         RowColumnMixin,
         CustomPropertiesMixin,
-        VariablePropertiesMixin,
         IsolatedMixin {
   @override
   final String type = 'accordion';
@@ -54,6 +53,8 @@ class AccordionNode extends SceneNode
     super.reactions,
     required List<String> children,
     this.isExpanded = true,
+    super.variables,
+    super.multipleVariables,
   }) {
     setChildrenMixin(children: children);
     setRowColumnMixin(

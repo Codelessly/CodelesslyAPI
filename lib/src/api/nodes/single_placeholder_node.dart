@@ -67,6 +67,8 @@ class SinglePlaceholderNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
+    super.variables,
+    super.multipleVariables,
     required List<String> children,
   }) {
     setChildrenMixin(children: children);
