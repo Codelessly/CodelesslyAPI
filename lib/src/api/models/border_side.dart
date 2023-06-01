@@ -7,6 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import 'models.dart';
+
 part 'border_side.g.dart';
 
 /// Represents the style of the border.

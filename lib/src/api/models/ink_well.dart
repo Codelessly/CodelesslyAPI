@@ -12,7 +12,6 @@ part 'ink_well.g.dart';
 /// Represents properties that relate to the [InkWell] widget in Flutter.
 @JsonSerializable()
 class InkWellModel with EquatableMixin, SerializableMixin {
-
   /// The highlight color of the [InkWell] if [useInkWell] is true.
   final ColorRGBA? highlightColor;
 

@@ -4,7 +4,6 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
-import 'models/ink_well.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 

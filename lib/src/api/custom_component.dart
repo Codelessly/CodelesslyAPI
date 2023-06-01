@@ -5,8 +5,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'models/models.dart';
 import 'mixins.dart';
+import 'models/models.dart';
 import 'utils.dart';
 
 part 'custom_component.g.dart';
