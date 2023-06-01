@@ -2,9 +2,9 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-import 'base_node.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import 'base_node.dart';
 
 /// SceneNode should never be called directly, only inherited by other nodes.
 abstract class SceneNode extends BaseNode
