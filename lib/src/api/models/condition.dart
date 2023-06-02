@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
+import '../utils.dart';
 import 'models.dart';
 
 part 'condition.g.dart';
@@ -10,30 +11,30 @@ part 'condition.g.dart';
 enum ConditionOperation {
   /// equals to operator. Checks if the value of the variable is equal to the
   /// value provided.
-  EqualsTo,
+  equalsTo,
 
   /// not equals to operator. Checks if the value of the variable is not equal
   /// to the value provided.
-  NotEqualsTo,
+  notEqualsTo,
 
   /// greater than operator. Checks if the value of the variable is greater
   /// than the value provided.
-  GreaterThan,
+  greaterThan,
 
   /// less than operator. Checks if the value of the variable is less than the
   /// value provided.
-  LessThan;
+  lessThan;
 
   /// label for the operation
   String get label {
     switch (this) {
-      case ConditionOperation.EqualsTo:
+      case ConditionOperation.equalsTo:
         return 'Equal';
-      case ConditionOperation.NotEqualsTo:
+      case ConditionOperation.notEqualsTo:
         return 'Not Equals';
-      case ConditionOperation.GreaterThan:
+      case ConditionOperation.greaterThan:
         return 'Greater';
-      case ConditionOperation.LessThan:
+      case ConditionOperation.lessThan:
         return 'Less';
     }
   }
@@ -41,13 +42,13 @@ enum ConditionOperation {
   /// short description of the operation
   String get sentence {
     switch (this) {
-      case ConditionOperation.EqualsTo:
+      case ConditionOperation.equalsTo:
         return 'equal to';
-      case ConditionOperation.NotEqualsTo:
+      case ConditionOperation.notEqualsTo:
         return 'not equal to';
-      case ConditionOperation.GreaterThan:
+      case ConditionOperation.greaterThan:
         return 'greater than';
-      case ConditionOperation.LessThan:
+      case ConditionOperation.lessThan:
         return 'less than';
     }
   }
@@ -55,13 +56,13 @@ enum ConditionOperation {
   /// short description of the operation
   String get sign {
     switch (this) {
-      case ConditionOperation.EqualsTo:
+      case ConditionOperation.equalsTo:
         return '==';
-      case ConditionOperation.NotEqualsTo:
+      case ConditionOperation.notEqualsTo:
         return '!=';
-      case ConditionOperation.GreaterThan:
+      case ConditionOperation.greaterThan:
         return '>';
-      case ConditionOperation.LessThan:
+      case ConditionOperation.lessThan:
         return '<';
     }
   }
@@ -288,8 +289,11 @@ class ExpressionGroup extends BaseExpression {
 
 /// Base class for conditions
 sealed class BaseCondition with EquatableMixin, SerializableMixin {
+  /// id of the condition
+  final String id;
+
   /// Creates a base condition.
-  const BaseCondition();
+  const BaseCondition({required this.id});
 
   /// Factory constructor for creating a new [BaseCondition] instance from
   /// JSON data.
@@ -318,13 +322,20 @@ class ElseCondition extends BaseCondition {
   final List<ActionModel> actions;
 
   /// Creates an else condition
-  ElseCondition(
+  ElseCondition({
+    required super.id,
     List<ActionModel>? actions,
-  ) : actions = actions ?? [];
+  }) : actions = actions ?? [];
 
   /// Duplicates the else condition with the provided actions list.
-  ElseCondition copyWith({List<ActionModel>? actions}) {
-    return ElseCondition(actions ?? this.actions);
+  ElseCondition copyWith({
+    String? id,
+    List<ActionModel>? actions,
+  }) {
+    return ElseCondition(
+      id: id ?? this.id,
+      actions: actions ?? this.actions,
+    );
   }
 
   /// Factory constructor for creating a new [ElseCondition] instance from
@@ -356,6 +367,7 @@ class Condition extends BaseCondition {
 
   /// Creates a simple condition
   const Condition({
+    required super.id,
     required this.mode,
     required this.expression,
     required this.actions,
@@ -363,10 +375,12 @@ class Condition extends BaseCondition {
 
   /// CopyWith
   Condition copyWith({
+    String? id,
     BaseExpression? expression,
     List<ActionModel>? actions,
   }) {
     return Condition(
+      id: id ?? this.id,
       mode: mode,
       expression: expression ?? this.expression,
       actions: actions ?? this.actions,
@@ -391,9 +405,6 @@ class Condition extends BaseCondition {
 /// e.g. `if (a == b) { ... } else if (b == c) { ... } else { ... }`
 @JsonSerializable()
 class ConditionGroup extends BaseCondition {
-  /// id of the condition group
-  final String id;
-
   /// if condition
   final Condition ifCondition;
 
@@ -408,7 +419,7 @@ class ConditionGroup extends BaseCondition {
 
   /// Creates a condition group
   ConditionGroup({
-    required this.id,
+    required super.id,
     this.name,
     required this.ifCondition,
     List<Condition>? elseIfConditions,
@@ -442,4 +453,69 @@ class ConditionGroup extends BaseCondition {
 
   @override
   Map toJson() => _$ConditionGroupToJson(this)..['type'] = 'ConditionGroup';
+}
+
+/// Contains all the variables associated with a canvas inside a page.
+@JsonSerializable()
+class CanvasConditions with EquatableMixin {
+  /// Unique ID of the canvas.
+  final String id;
+
+  /// Variables associated with this canvas.
+  final Map<String, BaseCondition> conditions;
+
+  /// Last updated time of this canvas.
+  @JsonKey(toJson: dateToJson, fromJson: jsonToDate)
+  final DateTime lastUpdated;
+
+  /// ID of the project this canvas belongs to.
+  final String owner;
+
+  /// ID of the project this canvas belongs to.
+  @JsonKey(name: 'project')
+  final String projectId;
+
+  /// Creates a new [CanvasVariables].
+  CanvasConditions({
+    required this.id,
+    required this.conditions,
+    DateTime? lastUpdated,
+    required this.projectId,
+    required this.owner,
+  }) : lastUpdated = lastUpdated ?? DateTime.now();
+
+  /// Duplicate a [CanvasVariables] with the given parameters.
+  CanvasConditions copyWith({
+    String? id,
+    Map<String, BaseCondition>? conditions,
+    String? projectId,
+    String? owner,
+  }) =>
+      CanvasConditions(
+        id: id ?? this.id,
+        conditions: conditions ?? this.conditions,
+        lastUpdated: DateTime.now(),
+        projectId: projectId ?? this.projectId,
+        owner: owner ?? this.owner,
+      );
+
+  @override
+  List<Object?> get props => [id, conditions];
+
+  /// Creates a new [CanvasVariables] from a JSON map.
+  factory CanvasConditions.fromJson(Map<String, dynamic> json) =>
+      _$CanvasConditionsFromJson(json);
+
+  /// Converts this [CanvasVariables] into a JSON map.
+  Map<String, dynamic> toJson() => _$CanvasConditionsToJson(this)..remove('id');
+
+  /// Allows to access canvas variables by variable id.
+  BaseCondition? operator [](String conditionId) {
+    return conditions[conditionId];
+  }
+
+  /// Allows to assign canvas variables by variable id.
+  void operator []=(String conditionId, BaseCondition value) {
+    conditions[conditionId] = value;
+  }
 }

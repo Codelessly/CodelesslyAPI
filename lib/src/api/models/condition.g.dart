@@ -59,10 +59,10 @@ Map<String, dynamic> _$ExpressionToJson(Expression instance) =>
     };
 
 const _$ConditionOperationEnumMap = {
-  ConditionOperation.EqualsTo: 'EqualsTo',
-  ConditionOperation.NotEqualsTo: 'NotEqualsTo',
-  ConditionOperation.GreaterThan: 'GreaterThan',
-  ConditionOperation.LessThan: 'LessThan',
+  ConditionOperation.equalsTo: 'equalsTo',
+  ConditionOperation.notEqualsTo: 'notEqualsTo',
+  ConditionOperation.greaterThan: 'greaterThan',
+  ConditionOperation.lessThan: 'lessThan',
 };
 
 ExpressionGroup _$ExpressionGroupFromJson(Map json) => ExpressionGroup(
@@ -86,17 +86,20 @@ const _$ConditionJoinEnumMap = {
 };
 
 ElseCondition _$ElseConditionFromJson(Map json) => ElseCondition(
-      (json['actions'] as List<dynamic>?)
+      id: json['id'] as String,
+      actions: (json['actions'] as List<dynamic>?)
           ?.map((e) => ActionModel.fromJson(e as Map))
           .toList(),
     );
 
 Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'actions': instance.actions.map((e) => e.toJson()).toList(),
     };
 
 Condition _$ConditionFromJson(Map json) => Condition(
+      id: json['id'] as String,
       mode: $enumDecode(_$ConditionModeEnumMap, json['mode']),
       expression: BaseExpression.fromJson(
           Map<String, dynamic>.from(json['expression'] as Map)),
@@ -106,6 +109,7 @@ Condition _$ConditionFromJson(Map json) => Condition(
     );
 
 Map<String, dynamic> _$ConditionToJson(Condition instance) => <String, dynamic>{
+      'id': instance.id,
       'expression': instance.expression.toJson(),
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'mode': _$ConditionModeEnumMap[instance.mode]!,
@@ -149,3 +153,23 @@ Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
   writeNotNull('name', instance.name);
   return val;
 }
+
+CanvasConditions _$CanvasConditionsFromJson(Map json) => CanvasConditions(
+      id: json['id'] as String,
+      conditions: (json['conditions'] as Map).map(
+        (k, e) => MapEntry(k as String,
+            BaseCondition.fromJson(Map<String, dynamic>.from(e as Map))),
+      ),
+      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      projectId: json['project'] as String,
+      owner: json['owner'] as String,
+    );
+
+Map<String, dynamic> _$CanvasConditionsToJson(CanvasConditions instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'conditions': instance.conditions.map((k, e) => MapEntry(k, e.toJson())),
+      'lastUpdated': dateToJson(instance.lastUpdated),
+      'owner': instance.owner,
+      'project': instance.projectId,
+    };
