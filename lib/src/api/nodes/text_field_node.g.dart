@@ -77,7 +77,6 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
     'alignment': instance.alignment.toJson(),
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),

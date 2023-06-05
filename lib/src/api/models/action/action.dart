@@ -2,11 +2,8 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-import 'package:json_annotation/json_annotation.dart';
-
 import '../../mixins.dart';
-
-part 'action.g.dart';
+import '../models.dart';
 
 /// Type of the action to perform on a user interaction.
 enum ActionType {
@@ -58,8 +55,7 @@ enum ActionType {
 }
 
 /// Holds information about an action to perform on a user interaction.
-@JsonSerializable()
-class ActionModel with SerializableMixin {
+abstract class ActionModel with SerializableMixin {
   /// Type of the action.
   ActionType type;
 
@@ -68,8 +64,25 @@ class ActionModel with SerializableMixin {
 
   /// Factory constructor for creating a new [ActionModel] instance from
   /// JSON data.
-  factory ActionModel.fromJson(Map json) => _$ActionModelFromJson(json);
-
-  @override
-  Map toJson() => _$ActionModelToJson(this);
+  factory ActionModel.fromJson(Map json) {
+    final ActionType type = ActionType.values.byName(json['type']);
+    switch (type) {
+      case ActionType.navigation:
+        return NavigationAction.fromJson(json);
+      case ActionType.link:
+        return LinkAction.fromJson(json);
+      case ActionType.submit:
+        return SubmitAction.fromJson(json);
+      case ActionType.setValue:
+        return SetValueAction.fromJson(json);
+      case ActionType.setVariant:
+        return SetVariantAction.fromJson(json);
+      case ActionType.setVariable:
+        return SetVariableAction.fromJson(json);
+      case ActionType.callFunction:
+        return CallFunctionAction.fromJson(json);
+      case ActionType.callApi:
+        return ApiCallAction.fromJson(json);
+    }
+  }
 }
