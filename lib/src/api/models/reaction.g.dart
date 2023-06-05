@@ -8,7 +8,7 @@ part of 'reaction.dart';
 
 Reaction _$ReactionFromJson(Map json) => Reaction(
       name: json['name'] as String? ?? 'Action',
-      action: actionFromJson(json['action'] as Map),
+      action: ActionModel.fromJson(json['action'] as Map),
       trigger: TriggerModel.fromJson(json['trigger'] as Map),
     );
 

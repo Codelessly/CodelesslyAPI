@@ -91,6 +91,10 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {},
+      inkWell: json['inkWell'] == null
+          ? null
+          : InkWellModel.fromJson(
+              Map<String, dynamic>.from(json['inkWell'] as Map)),
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
@@ -113,8 +117,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
     'characters': instance.characters,
-    'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
+    'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
     'textAlignHorizontal':
         _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
     'textAlignVertical':
@@ -130,8 +134,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   }
 
   writeNotNull('maxLines', instance.maxLines);
-  val['overflow'] = _$TextOverflowCEnumMap[instance.overflow]!;
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  val['overflow'] = _$TextOverflowCEnumMap[instance.overflow]!;
   val['margin'] = instance.margin.toJson();
   val['padding'] = instance.padding.toJson();
   val['rotation'] = instance.rotationDegrees;
@@ -141,6 +145,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
   val['isMask'] = instance.isMask;
   val['effects'] = instance.effects.map((e) => e.toJson()).toList();
+  writeNotNull('inkWell', instance.inkWell?.toJson());
   val['type'] = instance.type;
   return val;
 }
