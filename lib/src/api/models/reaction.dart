@@ -17,7 +17,6 @@ class Reaction with EquatableMixin, SerializableMixin {
   final String name;
 
   /// Action to be performed.
-  @JsonKey(fromJson: actionFromJson)
   final ActionModel action;
 
   /// Event that will trigger the action.
@@ -50,27 +49,4 @@ class Reaction with EquatableMixin, SerializableMixin {
 
   @override
   Map toJson() => _$ReactionToJson(this);
-}
-
-/// A deserializer for [ActionModel].
-ActionModel actionFromJson(Map json) {
-  final ActionType type = ActionModel.fromJson(json).type;
-  switch (type) {
-    case ActionType.navigation:
-      return NavigationAction.fromJson(json);
-    case ActionType.link:
-      return LinkAction.fromJson(json);
-    case ActionType.submit:
-      return SubmitAction.fromJson(json);
-    case ActionType.setValue:
-      return SetValueAction.fromJson(json);
-    case ActionType.setVariant:
-      return SetVariantAction.fromJson(json);
-    case ActionType.setVariable:
-      return SetVariableAction.fromJson(json);
-    case ActionType.callFunction:
-      return CallFunctionAction.fromJson(json);
-    case ActionType.callApi:
-      return ApiCallAction.fromJson(json);
-  }
 }
