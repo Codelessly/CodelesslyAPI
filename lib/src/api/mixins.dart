@@ -230,7 +230,6 @@ mixin SingleColorMixin on BaseNode {
 }
 
 /// Adds blend properties to the node.
-/// Similar to Figma's blending properties.
 mixin BlendMixin on BaseNode {
   /// Overall opacity of the node.
   late double opacity;
