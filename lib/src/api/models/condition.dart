@@ -139,7 +139,7 @@ sealed class ExpressionPart with EquatableMixin, SerializableMixin {
 @JsonSerializable()
 class RawValuePart extends ExpressionPart {
   /// value of the raw value.
-  final dynamic value;
+  final String value;
 
   /// Creates a raw value part.
   RawValuePart(this.value);
@@ -159,6 +159,10 @@ class RawValuePart extends ExpressionPart {
 /// `a` and `b`.
 @JsonSerializable()
 class VariablePart extends ExpressionPart {
+  @JsonKey(defaultValue: '')
+  /// the actual string interpolated with variables.
+  final String valueString;
+
   /// name of the variable
   final String variableName;
 
@@ -168,6 +172,7 @@ class VariablePart extends ExpressionPart {
   /// Creates a variable part.
   VariablePart({
     required this.variableName,
+    required this.valueString,
     this.jsonPath,
   });
 
@@ -179,10 +184,12 @@ class VariablePart extends ExpressionPart {
   /// Duplicates the variable part with the provided values.
   VariablePart copyWith({
     String? variableName,
+    String? valueString,
     String? jsonPath,
   }) {
     return VariablePart(
       variableName: variableName ?? this.variableName,
+      valueString: valueString ?? this.valueString,
       jsonPath: jsonPath ?? this.jsonPath,
     );
   }

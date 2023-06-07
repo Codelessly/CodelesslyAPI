@@ -7,29 +7,23 @@ part of 'condition.dart';
 // **************************************************************************
 
 RawValuePart _$RawValuePartFromJson(Map json) => RawValuePart(
-      json['value'],
+      json['value'] as String,
     );
 
-Map<String, dynamic> _$RawValuePartToJson(RawValuePart instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('value', instance.value);
-  return val;
-}
+Map<String, dynamic> _$RawValuePartToJson(RawValuePart instance) =>
+    <String, dynamic>{
+      'value': instance.value,
+    };
 
 VariablePart _$VariablePartFromJson(Map json) => VariablePart(
       variableName: json['variableName'] as String,
+      valueString: json['valueString'] as String? ?? '',
       jsonPath: json['jsonPath'] as String?,
     );
 
 Map<String, dynamic> _$VariablePartToJson(VariablePart instance) {
   final val = <String, dynamic>{
+    'valueString': instance.valueString,
     'variableName': instance.variableName,
   };
 
