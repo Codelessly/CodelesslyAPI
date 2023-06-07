@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../mixins.dart';
-import 'action.dart';
+import '../models.dart';
 
 part 'set_value_action.g.dart';
 
@@ -77,6 +77,21 @@ enum SetValueMode {
   }
 }
 
+/// Describes the type of the value.
+enum ValueType {
+  /// Represents a text value.
+  string,
+
+  /// Represents a number without a decimal point.
+  int,
+
+  /// Represents a number with a decimal point.
+  double,
+
+  /// Represents a boolean value.
+  bool,
+}
+
 /// Represents a value to set in a node.
 abstract class ValueModel<T> with SerializableMixin {
   /// The name of the property to set the value of.
@@ -88,11 +103,16 @@ abstract class ValueModel<T> with SerializableMixin {
   /// The value to set.
   final T value;
 
+  /// The type of the value.
+  @JsonKey(includeToJson: true)
+  final ValueType type;
+
   /// Creates a new [ValueModel].
   const ValueModel({
     required this.name,
     this.mode = SetValueMode.discrete,
     required this.value,
+    required this.type,
   });
 
   /// Duplicate this [ValueModel] with given data overrides.
@@ -103,12 +123,27 @@ abstract class ValueModel<T> with SerializableMixin {
 
   /// Creates a new [ValueModel] instance from a JSON data.
   static ValueModel fromJson(Map json) {
-    final value = json['value'];
-    if (value is bool?) return BoolValue.fromJson(json);
-    if (value is int) return IntValue.fromJson(json);
-    if (value is double) return DoubleValue.fromJson(json);
-    if (value is String) return StringValue.fromJson(json);
-    return IntValue.fromJson(json);
+    if (json['type'] != null) {
+      final type = ValueType.values.byName(json['type']);
+      switch (type) {
+        case ValueType.bool:
+          return BoolValue.fromJson(json);
+        case ValueType.int:
+          return IntValue.fromJson(json);
+        case ValueType.double:
+          return DoubleValue.fromJson(json);
+        case ValueType.string:
+          return StringValue.fromJson(json);
+      }
+    } else {
+      // backward compatibility
+      final value = json['value'];
+      if (value is bool?) return BoolValue.fromJson(json);
+      if (value is int) return IntValue.fromJson(json);
+      if (value is double) return DoubleValue.fromJson(json);
+      if (value is String) return StringValue.fromJson(json);
+      return IntValue.fromJson(json);
+    }
   }
 }
 
@@ -128,7 +163,7 @@ class BoolValue extends ValueModel<bool?> with SerializableMixin {
     super.mode,
     super.value = false,
     this.nullable = false,
-  });
+  }) : super(type: ValueType.bool);
 
   @override
   BoolValue copyWith({
@@ -159,7 +194,7 @@ class IntValue extends ValueModel<int> with SerializableMixin {
     required super.name,
     super.mode,
     super.value = 0,
-  }) {
+  }) : super(type: ValueType.int) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
@@ -169,7 +204,7 @@ class IntValue extends ValueModel<int> with SerializableMixin {
     required super.name,
     super.value = 0,
     super.mode,
-  });
+  }) : super(type: ValueType.int);
 
   @override
   IntValue copyWith({
@@ -197,7 +232,7 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
     required super.name,
     super.mode,
     super.value = 0,
-  }) {
+  }) : super(type: ValueType.double) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
@@ -207,7 +242,7 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
     required super.name,
     super.value = 0,
     super.mode,
-  });
+  }) : super(type: ValueType.double);
 
   @override
   DoubleValue copyWith({
@@ -235,7 +270,7 @@ class StringValue extends ValueModel<String> with SerializableMixin {
     required super.name,
     super.mode,
     super.value = '',
-  }) {
+  }) : super(type: ValueType.string) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
