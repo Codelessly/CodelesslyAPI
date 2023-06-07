@@ -50,6 +50,7 @@ Map<String, dynamic> _$BoolValueToJson(BoolValue instance) {
   }
 
   writeNotNull('value', instance.value);
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
   val['nullable'] = instance.nullable;
   return val;
 }
@@ -58,6 +59,13 @@ const _$SetValueModeEnumMap = {
   SetValueMode.discrete: 'discrete',
   SetValueMode.toggle: 'toggle',
   SetValueMode.syncValue: 'syncValue',
+};
+
+const _$ValueTypeEnumMap = {
+  ValueType.string: 'string',
+  ValueType.int: 'int',
+  ValueType.double: 'double',
+  ValueType.bool: 'bool',
 };
 
 IntValue _$IntValueFromJson(Map json) => IntValue(
@@ -71,6 +79,7 @@ Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
       'name': instance.name,
       'mode': _$SetValueModeEnumMap[instance.mode]!,
       'value': instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
     };
 
 DoubleValue _$DoubleValueFromJson(Map json) => DoubleValue(
@@ -85,6 +94,7 @@ Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) =>
       'name': instance.name,
       'mode': _$SetValueModeEnumMap[instance.mode]!,
       'value': instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
     };
 
 StringValue _$StringValueFromJson(Map json) => StringValue(
@@ -99,4 +109,5 @@ Map<String, dynamic> _$StringValueToJson(StringValue instance) =>
       'name': instance.name,
       'mode': _$SetValueModeEnumMap[instance.mode]!,
       'value': instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
     };
