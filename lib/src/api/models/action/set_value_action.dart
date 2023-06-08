@@ -90,6 +90,12 @@ enum ValueType {
 
   /// Represents a boolean value.
   bool,
+
+  /// Represents a color value.
+  color,
+
+  /// Represents a paint value which can be color, gradient, etc.
+  paint,
 }
 
 /// Represents a value to set in a node.
@@ -134,6 +140,10 @@ abstract class ValueModel<T> with SerializableMixin {
           return DoubleValue.fromJson(json);
         case ValueType.string:
           return StringValue.fromJson(json);
+        case ValueType.color:
+          return ColorValue.fromJson(json);
+        case ValueType.paint:
+          return PaintValue.fromJson(json);
       }
     } else {
       // backward compatibility
@@ -290,4 +300,74 @@ class StringValue extends ValueModel<String> with SerializableMixin {
 
   @override
   Map toJson() => _$StringValueToJson(this);
+}
+
+/// Value of boolean type.
+@JsonSerializable()
+class ColorValue extends ValueModel<ColorRGBA?> with SerializableMixin {
+  /// Whether this property is nullable.
+  final bool nullable;
+
+  /// Creates a new [ColorValue].
+  const ColorValue({
+    required super.name,
+    super.mode,
+    super.value,
+    this.nullable = false,
+  }) : super(type: ValueType.color);
+
+  @override
+  ColorValue copyWith({
+    SetValueMode? mode,
+    ColorRGBA? value,
+    bool isNull = false,
+    bool? nullable,
+  }) =>
+      ColorValue(
+        name: name,
+        mode: mode ?? this.mode,
+        value: isNull ? null : (value ?? this.value),
+        nullable: nullable ?? this.nullable,
+      );
+
+  /// Creates a new [BoolValue] instance from a JSON data.
+  factory ColorValue.fromJson(Map json) => _$ColorValueFromJson(json);
+
+  @override
+  Map toJson() => _$ColorValueToJson(this);
+}
+
+/// Value of boolean type.
+@JsonSerializable()
+class PaintValue extends ValueModel<PaintModel?> with SerializableMixin {
+  /// Whether this property is nullable.
+  final bool nullable;
+
+  /// Creates a new [PaintValue].
+  const PaintValue({
+    required super.name,
+    super.mode,
+    super.value,
+    this.nullable = false,
+  }) : super(type: ValueType.paint);
+
+  @override
+  PaintValue copyWith({
+    SetValueMode? mode,
+    PaintModel? value,
+    bool isNull = false,
+    bool? nullable,
+  }) =>
+      PaintValue(
+        name: name,
+        mode: mode ?? this.mode,
+        value: isNull ? null : (value ?? this.value),
+        nullable: nullable ?? this.nullable,
+      );
+
+  /// Creates a new [BoolValue] instance from a JSON data.
+  factory PaintValue.fromJson(Map json) => _$PaintValueFromJson(json);
+
+  @override
+  Map toJson() => _$PaintValueToJson(this);
 }
