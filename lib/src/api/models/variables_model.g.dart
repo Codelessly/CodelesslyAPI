@@ -32,6 +32,7 @@ const _$VariableTypeEnumMap = {
   VariableType.decimal: 'decimal',
   VariableType.boolean: 'boolean',
   VariableType.list: 'list',
+  VariableType.color: 'color',
 };
 
 CanvasVariables _$CanvasVariablesFromJson(Map json) => CanvasVariables(
