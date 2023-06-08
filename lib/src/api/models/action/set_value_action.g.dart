@@ -66,6 +66,8 @@ const _$ValueTypeEnumMap = {
   ValueType.int: 'int',
   ValueType.double: 'double',
   ValueType.bool: 'bool',
+  ValueType.color: 'color',
+  ValueType.paint: 'paint',
 };
 
 IntValue _$IntValueFromJson(Map json) => IntValue(
@@ -111,3 +113,59 @@ Map<String, dynamic> _$StringValueToJson(StringValue instance) =>
       'value': instance.value,
       'type': _$ValueTypeEnumMap[instance.type]!,
     };
+
+ColorValue _$ColorValueFromJson(Map json) => ColorValue(
+      name: json['name'] as String,
+      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+          SetValueMode.discrete,
+      value: json['value'] == null
+          ? null
+          : ColorRGBA.fromJson(json['value'] as Map),
+      nullable: json['nullable'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$ColorValueToJson(ColorValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+    'mode': _$SetValueModeEnumMap[instance.mode]!,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('value', instance.value?.toJson());
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  val['nullable'] = instance.nullable;
+  return val;
+}
+
+PaintValue _$PaintValueFromJson(Map json) => PaintValue(
+      name: json['name'] as String,
+      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+          SetValueMode.discrete,
+      value: json['value'] == null
+          ? null
+          : PaintModel.fromJson(json['value'] as Map),
+      nullable: json['nullable'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$PaintValueToJson(PaintValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+    'mode': _$SetValueModeEnumMap[instance.mode]!,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('value', instance.value?.toJson());
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  val['nullable'] = instance.nullable;
+  return val;
+}

@@ -20,7 +20,10 @@ enum VariableType {
   boolean,
 
   /// List type. Represents a list of values.
-  list;
+  list,
+
+  /// Color type. Represents a color value.
+  color;
 
   /// Returns a string representation of the variable type.
   String get label {
@@ -35,6 +38,8 @@ enum VariableType {
         return 'Boolean';
       case VariableType.list:
         return 'List';
+      case VariableType.color:
+        return 'Color';
     }
   }
 }
@@ -141,27 +146,6 @@ class VariableData
       throw UnimplementedError('Not Implemented');
     } else {
       throw Exception('Unsupported type: $T');
-    }
-  }
-
-  /// Converts [value] to given [type]. [null] means it can't be converted.
-  dynamic toTyped() {
-    switch (type) {
-      case VariableType.integer:
-        return int.tryParse(value);
-      case VariableType.text:
-        return value;
-      case VariableType.decimal:
-        return double.tryParse(value);
-      case VariableType.boolean:
-        return value.toLowerCase() == 'true'
-            ? true
-            : value.toLowerCase() == 'false'
-                ? false
-                : null;
-      case VariableType.list:
-        // TODO: implement type conversion.
-        throw UnimplementedError('Not Implemented');
     }
   }
 }
