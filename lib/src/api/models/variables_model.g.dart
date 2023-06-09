@@ -11,7 +11,8 @@ VariableData _$VariableDataFromJson(Map json) => VariableData(
       name: json['name'] as String,
       value: json['value'] as String? ?? '',
       isUsed: json['isUsed'] as bool? ?? true,
-      type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
+              unknownValue: VariableType.text) ??
           VariableType.text,
       nodes: (json['nodes'] as List<dynamic>?)?.map((e) => e as String).toSet(),
     );
@@ -32,7 +33,6 @@ const _$VariableTypeEnumMap = {
   VariableType.decimal: 'decimal',
   VariableType.boolean: 'boolean',
   VariableType.list: 'list',
-  VariableType.color: 'color',
 };
 
 CanvasVariables _$CanvasVariablesFromJson(Map json) => CanvasVariables(
@@ -59,7 +59,8 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       id: json['id'] as String,
       canvasId: json['canvasId'] as String,
       name: json['name'] as String,
-      type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type']) ??
+      type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
+              unknownValue: VariableType.text) ??
           VariableType.text,
       value: json['value'] as String? ?? '',
       isUsed: json['isUsed'] as bool? ?? true,
