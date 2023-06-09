@@ -141,7 +141,7 @@ class VariableData
       // TODO: implement type conversion.
       throw UnimplementedError('Not Implemented');
     } else {
-      throw Exception('Unsupported type: $T');
+      return value as T?;
     }
   }
 }
