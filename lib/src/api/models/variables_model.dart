@@ -20,10 +20,7 @@ enum VariableType {
   boolean,
 
   /// List type. Represents a list of values.
-  list,
-
-  /// Color type. Represents a color value.
-  color;
+  list;
 
   /// Returns a string representation of the variable type.
   String get label {
@@ -38,8 +35,6 @@ enum VariableType {
         return 'Boolean';
       case VariableType.list:
         return 'List';
-      case VariableType.color:
-        return 'Color';
     }
   }
 }
@@ -65,6 +60,7 @@ class VariableData
   /// explicitly provided by the user.
   final String value;
 
+  @JsonKey(unknownEnumValue: VariableType.text)
   /// Type of the variable. This is used to determine how to parse the value.
   final VariableType type;
 
