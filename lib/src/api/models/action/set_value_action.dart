@@ -129,30 +129,20 @@ abstract class ValueModel<T> with SerializableMixin {
 
   /// Creates a new [ValueModel] instance from a JSON data.
   static ValueModel fromJson(Map json) {
-    if (json['type'] != null) {
-      final type = ValueType.values.byName(json['type']);
-      switch (type) {
-        case ValueType.bool:
-          return BoolValue.fromJson(json);
-        case ValueType.int:
-          return IntValue.fromJson(json);
-        case ValueType.double:
-          return DoubleValue.fromJson(json);
-        case ValueType.string:
-          return StringValue.fromJson(json);
-        case ValueType.color:
-          return ColorValue.fromJson(json);
-        case ValueType.paint:
-          return PaintValue.fromJson(json);
-      }
-    } else {
-      // backward compatibility
-      final value = json['value'];
-      if (value is bool?) return BoolValue.fromJson(json);
-      if (value is int) return IntValue.fromJson(json);
-      if (value is double) return DoubleValue.fromJson(json);
-      if (value is String) return StringValue.fromJson(json);
-      return IntValue.fromJson(json);
+    final type = ValueType.values.byName(json['type']);
+    switch (type) {
+      case ValueType.bool:
+        return BoolValue.fromJson(json);
+      case ValueType.int:
+        return IntValue.fromJson(json);
+      case ValueType.double:
+        return DoubleValue.fromJson(json);
+      case ValueType.string:
+        return StringValue.fromJson(json);
+      case ValueType.color:
+        return ColorValue.fromJson(json);
+      case ValueType.paint:
+        return PaintValue.fromJson(json);
     }
   }
 }
