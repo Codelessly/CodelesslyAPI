@@ -66,6 +66,20 @@ enum ConditionOperation {
         return '<';
     }
   }
+
+  /// Allows the provided [visitor] to visit this operation.
+  bool accept(Object? left, Object? right, ConditionOperatorVisitor visitor) {
+    switch (this) {
+      case ConditionOperation.equalsTo:
+        return visitor.visitEqualsOperator(left, right);
+      case ConditionOperation.notEqualsTo:
+        return visitor.visitNotEqualsOperator(left, right);
+      case ConditionOperation.greaterThan:
+        return visitor.visitGreaterThanOperator(left, right);
+      case ConditionOperation.lessThan:
+        return visitor.visitLessThanOperator(left, right);
+    }
+  }
 }
 
 /// join operator for complex conditions
@@ -113,6 +127,9 @@ sealed class BaseExpression with EquatableMixin, SerializableMixin {
         throw UnimplementedError('Unregistered type: ${json['type']}');
     }
   }
+
+  /// Allows the provided [visitor] to visit this expression.
+  R? accept<R>(ExpressionVisitor<R> visitor);
 }
 
 /// Represents an expression part in an expression. e.g. `a == b` has two
@@ -132,6 +149,9 @@ sealed class ExpressionPart with EquatableMixin, SerializableMixin {
         throw UnimplementedError('Unregistered type: ${json['type']}');
     }
   }
+
+  /// Allows the provided [visitor] to visit this expression part.
+  R? accept<R>(ExpressionPartVisitor<R> visitor);
 }
 
 /// Represents a raw value in an expression. e.g. `a == 1` has a raw value of
@@ -153,6 +173,10 @@ class RawValuePart extends ExpressionPart {
 
   @override
   Map toJson() => _$RawValuePartToJson(this)..['type'] = 'RawValue';
+
+  @override
+  R? accept<R>(ExpressionPartVisitor<R> visitor) =>
+      visitor.visitRawValuePart(this);
 }
 
 /// Represents a variable in an expression. e.g. `a == b` has two variables:
@@ -160,6 +184,7 @@ class RawValuePart extends ExpressionPart {
 @JsonSerializable()
 class VariablePart extends ExpressionPart {
   @JsonKey(defaultValue: '')
+
   /// the actual string interpolated with variables.
   final String valueString;
 
@@ -199,6 +224,10 @@ class VariablePart extends ExpressionPart {
 
   @override
   Map toJson() => _$VariablePartToJson(this)..['type'] = 'Variable';
+
+  @override
+  R? accept<R>(ExpressionPartVisitor<R> visitor) =>
+      visitor.visitVariablePart(this);
 }
 
 /// Represents a simple expression in a condition. e.g. `a == b` is an
@@ -245,6 +274,9 @@ class Expression extends BaseExpression {
 
   @override
   Map toJson() => _$ExpressionToJson(this)..['type'] = 'Expression';
+
+  @override
+  R? accept<R>(ExpressionVisitor<R> visitor) => visitor.visitExpression(this);
 }
 
 /// Represents a group of expressions in a condition typically joined by
@@ -292,6 +324,10 @@ class ExpressionGroup extends BaseExpression {
 
   @override
   Map toJson() => _$ExpressionGroupToJson(this)..['type'] = 'ExpressionGroup';
+
+  @override
+  R? accept<R>(ExpressionVisitor<R> visitor) =>
+      visitor.visitExpressionGroup(this);
 }
 
 /// Base class for conditions
@@ -316,6 +352,9 @@ sealed class BaseCondition with EquatableMixin, SerializableMixin {
         throw UnimplementedError('Unregistered type: ${json['type']}');
     }
   }
+
+  /// Allows the provided [visitor] to visit this condition.
+  R? accept<R>(ConditionVisitor<R> visitor);
 }
 
 /// Represents an else condition. e.g. `else { ... }`. [actions] are performed
@@ -355,6 +394,9 @@ class ElseCondition extends BaseCondition {
 
   @override
   Map toJson() => _$ElseConditionToJson(this)..['type'] = 'ElseCondition';
+
+  @override
+  R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitElseCondition(this);
 }
 
 /// Represents a condition.
@@ -404,6 +446,9 @@ class Condition extends BaseCondition {
 
   @override
   Map toJson() => _$ConditionToJson(this)..['type'] = 'Condition';
+
+  @override
+  R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitCondition(this);
 }
 
 /// Represents a group of conditions. Contains an if condition, else if
@@ -460,6 +505,10 @@ class ConditionGroup extends BaseCondition {
 
   @override
   Map toJson() => _$ConditionGroupToJson(this)..['type'] = 'ConditionGroup';
+
+  @override
+  R? accept<R>(ConditionVisitor<R> visitor) =>
+      visitor.visitConditionGroup(this);
 }
 
 /// Contains all the variables associated with a canvas inside a page.
@@ -525,4 +574,49 @@ class CanvasConditions with EquatableMixin {
   void operator []=(String conditionId, BaseCondition value) {
     conditions[conditionId] = value;
   }
+}
+
+/// A visitor that can be used to visit a [ConditionOperation].
+abstract interface class ConditionOperatorVisitor {
+  /// Visits a [ConditionOperation].
+  bool visitEqualsOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation].
+  bool visitNotEqualsOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation].
+  bool visitGreaterThanOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation].
+  bool visitLessThanOperator(Object? left, Object? right);
+}
+
+/// An interface for evaluating conditions.
+abstract interface class ConditionVisitor<R> {
+  /// Evaluates the condition and returns the result.
+  R? visitCondition(Condition condition);
+
+  /// Evaluates the condition group and returns the result.
+  R? visitConditionGroup(ConditionGroup condition);
+
+  /// Evaluates the else condition and returns the result.
+  R? visitElseCondition(ElseCondition condition);
+}
+
+/// An interface for evaluating expressions.
+abstract interface class ExpressionVisitor<R> {
+  /// Evaluates the expression and returns the result.
+  R? visitExpression(Expression expression);
+
+  /// Evaluates the expression group and returns the result.
+  R? visitExpressionGroup(ExpressionGroup expression);
+}
+
+/// An interface for evaluating expression parts.
+abstract interface class ExpressionPartVisitor<R> {
+  /// Evaluates the expression part and returns the result.
+  R? visitRawValuePart(RawValuePart part);
+
+  /// Evaluates the expression part group and returns the result.
+  R? visitVariablePart(VariablePart part);
 }
