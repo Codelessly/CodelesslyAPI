@@ -267,6 +267,18 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
   @JsonKey(includeFromJson: false, includeToJson: false)
   RotatedNodeBox get outerRotatedBoxGlobal => _outerRotatedBoxGlobal;
 
+  late Vec _rotatedTopLeftCorner;
+
+  /// The top left corner of the middle box. This is not
+  /// [middleBoxGlobal.topLeft], rather the visual top left corner of the
+  /// visually rotated box instead of the point of the bounding box containing
+  /// the rotated box.
+  ///
+  /// This value is calculated at runtime and is used as a means of caching
+  /// the value for performance reasons.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  Vec get rotatedTopLeftCorner => _rotatedTopLeftCorner;
+
   EdgeInsetsModel _margin;
 
   /// The margin applied outside the node.
@@ -391,6 +403,7 @@ abstract class BaseNode with SerializableMixin, EquatableMixin {
       _outerBoxGlobal.innerWidth,
       _outerBoxGlobal.innerHeight,
     );
+    _rotatedTopLeftCorner = middleBoxLocal.topLeft;
 
     _resolvedConstraints = _constraints;
 

@@ -106,6 +106,7 @@ extension BaseNodeUpdateExtension on BaseNode {
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
     bool forceUpdateEdgePins = false,
+    bool updatingSortedNodeList = false,
   }) =>
       NodeProcessor.updateNode(
         node: this,
@@ -122,6 +123,7 @@ extension BaseNodeUpdateExtension on BaseNode {
             recursivelyCalculateChildrenGlobalBoxes,
         globalParentBoundingBoxPos: globalParentBoundingBoxPos,
         forceUpdateEdgePins: forceUpdateEdgePins,
+        updatingSortedNodeList: updatingSortedNodeList,
       );
 
   /// Sets rotation for this node.
@@ -132,24 +134,17 @@ extension BaseNodeUpdateExtension on BaseNode {
 
   /// Updates rotation for this node recursively for its children as well if
   /// [updateChildren] is true.
-  void updateNodeRotation(int newRotationDegrees,
-      {bool updateChildren = true}) {
+  void updateNodeRotation(
+    int newRotationDegrees, {
+    bool updateChildren = true,
+  }) {
     setNodeRotation(newRotationDegrees);
 
-    if (updateChildren) {
-      NodeProcessor.updateGlobalRotation(
-          node: this, newRotationDegrees: newRotationDegrees);
-    } else {
-      if (id == kRootNode) {
-        globalRotationDegrees = newRotationDegrees;
-        globalRotationRadians = newRotationDegrees * pi / 180;
-      } else {
-        final BaseNode parent = NodeProcessor.getNode(parentID);
-        globalRotationDegrees =
-            parent.globalRotationDegrees + newRotationDegrees;
-        globalRotationRadians = globalRotationDegrees * pi / 180;
-      }
-    }
+    NodeProcessor.updateGlobalRotation(
+      node: this,
+      newRotationDegrees: newRotationDegrees,
+      updateChildren: updateChildren,
+    );
   }
 }
 
@@ -204,33 +199,36 @@ class NodeProcessor {
   static void updateGlobalRotation({
     required BaseNode node,
     required int newRotationDegrees,
+    bool updateChildren = true,
   }) {
     if (node.id == kRootNode) {
       node.globalRotationDegrees = newRotationDegrees;
       node.globalRotationRadians = newRotationDegrees * pi / 180;
+      node._rotatedTopLeftCorner = node.middleBoxLocal.topLeft;
     } else {
       final BaseNode parent = getNode(node.parentID);
+
       node.globalRotationDegrees =
           parent.globalRotationDegrees + newRotationDegrees;
       node.globalRotationRadians = node.globalRotationDegrees * pi / 180;
+
+      node._rotatedTopLeftCorner = calculateGlobalRotatedBoxTopLeft(
+        node.id,
+        boundaryType: NodeBoundaryType.middleBox,
+        unrotate: false,
+        updatingSortedNodeList: true,
+      );
     }
 
-    for (var childId in node.childrenOrEmpty) {
-      final child = getNode(childId);
-      updateGlobalRotation(
-          node: child, newRotationDegrees: child.rotationDegrees);
+    if (updateChildren) {
+      for (final String childId in node.childrenOrEmpty) {
+        final child = getNode(childId);
+        updateGlobalRotation(
+          node: child,
+          newRotationDegrees: child.rotationDegrees,
+        );
+      }
     }
-  }
-
-  /// Switches the parent node of this node from [oldParent] to [newParent].
-  static void switchParent({
-    required BaseNode node,
-    required BaseNode newParent,
-    required BaseNode oldParent,
-  }) {
-    oldParent.childrenOrEmpty.remove(node.id);
-    oldParent.childrenOrEmpty.add(node.id);
-    node.parentID = newParent.id;
   }
 
   /// [updateNode] is responsible for updating the node and its children when
@@ -248,6 +246,11 @@ class NodeProcessor {
   /// children are updated recursively. If it is set to false, only the node is
   /// updated. This parameter is used during nodes initialization. Since all the
   /// nodes are being laid out, there's no need for recursive updates.
+  ///
+  /// if [updatingSortedNodeList] is true, then you are currently updating a
+  /// list of nodes one-by-one order from parent to child order. If this is
+  /// the case, then we can make important assumptions that can help optimize
+  /// and avoid recursive computation.
   static void updateNode({
     required BaseNode node,
     EdgeInsetsModel? margin,
@@ -262,6 +265,7 @@ class NodeProcessor {
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
     bool forceUpdateEdgePins = false,
+    bool updatingSortedNodeList = false,
   }) {
     final bool marginChanged = margin != null && margin != node.margin;
     final bool paddingChanged = padding != null && padding != node.padding;
@@ -349,17 +353,14 @@ class NodeProcessor {
       }
     }
 
-    if (globalParentBoundingBoxPos == null) {
-      _computeGlobalAndRotatedBoxes(
-        node,
-        recursivelyCalculateChildren: recursivelyCalculateChildrenGlobalBoxes,
-      );
-    } else {
-      _computeGlobalAndRotatedBoxes(
-        node,
-        recursivelyCalculateChildren: false,
-      );
-    }
+    // If a performLayout was run, the children do not need calculation
+    // because they will be updated next.
+    _computeGlobalAndRotatedBoxes(
+      node,
+      recursivelyCalculateChildren:
+          !performLayoutRan && recursivelyCalculateChildrenGlobalBoxes,
+      updatingSortedNodeList: updatingSortedNodeList,
+    );
 
     _computeInnerBoxLocal(node);
   }
@@ -367,28 +368,43 @@ class NodeProcessor {
   static void _computeGlobalAndRotatedBoxes(
     BaseNode node, {
     bool recursivelyCalculateChildren = true,
+    bool updatingSortedNodeList = false,
   }) {
     // Order matters.
     // Middle and inner boxes depend on outer.
     // Rotated boxes depend on all of them.
-    _computeOuterBoxGlobal(node);
+    _computeOuterBoxGlobal(
+      node,
+      updatingSortedNodeList: updatingSortedNodeList,
+    );
     _computeMiddleBoxGlobal(node);
     _computeInnerBoxGlobal(node);
-    _computeRotatedBoxes(node);
+
+    _computeRotatedBoxes(
+      node,
+      updatingSortedNodeList: updatingSortedNodeList,
+    );
 
     if (recursivelyCalculateChildren) {
       for (final String childID in node.childrenOrEmpty) {
         final BaseNode childNode = getNode(childID);
-        _computeGlobalAndRotatedBoxes(childNode);
+        _computeGlobalAndRotatedBoxes(
+          childNode,
+          updatingSortedNodeList: updatingSortedNodeList,
+        );
       }
     }
   }
 
-  static void _computeOuterBoxGlobal(BaseNode node) {
-    final Vec globalBoundingTopLeft = getGlobalRotatedBoxTopLeft(
+  static void _computeOuterBoxGlobal(
+    BaseNode node, {
+    bool updatingSortedNodeList = false,
+  }) {
+    final Vec globalBoundingTopLeft = calculateGlobalRotatedBoxTopLeft(
       node.id,
       unrotate: true,
       boundaryType: NodeBoundaryType.outerBox,
+      updatingSortedNodeList: updatingSortedNodeList,
     );
     node._outerBoxGlobal = OuterNodeBox(
       globalBoundingTopLeft.x,
@@ -422,7 +438,10 @@ class NodeProcessor {
     );
   }
 
-  static void _computeRotatedBoxes(BaseNode node) {
+  static void _computeRotatedBoxes(
+    BaseNode node, {
+    bool updatingSortedNodeList = false,
+  }) {
     final RectC middleRotatedBox = getRotatedBoundingBoxAroundSelf(
       node.middleBoxLocal.x,
       node.middleBoxLocal.y,
@@ -449,8 +468,11 @@ class NodeProcessor {
     );
 
     // GLOBAL
-    final middleUnrotatedGlobalTopLeft = getGlobalRotatedBoxTopLeft(node.id,
-        boundaryType: NodeBoundaryType.middleBox);
+    final middleUnrotatedGlobalTopLeft = calculateGlobalRotatedBoxTopLeft(
+      node.id,
+      boundaryType: NodeBoundaryType.middleBox,
+      updatingSortedNodeList: updatingSortedNodeList,
+    );
 
     final RectC middleGlobalRotatedBox = getRotatedBoundingBoxAroundSelf(
       middleUnrotatedGlobalTopLeft.x,
@@ -480,10 +502,16 @@ class NodeProcessor {
 
   /// [unrotate] will unrotate the top-left corner of the rotated box to the
   /// top-left corner of the bounding box.
-  static Vec getGlobalRotatedBoxTopLeft(
+  ///
+  /// if [updatingSortedNodeList] is true, then you are currently updating a
+  /// list of nodes one-by-one order from parent to child order. If this is
+  /// the case, then we can make important assumptions that can help optimize
+  /// and avoid recursive computation.
+  static Vec calculateGlobalRotatedBoxTopLeft(
     String id, {
     bool unrotate = true,
     required NodeBoundaryType boundaryType,
+    bool updatingSortedNodeList = false,
   }) {
     assert(
       !boundaryType.isRotatedBox,
@@ -494,6 +522,14 @@ class NodeProcessor {
     Vec currentVec = Vec.zero;
 
     if (id == kRootNode) return currentVec;
+
+    if (updatingSortedNodeList) {
+      return calculateSortedGlobalRotatedBoxTopLeft(
+        id,
+        unrotate: unrotate,
+        boundaryType: boundaryType,
+      );
+    }
 
     // First collect the node's and all of it's ancestor's id.
     final List<BaseNode> parents = [];
@@ -587,6 +623,102 @@ class NodeProcessor {
           radians: globalRotation,
         ) -
         (box is OuterNodeBox ? box.edgeTopLeft : Vec.zero);
+
+    return unrotated;
+  }
+
+  /// [unrotate] will unrotate the top-left corner of the rotated box to the
+  /// top-left corner of the bounding box.
+  ///
+  /// This function is used when you are updating a list of nodes one-by-one
+  /// order from parent to child order. If this is the case, then we can make
+  /// important assumptions that can help optimize and avoid recursive
+  /// computation.
+  static Vec calculateSortedGlobalRotatedBoxTopLeft(
+    String id, {
+    bool unrotate = true,
+    required NodeBoundaryType boundaryType,
+  }) {
+    assert(
+      !boundaryType.isRotatedBox,
+      "This function is computing the rotated part for you. You can't give it a rotated node boundary type",
+    );
+
+    // Our main offset were guiding to the target id.
+    Vec currentVec = Vec.zero;
+
+    if (id == kRootNode) return currentVec;
+
+    final node = getNode(id);
+    final parent = getNode(node.parentID);
+
+    final NodeBox parentBox = parent.id == kRootNode
+        ? parent.basicBoxLocal
+        : boundaryType.getGlobalBoxForNode(parent);
+    final NodeBox nodeBox = boundaryType.getLocalBoxForNode(node);
+
+    currentVec = Vec.zero;
+
+    if (node.globalRotationDegrees == 0) {
+      currentVec = parentBox is OuterNodeBox
+          ? parentBox.innerTopLeft
+          : parentBox.topLeft;
+
+      currentVec += nodeBox.topLeft;
+    } else {
+      currentVec = parent.rotatedTopLeftCorner;
+
+      final RectC rect =
+          (nodeBox is OuterNodeBox ? nodeBox.innerRect : nodeBox.rect);
+
+      // Returns local box top left after rotation.
+      // This will be the point of the top-left drag handle of this box.
+      // IE: The literal visually rotated top left corner.
+      //
+      // The x/y is NOT yet translated inside the parent's space.
+      // That's the next step.
+      Vec rotated = calculateRotatedBoxTopLeftAroundSelf(
+        radians: node.rotationRadians,
+        x1: rect.left,
+        y1: rect.top,
+        x2: rect.right,
+        y2: rect.bottom,
+      );
+
+      if (boundaryType == NodeBoundaryType.outerBox) {
+        if (parent.rotationDegrees == 0) {
+          currentVec += parent.outerBoxLocal.edgeTopLeft;
+        }
+      }
+
+      // Converting it to global.
+      rotated = localRotatedVecToGlobalVec(
+        localX: rotated.x,
+        localY: rotated.y,
+        parentX: currentVec.x,
+        parentY: currentVec.y,
+        radians: parent.globalRotationRadians,
+      );
+
+      currentVec = rotated;
+    }
+
+    // If our target happens to be orthogonal w global.
+    if (node.globalRotationDegrees == 0 || !unrotate) return currentVec;
+
+    // Otherwise were pointing to an already rotated node which is not too
+    // useful for most callers so we make it orthogonal w global.
+    final SizeC size =
+        (nodeBox is OuterNodeBox ? nodeBox.innerSize : nodeBox.size);
+
+    final Vec unrotated = calculateUnrotatedVecFromRotatedVec(
+          x: currentVec.x,
+          y: currentVec.y,
+          width: size.width,
+          height: size.height,
+          radians: node.globalRotationRadians,
+        ) -
+        (nodeBox is OuterNodeBox ? nodeBox.edgeTopLeft : Vec.zero);
 
     return unrotated;
   }
