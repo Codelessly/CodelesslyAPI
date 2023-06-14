@@ -16,26 +16,13 @@ Map<String, dynamic> _$RawValuePartToJson(RawValuePart instance) =>
     };
 
 VariablePart _$VariablePartFromJson(Map json) => VariablePart(
-      variableName: json['variableName'] as String,
       valueString: json['valueString'] as String? ?? '',
-      jsonPath: json['jsonPath'] as String?,
     );
 
-Map<String, dynamic> _$VariablePartToJson(VariablePart instance) {
-  final val = <String, dynamic>{
-    'valueString': instance.valueString,
-    'variableName': instance.variableName,
-  };
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('jsonPath', instance.jsonPath);
-  return val;
-}
+Map<String, dynamic> _$VariablePartToJson(VariablePart instance) =>
+    <String, dynamic>{
+      'valueString': instance.valueString,
+    };
 
 Expression _$ExpressionFromJson(Map json) => Expression(
       operator: $enumDecode(_$ConditionOperationEnumMap, json['operator']),
