@@ -188,17 +188,9 @@ class VariablePart extends ExpressionPart {
   /// the actual string interpolated with variables.
   final String valueString;
 
-  /// name of the variable
-  final String variableName;
-
-  /// json path to access data from the variable.
-  final String? jsonPath;
-
   /// Creates a variable part.
   VariablePart({
-    required this.variableName,
     required this.valueString,
-    this.jsonPath,
   });
 
   /// Factory constructor for creating a new [VariablePart] instance from
@@ -208,19 +200,15 @@ class VariablePart extends ExpressionPart {
 
   /// Duplicates the variable part with the provided values.
   VariablePart copyWith({
-    String? variableName,
     String? valueString,
-    String? jsonPath,
   }) {
     return VariablePart(
-      variableName: variableName ?? this.variableName,
       valueString: valueString ?? this.valueString,
-      jsonPath: jsonPath ?? this.jsonPath,
     );
   }
 
   @override
-  List<Object?> get props => [variableName, jsonPath];
+  List<Object?> get props => [valueString];
 
   @override
   Map toJson() => _$VariablePartToJson(this)..['type'] = 'Variable';
@@ -614,9 +602,10 @@ abstract interface class ExpressionVisitor<R> {
 
 /// An interface for evaluating expression parts.
 abstract interface class ExpressionPartVisitor<R> {
-  /// Evaluates the expression part and returns the result.
+  /// Evaluates the raw value expression part and returns the result.
   R? visitRawValuePart(RawValuePart part);
 
-  /// Evaluates the expression part group and returns the result.
+  /// Evaluates the variable value expression part and returns the value of the
+  /// variable.
   R? visitVariablePart(VariablePart part);
 }
