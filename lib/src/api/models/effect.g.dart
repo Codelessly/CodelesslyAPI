@@ -7,7 +7,7 @@ part of 'effect.dart';
 // **************************************************************************
 
 Effect _$EffectFromJson(Map json) => Effect(
-      id: json['id'] as String?,
+      id: json['id'] as String,
       type: $enumDecode(_$EffectTypeEnumMap, json['type']),
       radius: (json['radius'] as num).toDouble(),
       visible: json['visible'] as bool? ?? true,
