@@ -5,6 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../generate_id.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -162,7 +163,11 @@ class Effect with EquatableMixin, SerializableMixin {
       ];
 
   /// Factory constructor for creating new [Effect] from JSON data.
-  factory Effect.fromJson(Map json) => _$EffectFromJson(json);
+  factory Effect.fromJson(Map json) => _$EffectFromJson({
+        // TODO: backward compatibility, remove in 1.0.0
+        'id': generateId(),
+        ...json,
+      });
 
   @override
   Map toJson() => _$EffectToJson(this);
