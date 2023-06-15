@@ -5,8 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mixins.dart';
-import 'models.dart';
+import '../../../codelessly_api.dart';
 
 part 'input_decoration.g.dart';
 
@@ -231,10 +230,19 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         helperStyle = helperStyle ??
             TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         hintStyle = hintStyle ??
-            TextProp.general(
-                fontSize: 14, fills: [PaintModel.solid(color: ColorRGB.grey)]),
+            TextProp.general(fontSize: 14, fills: [
+              PaintModel.solid(
+                id: generateId(),
+                color: ColorRGB.grey,
+              )
+            ]),
         errorStyle = errorStyle ??
-            TextProp.general(fills: [PaintModel.solid(color: ColorRGB.red)]),
+            TextProp.general(fills: [
+              PaintModel.solid(
+                id: generateId(),
+                color: ColorRGB.red,
+              )
+            ]),
         prefixStyle = prefixStyle ?? TextProp.general(),
         suffixStyle = suffixStyle ??
             TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),

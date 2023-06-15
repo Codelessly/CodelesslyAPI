@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../codelessly_api.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -73,6 +74,9 @@ class ColorRGB extends Equatable with SerializableMixin {
   Map toJson() => _$ColorRGBToJson(this);
 
   /// Creates a [PaintModel] with this color and given [opacity].
-  PaintModel toPaint([double opacity = 1.0]) =>
-      PaintModel.solid(color: this, opacity: opacity);
+  PaintModel toPaint([String? id, double opacity = 1.0]) => PaintModel.solid(
+        id: id ?? generateId(),
+        color: this,
+        opacity: opacity,
+      );
 }

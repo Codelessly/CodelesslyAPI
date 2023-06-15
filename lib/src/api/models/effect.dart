@@ -5,7 +5,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../generate_id.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -71,7 +70,7 @@ class Effect with EquatableMixin, SerializableMixin {
 
   /// Creates new [Effect] with given data.
   Effect({
-    String? id,
+    required this.id,
     required this.type,
     required this.radius,
     this.visible = true,
@@ -79,11 +78,11 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  }) : id = id ?? generateId();
+  });
 
   /// Creates a new [Effect] with drop shadow.
   Effect.dropShadow({
-    String? id,
+    required this.id,
     this.type = EffectType.dropShadow,
     required this.radius,
     this.visible = true,
@@ -91,11 +90,11 @@ class Effect with EquatableMixin, SerializableMixin {
     required this.offset,
     required this.spread,
     this.blendMode,
-  }) : id = id ?? generateId();
+  });
 
   /// Creates a new [Effect] with inner shadow.
   Effect.innerShadow({
-    String? id,
+    required this.id,
     this.type = EffectType.innerShadow,
     required this.radius,
     this.visible = true,
@@ -103,11 +102,11 @@ class Effect with EquatableMixin, SerializableMixin {
     required this.offset,
     required this.spread,
     this.blendMode,
-  }) : id = id ?? generateId();
+  });
 
   /// Creates a new [Effect] with layer blur.
   Effect.layerBlur({
-    String? id,
+    required this.id,
     this.type = EffectType.layerBlur,
     required this.radius,
     this.visible = true,
@@ -115,11 +114,11 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  }) : id = id ?? generateId();
+  });
 
   /// Creates a new [Effect] with background blur.
   Effect.backgroundBlur({
-    String? id,
+    required this.id,
     this.type = EffectType.backgroundBlur,
     required this.radius,
     this.visible = true,
@@ -127,7 +126,7 @@ class Effect with EquatableMixin, SerializableMixin {
     this.blendMode,
     this.offset,
     this.spread,
-  }) : id = id ?? generateId();
+  });
 
   /// Duplicates this instance with given data overrides.
   Effect copyWith({
@@ -140,6 +139,7 @@ class Effect with EquatableMixin, SerializableMixin {
     BlendModeC? blendMode,
   }) =>
       Effect(
+        id: id,
         type: type ?? this.type,
         radius: radius ?? this.radius,
         visible: visible ?? this.visible,
@@ -151,6 +151,7 @@ class Effect with EquatableMixin, SerializableMixin {
 
   @override
   List<Object?> get props => [
+        id,
         type,
         visible,
         blendMode,
