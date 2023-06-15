@@ -99,9 +99,9 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
     'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'alignment': instance.alignment.toJson(),
     'variables': instance.variables,
     'multipleVariables': instance.multipleVariables,
+    'alignment': instance.alignment.toJson(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -118,10 +118,10 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   writeNotNull('widthFactor', instance.widthFactor);
   writeNotNull('heightFactor', instance.heightFactor);
   val['children'] = instance.children;
-  val['clipsContent'] = instance.clipsContent;
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize?.toJson());
+  val['clipsContent'] = instance.clipsContent;
   val['isScrollable'] = instance.isScrollable;
   val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
   val['reverse'] = instance.reverse;

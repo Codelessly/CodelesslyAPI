@@ -7,7 +7,7 @@ part of 'paint.dart';
 // **************************************************************************
 
 PaintModel _$PaintModelFromJson(Map json) => PaintModel(
-      id: json['id'] as String?,
+      id: json['id'] as String,
       type: $enumDecode(_$PaintTypeEnumMap, json['type']),
       visible: json['visible'] as bool? ?? true,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
