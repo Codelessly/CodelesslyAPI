@@ -10,21 +10,17 @@ VariableData _$VariableDataFromJson(Map json) => VariableData(
       id: json['id'] as String,
       name: json['name'] as String,
       value: json['value'] as String? ?? '',
-      isUsed: json['isUsed'] as bool? ?? true,
       type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
               unknownValue: VariableType.text) ??
           VariableType.text,
-      nodes: (json['nodes'] as List<dynamic>?)?.map((e) => e as String).toSet(),
     );
 
 Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'nodes': instance.nodes.toList(),
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
-      'isUsed': instance.isUsed,
     };
 
 const _$VariableTypeEnumMap = {
@@ -63,17 +59,13 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
               unknownValue: VariableType.text) ??
           VariableType.text,
       value: json['value'] as String? ?? '',
-      isUsed: json['isUsed'] as bool? ?? true,
-      nodes: (json['nodes'] as List<dynamic>?)?.map((e) => e as String).toSet(),
     );
 
 Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'nodes': instance.nodes.toList(),
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
-      'isUsed': instance.isUsed,
       'canvasId': instance.canvasId,
     };

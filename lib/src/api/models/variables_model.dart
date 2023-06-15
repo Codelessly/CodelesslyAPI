@@ -52,10 +52,6 @@ class VariableData
   /// Name of the variable. This must be unique within a scope.
   final String name;
 
-  /// Nodes where this variable is used. This is used to determine whether
-  /// a variable is used or not.
-  final Set<String> nodes;
-
   /// Default value this variable. This can be an empty string if no value is
   /// explicitly provided by the user.
   final String value;
@@ -64,23 +60,13 @@ class VariableData
   /// Type of the variable. This is used to determine how to parse the value.
   final VariableType type;
 
-  /// This denotes whether the variable is used anywhere or not. The system
-  /// can't determine this automatically so an update method must be called
-  /// on the corresponding scope to update this value. This is primarily used
-  /// for REST API as it is easier to gather info about usages. It is not
-  /// necessary to update this for editor variables as it is not intended for
-  /// it.
-  bool isUsed;
-
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
     required this.name,
     this.value = '',
-    this.isUsed = true,
     this.type = VariableType.text,
-    Set<String>? nodes,
-  }) : nodes = nodes ?? <String>{};
+  });
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -96,12 +82,10 @@ class VariableData
         name: name ?? this.name,
         value: value ?? this.value,
         type: type ?? this.type,
-        isUsed: isUsed ?? this.isUsed,
-        nodes: nodes ?? this.nodes,
       );
 
   @override
-  List<Object?> get props => [id, name, value, type, nodes];
+  List<Object?> get props => [id, name, value, type];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -121,8 +105,6 @@ class VariableData
         name: name,
         value: value,
         type: type,
-        isUsed: isUsed,
-        nodes: nodes,
       );
 
   /// Converts [value] to given type [T]. This will fail if type conversion
@@ -235,8 +217,6 @@ class CanvasVariableData extends VariableData {
     required super.name,
     required super.type,
     super.value,
-    super.isUsed,
-    super.nodes,
   });
 
   @override
@@ -255,8 +235,6 @@ class CanvasVariableData extends VariableData {
         type: type ?? this.type,
         id: id ?? this.id,
         canvasId: canvasId ?? this.canvasId,
-        isUsed: isUsed ?? this.isUsed,
-        nodes: nodes ?? this.nodes,
       );
 
   @override
