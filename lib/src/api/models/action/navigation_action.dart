@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../mixins.dart';
+import '../condition.dart';
 import 'action.dart';
 
 part 'navigation_action.g.dart';
@@ -67,4 +68,7 @@ class NavigationAction extends ActionModel
 
   @override
   Map toJson() => _$NavigationActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitNavigationAction(this);
 }

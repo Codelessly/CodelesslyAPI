@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../mixins.dart';
+import '../condition.dart';
 import 'action.dart';
 
 part 'link_action.g.dart';
@@ -31,4 +32,7 @@ class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
 
   @override
   Map toJson() => _$LinkActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitLinkAction(this);
 }

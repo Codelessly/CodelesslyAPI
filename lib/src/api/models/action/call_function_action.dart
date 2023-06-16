@@ -34,4 +34,8 @@ class CallFunctionAction extends ActionModel
 
   @override
   Map toJson() => _$CallFunctionActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) =>
+      visitor.visitCallFunctionAction(this);
 }

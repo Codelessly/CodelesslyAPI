@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../mixins.dart';
+import '../condition.dart';
 import '../variables_model.dart';
 import 'action.dart';
 
@@ -46,4 +47,7 @@ class SetVariableAction extends ActionModel
 
   @override
   Map toJson() => _$SetVariableActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetVariableAction(this);
 }
