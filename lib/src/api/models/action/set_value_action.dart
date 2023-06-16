@@ -45,6 +45,9 @@ class SetValueAction extends ActionModel
 
   @override
   Map toJson() => _$SetValueActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetValueAction(this);
 }
 
 /// Describes how to set the value.

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../mixins.dart';
+import '../condition.dart';
 import 'action.dart';
 
 part 'api_call_action.g.dart';
@@ -41,4 +42,7 @@ class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
 
   @override
   Map toJson() => _$ApiCallActionToJson(this);
+
+  @override
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitApiCall(this);
 }

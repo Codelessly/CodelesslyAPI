@@ -85,4 +85,6 @@ abstract class ActionModel with SerializableMixin {
         return ApiCallAction.fromJson(json);
     }
   }
+
+  R? accept<R>(ActionVisitor<R> visitor);
 }
