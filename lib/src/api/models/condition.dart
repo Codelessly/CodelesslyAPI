@@ -29,13 +29,13 @@ enum ConditionOperation {
   String get label {
     switch (this) {
       case ConditionOperation.equalsTo:
-        return 'Equal';
+        return 'Equals To';
       case ConditionOperation.notEqualsTo:
-        return 'Not Equals';
+        return 'Not Equal To';
       case ConditionOperation.greaterThan:
-        return 'Greater';
+        return 'Greater Than';
       case ConditionOperation.lessThan:
-        return 'Less';
+        return 'Less Than';
     }
   }
 
@@ -589,6 +589,33 @@ abstract interface class ConditionVisitor<R> {
 
   /// Evaluates the else condition and returns the result.
   R? visitElseCondition(ElseCondition condition);
+}
+
+/// An interface for evaluating actions and retrieving the result.
+abstract interface class ActionVisitor<R> {
+  /// Evaluates the action and returns the result.
+  R? visitSetValueAction(SetValueAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitSetVariableAction(SetVariableAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitApiCall(ApiCallAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitNavigationAction(NavigationAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitSetVariantAction(SetVariantAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitSubmitAction(SubmitAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitLinkAction(LinkAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitCallFunctionAction(CallFunctionAction action);
 }
 
 /// An interface for evaluating expressions.
