@@ -195,6 +195,10 @@ mixin ReactionMixin {
 /// A mixin that holds the children of the node that are reactive, i.e., can
 /// perform actions on triggers. For ex. [NavigationBarNode].
 mixin ParentReactionMixin {
+  /// These objects represent the children of the
+  /// node that are reactive. A reactive child is one that can respond to
+  /// certain triggers or changes in the application, such as user interaction
+  /// or changes in data.
   List<ReactionMixin> get reactiveChildren;
 }
 
