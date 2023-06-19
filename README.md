@@ -1,10 +1,10 @@
+**This is a lower-level package for constructing an abstract, universal data representation of UI. If you're looking for the developer SDK, use the [Codelessly Cloud UI SDK](https://pub.dev/packages/codelessly_sdk).**
+
 # Codelessly API
 
 > Flutter's layouts and widgets represented as models and JSON data. 
 
 This package is used by the Codelessly Editor and CloudUI SDK to render Flutter Widgets. These APIs enable developers to interact with and manipulate user interfaces in a structured manner. It can be used to define components, layouts, interactions, and styles, among other things, programmatically.
-
-This is a lower-level package for constructing an abstract, universal data representation of UI. If you're looking for the developer SDK, use the [Codelessly Cloud UI SDK](https://pub.dev/packages/codelessly_sdk). 
 
 ## About
 
