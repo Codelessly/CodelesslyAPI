@@ -813,13 +813,10 @@ mixin VariablePropertiesMixin {
     this.multipleVariables = multipleVariables ?? {};
   }
 
-  /// Whether a variable with given [id] or name is used by this node.
-  bool usesVariable(String id) =>
-      variables.values.contains(id) ||
-      multipleVariables.values.any((e) => e.contains(id));
-
   /// Replace variable with [oldName] to [newName].
-  void updateVariableName({required String oldName, required String newName}) {}
+  void updateVariableName({required String oldName, required String newName}) {
+    // TODO: implement updateVariableName.
+  }
 }
 
 /// A mixin that allows to define properties of a node that can be set via an

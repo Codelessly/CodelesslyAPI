@@ -20,7 +20,10 @@ enum VariableType {
   boolean,
 
   /// List type. Represents a list of values.
-  list;
+  list,
+
+  /// Map type. Represents a map.
+  map;
 
   /// Returns a string representation of the variable type.
   String get label {
@@ -35,6 +38,8 @@ enum VariableType {
         return 'Boolean';
       case VariableType.list:
         return 'List';
+      case VariableType.map:
+        return 'Map';
     }
   }
 }
@@ -57,11 +62,12 @@ class VariableData
   final String value;
 
   @JsonKey(unknownEnumValue: VariableType.text)
+
   /// Type of the variable. This is used to determine how to parse the value.
   final VariableType type;
 
   /// Creates a new [VariableData].
-  VariableData({
+  const VariableData({
     required this.id,
     required this.name,
     this.value = '',
@@ -264,4 +270,14 @@ List<CanvasVariables> canvasVariablesFromJson(Map<String, dynamic> json) {
     for (final entry in json.entries)
       CanvasVariables.fromJson({'id': entry.key, 'variables': entry.value}),
   ];
+}
+
+/// A variable class that represents creation of a variable from given name.
+class PredefinedVariableData extends VariableData {
+  /// Creates a new [PredefinedVariableData].
+  PredefinedVariableData({
+    required super.name,
+    super.value = '',
+    super.type = VariableType.text,
+  }) : super(id: generateId());
 }
