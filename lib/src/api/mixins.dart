@@ -3,7 +3,9 @@
 // license that can be found in the LICENSE.md file.
 
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 
+import 'extensions.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
@@ -814,8 +816,23 @@ mixin VariablePropertiesMixin {
   }
 
   /// Replace variable with [oldName] to [newName].
+  @mustCallSuper
   void updateVariableName({required String oldName, required String newName}) {
-    // TODO: implement updateVariableName.
+    // variables
+    for (final property in variables.keys) {
+      final String variablePath = variables[property]!;
+      if(!variablePath.startsWith(oldName)) continue;
+      variables[property] = variablePath.replaceFirst(oldName, newName);
+    }
+
+    // multi-variables.
+    for (final value in multipleVariables.values) {
+      for (int index = 0; index < value.length; index++) {
+        final variablePath = value[index];
+        if(!variablePath.startsWith(oldName)) continue;
+        value[index] = value[index].replaceFirst(oldName, newName);
+      }
+    }
   }
 }
 

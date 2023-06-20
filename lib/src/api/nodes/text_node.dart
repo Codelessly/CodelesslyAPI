@@ -5,6 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../extensions.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -47,8 +48,7 @@ class WidthRange with SerializableMixin implements EquatableMixin {
 /// Refer to [Text](https://api.flutter.dev/flutter/widgets/Text-class.html) in
 /// Flutter for more details.
 @JsonSerializable()
-class TextNode extends SceneNode
-    with BlendMixin, TextMixin, FontMixin {
+class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   @override
   final String type = 'text';
 
@@ -160,8 +160,9 @@ class TextNode extends SceneNode
 
   @override
   void updateVariableName({required String oldName, required String newName}) {
+    super.updateVariableName(oldName: oldName, newName: newName);
     if (characters.isEmpty) return;
-    characters = characters.replaceAll(oldName, newName);
+    characters = characters.replaceVariableName(oldName, newName);
   }
 }
 

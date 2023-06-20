@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../extensions.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -96,6 +97,13 @@ class AppBarNode extends SceneNode
         .union(
           BoxConstraintsModel(minHeight: minHeight),
         );
+  }
+
+  @override
+  void updateVariableName({required String oldName, required String newName}) {
+    super.updateVariableName(oldName: oldName, newName: newName);
+    if (properties.title.isEmpty) return;
+    properties.title = properties.title.replaceVariableName(oldName, newName);
   }
 }
 

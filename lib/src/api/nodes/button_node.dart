@@ -4,6 +4,7 @@
 
 import 'package:json_annotation/json_annotation.dart';
 
+import '../extensions.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -60,8 +61,7 @@ enum ButtonTypeEnum {
 /// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for
 /// more details.
 @JsonSerializable()
-class ButtonNode extends SceneNode
-    with CustomPropertiesMixin {
+class ButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'button';
 
@@ -185,8 +185,9 @@ class ButtonNode extends SceneNode
 
   @override
   void updateVariableName({required String oldName, required String newName}) {
+    super.updateVariableName(oldName: oldName, newName: newName);
     if (properties.label.isEmpty) return;
-    properties.label = properties.label.replaceAll(oldName, newName);
+    properties.label = properties.label.replaceVariableName(oldName, newName);
   }
 }
 

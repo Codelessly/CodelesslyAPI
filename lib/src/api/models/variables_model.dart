@@ -115,23 +115,8 @@ class VariableData
 
   /// Converts [value] to given type [T]. This will fail if type conversion
   /// fails.
-  T? typedValue<T>() {
-    if (value.isEmpty) return null;
-    if (T == int) {
-      return int.parse(value) as T;
-    } else if (T == double) {
-      return double.parse(value) as T;
-    } else if (T == bool) {
-      return (value.toLowerCase() == 'true') as T;
-    } else if (T == String) {
-      return value as T;
-    } else if (T == List) {
-      // TODO: implement type conversion.
-      throw UnimplementedError('Not Implemented');
-    } else {
-      return value as T?;
-    }
-  }
+  R? typedValue<R>({R? defaultValue}) =>
+      value.typedValue<R>(defaultValue: defaultValue);
 }
 
 /// Contains all the variables associated with a canvas inside a page.
