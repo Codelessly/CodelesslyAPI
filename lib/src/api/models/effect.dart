@@ -48,8 +48,8 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 /// A visual effect such as a shadow or blur.
 @JsonSerializable()
 class Effect with EquatableMixin, SerializableMixin {
-
   @JsonKey(readValue: _readId)
+
   /// Unique identifier of the effect.
   final String id;
 

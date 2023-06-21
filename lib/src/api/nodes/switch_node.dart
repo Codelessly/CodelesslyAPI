@@ -23,8 +23,7 @@ const double kSwitchDefaultWidth = 59;
 /// Refer to [Switch](https://api.flutter.dev/flutter/material/Switch-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class SwitchNode extends SceneNode
-    with CustomPropertiesMixin, ScalableMixin {
+class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'switch';
 
