@@ -125,6 +125,13 @@ final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
 /// wrapped in ${} curly braces.
 const String variableSyntaxIdentifierPattern = r'\${(?<value>.+)}';
 
+/// A regex that can match empty ${} syntax with partial match for curly braces.
+const String emptyVariableSyntaxIdentifierPattern = r'\${?}?';
+
+/// Regex for [emptyVariableSyntaxIdentifierPattern].
+final RegExp emptyVariableSyntaxIdentifierRegex =
+    RegExp(emptyVariableSyntaxIdentifierPattern);
+
 /// Regex for [variableSyntaxIdentifierPattern].
 final RegExp variableSyntaxIdentifierRegex =
     RegExp(variableSyntaxIdentifierPattern);
