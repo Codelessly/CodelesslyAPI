@@ -6,51 +6,46 @@ part of 'paint.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PaintModel _$PaintModelFromJson(Map json) {
-  $checkKeys(
-    json,
-    requiredKeys: const ['id'],
-  );
-  return PaintModel(
-    id: json['id'] as String,
-    type: $enumDecode(_$PaintTypeEnumMap, json['type']),
-    visible: json['visible'] as bool? ?? true,
-    opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
-    color:
-        json['color'] == null ? null : ColorRGB.fromJson(json['color'] as Map),
-    blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
-            unknownValue: BlendModeC.srcOver) ??
-        BlendModeC.srcOver,
-    gradientTransform: (json['gradientTransform'] as List<dynamic>?)
-        ?.map((e) => e as num)
-        .toList(),
-    gradientStops: (json['gradientStops'] as List<dynamic>?)
-        ?.map((e) => ColorStop.fromJson(e as Map))
-        .toList(),
-    imageTransform: (json['imageTransform'] as List<dynamic>?)
-        ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
-        .toList(),
-    downloadUrl: json['downloadUrl'] as String?,
-    imageHash: json['imageHash'] as String?,
-    fit: $enumDecodeNullable(_$FitEnumMap, json['fit']) ?? Fit.none,
-    alignment: json['alignment'] == null
-        ? AlignmentModel.none
-        : AlignmentModel.fromJson(json['alignment'] as Map),
-    scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
-    scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
-    cropData: json['cropData'] == null
-        ? null
-        : CropData.fromJson(json['cropData'] as Map),
-    croppedImageURL: json['croppedImageURL'] as String?,
-    imageName: json['imageName'] as String?,
-    sourceWidth: (json['sourceWidth'] as num?)?.toDouble(),
-    sourceHeight: (json['sourceHeight'] as num?)?.toDouble(),
-    assetID: json['assetID'] as String?,
-    imageRepeat:
-        $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
-            ImageRepeatEnum.noRepeat,
-  );
-}
+PaintModel _$PaintModelFromJson(Map json) => PaintModel(
+      id: _readId(json, 'id') as String,
+      type: $enumDecode(_$PaintTypeEnumMap, json['type']),
+      visible: json['visible'] as bool? ?? true,
+      opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
+      color: json['color'] == null
+          ? null
+          : ColorRGB.fromJson(json['color'] as Map),
+      blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
+              unknownValue: BlendModeC.srcOver) ??
+          BlendModeC.srcOver,
+      gradientTransform: (json['gradientTransform'] as List<dynamic>?)
+          ?.map((e) => e as num)
+          .toList(),
+      gradientStops: (json['gradientStops'] as List<dynamic>?)
+          ?.map((e) => ColorStop.fromJson(e as Map))
+          .toList(),
+      imageTransform: (json['imageTransform'] as List<dynamic>?)
+          ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
+          .toList(),
+      downloadUrl: json['downloadUrl'] as String?,
+      imageHash: json['imageHash'] as String?,
+      fit: $enumDecodeNullable(_$FitEnumMap, json['fit']) ?? Fit.none,
+      alignment: json['alignment'] == null
+          ? AlignmentModel.none
+          : AlignmentModel.fromJson(json['alignment'] as Map),
+      scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
+      scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
+      cropData: json['cropData'] == null
+          ? null
+          : CropData.fromJson(json['cropData'] as Map),
+      croppedImageURL: json['croppedImageURL'] as String?,
+      imageName: json['imageName'] as String?,
+      sourceWidth: (json['sourceWidth'] as num?)?.toDouble(),
+      sourceHeight: (json['sourceHeight'] as num?)?.toDouble(),
+      assetID: json['assetID'] as String?,
+      imageRepeat:
+          $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
+              ImageRepeatEnum.noRepeat,
+    );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) {
   final val = <String, dynamic>{
