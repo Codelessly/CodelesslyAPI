@@ -20,8 +20,7 @@ const double kRadioDefaultSize = 32;
 /// Refer to [Radio](https://api.flutter.dev/flutter/material/Radio-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class RadioNode extends SceneNode
-    with CustomPropertiesMixin, ScalableMixin {
+class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'radio';
 

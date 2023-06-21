@@ -49,5 +49,6 @@ class SetVariableAction extends ActionModel
   Map toJson() => _$SetVariableActionToJson(this);
 
   @override
-  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetVariableAction(this);
+  R? accept<R>(ActionVisitor<R> visitor) =>
+      visitor.visitSetVariableAction(this);
 }

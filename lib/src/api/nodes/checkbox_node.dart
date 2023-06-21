@@ -28,8 +28,7 @@ const double kCheckboxDefaultSize = 32;
 /// Refer to [Checkbox](https://api.flutter.dev/flutter/material/Checkbox-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class CheckboxNode extends SceneNode
-    with CustomPropertiesMixin, ScalableMixin {
+class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   @override
   final String type = 'checkbox';
 

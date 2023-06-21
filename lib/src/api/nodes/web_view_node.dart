@@ -19,8 +19,7 @@ part 'web_view_node.g.dart';
 ///
 /// This node utilizes the [webview_flutter] package.
 @JsonSerializable()
-class WebViewNode extends SceneNode
-    with CustomPropertiesMixin {
+class WebViewNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'webView';
 

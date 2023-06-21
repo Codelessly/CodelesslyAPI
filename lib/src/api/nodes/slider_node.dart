@@ -45,8 +45,7 @@ const double kSliderDefaultOverlayOpacity = 0.12;
 /// Refer to [Slider](https://api.flutter.dev/flutter/material/Slider-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class SliderNode extends SceneNode
-    with CustomPropertiesMixin {
+class SliderNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'slider';
 
