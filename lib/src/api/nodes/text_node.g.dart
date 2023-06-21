@@ -114,8 +114,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'characters': instance.characters,
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
@@ -125,6 +125,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
         _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
     'paragraphIndent': instance.paragraphIndent,
     'paragraphSpacing': instance.paragraphSpacing,
+    'basicBoxLocal': instance.basicBoxLocal.toJson(),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -134,7 +135,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   }
 
   writeNotNull('maxLines', instance.maxLines);
-  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   val['overflow'] = _$TextOverflowCEnumMap[instance.overflow]!;
   val['margin'] = instance.margin.toJson();
   val['padding'] = instance.padding.toJson();

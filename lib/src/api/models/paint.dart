@@ -33,12 +33,16 @@ enum ImageRepeatEnum {
   final String label;
 }
 
+/// Generates a random id if the given [json] does not contain a value for the
+/// given [key]. Required for backwards compatibility.
+Object? _readId(Map json, String key) => json[key] ?? generateId();
+
 /// A solid color, gradient, or image texture that can be applied as fill or
 /// stroke.
 @JsonSerializable()
 class PaintModel with EquatableMixin, SerializableMixin {
   /// identifier of this paint.
-  @JsonKey(required: true)
+  @JsonKey(readValue: _readId)
   final String id;
 
   /// Type of paint.
@@ -507,11 +511,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
       ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
-  factory PaintModel.fromJson(Map json) => _$PaintModelFromJson({
-        // TODO: backward compatibility, remove in 1.0.0
-        'id': generateId(),
-        ...json,
-      });
+  factory PaintModel.fromJson(Map json) => _$PaintModelFromJson(json);
 
   @override
   Map toJson() => _$PaintModelToJson(this);

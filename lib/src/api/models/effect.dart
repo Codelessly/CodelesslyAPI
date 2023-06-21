@@ -41,9 +41,15 @@ enum ShadowProperty {
   radius;
 }
 
+/// Generates a random id if the given [json] does not contain a value for the
+/// given [key]. Required for backwards compatibility.
+Object? _readId(Map json, String key) => json[key] ?? generateId();
+
 /// A visual effect such as a shadow or blur.
 @JsonSerializable()
 class Effect with EquatableMixin, SerializableMixin {
+
+  @JsonKey(readValue: _readId)
   /// Unique identifier of the effect.
   final String id;
 
