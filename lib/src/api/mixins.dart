@@ -820,7 +820,7 @@ mixin VariablePropertiesMixin {
     // variables
     for (final property in variables.keys) {
       final String variablePath = variables[property]!;
-      if(!variablePath.startsWith(oldName)) continue;
+      if (!variablePath.startsWith(oldName)) continue;
       variables[property] = variablePath.replaceFirst(oldName, newName);
     }
 
@@ -828,7 +828,7 @@ mixin VariablePropertiesMixin {
     for (final value in multipleVariables.values) {
       for (int index = 0; index < value.length; index++) {
         final variablePath = value[index];
-        if(!variablePath.startsWith(oldName)) continue;
+        if (!variablePath.startsWith(oldName)) continue;
         value[index] = value[index].replaceFirst(oldName, newName);
       }
     }

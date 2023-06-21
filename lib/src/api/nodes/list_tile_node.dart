@@ -35,8 +35,7 @@ const EdgeInsetsModel kDefaultListTileContentPadding =
 /// Refer to [ListTile](https://api.flutter.dev/flutter/material/ListTile-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class ListTileNode extends SceneNode
-    with ChildrenMixin, CustomPropertiesMixin {
+class ListTileNode extends SceneNode with ChildrenMixin, CustomPropertiesMixin {
   @override
   final String type = 'listTile';
 

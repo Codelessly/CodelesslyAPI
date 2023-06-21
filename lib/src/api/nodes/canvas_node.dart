@@ -15,11 +15,7 @@ part 'canvas_node.g.dart';
 /// Represents a canvas or a screen.
 @JsonSerializable()
 class CanvasNode extends ParentNode
-    with
-        RowColumnMixin,
-        IsolatedMixin,
-        ScrollableMixin,
-        CustomPropertiesMixin {
+    with RowColumnMixin, IsolatedMixin, ScrollableMixin, CustomPropertiesMixin {
   @override
   final String type = 'canvas';
 

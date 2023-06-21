@@ -23,8 +23,7 @@ enum EmbeddedVideoSource {
 /// This creates a WebView with an embedded video.
 /// Source of the video can be any one of the [EmbeddedVideoSource] values.
 @JsonSerializable()
-class EmbeddedVideoNode extends SceneNode
-    with CustomPropertiesMixin {
+class EmbeddedVideoNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'embeddedVideo';
 

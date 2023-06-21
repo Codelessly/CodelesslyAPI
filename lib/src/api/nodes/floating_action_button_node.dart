@@ -18,8 +18,7 @@ part 'floating_action_button_node.g.dart';
 /// Refer to [FloatingActionButton](https://api.flutter.dev/flutter/material/FloatingActionButton-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class FloatingActionButtonNode extends SceneNode
-    with CustomPropertiesMixin {
+class FloatingActionButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'floatingActionButton';
 
