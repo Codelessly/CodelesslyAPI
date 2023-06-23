@@ -29,7 +29,7 @@ extension StringExtensions on String {
     } else if (R == List) {
       try {
         return value
-            .substring(1, value.length - 2)
+            .substring(1, value.length - 1)
             .split(',')
             .map((e) => e.trim().parsedValue())
             .toList() as R?;
