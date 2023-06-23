@@ -89,6 +89,16 @@ enum ConditionJoin {
 
   /// or operator
   or;
+
+  /// Represents the logical sign for this enum.
+  String get sign {
+    switch (this) {
+      case ConditionJoin.and:
+        return '&&';
+      case ConditionJoin.or:
+        return '||';
+    }
+  }
 }
 
 /// Represents the mode of a condition (if/else if/else).
