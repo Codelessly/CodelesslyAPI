@@ -54,7 +54,29 @@ enum ActionType {
   }
 }
 
-/// Holds information about an action to perform on a user interaction.
+/// The [ActionModel] class is a representation of an interactive action
+/// that a program can execute based on a user's interaction.
+///
+/// Each [ActionModel] instance contains a specific [ActionType], which
+/// determines the type of action that needs to be performed.
+///
+/// The class supports serialization and deserialization from JSON,
+/// allowing for easy storage, retrieval, and transmission of action data.
+///
+/// It is an abstract class, meant to be subclassed for specific types of actions.
+/// The specific action classes are determined by the [ActionType] enumeration.
+///
+/// This class also implements the Visitor pattern via the [accept] method.
+/// This allows for type-specific computations or actions to be performed
+/// on an [ActionModel] instance without the need for type checking or casting.
+///
+/// For example, the [ActionModel] class can represent various types of actions
+/// such as navigation, link, submit, setValue, setVariant, setVariable,
+/// callFunction, and callApi. Each of these action types can be handled
+/// differently based on the requirements of the application.
+///
+/// This design provides a flexible and extensible way to manage actions
+/// in response to user interactions.
 abstract class ActionModel with SerializableMixin {
   /// Type of the action.
   ActionType type;
@@ -86,5 +108,18 @@ abstract class ActionModel with SerializableMixin {
     }
   }
 
+  /// Applies the visitor pattern to this [ActionModel].
+  ///
+  /// The [accept] function takes a visitor object and calls the appropriate
+  /// visit method on the visitor, according to the runtime type of this [ActionModel].
+  /// This allows the visitor to perform computations or actions depending on
+  /// the specific subclass of [ActionModel] it is dealing with.
+  ///
+  /// The return value is the result of calling the visit method on the visitor.
+  /// The visitor is responsible for specifying the return type [R].
+  ///
+  /// @param visitor The visitor object to apply to this [ActionModel].
+  ///
+  /// @returns The result of calling the visit method on the visitor.
   R? accept<R>(ActionVisitor<R> visitor);
 }
