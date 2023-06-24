@@ -1,3 +1,6 @@
+## 0.0.4
+- Add Variables and Conditions support.
+
 ## 0.0.3
 - Update SDK constraints.
 - Update ReadMe.

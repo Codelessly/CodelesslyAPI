@@ -4,24 +4,23 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'my_node.g.dart';
+part 'custom_node.g.dart';
 
 /// An example of how to create a new node.
 @JsonSerializable()
-class MyNode extends BaseNode {
+class CustomNode extends BaseNode {
   @override
-  final String type = 'myNode';
+  final String type = 'custom_node';
 
-  MyNode({
+  CustomNode({
     required super.id,
     required super.name,
     required super.basicBoxLocal,
   });
 
-  factory MyNode.fromJson(Map json) => _$MyNodeFromJson(json);
+  factory CustomNode.fromJson(Map json) => _$CustomNodeFromJson(json);
 
   @override
-  Map toJson() => _$MyNodeToJson(this);
+  Map toJson() => _$CustomNodeToJson(this);
 }
-
 ```
