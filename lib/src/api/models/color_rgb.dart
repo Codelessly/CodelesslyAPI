@@ -8,8 +8,6 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
-import '../mixins.dart';
-import 'models.dart';
 
 part 'color_rgb.g.dart';
 
