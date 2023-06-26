@@ -28,6 +28,7 @@ extension StringExtensions on String {
       }
     } else if (R == List) {
       try {
+        if (!value.startsWith('[') || !value.endsWith(']')) return null;
         return value
             .substring(1, value.length - 1)
             .split(',')
@@ -57,5 +58,48 @@ extension StringExtensions on String {
       if (!variablePath.startsWith('\${$oldName')) return variablePath;
       return variablePath.replaceFirst('\${$oldName', '\${$newName');
     });
+  }
+}
+
+/// Declares extensions on [Object].
+extension ObjectExt on Object? {
+  /// Converts given string to a typed value if possible.
+  /// Returns [defaultValue] or null otherwise.
+  R? typedValue<R>({R? defaultValue}) {
+    final value = this;
+    if (value is R) return value;
+
+    if (R == String) {
+      return value as R;
+    } else if (R == int) {
+      return (int.tryParse('$value') ?? defaultValue) as R?;
+    } else if (R == double) {
+      return (double.tryParse('$value') ?? defaultValue) as R;
+    } else if (R == num) {
+      return (num.tryParse('$value') ?? defaultValue) as R;
+    } else if (R == bool) {
+      final boolValue = bool.tryParse('$value', caseSensitive: false);
+      if (boolValue == null) return defaultValue;
+      return (boolValue || value == '1') as R;
+    } else if (R == Map) {
+      try {
+        return jsonDecode('$value') as R?;
+      } catch (e) {
+        return defaultValue;
+      }
+    } else if (R == List) {
+      try {
+        if (!'$value'.startsWith('[') || !'$value'.endsWith(']')) return null;
+        return '$value'
+            .substring(1, '$value'.length - 1)
+            .split(',')
+            .map((e) => e.trim().parsedValue())
+            .toList() as R?;
+      } catch (e) {
+        return defaultValue;
+      }
+    } else {
+      return value as R?;
+    }
   }
 }
