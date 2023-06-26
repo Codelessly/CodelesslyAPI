@@ -102,7 +102,7 @@ enum ValueType {
 }
 
 /// Represents a value to set in a node.
-abstract class ValueModel<T> with SerializableMixin {
+abstract class ValueModel<T extends Object?> with SerializableMixin {
   /// The name of the property to set the value of.
   final String name;
 
