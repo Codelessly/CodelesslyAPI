@@ -71,11 +71,13 @@ ElseCondition _$ElseConditionFromJson(Map json) => ElseCondition(
       actions: (json['actions'] as List<dynamic>?)
           ?.map((e) => ActionModel.fromJson(e as Map))
           .toList(),
+      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
     );
 
 Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'lastUpdated': dateToJson(instance.lastUpdated),
       'actions': instance.actions.map((e) => e.toJson()).toList(),
     };
 
@@ -87,10 +89,12 @@ Condition _$ConditionFromJson(Map json) => Condition(
       actions: (json['actions'] as List<dynamic>)
           .map((e) => ActionModel.fromJson(e as Map))
           .toList(),
+      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
     );
 
 Map<String, dynamic> _$ConditionToJson(Condition instance) => <String, dynamic>{
       'id': instance.id,
+      'lastUpdated': dateToJson(instance.lastUpdated),
       'expression': instance.expression.toJson(),
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'mode': _$ConditionModeEnumMap[instance.mode]!,
@@ -114,11 +118,13 @@ ConditionGroup _$ConditionGroupFromJson(Map json) => ConditionGroup(
           ? null
           : ElseCondition.fromJson(
               Map<String, dynamic>.from(json['elseCondition'] as Map)),
+      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
     );
 
 Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
   final val = <String, dynamic>{
     'id': instance.id,
+    'lastUpdated': dateToJson(instance.lastUpdated),
     'ifCondition': instance.ifCondition.toJson(),
     'elseIfConditions':
         instance.elseIfConditions.map((e) => e.toJson()).toList(),

@@ -333,8 +333,15 @@ sealed class BaseCondition with EquatableMixin, SerializableMixin {
   /// id of the condition
   final String id;
 
+  /// last updated timestamp
+  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  final DateTime lastUpdated;
+
   /// Creates a base condition.
-  const BaseCondition({required this.id});
+  BaseCondition({
+    required this.id,
+    DateTime? lastUpdated,
+  }) : lastUpdated = lastUpdated ?? DateTime.now();
 
   /// Factory constructor for creating a new [BaseCondition] instance from
   /// JSON data.
@@ -369,6 +376,7 @@ class ElseCondition extends BaseCondition {
   ElseCondition({
     required super.id,
     List<ActionModel>? actions,
+    super.lastUpdated,
   }) : actions = actions ?? [];
 
   /// Duplicates the else condition with the provided actions list.
@@ -379,6 +387,7 @@ class ElseCondition extends BaseCondition {
     return ElseCondition(
       id: id ?? this.id,
       actions: actions ?? this.actions,
+      lastUpdated: DateTime.now(),
     );
   }
 
@@ -413,11 +422,12 @@ class Condition extends BaseCondition {
   final ConditionMode mode;
 
   /// Creates a simple condition
-  const Condition({
+  Condition({
     required super.id,
     required this.mode,
     required this.expression,
     required this.actions,
+    super.lastUpdated,
   });
 
   /// CopyWith
@@ -431,6 +441,7 @@ class Condition extends BaseCondition {
       mode: mode,
       expression: expression ?? this.expression,
       actions: actions ?? this.actions,
+      lastUpdated: DateTime.now(),
     );
   }
 
@@ -474,6 +485,7 @@ class ConditionGroup extends BaseCondition {
     required this.ifCondition,
     List<Condition>? elseIfConditions,
     this.elseCondition,
+    super.lastUpdated,
   }) : elseIfConditions = elseIfConditions ?? [];
 
   /// CopyWith
@@ -490,6 +502,7 @@ class ConditionGroup extends BaseCondition {
       ifCondition: ifCondition ?? this.ifCondition,
       elseIfConditions: elseIfConditions ?? this.elseIfConditions,
       elseCondition: elseCondition ?? this.elseCondition,
+      lastUpdated: DateTime.now(),
     );
   }
 
