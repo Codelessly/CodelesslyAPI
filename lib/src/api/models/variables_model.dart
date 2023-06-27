@@ -115,7 +115,7 @@ class VariableData
 
   /// Converts [value] to given type [T]. This will fail if type conversion
   /// fails.
-  R? typedValue<R>({R? defaultValue}) =>
+  R? typedValue<R extends Object>({R? defaultValue}) =>
       value.typedValue<R>(defaultValue: defaultValue);
 }
 
