@@ -14,4 +14,5 @@ export 'src/api/models/models.dart';
 export 'src/api/node_json_converter.dart';
 export 'src/api/nodes/nodes.dart';
 export 'src/api/regexes.dart';
+export 'src/api/typed_value.dart';
 export 'src/api/utils.dart';
