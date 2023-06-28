@@ -1,3 +1,6 @@
+## 0.0.5
+- Add improved Variables type support.
+
 ## 0.0.4
 - Add Variables and Conditions support.
 
