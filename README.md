@@ -1,4 +1,4 @@
-**This is a lower-level package for constructing an abstract, universal data representation of UI. If you're looking for the developer SDK, use the [Codelessly Cloud UI SDK](https://pub.dev/packages/codelessly_sdk).**
+**This is a lower-level package for constructing an abstract, universal data representation of UI. If you're looking for the developer SDK, use the [Codelessly CloudUI™ SDK](https://pub.dev/packages/codelessly_sdk).**
 
 # Codelessly API
 
