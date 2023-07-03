@@ -212,7 +212,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
       );
 
   /// Create a Solid Paint with only the required properties.
-  PaintModel.solid({
+  const PaintModel.solid({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -238,7 +238,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Create an Image Paint with only the required properties.
-  PaintModel.image({
+  const PaintModel.image({
     required this.id,
     required this.downloadUrl,
     required this.fit,
@@ -266,7 +266,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         color = null;
 
   /// Creates [PaintModel] with linear gradient.
-  PaintModel.linearGradient({
+  const PaintModel.linearGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -292,7 +292,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with radial gradient.
-  PaintModel.radialGradient({
+  const PaintModel.radialGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -318,7 +318,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with angular gradient.
-  PaintModel.angularGradient({
+  const PaintModel.angularGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -344,7 +344,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with given data.
-  PaintModel({
+  const PaintModel({
     required this.id,
     required this.type,
     this.visible = true,
