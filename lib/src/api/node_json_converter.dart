@@ -72,6 +72,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'variance': VarianceNode.fromJson,
       'listView': ListViewNode.fromJson,
       'pageView': PageViewNode.fromJson,
+      'tabBar': TabBarNode.fromJson,
     };
   }
 

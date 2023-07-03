@@ -39,3 +39,4 @@ export 'variance_node.dart';
 export 'web_view_google_maps_properties.dart';
 export 'web_view_node.dart';
 export 'web_view_twitter_properties.dart';
+export 'tab_bar_node.dart';
