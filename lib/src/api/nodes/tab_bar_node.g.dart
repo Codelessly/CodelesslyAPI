@@ -192,11 +192,23 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
               _$TabBarContentTypeEnumMap, json['contentType']) ??
           TabBarContentType.labelAndIcon,
       showDivider: json['showDivider'] as bool? ?? true,
+      indicatorStyle: $enumDecodeNullable(
+              _$TabIndicatorStyleEnumMap, json['indicatorStyle']) ??
+          TabIndicatorStyle.underline,
+      indicatorShape:
+          $enumDecodeNullable(_$CShapeBorderEnumMap, json['indicatorShape']) ??
+              CShapeBorder.roundedRectangle,
+      indicatorCornerRadius: json['indicatorCornerRadius'] == null
+          ? CornerRadius.zero
+          : CornerRadius.fromJson(json['indicatorCornerRadius'] as Map),
     );
 
 Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
   final val = <String, dynamic>{
     'tabs': instance.tabs.map((e) => e.toJson()).toList(),
+    'indicatorColor': instance.indicatorColor.toJson(),
+    'indicatorWeight': instance.indicatorWeight,
+    'indicatorSize': _$TabBarIndicatorSizeEnumEnumMap[instance.indicatorSize]!,
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -205,10 +217,6 @@ Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
     }
   }
 
-  writeNotNull('indicatorColor', instance.indicatorColor?.toJson());
-  val['indicatorWeight'] = instance.indicatorWeight;
-  val['indicatorSize'] =
-      _$TabBarIndicatorSizeEnumEnumMap[instance.indicatorSize]!;
   writeNotNull('labelColor', instance.labelColor?.toJson());
   val['labelStyle'] = instance.labelStyle.toJson();
   writeNotNull('unselectedLabelColor', instance.unselectedLabelColor?.toJson());
@@ -221,6 +229,9 @@ Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
   val['gap'] = instance.gap;
   val['contentType'] = _$TabBarContentTypeEnumMap[instance.contentType]!;
   val['showDivider'] = instance.showDivider;
+  val['indicatorStyle'] = _$TabIndicatorStyleEnumMap[instance.indicatorStyle]!;
+  val['indicatorShape'] = _$CShapeBorderEnumMap[instance.indicatorShape]!;
+  val['indicatorCornerRadius'] = instance.indicatorCornerRadius.toJson();
   return val;
 }
 
@@ -233,6 +244,22 @@ const _$TabBarContentTypeEnumMap = {
   TabBarContentType.label: 'label',
   TabBarContentType.icon: 'icon',
   TabBarContentType.labelAndIcon: 'labelAndIcon',
+};
+
+const _$TabIndicatorStyleEnumMap = {
+  TabIndicatorStyle.none: 'none',
+  TabIndicatorStyle.underline: 'underline',
+  TabIndicatorStyle.filled: 'filled',
+  TabIndicatorStyle.border: 'border',
+};
+
+const _$CShapeBorderEnumMap = {
+  CShapeBorder.rectangle: 'rectangle',
+  CShapeBorder.circle: 'circle',
+  CShapeBorder.stadium: 'stadium',
+  CShapeBorder.roundedRectangle: 'roundedRectangle',
+  CShapeBorder.continuousRectangle: 'continuousRectangle',
+  CShapeBorder.beveledRectangle: 'beveledRectangle',
 };
 
 TabItem _$TabItemFromJson(Map json) => TabItem(

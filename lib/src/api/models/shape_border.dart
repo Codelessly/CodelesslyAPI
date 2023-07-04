@@ -30,4 +30,8 @@ enum CShapeBorder {
 
   /// Displayable string representation of this [CShapeBorder].
   final String label;
+
+  /// Whether this [CShapeBorder] can have a radius.
+  bool get canHaveRadius =>
+      this != rectangle && this != circle && this != stadium;
 }
