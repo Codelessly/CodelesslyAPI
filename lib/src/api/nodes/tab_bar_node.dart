@@ -87,6 +87,34 @@ enum TabBarIndicatorSizeEnum {
   label,
 }
 
+/// Represents a tab item content: text, icon, or both.
+enum TabBarContentType {
+  /// Show only the text.
+  label('Label'),
+
+  /// Show only the icon.
+  icon('Icon'),
+
+  /// Show both the text and the icon.
+  labelAndIcon('Label & Icon');
+
+  const TabBarContentType(this.displayLabel);
+
+  /// The display label of the tab item content.
+  final String displayLabel;
+
+  /// Whether to show the icon.
+  bool get showIcon =>
+      this == TabBarContentType.icon || this == TabBarContentType.labelAndIcon;
+
+  /// Whether to show the text.
+  bool get showLabel =>
+      this == TabBarContentType.label || this == TabBarContentType.labelAndIcon;
+
+  /// Whether to show both the text and the icon.
+  bool get showBoth => this == TabBarContentType.labelAndIcon;
+}
+
 /// The properties of a [TabBarNode].
 @JsonSerializable()
 class TabBarProperties with SerializableMixin, EquatableMixin {
@@ -126,6 +154,18 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
   /// The color of the tab divider.
   ColorRGBA? dividerColor;
 
+  /// Determines the direction of label and icon in a tab.
+  AxisC tabItemDirection;
+
+  /// Spacing between icon and text of a tab.
+  double gap;
+
+  /// Determines what to show for a tab: text, icon or both.
+  TabBarContentType contentType;
+
+  /// Whether to show the divider.
+  bool showDivider;
+
   /// Creates a new [TabBarProperties] instance.
   TabBarProperties({
     List<TabItem> tabs = const [],
@@ -140,6 +180,10 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
     this.indicatorPadding = EdgeInsetsModel.zero,
     this.dividerColor = ColorRGBA.black,
     this.labelPadding = EdgeInsetsModel.zero,
+    this.tabItemDirection = AxisC.horizontal,
+    this.gap = 10,
+    this.contentType = TabBarContentType.labelAndIcon,
+    this.showDivider = true,
   })  : tabs = [...tabs],
         labelStyle = labelStyle ?? TextProp(),
         unselectedLabelStyle = unselectedLabelStyle ?? TextProp();
@@ -159,6 +203,10 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
     EdgeInsetsModel? indicatorPadding,
     EdgeInsetsModel? labelPadding,
     ColorRGBA? dividerColor,
+    AxisC? tabItemDirection,
+    double? gap,
+    TabBarContentType? contentType,
+    bool? showDivider,
   }) {
     return TabBarProperties(
       tabs: tabs ?? this.tabs,
@@ -173,6 +221,10 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
       indicatorPadding: indicatorPadding ?? this.indicatorPadding,
       labelPadding: labelPadding ?? this.labelPadding,
       dividerColor: dividerColor ?? this.dividerColor,
+      tabItemDirection: tabItemDirection ?? this.tabItemDirection,
+      gap: gap ?? this.gap,
+      contentType: contentType ?? this.contentType,
+      showDivider: showDivider ?? this.showDivider,
     );
   }
 
@@ -197,6 +249,10 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
         indicatorPadding,
         labelPadding,
         dividerColor,
+        tabItemDirection,
+        gap,
+        contentType,
+        showDivider,
       ];
 }
 
@@ -209,18 +265,6 @@ class TabItem with EquatableMixin, SerializableMixin {
   /// Label of the tab.
   String label;
 
-  /// Alignment of the label.
-  TextAlignHorizontalEnum labelAlignment;
-
-  /// Style of the label.
-  TextProp labelStyle;
-
-  /// Describes the position of the icon.
-  IconPlacementEnum placement;
-
-  /// Space between the icon and the label.
-  double gap;
-
   /// Icon to display in the button.
   MultiSourceIconModel icon;
 
@@ -228,13 +272,9 @@ class TabItem with EquatableMixin, SerializableMixin {
   TabItem({
     required this.id,
     required this.label,
-    this.labelAlignment = TextAlignHorizontalEnum.center,
     TextProp? labelStyle,
-    this.placement = IconPlacementEnum.start,
-    this.gap = 8,
     this.icon = const MultiSourceIconModel(size: 20, color: null),
-  }) : labelStyle =
-            labelStyle ?? TextProp.general(fills: List.empty(growable: true));
+  });
 
   /// Creates a copy of this [TabItem] instance with the given values.
   TabItem copyWith({
@@ -249,10 +289,6 @@ class TabItem with EquatableMixin, SerializableMixin {
     return TabItem(
       id: id ?? this.id,
       label: label ?? this.label,
-      labelAlignment: labelAlignment ?? this.labelAlignment,
-      labelStyle: labelStyle ?? this.labelStyle,
-      placement: placement ?? this.placement,
-      gap: gap ?? this.gap,
       icon: icon ?? this.icon,
     );
   }
@@ -264,13 +300,5 @@ class TabItem with EquatableMixin, SerializableMixin {
   Map toJson() => _$TabItemToJson(this);
 
   @override
-  List<Object?> get props => [
-        id,
-        label,
-        labelAlignment,
-        labelStyle,
-        placement,
-        gap,
-        icon,
-      ];
+  List<Object?> get props => [id, label, icon];
 }
