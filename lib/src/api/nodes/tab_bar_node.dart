@@ -115,6 +115,21 @@ enum TabBarContentType {
   bool get showBoth => this == TabBarContentType.labelAndIcon;
 }
 
+/// Represents the style of the tab indicator.
+enum TabIndicatorStyle {
+  /// no indicator.
+  none,
+
+  /// Default style.
+  underline,
+
+  /// A rectangle that stretches from one tab to another.
+  filled,
+
+  /// A border around the tab.
+  border;
+}
+
 /// The properties of a [TabBarNode].
 @JsonSerializable()
 class TabBarProperties with SerializableMixin, EquatableMixin {
@@ -122,7 +137,7 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
   List<TabItem> tabs;
 
   /// The color of the tab indicator.
-  ColorRGBA? indicatorColor;
+  ColorRGBA indicatorColor;
 
   /// The thickness of the tab indicator.
   double indicatorWeight;
@@ -166,6 +181,15 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
   /// Whether to show the divider.
   bool showDivider;
 
+  /// The style of the tab indicator.
+  TabIndicatorStyle indicatorStyle;
+
+  /// The shape of the tab indicator.
+  CShapeBorder indicatorShape;
+
+  /// The corner radius of the tab indicator.
+  CornerRadius indicatorCornerRadius;
+
   /// Creates a new [TabBarProperties] instance.
   TabBarProperties({
     List<TabItem> tabs = const [],
@@ -184,6 +208,9 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
     this.gap = 10,
     this.contentType = TabBarContentType.labelAndIcon,
     this.showDivider = true,
+    this.indicatorStyle = TabIndicatorStyle.underline,
+    this.indicatorShape = CShapeBorder.roundedRectangle,
+    this.indicatorCornerRadius = CornerRadius.zero,
   })  : tabs = [...tabs],
         labelStyle = labelStyle ?? TextProp(),
         unselectedLabelStyle = unselectedLabelStyle ?? TextProp();
@@ -207,6 +234,9 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
     double? gap,
     TabBarContentType? contentType,
     bool? showDivider,
+    TabIndicatorStyle? indicatorStyle,
+    CShapeBorder? indicatorShape,
+    CornerRadius? indicatorCornerRadius,
   }) {
     return TabBarProperties(
       tabs: tabs ?? this.tabs,
@@ -225,6 +255,10 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
       gap: gap ?? this.gap,
       contentType: contentType ?? this.contentType,
       showDivider: showDivider ?? this.showDivider,
+      indicatorStyle: indicatorStyle ?? this.indicatorStyle,
+      indicatorShape: indicatorShape ?? this.indicatorShape,
+      indicatorCornerRadius:
+          indicatorCornerRadius ?? this.indicatorCornerRadius,
     );
   }
 
@@ -253,6 +287,7 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
         gap,
         contentType,
         showDivider,
+        indicatorStyle,
       ];
 }
 
