@@ -265,12 +265,16 @@ const _$CShapeBorderEnumMap = {
 TabItem _$TabItemFromJson(Map json) => TabItem(
       id: json['id'] as String,
       label: json['label'] as String,
+      reactions: (json['reactions'] as List<dynamic>?)
+          ?.map((e) => Reaction.fromJson(e as Map))
+          .toList(),
       icon: json['icon'] == null
           ? const MultiSourceIconModel(size: 20, color: null)
           : MultiSourceIconModel.fromJson(json['icon'] as Map),
     );
 
 Map<String, dynamic> _$TabItemToJson(TabItem instance) => <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'id': instance.id,
       'label': instance.label,
       'icon': instance.icon.toJson(),

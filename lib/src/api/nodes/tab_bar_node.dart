@@ -13,7 +13,8 @@ part 'tab_bar_node.g.dart';
 
 /// Represents tabs in UI.
 @JsonSerializable()
-class TabBarNode extends SceneNode with CustomPropertiesMixin, ScrollableMixin {
+class TabBarNode extends SceneNode
+    with CustomPropertiesMixin, ScrollableMixin, ParentReactionMixin {
   @override
   final String type = 'tabBar';
 
@@ -65,6 +66,12 @@ class TabBarNode extends SceneNode with CustomPropertiesMixin, ScrollableMixin {
       useFlutterListView: false,
     );
   }
+
+  @override
+  List<TriggerType> get triggerTypes => [TriggerType.click];
+
+  @override
+  List<ReactionMixin> get reactiveChildren => properties.tabs;
 
   /// Creates a [TabBarNode] from a JSON object.
   factory TabBarNode.fromJson(Map json) => _$TabBarNodeFromJson(json);
@@ -293,7 +300,7 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
 
 /// Represents a tab in a [TabBarNode].
 @JsonSerializable()
-class TabItem with EquatableMixin, SerializableMixin {
+class TabItem with EquatableMixin, SerializableMixin, ReactionMixin {
   /// ID of the tab.
   final String id;
 
@@ -308,8 +315,11 @@ class TabItem with EquatableMixin, SerializableMixin {
     required this.id,
     required this.label,
     TextProp? labelStyle,
+    List<Reaction>? reactions,
     this.icon = const MultiSourceIconModel(size: 20, color: null),
-  });
+  }) {
+    setReactionMixin(reactions ?? []);
+  }
 
   /// Creates a copy of this [TabItem] instance with the given values.
   TabItem copyWith({
@@ -320,11 +330,13 @@ class TabItem with EquatableMixin, SerializableMixin {
     IconPlacementEnum? placement,
     double? gap,
     MultiSourceIconModel? icon,
+    List<Reaction>? reactions,
   }) {
     return TabItem(
       id: id ?? this.id,
       label: label ?? this.label,
       icon: icon ?? this.icon,
+      reactions: reactions ?? this.reactions,
     );
   }
 
