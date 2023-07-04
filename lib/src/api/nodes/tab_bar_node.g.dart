@@ -184,6 +184,14 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
       labelPadding: json['labelPadding'] == null
           ? EdgeInsetsModel.zero
           : EdgeInsetsModel.fromJson(json['labelPadding'] as Map),
+      tabItemDirection:
+          $enumDecodeNullable(_$AxisCEnumMap, json['tabItemDirection']) ??
+              AxisC.horizontal,
+      gap: (json['gap'] as num?)?.toDouble() ?? 10,
+      contentType: $enumDecodeNullable(
+              _$TabBarContentTypeEnumMap, json['contentType']) ??
+          TabBarContentType.labelAndIcon,
+      showDivider: json['showDivider'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
@@ -209,6 +217,10 @@ Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
   val['indicatorPadding'] = instance.indicatorPadding.toJson();
   val['labelPadding'] = instance.labelPadding.toJson();
   writeNotNull('dividerColor', instance.dividerColor?.toJson());
+  val['tabItemDirection'] = _$AxisCEnumMap[instance.tabItemDirection]!;
+  val['gap'] = instance.gap;
+  val['contentType'] = _$TabBarContentTypeEnumMap[instance.contentType]!;
+  val['showDivider'] = instance.showDivider;
   return val;
 }
 
@@ -217,19 +229,15 @@ const _$TabBarIndicatorSizeEnumEnumMap = {
   TabBarIndicatorSizeEnum.label: 'label',
 };
 
+const _$TabBarContentTypeEnumMap = {
+  TabBarContentType.label: 'label',
+  TabBarContentType.icon: 'icon',
+  TabBarContentType.labelAndIcon: 'labelAndIcon',
+};
+
 TabItem _$TabItemFromJson(Map json) => TabItem(
       id: json['id'] as String,
       label: json['label'] as String,
-      labelAlignment: $enumDecodeNullable(
-              _$TextAlignHorizontalEnumEnumMap, json['labelAlignment']) ??
-          TextAlignHorizontalEnum.center,
-      labelStyle: json['labelStyle'] == null
-          ? null
-          : TextProp.fromJson(json['labelStyle'] as Map),
-      placement:
-          $enumDecodeNullable(_$IconPlacementEnumEnumMap, json['placement']) ??
-              IconPlacementEnum.start,
-      gap: (json['gap'] as num?)?.toDouble() ?? 8,
       icon: json['icon'] == null
           ? const MultiSourceIconModel(size: 20, color: null)
           : MultiSourceIconModel.fromJson(json['icon'] as Map),
@@ -238,22 +246,5 @@ TabItem _$TabItemFromJson(Map json) => TabItem(
 Map<String, dynamic> _$TabItemToJson(TabItem instance) => <String, dynamic>{
       'id': instance.id,
       'label': instance.label,
-      'labelAlignment':
-          _$TextAlignHorizontalEnumEnumMap[instance.labelAlignment]!,
-      'labelStyle': instance.labelStyle.toJson(),
-      'placement': _$IconPlacementEnumEnumMap[instance.placement]!,
-      'gap': instance.gap,
       'icon': instance.icon.toJson(),
     };
-
-const _$TextAlignHorizontalEnumEnumMap = {
-  TextAlignHorizontalEnum.left: 'left',
-  TextAlignHorizontalEnum.center: 'center',
-  TextAlignHorizontalEnum.right: 'right',
-  TextAlignHorizontalEnum.justified: 'justified',
-};
-
-const _$IconPlacementEnumEnumMap = {
-  IconPlacementEnum.start: 'start',
-  IconPlacementEnum.end: 'end',
-};
