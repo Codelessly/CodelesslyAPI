@@ -8,6 +8,7 @@ extension ObjectExt on Object? {
   /// Returns [defaultValue] or null otherwise.
   R? typedValue<R extends Object>({R? defaultValue}) {
     final value = this;
+    if(this == null) return defaultValue;
     if (value is R) return value;
 
     return switch (R) {
