@@ -61,6 +61,9 @@ class VariableData
   /// explicitly provided by the user.
   final String value;
 
+  /// Whether the variable has a value or not.
+  bool get hasValue => value.isNotEmpty;
+
   @JsonKey(unknownEnumValue: VariableType.text)
 
   /// Type of the variable. This is used to determine how to parse the value.
@@ -113,10 +116,17 @@ class VariableData
         type: type,
       );
 
-  /// Converts [value] to given type [T]. This will fail if type conversion
-  /// fails.
-  R? typedValue<R extends Object>({R? defaultValue}) =>
-      value.typedValue<R>(defaultValue: defaultValue);
+  /// Returns the value converted to the appropriate type according to [type].
+  Object? getValue() {
+    return switch (type) {
+      VariableType.text => value,
+      VariableType.integer => num.tryParse(value).toInt(),
+      VariableType.decimal => num.tryParse(value).toDouble(),
+      VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+      VariableType.map => tryJsonDecode(value),
+      VariableType.list => value.toList(),
+    };
+  }
 }
 
 /// Contains all the variables associated with a canvas inside a page.

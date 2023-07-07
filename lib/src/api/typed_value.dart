@@ -8,7 +8,7 @@ extension ObjectExt on Object? {
   /// Returns [defaultValue] or null otherwise.
   R? typedValue<R extends Object>({R? defaultValue}) {
     final value = this;
-    if(this == null) return defaultValue;
+    if (this == null) return defaultValue;
     if (value is R) return value;
 
     return switch (R) {
@@ -155,7 +155,7 @@ extension ConversionExt on Object? {
     if (value is double) return value != 0;
     if (value is num) return value != 0;
     if (value is String) {
-      final parsedBool = bool.tryParse(value.toLowerCase());
+      final parsedBool = bool.tryParse(value, caseSensitive: false);
       if (parsedBool != null) return parsedBool;
       final parsedNum = num.tryParse(value);
       if (parsedNum != null) return parsedNum != 0;
