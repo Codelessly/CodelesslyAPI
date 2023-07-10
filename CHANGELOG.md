@@ -1,3 +1,6 @@
+## 0.0.6
+- Update type support to support null values.
+
 ## 0.0.5
 - Add improved Variables type support.
 
