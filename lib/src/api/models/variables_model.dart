@@ -117,16 +117,19 @@ class VariableData
       );
 
   /// Returns the value converted to the appropriate type according to [type].
-  Object? getValue() {
-    return switch (type) {
-      VariableType.text => value,
-      VariableType.integer => num.tryParse(value).toInt(),
-      VariableType.decimal => num.tryParse(value).toDouble(),
-      VariableType.boolean => bool.tryParse(value, caseSensitive: false),
-      VariableType.map => tryJsonDecode(value),
-      VariableType.list => value.toList(),
-    };
-  }
+  Object? getValue() => getValueForVariableType(value, type);
+}
+
+/// Returns the value converted to the appropriate type according to [type].
+Object? getValueForVariableType(String value, VariableType type) {
+  return switch (type) {
+    VariableType.text => value,
+    VariableType.integer => num.tryParse(value).toInt(),
+    VariableType.decimal => num.tryParse(value).toDouble(),
+    VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+    VariableType.map => tryJsonDecode(value),
+    VariableType.list => value.toList(),
+  };
 }
 
 /// Contains all the variables associated with a canvas inside a page.
