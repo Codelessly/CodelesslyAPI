@@ -64,18 +64,17 @@ class VariableData
   /// Whether the variable has a value or not.
   bool get hasValue => value.isNotEmpty;
 
-  @JsonKey(unknownEnumValue: VariableType.text)
-
   /// Type of the variable. This is used to determine how to parse the value.
+  @JsonKey(unknownEnumValue: VariableType.text)
   final VariableType type;
 
   /// Creates a new [VariableData].
-  const VariableData({
+  VariableData({
     required this.id,
     required this.name,
-    this.value = '',
+    String value = '',
     this.type = VariableType.text,
-  });
+  }) : value = sanitizeValueForVariableType(value, type).toString();
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -85,13 +84,17 @@ class VariableData
     VariableType? type,
     bool? isUsed,
     Set<String>? nodes,
-  }) =>
-      VariableData(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        value: value ?? this.value,
-        type: type ?? this.type,
-      );
+  }) {
+    final String? sanitizedValue = value == null
+        ? null
+        : sanitizeValueForVariableType(value, type ?? this.type);
+    return VariableData(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      value: sanitizedValue ?? this.value,
+      type: type ?? this.type,
+    );
+  }
 
   @override
   List<Object?> get props => [id, name, value, type];
@@ -117,18 +120,30 @@ class VariableData
       );
 
   /// Returns the value converted to the appropriate type according to [type].
-  Object? getValue() => getValueForVariableType(value, type);
+  Object? getValue() => switch (type) {
+        VariableType.text => value,
+        VariableType.integer => num.tryParse(value).toInt(),
+        VariableType.decimal => num.tryParse(value).toDouble(),
+        VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+        VariableType.map => tryJsonDecode(value),
+        VariableType.list => value.toList(),
+      };
 }
 
 /// Returns the value converted to the appropriate type according to [type].
-Object? getValueForVariableType(String value, VariableType type) {
+String? sanitizeValueForVariableType(String? value, VariableType type) {
+  if (value == null) return null;
+  if (value.isEmpty) return '';
   return switch (type) {
     VariableType.text => value,
-    VariableType.integer => num.tryParse(value).toInt(),
-    VariableType.decimal => num.tryParse(value).toDouble(),
-    VariableType.boolean => bool.tryParse(value, caseSensitive: false),
-    VariableType.map => tryJsonDecode(value),
-    VariableType.list => value.toList(),
+    VariableType.integer => num.tryParse(value).toInt()?.toString(),
+    VariableType.decimal => num.tryParse(value).toDouble()?.toString(),
+    VariableType.boolean =>
+      bool.tryParse(value, caseSensitive: false)?.toString(),
+    // TODO: this could be a bit expensive. Maybe enable only when required!
+    // VariableType.map => tryJsonDecode(value),
+    // VariableType.list => value.toList(),
+    _ => value,
   };
 }
 
