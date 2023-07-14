@@ -16,17 +16,28 @@ class CallFunctionAction extends ActionModel
   /// Name of the custom function to be called.
   final String name;
 
+  /// Parameters to be passed to the function.
+  final Map<String, dynamic> params;
+
   /// Creates a new [CallFunctionAction].
   CallFunctionAction({
     required this.name,
-  }) : super(type: ActionType.callFunction);
+    Map<String, dynamic>? params,
+  })  : params = params ?? {},
+        super(type: ActionType.callFunction);
 
   @override
-  List<Object?> get props => [name];
+  List<Object?> get props => [name, params];
 
   /// Duplicates this [CallFunctionAction] with given data overrides.
-  CallFunctionAction copyWith({String? name}) =>
-      CallFunctionAction(name: name ?? this.name);
+  CallFunctionAction copyWith({
+    String? name,
+    Map<String, dynamic>? params,
+  }) =>
+      CallFunctionAction(
+        name: name ?? this.name,
+        params: params ?? this.params,
+      );
 
   /// Creates a new [CallFunctionAction] instance from a JSON object.
   factory CallFunctionAction.fromJson(Map json) =>

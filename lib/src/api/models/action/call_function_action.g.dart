@@ -8,12 +8,16 @@ part of 'call_function_action.dart';
 
 CallFunctionAction _$CallFunctionActionFromJson(Map json) => CallFunctionAction(
       name: json['name'] as String,
+      params: (json['params'] as Map?)?.map(
+        (k, e) => MapEntry(k as String, e as String),
+      ),
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) =>
     <String, dynamic>{
       'type': _$ActionTypeEnumMap[instance.type]!,
       'name': instance.name,
+      'params': instance.params,
     };
 
 const _$ActionTypeEnumMap = {
