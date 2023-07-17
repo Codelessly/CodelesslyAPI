@@ -76,6 +76,7 @@
 /// ============================================================================
 ///   Regex explanation:
 /// ============================================================================
+/// (?<!\\)                         # Negative lookbehind to ensure "${" is not escaped.
 /// \$\{                            # Matches the starting "${" literal
 ///   (?<value>                     # Named capture group "value" for the entire variable expression:
 ///     (?<name>                    # Named capture group "name" for the variable name:
@@ -107,7 +108,7 @@
 ///
 /// Try it out here: https://regex101.com/r/FOyWLJ/1
 const String variablePathPattern =
-    r'\$\{(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)\}';
+    r'(?<!\\)\$\{(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)\}';
 
 /// Regex for [variablePathPattern].
 final RegExp variablePathRegex = RegExp(variablePathPattern);
@@ -116,17 +117,17 @@ final RegExp variablePathRegex = RegExp(variablePathPattern);
 /// on $ or ${} curly braces in a string while the text/path is actively being
 /// composed.
 const String variablePathComposingPattern =
-    r'\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)?\}?';
+    r'(?<!\\)\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)?\}?';
 
 /// Regex for [variablePathComposingPattern].
 final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
 
 /// A regex that matches any variable path identifier in a string that is
 /// wrapped in ${} curly braces.
-const String variableSyntaxIdentifierPattern = r'\${(?<value>.+)}';
+const String variableSyntaxIdentifierPattern = r'(?<!\\)\$\{(?<value>[^}]+)\}';
 
 /// A regex that can match empty ${} syntax with partial match for curly braces.
-const String emptyVariableSyntaxIdentifierPattern = r'^\${?}?$';
+const String emptyVariableSyntaxIdentifierPattern = r'^(?<!\\)\${?}?$';
 
 /// Regex for [emptyVariableSyntaxIdentifierPattern].
 final RegExp emptyVariableSyntaxIdentifierRegex =
@@ -146,6 +147,7 @@ final RegExp variableSyntaxIdentifierRegex =
 ///
 /// Regex explanation:
 ///
+/// (?<!\\)                      # Negative lookbehind to ensure "${" is not escaped.
 /// \$\{?                        # Matches the starting "${" literal (optional)
 /// (?<name>                     # Named capture group "name" for the variable name:
 ///   [a-zA-Z]+                  # Matches one or more alphabet characters
@@ -157,7 +159,7 @@ final RegExp variableSyntaxIdentifierRegex =
 ///    1. name: The variable name isolated from the expression.
 ///
 const String variableNameIdentifierPattern =
-    r'\$\{?(?<name>[a-zA-Z]+[a-zA-Z0-9_]*)\}?';
+    r'(?<!\\)\$\{?(?<name>[a-zA-Z]+[a-zA-Z0-9_]*)\}?';
 
 /// Regex for [variableNameIdentifierPattern].
 final RegExp variableNameIdentifierRegex =
