@@ -69,8 +69,8 @@ enum EdgePin {
 /// to the [OuterNodeBox]'s edges.
 ///
 /// For example, if [left] set to zero, the node's left edge will be pinned to
-/// its parent's left edge and if [left] set to 10, the node will be 10px away
-/// from its parent's left edge.
+/// its parent's left edge and if [left] is set to 10, the node will be 10px
+/// away from its parent's left edge.
 ///
 /// Similarly, if the node has [bottom] set to 50, the node will be pinned to
 /// its parent's bottom edge at a distance of 50px.
@@ -79,7 +79,7 @@ enum EdgePin {
 /// pinned to both the edges and stretches to take up the entire space of its
 /// parent on that axis.
 ///
-/// Setting two opposite edge pins to [null] is invalid because it breaks the
+/// Setting two opposite edge pins to null is invalid because it breaks the
 /// node's positioning in that axis. Both axes should have at least one non-null
 /// edge pin for positioning to work.
 ///
