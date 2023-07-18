@@ -63,7 +63,7 @@ class CanvasNode extends ParentNode
     super.isMask,
     super.effects,
     super.blendMode,
-    super.fills,
+    List<PaintModel>? fills,
     super.strokes,
     super.strokeWeight,
     super.strokeMiterLimit,
@@ -90,7 +90,7 @@ class CanvasNode extends ParentNode
     // Custom properties.
     required this.properties,
     Map<String, String>? variables,
-  }) {
+  }): super(fills: fills ?? [PaintModel.whitePaint]) {
     setRowColumnMixin(
       rowColumnType: rowColumnType,
       mainAxisAlignment: mainAxisAlignment,
