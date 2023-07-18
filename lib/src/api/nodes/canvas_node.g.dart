@@ -65,9 +65,8 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
       fills: (json['fills'] as List<dynamic>?)
-              ?.map((e) => PaintModel.fromJson(e as Map))
-              .toList() ??
-          const [],
+          ?.map((e) => PaintModel.fromJson(e as Map))
+          .toList(),
       strokes: (json['strokes'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
