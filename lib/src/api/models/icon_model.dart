@@ -120,6 +120,9 @@ class MaterialIcon extends IconModel {
     required this.supportedStyles,
   });
 
+  /// Whether this icon is two tone only.
+  bool get isTwoToneOnly => supportedStyles.length == 1 && supportedStyles.first == MaterialIconStyle.twoTone;
+
   /// Duplicates this instance of [MaterialIcon] with given data overrides.
   MaterialIcon copyWith({
     int? codepoint,
