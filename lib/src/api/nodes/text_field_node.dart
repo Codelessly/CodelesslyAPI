@@ -189,6 +189,9 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Text field decoration.
   late InputDecorationModel decoration;
 
+  /// Whether the field expands vertically.
+  late bool expands;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
@@ -213,6 +216,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.obscuringCharacter = '•',
     TextProp? inputStyle,
     InputDecorationModel? decoration,
+    this.expands = false,
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -268,6 +272,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       obscuringCharacter: obscuringCharacter ?? this.obscuringCharacter,
       inputStyle: inputStyle ?? this.inputStyle,
       decoration: decoration ?? this.decoration,
+      expands: expands ?? this.expands,
     );
   }
 
@@ -302,5 +307,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         obscuringCharacter,
         inputStyle,
         decoration,
+        expands,
       ];
 }
