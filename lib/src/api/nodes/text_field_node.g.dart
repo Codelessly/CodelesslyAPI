@@ -155,6 +155,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       decoration: json['decoration'] == null
           ? null
           : InputDecorationModel.fromJson(json['decoration'] as Map),
+      expands: json['expands'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -192,6 +193,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   val['obscuringCharacter'] = instance.obscuringCharacter;
   val['inputStyle'] = instance.inputStyle.toJson();
   val['decoration'] = instance.decoration.toJson();
+  val['expands'] = instance.expands;
   return val;
 }
 
