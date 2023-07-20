@@ -120,6 +120,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       obscureText: json['obscureText'] as bool? ?? false,
       readOnly: json['readOnly'] as bool? ?? false,
       showCursor: json['showCursor'] as bool? ?? true,
+      expands: json['expands'] as bool? ?? false,
       keyboardType: $enumDecodeNullable(
               _$TextInputTypeEnumEnumMap, json['keyboardType']) ??
           TextInputTypeEnum.text,
@@ -187,6 +188,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   writeNotNull('maxLength', instance.maxLength);
   writeNotNull('maxLines', instance.maxLines);
   writeNotNull('minLines', instance.minLines);
+  val['expands'] = instance.expands;
   val['obscuringCharacter'] = instance.obscuringCharacter;
   val['inputStyle'] = instance.inputStyle.toJson();
   val['decoration'] = instance.decoration.toJson();
