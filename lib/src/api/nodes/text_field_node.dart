@@ -179,9 +179,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Maximum lines of text that appear at a time.
   late int? minLines;
 
-  /// Whether the field expands to fill the available space vertically.
-  late bool expands;
-
   /// Defines the character that is used to obscure the text in the field.
   /// Defaults to '•'.
   late String obscuringCharacter;
@@ -201,7 +198,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.obscureText = false,
     this.readOnly = false,
     this.showCursor = true,
-    this.expands = false,
     this.keyboardType = TextInputTypeEnum.text,
     this.selectionHeightStyle = BoxHeightStyleEnum.tight,
     this.selectionWidthStyle = BoxWidthStyleEnum.tight,
@@ -272,7 +268,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       obscuringCharacter: obscuringCharacter ?? this.obscuringCharacter,
       inputStyle: inputStyle ?? this.inputStyle,
       decoration: decoration ?? this.decoration,
-      expands: expands ?? this.expands,
     );
   }
 
@@ -307,6 +302,5 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         obscuringCharacter,
         inputStyle,
         decoration,
-        expands,
       ];
 }
