@@ -23,6 +23,9 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
   /// Holds configurable properties of the text field.
   TextFieldProperties properties;
 
+  /// Initial text value of the field.
+  String initialText = '';
+
   /// Creates a text field from the given properties.
   TextFieldNode.fromProperties(this.properties)
       : super(
@@ -77,6 +80,7 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
     super.parentID,
     super.positioningMode,
     required this.properties,
+    this.initialText = '',
   });
 
   @override
@@ -175,6 +179,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Maximum lines of text that appear at a time.
   late int? minLines;
 
+  /// Whether the field expands to fill the available space vertically.
   late bool expands;
 
   /// Defines the character that is used to obscure the text in the field.

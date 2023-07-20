@@ -47,6 +47,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       properties: TextFieldProperties.fromJson(json['properties'] as Map),
+      initialText: json['initialText'] as String? ?? '',
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -94,6 +95,7 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
   writeNotNull('heightFactor', instance.heightFactor);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
+  val['initialText'] = instance.initialText;
   return val;
 }
 
