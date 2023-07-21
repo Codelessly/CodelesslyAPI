@@ -158,11 +158,15 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
           ? null
           : ColorRGBA.fromJson(json['borderColor'] as Map),
       borderWidth: (json['borderWidth'] as num?)?.toDouble(),
+      reactions: (json['reactions'] as List<dynamic>?)
+          ?.map((e) => Reaction.fromJson(e as Map))
+          .toList(),
     );
 
 Map<String, dynamic> _$FloatingActionButtonPropertiesToJson(
     FloatingActionButtonProperties instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'shape': _$CShapeBorderEnumMap[instance.shape]!,
     'cornerRadius': instance.cornerRadius.toJson(),
   };
