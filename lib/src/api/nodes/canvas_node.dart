@@ -15,7 +15,12 @@ part 'canvas_node.g.dart';
 /// Represents a canvas or a screen.
 @JsonSerializable()
 class CanvasNode extends ParentNode
-    with RowColumnMixin, IsolatedMixin, ScrollableMixin, CustomPropertiesMixin {
+    with
+        RowColumnMixin,
+        IsolatedMixin,
+        ScrollableMixin,
+        CustomPropertiesMixin,
+        ParentReactionMixin {
   @override
   final String type = 'canvas';
 
@@ -34,6 +39,15 @@ class CanvasNode extends ParentNode
 
   /// Whether this canvas is a scaffold.
   bool get isAScaffold => properties.isAScaffold;
+
+  @override
+  List<TriggerType> get triggerTypes => [TriggerType.click];
+
+  @override
+  List<ReactionMixin> get reactiveChildren =>
+      properties.floatingActionButton != null
+          ? [properties.floatingActionButton!]
+          : [];
 
   /// Creates a new [CanvasNode] with given data.
   CanvasNode({
@@ -90,7 +104,7 @@ class CanvasNode extends ParentNode
     // Custom properties.
     required this.properties,
     Map<String, String>? variables,
-  }): super(fills: fills ?? [PaintModel.whitePaint]) {
+  }) : super(fills: fills ?? [PaintModel.whitePaint]) {
     setRowColumnMixin(
       rowColumnType: rowColumnType,
       mainAxisAlignment: mainAxisAlignment,

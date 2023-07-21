@@ -85,7 +85,7 @@ class FloatingActionButtonNode extends SceneNode with CustomPropertiesMixin {
 /// Holds configurable properties for the [FloatingActionButtonNode].
 @JsonSerializable()
 class FloatingActionButtonProperties
-    with ShapeBorderMixin, SerializableMixin, EquatableMixin {
+    with ShapeBorderMixin, SerializableMixin, EquatableMixin, ReactionMixin {
   /// Background color of the FAB.
   ColorRGBA backgroundColor;
 
@@ -153,6 +153,7 @@ class FloatingActionButtonProperties
     CornerRadius cornerRadius = CornerRadius.zero,
     ColorRGBA? borderColor,
     double? borderWidth,
+    List<Reaction>? reactions,
   }) : labelStyle = labelStyle ?? TextProp.general(fontSize: 14) {
     setShapeBorderMixin(
       shape: shape,
@@ -160,6 +161,8 @@ class FloatingActionButtonProperties
       borderWidth: borderWidth,
       borderColor: borderColor,
     );
+
+    setReactionMixin(reactions ?? []);
   }
 
   /// Duplicate the current [FloatingActionButtonProperties] with the given data
