@@ -1,3 +1,8 @@
+## 0.0.7
+- Add support for Tabs.
+- Add TextField support for variables.
+- Add FAB support for variables.
+
 ## 0.0.6
 - Update type support to support null values.
 
