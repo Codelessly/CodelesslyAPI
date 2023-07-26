@@ -172,6 +172,9 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
   /// Defines minimum and maximum sizes for the [InputDecorator].
   final BoxConstraintsModel constraints;
 
+  /// Whether to show counter text.
+  final bool showCounter;
+
   /// Creates [InputDecorationModel] with given data.
   InputDecorationModel({
     this.icon = const MultiSourceIconModel(),
@@ -204,6 +207,7 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.fillColor = ColorRGBA.grey10,
     this.focusColor = ColorRGBA.black,
     this.hoverColor = ColorRGBA.grey10,
+    this.showCounter = true,
     this.errorBorder = const InputBorderModel(
       borderSide: BorderSideModel(color: ColorRGBA.red),
     ),
@@ -291,6 +295,8 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     String? semanticCounterText,
     bool? alignLabelWithHint,
     BoxConstraintsModel? constraints,
+    bool? showCounter,
+    bool forceCounterText = false,
   }) =>
       InputDecorationModel(
         icon: icon ?? this.icon,
@@ -320,7 +326,8 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         suffixStyle: suffixStyle ?? this.suffixStyle,
         suffixIconConstraints:
             suffixIconConstraints ?? this.suffixIconConstraints,
-        counterText: counterText ?? this.counterText,
+        counterText:
+            forceCounterText ? counterText : counterText ?? this.counterText,
         counterStyle: counterStyle ?? this.counterStyle,
         filled: filled ?? this.filled,
         fillColor: fillColor ?? this.fillColor,
@@ -336,6 +343,7 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         semanticCounterText: semanticCounterText ?? this.semanticCounterText,
         alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint,
         constraints: constraints ?? this.constraints,
+        showCounter: showCounter ?? this.showCounter,
       );
 
   @override
@@ -380,6 +388,7 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         semanticCounterText,
         alignLabelWithHint,
         constraints,
+        showCounter,
       ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance

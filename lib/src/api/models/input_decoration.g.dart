@@ -73,6 +73,7 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       hoverColor: json['hoverColor'] == null
           ? ColorRGBA.grey10
           : ColorRGBA.fromJson(json['hoverColor'] as Map),
+      showCounter: json['showCounter'] as bool? ?? true,
       errorBorder: json['errorBorder'] == null
           ? const InputBorderModel(
               borderSide: BorderSideModel(color: ColorRGBA.red))
@@ -156,6 +157,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   writeNotNull('semanticCounterText', instance.semanticCounterText);
   val['alignLabelWithHint'] = instance.alignLabelWithHint;
   val['constraints'] = instance.constraints.toJson();
+  val['showCounter'] = instance.showCounter;
   return val;
 }
 
