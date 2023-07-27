@@ -1,3 +1,9 @@
+## 0.0.8
+- Text field and code-gen improvements.
+- Add `showCounter` for input decoration.
+- Fix text field counter text not working properly.
+- Fix text field with incorrect sizing in codegen.
+
 ## 0.0.7
 - Add support for Tabs.
 - Add TextField support for variables.
