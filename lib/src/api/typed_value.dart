@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 
+import '../../codelessly_api.dart';
+
 /// Declares extensions on [Object].
 extension ObjectExt on Object? {
   /// Converts given string to a typed value if possible.
@@ -17,6 +19,10 @@ extension ObjectExt on Object? {
       double => value.toDouble().tryCast<R>() ?? defaultValue,
       num => value.toNum().tryCast<R>() ?? defaultValue,
       bool => value.toBool().tryCast<R>() ?? defaultValue,
+      ColorRGBA => value.toColorRGBA().tryCast<R>() ?? defaultValue,
+      ColorRGB => ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
+          defaultValue,
+      PaintModel => value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       _ when R.isMap => value.toMap().tryCast<R>(),
       _ when R.isList || R.isIterable => value.toList<R>(),
       _ when R.isSet => value.toSet<R>(),
@@ -160,6 +166,17 @@ extension ConversionExt on Object? {
       final parsedNum = num.tryParse(value);
       if (parsedNum != null) return parsedNum != 0;
     }
+    return null;
+  }
+
+  /// Converts given object to [ColorRGBA] if possible. Returns null otherwise.
+  ColorRGBA? toColorRGBA() {
+    final value = this;
+    if (value == null) return null;
+    if (value is ColorRGBA) return value;
+    if (value is String) return ColorRGBA.fromHex(value);
+    if (value is ColorRGB) return value.toColorRGBA();
+
     return null;
   }
 
