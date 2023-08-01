@@ -28,6 +28,7 @@ const _$VariableTypeEnumMap = {
   VariableType.text: 'text',
   VariableType.decimal: 'decimal',
   VariableType.boolean: 'boolean',
+  VariableType.color: 'color',
   VariableType.list: 'list',
   VariableType.map: 'map',
 };

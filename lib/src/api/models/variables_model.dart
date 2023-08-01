@@ -19,6 +19,9 @@ enum VariableType {
   /// Boolean type. Represents a boolean value.
   boolean,
 
+  /// Color type. Represents a color.
+  color,
+
   /// List type. Represents a list of values.
   list,
 
@@ -26,22 +29,15 @@ enum VariableType {
   map;
 
   /// Returns a string representation of the variable type.
-  String get label {
-    switch (this) {
-      case VariableType.integer:
-        return 'Integer';
-      case VariableType.text:
-        return 'Text';
-      case VariableType.decimal:
-        return 'Decimal';
-      case VariableType.boolean:
-        return 'Boolean';
-      case VariableType.list:
-        return 'List';
-      case VariableType.map:
-        return 'Map';
-    }
-  }
+  String get label => switch (this) {
+        VariableType.integer => 'Integer',
+        VariableType.text => 'Text',
+        VariableType.decimal => 'Decimal',
+        VariableType.boolean => 'Boolean',
+        VariableType.color => 'Color',
+        VariableType.list => 'List',
+        VariableType.map => 'Map',
+      };
 }
 
 /// Store information of a variable. [id] must not be empty when creating a
@@ -125,6 +121,7 @@ class VariableData
         VariableType.integer => num.tryParse(value).toInt(),
         VariableType.decimal => num.tryParse(value).toDouble(),
         VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+        VariableType.color => ColorRGBA.fromHex(value),
         VariableType.map => tryJsonDecode(value),
         VariableType.list => value.toList(),
       };
@@ -140,6 +137,10 @@ String? sanitizeValueForVariableType(String? value, VariableType type) {
     VariableType.decimal => num.tryParse(value).toDouble()?.toString(),
     VariableType.boolean =>
       bool.tryParse(value, caseSensitive: false)?.toString(),
+    VariableType.color =>
+      RegExp(r'^#[0-9a-fA-F]{2,8}$', caseSensitive: false).hasMatch(value)
+          ? value.toUpperCase()
+          : null,
     // TODO: this could be a bit expensive. Maybe enable only when required!
     // VariableType.map => tryJsonDecode(value),
     // VariableType.list => value.toList(),

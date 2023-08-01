@@ -5,7 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mixins.dart';
+import '../../../codelessly_api.dart';
 
 part 'color_rgba.g.dart';
 
@@ -81,6 +81,43 @@ class ColorRGBA with EquatableMixin, SerializableMixin {
   /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
   factory ColorRGBA.fromJson(Map json) => _$ColorRGBAFromJson(json);
 
+  /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
+  /// Returns null if cannot parse the JSON.
+  static ColorRGBA? tryFromJson(Map? json) {
+    if (json == null) return null;
+    try {
+      return ColorRGBA.fromJson(json);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Factory constructor for creating a new [ColorRGBA] instance from hex string.
+  static ColorRGBA? fromHex(String hex) {
+    String hexCode = hex.replaceAll('#', '').toUpperCase();
+    if (hexCode.length == 6) {
+      hexCode = 'FF$hexCode';
+    }
+
+    if (!RegExp(r'^[0-9A-F]{8}$', caseSensitive: false).hasMatch(hexCode)) {
+      return null;
+    }
+
+    return ColorRGBA(
+      r: int.parse(hexCode.substring(2, 4), radix: 16) / 255,
+      g: int.parse(hexCode.substring(4, 6), radix: 16) / 255,
+      b: int.parse(hexCode.substring(6, 8), radix: 16) / 255,
+      a: int.parse(hexCode.substring(0, 2), radix: 16) / 255,
+    );
+  }
+
   @override
   Map toJson() => _$ColorRGBAToJson(this);
+
+  /// Creates a [PaintModel] with this color.
+  PaintModel toPaint([String? id]) => PaintModel.solid(
+        id: id ?? generateId(),
+        color: ColorRGB.fromColorRGBA(this),
+        opacity: a,
+      );
 }

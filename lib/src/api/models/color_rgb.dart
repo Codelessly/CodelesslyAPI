@@ -68,6 +68,11 @@ class ColorRGB extends Equatable with SerializableMixin {
   /// Factory constructor for creating a new [ColorRGB] instance from JSON data.
   factory ColorRGB.fromJson(Map json) => _$ColorRGBFromJson(json);
 
+  static ColorRGB? fromColorRGBA(ColorRGBA? color) {
+    if (color == null) return null;
+    return ColorRGB(r: color.r, g: color.g, b: color.b);
+  }
+
   @override
   Map toJson() => _$ColorRGBToJson(this);
 
