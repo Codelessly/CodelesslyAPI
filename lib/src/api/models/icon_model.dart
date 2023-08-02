@@ -108,6 +108,9 @@ class MaterialIcon extends IconModel {
   /// Supported styles for this material icon.
   final List<MaterialIconStyle> supportedStyles;
 
+  /// Version of this material icon.
+  final int? version;
+
   @override
   final String type = 'MATERIAL_ICON';
 
@@ -118,10 +121,13 @@ class MaterialIcon extends IconModel {
     required super.name,
     required this.style,
     required this.supportedStyles,
+    this.version = 1,
   });
 
   /// Whether this icon is two tone only.
-  bool get isTwoToneOnly => supportedStyles.length == 1 && supportedStyles.first == MaterialIconStyle.twoTone;
+  bool get isTwoToneOnly =>
+      supportedStyles.length == 1 &&
+      supportedStyles.first == MaterialIconStyle.twoTone;
 
   /// Duplicates this instance of [MaterialIcon] with given data overrides.
   MaterialIcon copyWith({
@@ -129,12 +135,14 @@ class MaterialIcon extends IconModel {
     String? name,
     MaterialIconStyle? style,
     List<MaterialIconStyle>? supportedStyles,
+    int? version,
   }) =>
       MaterialIcon(
         codepoint: codepoint ?? this.codepoint,
         name: name ?? this.name,
         style: style ?? this.style,
         supportedStyles: supportedStyles ?? this.supportedStyles,
+        version: version ?? this.version,
       );
 
   /// Factory constructor for creating a new [MaterialIcon] instance from
@@ -149,6 +157,7 @@ class MaterialIcon extends IconModel {
         name,
         style,
         supportedStyles,
+        version,
       ];
 
   @override

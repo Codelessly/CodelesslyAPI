@@ -14,18 +14,29 @@ MaterialIcon _$MaterialIconFromJson(Map json) => MaterialIcon(
       supportedStyles: (json['supportedStyles'] as List<dynamic>)
           .map((e) => $enumDecode(_$MaterialIconStyleEnumMap, e))
           .toList(),
+      version: json['version'] as int? ?? 1,
     );
 
-Map<String, dynamic> _$MaterialIconToJson(MaterialIcon instance) =>
-    <String, dynamic>{
-      'codepoint': instance.codepoint,
-      'fontFamily': instance.fontFamily,
-      'name': instance.name,
-      'style': _$MaterialIconStyleEnumMap[instance.style]!,
-      'supportedStyles': instance.supportedStyles
-          .map((e) => _$MaterialIconStyleEnumMap[e]!)
-          .toList(),
-    };
+Map<String, dynamic> _$MaterialIconToJson(MaterialIcon instance) {
+  final val = <String, dynamic>{
+    'codepoint': instance.codepoint,
+    'fontFamily': instance.fontFamily,
+    'name': instance.name,
+    'style': _$MaterialIconStyleEnumMap[instance.style]!,
+    'supportedStyles': instance.supportedStyles
+        .map((e) => _$MaterialIconStyleEnumMap[e]!)
+        .toList(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('version', instance.version);
+  return val;
+}
 
 const _$MaterialIconStyleEnumMap = {
   MaterialIconStyle.outlined: 'outlined',
