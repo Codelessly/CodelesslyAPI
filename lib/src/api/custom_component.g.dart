@@ -48,6 +48,15 @@ ComponentData _$ComponentDataFromJson(Map json) => ComponentData(
                     .toSet()),
           ) ??
           const {},
+      conditions: (json['conditions'] as Map?)?.map(
+            (k, e) => MapEntry(
+                k as String,
+                (e as List<dynamic>)
+                    .map((e) => BaseCondition.fromJson(
+                        Map<String, dynamic>.from(e as Map)))
+                    .toSet()),
+          ) ??
+          const {},
     );
 
 Map<String, dynamic> _$ComponentDataToJson(ComponentData instance) =>
@@ -56,5 +65,7 @@ Map<String, dynamic> _$ComponentDataToJson(ComponentData instance) =>
       'height': instance.height,
       'nodes': instance.nodes,
       'variables': instance.variables
+          .map((k, e) => MapEntry(k, e.map((e) => e.toJson()).toList())),
+      'conditions': instance.conditions
           .map((k, e) => MapEntry(k, e.map((e) => e.toJson()).toList())),
     };
