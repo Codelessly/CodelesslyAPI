@@ -360,6 +360,9 @@ sealed class BaseCondition with EquatableMixin, SerializableMixin {
 
   /// Allows the provided [visitor] to visit this condition.
   R? accept<R>(ConditionVisitor<R> visitor);
+
+  /// Creates a copy of the condition with the provided values.
+  BaseCondition copyWith({String? id});
 }
 
 /// Represents an else condition. e.g. `else { ... }`. [actions] are performed
@@ -380,6 +383,7 @@ class ElseCondition extends BaseCondition {
   }) : actions = actions ?? [];
 
   /// Duplicates the else condition with the provided actions list.
+  @override
   ElseCondition copyWith({
     String? id,
     List<ActionModel>? actions,
@@ -430,7 +434,8 @@ class Condition extends BaseCondition {
     super.lastUpdated,
   });
 
-  /// CopyWith
+  /// Creates a new [Condition] instance with provided properties overridden.
+  @override
   Condition copyWith({
     String? id,
     BaseExpression? expression,
@@ -488,7 +493,8 @@ class ConditionGroup extends BaseCondition {
     super.lastUpdated,
   }) : elseIfConditions = elseIfConditions ?? [];
 
-  /// CopyWith
+  /// Creates a new [ConditionGroup] with the provided parameters overridden.
+  @override
   ConditionGroup copyWith({
     String? id,
     String? name,
