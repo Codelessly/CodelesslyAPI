@@ -95,6 +95,9 @@ class ComponentData with EquatableMixin, SerializableMixin {
   /// instance.
   final Map<String, dynamic> nodes;
 
+  /// Node ID -> variables.
+  final Map<String, Set<VariableData>> variables;
+
   /// Returns containing rect of the component.
   RectC get rect => RectC.fromLTWH(0, 0, width, height);
 
@@ -103,11 +106,12 @@ class ComponentData with EquatableMixin, SerializableMixin {
     required this.width,
     required this.height,
     required this.nodes,
+    this.variables = const {},
   })  : assert(nodes.isNotEmpty),
         assert(width > 0 && height > 0);
 
   @override
-  List<Object?> get props => [width, height, nodes];
+  List<Object?> get props => [width, height, nodes, variables];
 
   @override
   Map toJson() => _$ComponentDataToJson(this);
@@ -122,10 +126,12 @@ class ComponentData with EquatableMixin, SerializableMixin {
     double? width,
     double? height,
     Map<String, dynamic>? nodes,
+    Map<String, Set<VariableData>>? variables,
   }) =>
       ComponentData(
         width: width ?? this.width,
         height: height ?? this.height,
         nodes: nodes ?? this.nodes,
+        variables: variables ?? this.variables,
       );
 }
