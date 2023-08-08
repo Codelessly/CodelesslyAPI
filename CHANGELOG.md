@@ -1,3 +1,9 @@
+## 0.1.0
+- Optimize SDK size by 90% by switching to SVG icons.
+- Enable variables copy and paste.
+- Enable conditions copy and paste.
+- Fix canvas fill condition not working when there's only 1 fill.
+
 ## 0.0.8
 - Text field and code-gen improvements.
 - Add `showCounter` for input decoration.
