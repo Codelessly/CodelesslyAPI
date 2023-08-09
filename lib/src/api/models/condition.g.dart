@@ -71,15 +71,26 @@ ElseCondition _$ElseConditionFromJson(Map json) => ElseCondition(
       actions: (json['actions'] as List<dynamic>?)
           ?.map((e) => ActionModel.fromJson(e as Map))
           .toList(),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      lastUpdated:
+          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
     );
 
-Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'lastUpdated': dateToJson(instance.lastUpdated),
-      'actions': instance.actions.map((e) => e.toJson()).toList(),
-    };
+Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull(
+      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  val['actions'] = instance.actions.map((e) => e.toJson()).toList();
+  return val;
+}
 
 Condition _$ConditionFromJson(Map json) => Condition(
       id: json['id'] as String,
@@ -89,16 +100,28 @@ Condition _$ConditionFromJson(Map json) => Condition(
       actions: (json['actions'] as List<dynamic>)
           .map((e) => ActionModel.fromJson(e as Map))
           .toList(),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      lastUpdated:
+          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
     );
 
-Map<String, dynamic> _$ConditionToJson(Condition instance) => <String, dynamic>{
-      'id': instance.id,
-      'lastUpdated': dateToJson(instance.lastUpdated),
-      'expression': instance.expression.toJson(),
-      'actions': instance.actions.map((e) => e.toJson()).toList(),
-      'mode': _$ConditionModeEnumMap[instance.mode]!,
-    };
+Map<String, dynamic> _$ConditionToJson(Condition instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull(
+      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  val['expression'] = instance.expression.toJson();
+  val['actions'] = instance.actions.map((e) => e.toJson()).toList();
+  val['mode'] = _$ConditionModeEnumMap[instance.mode]!;
+  return val;
+}
 
 const _$ConditionModeEnumMap = {
   ConditionMode.ifMode: 'ifMode',
@@ -118,16 +141,13 @@ ConditionGroup _$ConditionGroupFromJson(Map json) => ConditionGroup(
           ? null
           : ElseCondition.fromJson(
               Map<String, dynamic>.from(json['elseCondition'] as Map)),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      lastUpdated:
+          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
     );
 
 Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
   final val = <String, dynamic>{
     'id': instance.id,
-    'lastUpdated': dateToJson(instance.lastUpdated),
-    'ifCondition': instance.ifCondition.toJson(),
-    'elseIfConditions':
-        instance.elseIfConditions.map((e) => e.toJson()).toList(),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -136,6 +156,11 @@ Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
     }
   }
 
+  writeNotNull(
+      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  val['ifCondition'] = instance.ifCondition.toJson();
+  val['elseIfConditions'] =
+      instance.elseIfConditions.map((e) => e.toJson()).toList();
   writeNotNull('elseCondition', instance.elseCondition?.toJson());
   writeNotNull('name', instance.name);
   return val;
@@ -147,16 +172,27 @@ CanvasConditions _$CanvasConditionsFromJson(Map json) => CanvasConditions(
         (k, e) => MapEntry(k as String,
             BaseCondition.fromJson(Map<String, dynamic>.from(e as Map))),
       ),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      lastUpdated:
+          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
       projectId: json['project'] as String,
       owner: json['owner'] as String,
     );
 
-Map<String, dynamic> _$CanvasConditionsToJson(CanvasConditions instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'conditions': instance.conditions.map((k, e) => MapEntry(k, e.toJson())),
-      'lastUpdated': dateToJson(instance.lastUpdated),
-      'owner': instance.owner,
-      'project': instance.projectId,
-    };
+Map<String, dynamic> _$CanvasConditionsToJson(CanvasConditions instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'conditions': instance.conditions.map((k, e) => MapEntry(k, e.toJson())),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull(
+      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  val['owner'] = instance.owner;
+  val['project'] = instance.projectId;
+  return val;
+}

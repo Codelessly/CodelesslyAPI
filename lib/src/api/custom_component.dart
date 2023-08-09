@@ -5,9 +5,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import 'converters.dart';
 import 'mixins.dart';
 import 'models/models.dart';
-import 'utils.dart';
 
 part 'custom_component.g.dart';
 
@@ -25,7 +25,7 @@ class CustomComponent with EquatableMixin, SerializableMixin {
   final ComponentData data;
 
   /// Date and time when the component was created.
-  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  @DateTimeConverter()
   final DateTime createdAt;
 
   /// The thumbnail URL for the component preview.

@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
-import '../utils.dart';
 import 'models.dart';
 
 part 'condition.g.dart';
@@ -334,7 +334,7 @@ sealed class BaseCondition with EquatableMixin, SerializableMixin {
   final String id;
 
   /// last updated timestamp
-  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  @DateTimeConverter()
   final DateTime lastUpdated;
 
   /// Creates a base condition.
@@ -538,7 +538,7 @@ class CanvasConditions with EquatableMixin {
   final Map<String, BaseCondition> conditions;
 
   /// Last updated time of this canvas.
-  @JsonKey(toJson: dateToJson, fromJson: jsonToDate)
+  @DateTimeConverter()
   final DateTime lastUpdated;
 
   /// ID of the project this canvas belongs to.

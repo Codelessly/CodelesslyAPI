@@ -16,3 +16,4 @@ export 'src/api/nodes/nodes.dart';
 export 'src/api/regexes.dart';
 export 'src/api/typed_value.dart';
 export 'src/api/utils.dart';
+export 'src/api/converters.dart';
