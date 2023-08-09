@@ -224,7 +224,7 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   /// Whether this instance of [EdgePinsModel] contains symmetric
   /// chains on the given [axis]. IE: If both pins on the given [axis] are
   /// set to non-null values.
-  bool chainedOnAxis(AxisC axis) => switch (axis) {
+  bool expandedOnAxis(AxisC axis) => switch (axis) {
         AxisC.horizontal => isHorizontallyExpanded,
         AxisC.vertical => isVerticallyExpanded
       };
