@@ -11,7 +11,7 @@ CustomComponent _$CustomComponentFromJson(Map json) => CustomComponent(
       name: json['name'] as String? ?? '',
       data: ComponentData.fromJson(
           Map<String, dynamic>.from(json['data'] as Map)),
-      createdAt: jsonToDate(json['createdAt'] as int?),
+      createdAt: const DateTimeConverter().fromJson(json['createdAt'] as int?),
       previewUrl: json['previewUrl'] as String?,
       blurhash: json['blurhash'] as String? ?? '',
     );
@@ -21,7 +21,6 @@ Map<String, dynamic> _$CustomComponentToJson(CustomComponent instance) {
     'id': instance.id,
     'name': instance.name,
     'data': instance.data.toJson(),
-    'createdAt': dateToJson(instance.createdAt),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -30,6 +29,8 @@ Map<String, dynamic> _$CustomComponentToJson(CustomComponent instance) {
     }
   }
 
+  writeNotNull(
+      'createdAt', const DateTimeConverter().toJson(instance.createdAt));
   writeNotNull('previewUrl', instance.previewUrl);
   val['blurhash'] = instance.blurhash;
   return val;

@@ -89,7 +89,8 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           const [],
-      createdTimestamp: jsonToDate(json['createdTimestamp'] as int?),
+      createdTimestamp:
+          const DateTimeConverter().fromJson(json['createdTimestamp'] as int?),
       clipsContent: json['clipsContent'] as bool? ?? true,
       isScrollable: json['isScrollable'] as bool? ?? false,
       scrollDirection:
@@ -183,7 +184,8 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
       instance.keyboardDismissBehavior]!;
   val['useFlutterListView'] = instance.useFlutterListView;
   val['type'] = instance.type;
-  val['createdTimestamp'] = dateToJson(instance.createdTimestamp);
+  writeNotNull('createdTimestamp',
+      const DateTimeConverter().toJson(instance.createdTimestamp));
   val['properties'] = instance.properties.toJson();
   val['scaleMode'] = _$ScaleModeEnumMap[instance.scaleMode]!;
   return val;

@@ -158,7 +158,7 @@ class CanvasVariables with EquatableMixin {
   final Map<String, CanvasVariableData> variables;
 
   /// Last updated time of this canvas.
-  @JsonKey(toJson: dateToJson, fromJson: jsonToDate)
+  @DateTimeConverter()
   final DateTime lastUpdated;
 
   /// ID of the project this canvas belongs to.

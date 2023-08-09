@@ -39,19 +39,30 @@ CanvasVariables _$CanvasVariablesFromJson(Map json) => CanvasVariables(
         (k, e) => MapEntry(k as String,
             CanvasVariableData.fromJson(Map<String, dynamic>.from(e as Map))),
       ),
-      lastUpdated: jsonToDate(json['lastUpdated'] as int?),
+      lastUpdated:
+          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
       projectId: json['project'] as String,
       owner: json['owner'] as String,
     );
 
-Map<String, dynamic> _$CanvasVariablesToJson(CanvasVariables instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'variables': instance.variables.map((k, e) => MapEntry(k, e.toJson())),
-      'lastUpdated': dateToJson(instance.lastUpdated),
-      'owner': instance.owner,
-      'project': instance.projectId,
-    };
+Map<String, dynamic> _$CanvasVariablesToJson(CanvasVariables instance) {
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'variables': instance.variables.map((k, e) => MapEntry(k, e.toJson())),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull(
+      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  val['owner'] = instance.owner;
+  val['project'] = instance.projectId;
+  return val;
+}
 
 CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       id: json['id'] as String,

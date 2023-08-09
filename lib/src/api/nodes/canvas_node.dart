@@ -5,9 +5,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import '../models/models.dart';
-import '../utils.dart';
 import 'nodes.dart';
 
 part 'canvas_node.g.dart';
@@ -28,7 +28,7 @@ class CanvasNode extends ParentNode
   final bool supportsPadding = true;
 
   /// Time of creation.
-  @JsonKey(fromJson: jsonToDate, toJson: dateToJson)
+  @DateTimeConverter()
   late DateTime createdTimestamp;
 
   /// Holds configurable properties for the canvas.
