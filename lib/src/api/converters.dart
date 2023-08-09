@@ -78,15 +78,15 @@ class NodesMapConverter
 
 /// Top level converter for serializing map of DateTime.
 class DateTimeMapConverter
-    extends JsonConverter<Map<String, DateTime>, Map<String, int>> {
+    extends JsonConverter<Map<String, DateTime>, Map<String, dynamic>> {
   /// Creates a new instance of [DateTimeMapConverter].
   const DateTimeMapConverter();
 
   @override
-  Map<String, DateTime> fromJson(Map<String, int> json) => deserialize(json);
+  Map<String, DateTime> fromJson(Map<String, dynamic> json) => deserialize(json);
 
   @override
-  Map<String, int> toJson(Map<String, DateTime> object) => serialize(object);
+  Map<String, dynamic> toJson(Map<String, DateTime> object) => serialize(object);
 
   /// Top level function for deserializing the millis from JSON as the values of
   /// a map to [DateTime].
