@@ -25,44 +25,28 @@ enum EdgePin {
   bottom;
 
   /// Returns opposite side edge pin of this edge pin.
-  EdgePin opposite() {
-    switch (this) {
-      case EdgePin.left:
-        return EdgePin.right;
-      case EdgePin.top:
-        return EdgePin.bottom;
-      case EdgePin.right:
-        return EdgePin.left;
-      case EdgePin.bottom:
-        return EdgePin.top;
-    }
-  }
+  EdgePin get opposite => switch (this) {
+        EdgePin.left => EdgePin.right,
+        EdgePin.top => EdgePin.bottom,
+        EdgePin.right => EdgePin.left,
+        EdgePin.bottom => EdgePin.top
+      };
 
   /// Converts edge pin to [AxisC].
-  AxisC axis() {
-    switch (this) {
-      case EdgePin.left:
-      case EdgePin.right:
-        return AxisC.horizontal;
-      case EdgePin.top:
-      case EdgePin.bottom:
-        return AxisC.vertical;
-    }
-  }
+  AxisC get axis => switch (this) {
+        EdgePin.left => AxisC.horizontal,
+        EdgePin.right => AxisC.horizontal,
+        EdgePin.top => AxisC.vertical,
+        EdgePin.bottom => AxisC.vertical,
+      };
 
   /// Converts edge pin to [AlignmentModel].
-  AlignmentModel alignment() {
-    switch (this) {
-      case EdgePin.left:
-        return AlignmentModel.centerLeft;
-      case EdgePin.top:
-        return AlignmentModel.topCenter;
-      case EdgePin.right:
-        return AlignmentModel.centerRight;
-      case EdgePin.bottom:
-        return AlignmentModel.bottomCenter;
-    }
-  }
+  AlignmentModel get alignment => switch (this) {
+        EdgePin.left => AlignmentModel.centerLeft,
+        EdgePin.top => AlignmentModel.topCenter,
+        EdgePin.right => AlignmentModel.centerRight,
+        EdgePin.bottom => AlignmentModel.bottomCenter,
+      };
 }
 
 /// Edge pins are the edges of a node that are pinned to its parent. Edges refer
@@ -120,22 +104,52 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   static const EdgePinsModel standard =
       EdgePinsModel(left: 0, top: 0, right: null, bottom: null);
 
+  /// Creates an invalid [EdgePinsModel] that has no non-null pins.
+  /// An invalid pins model is one which has no pin on a given axis.
+  static const EdgePinsModel invalid =
+      EdgePinsModel(left: null, top: null, right: null, bottom: null);
+
+  /// Creates an [EdgePinsModel] that fills the parent's entire space.
+  static const EdgePinsModel fill =
+      EdgePinsModel(left: 0, top: 0, right: 0, bottom: 0);
+
   /// Whether this [EdgePinsModel] follows the standard convention of pinning
   /// the node to parent's top-left corner.
   bool get isStandard =>
       left != null && top != null && right == null && bottom == null;
 
+  /// Whether this [EdgePinsModel] has an invalid axis horizontally. An invalid
+  /// pins model is one which has no pin on a given axis.
+  bool get isInvalidHorizontally => left == null && right == null;
+
+  /// Whether this [EdgePinsModel] has an invalid axis vertically. An invalid
+  /// pins model is one which has no pin on a given axis.
+  bool get isInvalidVertically => top == null && bottom == null;
+
+  /// Whether this [EdgePinsModel] is invalid on at least one axis.
+  /// An invalid pins model is one which has no pin on a given axis.
+  bool get isOneAxisInvalid => isInvalidHorizontally || isInvalidVertically;
+
+  /// Whether this [EdgePinsModel] is invalid on both axes.
+  /// An invalid pins model is one which has no pin on a given axis.
+  bool get areBothAxesInvalid => isInvalidHorizontally && isInvalidVertically;
+
   /// Whether the node is symmetric-chained on both axes, i.e., none of the pins
-  /// is null.
-  bool get isDoubleChained => isHorizontalChained && isVerticalChained;
+  /// are null.
+  bool get isBothExpanded => isHorizontallyExpanded && isVerticallyExpanded;
+
+  /// Whether the node is symmetric-chained on at least one axis, i.e., at least
+  /// one of the pins is not null.
+  bool get isOneOrBothExpanded =>
+      isHorizontallyExpanded || isVerticallyExpanded;
 
   /// Whether the node is symmetric-chained on the horizontal axis, i.e., left
   /// and right pins are not null.
-  bool get isHorizontalChained => left != null && right != null;
+  bool get isHorizontallyExpanded => left != null && right != null;
 
   /// Whether the node is symmetric-chained on the vertical axis, i.e., top and
   /// bottom pins are not null.
-  bool get isVerticalChained => top != null && bottom != null;
+  bool get isVerticallyExpanded => top != null && bottom != null;
 
   /// Due to the null-pattern of the pins, default copyWith method does not
   /// work. So, there's a separate copyWith method for each pin.
@@ -176,61 +190,53 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   /// class.
   ///
   /// Takes a [pin] and a [value] and returns the new [EdgePinesModel].
-  EdgePinsModel copyWithPin(EdgePin pin, double? value) {
-    switch (pin) {
-      case EdgePin.left:
-        return copyWithLeft(value);
-      case EdgePin.top:
-        return copyWithTop(value);
-      case EdgePin.right:
-        return copyWithRight(value);
-      case EdgePin.bottom:
-        return copyWithBottom(value);
-    }
-  }
+  EdgePinsModel copyWithPin(EdgePin pin, double? value) => switch (pin) {
+        EdgePin.left => copyWithLeft(value),
+        EdgePin.top => copyWithTop(value),
+        EdgePin.right => copyWithRight(value),
+        EdgePin.bottom => copyWithBottom(value)
+      };
 
   /// Get a pin from this instance of [EdgePinsModel], given a [pin] enum.
   ///
   /// This is useful for abstraction and polymorphic behavior.
-  double? getPin(EdgePin pin) {
-    switch (pin) {
-      case EdgePin.left:
-        return left;
-      case EdgePin.top:
-        return top;
-      case EdgePin.right:
-        return right;
-      case EdgePin.bottom:
-        return bottom;
-    }
-  }
+  double? getPin(EdgePin pin) => switch (pin) {
+        EdgePin.left => left,
+        EdgePin.top => top,
+        EdgePin.right => right,
+        EdgePin.bottom => bottom
+      };
 
   /// Whether the given [pin] is null or not.
-  bool containsPin(EdgePin? pin) {
-    if (pin == null) return false;
-    switch (pin) {
-      case EdgePin.left:
-        return left != null;
-      case EdgePin.top:
-        return top != null;
-      case EdgePin.right:
-        return right != null;
-      case EdgePin.bottom:
-        return bottom != null;
-    }
-  }
+  bool containsPin(EdgePin pin) => switch (pin) {
+        EdgePin.left => left != null,
+        EdgePin.top => top != null,
+        EdgePin.right => right != null,
+        EdgePin.bottom => bottom != null
+      };
+
+  /// Whether this [EdgePinsModel] contains any of the given [pins].
+  bool containsAnyPin(Iterable<EdgePin> pins) => pins.any(containsPin);
+
+  /// Whether this [EdgePinsModel] contains all of the given [pins].
+  bool containsEveryPin(Iterable<EdgePin> pins) => pins.every(containsPin);
 
   /// Whether this instance of [EdgePinsModel] contains symmetric
   /// chains on the given [axis]. IE: If both pins on the given [axis] are
   /// set to non-null values.
-  bool chainedOnAxis(AxisC axis) {
-    switch (axis) {
-      case AxisC.horizontal:
-        return isHorizontalChained;
-      case AxisC.vertical:
-        return isVerticalChained;
-    }
-  }
+  bool chainedOnAxis(AxisC axis) => switch (axis) {
+        AxisC.horizontal => isHorizontallyExpanded,
+        AxisC.vertical => isVerticallyExpanded
+      };
+
+  /// [returns] a set of pins that are enabled on this instance of
+  /// [EdgePinsModel]. An enabled pin is one that has a non-null value.
+  Set<EdgePin> get enabledPins => {
+        if (left != null) EdgePin.left,
+        if (top != null) EdgePin.top,
+        if (right != null) EdgePin.right,
+        if (bottom != null) EdgePin.bottom,
+      };
 
   @override
   List<Object?> get props => [left, top, right, bottom];

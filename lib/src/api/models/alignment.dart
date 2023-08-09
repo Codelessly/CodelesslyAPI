@@ -22,6 +22,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// Equivalent to having no alignment at all.
   static const AlignmentModel none = AlignmentModel(null);
 
+  /// Returns true if this alignment's data is not null (is not [none]).
+  bool get hasData => data != null;
+
   /// Represents the top-left corner.
   /// Top  o----------------
   /// Left |       |       |
@@ -135,6 +138,18 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
       data == centerRight.data ||
       data == topCenter.data ||
       data == bottomCenter.data;
+
+  /// Whether this alignment contains a cardinal top y value.
+  bool get hasTop => data?.y == -1;
+
+  /// Whether this alignment contains a cardinal bottom y value.
+  bool get hasBottom => data?.y == 1;
+
+  /// Whether this alignment contains a cardinal left x value.
+  bool get hasLeft => data?.x == -1;
+
+  /// Whether this alignment contains a cardinal right x value.
+  bool get hasRight => data?.x == 1;
 
   /// All standard alignment values for all for corners, edges and the center.
   static const List<AlignmentModel> values = [
