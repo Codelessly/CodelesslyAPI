@@ -433,11 +433,11 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// behavior when applying a paint to another node. This method returns a
   /// sanitized version of this paint model that only contains the data relevant
   /// to the current paint type.
-  PaintModel sanitize() {
+  PaintModel sanitize({bool changeIds = false}) {
     switch (type) {
       case PaintType.solid:
         return PaintModel.solid(
-          id: id,
+          id: changeIds ? generateId() : id,
           color: color,
           blendMode: blendMode,
           opacity: opacity,
@@ -448,7 +448,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
       case PaintType.gradientAngular:
       case PaintType.gradientDiamond:
         return PaintModel(
-          id: id,
+          id: changeIds ? generateId() : id,
           type: type,
           blendMode: blendMode,
           opacity: opacity,
@@ -458,7 +458,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         );
       case PaintType.image:
         return PaintModel.image(
-          id: id,
+          id: changeIds ? generateId() : id,
           downloadUrl: downloadUrl,
           fit: fit,
           sourceWidth: sourceWidth,

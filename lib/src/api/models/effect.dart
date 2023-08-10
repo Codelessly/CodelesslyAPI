@@ -137,6 +137,7 @@ class Effect with EquatableMixin, SerializableMixin {
 
   /// Duplicates this instance with given data overrides.
   Effect copyWith({
+    String? id,
     EffectType? type,
     double? radius,
     bool? visible,
@@ -146,7 +147,7 @@ class Effect with EquatableMixin, SerializableMixin {
     BlendModeC? blendMode,
   }) =>
       Effect(
-        id: id,
+        id: id ?? this.id,
         type: type ?? this.type,
         radius: radius ?? this.radius,
         visible: visible ?? this.visible,
@@ -155,6 +156,27 @@ class Effect with EquatableMixin, SerializableMixin {
         spread: spread ?? this.spread,
         blendMode: blendMode ?? this.blendMode,
       );
+
+  /// [Effect] can store all types of effects at the same time to allow
+  /// switching between different effect types. However, this is not the desired
+  /// behavior when applying a effect to another node. This method returns a
+  /// sanitized version of this effect model that only contains the data relevant
+  /// to the current effect type.
+  ///
+  /// Resembles [PaintModel.sanitize]. There are no properties to be sanitized
+  /// for [Effect] at the moment.
+  Effect sanitize({bool changeIds = false}) {
+    switch (type) {
+      case EffectType.dropShadow:
+        return copyWith(id: changeIds ? generateId() : id);
+      case EffectType.innerShadow:
+        return copyWith(id: changeIds ? generateId() : id);
+      case EffectType.layerBlur:
+        return copyWith(id: changeIds ? generateId() : id);
+      case EffectType.backgroundBlur:
+        return copyWith(id: changeIds ? generateId() : id);
+    }
+  }
 
   @override
   List<Object?> get props => [
