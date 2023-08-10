@@ -779,6 +779,7 @@ abstract class BaseNode
   void clearAlignmentAndPins() {
     _alignment = AlignmentModel.none;
     edgePins = EdgePinsModel.standard;
+    positioningMode = PositioningMode.align;
   }
 
   @override
