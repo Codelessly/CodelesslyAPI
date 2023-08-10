@@ -151,6 +151,18 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   /// bottom pins are not null.
   bool get isVerticallyExpanded => top != null && bottom != null;
 
+  /// Returns the sum of the horizontal pins.
+  double sumHorizontalPins() => (left ?? 0) + (right ?? 0);
+
+  /// Returns the sum of the vertical pins.
+  double sumVerticalPins() => (top ?? 0) + (bottom ?? 0);
+
+  /// Returns the sum of the pins on the given [axis].
+  double sumPinsOnAxis(AxisC axis) => switch (axis) {
+        AxisC.horizontal => sumHorizontalPins(),
+        AxisC.vertical => sumVerticalPins(),
+      };
+
   /// Due to the null-pattern of the pins, default copyWith method does not
   /// work. So, there's a separate copyWith method for each pin.
   ///
