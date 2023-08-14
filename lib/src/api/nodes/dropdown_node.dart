@@ -21,8 +21,14 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'dropdown';
 
+  @override
+  bool get supportsPadding => true;
+
   /// Holds configurable properties of the dropdown.
   DropdownProperties properties;
+
+  /// Index of the selected option in the dropdown.
+  int? value;
 
   /// Creates a [DropdownNode] with the given data.
   DropdownNode({
@@ -45,11 +51,18 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
     super.aspectRatioLock,
     super.positioningMode,
     required this.properties,
+    this.value,
   });
 
   @override
   List<TriggerType> get triggerTypes =>
       [TriggerType.click, TriggerType.changed];
+
+  @override
+  late final List<ValueModel> propertyVariables = [
+    ...super.propertyVariables,
+    IntValue(name: 'value', value: value ?? -1),
+  ];
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -75,9 +88,6 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
 /// Holds configurable properties of the dropdown.
 @JsonSerializable()
 class DropdownProperties with SerializableMixin, EquatableMixin {
-  /// Index of the selected option in the dropdown.
-  int value;
-
   /// Whether the dropdown is in the enabled state.
   bool enabled;
 
@@ -94,7 +104,7 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
   /// tapped or long pressed.
   bool enableFeedback;
 
-  /// Dropdown's options.
+  /// Dropdown options.
   final List<String> items;
 
   /// Text style applied to the dropdown's options.
@@ -143,9 +153,15 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
   /// Whether to underline dropdown button's contents.
   bool underline;
 
+  /// Whether to use data source to populate dropdown options.
+  bool useDataSource;
+
+  /// Label of the data source to use. This is only used when [useDataSource]
+  /// is true. Allows to specify a template for item builder.
+  String itemLabel;
+
   /// Creates a [DropdownProperties] instance with the given data.
   DropdownProperties({
-    this.value = 0,
     this.enabled = true,
     this.dense = false,
     this.expanded = false,
@@ -167,6 +183,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     this.elevation = 8,
     this.borderRadius = CornerRadius.zero,
     this.underline = true,
+    this.useDataSource = false,
+    this.itemLabel = '',
   })  : itemTextStyle = itemTextStyle ??
             TextProp.general(
               fills: [PaintModel.blackPaint],
@@ -205,6 +223,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     int? elevation,
     CornerRadius? borderRadius,
     bool? underline,
+    bool? useDataSource,
+    String? itemLabel,
   }) {
     return DropdownProperties(
       items: items ?? this.items,
@@ -225,6 +245,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
       elevation: elevation ?? this.elevation,
       borderRadius: borderRadius ?? this.borderRadius,
       underline: underline ?? this.underline,
+      useDataSource: useDataSource ?? this.useDataSource,
+      itemLabel: itemLabel ?? this.itemLabel,
     );
   }
 
@@ -245,6 +267,9 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
         focusColor,
         elevation,
         borderRadius,
+        underline,
+        useDataSource,
+        itemLabel,
       ];
 
   /// Creates a [DropdownProperties] instance from a JSON object.

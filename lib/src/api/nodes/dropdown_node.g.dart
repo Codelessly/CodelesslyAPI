@@ -47,6 +47,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       properties: DropdownProperties.fromJson(json['properties'] as Map),
+      value: json['value'] as int?,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -94,6 +95,7 @@ Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) {
   writeNotNull('heightFactor', instance.heightFactor);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
+  writeNotNull('value', instance.value);
   return val;
 }
 
@@ -111,7 +113,6 @@ const _$PositioningModeEnumMap = {
 };
 
 DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
-      value: json['value'] as int? ?? 0,
       enabled: json['enabled'] as bool? ?? true,
       dense: json['dense'] as bool? ?? false,
       expanded: json['expanded'] as bool? ?? false,
@@ -155,11 +156,12 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
           ? CornerRadius.zero
           : CornerRadius.fromJson(json['borderRadius'] as Map),
       underline: json['underline'] as bool? ?? true,
+      useDataSource: json['useDataSource'] as bool? ?? false,
+      itemLabel: json['itemLabel'] as String? ?? '',
     );
 
 Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
     <String, dynamic>{
-      'value': instance.value,
       'enabled': instance.enabled,
       'dense': instance.dense,
       'expanded': instance.expanded,
@@ -181,4 +183,6 @@ Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
       'elevation': instance.elevation,
       'borderRadius': instance.borderRadius.toJson(),
       'underline': instance.underline,
+      'useDataSource': instance.useDataSource,
+      'itemLabel': instance.itemLabel,
     };
