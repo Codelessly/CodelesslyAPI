@@ -131,6 +131,14 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
   /// Whether to focus on the switch automatically.
   late bool autofocus;
 
+  late ColorRGBA? activeTrackBorderColor;
+
+  late ColorRGBA? inactiveTrackBorderColor;
+
+  late double trackOutlineWidth;
+
+  late bool useMaterial3;
+
   /// Creates a [SwitchProperties] instance with the given data.
   SwitchProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -141,6 +149,10 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
     this.focusColor = ColorRGBA.grey10,
     this.splashRadius = kRadialReactionRadius,
     this.autofocus = false,
+    this.activeTrackBorderColor = ColorRGBA.transparent,
+    this.inactiveTrackBorderColor = ColorRGBA.transparent,
+    this.trackOutlineWidth = 2,
+    this.useMaterial3 = false,
   });
 
   /// Duplicates this [SwitchProperties] instance with the given data
@@ -154,6 +166,12 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
     ColorRGBA? focusColor,
     double? splashRadius,
     bool? autofocus,
+    ColorRGBA? activeTrackBorderColor,
+    ColorRGBA? inactiveTrackBorderColor,
+    bool forceActiveTrackBorderColor = false,
+    bool forceInactiveTrackBorderColor = false,
+    double? trackOutlineWidth,
+    bool? useMaterial3,
   }) {
     return SwitchProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -164,6 +182,14 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
       focusColor: focusColor ?? this.focusColor,
       splashRadius: splashRadius ?? this.splashRadius,
       autofocus: autofocus ?? this.autofocus,
+      activeTrackBorderColor: forceActiveTrackBorderColor
+          ? activeTrackBorderColor
+          : activeTrackBorderColor ?? this.activeTrackBorderColor,
+      inactiveTrackBorderColor: forceInactiveTrackBorderColor
+          ? inactiveTrackBorderColor
+          : inactiveTrackBorderColor ?? this.inactiveTrackBorderColor,
+      trackOutlineWidth: trackOutlineWidth ?? this.trackOutlineWidth,
+      useMaterial3: useMaterial3 ?? this.useMaterial3,
     );
   }
 
@@ -177,6 +203,10 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
         focusColor,
         splashRadius,
         autofocus,
+        activeTrackBorderColor,
+        inactiveTrackBorderColor,
+        trackOutlineWidth,
+        useMaterial3,
       ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.

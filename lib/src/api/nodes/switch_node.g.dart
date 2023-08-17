@@ -134,16 +134,39 @@ SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
       splashRadius:
           (json['splashRadius'] as num?)?.toDouble() ?? kRadialReactionRadius,
       autofocus: json['autofocus'] as bool? ?? false,
+      activeTrackBorderColor: json['activeTrackBorderColor'] == null
+          ? ColorRGBA.transparent
+          : ColorRGBA.fromJson(json['activeTrackBorderColor'] as Map),
+      inactiveTrackBorderColor: json['inactiveTrackBorderColor'] == null
+          ? ColorRGBA.transparent
+          : ColorRGBA.fromJson(json['inactiveTrackBorderColor'] as Map),
+      trackOutlineWidth: (json['trackOutlineWidth'] as num?)?.toDouble() ?? 2,
+      useMaterial3: json['useMaterial3'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
-    <String, dynamic>{
-      'activeTrackColor': instance.activeTrackColor.toJson(),
-      'inactiveTrackColor': instance.inactiveTrackColor.toJson(),
-      'activeThumbColor': instance.activeThumbColor.toJson(),
-      'inactiveThumbColor': instance.inactiveThumbColor.toJson(),
-      'hoverColor': instance.hoverColor.toJson(),
-      'focusColor': instance.focusColor.toJson(),
-      'splashRadius': instance.splashRadius,
-      'autofocus': instance.autofocus,
-    };
+Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) {
+  final val = <String, dynamic>{
+    'activeTrackColor': instance.activeTrackColor.toJson(),
+    'inactiveTrackColor': instance.inactiveTrackColor.toJson(),
+    'activeThumbColor': instance.activeThumbColor.toJson(),
+    'inactiveThumbColor': instance.inactiveThumbColor.toJson(),
+    'hoverColor': instance.hoverColor.toJson(),
+    'focusColor': instance.focusColor.toJson(),
+    'splashRadius': instance.splashRadius,
+    'autofocus': instance.autofocus,
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull(
+      'activeTrackBorderColor', instance.activeTrackBorderColor?.toJson());
+  writeNotNull(
+      'inactiveTrackBorderColor', instance.inactiveTrackBorderColor?.toJson());
+  val['trackOutlineWidth'] = instance.trackOutlineWidth;
+  val['useMaterial3'] = instance.useMaterial3;
+  return val;
+}
