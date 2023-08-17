@@ -49,7 +49,7 @@ abstract class DefaultShapeNode extends SceneNode
     double strokeWeight = 0,
     double? strokeMiterLimit,
     StrokeAlignC strokeAlign = StrokeAlignC.inside,
-    StrokeCapEnum strokeCap = StrokeCapEnum.none,
+    StrokeCapEnum strokeCap = StrokeCapEnum.square,
     List<double>? dashPattern,
     StrokeSide strokeSide = StrokeSide.all,
   }) {
@@ -446,9 +446,6 @@ enum StrokeAlignC {
 /// Styles to use for line endings on a stroke.
 /// Corresponds to [StrokeCap] in Flutter.
 enum StrokeCapEnum {
-  /// Unspecified.
-  none,
-
   /// Begin and end contours with a semi-circle extension.
   ///
   /// ![A round cap adds a rounded end to the line segment that protrudes
@@ -458,6 +455,15 @@ enum StrokeCapEnum {
   /// The cap is colored in the diagram above to highlight it: in normal use it
   /// is the same color as the line.
   round,
+
+  /// Begin and end contours with a flat edge and no extension.
+  ///
+  /// ![A butt cap ends line segments with a square end that stops at the end of
+  /// the line segment.](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/butt_cap.png)
+  ///
+  /// Compare to the [square] cap, which has the same shape, but extends past
+  /// the end of the line by half a stroke width.
+  butt,
 
   /// Begin and end contours with a half square extension. This is similar to
   /// extending each contour by half the stroke width/thickness.
@@ -555,6 +561,7 @@ mixin GeometryMixin on BaseNode {
   late StrokeAlignC strokeAlign;
 
   /// Type of line cap to use for the stroke.
+  @JsonKey(unknownEnumValue: StrokeCapEnum.square)
   late StrokeCapEnum strokeCap;
 
   /// The pattern of dashes and gaps to apply to the stroke in case of dashed
