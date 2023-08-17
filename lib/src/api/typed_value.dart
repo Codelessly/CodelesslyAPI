@@ -88,7 +88,7 @@ extension TypedStringExt on String {
   /// Converts given string to a typed value derived from the original value
   /// of this string.
   Object? parsedValue() {
-    if(this == 'null') return null;
+    if (this == 'null') return null;
     return toInt() ?? toDouble() ?? toBool() ?? toList() ?? toMap() ?? this;
   }
 
