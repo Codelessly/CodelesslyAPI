@@ -83,10 +83,12 @@ class DateTimeMapConverter
   const DateTimeMapConverter();
 
   @override
-  Map<String, DateTime> fromJson(Map<String, dynamic> json) => deserialize(json);
+  Map<String, DateTime> fromJson(Map<String, dynamic> json) =>
+      deserialize(json);
 
   @override
-  Map<String, dynamic> toJson(Map<String, DateTime> object) => serialize(object);
+  Map<String, dynamic> toJson(Map<String, DateTime> object) =>
+      serialize(object);
 
   /// Top level function for deserializing the millis from JSON as the values of
   /// a map to [DateTime].
