@@ -122,6 +122,9 @@ MaterialLoadingIndicatorProperties _$MaterialLoadingIndicatorPropertiesFromJson(
           : ColorRGBA.fromJson(json['backgroundColor'] as Map),
       strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 4,
       value: (json['value'] as num?)?.toDouble(),
+      strokeCap:
+          $enumDecodeNullable(_$StrokeCapEnumEnumMap, json['strokeCap']) ??
+              StrokeCapEnum.square,
     )..type = json['type'] as String;
 
 Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
@@ -140,8 +143,15 @@ Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
   }
 
   writeNotNull('value', instance.value);
+  val['strokeCap'] = _$StrokeCapEnumEnumMap[instance.strokeCap]!;
   return val;
 }
+
+const _$StrokeCapEnumEnumMap = {
+  StrokeCapEnum.round: 'round',
+  StrokeCapEnum.butt: 'butt',
+  StrokeCapEnum.square: 'square',
+};
 
 CupertinoLoadingIndicatorProperties
     _$CupertinoLoadingIndicatorPropertiesFromJson(Map json) =>

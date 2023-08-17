@@ -38,9 +38,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
       strokeAlign:
           $enumDecodeNullable(_$StrokeAlignCEnumMap, json['strokeAlign']) ??
               StrokeAlignC.inside,
-      strokeCap:
-          $enumDecodeNullable(_$StrokeCapEnumEnumMap, json['strokeCap']) ??
-              StrokeCapEnum.none,
+      strokeCap: $enumDecodeNullable(_$StrokeCapEnumEnumMap, json['strokeCap'],
+              unknownValue: StrokeCapEnum.square) ??
+          StrokeCapEnum.square,
       dashPattern: (json['dashPattern'] as List<dynamic>?)
           ?.map((e) => (e as num).toDouble())
           .toList(),
@@ -190,8 +190,8 @@ const _$StrokeAlignCEnumMap = {
 };
 
 const _$StrokeCapEnumEnumMap = {
-  StrokeCapEnum.none: 'none',
   StrokeCapEnum.round: 'round',
+  StrokeCapEnum.butt: 'butt',
   StrokeCapEnum.square: 'square',
 };
 

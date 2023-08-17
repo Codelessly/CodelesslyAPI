@@ -150,12 +150,15 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
   /// Progress of the loading indicator.
   double? value;
 
+  StrokeCapEnum strokeCap;
+
   /// Creates a new [MaterialLoadingIndicatorProperties].
   MaterialLoadingIndicatorProperties({
     required this.color,
     this.backgroundColor = ColorRGBA.transparent,
     this.strokeWidth = 4,
     this.value,
+    this.strokeCap = StrokeCapEnum.square,
   });
 
   /// Duplicates this [MaterialLoadingIndicatorProperties] with given data
@@ -165,17 +168,20 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
     ColorRGBA? backgroundColor,
     double? strokeWidth,
     double? value,
+    StrokeCapEnum? strokeCap,
   }) {
     return MaterialLoadingIndicatorProperties(
       color: color ?? this.color,
       strokeWidth: strokeWidth ?? this.strokeWidth,
       value: value ?? this.value,
       backgroundColor: backgroundColor ?? this.backgroundColor,
+      strokeCap: strokeCap ?? this.strokeCap,
     );
   }
 
   @override
-  List<Object?> get props => [type, color, strokeWidth, value, backgroundColor];
+  List<Object?> get props =>
+      [type, color, strokeWidth, value, backgroundColor, strokeCap];
 
   @override
   Map toJson() => _$MaterialLoadingIndicatorPropertiesToJson(this);
