@@ -89,7 +89,12 @@ extension TypedStringExt on String {
   /// of this string.
   Object? parsedValue() {
     if (this == 'null') return null;
-    return toInt() ?? toDouble() ?? toBool() ?? toList() ?? toMap() ?? this;
+    return toInt() ??
+        toDouble() ??
+        toBool() ??
+        toList() ??
+        toMap() ??
+        (isEmpty ? null : this);
   }
 
   /// Converts given string to a known type.
