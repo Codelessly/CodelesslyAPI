@@ -23,63 +23,58 @@ enum ConditionOperation {
 
   /// less than operator. Checks if the value of the variable is less than the
   /// value provided.
-  lessThan;
+  lessThan,
+
+  /// greater than or equal to operator. Checks if the value of the variable is
+  /// greater than or equal to the value provided.
+  greaterThanOrEqualTo,
+
+  /// less than or equal to operator. Checks if the value of the variable is
+  /// less than or equal to the value provided.
+  lessThanOrEqualTo;
 
   /// label for the operation
-  String get label {
-    switch (this) {
-      case ConditionOperation.equalsTo:
-        return 'Equals To';
-      case ConditionOperation.notEqualsTo:
-        return 'Not Equal To';
-      case ConditionOperation.greaterThan:
-        return 'Greater Than';
-      case ConditionOperation.lessThan:
-        return 'Less Than';
-    }
-  }
+  String get label => switch (this) {
+        equalsTo => 'Equals To',
+        notEqualsTo => 'Not Equal To',
+        greaterThan => 'Greater Than',
+        lessThan => 'Less Than',
+        greaterThanOrEqualTo => 'Greater Than Or Equal To',
+        lessThanOrEqualTo => 'Less Than Or Equal To',
+      };
 
   /// short description of the operation
-  String get sentence {
-    switch (this) {
-      case ConditionOperation.equalsTo:
-        return 'equal to';
-      case ConditionOperation.notEqualsTo:
-        return 'not equal to';
-      case ConditionOperation.greaterThan:
-        return 'greater than';
-      case ConditionOperation.lessThan:
-        return 'less than';
-    }
-  }
+  String get sentence => switch (this) {
+        equalsTo => 'equal to',
+        notEqualsTo => 'not equal to',
+        greaterThan => 'greater than',
+        lessThan => 'less than',
+        greaterThanOrEqualTo => 'greater than or equal to',
+        lessThanOrEqualTo => 'less than or equal to',
+      };
 
   /// short description of the operation
-  String get sign {
-    switch (this) {
-      case ConditionOperation.equalsTo:
-        return '==';
-      case ConditionOperation.notEqualsTo:
-        return '!=';
-      case ConditionOperation.greaterThan:
-        return '>';
-      case ConditionOperation.lessThan:
-        return '<';
-    }
-  }
+  String get sign => switch (this) {
+        equalsTo => '==',
+        notEqualsTo => '!=',
+        greaterThan => '>',
+        lessThan => '<',
+        greaterThanOrEqualTo => '>=',
+        lessThanOrEqualTo => '<=',
+      };
 
   /// Allows the provided [visitor] to visit this operation.
-  bool accept(Object? left, Object? right, ConditionOperatorVisitor visitor) {
-    switch (this) {
-      case ConditionOperation.equalsTo:
-        return visitor.visitEqualsOperator(left, right);
-      case ConditionOperation.notEqualsTo:
-        return visitor.visitNotEqualsOperator(left, right);
-      case ConditionOperation.greaterThan:
-        return visitor.visitGreaterThanOperator(left, right);
-      case ConditionOperation.lessThan:
-        return visitor.visitLessThanOperator(left, right);
-    }
-  }
+  bool accept(Object? left, Object? right, ConditionOperatorVisitor visitor) =>
+      switch (this) {
+        equalsTo => visitor.visitEqualsOperator(left, right),
+        notEqualsTo => visitor.visitNotEqualsOperator(left, right),
+        greaterThan => visitor.visitGreaterThanOperator(left, right),
+        lessThan => visitor.visitLessThanOperator(left, right),
+        greaterThanOrEqualTo =>
+          visitor.visitGreaterThanOrEqualToOperator(left, right),
+        lessThanOrEqualTo =>
+          visitor.visitLessThanOrEqualToOperator(left, right),
+      };
 }
 
 /// join operator for complex conditions
@@ -595,17 +590,23 @@ class CanvasConditions with EquatableMixin {
 
 /// A visitor that can be used to visit a [ConditionOperation].
 abstract interface class ConditionOperatorVisitor {
-  /// Visits a [ConditionOperation].
+  /// Visits a [ConditionOperation.equalsTo].
   bool visitEqualsOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation].
+  /// Visits a [ConditionOperation.notEqualsTo].
   bool visitNotEqualsOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation].
+  /// Visits a [ConditionOperation.greaterThan].
   bool visitGreaterThanOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation].
+  /// Visits a [ConditionOperation.lessThan].
   bool visitLessThanOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation.greaterThanOrEqualTo].
+  bool visitGreaterThanOrEqualToOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation.lessThanOrEqualTo].
+  bool visitLessThanOrEqualToOperator(Object? left, Object? right);
 }
 
 /// An interface for evaluating conditions.
