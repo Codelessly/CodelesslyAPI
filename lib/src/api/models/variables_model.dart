@@ -117,7 +117,7 @@ class VariableData
 
   /// Returns the value converted to the appropriate type according to [type].
   Object? getValue() => switch (type) {
-        VariableType.text => value,
+        VariableType.text => value.isEmpty ? null : value,
         VariableType.integer => num.tryParse(value).toInt(),
         VariableType.decimal => num.tryParse(value).toDouble(),
         VariableType.boolean => bool.tryParse(value, caseSensitive: false),
