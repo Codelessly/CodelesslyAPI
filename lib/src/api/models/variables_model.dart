@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -76,7 +78,7 @@ class VariableData
   VariableData copyWith({
     String? id,
     String? name,
-    String? value,
+    Object? value,
     VariableType? type,
     bool? isUsed,
     Set<String>? nodes,
@@ -128,24 +130,43 @@ class VariableData
 }
 
 /// Returns the value converted to the appropriate type according to [type].
-String? sanitizeValueForVariableType(String? value, VariableType type) {
+/// Supported color values:
+/// - ColorRGBA
+/// - ColorRGB
+/// - Hex color string
+/// - Flutter Color object
+String? sanitizeValueForVariableType(Object? value, VariableType type) {
   if (value == null) return null;
-  if (value.isEmpty) return '';
-  return switch (type) {
-    VariableType.text => value,
-    VariableType.integer => num.tryParse(value).toInt()?.toString(),
-    VariableType.decimal => num.tryParse(value).toDouble()?.toString(),
-    VariableType.boolean =>
-      bool.tryParse(value, caseSensitive: false)?.toString(),
-    VariableType.color =>
-      RegExp(r'^#[0-9a-fA-F]{2,8}$', caseSensitive: false).hasMatch(value)
-          ? value.toUpperCase()
-          : null,
-    // TODO: this could be a bit expensive. Maybe enable only when required!
-    // VariableType.map => tryJsonDecode(value),
-    // VariableType.list => value.toList(),
-    _ => value,
-  };
+  // if (value.isEmpty) return '';
+  switch (type) {
+    case VariableType.text:
+      return value.toString();
+    case VariableType.integer:
+      return num.tryParse(value.toString()).toInt()?.toString();
+    case VariableType.decimal:
+      return num.tryParse(value.toString()).toDouble()?.toString();
+    case VariableType.boolean:
+      return bool.tryParse(value.toString(), caseSensitive: false)?.toString();
+    case VariableType.color:
+      if (value is ColorRGBA) return value.toHex();
+      if (value is ColorRGB) return value.toColorRGBA()!.toHex();
+      final colorMatch = flutterColorRegex.firstMatch(value.toString());
+      if (colorMatch != null) {
+        return ColorRGBA.fromHex(colorMatch.namedGroup('hex')!)?.toHex();
+      }
+      final hexMatch = hexColorRegex.firstMatch(value.toString());
+      if (hexMatch != null) return value.toString().toUpperCase();
+      return null;
+    // This could be a bit expensive. Maybe enable only when required!
+    case VariableType.map:
+      if (value is Map) return jsonEncode(value);
+      final map = value.toMap();
+      return map != null ? jsonEncode(map) : null;
+    case VariableType.list:
+      if (value is List) return jsonEncode(value);
+      final list = value.toList();
+      return list != null ? jsonEncode(list) : null;
+  }
 }
 
 /// Contains all the variables associated with a canvas inside a page.
@@ -242,20 +263,24 @@ class CanvasVariableData extends VariableData {
   @override
   CanvasVariableData copyWith({
     String? name,
-    String? value,
+    Object? value,
     VariableType? type,
     String? id,
     bool? isUsed,
     String? canvasId,
     Set<String>? nodes,
-  }) =>
-      CanvasVariableData(
-        name: name ?? this.name,
-        value: value ?? this.value,
-        type: type ?? this.type,
-        id: id ?? this.id,
-        canvasId: canvasId ?? this.canvasId,
-      );
+  }) {
+    final String? sanitizedValue = value == null
+        ? null
+        : sanitizeValueForVariableType(value, type ?? this.type);
+    return CanvasVariableData(
+      name: name ?? this.name,
+      value: sanitizedValue ?? this.value,
+      type: type ?? this.type,
+      id: id ?? this.id,
+      canvasId: canvasId ?? this.canvasId,
+    );
+  }
 
   @override
   List<Object?> get props => [...super.props, canvasId];

@@ -210,58 +210,34 @@ extension ConversionExt on Object? {
       return list.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
     }
     if (R == List<int>) {
-      return list
-          .map<int?>((e) => e?.toInt())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
     }
     if (R == List<double>) {
-      return list
-          .map<double?>((e) => e.toDouble())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
     }
     if (R == List<double?>) {
       return list.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
     }
     if (R == List<num>) {
-      return list
-          .map<num?>((e) => e.toNum())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<num?>((e) => e.toNum()).toList().tryCast<R>();
     }
     if (R == List<num?>) {
       return list.map<num?>((e) => e.toNum()).toList().tryCast<R>();
     }
     if (R == List<bool>) {
-      return list
-          .map<bool?>((e) => e.toBool())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
     }
     if (R == List<bool?>) {
       return list.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
     }
     if (R == List<String>) {
-      return list
-          .map<String?>((e) => e.toString())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<String?>((e) => e.toString()).toList().tryCast<R>();
     }
     if (R == List<String?>) {
       return list.map<String?>((e) => e.toString()).toList().tryCast<R>();
     }
     if (R == List<Map>) {
-      return list
-          .map<Map?>((e) => e.toMap())
-          .whereNotNull()
-          .toList()
-          .tryCast<R>();
+      return list.map<Map?>((e) => e.toMap()).toList().tryCast<R>();
     }
     if (R == List<Map?>) {
       return list.map<Map?>((e) => e.toMap()).toList().tryCast<R>();

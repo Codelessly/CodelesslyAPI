@@ -196,3 +196,15 @@ const String rawVariableNamePattern = r'[A-Za-z]+[A-Za-z0-9_]*';
 
 /// Regex for [rawVariableNamePattern].
 final RegExp rawVariableNameRegex = RegExp(rawVariableNamePattern);
+
+/// A regex that matches a string representation of a color from Flutter SDK.
+const String flutterColorPattern = r'^Color\(0x(?<hex>[A-Fa-f0-9]{8})\)$';
+
+/// Regex for [flutterColorPattern].
+final RegExp flutterColorRegex = RegExp(flutterColorPattern);
+
+/// A regex that matches a hex color string.
+const String hexColorPattern = r'^#[A-Fa-f0-9]{2,8}$';
+
+/// Regex for [hexColorPattern].
+final RegExp hexColorRegex = RegExp(hexColorPattern);
