@@ -22,10 +22,15 @@ class SetVariableAction extends ActionModel
   /// Value that the variable needs to be updated with.
   final String newValue;
 
+  /// Whether to toggle the value of the variable instead of setting it
+  /// if the variable is a boolean.
+  final bool toggled;
+
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
     required this.newValue,
+    this.toggled = false,
   }) : super(type: ActionType.setVariable);
 
   @override
@@ -35,10 +40,12 @@ class SetVariableAction extends ActionModel
   SetVariableAction copyWith({
     VariableData? variable,
     String? newValue,
+    bool? toggled,
   }) =>
       SetVariableAction(
         variable: variable ?? this.variable,
         newValue: newValue ?? this.newValue,
+        toggled: toggled ?? this.toggled,
       );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
