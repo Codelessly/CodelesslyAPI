@@ -84,8 +84,8 @@
 ///       [a-zA-Z0-9_]*             # Matches zero or more alphanumeric characters or underscores
 ///     )                           # End of the named capture group "name"
 ///     (
-///       (?<accessor>\[\d+\])      # Named capture group "accessor" for array access:
-///                                 #   - \[\d+\] matches one or more digits surrounded by square brackets
+///       (?<accessor>              # Named capture group "accessor" for array access:
+///         (?:\[\d+\])+            # Non-capturing group for multiple occurrences of digits surrounded by square brackets
 ///       |
 ///       (?:                       # Non-capturing group for nested path access:
 ///         \.                      # Matches a dot (for nested properties)
@@ -106,9 +106,9 @@
 ///     3. accessor:    The array accessor applied directly to the variable.
 ///     4. path:        The nested property path applied directly to the variable.
 ///
-/// Try it out here: https://regex101.com/r/FOyWLJ/1
+/// Try it out here: https://regex101.com/r/FOyWLJ/2
 const String variablePathPattern =
-    r'(?<!\\)\$\{(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)\}';
+    r'(?<!\\)\$\{(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>(?:\[\d+\])+)|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)\}';
 
 /// Regex for [variablePathPattern].
 final RegExp variablePathRegex = RegExp(variablePathPattern);
@@ -117,7 +117,7 @@ final RegExp variablePathRegex = RegExp(variablePathPattern);
 /// on $ or ${} curly braces in a string while the text/path is actively being
 /// composed.
 const String variablePathComposingPattern =
-    r'(?<!\\)\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>\[\d+\])|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)?\}?';
+    r'(?<!\\)\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>(?:\[\d+\])+)|(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)?\}?';
 
 /// Regex for [variablePathComposingPattern].
 final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
