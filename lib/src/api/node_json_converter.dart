@@ -9,8 +9,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'nodes/nodes.dart';
 
 /// A deserializer function that takes a map as input and deserializes it into
-/// a [SceneNode].
-typedef JsonNodeDeserializer = SceneNode? Function(Map<dynamic, dynamic> json);
+/// a [BaseNode].
+typedef JsonNodeDeserializer = BaseNode? Function(Map<dynamic, dynamic> json);
 
 /// [NodeJsonConverter] deserializes JSON and converts it into nodes.
 ///
@@ -73,6 +73,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'listView': ListViewNode.fromJson,
       'pageView': PageViewNode.fromJson,
       'tabBar': TabBarNode.fromJson,
+      'external': ExternalComponentNode.fromJson,
     };
   }
 
@@ -103,7 +104,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   @override
   BaseNode? fromJson(Map json) {
     if (json['type'] == null || _registry[json['type']] == null) {
-      throw UnsupportedError('Unsupported node type : ${json["type"]}');
+      throw UnsupportedError('Unsupported node type: ${json["type"]}');
     }
     return _registry[json['type']]!(json);
   }
