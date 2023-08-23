@@ -66,6 +66,12 @@
 /// ${model.list[5]}
 ///
 /// // valid
+/// ${model.list[5][2]}
+///
+/// // valid
+/// ${items[5][2]}
+///
+/// // valid
 /// ${model.json.name}
 ///
 /// // invalid
