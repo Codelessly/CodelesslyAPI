@@ -40,6 +40,41 @@ enum VariableType {
         VariableType.list => 'List',
         VariableType.map => 'Map',
       };
+
+  factory VariableType.fromObjectType(Object obj) {
+    return switch (obj) {
+      int() => VariableType.integer,
+      double() => VariableType.decimal,
+      bool() => VariableType.boolean,
+      ColorRGBA() => VariableType.color,
+      ColorRGB() => VariableType.color,
+      List() => VariableType.list,
+      Map() => VariableType.map,
+      _ => throw UnsupportedError(
+          'object type ${obj.runtimeType} is not supported. Cannot determine variable type'),
+    };
+  }
+
+  /// Whether the variable type is [VariableType.map].
+  bool get isMap => this == VariableType.map;
+
+  /// Whether the variable type is [VariableType.list].
+  bool get isList => this == VariableType.list;
+
+  /// Whether the variable type is [VariableType.color].
+  bool get isColor => this == VariableType.color;
+
+  /// Whether the variable type is [VariableType.boolean].
+  bool get isBoolean => this == VariableType.boolean;
+
+  /// Whether the variable type is [VariableType.decimal].
+  bool get isDecimal => this == VariableType.decimal;
+
+  /// Whether the variable type is [VariableType.integer].
+  bool get isInteger => this == VariableType.integer;
+
+  /// Whether the variable type is [VariableType.text].
+  bool get isText => this == VariableType.text;
 }
 
 /// Store information of a variable. [id] must not be empty when creating a
