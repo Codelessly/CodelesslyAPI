@@ -50,6 +50,7 @@ enum VariableType {
       ColorRGB() => VariableType.color,
       List() => VariableType.list,
       Map() => VariableType.map,
+      String() => VariableType.text,
       _ => throw UnsupportedError(
           'object type ${obj.runtimeType} is not supported. Cannot determine variable type'),
     };
