@@ -7,6 +7,9 @@ part of 'ink_well.dart';
 // **************************************************************************
 
 InkWellModel _$InkWellModelFromJson(Map json) => InkWellModel(
+      overlayColor: json['overlayColor'] == null
+          ? null
+          : ColorRGBA.fromJson(json['overlayColor'] as Map),
       highlightColor: json['highlightColor'] == null
           ? null
           : ColorRGBA.fromJson(json['highlightColor'] as Map),
@@ -30,6 +33,7 @@ Map<String, dynamic> _$InkWellModelToJson(InkWellModel instance) {
     }
   }
 
+  writeNotNull('overlayColor', instance.overlayColor?.toJson());
   writeNotNull('highlightColor', instance.highlightColor?.toJson());
   writeNotNull('splashColor', instance.splashColor?.toJson());
   writeNotNull('hoverColor', instance.hoverColor?.toJson());
