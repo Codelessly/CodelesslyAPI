@@ -12,6 +12,40 @@ import 'action.dart';
 
 part 'set_variable_action.g.dart';
 
+/// Defines the operation to be perfomed on a list type variable.
+enum ListOperation {
+  /// Replace entire list.
+  replace,
+
+  /// Add [newValue] to the list.
+  add,
+
+  /// Insert [newValue] at [index] in the list.
+  insert,
+
+  /// Remove value at [index] from the list.
+  remove,
+
+  /// Update value at [index] with [newValue] in the list.
+  update;
+
+  /// Returns a string representation of this enum.
+  String get prettify {
+    switch (this) {
+      case ListOperation.replace:
+        return 'Replace';
+      case ListOperation.add:
+        return 'Add';
+      case ListOperation.insert:
+        return 'Insert';
+      case ListOperation.remove:
+        return 'Remove';
+      case ListOperation.update:
+        return 'Update';
+    }
+  }
+}
+
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetVariableAction extends ActionModel
@@ -26,11 +60,19 @@ class SetVariableAction extends ActionModel
   /// if the variable is a boolean.
   final bool toggled;
 
+  final ListOperation listOperation;
+
+  /// Index of the value to be updated/removed/inserted.
+  /// Used for list type variable.
+  final int index;
+
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
     required this.newValue,
     this.toggled = false,
+    this.listOperation = ListOperation.replace,
+    this.index = 0,
   }) : super(type: ActionType.setVariable);
 
   @override
@@ -41,11 +83,15 @@ class SetVariableAction extends ActionModel
     VariableData? variable,
     String? newValue,
     bool? toggled,
+    ListOperation? listOperation,
+    int? index,
   }) =>
       SetVariableAction(
         variable: variable ?? this.variable,
         newValue: newValue ?? this.newValue,
         toggled: toggled ?? this.toggled,
+        listOperation: listOperation ?? this.listOperation,
+        index: index ?? this.index,
       );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
