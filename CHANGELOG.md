@@ -1,3 +1,35 @@
+## 0.2.0
+- New simplified variables system. Variables passed into the CodelesslyWidget can now be referenced by name in the Codelessly Editor.
+
+```
+CodelesslyWidget(
+  data: {
+    'title': 'My Title',
+    'productData': { // JSON Data
+      'nested': {
+        'json': {
+          'path': 'Hey there!',
+        }
+      }
+    }
+  }
+)
+
+// Now you can access the variable directly in the Codelessly Editor.
+${title} - 'My Title'
+
+// Or, using the `data` object.
+${data.title} - 'My Title'
+${data.productData.nested.json.path} - 'Hey there!'
+```
+
+- Add `>=`, `<=`, and `== null` operators.
+- Add data and variable support for dropdown component.
+- Add Material 3 Switch UI component.
+- Add Rounded Circular Progress Indicator component.
+- Improve InkWell behavior. Show Inkwell effect on top of other widgets.
+- Prototype implementation of custom widget embedding feature.
+
 ## 0.1.0
 - Optimize SDK size by 90% by switching to SVG icons.
 - Enable variables copy and paste.
