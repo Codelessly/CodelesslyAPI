@@ -63,8 +63,9 @@ class SetVariableAction extends ActionModel
   final ListOperation listOperation;
 
   /// Index of the value to be updated/removed/inserted.
+  /// Can be a discrete value or a variable refered by '${}' syntax.
   /// Used for list type variable.
-  final int index;
+  final String index;
 
   /// Creates a new [SetValueAction].
   SetVariableAction({
@@ -72,7 +73,7 @@ class SetVariableAction extends ActionModel
     required this.newValue,
     this.toggled = false,
     this.listOperation = ListOperation.replace,
-    this.index = 0,
+    this.index = '0',
   }) : super(type: ActionType.setVariable);
 
   @override
@@ -84,7 +85,7 @@ class SetVariableAction extends ActionModel
     String? newValue,
     bool? toggled,
     ListOperation? listOperation,
-    int? index,
+    String? index,
   }) =>
       SetVariableAction(
         variable: variable ?? this.variable,
