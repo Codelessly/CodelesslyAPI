@@ -131,12 +131,16 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
   /// Whether to focus on the switch automatically.
   late bool autofocus;
 
+  /// Color of switch's track border when it's active.
   late ColorRGBA? activeTrackBorderColor;
 
+  /// Color of switch's track border when it's inactive.
   late ColorRGBA? inactiveTrackBorderColor;
 
+  /// Width of switch's track border.
   late double trackOutlineWidth;
 
+  /// Whether to use material 3 style.
   late bool useMaterial3;
 
   /// Creates a [SwitchProperties] instance with the given data.

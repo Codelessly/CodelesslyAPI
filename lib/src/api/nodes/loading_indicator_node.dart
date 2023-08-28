@@ -150,6 +150,7 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
   /// Progress of the loading indicator.
   double? value;
 
+  /// Stroke cap of the loading indicator.
   StrokeCapEnum strokeCap;
 
   /// Creates a new [MaterialLoadingIndicatorProperties].
