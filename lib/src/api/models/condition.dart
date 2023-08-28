@@ -9,28 +9,24 @@ part 'condition.g.dart';
 
 /// condition operation for basic conditions
 enum ConditionOperation {
-  /// equals to operator. Checks if the value of the variable is equal to the
-  /// value provided.
+  /// Checks if the value of the variable is equal to the value provided.
   equalsTo,
 
-  /// not equals to operator. Checks if the value of the variable is not equal
-  /// to the value provided.
+  /// Checks if the value of the variable is not equal to the value provided.
   notEqualsTo,
 
-  /// greater than operator. Checks if the value of the variable is greater
-  /// than the value provided.
+  /// Checks if the value of the variable is greater than the value provided.
   greaterThan,
 
-  /// less than operator. Checks if the value of the variable is less than the
-  /// value provided.
+  /// Checks if the value of the variable is less than the value provided.
   lessThan,
 
-  /// greater than or equal to operator. Checks if the value of the variable is
-  /// greater than or equal to the value provided.
+  /// Checks if the value of the variable is greater than or equal to the
+  /// value provided.
   greaterThanOrEqualTo,
 
-  /// less than or equal to operator. Checks if the value of the variable is
-  /// less than or equal to the value provided.
+  /// Checks if the value of the variable is less than or equal to the
+  /// value provided.
   lessThanOrEqualTo;
 
   /// label for the operation
