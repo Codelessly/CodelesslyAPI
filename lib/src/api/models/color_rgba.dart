@@ -112,12 +112,12 @@ class ColorRGBA with EquatableMixin, SerializableMixin {
   }
 
   /// Converts this [ColorRGBA] to [ColorRGB] by removing the alpha channel.
-  String toHex() {
+  String toHex({bool opaque = false, bool includeHash = true}) {
     final r = (this.r * 255).toInt().toRadixString(16).padLeft(2, '0');
     final g = (this.g * 255).toInt().toRadixString(16).padLeft(2, '0');
     final b = (this.b * 255).toInt().toRadixString(16).padLeft(2, '0');
     final a = (this.a * 255).toInt().toRadixString(16).padLeft(2, '0');
-    return '#$a$r$g$b'.toUpperCase();
+    return '${includeHash ? '#' : ''}${opaque ? '' : a}$r$g$b'.toUpperCase();
   }
 
   @override
