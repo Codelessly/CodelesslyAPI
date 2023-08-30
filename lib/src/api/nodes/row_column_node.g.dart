@@ -87,6 +87,16 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
               .toList() ??
           const [],
       clipsContent: json['clipsContent'] as bool? ?? false,
+      isScrollable: json['isScrollable'] as bool? ?? false,
+      reverse: json['reverse'] as bool? ?? false,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
+          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      primary: json['primary'] as bool? ?? true,
+      keyboardDismissBehavior: $enumDecodeNullable(
+              _$ScrollViewKeyboardDismissBehaviorCEnumMap,
+              json['keyboardDismissBehavior']) ??
+          ScrollViewKeyboardDismissBehaviorC.manual,
+      useFlutterListView: json['useFlutterListView'] as bool? ?? false,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -103,12 +113,10 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
-      ..type = json['type'] as String
-      ..belongsToCanvas = json['belongsToCanvas'] as String?;
+      ..type = json['type'] as String;
 
 Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
   final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'variables': instance.variables,
     'multipleVariables': instance.multipleVariables,
     'id': instance.id,
@@ -122,6 +130,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
     'alignment': instance.alignment.toJson(),
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
@@ -157,8 +166,14 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
   val['crossAxisAlignment'] =
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  val['isScrollable'] = instance.isScrollable;
+  val['reverse'] = instance.reverse;
+  val['primary'] = instance.primary;
+  val['physics'] = _$ScrollPhysicsCEnumMap[instance.physics]!;
+  val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
+      instance.keyboardDismissBehavior]!;
+  val['useFlutterListView'] = instance.useFlutterListView;
   val['type'] = instance.type;
-  writeNotNull('belongsToCanvas', instance.belongsToCanvas);
   return val;
 }
 
@@ -247,4 +262,17 @@ const _$StrokeSideEnumMap = {
   StrokeSide.bottom: 'bottom',
   StrokeSide.top: 'top',
   StrokeSide.all: 'all',
+};
+
+const _$ScrollPhysicsCEnumMap = {
+  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
+  ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
+  ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',
+  ScrollPhysicsC.rangeMaintainingScrollPhysics: 'rangeMaintainingScrollPhysics',
+};
+
+const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
+  ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
+  ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
 };

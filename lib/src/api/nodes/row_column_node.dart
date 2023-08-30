@@ -12,15 +12,20 @@ part 'row_column_node.g.dart';
 /// A node that can lay out its children in a row or column.
 /// Typically referred to [Row] and [Column] widgets in Flutter.
 @JsonSerializable()
-class RowColumnNode extends ParentNode with RowColumnMixin {
+class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
   @override
   final String type = 'rowColumn';
 
   @override
   final bool supportsPadding = true;
 
-  /// ID of the canvas this node belongs to.
-  String? belongsToCanvas;
+  @JsonKey(includeFromJson: false)
+  @override
+  AxisC get scrollDirection =>
+      rowColumnType == RowColumnType.row ? AxisC.horizontal : AxisC.vertical;
+
+  @override
+  set scrollDirection(AxisC value) {}
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -60,11 +65,31 @@ class RowColumnNode extends ParentNode with RowColumnMixin {
     super.reactions,
     super.parentID,
     super.clipsContent = false,
+    // [ScrollableMixin] properties.
+    bool isScrollable = false,
+    bool reverse = false,
+    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    bool primary = true,
+    bool shrinkWrap = false,
+    ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
+        ScrollViewKeyboardDismissBehaviorC.manual,
+    bool useFlutterListView = false,
   }) {
     setRowColumnMixin(
       rowColumnType: rowColumnType,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
+    );
+
+    setScrollableMixin(
+      isScrollable: isScrollable,
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      physics: physics,
+      primary: primary,
+      shrinkWrap: shrinkWrap,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      useFlutterListView: useFlutterListView,
     );
   }
 
