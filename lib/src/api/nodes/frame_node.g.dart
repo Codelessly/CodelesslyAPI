@@ -84,6 +84,19 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       clipsContent: json['clipsContent'] as bool? ?? true,
+      isScrollable: json['isScrollable'] as bool? ?? false,
+      scrollDirection:
+          $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
+              AxisC.vertical,
+      reverse: json['reverse'] as bool? ?? false,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
+          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      primary: json['primary'] as bool? ?? true,
+      keyboardDismissBehavior: $enumDecodeNullable(
+              _$ScrollViewKeyboardDismissBehaviorCEnumMap,
+              json['keyboardDismissBehavior']) ??
+          ScrollViewKeyboardDismissBehaviorC.manual,
+      useFlutterListView: json['useFlutterListView'] as bool? ?? false,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -150,6 +163,14 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
   val['clipsContent'] = instance.clipsContent;
   val['cornerSmoothing'] = instance.cornerSmoothing;
   val['cornerRadius'] = instance.cornerRadius.toJson();
+  val['isScrollable'] = instance.isScrollable;
+  val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
+  val['reverse'] = instance.reverse;
+  val['primary'] = instance.primary;
+  val['physics'] = _$ScrollPhysicsCEnumMap[instance.physics]!;
+  val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
+      instance.keyboardDismissBehavior]!;
+  val['useFlutterListView'] = instance.useFlutterListView;
   val['type'] = instance.type;
   return val;
 }
@@ -217,4 +238,22 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$AxisCEnumMap = {
+  AxisC.horizontal: 'horizontal',
+  AxisC.vertical: 'vertical',
+};
+
+const _$ScrollPhysicsCEnumMap = {
+  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
+  ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
+  ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',
+  ScrollPhysicsC.rangeMaintainingScrollPhysics: 'rangeMaintainingScrollPhysics',
+};
+
+const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
+  ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
+  ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
 };

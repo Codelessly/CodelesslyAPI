@@ -12,7 +12,7 @@ part 'frame_node.g.dart';
 /// A node that represents a frame that behaves like a stack.
 @JsonSerializable()
 class FrameNode extends DefaultShapeNode
-    with CornerMixin, ClipMixin, ChildrenMixin {
+    with CornerMixin, ClipMixin, ChildrenMixin, ScrollableMixin {
   @override
   final String type = 'frame';
 
@@ -56,9 +56,16 @@ class FrameNode extends DefaultShapeNode
     super.positioningMode,
     // [ClipMixin] properties.
     bool clipsContent = true,
-    // [ScrollLinkableMixin] properties.
-    String? scrollableCanvasId,
-    bool scrollLinkEnabled = false,
+    // [ScrollableMixin] properties.
+    bool isScrollable = false,
+    AxisC scrollDirection = AxisC.vertical,
+    bool reverse = false,
+    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    bool primary = true,
+    bool shrinkWrap = false,
+    ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
+        ScrollViewKeyboardDismissBehaviorC.manual,
+    bool useFlutterListView = false,
   }) {
     setCornerMixin(
         cornerRadius: cornerRadius, cornerSmoothing: cornerSmoothing);
@@ -66,6 +73,17 @@ class FrameNode extends DefaultShapeNode
     setClipMixin(clipsContent: clipsContent);
 
     setChildrenMixin(children: children);
+
+    setScrollableMixin(
+      isScrollable: isScrollable,
+      scrollDirection: scrollDirection,
+      reverse: reverse,
+      physics: physics,
+      primary: primary,
+      shrinkWrap: shrinkWrap,
+      keyboardDismissBehavior: keyboardDismissBehavior,
+      useFlutterListView: useFlutterListView,
+    );
   }
 
   /// Creates a [FrameNode] from a JSON data.
