@@ -31,6 +31,7 @@ const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
   ListOperation.add: 'add',
   ListOperation.insert: 'insert',
+  ListOperation.removeAt: 'removeAt',
   ListOperation.remove: 'remove',
   ListOperation.update: 'update',
 };

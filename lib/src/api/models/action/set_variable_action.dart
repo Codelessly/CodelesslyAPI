@@ -24,6 +24,9 @@ enum ListOperation {
   insert,
 
   /// Remove value at [index] from the list.
+  removeAt,
+
+  /// Remove [newValue] from the list.
   remove,
 
   /// Update value at [index] with [newValue] in the list.
@@ -38,6 +41,8 @@ enum ListOperation {
         return 'Add';
       case ListOperation.insert:
         return 'Insert';
+      case ListOperation.removeAt:
+        return 'Remove At';
       case ListOperation.remove:
         return 'Remove';
       case ListOperation.update:
@@ -60,6 +65,7 @@ class SetVariableAction extends ActionModel
   /// if the variable is a boolean.
   final bool toggled;
 
+  /// Operation to be performed on the list type variable.
   final ListOperation listOperation;
 
   /// Index of the value to be updated/removed/inserted.
