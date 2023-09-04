@@ -1,3 +1,7 @@
+## 0.3.0
+- Scrolling V1. Enable scrolling for Columns, Frames, and Canvases.
+- Create list operations and index for List `SetVariableAction`.
+
 ## 0.2.0
 - New simplified variables system. Variables passed into the CodelesslyWidget can now be referenced by name in the Codelessly Editor.
 
