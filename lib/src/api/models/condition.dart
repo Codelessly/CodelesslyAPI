@@ -27,7 +27,30 @@ enum ConditionOperation {
 
   /// Checks if the value of the variable is less than or equal to the
   /// value provided.
-  lessThanOrEqualTo;
+  lessThanOrEqualTo,
+
+  /// Checks if the value of the variable is empty. This is applicable only
+  /// for strings and collections.
+  isEmpty,
+
+  /// Checks if the value of the variable is not empty. This is applicable only
+  /// for strings and collections.
+  isNotEmpty,
+
+  /// Checks if the value of the variable contains a given item. This is
+  /// applicable only for collections.
+  contains,
+
+  /// Checks if the value of the variable is odd. This is applicable only
+  /// for integers.
+  isOdd,
+
+  /// Checks if the value of the variable is even. This is applicable only
+  /// for integers.
+  isEven,
+
+  /// Checks if the value of the variable is null.
+  isNull;
 
   /// label for the operation
   String get label => switch (this) {
@@ -37,6 +60,12 @@ enum ConditionOperation {
         lessThan => 'Less Than',
         greaterThanOrEqualTo => 'Greater Than Or Equal To',
         lessThanOrEqualTo => 'Less Than Or Equal To',
+        isEmpty => 'Is Empty',
+        isNotEmpty => 'Is Not Empty',
+        contains => 'Contains',
+        isOdd => 'Is Odd',
+        isEven => 'Is Even',
+        isNull => 'Is Null',
       };
 
   /// short description of the operation
@@ -47,16 +76,28 @@ enum ConditionOperation {
         lessThan => 'less than',
         greaterThanOrEqualTo => 'greater than or equal to',
         lessThanOrEqualTo => 'less than or equal to',
+        isEmpty => 'is empty',
+        isNotEmpty => 'is not empty',
+        contains => 'contains',
+        isOdd => 'is odd',
+        isEven => 'is even',
+        isNull => 'is null',
       };
 
   /// short description of the operation
-  String get sign => switch (this) {
+  String? get sign => switch (this) {
         equalsTo => '==',
         notEqualsTo => '!=',
         greaterThan => '>',
         lessThan => '<',
         greaterThanOrEqualTo => '>=',
         lessThanOrEqualTo => '<=',
+        isEmpty => null,
+        isNotEmpty => null,
+        contains => null,
+        isOdd => null,
+        isEven => null,
+        isNull => null,
       };
 
   /// Allows the provided [visitor] to visit this operation.
@@ -70,6 +111,28 @@ enum ConditionOperation {
           visitor.visitGreaterThanOrEqualToOperator(left, right),
         lessThanOrEqualTo =>
           visitor.visitLessThanOrEqualToOperator(left, right),
+        isEmpty => visitor.visitIsEmptyOperator(left),
+        isNotEmpty => visitor.visitIsNotEmptyOperator(left),
+        contains => visitor.visitContainsOperator(left, right),
+        isOdd => visitor.visitIsOddOperator(left),
+        isEven => visitor.visitIsEvenOperator(left),
+        isNull => visitor.visitIsNullOperator(left),
+      };
+
+  /// Returns true if the operation requires a right operand.
+  bool get requiresRightOperand => switch (this) {
+        equalsTo => true,
+        notEqualsTo => true,
+        greaterThan => true,
+        lessThan => true,
+        greaterThanOrEqualTo => true,
+        lessThanOrEqualTo => true,
+        isEmpty => false,
+        isNotEmpty => false,
+        contains => true,
+        isOdd => false,
+        isEven => false,
+        isNull => false,
       };
 }
 
@@ -586,23 +649,41 @@ class CanvasConditions with EquatableMixin {
 
 /// A visitor that can be used to visit a [ConditionOperation].
 abstract interface class ConditionOperatorVisitor {
-  /// Visits a [ConditionOperation.equalsTo].
+  /// Visits a [ConditionOperation.equalsTo] operator.
   bool visitEqualsOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation.notEqualsTo].
+  /// Visits a [ConditionOperation.notEqualsTo] operator.
   bool visitNotEqualsOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation.greaterThan].
+  /// Visits a [ConditionOperation.greaterThan] operator.
   bool visitGreaterThanOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation.lessThan].
+  /// Visits a [ConditionOperation.lessThan] operator.
   bool visitLessThanOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation.greaterThanOrEqualTo].
+  /// Visits a [ConditionOperation.greaterThanOrEqualTo] operator.
   bool visitGreaterThanOrEqualToOperator(Object? left, Object? right);
 
-  /// Visits a [ConditionOperation.lessThanOrEqualTo].
+  /// Visits a [ConditionOperation.lessThanOrEqualTo] operator.
   bool visitLessThanOrEqualToOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation.isEmpty] operator.
+  bool visitIsEmptyOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isNotEmpty] operator.
+  bool visitIsNotEmptyOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isNotEmpty] operator.
+  bool visitContainsOperator(Object? left, Object? right);
+
+  /// Visits a [ConditionOperation.isNotEmpty] operator.
+  bool visitIsOddOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isNotEmpty] operator.
+  bool visitIsEvenOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isNull] operator.
+  bool visitIsNullOperator(Object? value);
 }
 
 /// An interface for evaluating conditions.
