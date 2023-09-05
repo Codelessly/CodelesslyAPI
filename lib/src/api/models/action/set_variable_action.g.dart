@@ -15,6 +15,10 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
           $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
               ListOperation.replace,
       index: json['index'] as String? ?? '0',
+      mapOperation:
+          $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
+              MapOperation.replace,
+      key: json['key'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
@@ -25,6 +29,8 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
       'toggled': instance.toggled,
       'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
       'index': instance.index,
+      'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
+      'key': instance.key,
     };
 
 const _$ListOperationEnumMap = {
@@ -34,6 +40,13 @@ const _$ListOperationEnumMap = {
   ListOperation.removeAt: 'removeAt',
   ListOperation.remove: 'remove',
   ListOperation.update: 'update',
+};
+
+const _$MapOperationEnumMap = {
+  MapOperation.replace: 'replace',
+  MapOperation.add: 'add',
+  MapOperation.remove: 'remove',
+  MapOperation.update: 'update',
 };
 
 const _$ActionTypeEnumMap = {
