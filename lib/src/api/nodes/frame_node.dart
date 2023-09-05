@@ -54,6 +54,7 @@ class FrameNode extends DefaultShapeNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
+    super.parentID,
     // [ClipMixin] properties.
     bool clipsContent = true,
     // [ScrollableMixin] properties.
