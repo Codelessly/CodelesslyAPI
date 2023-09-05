@@ -51,6 +51,35 @@ enum ListOperation {
   }
 }
 
+/// Defines the operation to be perfomed on a map type variable.
+enum MapOperation {
+  /// Replace entire map.
+  replace,
+
+  /// Add [newValue] to the map.
+  add,
+
+  /// Remove [key] from the map.
+  remove,
+
+  /// Update value at [key] with [newValue] in the map.
+  update;
+
+  /// Returns a string representation of this enum.
+  String get prettify {
+    switch (this) {
+      case MapOperation.replace:
+        return 'Replace';
+      case MapOperation.add:
+        return 'Add';
+      case MapOperation.remove:
+        return 'Remove';
+      case MapOperation.update:
+        return 'Update';
+    }
+  }
+}
+
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetVariableAction extends ActionModel
@@ -73,6 +102,14 @@ class SetVariableAction extends ActionModel
   /// Used for list type variable.
   final String index;
 
+  /// Operation to be performed on the map type variable.
+  final MapOperation mapOperation;
+
+  /// Key of the map to be updated/removed.
+  /// Can be a discrete value or a variable refered by '${}' syntax.
+  /// Used for map type variable.
+  final String key;
+
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
@@ -80,6 +117,8 @@ class SetVariableAction extends ActionModel
     this.toggled = false,
     this.listOperation = ListOperation.replace,
     this.index = '0',
+    this.mapOperation = MapOperation.replace,
+    this.key = 'key',
   }) : super(type: ActionType.setVariable);
 
   @override
@@ -92,6 +131,8 @@ class SetVariableAction extends ActionModel
     bool? toggled,
     ListOperation? listOperation,
     String? index,
+    MapOperation? mapOperation,
+    String? key,
   }) =>
       SetVariableAction(
         variable: variable ?? this.variable,
@@ -99,6 +140,8 @@ class SetVariableAction extends ActionModel
         toggled: toggled ?? this.toggled,
         listOperation: listOperation ?? this.listOperation,
         index: index ?? this.index,
+        mapOperation: mapOperation ?? this.mapOperation,
+        key: key ?? this.key,
       );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
