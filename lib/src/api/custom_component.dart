@@ -104,6 +104,9 @@ class ComponentData with EquatableMixin, SerializableMixin {
   /// Returns containing rect of the component.
   RectC get rect => RectC.fromLTWH(0, 0, width, height);
 
+  /// Returns aspect ratio of the component.
+  double get aspectRatio => width / height;
+
   /// Default constructor to create new instances.
   ComponentData({
     required this.width,

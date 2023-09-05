@@ -7,6 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
+import 'rect.dart';
 import 'size.dart';
 
 part 'vec.g.dart';
@@ -105,6 +106,9 @@ class Vec with SerializableMixin, EquatableMixin {
   /// }
   double distanceToSq(Vec other) =>
       pow(x - other.x, 2) + pow(y - other.y, 2).toDouble();
+
+  RectC operator &(SizeC size) =>
+      RectC.fromLTRB(x, y, x + size.width, y + size.height);
 
   /// The length is the distance from the origin to this [Vec].
   ///
