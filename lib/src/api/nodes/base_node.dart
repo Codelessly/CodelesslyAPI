@@ -18,8 +18,9 @@ import '../utils.dart';
 part '../node_processor.dart';
 
 /// This is a global flag that is used to determine if the current layout
-/// is being tested or not. This is used to determine if the [BaseNode]
-bool isTestLayout = false;
+/// is being tested or not. This is used by the golden tests to render
+/// additional information on top of the nodes to help with debugging.
+bool kIsTestLayout = false;
 
 /// Base class for all nodes. Any node class must extend this class.
 /// This provides base properties of any node like its id, name, size, fits,
@@ -323,12 +324,6 @@ abstract class BaseNode
   /// an optimization and convenience.
   @JsonKey(includeFromJson: false, includeToJson: false)
   double globalRotationRadians;
-
-  /// A bool that is used to render the id of a node in the center. This is used
-  /// by the golden tests.
-  @Deprecated('No longer used')
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  bool renderDebugInfo = false;
 
   /// A simple label for console debugging.
   @JsonKey(includeFromJson: false, includeToJson: false)
