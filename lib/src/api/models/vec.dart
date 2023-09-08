@@ -107,6 +107,8 @@ class Vec with SerializableMixin, EquatableMixin {
   double distanceToSq(Vec other) =>
       pow(x - other.x, 2) + pow(y - other.y, 2).toDouble();
 
+  /// Combines this [Vec] with the provided [size] to create a [RectC] with
+  /// the same origin as this [Vec] and the size of [size].
   RectC operator &(SizeC size) =>
       RectC.fromLTRB(x, y, x + size.width, y + size.height);
 
