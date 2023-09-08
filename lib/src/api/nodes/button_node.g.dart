@@ -63,6 +63,7 @@ ButtonNode _$ButtonNodeFromJson(Map json) => ButtonNode(
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) {
   final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'variables': instance.variables,
     'multipleVariables': instance.multipleVariables,
     'id': instance.id,
@@ -76,7 +77,6 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) {
     'flex': instance.flex,
     'aspectRatioLock': instance.aspectRatioLock,
     'alignment': instance.alignment.toJson(),
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
     'outerBoxLocal': instance.outerBoxLocal.toJson(),
     'basicBoxLocal': instance.basicBoxLocal.toJson(),
     'margin': instance.margin.toJson(),
