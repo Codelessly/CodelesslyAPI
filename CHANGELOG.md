@@ -1,3 +1,11 @@
+## 0.4.0
+- New `SetMapVariableAction` support for map variables.
+- Support more conditions. 
+  - `isEmpty`, `isNotEmpty`, `contains`
+  - `isOdd`, `isEven`, `isNull`
+- Add `remove` for list type variable.
+- Remove deprecations and update formatting and documentation.
+
 ## 0.3.0
 - Scrolling V1. Enable scrolling for Columns, Frames, and Canvases.
 - Create list operations and index for List `SetVariableAction`.
