@@ -1,3 +1,7 @@
+## 0.4.1
+- Add hover and splash color to dropdown node.
+- Miscellaneous fixes.
+
 ## 0.4.0
 - New `SetMapVariableAction` support for map variables.
 - Support more conditions. 
