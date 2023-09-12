@@ -151,6 +151,12 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
       focusColor: json['focusColor'] == null
           ? ColorRGBA.white
           : ColorRGBA.fromJson(json['focusColor'] as Map),
+      hoverColor: json['hoverColor'] == null
+          ? null
+          : ColorRGBA.fromJson(json['hoverColor'] as Map),
+      splashColor: json['splashColor'] == null
+          ? null
+          : ColorRGBA.fromJson(json['splashColor'] as Map),
       elevation: json['elevation'] as int? ?? 8,
       borderRadius: json['borderRadius'] == null
           ? CornerRadius.zero
@@ -160,29 +166,40 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
       itemLabel: json['itemLabel'] as String? ?? '',
     );
 
-Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
-    <String, dynamic>{
-      'enabled': instance.enabled,
-      'dense': instance.dense,
-      'expanded': instance.expanded,
-      'autoFocus': instance.autoFocus,
-      'enableFeedback': instance.enableFeedback,
-      'items': instance.items,
-      'itemTextStyle': instance.itemTextStyle.toJson(),
-      'itemAlignment': instance.itemAlignment.toJson(),
-      'selectedItemTextStyle': instance.selectedItemTextStyle.toJson(),
-      'selectedItemAlignment': instance.selectedItemAlignment.toJson(),
-      'hint': instance.hint,
-      'hintStyle': instance.hintStyle.toJson(),
-      'iconDisabledColor': instance.iconDisabledColor.toJson(),
-      'iconEnabledColor': instance.iconEnabledColor.toJson(),
-      'iconSize': instance.iconSize,
-      'icon': instance.icon.toJson(),
-      'dropdownColor': instance.dropdownColor.toJson(),
-      'focusColor': instance.focusColor.toJson(),
-      'elevation': instance.elevation,
-      'borderRadius': instance.borderRadius.toJson(),
-      'underline': instance.underline,
-      'useDataSource': instance.useDataSource,
-      'itemLabel': instance.itemLabel,
-    };
+Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) {
+  final val = <String, dynamic>{
+    'enabled': instance.enabled,
+    'dense': instance.dense,
+    'expanded': instance.expanded,
+    'autoFocus': instance.autoFocus,
+    'enableFeedback': instance.enableFeedback,
+    'items': instance.items,
+    'itemTextStyle': instance.itemTextStyle.toJson(),
+    'itemAlignment': instance.itemAlignment.toJson(),
+    'selectedItemTextStyle': instance.selectedItemTextStyle.toJson(),
+    'selectedItemAlignment': instance.selectedItemAlignment.toJson(),
+    'hint': instance.hint,
+    'hintStyle': instance.hintStyle.toJson(),
+    'iconDisabledColor': instance.iconDisabledColor.toJson(),
+    'iconEnabledColor': instance.iconEnabledColor.toJson(),
+    'iconSize': instance.iconSize,
+    'icon': instance.icon.toJson(),
+    'dropdownColor': instance.dropdownColor.toJson(),
+    'focusColor': instance.focusColor.toJson(),
+  };
+
+  void writeNotNull(String key, dynamic value) {
+    if (value != null) {
+      val[key] = value;
+    }
+  }
+
+  writeNotNull('hoverColor', instance.hoverColor?.toJson());
+  writeNotNull('splashColor', instance.splashColor?.toJson());
+  val['elevation'] = instance.elevation;
+  val['borderRadius'] = instance.borderRadius.toJson();
+  val['underline'] = instance.underline;
+  val['useDataSource'] = instance.useDataSource;
+  val['itemLabel'] = instance.itemLabel;
+  return val;
+}
