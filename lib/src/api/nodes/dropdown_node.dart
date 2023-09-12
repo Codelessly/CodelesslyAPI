@@ -144,6 +144,12 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
   /// Color of dropdown button when it is focused.
   ColorRGBA focusColor;
 
+  /// Color of dropdown button and menu item when it is hovered.
+  ColorRGBA? hoverColor;
+
+  /// Splash Color of dropdown button.
+  ColorRGBA? splashColor;
+
   /// The z-coordinate of the dropdown overlay.
   int elevation;
 
@@ -180,6 +186,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     this.icon = const MultiSourceIconModel.icon(show: false),
     this.dropdownColor = ColorRGBA.white,
     this.focusColor = ColorRGBA.white,
+    this.hoverColor,
+    this.splashColor,
     this.elevation = 8,
     this.borderRadius = CornerRadius.zero,
     this.underline = true,
@@ -220,6 +228,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
     MultiSourceIconModel? icon,
     ColorRGBA? dropdownColor,
     ColorRGBA? focusColor,
+    ColorRGBA? hoverColor,
+    ColorRGBA? splashColor,
     int? elevation,
     CornerRadius? borderRadius,
     bool? underline,
@@ -242,6 +252,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
       icon: icon ?? this.icon,
       dropdownColor: dropdownColor ?? this.dropdownColor,
       focusColor: focusColor ?? this.focusColor,
+      hoverColor: hoverColor ?? this.hoverColor,
+      splashColor: splashColor ?? this.splashColor,
       elevation: elevation ?? this.elevation,
       borderRadius: borderRadius ?? this.borderRadius,
       underline: underline ?? this.underline,
@@ -265,6 +277,8 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
         icon,
         dropdownColor,
         focusColor,
+        hoverColor,
+        splashColor,
         elevation,
         borderRadius,
         underline,
