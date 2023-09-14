@@ -231,6 +231,60 @@ class NodeProcessor {
     }
   }
 
+  /// [Returns] all of the parents of [node]. [node] is not included in the
+  /// final result.
+  static List<String> _allParentsOfNode(BaseNode node) {
+    final List<String> parents = [];
+
+    String currentId = node.parentID;
+    while (currentId != kRootNode) {
+      final BaseNode currentNode = getNode(currentId);
+      parents.add(currentNode.id);
+      currentId = currentNode.parentID;
+    }
+
+    return parents;
+  }
+
+  /// Sorted nodes is a list of nodes that go from parent -> child.
+  static void sortNodes(List<BaseNode> nodes) {
+    // Optimization: We can cache the parent chains for each node to avoid
+    // computing them multiple times.
+    final Map<BaseNode, List<String>> parentChains = {};
+
+    nodes.sort((a, b) {
+      if (a.id == kRootNode) return -1;
+      if (b.id == kRootNode) return 1;
+
+      final BaseNode aParent = getNode(a.parentID);
+      final BaseNode bParent = getNode(b.parentID);
+
+      if (aParent.id == bParent.id) {
+        return aParent.childrenOrEmpty.indexOf(a.id) -
+            bParent.childrenOrEmpty.indexOf(b.id);
+      }
+
+      parentChains.putIfAbsent(a, () => _allParentsOfNode(a));
+      parentChains.putIfAbsent(b, () => _allParentsOfNode(b));
+
+      final List<String> aParents = parentChains[a] ?? const [];
+      final List<String> bParents = parentChains[b] ?? const [];
+
+      final int aIndex = bParents.indexOf(a.id);
+      final int bIndex = aParents.indexOf(b.id);
+
+      if (aIndex == -1 && bIndex == -1) {
+        return bParents.indexOf(kRootNode) - aParents.indexOf(kRootNode);
+      } else if (bIndex == -1) {
+        return -1;
+      } else if (aIndex == -1) {
+        return 1;
+      } else {
+        return bIndex - aIndex;
+      }
+    });
+  }
+
   /// [updateNode] is responsible for updating the node and its children when
   /// one or more of its properties change. Ex. if [margin] is changed, all the
   /// node boxes and node's children are updated accordingly.
