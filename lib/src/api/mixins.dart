@@ -185,7 +185,7 @@ mixin ReactionMixin {
 
   /// Sets the reactions on a node.
   void setReactionMixin(List<Reaction>? reactions) {
-    this.reactions = reactions ?? [];
+    this.reactions = [...reactions ?? []];
   }
 
   /// Default value for all nodes that don't override this.
