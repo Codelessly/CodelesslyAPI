@@ -106,7 +106,7 @@ class VariableData
   VariableData({
     required this.id,
     required this.name,
-    String value = '',
+    Object? value = '',
     this.type = VariableType.text,
   }) : value = sanitizeValueForVariableType(value, type).toString();
 
@@ -351,6 +351,16 @@ List<CanvasVariables> canvasVariablesFromJson(Map<String, dynamic> json) {
 class PredefinedVariableData extends VariableData {
   /// Creates a new [PredefinedVariableData].
   PredefinedVariableData({
+    required super.name,
+    super.value = '',
+    super.type = VariableType.text,
+  }) : super(id: generateId());
+}
+
+/// A variable class that represents variables that are created at runtime.
+class RuntimeVariableData extends VariableData {
+  /// Creates a new [PredefinedVariableData].
+  RuntimeVariableData({
     required super.name,
     super.value = '',
     super.type = VariableType.text,
