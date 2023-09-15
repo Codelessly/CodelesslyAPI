@@ -41,7 +41,7 @@ class CanvasNode extends ParentNode
   bool get isAScaffold => properties.isAScaffold;
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [TriggerType.onLoad];
 
   @override
   List<ReactionMixin> get reactiveChildren =>
