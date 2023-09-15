@@ -361,8 +361,29 @@ class PredefinedVariableData extends VariableData {
 class RuntimeVariableData extends VariableData {
   /// Creates a new [PredefinedVariableData].
   RuntimeVariableData({
+    String? id,
     required super.name,
     super.value = '',
     super.type = VariableType.text,
-  }) : super(id: generateId());
+  }) : super(id: id ?? generateId());
+
+  @override
+  RuntimeVariableData copyWith({
+    String? id,
+    String? name,
+    Object? value,
+    VariableType? type,
+    bool? isUsed,
+    Set<String>? nodes,
+  }) {
+    final String? sanitizedValue = value == null
+        ? null
+        : sanitizeValueForVariableType(value, type ?? this.type);
+    return RuntimeVariableData(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      value: sanitizedValue ?? this.value,
+      type: type ?? this.type,
+    );
+  }
 }
