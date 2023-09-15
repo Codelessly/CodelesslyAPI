@@ -27,4 +27,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.cursorExit: 'cursorExit',
   TriggerType.pointerDown: 'pointerDown',
   TriggerType.pointerUp: 'pointerUp',
+  TriggerType.load: 'load',
 };

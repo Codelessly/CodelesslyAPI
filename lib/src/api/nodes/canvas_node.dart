@@ -20,6 +20,7 @@ class CanvasNode extends ParentNode
         IsolatedMixin,
         ScrollableMixin,
         CustomPropertiesMixin,
+        ReactionMixin,
         ParentReactionMixin {
   @override
   final String type = 'canvas';
@@ -41,7 +42,7 @@ class CanvasNode extends ParentNode
   bool get isAScaffold => properties.isAScaffold;
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [TriggerType.load];
 
   @override
   List<ReactionMixin> get reactiveChildren =>
