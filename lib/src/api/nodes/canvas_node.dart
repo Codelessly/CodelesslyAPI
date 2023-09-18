@@ -20,7 +20,6 @@ class CanvasNode extends ParentNode
         IsolatedMixin,
         ScrollableMixin,
         CustomPropertiesMixin,
-        ReactionMixin,
         ParentReactionMixin {
   @override
   final String type = 'canvas';
