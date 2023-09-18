@@ -45,8 +45,8 @@ enum TriggerType {
   /// Triggered when a pointer up event is received on the target.
   pointerUp,
 
-  /// Triggered when the widget (specifically canvas) is loaded.
-  onLoad;
+  /// Triggered when the canvas is loaded.
+  load;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -73,8 +73,8 @@ enum TriggerType {
         return 'Editing Complete';
       case TriggerType.submitted:
         return 'Submitted';
-      case TriggerType.onLoad:
-        return 'On Load';
+      case TriggerType.load:
+        return 'Load';
     }
   }
 }
