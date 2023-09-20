@@ -269,7 +269,7 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
     CornerRadius? cornerRadius,
     bool? enabled,
     String? label,
-    StartEndProp? labelStyle,
+    TextProp? labelStyle,
     TextAlignHorizontalEnum? labelAlignment,
     IconPlacementEnum? placement,
     double? gap,

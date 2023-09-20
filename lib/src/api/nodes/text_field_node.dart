@@ -244,7 +244,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     int? maxLines,
     int? minLines,
     String? obscuringCharacter,
-    StartEndProp? inputStyle,
+    TextProp? inputStyle,
     InputDecorationModel? decoration,
     bool? expands,
   }) {
