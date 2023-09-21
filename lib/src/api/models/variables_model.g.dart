@@ -9,7 +9,7 @@ part of 'variables_model.dart';
 VariableData _$VariableDataFromJson(Map json) => VariableData(
       id: json['id'] as String,
       name: json['name'] as String,
-      value: json['value'] as String? ?? '',
+      value: json['value'] ?? '',
       type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
               unknownValue: VariableType.text) ??
           VariableType.text,
@@ -71,7 +71,7 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
               unknownValue: VariableType.text) ??
           VariableType.text,
-      value: json['value'] as String? ?? '',
+      value: json['value'] ?? '',
     );
 
 Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
