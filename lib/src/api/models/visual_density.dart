@@ -121,8 +121,10 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
   VisualDensityModel copyWith({
     double? horizontal,
     double? vertical,
+    VisualDensityType? type,
   }) {
     return VisualDensityModel(
+      type: type ?? this.type,
       horizontal: horizontal ?? this.horizontal,
       vertical: vertical ?? this.vertical,
     );
