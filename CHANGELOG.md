@@ -1,3 +1,8 @@
+## 0.5.0
+- Load APIs V1.
+- Fix ExpansionTiles layout and functionality issues.
+- Fix reactions not being modified.
+
 ## 0.4.1
 - Add hover and splash color to dropdown node.
 - Miscellaneous fixes.
