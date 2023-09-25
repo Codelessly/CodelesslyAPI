@@ -16,6 +16,7 @@ extension NodeBoxHelper on NodeBox {
     double? y,
     double? width,
     double? height,
+    BoxConstraintsModel? constraintOverrides,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     bool triggerCompute = true,
@@ -28,10 +29,15 @@ extension NodeBoxHelper on NodeBox {
     );
     if (!triggerCompute) {
       node._basicBoxLocal = box;
+      if (constraintOverrides != null) {
+        node._resolvedConstraints =
+            node._constraints.union(constraintOverrides);
+      }
     } else {
       NodeProcessor.updateNode(
         node: node,
         basicBoxLocal: box,
+        constraintOverrides: constraintOverrides,
         resetRetainedBox: resetRetainedBox,
         recursivelyCalculateChildrenGlobalBoxes:
             recursivelyCalculateChildrenGlobalBoxes,
@@ -305,6 +311,9 @@ class NodeProcessor {
   /// list of nodes one-by-one order from parent to child order. If this is
   /// the case, then we can make important assumptions that can help optimize
   /// and avoid recursive computation.
+  /// 
+  /// [constraintOverrides] overrides [node.resolvedConstraints] while being
+  /// still affected by user given constraints.
   static void updateNode({
     required BaseNode node,
     EdgeInsetsModel? margin,
@@ -314,6 +323,7 @@ class NodeProcessor {
     OuterNodeBox? outerBoxGlobal,
     NodeBox? basicBoxLocal,
     BoxConstraintsModel? constraints,
+    BoxConstraintsModel? constraintOverrides,
     int? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
@@ -340,7 +350,11 @@ class NodeProcessor {
     if (constraintsChanged) {
       node._constraints = constraints;
     }
-    node._resolvedConstraints = resolveConstraints(node);
+    if (constraintOverrides != null) {
+      node._resolvedConstraints = node._constraints.union(constraintOverrides);
+    } else {
+      node._resolvedConstraints = resolveConstraints(node);
+    }
 
     node.updateNodeRotation(rotationDegrees ?? node.rotationDegrees);
 
