@@ -37,7 +37,7 @@ extension NodeBoxHelper on NodeBox {
       NodeProcessor.updateNode(
         node: node,
         basicBoxLocal: box,
-        constraintOverrides: constraintOverrides,
+        resolvedConstraints: constraintOverrides,
         resetRetainedBox: resetRetainedBox,
         recursivelyCalculateChildrenGlobalBoxes:
             recursivelyCalculateChildrenGlobalBoxes,
@@ -166,17 +166,20 @@ class NodeProcessor {
     NodeProcessor.getNode = getNode;
   }
 
-  /// There are normal [constraints] field, but they do not tell the full
-  /// story of provided node's true constraints.
+  /// There's the normal [constraints] field, but those constraints don't tell
+  /// the full story of the provided node's true constraints.
   ///
   /// The [constraints] field is what is manually set by the user. However,
   /// we have additional constraints that are computed for different nodes.
-  /// Material components may provide additional internal
-  /// constraints. Images may provide their original sizes when shrink-wrapping,
-  /// ListTiles provide a minimum size that the leading node must have, etc...
+  /// Material components may provide additional internal constraints. Images
+  /// may provide their original sizes when shrink-wrapping, ListTiles provide
+  /// a minimum size that the leading node must have, etc...
   ///
   /// This function will take the [internalConstraints] and union them to the
   /// [constraints] field to get a reinforced set of constraints.
+  ///
+  /// This function is recursive and may travel up the parent tree from the
+  /// internal [BaseNode.relegatedConstraintsToChildren] function.
   static BoxConstraintsModel resolveConstraints(
     BaseNode node, {
     SizeFit? horizontalFit,
@@ -254,8 +257,8 @@ class NodeProcessor {
 
   /// Sorted nodes is a list of nodes that go from parent -> child.
   static void sortNodes(List<BaseNode> nodes) {
-    // Optimization: We can cache the parent chains for each node to avoid
-    // computing them multiple times.
+    // We cache the parent chains for each node to avoid
+    // re-computing them multiple times as an optimization.
     final Map<BaseNode, List<String>> parentChains = {};
 
     nodes.sort((a, b) {
@@ -311,8 +314,8 @@ class NodeProcessor {
   /// list of nodes one-by-one order from parent to child order. If this is
   /// the case, then we can make important assumptions that can help optimize
   /// and avoid recursive computation.
-  /// 
-  /// [constraintOverrides] overrides [node.resolvedConstraints] while being
+  ///
+  /// [resolvedConstraints] overrides [node.resolvedConstraints] while being
   /// still affected by user given constraints.
   static void updateNode({
     required BaseNode node,
@@ -323,7 +326,7 @@ class NodeProcessor {
     OuterNodeBox? outerBoxGlobal,
     NodeBox? basicBoxLocal,
     BoxConstraintsModel? constraints,
-    BoxConstraintsModel? constraintOverrides,
+    BoxConstraintsModel? resolvedConstraints,
     int? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
@@ -350,8 +353,8 @@ class NodeProcessor {
     if (constraintsChanged) {
       node._constraints = constraints;
     }
-    if (constraintOverrides != null) {
-      node._resolvedConstraints = node._constraints.union(constraintOverrides);
+    if (resolvedConstraints != null) {
+      node._resolvedConstraints = node._constraints.union(resolvedConstraints);
     } else {
       node._resolvedConstraints = resolveConstraints(node);
     }
