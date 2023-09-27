@@ -132,34 +132,6 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   });
 
   @override
-  BoxConstraintsModel internalConstraints({
-    required SizeFit horizontalFit,
-    required SizeFit verticalFit,
-  }) {
-    final double iconSize =
-        properties.icon.show ? (properties.icon.size ?? 24) : 0;
-    final double gap =
-        !properties.buttonType.isIconButton && properties.icon.show
-            ? properties.gap
-            : 0;
-    // 8 - padding.vertical is used for compact visual density.
-    final SizeC minSize =
-        SizeC(iconSize + gap, iconSize + (8 - padding.vertical));
-
-    return super
-        .internalConstraints(
-          horizontalFit: horizontalFit,
-          verticalFit: verticalFit,
-        )
-        .union(
-          BoxConstraintsModel(
-            minWidth: minSize.width,
-            minHeight: minSize.height,
-          ),
-        );
-  }
-
-  @override
   List<TriggerType> get triggerTypes =>
       [TriggerType.click, TriggerType.longPress];
 

@@ -27,7 +27,7 @@ class SizeC with SerializableMixin, EquatableMixin {
   final double height;
 
   /// An empty size, one with a zero width and a zero height.
-  static SizeC zero = const SizeC(0, 0);
+  static const SizeC zero = SizeC(0, 0);
 
   /// Creates a [SizeC] with the given [width] and [height].
   const SizeC(this.width, this.height);
