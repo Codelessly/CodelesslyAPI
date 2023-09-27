@@ -480,43 +480,35 @@ abstract class BaseNode
   List<String> get childrenOrEmpty =>
       (this is ChildrenMixin) ? (this as ChildrenMixin).children : <String>[];
 
-  /// A convenience getter.
+  /// Whether this node has reached both its minimum height and width.
   bool get isAtMinimumSize => isAtMinWidth && isAtMinHeight;
 
-  /// A convenience getter.
+  /// Whether this node has reached both its maximum height and width.
   bool get isAtMaximumSize => isAtMaxWidth && isAtMaxHeight;
 
   /// Whether the height of this node is at the maximum height it can be.
   /// This is always false if no maxHeight constraint is set.
-  bool get isAtMaxHeight {
-    return resolvedConstraints.maxHeight != null &&
-        outerBoxLocal.height >=
-            (resolvedConstraints.maxHeight! + outerBoxLocal.verticalEdgeSpace);
-  }
+  bool get isAtMaxHeight =>
+      resolvedConstraints.maxHeight != null &&
+      middleBoxLocal.height >= resolvedConstraints.maxHeight!;
 
   /// Whether the width of this node is at the maximum width it can be.
   /// This is always false if no maxHeight constraint is set.
-  bool get isAtMaxWidth {
-    return resolvedConstraints.maxWidth != null &&
-        outerBoxLocal.width >=
-            (resolvedConstraints.maxWidth! + outerBoxLocal.horizontalEdgeSpace);
-  }
+  bool get isAtMaxWidth =>
+      resolvedConstraints.maxWidth != null &&
+      middleBoxLocal.width >= resolvedConstraints.maxWidth!;
 
   /// Whether the height of this node is at the minimum height it can be.
   /// This is always false if no maxHeight constraint is set.
-  bool get isAtMinHeight {
-    return resolvedConstraints.minHeight != null &&
-        outerBoxLocal.height <=
-            (resolvedConstraints.minHeight! + outerBoxLocal.verticalEdgeSpace);
-  }
+  bool get isAtMinHeight =>
+      resolvedConstraints.minHeight != null &&
+      middleBoxLocal.height <= resolvedConstraints.minHeight!;
 
   /// Whether the width of this node is at the minimum width it can be.
   /// This is always false if no maxHeight constraint is set.
-  bool get isAtMinWidth {
-    return resolvedConstraints.minWidth != null &&
-        outerBoxLocal.width <=
-            (resolvedConstraints.minWidth! + outerBoxLocal.horizontalEdgeSpace);
-  }
+  bool get isAtMinWidth =>
+      resolvedConstraints.minWidth != null &&
+      middleBoxLocal.width <= resolvedConstraints.minWidth!;
 
   /// Determines whether this node relegates internal constraints to its
   /// children.
@@ -530,13 +522,43 @@ abstract class BaseNode
   /// its own constraints onto its child.
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) => null;
 
+  /// Returns the relevant [NodeBox] given the [NodeBoundaryType] and the
+  /// [PositioningSpace] desired.
+  ///
+  /// This is a convenience function meant for programmatic use.
+  NodeBox getBox({
+    required NodeBoundaryType type,
+    required PositioningSpace space,
+  }) =>
+      switch (space) {
+        PositioningSpace.local => switch (type) {
+            NodeBoundaryType.outerBox => outerBoxLocal,
+            NodeBoundaryType.innerBox ||
+            NodeBoundaryType.innerRotatedBox =>
+              innerBoxLocal,
+            NodeBoundaryType.middleBox => basicBoxLocal,
+            NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
+            NodeBoundaryType.middleRotatedBox => middleRotatedBoxLocal,
+          },
+        PositioningSpace.global => switch (type) {
+            NodeBoundaryType.outerBox => outerBoxGlobal,
+            NodeBoundaryType.innerBox ||
+            NodeBoundaryType.innerRotatedBox =>
+              innerBoxGlobal,
+            NodeBoundaryType.middleBox => basicBoxGlobal,
+            NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
+            NodeBoundaryType.middleRotatedBox => middleRotatedBoxGlobal,
+          }
+      };
+
   /// A convenience function that will take a [value] and constraint it
   /// using the [resolvedConstraints] function.
   ///
-  /// It takes an additional [nodeBoundaryType] to indicate which [NodeBox]
-  /// to use to constrain the desired [value].
-  SizeC constrainSize(SizeC value,
-          {required NodeBoundaryType nodeBoundaryType}) =>
+  /// The value is going to be constrained according to the node's [middleBox]
+  SizeC constrainSize(
+    SizeC value, {
+    required NodeBoundaryType nodeBoundaryType,
+  }) =>
       SizeC(
         constrainValue(
           value.width,
@@ -550,59 +572,24 @@ abstract class BaseNode
         ),
       );
 
-  /// A convenience function that is exactly the same as [constrainSize]
-  /// except it takes a [Vec] instead.
-  Vec constrainVec(Vec value, {required NodeBoundaryType nodeBoundaryType}) =>
-      Vec(
-        constrainValue(
-          value.x,
-          AxisC.horizontal,
-          nodeBoundaryType: nodeBoundaryType,
-        ),
-        constrainValue(
-          value.y,
-          AxisC.vertical,
-          nodeBoundaryType: nodeBoundaryType,
-        ),
-      );
-
-  /// Returns the relevant [NodeBox] given the [NodeBoundaryType] and the
-  /// [PositioningSpace] desired.
-  ///
-  /// This is a convenience function meant for programmatic use.
-  NodeBox getBox(
-      {required NodeBoundaryType type, required PositioningSpace space}) {
-    switch (space) {
-      case PositioningSpace.local:
-        switch (type) {
-          case NodeBoundaryType.outerBox:
-            return outerBoxLocal;
-          case NodeBoundaryType.innerBox:
-          case NodeBoundaryType.innerRotatedBox:
-            return innerBoxLocal;
-          case NodeBoundaryType.middleBox:
-            return basicBoxLocal;
-          case NodeBoundaryType.outerRotatedBox:
-            return outerRotatedBoxGlobal;
-          case NodeBoundaryType.middleRotatedBox:
-            return middleRotatedBoxLocal;
-        }
-      case PositioningSpace.global:
-        switch (type) {
-          case NodeBoundaryType.outerBox:
-            return outerBoxGlobal;
-          case NodeBoundaryType.innerBox:
-          case NodeBoundaryType.innerRotatedBox:
-            return innerBoxGlobal;
-          case NodeBoundaryType.middleBox:
-            return basicBoxGlobal;
-          case NodeBoundaryType.outerRotatedBox:
-            return outerRotatedBoxGlobal;
-          case NodeBoundaryType.middleRotatedBox:
-            return middleRotatedBoxGlobal;
-        }
-    }
-  }
+  double _convertMiddleSizeToBoundary(
+    double value,
+    AxisC axis, {
+    required NodeBoundaryType nodeBoundaryType,
+  }) =>
+      switch (nodeBoundaryType) {
+        NodeBoundaryType.middleBox ||
+        NodeBoundaryType.middleRotatedBox =>
+          value,
+        NodeBoundaryType.innerBox || NodeBoundaryType.innerRotatedBox => value -
+            (axis.isHorizontal
+                ? innerBoxLocal.horizontalEdgeSpace
+                : innerBoxLocal.verticalEdgeSpace),
+        NodeBoundaryType.outerBox || NodeBoundaryType.outerRotatedBox => value +
+            (axis.isHorizontal
+                ? outerBoxLocal.horizontalEdgeSpace
+                : outerBoxLocal.verticalEdgeSpace)
+      };
 
   /// A convenience function that will take a [value] and constrain it
   /// using the [resolvedConstraints] of this node.
@@ -623,6 +610,8 @@ abstract class BaseNode
   ///
   /// Returns the constrained value that cannot exceed the total constraints of
   /// this node.
+  ///
+  /// The [resolvedConstraints] are relative to the node's [middleBox]
   double constrainValue(
     double value,
     AxisC axis, {
@@ -630,83 +619,31 @@ abstract class BaseNode
   }) {
     switch (axis) {
       case AxisC.horizontal:
-        double minValue = resolvedConstraints.minWidth ?? 0.0;
-        switch (nodeBoundaryType) {
-          case NodeBoundaryType.middleBox:
-          case NodeBoundaryType.middleRotatedBox:
-            minValue += innerBoxLocal.horizontalEdgeSpace;
-            break;
-          case NodeBoundaryType.outerBox:
-          case NodeBoundaryType.outerRotatedBox:
-            minValue += outerBoxLocal.horizontalEdgeSpace +
-                innerBoxLocal.horizontalEdgeSpace;
-            break;
-          case NodeBoundaryType.innerBox:
-          case NodeBoundaryType.innerRotatedBox:
-            minValue -= innerBoxLocal.horizontalEdgeSpace;
-            break;
-        }
+        final double minWidth = _convertMiddleSizeToBoundary(
+          resolvedConstraints.minWidth ?? 0,
+          axis,
+          nodeBoundaryType: nodeBoundaryType,
+        );
+        final double maxWidth = _convertMiddleSizeToBoundary(
+          resolvedConstraints.maxWidth ?? double.infinity,
+          axis,
+          nodeBoundaryType: nodeBoundaryType,
+        );
 
-        double output = max(value, minValue);
-
-        if (resolvedConstraints.maxWidth != null) {
-          double maxValue = resolvedConstraints.maxWidth!;
-          switch (nodeBoundaryType) {
-            case NodeBoundaryType.middleBox:
-            case NodeBoundaryType.middleRotatedBox:
-              break;
-            case NodeBoundaryType.outerBox:
-            case NodeBoundaryType.outerRotatedBox:
-              maxValue += outerBoxLocal.horizontalEdgeSpace;
-              break;
-            case NodeBoundaryType.innerBox:
-            case NodeBoundaryType.innerRotatedBox:
-              maxValue -= innerBoxLocal.horizontalEdgeSpace;
-              break;
-          }
-          output = min(output, maxValue);
-        }
-
-        return output;
+        return value.clamp(minWidth, maxWidth);
       case AxisC.vertical:
-        double minValue = resolvedConstraints.minHeight ?? 0.0;
-        switch (nodeBoundaryType) {
-          case NodeBoundaryType.middleBox:
-          case NodeBoundaryType.middleRotatedBox:
-            minValue += innerBoxLocal.verticalEdgeSpace;
-            break;
-          case NodeBoundaryType.outerBox:
-          case NodeBoundaryType.outerRotatedBox:
-            minValue += outerBoxLocal.verticalEdgeSpace +
-                innerBoxLocal.verticalEdgeSpace;
-            break;
-          case NodeBoundaryType.innerBox:
-          case NodeBoundaryType.innerRotatedBox:
-            minValue -= innerBoxLocal.verticalEdgeSpace;
-            break;
-        }
+        final double minHeight = _convertMiddleSizeToBoundary(
+          resolvedConstraints.minHeight ?? 0,
+          axis,
+          nodeBoundaryType: nodeBoundaryType,
+        );
+        final double maxHeight = _convertMiddleSizeToBoundary(
+          resolvedConstraints.maxHeight ?? double.infinity,
+          axis,
+          nodeBoundaryType: nodeBoundaryType,
+        );
 
-        double output = max(value, minValue);
-
-        if (resolvedConstraints.maxHeight != null) {
-          double maxValue = resolvedConstraints.maxHeight!;
-          switch (nodeBoundaryType) {
-            case NodeBoundaryType.middleBox:
-            case NodeBoundaryType.middleRotatedBox:
-              break;
-            case NodeBoundaryType.outerBox:
-            case NodeBoundaryType.outerRotatedBox:
-              maxValue += outerBoxLocal.verticalEdgeSpace;
-              break;
-            case NodeBoundaryType.innerBox:
-            case NodeBoundaryType.innerRotatedBox:
-              maxValue -= innerBoxLocal.verticalEdgeSpace;
-              break;
-          }
-          output = min(output, maxValue);
-        }
-
-        return output;
+        return value.clamp(minHeight, maxHeight);
     }
   }
 
