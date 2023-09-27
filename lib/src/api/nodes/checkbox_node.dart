@@ -16,7 +16,7 @@ part 'checkbox_node.g.dart';
 const double kRadialReactionRadius = 20.0;
 
 /// Default size of the checkbox.
-const double kCheckboxDefaultSize = 32;
+const double kCheckboxDefaultSize = 40;
 
 /// A checkbox is a widget that permits the user to make a binary
 /// choice, i.e. a choice between one of two possible mutually exclusive
