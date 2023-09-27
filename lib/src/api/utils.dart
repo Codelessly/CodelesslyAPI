@@ -31,7 +31,7 @@ abstract class ITextSizeCalculator {
   /// Returns the smallest possible width a [TextNode] can have given the
   /// constraints of its current [NodeBox].
   /// The details are dependant on the implementation.
-  double getBestTextWidthAtCurrentNodeBox();
+  double getBestTextWidthAtCurrentNodeBox(double internalBoxWidth);
 
   /// Returns The minimum height of a defined [TextNode].
   /// The details are dependant on the implementation.
