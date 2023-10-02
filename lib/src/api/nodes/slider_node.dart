@@ -2,8 +2,6 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-import 'dart:math';
-
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -118,27 +116,6 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
 
   @override
   Map toJson() => _$SliderNodeToJson(this);
-
-  @override
-  BoxConstraintsModel internalConstraints({
-    required SizeFit horizontalFit,
-    required SizeFit verticalFit,
-  }) {
-    const trackBleedingPixels = 2;
-    final double thumbSize = properties.thumbRadius * 2;
-    final double width = properties.showThumb
-        ? thumbSize + (trackBleedingPixels * 2)
-        : trackBleedingPixels * 2;
-    final double height = properties.showThumb
-        ? max(thumbSize, properties.trackHeight + trackBleedingPixels)
-        : properties.trackHeight + trackBleedingPixels;
-    return super
-        .internalConstraints(
-          horizontalFit: horizontalFit,
-          verticalFit: verticalFit,
-        )
-        .union(BoxConstraintsModel(minWidth: width, minHeight: height));
-  }
 }
 
 /// Holds configurable properties of the slider.
