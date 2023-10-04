@@ -31,7 +31,7 @@ TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
           json['mediaAutoPlaybackPolicy'])
       ..backgroundColor = json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map)
+          : ColorRGBA.fromJson(json['backgroundColor'])
       ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
@@ -39,31 +39,98 @@ Map<String, dynamic> _$TweetTwitterWebViewPropertiesToJson(
     TweetTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
   val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
       instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
-  writeNotNull('twitterTailoring', instance.twitterTailoring);
-  writeNotNull('languageCode', instance.languageCode);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('theme', instance.theme,
+      _$TwitterEmbedThemeEnumMap[instance.theme], null);
+  writeNotNull('twitterTailoring', instance.twitterTailoring,
+      instance.twitterTailoring, null);
+  writeNotNull(
+      'languageCode', instance.languageCode, instance.languageCode, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['tweetURL'] = instance.tweetURL;
-  writeNotNull('hideConversation', instance.hideConversation);
+  writeNotNull('hideConversation', instance.hideConversation,
+      instance.hideConversation, null);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
   return val;
 }
@@ -123,7 +190,7 @@ TimelineTwitterWebViewProperties _$TimelineTwitterWebViewPropertiesFromJson(
           WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
@@ -134,32 +201,102 @@ Map<String, dynamic> _$TimelineTwitterWebViewPropertiesToJson(
     TimelineTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
-  writeNotNull('twitterTailoring', instance.twitterTailoring);
-  writeNotNull('languageCode', instance.languageCode);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('theme', instance.theme,
+      _$TwitterEmbedThemeEnumMap[instance.theme], null);
+  writeNotNull('twitterTailoring', instance.twitterTailoring,
+      instance.twitterTailoring, null);
+  writeNotNull(
+      'languageCode', instance.languageCode, instance.languageCode, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['timelineURL'] = instance.timelineURL;
-  writeNotNull('width', instance.width);
-  writeNotNull('height', instance.height);
+  writeNotNull('width', instance.width, instance.width, null);
+  writeNotNull('height', instance.height, instance.height, null);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
   return val;
 }
@@ -188,7 +325,7 @@ FollowButtonTwitterWebViewProperties
               WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
-              : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+              : ColorRGBA.fromJson(json['backgroundColor']),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
@@ -200,32 +337,103 @@ Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesToJson(
     FollowButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
-  writeNotNull('twitterTailoring', instance.twitterTailoring);
-  writeNotNull('languageCode', instance.languageCode);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('theme', instance.theme,
+      _$TwitterEmbedThemeEnumMap[instance.theme], null);
+  writeNotNull('twitterTailoring', instance.twitterTailoring,
+      instance.twitterTailoring, null);
+  writeNotNull(
+      'languageCode', instance.languageCode, instance.languageCode, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['handle'] = instance.handle;
-  writeNotNull('hideUsername', instance.hideUsername);
-  writeNotNull('largeButton', instance.largeButton);
+  writeNotNull(
+      'hideUsername', instance.hideUsername, instance.hideUsername, null);
+  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
   return val;
 }
@@ -257,7 +465,7 @@ MentionButtonTwitterWebViewProperties
               WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
-              : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+              : ColorRGBA.fromJson(json['backgroundColor']),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
@@ -269,33 +477,105 @@ Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesToJson(
     MentionButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
-  writeNotNull('twitterTailoring', instance.twitterTailoring);
-  writeNotNull('languageCode', instance.languageCode);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('theme', instance.theme,
+      _$TwitterEmbedThemeEnumMap[instance.theme], null);
+  writeNotNull('twitterTailoring', instance.twitterTailoring,
+      instance.twitterTailoring, null);
+  writeNotNull(
+      'languageCode', instance.languageCode, instance.languageCode, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['handle'] = instance.handle;
-  writeNotNull('largeButton', instance.largeButton);
-  writeNotNull('prefilledText', instance.prefilledText);
-  writeNotNull('recommendedAccounts', instance.recommendedAccounts);
+  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
+  writeNotNull(
+      'prefilledText', instance.prefilledText, instance.prefilledText, null);
+  writeNotNull('recommendedAccounts', instance.recommendedAccounts,
+      instance.recommendedAccounts, null);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
   return val;
 }
@@ -328,7 +608,7 @@ HashtagButtonTwitterWebViewProperties
               WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
-              : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+              : ColorRGBA.fromJson(json['backgroundColor']),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
@@ -340,34 +620,107 @@ Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesToJson(
     HashtagButtonTwitterWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('theme', _$TwitterEmbedThemeEnumMap[instance.theme]);
-  writeNotNull('twitterTailoring', instance.twitterTailoring);
-  writeNotNull('languageCode', instance.languageCode);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('theme', instance.theme,
+      _$TwitterEmbedThemeEnumMap[instance.theme], null);
+  writeNotNull('twitterTailoring', instance.twitterTailoring,
+      instance.twitterTailoring, null);
+  writeNotNull(
+      'languageCode', instance.languageCode, instance.languageCode, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['hashtag'] = instance.hashtag;
-  writeNotNull('largeButton', instance.largeButton);
-  writeNotNull('prefilledText', instance.prefilledText);
-  writeNotNull('recommendedAccounts', instance.recommendedAccounts);
-  writeNotNull('specificURLInTweet', instance.specificURLInTweet);
+  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
+  writeNotNull(
+      'prefilledText', instance.prefilledText, instance.prefilledText, null);
+  writeNotNull('recommendedAccounts', instance.recommendedAccounts,
+      instance.recommendedAccounts, null);
+  writeNotNull('specificURLInTweet', instance.specificURLInTweet,
+      instance.specificURLInTweet, null);
   val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
   return val;
 }

@@ -24,7 +24,10 @@ class LetterSpacing extends Equatable with SerializableMixin {
   final LetterSpacingUnitEnum unit;
 
   /// Creates a [LetterSpacing] instance with given values.
-  const LetterSpacing({required this.value, required this.unit});
+  const LetterSpacing({
+    required this.value,
+    this.unit = LetterSpacingUnitEnum.pixels,
+  });
 
   /// Creates a pixel based [LetterSpacing] instance.
   const LetterSpacing.pixels(this.value) : unit = LetterSpacingUnitEnum.pixels;
