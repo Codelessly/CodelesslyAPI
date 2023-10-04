@@ -5,6 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../../../codelessly_api.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -254,7 +255,12 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   List<Object?> get props => [left, top, right, bottom];
 
   @override
-  Map toJson() => _$EdgePinsModelToJson(this);
+  Map toJson() => {
+        'left': left?.toPrettyPrecision(3),
+        'top': top?.toPrettyPrecision(3),
+        'right': right?.toPrettyPrecision(3),
+        'bottom': bottom?.toPrettyPrecision(3),
+      };
 
   /// Creates a new instance of [EdgePinsModel] from a JSON map.
   @override

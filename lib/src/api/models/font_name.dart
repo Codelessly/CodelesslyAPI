@@ -106,8 +106,8 @@ class FontName extends Equatable with SerializableMixin {
   /// Creates a new instance of [FontName] with given data.
   const FontName({
     required this.family,
-    required this.style,
     required this.weight,
+    this.style = 'Normal',
   });
 
   /// Duplicates [FontName] with given data overrides.

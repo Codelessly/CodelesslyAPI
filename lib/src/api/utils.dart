@@ -2,9 +2,15 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
+import 'package:intl/intl.dart';
 
 import '../../codelessly_api.dart';
+
+/// Rounds the given [value] to the [precision]'th decimal place.
+double roundDoubleToJson(double value) => value.roundToPrecision(3);
 
 /// Defines a function that returns a node by its id.
 typedef GetNode = BaseNode Function(String id);

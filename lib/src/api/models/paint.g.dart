@@ -11,9 +11,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       type: $enumDecode(_$PaintTypeEnumMap, json['type']),
       visible: json['visible'] as bool? ?? true,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
-      color: json['color'] == null
-          ? null
-          : ColorRGB.fromJson(json['color'] as Map),
+      color: json['color'] == null ? null : ColorRGB.fromJson(json['color']),
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
@@ -51,35 +49,97 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) {
   final val = <String, dynamic>{
     'id': instance.id,
     'type': _$PaintTypeEnumMap[instance.type]!,
-    'visible': instance.visible,
-    'opacity': instance.opacity,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('color', instance.color?.toJson());
-  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
-  writeNotNull('gradientTransform', instance.gradientTransform);
+  writeNotNull('visible', instance.visible, instance.visible, true);
   writeNotNull(
-      'gradientStops', instance.gradientStops?.map((e) => e.toJson()).toList());
-  writeNotNull('imageTransform', instance.imageTransform);
-  writeNotNull('downloadUrl', instance.downloadUrl);
-  writeNotNull('imageName', instance.imageName);
-  writeNotNull('imageHash', instance.imageHash);
-  writeNotNull('assetID', instance.assetID);
-  val['fit'] = _$FitEnumMap[instance.fit]!;
-  val['alignment'] = instance.alignment.toJson();
-  val['scaleX'] = instance.scaleX;
-  val['scaleY'] = instance.scaleY;
-  writeNotNull('cropData', instance.cropData?.toJson());
-  writeNotNull('croppedImageURL', instance.croppedImageURL);
-  writeNotNull('sourceWidth', instance.sourceWidth);
-  writeNotNull('sourceHeight', instance.sourceHeight);
-  val['imageRepeat'] = _$ImageRepeatEnumEnumMap[instance.imageRepeat]!;
+      'opacity', instance.opacity, roundDoubleToJson(instance.opacity), 1);
+  writeNotNull('color', instance.color, instance.color?.toJson(), null);
+  writeNotNull('blendMode', instance.blendMode,
+      _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
+  writeNotNull('gradientTransform', instance.gradientTransform,
+      instance.gradientTransform, null);
+  writeNotNull('gradientStops', instance.gradientStops,
+      instance.gradientStops?.map((e) => e.toJson()).toList(), null);
+  writeNotNull(
+      'imageTransform', instance.imageTransform, instance.imageTransform, null);
+  writeNotNull('downloadUrl', instance.downloadUrl, instance.downloadUrl, null);
+  writeNotNull('imageName', instance.imageName, instance.imageName, null);
+  writeNotNull('imageHash', instance.imageHash, instance.imageHash, null);
+  writeNotNull('assetID', instance.assetID, instance.assetID, null);
+  writeNotNull('fit', instance.fit, _$FitEnumMap[instance.fit]!, Fit.none);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  writeNotNull('scaleX', instance.scaleX, instance.scaleX, 1);
+  writeNotNull('scaleY', instance.scaleY, instance.scaleY, 1);
+  writeNotNull(
+      'cropData', instance.cropData, instance.cropData?.toJson(), null);
+  writeNotNull('croppedImageURL', instance.croppedImageURL,
+      instance.croppedImageURL, null);
+  writeNotNull('sourceWidth', instance.sourceWidth, instance.sourceWidth, null);
+  writeNotNull(
+      'sourceHeight', instance.sourceHeight, instance.sourceHeight, null);
+  writeNotNull(
+      'imageRepeat',
+      instance.imageRepeat,
+      _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
+      ImageRepeatEnum.noRepeat);
   return val;
 }
 

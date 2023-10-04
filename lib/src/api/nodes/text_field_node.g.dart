@@ -9,20 +9,17 @@ part of 'text_field_node.dart';
 TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16)
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       reactions: (json['reactions'] as List<dynamic>?)
@@ -63,39 +60,107 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16));
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
-  val['initialText'] = instance.initialText;
+  writeNotNull('initialText', instance.initialText, instance.initialText, '');
   return val;
 }
 
@@ -141,7 +206,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
           TextAlignVerticalEnum.center,
       cursorColor: json['cursorColor'] == null
           ? ColorRGB.black
-          : ColorRGB.fromJson(json['cursorColor'] as Map),
+          : ColorRGB.fromJson(json['cursorColor']),
       cursorHeight: (json['cursorHeight'] as num?)?.toDouble() ?? 14,
       cursorWidth: (json['cursorWidth'] as num?)?.toDouble() ?? 2.0,
       cursorRadius: (json['cursorRadius'] as num?)?.toDouble() ?? 2.0,
@@ -159,41 +224,116 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
-  final val = <String, dynamic>{
-    'autoCorrect': instance.autoCorrect,
-    'autoFocus': instance.autoFocus,
-    'enableInteractiveSelection': instance.enableInteractiveSelection,
-    'enabled': instance.enabled,
-    'obscureText': instance.obscureText,
-    'readOnly': instance.readOnly,
-    'showCursor': instance.showCursor,
-    'keyboardType': _$TextInputTypeEnumEnumMap[instance.keyboardType]!,
-    'selectionHeightStyle':
-        _$BoxHeightStyleEnumEnumMap[instance.selectionHeightStyle]!,
-    'selectionWidthStyle':
-        _$BoxWidthStyleEnumEnumMap[instance.selectionWidthStyle]!,
-    'textAlign': _$TextAlignHorizontalEnumEnumMap[instance.textAlign]!,
-    'textAlignVertical':
-        _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-    'cursorColor': instance.cursorColor.toJson(),
-    'cursorHeight': instance.cursorHeight,
-    'cursorWidth': instance.cursorWidth,
-    'cursorRadius': instance.cursorRadius,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('maxLength', instance.maxLength);
-  writeNotNull('maxLines', instance.maxLines);
-  writeNotNull('minLines', instance.minLines);
-  val['obscuringCharacter'] = instance.obscuringCharacter;
+  writeNotNull('autoCorrect', instance.autoCorrect, instance.autoCorrect, true);
+  writeNotNull('autoFocus', instance.autoFocus, instance.autoFocus, false);
+  writeNotNull(
+      'enableInteractiveSelection',
+      instance.enableInteractiveSelection,
+      instance.enableInteractiveSelection,
+      true);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
+  writeNotNull(
+      'obscureText', instance.obscureText, instance.obscureText, false);
+  writeNotNull('readOnly', instance.readOnly, instance.readOnly, false);
+  writeNotNull('showCursor', instance.showCursor, instance.showCursor, true);
+  writeNotNull(
+      'keyboardType',
+      instance.keyboardType,
+      _$TextInputTypeEnumEnumMap[instance.keyboardType]!,
+      TextInputTypeEnum.text);
+  writeNotNull(
+      'selectionHeightStyle',
+      instance.selectionHeightStyle,
+      _$BoxHeightStyleEnumEnumMap[instance.selectionHeightStyle]!,
+      BoxHeightStyleEnum.tight);
+  writeNotNull(
+      'selectionWidthStyle',
+      instance.selectionWidthStyle,
+      _$BoxWidthStyleEnumEnumMap[instance.selectionWidthStyle]!,
+      BoxWidthStyleEnum.tight);
+  writeNotNull(
+      'textAlign',
+      instance.textAlign,
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlign]!,
+      TextAlignHorizontalEnum.left);
+  writeNotNull(
+      'textAlignVertical',
+      instance.textAlignVertical,
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+      TextAlignVerticalEnum.center);
+  writeNotNull('cursorColor', instance.cursorColor,
+      instance.cursorColor.toJson(), ColorRGB.black);
+  writeNotNull(
+      'cursorHeight', instance.cursorHeight, instance.cursorHeight, 14);
+  writeNotNull('cursorWidth', instance.cursorWidth, instance.cursorWidth, 2.0);
+  writeNotNull(
+      'cursorRadius', instance.cursorRadius, instance.cursorRadius, 2.0);
+  writeNotNull('maxLength', instance.maxLength, instance.maxLength, null);
+  writeNotNull('maxLines', instance.maxLines, instance.maxLines, 1);
+  writeNotNull('minLines', instance.minLines, instance.minLines, null);
+  writeNotNull('obscuringCharacter', instance.obscuringCharacter,
+      instance.obscuringCharacter, '•');
   val['inputStyle'] = instance.inputStyle.toJson();
   val['decoration'] = instance.decoration.toJson();
-  val['expands'] = instance.expands;
+  writeNotNull('expands', instance.expands, instance.expands, false);
   return val;
 }
 

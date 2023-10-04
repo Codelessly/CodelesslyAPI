@@ -40,18 +40,69 @@ BoolValue _$BoolValueFromJson(Map json) => BoolValue(
 Map<String, dynamic> _$BoolValueToJson(BoolValue instance) {
   final val = <String, dynamic>{
     'name': instance.name,
-    'mode': _$SetValueModeEnumMap[instance.mode]!,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('value', instance.value);
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value, false);
   val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  val['nullable'] = instance.nullable;
+  writeNotNull('nullable', instance.nullable, instance.nullable, false);
   return val;
 }
 
@@ -77,12 +128,73 @@ IntValue _$IntValueFromJson(Map json) => IntValue(
       value: json['value'] as int? ?? 0,
     );
 
-Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
-      'name': instance.name,
-      'mode': _$SetValueModeEnumMap[instance.mode]!,
-      'value': instance.value,
-      'type': _$ValueTypeEnumMap[instance.type]!,
-    };
+Map<String, dynamic> _$IntValueToJson(IntValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value, 0);
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  return val;
+}
 
 DoubleValue _$DoubleValueFromJson(Map json) => DoubleValue(
       name: json['name'] as String,
@@ -91,13 +203,73 @@ DoubleValue _$DoubleValueFromJson(Map json) => DoubleValue(
       value: (json['value'] as num?)?.toDouble() ?? 0,
     );
 
-Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'mode': _$SetValueModeEnumMap[instance.mode]!,
-      'value': instance.value,
-      'type': _$ValueTypeEnumMap[instance.type]!,
-    };
+Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value, 0);
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  return val;
+}
 
 StringValue _$StringValueFromJson(Map json) => StringValue(
       name: json['name'] as String,
@@ -106,39 +278,148 @@ StringValue _$StringValueFromJson(Map json) => StringValue(
       value: json['value'] as String? ?? '',
     );
 
-Map<String, dynamic> _$StringValueToJson(StringValue instance) =>
-    <String, dynamic>{
-      'name': instance.name,
-      'mode': _$SetValueModeEnumMap[instance.mode]!,
-      'value': instance.value,
-      'type': _$ValueTypeEnumMap[instance.type]!,
-    };
+Map<String, dynamic> _$StringValueToJson(StringValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value, '');
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  return val;
+}
 
 ColorValue _$ColorValueFromJson(Map json) => ColorValue(
       name: json['name'] as String,
       mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
           SetValueMode.discrete,
-      value: json['value'] == null
-          ? null
-          : ColorRGBA.fromJson(json['value'] as Map),
+      value: json['value'] == null ? null : ColorRGBA.fromJson(json['value']),
       nullable: json['nullable'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ColorValueToJson(ColorValue instance) {
   final val = <String, dynamic>{
     'name': instance.name,
-    'mode': _$SetValueModeEnumMap[instance.mode]!,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('value', instance.value?.toJson());
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value?.toJson(), null);
   val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  val['nullable'] = instance.nullable;
+  writeNotNull('nullable', instance.nullable, instance.nullable, false);
   return val;
 }
 
@@ -155,17 +436,68 @@ PaintValue _$PaintValueFromJson(Map json) => PaintValue(
 Map<String, dynamic> _$PaintValueToJson(PaintValue instance) {
   final val = <String, dynamic>{
     'name': instance.name,
-    'mode': _$SetValueModeEnumMap[instance.mode]!,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('value', instance.value?.toJson());
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value?.toJson(), null);
   val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  val['nullable'] = instance.nullable;
+  writeNotNull('nullable', instance.nullable, instance.nullable, false);
   return val;
 }

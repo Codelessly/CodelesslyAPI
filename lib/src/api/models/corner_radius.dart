@@ -5,7 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../mixins.dart';
+import '../../../codelessly_api.dart';
 
 part 'corner_radius.g.dart';
 
@@ -37,8 +37,8 @@ enum RadiusType {
 }
 
 /// Holds corner radius values for a rect. Similar to Flutter's [BorderRadius].
-@JsonSerializable()
-class CornerRadius extends Equatable with SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class CornerRadius extends Equatable with DynamicSerializableMixin {
   /// Radius for the top-left corner.
   final RadiusModel tl;
 
@@ -123,26 +123,46 @@ class CornerRadius extends Equatable with SerializableMixin {
 
   /// Factory constructor for creating a new [CornerRadius] instance from
   /// JSON data.
-  factory CornerRadius.fromJson(Map json) {
-    // compatibility with old versions for renderer
-    if (json['tl'] is num) {
-      return CornerRadius.only(
-        tl: RadiusModel.circular(json['tl'].toDouble()),
-        tr: RadiusModel.circular(json['tr'].toDouble()),
-        bl: RadiusModel.circular(json['bl'].toDouble()),
-        br: RadiusModel.circular(json['br'].toDouble()),
+  factory CornerRadius.fromJson(dynamic json) {
+    if (json is Iterable) {
+      return CornerRadius(
+        tl: RadiusModel(
+          x: json.elementAt(0).toDouble(),
+          y: json.elementAt(1).toDouble(),
+        ),
+        tr: RadiusModel(
+          x: json.elementAt(2).toDouble(),
+          y: json.elementAt(3).toDouble(),
+        ),
+        bl: RadiusModel(
+          x: json.elementAt(4).toDouble(),
+          y: json.elementAt(5).toDouble(),
+        ),
+        br: RadiusModel(
+          x: json.elementAt(6).toDouble(),
+          y: json.elementAt(7).toDouble(),
+        ),
+        linked: json.elementAt(8),
+        type: RadiusType.values.byName(json.elementAt(9)),
       );
     }
     return _$CornerRadiusFromJson(json);
   }
 
   @override
-  Map toJson() => _$CornerRadiusToJson(this);
+  dynamic toJson() => [
+        ...tl.toJson(),
+        ...tr.toJson(),
+        ...bl.toJson(),
+        ...br.toJson(),
+        linked,
+        type.name,
+      ];
 }
 
 /// A radius for either circular or elliptical shapes.
-@JsonSerializable()
-class RadiusModel extends Equatable with SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class RadiusModel extends Equatable with DynamicSerializableMixin {
   /// The radius value on the horizontal axis.
   final double x;
 
@@ -176,8 +196,13 @@ class RadiusModel extends Equatable with SerializableMixin {
 
   /// Factory constructor for creating a new [RadiusModel] instance from
   /// JSON data.
-  factory RadiusModel.fromJson(Map json) => _$RadiusModelFromJson(json);
+  factory RadiusModel.fromJson(dynamic json) {
+    if (json case [num x, num y]) {
+      return RadiusModel(x: x.toDouble(), y: y.toDouble());
+    }
+    return _$RadiusModelFromJson(json);
+  }
 
   @override
-  Map toJson() => _$RadiusModelToJson(this);
+  dynamic toJson() => [x.toPrettyPrecision(3), y.toPrettyPrecision(3)];
 }

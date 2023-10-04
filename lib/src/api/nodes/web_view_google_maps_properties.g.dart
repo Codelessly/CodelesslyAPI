@@ -30,7 +30,7 @@ PlacesGoogleMapsWebViewProperties _$PlacesGoogleMapsWebViewPropertiesFromJson(
           WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
@@ -42,30 +42,98 @@ Map<String, dynamic> _$PlacesGoogleMapsWebViewPropertiesToJson(
     PlacesGoogleMapsWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('apiKey', instance.apiKey);
-  writeNotNull('zoom', instance.zoom);
-  writeNotNull('mapType', _$GoogleMapsMapTypeEnumMap[instance.mapType]);
-  writeNotNull('language', instance.language);
-  writeNotNull('region', instance.region);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
+  writeNotNull('zoom', instance.zoom, instance.zoom, null);
+  writeNotNull('mapType', instance.mapType,
+      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
+  writeNotNull('language', instance.language, instance.language, null);
+  writeNotNull('region', instance.region, instance.region, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['url'] = instance.url;
   val['query'] = instance.query;
@@ -128,7 +196,7 @@ ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
           WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
@@ -140,30 +208,98 @@ Map<String, dynamic> _$ViewGoogleMapsWebViewPropertiesToJson(
     ViewGoogleMapsWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('apiKey', instance.apiKey);
-  writeNotNull('zoom', instance.zoom);
-  writeNotNull('mapType', _$GoogleMapsMapTypeEnumMap[instance.mapType]);
-  writeNotNull('language', instance.language);
-  writeNotNull('region', instance.region);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
+  writeNotNull('zoom', instance.zoom, instance.zoom, null);
+  writeNotNull('mapType', instance.mapType,
+      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
+  writeNotNull('language', instance.language, instance.language, null);
+  writeNotNull('region', instance.region, instance.region, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['url'] = instance.url;
   val['center'] = instance.center.toJson();
@@ -209,7 +345,7 @@ DirectionsGoogleMapsWebViewProperties
               WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
-              : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+              : ColorRGBA.fromJson(json['backgroundColor']),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
@@ -221,41 +357,111 @@ Map<String, dynamic> _$DirectionsGoogleMapsWebViewPropertiesToJson(
     DirectionsGoogleMapsWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('apiKey', instance.apiKey);
-  writeNotNull('zoom', instance.zoom);
-  writeNotNull('mapType', _$GoogleMapsMapTypeEnumMap[instance.mapType]);
-  writeNotNull('language', instance.language);
-  writeNotNull('region', instance.region);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
+  writeNotNull('zoom', instance.zoom, instance.zoom, null);
+  writeNotNull('mapType', instance.mapType,
+      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
+  writeNotNull('language', instance.language, instance.language, null);
+  writeNotNull('region', instance.region, instance.region, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['url'] = instance.url;
   val['origin'] = instance.origin;
   val['destination'] = instance.destination;
   val['waypoints'] = instance.waypoints;
-  writeNotNull('mode', _$GoogleMapsDirectionsModeEnumMap[instance.mode]);
+  writeNotNull('mode', instance.mode,
+      _$GoogleMapsDirectionsModeEnumMap[instance.mode], null);
   val['avoid'] = instance.avoid
       .map((e) => _$GoogleMapsDirectionsAvoidEnumMap[e]!)
       .toList();
-  writeNotNull('units', _$UnitSystemEnumMap[instance.units]);
-  writeNotNull('center', instance.center?.toJson());
+  writeNotNull(
+      'units', instance.units, _$UnitSystemEnumMap[instance.units], null);
+  writeNotNull('center', instance.center, instance.center?.toJson(), null);
   val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
   return val;
 }
@@ -313,7 +519,7 @@ StreetViewGoogleMapsWebViewProperties
               WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
           backgroundColor: json['backgroundColor'] == null
               ? null
-              : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+              : ColorRGBA.fromJson(json['backgroundColor']),
         )
           ..src = _$JsonConverterFromJson<String, String?>(
               json['src'], const Base64JsonConverter().fromJson)
@@ -325,38 +531,107 @@ Map<String, dynamic> _$StreetViewGoogleMapsWebViewPropertiesToJson(
     StreetViewGoogleMapsWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('apiKey', instance.apiKey);
-  writeNotNull('zoom', instance.zoom);
-  writeNotNull('mapType', _$GoogleMapsMapTypeEnumMap[instance.mapType]);
-  writeNotNull('language', instance.language);
-  writeNotNull('region', instance.region);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
+  writeNotNull('zoom', instance.zoom, instance.zoom, null);
+  writeNotNull('mapType', instance.mapType,
+      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
+  writeNotNull('language', instance.language, instance.language, null);
+  writeNotNull('region', instance.region, instance.region, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['url'] = instance.url;
-  writeNotNull('location', instance.location?.toJson());
-  writeNotNull('pano', instance.pano);
-  writeNotNull('heading', instance.heading);
-  writeNotNull('pitch', instance.pitch);
-  writeNotNull('fov', instance.fov);
-  writeNotNull('center', instance.center?.toJson());
+  writeNotNull(
+      'location', instance.location, instance.location?.toJson(), null);
+  writeNotNull('pano', instance.pano, instance.pano, null);
+  writeNotNull('heading', instance.heading, instance.heading, null);
+  writeNotNull('pitch', instance.pitch, instance.pitch, null);
+  writeNotNull('fov', instance.fov, instance.fov, null);
+  writeNotNull('center', instance.center, instance.center?.toJson(), null);
   val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
   return val;
 }
@@ -385,7 +660,7 @@ SearchGoogleMapsWebViewProperties _$SearchGoogleMapsWebViewPropertiesFromJson(
           WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
     )
       ..src = _$JsonConverterFromJson<String, String?>(
           json['src'], const Base64JsonConverter().fromJson)
@@ -397,30 +672,98 @@ Map<String, dynamic> _$SearchGoogleMapsWebViewPropertiesToJson(
     SearchGoogleMapsWebViewProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('src', const Base64JsonConverter().toJson(instance.src));
+  writeNotNull('src', instance.src,
+      const Base64JsonConverter().toJson(instance.src), null);
   writeNotNull(
-      'controlVerticalScrollGesture', instance.controlVerticalScrollGesture);
-  writeNotNull('controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture);
-  writeNotNull('controlTapGesture', instance.controlTapGesture);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  writeNotNull('apiKey', instance.apiKey);
-  writeNotNull('zoom', instance.zoom);
-  writeNotNull('mapType', _$GoogleMapsMapTypeEnumMap[instance.mapType]);
-  writeNotNull('language', instance.language);
-  writeNotNull('region', instance.region);
+      'controlVerticalScrollGesture',
+      instance.controlVerticalScrollGesture,
+      instance.controlVerticalScrollGesture,
+      null);
+  writeNotNull(
+      'controlHorizontalScrollGesture',
+      instance.controlHorizontalScrollGesture,
+      instance.controlHorizontalScrollGesture,
+      null);
+  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
+      instance.controlScaleGesture, null);
+  writeNotNull('controlTapGesture', instance.controlTapGesture,
+      instance.controlTapGesture, null);
+  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
+      instance.controlLongPressGesture, null);
+  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
+      instance.controlForcePressGesture, null);
+  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
+      instance.allowsInlineMediaPlayback, null);
+  writeNotNull(
+      'mediaAutoPlaybackPolicy',
+      instance.mediaAutoPlaybackPolicy,
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[
+          instance.mediaAutoPlaybackPolicy]!,
+      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
+  writeNotNull('zoom', instance.zoom, instance.zoom, null);
+  writeNotNull('mapType', instance.mapType,
+      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
+  writeNotNull('language', instance.language, instance.language, null);
+  writeNotNull('region', instance.region, instance.region, null);
   val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
   val['url'] = instance.url;
   val['query'] = instance.query;

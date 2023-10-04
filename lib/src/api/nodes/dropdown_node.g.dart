@@ -9,10 +9,7 @@ part of 'dropdown_node.dart';
 DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       visible: json['visible'] as bool? ?? true,
@@ -21,10 +18,10 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
@@ -63,39 +60,107 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
-  writeNotNull('value', instance.value);
+  writeNotNull('value', instance.value, instance.value, null);
   return val;
 }
 
@@ -137,69 +202,130 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
           : TextProp.fromJson(json['hintStyle'] as Map),
       iconDisabledColor: json['iconDisabledColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['iconDisabledColor'] as Map),
+          : ColorRGBA.fromJson(json['iconDisabledColor']),
       iconEnabledColor: json['iconEnabledColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['iconEnabledColor'] as Map),
+          : ColorRGBA.fromJson(json['iconEnabledColor']),
       iconSize: (json['iconSize'] as num?)?.toDouble() ?? 24,
       icon: json['icon'] == null
           ? const MultiSourceIconModel.icon(show: false)
           : MultiSourceIconModel.fromJson(json['icon'] as Map),
       dropdownColor: json['dropdownColor'] == null
           ? ColorRGBA.white
-          : ColorRGBA.fromJson(json['dropdownColor'] as Map),
+          : ColorRGBA.fromJson(json['dropdownColor']),
       focusColor: json['focusColor'] == null
           ? ColorRGBA.white
-          : ColorRGBA.fromJson(json['focusColor'] as Map),
+          : ColorRGBA.fromJson(json['focusColor']),
       hoverColor: json['hoverColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['hoverColor'] as Map),
+          : ColorRGBA.fromJson(json['hoverColor']),
       splashColor: json['splashColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['splashColor'] as Map),
+          : ColorRGBA.fromJson(json['splashColor']),
       elevation: json['elevation'] as int? ?? 8,
       borderRadius: json['borderRadius'] == null
           ? CornerRadius.zero
-          : CornerRadius.fromJson(json['borderRadius'] as Map),
+          : CornerRadius.fromJson(json['borderRadius']),
       underline: json['underline'] as bool? ?? true,
       useDataSource: json['useDataSource'] as bool? ?? false,
       itemLabel: json['itemLabel'] as String? ?? '',
     );
 
 Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) {
-  final val = <String, dynamic>{
-    'enabled': instance.enabled,
-    'dense': instance.dense,
-    'expanded': instance.expanded,
-    'autoFocus': instance.autoFocus,
-    'enableFeedback': instance.enableFeedback,
-    'items': instance.items,
-    'itemTextStyle': instance.itemTextStyle.toJson(),
-    'itemAlignment': instance.itemAlignment.toJson(),
-    'selectedItemTextStyle': instance.selectedItemTextStyle.toJson(),
-    'selectedItemAlignment': instance.selectedItemAlignment.toJson(),
-    'hint': instance.hint,
-    'hintStyle': instance.hintStyle.toJson(),
-    'iconDisabledColor': instance.iconDisabledColor.toJson(),
-    'iconEnabledColor': instance.iconEnabledColor.toJson(),
-    'iconSize': instance.iconSize,
-    'icon': instance.icon.toJson(),
-    'dropdownColor': instance.dropdownColor.toJson(),
-    'focusColor': instance.focusColor.toJson(),
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('hoverColor', instance.hoverColor?.toJson());
-  writeNotNull('splashColor', instance.splashColor?.toJson());
-  val['elevation'] = instance.elevation;
-  val['borderRadius'] = instance.borderRadius.toJson();
-  val['underline'] = instance.underline;
-  val['useDataSource'] = instance.useDataSource;
-  val['itemLabel'] = instance.itemLabel;
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
+  writeNotNull('dense', instance.dense, instance.dense, false);
+  writeNotNull('expanded', instance.expanded, instance.expanded, false);
+  writeNotNull('autoFocus', instance.autoFocus, instance.autoFocus, false);
+  writeNotNull(
+      'enableFeedback', instance.enableFeedback, instance.enableFeedback, true);
+  val['items'] = instance.items;
+  val['itemTextStyle'] = instance.itemTextStyle.toJson();
+  writeNotNull('itemAlignment', instance.itemAlignment,
+      instance.itemAlignment.toJson(), AlignmentModel.centerLeft);
+  val['selectedItemTextStyle'] = instance.selectedItemTextStyle.toJson();
+  writeNotNull('selectedItemAlignment', instance.selectedItemAlignment,
+      instance.selectedItemAlignment.toJson(), AlignmentModel.centerLeft);
+  writeNotNull('hint', instance.hint, instance.hint, '');
+  val['hintStyle'] = instance.hintStyle.toJson();
+  writeNotNull('iconDisabledColor', instance.iconDisabledColor,
+      instance.iconDisabledColor.toJson(), ColorRGBA.grey);
+  writeNotNull('iconEnabledColor', instance.iconEnabledColor,
+      instance.iconEnabledColor.toJson(), ColorRGBA.black);
+  writeNotNull('iconSize', instance.iconSize, instance.iconSize, 24);
+  writeNotNull('icon', instance.icon, instance.icon.toJson(),
+      const MultiSourceIconModel.icon(show: false));
+  writeNotNull('dropdownColor', instance.dropdownColor,
+      instance.dropdownColor.toJson(), ColorRGBA.white);
+  writeNotNull('focusColor', instance.focusColor, instance.focusColor.toJson(),
+      ColorRGBA.white);
+  writeNotNull(
+      'hoverColor', instance.hoverColor, instance.hoverColor?.toJson(), null);
+  writeNotNull('splashColor', instance.splashColor,
+      instance.splashColor?.toJson(), null);
+  writeNotNull('elevation', instance.elevation, instance.elevation, 8);
+  writeNotNull('borderRadius', instance.borderRadius,
+      instance.borderRadius.toJson(), CornerRadius.zero);
+  writeNotNull('underline', instance.underline, instance.underline, true);
+  writeNotNull(
+      'useDataSource', instance.useDataSource, instance.useDataSource, false);
+  writeNotNull('itemLabel', instance.itemLabel, instance.itemLabel, '');
   return val;
 }

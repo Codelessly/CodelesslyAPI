@@ -9,21 +9,18 @@ part of 'slider_node.dart';
 SliderNode _$SliderNodeFromJson(Map json) => SliderNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       value: (json['value'] as num).toDouble(),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
       visible: json['visible'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       reactions: (json['reactions'] as List<dynamic>?)
@@ -63,36 +60,104 @@ SliderNode _$SliderNodeFromJson(Map json) => SliderNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['value'] = instance.value;
   val['properties'] = instance.properties.toJson();
@@ -115,16 +180,16 @@ const _$PositioningModeEnumMap = {
 SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       activeTrackColor: json['activeTrackColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['activeTrackColor'] as Map),
+          : ColorRGBA.fromJson(json['activeTrackColor']),
       inactiveTrackColor: json['inactiveTrackColor'] == null
           ? kSliderDefaultInactiveTrackColor
-          : ColorRGBA.fromJson(json['inactiveTrackColor'] as Map),
+          : ColorRGBA.fromJson(json['inactiveTrackColor']),
       thumbColor: json['thumbColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['thumbColor'] as Map),
+          : ColorRGBA.fromJson(json['thumbColor']),
       overlayColor: json['overlayColor'] == null
           ? const ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.38)
-          : ColorRGBA.fromJson(json['overlayColor'] as Map),
+          : ColorRGBA.fromJson(json['overlayColor']),
       autofocus: json['autofocus'] as bool? ?? false,
       divisions: json['divisions'] as int?,
       min: (json['min'] as num?)?.toDouble() ?? 0,
@@ -136,17 +201,17 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       showLabel: json['showLabel'] as bool? ?? false,
       activeTickMarkColor: json['activeTickMarkColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['activeTickMarkColor'] as Map),
+          : ColorRGBA.fromJson(json['activeTickMarkColor']),
       inactiveTickMarkColor: json['inactiveTickMarkColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['inactiveTickMarkColor'] as Map),
+          : ColorRGBA.fromJson(json['inactiveTickMarkColor']),
       allowFractionalPoints: json['allowFractionalPoints'] as bool? ?? false,
       valueIndicatorColor: json['valueIndicatorColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['valueIndicatorColor'] as Map),
+          : ColorRGBA.fromJson(json['valueIndicatorColor']),
       valueIndicatorTextColor: json['valueIndicatorTextColor'] == null
           ? ColorRGBA.white
-          : ColorRGBA.fromJson(json['valueIndicatorTextColor'] as Map),
+          : ColorRGBA.fromJson(json['valueIndicatorTextColor']),
       valueIndicatorFontSize:
           (json['valueIndicatorFontSize'] as num?)?.toDouble() ?? 14,
       thumbRadius: (json['thumbRadius'] as num?)?.toDouble() ??
@@ -168,41 +233,118 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
     );
 
 Map<String, dynamic> _$SliderPropertiesToJson(SliderProperties instance) {
-  final val = <String, dynamic>{
-    'activeTrackColor': instance.activeTrackColor.toJson(),
-    'inactiveTrackColor': instance.inactiveTrackColor.toJson(),
-    'overlayColor': instance.overlayColor.toJson(),
-    'thumbColor': instance.thumbColor.toJson(),
-    'autofocus': instance.autofocus,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('divisions', instance.divisions);
-  val['min'] = instance.min;
-  val['max'] = instance.max;
-  val['trackHeight'] = instance.trackHeight;
-  val['label'] = instance.label;
-  val['isDiscrete'] = instance.isDiscrete;
-  val['showLabel'] = instance.showLabel;
-  val['activeTickMarkColor'] = instance.activeTickMarkColor.toJson();
-  val['inactiveTickMarkColor'] = instance.inactiveTickMarkColor.toJson();
-  val['valueIndicatorColor'] = instance.valueIndicatorColor.toJson();
-  val['valueIndicatorTextColor'] = instance.valueIndicatorTextColor.toJson();
-  val['valueIndicatorFontSize'] = instance.valueIndicatorFontSize;
-  val['allowFractionalPoints'] = instance.allowFractionalPoints;
-  val['thumbRadius'] = instance.thumbRadius;
-  val['showThumb'] = instance.showThumb;
-  val['trackShape'] = _$SliderTrackShapeEnumEnumMap[instance.trackShape]!;
-  val['tickMarkRadius'] = instance.tickMarkRadius;
-  val['valueIndicatorShape'] =
-      _$SliderValueIndicatorShapeEnumMap[instance.valueIndicatorShape]!;
-  val['overlayRadius'] = instance.overlayRadius;
-  val['deriveOverlayColorFromThumb'] = instance.deriveOverlayColorFromThumb;
+  writeNotNull('activeTrackColor', instance.activeTrackColor,
+      instance.activeTrackColor.toJson(), ColorRGBA.black);
+  writeNotNull('inactiveTrackColor', instance.inactiveTrackColor,
+      instance.inactiveTrackColor.toJson(), kSliderDefaultInactiveTrackColor);
+  writeNotNull(
+      'overlayColor',
+      instance.overlayColor,
+      instance.overlayColor.toJson(),
+      const ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.38));
+  writeNotNull('thumbColor', instance.thumbColor, instance.thumbColor.toJson(),
+      ColorRGBA.black);
+  writeNotNull('autofocus', instance.autofocus, instance.autofocus, false);
+  writeNotNull('divisions', instance.divisions, instance.divisions, null);
+  writeNotNull('min', instance.min, instance.min, 0);
+  writeNotNull('max', instance.max, instance.max, 100);
+  writeNotNull('trackHeight', instance.trackHeight, instance.trackHeight,
+      kSliderDefaultTrackHeight);
+  writeNotNull('label', instance.label, instance.label, kSliderDefaultLabel);
+  writeNotNull('isDiscrete', instance.isDiscrete, instance.isDiscrete, false);
+  writeNotNull('showLabel', instance.showLabel, instance.showLabel, false);
+  writeNotNull('activeTickMarkColor', instance.activeTickMarkColor,
+      instance.activeTickMarkColor.toJson(), ColorRGBA.grey);
+  writeNotNull('inactiveTickMarkColor', instance.inactiveTickMarkColor,
+      instance.inactiveTickMarkColor.toJson(), ColorRGBA.grey);
+  writeNotNull('valueIndicatorColor', instance.valueIndicatorColor,
+      instance.valueIndicatorColor.toJson(), ColorRGBA.grey);
+  writeNotNull('valueIndicatorTextColor', instance.valueIndicatorTextColor,
+      instance.valueIndicatorTextColor.toJson(), ColorRGBA.white);
+  writeNotNull('valueIndicatorFontSize', instance.valueIndicatorFontSize,
+      instance.valueIndicatorFontSize, 14);
+  writeNotNull('allowFractionalPoints', instance.allowFractionalPoints,
+      instance.allowFractionalPoints, false);
+  writeNotNull('thumbRadius', instance.thumbRadius, instance.thumbRadius,
+      kSliderDefaultThumbRadius);
+  writeNotNull('showThumb', instance.showThumb, instance.showThumb, true);
+  writeNotNull(
+      'trackShape',
+      instance.trackShape,
+      _$SliderTrackShapeEnumEnumMap[instance.trackShape]!,
+      SliderTrackShapeEnum.roundedRectangle);
+  writeNotNull('tickMarkRadius', instance.tickMarkRadius,
+      instance.tickMarkRadius, kSliderDefaultTickMarkRadius);
+  writeNotNull(
+      'valueIndicatorShape',
+      instance.valueIndicatorShape,
+      _$SliderValueIndicatorShapeEnumMap[instance.valueIndicatorShape]!,
+      SliderValueIndicatorShape.rectangle);
+  writeNotNull('overlayRadius', instance.overlayRadius, instance.overlayRadius,
+      kSliderDefaultOverlayRadius);
+  writeNotNull(
+      'deriveOverlayColorFromThumb',
+      instance.deriveOverlayColorFromThumb,
+      instance.deriveOverlayColorFromThumb,
+      true);
   return val;
 }
 

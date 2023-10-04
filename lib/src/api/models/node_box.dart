@@ -6,6 +6,7 @@ import 'dart:math';
 
 import 'package:equatable/equatable.dart';
 
+import '../extensions.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -27,7 +28,7 @@ import 'models.dart';
 /// Additionally, the class provides several methods such as copyWith, fromJson,
 /// and toJson which allow for easy manipulation and serialization of the
 /// rectangle.
-class NodeBox with EquatableMixin, SerializableMixin {
+class NodeBox with EquatableMixin, DynamicSerializableMixin {
   /// The arbitrary x-coordinate of the rectangle's left corner.
   /// The position in space depends on the creator of this class.
   ///
@@ -186,21 +187,32 @@ class NodeBox with EquatableMixin, SerializableMixin {
         height ?? this.height,
       );
 
-  /// Creates a new [NodeBox] from a [json] Map.
-  factory NodeBox.fromJson(Map json) => NodeBox(
-        (json['x'] as num).toDouble(),
-        (json['y'] as num).toDouble(),
-        (json['width'] as num).toDouble(),
-        (json['height'] as num).toDouble(),
-      );
-
   @override
-  Map toJson() => {
-        'x': x,
-        'y': y,
-        'width': width,
-        'height': height,
-      };
+  dynamic toJson() => [
+        x.toPrettyPrecision(3),
+        y.toPrettyPrecision(3),
+        width.toPrettyPrecision(3),
+        height.toPrettyPrecision(3),
+      ];
+
+  /// Creates a new [NodeBox] from a [json] Map.
+  factory NodeBox.fromJson(dynamic json) {
+    if (json case [num x, num y, num width, num height]) {
+      return NodeBox(
+        x.toDouble(),
+        y.toDouble(),
+        width.toDouble(),
+        height.toDouble(),
+      );
+    }
+
+    return NodeBox(
+      (json['x'] as num).toDouble(),
+      (json['y'] as num).toDouble(),
+      (json['width'] as num).toDouble(),
+      (json['height'] as num).toDouble(),
+    );
+  }
 
   @override
   String toString() {
@@ -400,18 +412,6 @@ class OuterNodeBox extends NodeBox {
           edgeInsets: edgeInsets,
         );
 
-  /// Creates an [OuterNodeBox] from a json map.
-  factory OuterNodeBox.fromJson(Map json) {
-    final box = NodeBox.fromJson(json);
-    return OuterNodeBox(
-      box.x,
-      box.y,
-      box.width,
-      box.height,
-      edgeInsets: EdgeInsetsModel.fromJson(json['edgeInsets']),
-    );
-  }
-
   @override
   OuterNodeBox copyWith({
     double? x,
@@ -429,7 +429,28 @@ class OuterNodeBox extends NodeBox {
       );
 
   @override
-  Map toJson() => {...super.toJson(), 'edgeInsets': edgeInsets.toJson()};
+  dynamic toJson() => [
+        ...super.toJson(),
+        if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
+      ];
+
+  /// Creates an [OuterNodeBox] from a json map.
+  factory OuterNodeBox.fromJson(dynamic json) {
+    final box = NodeBox.fromJson(json);
+    return OuterNodeBox(
+      box.x,
+      box.y,
+      box.width,
+      box.height,
+      edgeInsets: json is Iterable
+          ? json.length > 4
+              ? EdgeInsetsModel.fromJson(json.sublist(4))
+              : EdgeInsetsModel.zero
+          : json.containsKey('edgeInsets')
+              ? EdgeInsetsModel.fromJson(json['edgeInsets'])
+              : EdgeInsetsModel.zero,
+    );
+  }
 
   @override
   String toString() =>
@@ -562,8 +583,13 @@ class InnerNodeBox extends NodeBox {
   /// [NodeBox] except that it also takes in an [edgeInsets] that represents the
   /// combined padded space of the box.
   /// [x], [y], [width], [height] are of inner box.
-  InnerNodeBox(super.x, super.y, super.width, super.height,
-      {required this.edgeInsets}) {
+  InnerNodeBox(
+    super.x,
+    super.y,
+    super.width,
+    super.height, {
+    required this.edgeInsets,
+  }) {
     assert(x.isFinite, 'x is not finite. Value: $x');
     assert(y.isFinite, 'y is not finite. Value: $y');
     assert(width.isFinite, 'width is not finite. Value: $width');
@@ -621,18 +647,6 @@ class InnerNodeBox extends NodeBox {
           edgeInsets: edgeInsets,
         );
 
-  /// Creates an [InnerNodeBox] from a JSON map.
-  factory InnerNodeBox.fromJson(Map json) {
-    final box = NodeBox.fromJson(json);
-    return InnerNodeBox(
-      box.x,
-      box.y,
-      box.width,
-      box.height,
-      edgeInsets: EdgeInsetsModel.fromJson(json['edgeInsets']),
-    );
-  }
-
   @override
   InnerNodeBox copyWith({
     double? x,
@@ -650,8 +664,29 @@ class InnerNodeBox extends NodeBox {
     );
   }
 
+  /// Creates an [InnerNodeBox] from a JSON map.
+  factory InnerNodeBox.fromJson(dynamic json) {
+    final box = NodeBox.fromJson(json);
+    return InnerNodeBox(
+      box.x,
+      box.y,
+      box.width,
+      box.height,
+      edgeInsets: json is Iterable
+          ? json.length > 4
+              ? EdgeInsetsModel.fromJson(json.sublist(4))
+              : EdgeInsetsModel.zero
+          : json.containsKey('edgeInsets')
+              ? EdgeInsetsModel.fromJson(json['edgeInsets'])
+              : EdgeInsetsModel.zero,
+    );
+  }
+
   @override
-  Map toJson() => {...super.toJson(), 'edgeInsets': edgeInsets.toJson()};
+  dynamic toJson() => [
+        ...super.toJson(),
+        if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
+      ];
 
   @override
   String toString() =>
@@ -678,18 +713,6 @@ class RotatedNodeBox extends NodeBox {
     assert(height.isFinite, 'height is not finite. Value: $height');
   }
 
-  /// Creates a [RotatedNodeBox] from a JSON map.
-  factory RotatedNodeBox.fromJson(Map json) {
-    final box = NodeBox.fromJson(json);
-    return RotatedNodeBox(
-      box.x,
-      box.y,
-      box.width,
-      box.height,
-      rotationDegrees: json['rotationDegrees'],
-    );
-  }
-
   @override
   RotatedNodeBox copyWith({
     double? x,
@@ -708,9 +731,28 @@ class RotatedNodeBox extends NodeBox {
   }
 
   @override
-  Map toJson() => {...super.toJson(), 'rotationDegrees': rotationDegrees};
+  dynamic toJson() => [
+        ...super.toJson(),
+        if (rotationDegrees != 0) rotationDegrees,
+      ];
+
+  /// Creates a [RotatedNodeBox] from a JSON map.
+  factory RotatedNodeBox.fromJson(dynamic json) {
+    final box = NodeBox.fromJson(json);
+    return RotatedNodeBox(
+      box.x,
+      box.y,
+      box.width,
+      box.height,
+      rotationDegrees: json is Iterable
+          ? json.length > 4
+              ? EdgeInsetsModel.fromJson(json.elementAt(5))
+              : 0
+          : json['rotationDegrees'] ?? 0,
+    );
+  }
 
   @override
   String toString() =>
-      'MiddleRotationBox{x: $x, y: $y, width: $width, height: $height, rotation: $rotationDegrees}';
+      'RotatedNodeBox{x: $x, y: $y, width: $width, height: $height, rotation: $rotationDegrees}';
 }

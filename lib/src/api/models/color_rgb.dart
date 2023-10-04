@@ -12,8 +12,8 @@ import '../../../codelessly_api.dart';
 part 'color_rgb.g.dart';
 
 /// An opaque color with no controllable opacity/alpha.
-@JsonSerializable()
-class ColorRGB extends Equatable with SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class ColorRGB extends Equatable with DynamicSerializableMixin {
   /// Red channel value, between 0 and 1.
   final double r;
 
@@ -65,17 +65,48 @@ class ColorRGB extends Equatable with SerializableMixin {
   @override
   List<Object> get props => [r, g, b];
 
-  /// Factory constructor for creating a new [ColorRGB] instance from JSON data.
-  factory ColorRGB.fromJson(Map json) => _$ColorRGBFromJson(json);
-
   /// Transform a [ColorRGBA] into this model.
   static ColorRGB? fromColorRGBA(ColorRGBA? color) {
     if (color == null) return null;
     return ColorRGB(r: color.r, g: color.g, b: color.b);
   }
 
+  /// Factory constructor for creating a new [ColorRGBA] instance from hex string.
+  static ColorRGB? fromHex(String hex) {
+    String hexCode = hex.replaceAll('#', '').toUpperCase();
+    if (hexCode.length == 6) {
+      hexCode = 'FF$hexCode';
+    }
+
+    if (!RegExp(r'^[0-9A-F]{8}$', caseSensitive: false).hasMatch(hexCode)) {
+      return null;
+    }
+
+    return ColorRGB(
+      r: int.parse(hexCode.substring(2, 4), radix: 16) / 255,
+      g: int.parse(hexCode.substring(4, 6), radix: 16) / 255,
+      b: int.parse(hexCode.substring(6, 8), radix: 16) / 255,
+    );
+  }
+
+  /// Converts this [ColorRGBA] to [ColorRGB] by removing the alpha channel.
+  String toHex({bool includeHash = true}) {
+    final r = (this.r * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final g = (this.g * 255).toInt().toRadixString(16).padLeft(2, '0');
+    final b = (this.b * 255).toInt().toRadixString(16).padLeft(2, '0');
+    return '${includeHash ? '#' : ''}$r$g$b'.toUpperCase();
+  }
+
   @override
-  Map toJson() => _$ColorRGBToJson(this);
+  dynamic toJson() => toHex(includeHash: true);
+
+  /// Factory constructor for creating a new [ColorRGB] instance from JSON data.
+  factory ColorRGB.fromJson(dynamic json) {
+    if (json is String) {
+      return fromHex(json) ?? ColorRGB.black;
+    }
+    return _$ColorRGBFromJson(json);
+  }
 
   /// Creates a [PaintModel] with this color and given [opacity].
   PaintModel toPaint([String? id, double opacity = 1.0]) => PaintModel.solid(

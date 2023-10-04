@@ -9,10 +9,7 @@ part of 'navigation_bar_node.dart';
 NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       visible: json['visible'] as bool? ?? true,
@@ -21,10 +18,10 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
@@ -63,38 +60,106 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
-  val['currentIndex'] = instance.currentIndex;
+  writeNotNull('currentIndex', instance.currentIndex, instance.currentIndex, 0);
   val['properties'] = instance.properties.toJson();
   return val;
 }
@@ -121,7 +186,7 @@ M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>
       notchMargin: (json['notchMargin'] as num?)?.toDouble() ?? 4,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
       selectedLabelStyle: json['selectedLabelStyle'] == null
           ? null
@@ -131,13 +196,13 @@ M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>
           : TextProp.fromJson(json['unselectedLabelStyle'] as Map),
       unselectedIconColor: json['unselectedIconColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['unselectedIconColor'] as Map),
+          : ColorRGBA.fromJson(json['unselectedIconColor']),
       selectedIconColor: json['selectedIconColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['selectedIconColor'] as Map),
+          : ColorRGBA.fromJson(json['selectedIconColor']),
       indicatorColor: json['indicatorColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['indicatorColor'] as Map),
+          : ColorRGBA.fromJson(json['indicatorColor']),
       unselectedIconSize:
           (json['unselectedIconSize'] as num?)?.toDouble() ?? 24,
       selectedIconSize: (json['selectedIconSize'] as num?)?.toDouble() ?? 24,
@@ -152,28 +217,88 @@ Map<String, dynamic> _$M3NavigationBarPropertiesToJson(
     M3NavigationBarProperties instance) {
   final val = <String, dynamic>{
     'items': instance.items.map((e) => e.toJson()).toList(),
-    'makeNotched': instance.makeNotched,
-    'notchMargin': instance.notchMargin,
-    'styleDefinition': _$StyleDefinitionEnumMap[instance.styleDefinition]!,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('indicatorColor', instance.indicatorColor?.toJson());
+  writeNotNull(
+      'makeNotched', instance.makeNotched, instance.makeNotched, false);
+  writeNotNull('notchMargin', instance.notchMargin, instance.notchMargin, 4);
+  val['styleDefinition'] = _$StyleDefinitionEnumMap[instance.styleDefinition]!;
+  writeNotNull('indicatorColor', instance.indicatorColor,
+      instance.indicatorColor?.toJson(), null);
   val['selectedLabelStyle'] = instance.selectedLabelStyle.toJson();
   val['unselectedLabelStyle'] = instance.unselectedLabelStyle.toJson();
-  writeNotNull('unselectedIconColor', instance.unselectedIconColor?.toJson());
-  writeNotNull('selectedIconColor', instance.selectedIconColor?.toJson());
-  val['unselectedIconSize'] = instance.unselectedIconSize;
-  val['selectedIconSize'] = instance.selectedIconSize;
-  val['elevation'] = instance.elevation;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  val['labelBehavior'] =
-      _$MaterialNavigationBarLabelBehaviorEnumMap[instance.labelBehavior]!;
+  writeNotNull('unselectedIconColor', instance.unselectedIconColor,
+      instance.unselectedIconColor?.toJson(), null);
+  writeNotNull('selectedIconColor', instance.selectedIconColor,
+      instance.selectedIconColor?.toJson(), null);
+  writeNotNull('unselectedIconSize', instance.unselectedIconSize,
+      instance.unselectedIconSize, 24);
+  writeNotNull('selectedIconSize', instance.selectedIconSize,
+      instance.selectedIconSize, 24);
+  writeNotNull('elevation', instance.elevation, instance.elevation, 0);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull(
+      'labelBehavior',
+      instance.labelBehavior,
+      _$MaterialNavigationBarLabelBehaviorEnumMap[instance.labelBehavior]!,
+      MaterialNavigationBarLabelBehavior.alwaysShow);
   return val;
 }
 
@@ -198,7 +323,7 @@ M2NavigationBarProperties _$M2NavigationBarPropertiesFromJson(Map json) =>
       notchMargin: (json['notchMargin'] as num?)?.toDouble() ?? 4,
       backgroundColor: json['backgroundColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
       navigationBarType: $enumDecodeNullable(
               _$M2NavigationBarTypeEnumMap, json['navigationBarType']) ??
@@ -215,10 +340,10 @@ M2NavigationBarProperties _$M2NavigationBarPropertiesFromJson(Map json) =>
           : TextProp.fromJson(json['unselectedLabelStyle'] as Map),
       selectedIconColor: json['selectedIconColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['selectedIconColor'] as Map),
+          : ColorRGBA.fromJson(json['selectedIconColor']),
       unselectedIconColor: json['unselectedIconColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['unselectedIconColor'] as Map),
+          : ColorRGBA.fromJson(json['unselectedIconColor']),
       unselectedIconSize:
           (json['unselectedIconSize'] as num?)?.toDouble() ?? 24,
       selectedIconSize: (json['selectedIconSize'] as num?)?.toDouble() ?? 24,
@@ -233,31 +358,96 @@ Map<String, dynamic> _$M2NavigationBarPropertiesToJson(
     M2NavigationBarProperties instance) {
   final val = <String, dynamic>{
     'items': instance.items.map((e) => e.toJson()).toList(),
-    'makeNotched': instance.makeNotched,
-    'notchMargin': instance.notchMargin,
-    'styleDefinition': _$StyleDefinitionEnumMap[instance.styleDefinition]!,
-    'navigationBarType':
-        _$M2NavigationBarTypeEnumMap[instance.navigationBarType]!,
-    'landscapeLayout':
-        _$M2NavigationBarLandscapeLayoutEnumMap[instance.landscapeLayout]!,
-    'selectedLabelStyle': instance.selectedLabelStyle.toJson(),
-    'unselectedLabelStyle': instance.unselectedLabelStyle.toJson(),
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('unselectedIconColor', instance.unselectedIconColor?.toJson());
-  writeNotNull('selectedIconColor', instance.selectedIconColor?.toJson());
-  val['unselectedIconSize'] = instance.unselectedIconSize;
-  val['selectedIconSize'] = instance.selectedIconSize;
-  val['elevation'] = instance.elevation;
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
-  val['labelBehavior'] =
-      _$MaterialNavigationBarLabelBehaviorEnumMap[instance.labelBehavior]!;
+  writeNotNull(
+      'makeNotched', instance.makeNotched, instance.makeNotched, false);
+  writeNotNull('notchMargin', instance.notchMargin, instance.notchMargin, 4);
+  val['styleDefinition'] = _$StyleDefinitionEnumMap[instance.styleDefinition]!;
+  writeNotNull(
+      'navigationBarType',
+      instance.navigationBarType,
+      _$M2NavigationBarTypeEnumMap[instance.navigationBarType]!,
+      M2NavigationBarType.fixed);
+  writeNotNull(
+      'landscapeLayout',
+      instance.landscapeLayout,
+      _$M2NavigationBarLandscapeLayoutEnumMap[instance.landscapeLayout]!,
+      M2NavigationBarLandscapeLayout.spread);
+  val['selectedLabelStyle'] = instance.selectedLabelStyle.toJson();
+  val['unselectedLabelStyle'] = instance.unselectedLabelStyle.toJson();
+  writeNotNull('unselectedIconColor', instance.unselectedIconColor,
+      instance.unselectedIconColor?.toJson(), null);
+  writeNotNull('selectedIconColor', instance.selectedIconColor,
+      instance.selectedIconColor?.toJson(), null);
+  writeNotNull('unselectedIconSize', instance.unselectedIconSize,
+      instance.unselectedIconSize, 24);
+  writeNotNull('selectedIconSize', instance.selectedIconSize,
+      instance.selectedIconSize, 24);
+  writeNotNull('elevation', instance.elevation, instance.elevation, 0);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), null);
+  writeNotNull(
+      'labelBehavior',
+      instance.labelBehavior,
+      _$MaterialNavigationBarLabelBehaviorEnumMap[instance.labelBehavior]!,
+      MaterialNavigationBarLabelBehavior.alwaysShow);
   return val;
 }
 

@@ -20,10 +20,7 @@ Map<String, dynamic> _$WidthRangeToJson(WidthRange instance) =>
 TextNode _$TextNodeFromJson(Map json) => TextNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
@@ -32,10 +29,10 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -101,51 +98,131 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'alignment': instance.alignment.toJson(),
-    'characters': instance.characters,
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-    'textAlignHorizontal':
-        _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-    'textAlignVertical':
-        _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-    'paragraphIndent': instance.paragraphIndent,
-    'paragraphSpacing': instance.paragraphSpacing,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('maxLines', instance.maxLines);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['characters'] = instance.characters;
+  writeNotNull('textMixedProps', instance.textMixedProps,
+      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull(
+      'textAlignHorizontal',
+      instance.textAlignHorizontal,
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+      TextAlignHorizontalEnum.left);
+  writeNotNull(
+      'textAlignVertical',
+      instance.textAlignVertical,
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+      TextAlignVerticalEnum.top);
+  writeNotNull(
+      'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
+  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
+      instance.paragraphSpacing, 0);
+  writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
+  writeNotNull('overflow', instance.overflow,
+      _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
-  val['overflow'] = _$TextOverflowCEnumMap[instance.overflow]!;
-  val['margin'] = instance.margin.toJson();
-  val['padding'] = instance.padding.toJson();
-  val['rotation'] = instance.rotationDegrees;
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
-  val['opacity'] = instance.opacity;
-  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
-  val['isMask'] = instance.isMask;
-  val['effects'] = instance.effects.map((e) => e.toJson()).toList();
-  writeNotNull('inkWell', instance.inkWell?.toJson());
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('opacity', instance.opacity, instance.opacity, 1.0);
+  writeNotNull('blendMode', instance.blendMode,
+      _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
+  writeNotNull('isMask', instance.isMask, instance.isMask, false);
+  writeNotNull('effects', instance.effects,
+      instance.effects.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
   val['type'] = instance.type;
   return val;
 }

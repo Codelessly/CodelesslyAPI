@@ -9,12 +9,11 @@ part of 'frame_node.dart';
 FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
-      children:
-          (json['children'] as List<dynamic>).map((e) => e as String).toList(),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+      children: (json['children'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       fills: (json['fills'] as List<dynamic>?)
@@ -36,7 +35,7 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
       isMask: json['isMask'] as bool? ?? false,
       strokeWeight: (json['strokeWeight'] as num?)?.toDouble() ?? 0,
-      strokeMiterLimit: (json['strokeMiterLimit'] as num?)?.toDouble(),
+      strokeMiterLimit: (json['strokeMiterLimit'] as num?)?.toDouble() ?? 4.0,
       strokeAlign:
           $enumDecodeNullable(_$StrokeAlignCEnumMap, json['strokeAlign']) ??
               StrokeAlignC.inside,
@@ -46,19 +45,20 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
       cornerSmoothing: (json['cornerSmoothing'] as num?)?.toDouble() ?? 0,
       cornerRadius: json['cornerRadius'] == null
           ? CornerRadius.zero
-          : CornerRadius.fromJson(json['cornerRadius'] as Map),
+          : CornerRadius.fromJson(json['cornerRadius']),
       dashPattern: (json['dashPattern'] as List<dynamic>?)
-          ?.map((e) => (e as num).toDouble())
-          .toList(),
+              ?.map((e) => (e as num).toDouble())
+              .toList() ??
+          const [],
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       strokeSide:
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
@@ -97,8 +97,6 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
               json['keyboardDismissBehavior']) ??
           ScrollViewKeyboardDismissBehaviorC.manual,
       useFlutterListView: json['useFlutterListView'] as bool? ?? false,
-      portalID: json['portalID'] as String?,
-      showPortal: json['showPortal'] as bool? ?? false,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -118,63 +116,152 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
-  final val = <String, dynamic>{
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
-  val['children'] = instance.children;
-  val['opacity'] = instance.opacity;
-  val['blendMode'] = _$BlendModeCEnumMap[instance.blendMode]!;
-  val['isMask'] = instance.isMask;
-  val['effects'] = instance.effects.map((e) => e.toJson()).toList();
-  writeNotNull('inkWell', instance.inkWell?.toJson());
-  val['fills'] = instance.fills.map((e) => e.toJson()).toList();
-  val['strokes'] = instance.strokes.map((e) => e.toJson()).toList();
-  val['strokeWeight'] = instance.strokeWeight;
-  val['strokeMiterLimit'] = instance.strokeMiterLimit;
-  val['strokeAlign'] = _$StrokeAlignCEnumMap[instance.strokeAlign]!;
-  val['strokeCap'] = _$StrokeCapEnumEnumMap[instance.strokeCap]!;
-  val['dashPattern'] = instance.dashPattern;
-  val['strokeSide'] = _$StrokeSideEnumMap[instance.strokeSide]!;
-  val['clipsContent'] = instance.clipsContent;
-  val['cornerSmoothing'] = instance.cornerSmoothing;
-  val['cornerRadius'] = instance.cornerRadius.toJson();
-  val['isScrollable'] = instance.isScrollable;
-  val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
-  val['reverse'] = instance.reverse;
-  val['primary'] = instance.primary;
-  val['physics'] = _$ScrollPhysicsCEnumMap[instance.physics]!;
-  val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
-      instance.keyboardDismissBehavior]!;
-  val['useFlutterListView'] = instance.useFlutterListView;
-  writeNotNull('portalID', instance.portalID);
-  val['showPortal'] = instance.showPortal;
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('children', instance.children, instance.children, []);
+  writeNotNull('opacity', instance.opacity, instance.opacity, 1);
+  writeNotNull('blendMode', instance.blendMode,
+      _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
+  writeNotNull('isMask', instance.isMask, instance.isMask, false);
+  writeNotNull('effects', instance.effects,
+      instance.effects.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
+  writeNotNull('fills', instance.fills,
+      instance.fills.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('strokes', instance.strokes,
+      instance.strokes.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('strokeWeight', instance.strokeWeight, instance.strokeWeight, 0);
+  writeNotNull('strokeMiterLimit', instance.strokeMiterLimit,
+      instance.strokeMiterLimit, 4.0);
+  writeNotNull('strokeAlign', instance.strokeAlign,
+      _$StrokeAlignCEnumMap[instance.strokeAlign]!, StrokeAlignC.inside);
+  writeNotNull('strokeCap', instance.strokeCap,
+      _$StrokeCapEnumEnumMap[instance.strokeCap]!, StrokeCapEnum.square);
+  writeNotNull(
+      'dashPattern', instance.dashPattern, instance.dashPattern, const []);
+  writeNotNull('strokeSide', instance.strokeSide,
+      _$StrokeSideEnumMap[instance.strokeSide]!, StrokeSide.all);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
+  writeNotNull(
+      'cornerSmoothing', instance.cornerSmoothing, instance.cornerSmoothing, 0);
+  writeNotNull('cornerRadius', instance.cornerRadius,
+      instance.cornerRadius.toJson(), CornerRadius.zero);
+  writeNotNull(
+      'isScrollable', instance.isScrollable, instance.isScrollable, false);
+  writeNotNull('scrollDirection', instance.scrollDirection,
+      _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
+  writeNotNull('reverse', instance.reverse, instance.reverse, false);
+  writeNotNull('primary', instance.primary, instance.primary, true);
+  writeNotNull(
+      'physics',
+      instance.physics,
+      _$ScrollPhysicsCEnumMap[instance.physics]!,
+      ScrollPhysicsC.alwaysScrollableScrollPhysics);
+  writeNotNull(
+      'keyboardDismissBehavior',
+      instance.keyboardDismissBehavior,
+      _$ScrollViewKeyboardDismissBehaviorCEnumMap[
+          instance.keyboardDismissBehavior]!,
+      ScrollViewKeyboardDismissBehaviorC.manual);
+  writeNotNull('useFlutterListView', instance.useFlutterListView,
+      instance.useFlutterListView, false);
   val['type'] = instance.type;
   return val;
 }

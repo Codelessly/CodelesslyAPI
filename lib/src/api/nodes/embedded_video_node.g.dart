@@ -9,20 +9,17 @@ part of 'embedded_video_node.dart';
 EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) => EmbeddedVideoNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       reactions: (json['reactions'] as List<dynamic>?)
@@ -62,36 +59,104 @@ EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) => EmbeddedVideoNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;
@@ -136,26 +201,82 @@ Map<String, dynamic> _$EmbeddedYoutubeVideoPropertiesToJson(
     EmbeddedYoutubeVideoProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('url', instance.url);
-  writeNotNull('videoId', instance.videoId);
-  val['autoPlay'] = instance.autoPlay;
+  writeNotNull('url', instance.url, instance.url, null);
+  writeNotNull('videoId', instance.videoId, instance.videoId, null);
+  writeNotNull('autoPlay', instance.autoPlay, instance.autoPlay, false);
   val['source'] = _$EmbeddedVideoSourceEnumMap[instance.source]!;
-  val['mute'] = instance.mute;
-  val['showControls'] = instance.showControls;
-  val['showVideoAnnotations'] = instance.showVideoAnnotations;
-  val['showFullscreenButton'] = instance.showFullscreenButton;
-  val['loop'] = instance.loop;
-  val['showCaptions'] = instance.showCaptions;
-  writeNotNull('startAt', instance.startAt);
-  writeNotNull('endAt', instance.endAt);
-  val['captionLanguage'] = instance.captionLanguage;
-  writeNotNull('metadata', instance.metadata?.toJson());
+  writeNotNull('mute', instance.mute, instance.mute, false);
+  writeNotNull(
+      'showControls', instance.showControls, instance.showControls, true);
+  writeNotNull('showVideoAnnotations', instance.showVideoAnnotations,
+      instance.showVideoAnnotations, true);
+  writeNotNull('showFullscreenButton', instance.showFullscreenButton,
+      instance.showFullscreenButton, true);
+  writeNotNull('loop', instance.loop, instance.loop, false);
+  writeNotNull(
+      'showCaptions', instance.showCaptions, instance.showCaptions, false);
+  writeNotNull('startAt', instance.startAt, instance.startAt, 0);
+  writeNotNull('endAt', instance.endAt, instance.endAt, null);
+  writeNotNull('captionLanguage', instance.captionLanguage,
+      instance.captionLanguage, 'en');
+  writeNotNull(
+      'metadata', instance.metadata, instance.metadata?.toJson(), null);
   return val;
 }
 
@@ -183,20 +304,72 @@ Map<String, dynamic> _$EmbeddedVimeoVideoPropertiesToJson(
     EmbeddedVimeoVideoProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('url', instance.url);
-  writeNotNull('videoId', instance.videoId);
-  val['autoPlay'] = instance.autoPlay;
+  writeNotNull('url', instance.url, instance.url, null);
+  writeNotNull('videoId', instance.videoId, instance.videoId, null);
+  writeNotNull('autoPlay', instance.autoPlay, instance.autoPlay, false);
   val['source'] = _$EmbeddedVideoSourceEnumMap[instance.source]!;
-  val['mute'] = instance.mute;
-  val['showFullscreenButton'] = instance.showFullscreenButton;
-  val['loop'] = instance.loop;
-  writeNotNull('metadata', instance.metadata?.toJson());
+  writeNotNull('mute', instance.mute, instance.mute, false);
+  writeNotNull('showFullscreenButton', instance.showFullscreenButton,
+      instance.showFullscreenButton, true);
+  writeNotNull('loop', instance.loop, instance.loop, false);
+  writeNotNull(
+      'metadata', instance.metadata, instance.metadata?.toJson(), null);
   return val;
 }
 
@@ -217,21 +390,81 @@ YoutubeVideoMetadata _$YoutubeVideoMetadataFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$YoutubeVideoMetadataToJson(
-        YoutubeVideoMetadata instance) =>
-    <String, dynamic>{
-      'url': instance.url,
-      'title': instance.title,
-      'author_name': instance.author,
-      'author_url': instance.authorUrl,
-      'width': instance.width,
-      'height': instance.height,
-      'thumbnail_url': instance.thumbnailUrl,
-      'thumbnail_width': instance.thumbnailWidth,
-      'thumbnail_height': instance.thumbnailHeight,
-      'provider_name': instance.providerName,
-      'html': instance.html,
-      'cloudThumbnailUrl': instance.cloudThumbnailUrl,
-    };
+    YoutubeVideoMetadata instance) {
+  final val = <String, dynamic>{
+    'url': instance.url,
+    'title': instance.title,
+    'author_name': instance.author,
+    'author_url': instance.authorUrl,
+    'width': instance.width,
+    'height': instance.height,
+    'thumbnail_url': instance.thumbnailUrl,
+    'thumbnail_width': instance.thumbnailWidth,
+    'thumbnail_height': instance.thumbnailHeight,
+    'provider_name': instance.providerName,
+    'html': instance.html,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('cloudThumbnailUrl', instance.cloudThumbnailUrl,
+      instance.cloudThumbnailUrl, '');
+  return val;
+}
 
 VimeoVideoMetadata _$VimeoVideoMetadataFromJson(Map json) => VimeoVideoMetadata(
       url: json['url'] as String,
@@ -254,23 +487,83 @@ VimeoVideoMetadata _$VimeoVideoMetadataFromJson(Map json) => VimeoVideoMetadata(
       cloudThumbnailUrl: json['cloudThumbnailUrl'] as String? ?? '',
     );
 
-Map<String, dynamic> _$VimeoVideoMetadataToJson(VimeoVideoMetadata instance) =>
-    <String, dynamic>{
-      'url': instance.url,
-      'version': instance.version,
-      'title': instance.title,
-      'author_name': instance.author,
-      'author_url': instance.authorUrl,
-      'width': instance.width,
-      'height': instance.height,
-      'duration': instance.duration.inMicroseconds,
-      'description': instance.description,
-      'thumbnail_url': instance.thumbnailUrl,
-      'thumbnail_width': instance.thumbnailWidth,
-      'thumbnail_height': instance.thumbnailHeight,
-      'thumbnail_url_with_play_button': instance.thumbnailUrlWithPlayButton,
-      'upload_date': instance.uploadDate,
-      'provider_name': instance.providerName,
-      'html': instance.html,
-      'cloudThumbnailUrl': instance.cloudThumbnailUrl,
-    };
+Map<String, dynamic> _$VimeoVideoMetadataToJson(VimeoVideoMetadata instance) {
+  final val = <String, dynamic>{
+    'url': instance.url,
+    'version': instance.version,
+    'title': instance.title,
+    'author_name': instance.author,
+    'author_url': instance.authorUrl,
+    'width': instance.width,
+    'height': instance.height,
+    'duration': instance.duration.inMicroseconds,
+    'description': instance.description,
+    'thumbnail_url': instance.thumbnailUrl,
+    'thumbnail_width': instance.thumbnailWidth,
+    'thumbnail_height': instance.thumbnailHeight,
+    'thumbnail_url_with_play_button': instance.thumbnailUrlWithPlayButton,
+    'upload_date': instance.uploadDate,
+    'provider_name': instance.providerName,
+    'html': instance.html,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('cloudThumbnailUrl', instance.cloudThumbnailUrl,
+      instance.cloudThumbnailUrl, '');
+  return val;
+}
