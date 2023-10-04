@@ -66,13 +66,13 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       filled: json['filled'] as bool? ?? false,
       fillColor: json['fillColor'] == null
           ? ColorRGBA.grey10
-          : ColorRGBA.fromJson(json['fillColor'] as Map),
+          : ColorRGBA.fromJson(json['fillColor']),
       focusColor: json['focusColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['focusColor'] as Map),
+          : ColorRGBA.fromJson(json['focusColor']),
       hoverColor: json['hoverColor'] == null
           ? ColorRGBA.grey10
-          : ColorRGBA.fromJson(json['hoverColor'] as Map),
+          : ColorRGBA.fromJson(json['hoverColor']),
       showCounter: json['showCounter'] as bool? ?? true,
       errorBorder: json['errorBorder'] == null
           ? const InputBorderModel(
@@ -107,57 +107,149 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
 
 Map<String, dynamic> _$InputDecorationModelToJson(
     InputDecorationModel instance) {
-  final val = <String, dynamic>{
-    'icon': instance.icon.toJson(),
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('labelText', instance.labelText);
+  writeNotNull('icon', instance.icon, instance.icon.toJson(),
+      const MultiSourceIconModel());
+  writeNotNull('labelText', instance.labelText, instance.labelText, null);
   val['labelStyle'] = instance.labelStyle.toJson();
   val['floatingLabelStyle'] = instance.floatingLabelStyle.toJson();
-  writeNotNull('helperText', instance.helperText);
+  writeNotNull('helperText', instance.helperText, instance.helperText, null);
   val['helperStyle'] = instance.helperStyle.toJson();
-  val['helperMaxLines'] = instance.helperMaxLines;
-  writeNotNull('hintText', instance.hintText);
+  writeNotNull(
+      'helperMaxLines', instance.helperMaxLines, instance.helperMaxLines, 1);
+  writeNotNull('hintText', instance.hintText, instance.hintText, null);
   val['hintStyle'] = instance.hintStyle.toJson();
-  val['hintMaxLines'] = instance.hintMaxLines;
-  writeNotNull('errorText', instance.errorText);
+  writeNotNull('hintMaxLines', instance.hintMaxLines, instance.hintMaxLines, 1);
+  writeNotNull('errorText', instance.errorText, instance.errorText, null);
   val['errorStyle'] = instance.errorStyle.toJson();
-  val['errorMaxLines'] = instance.errorMaxLines;
-  val['floatingLabelBehavior'] =
-      _$FloatingLabelBehaviorEnumEnumMap[instance.floatingLabelBehavior]!;
-  val['isCollapsed'] = instance.isCollapsed;
-  val['isDense'] = instance.isDense;
-  writeNotNull('prefixText', instance.prefixText);
+  writeNotNull(
+      'errorMaxLines', instance.errorMaxLines, instance.errorMaxLines, 1);
+  writeNotNull(
+      'floatingLabelBehavior',
+      instance.floatingLabelBehavior,
+      _$FloatingLabelBehaviorEnumEnumMap[instance.floatingLabelBehavior]!,
+      FloatingLabelBehaviorEnum.auto);
+  writeNotNull(
+      'isCollapsed', instance.isCollapsed, instance.isCollapsed, false);
+  writeNotNull('isDense', instance.isDense, instance.isDense, true);
+  writeNotNull('prefixText', instance.prefixText, instance.prefixText, null);
   val['prefixStyle'] = instance.prefixStyle.toJson();
-  val['prefixIcon'] = instance.prefixIcon.toJson();
-  val['prefixIconConstraints'] = instance.prefixIconConstraints.toJson();
-  writeNotNull('suffixText', instance.suffixText);
+  writeNotNull('prefixIcon', instance.prefixIcon, instance.prefixIcon.toJson(),
+      const MultiSourceIconModel());
+  writeNotNull('prefixIconConstraints', instance.prefixIconConstraints,
+      instance.prefixIconConstraints.toJson(), const BoxConstraintsModel());
+  writeNotNull('suffixText', instance.suffixText, instance.suffixText, null);
   val['suffixStyle'] = instance.suffixStyle.toJson();
-  val['suffixIcon'] = instance.suffixIcon.toJson();
-  val['suffixIconConstraints'] = instance.suffixIconConstraints.toJson();
-  writeNotNull('counterText', instance.counterText);
+  writeNotNull('suffixIcon', instance.suffixIcon, instance.suffixIcon.toJson(),
+      const MultiSourceIconModel());
+  writeNotNull('suffixIconConstraints', instance.suffixIconConstraints,
+      instance.suffixIconConstraints.toJson(), const BoxConstraintsModel());
+  writeNotNull('counterText', instance.counterText, instance.counterText, null);
   val['counterStyle'] = instance.counterStyle.toJson();
-  val['filled'] = instance.filled;
-  val['fillColor'] = instance.fillColor.toJson();
-  val['focusColor'] = instance.focusColor.toJson();
-  val['hoverColor'] = instance.hoverColor.toJson();
-  val['errorBorder'] = instance.errorBorder.toJson();
-  val['focusedBorder'] = instance.focusedBorder.toJson();
-  val['focusedErrorBorder'] = instance.focusedErrorBorder.toJson();
-  val['disabledBorder'] = instance.disabledBorder.toJson();
-  val['enabledBorder'] = instance.enabledBorder.toJson();
-  val['border'] = instance.border.toJson();
-  val['enabled'] = instance.enabled;
-  writeNotNull('semanticCounterText', instance.semanticCounterText);
-  val['alignLabelWithHint'] = instance.alignLabelWithHint;
-  val['constraints'] = instance.constraints.toJson();
-  val['showCounter'] = instance.showCounter;
+  writeNotNull('filled', instance.filled, instance.filled, false);
+  writeNotNull('fillColor', instance.fillColor, instance.fillColor.toJson(),
+      ColorRGBA.grey10);
+  writeNotNull('focusColor', instance.focusColor, instance.focusColor.toJson(),
+      ColorRGBA.black);
+  writeNotNull('hoverColor', instance.hoverColor, instance.hoverColor.toJson(),
+      ColorRGBA.grey10);
+  writeNotNull(
+      'errorBorder',
+      instance.errorBorder,
+      instance.errorBorder.toJson(),
+      const InputBorderModel(
+          borderSide: BorderSideModel(color: ColorRGBA.red)));
+  writeNotNull('focusedBorder', instance.focusedBorder,
+      instance.focusedBorder.toJson(), const InputBorderModel());
+  writeNotNull(
+      'focusedErrorBorder',
+      instance.focusedErrorBorder,
+      instance.focusedErrorBorder.toJson(),
+      const InputBorderModel(
+          borderSide: BorderSideModel(color: ColorRGBA.red)));
+  writeNotNull(
+      'disabledBorder',
+      instance.disabledBorder,
+      instance.disabledBorder.toJson(),
+      const InputBorderModel(
+          borderSide: BorderSideModel(color: ColorRGBA.grey10)));
+  writeNotNull(
+      'enabledBorder',
+      instance.enabledBorder,
+      instance.enabledBorder.toJson(),
+      const InputBorderModel(
+          borderSide: BorderSideModel(color: ColorRGBA.grey)));
+  writeNotNull(
+      'border',
+      instance.border,
+      instance.border.toJson(),
+      const InputBorderModel(
+          borderSide: BorderSideModel(color: ColorRGBA.grey)));
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
+  writeNotNull('semanticCounterText', instance.semanticCounterText,
+      instance.semanticCounterText, null);
+  writeNotNull('alignLabelWithHint', instance.alignLabelWithHint,
+      instance.alignLabelWithHint, true);
+  writeNotNull('constraints', instance.constraints,
+      instance.constraints.toJson(), const BoxConstraintsModel());
+  writeNotNull('showCounter', instance.showCounter, instance.showCounter, true);
   return val;
 }
 

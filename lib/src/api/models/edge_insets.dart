@@ -5,6 +5,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../extensions.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -29,8 +30,8 @@ enum EdgeInsetsDirection {
 }
 
 /// Holds edge insets data for margin/padding.
-@JsonSerializable()
-class EdgeInsetsModel with EquatableMixin, SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   /// Left spacing.
   final double l;
 
@@ -174,8 +175,23 @@ class EdgeInsetsModel with EquatableMixin, SerializableMixin {
 
   /// Factory constructor for creating a new [EdgeInsetsModel] instance
   /// from JSON data.
-  factory EdgeInsetsModel.fromJson(Map json) => _$EdgeInsetsModelFromJson(json);
+  factory EdgeInsetsModel.fromJson(dynamic json) {
+    if (json case [num left, num top, num right, num bottom]) {
+      return EdgeInsetsModel.only(
+        left: left.toDouble(),
+        top: top.toDouble(),
+        right: right.toDouble(),
+        bottom: bottom.toDouble(),
+      );
+    }
+    return _$EdgeInsetsModelFromJson(json);
+  }
 
   @override
-  Map toJson() => _$EdgeInsetsModelToJson(this);
+  dynamic toJson() => [
+        l.toPrettyPrecision(3),
+        t.toPrettyPrecision(3),
+        r.toPrettyPrecision(3),
+        b.toPrettyPrecision(3)
+      ];
 }

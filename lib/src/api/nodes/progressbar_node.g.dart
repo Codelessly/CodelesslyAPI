@@ -9,10 +9,7 @@ part of 'progressbar_node.dart';
 ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
@@ -21,10 +18,10 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -63,39 +60,107 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
-  val['currentValue'] = instance.currentValue;
+  writeNotNull('currentValue', instance.currentValue, instance.currentValue, 0);
   return val;
 }
 
@@ -117,27 +182,89 @@ ProgressBarProperties _$ProgressBarPropertiesFromJson(Map json) =>
       maxValue: (json['maxValue'] as num?)?.toDouble() ?? 100,
       backgroundColor: json['backgroundColor'] == null
           ? ColorRGBA.grey10
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
       progressColor: json['progressColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['progressColor'] as Map),
+          : ColorRGBA.fromJson(json['progressColor']),
       isVertical: json['isVertical'] as bool? ?? false,
       cornerRadius: json['cornerRadius'] == null
           ? CornerRadius.zero
-          : CornerRadius.fromJson(json['cornerRadius'] as Map),
+          : CornerRadius.fromJson(json['cornerRadius']),
       animate: json['animate'] as bool? ?? false,
       animationDurationInMillis:
           json['animationDurationInMillis'] as int? ?? 300,
     );
 
 Map<String, dynamic> _$ProgressBarPropertiesToJson(
-        ProgressBarProperties instance) =>
-    <String, dynamic>{
-      'maxValue': instance.maxValue,
-      'backgroundColor': instance.backgroundColor.toJson(),
-      'progressColor': instance.progressColor.toJson(),
-      'isVertical': instance.isVertical,
-      'cornerRadius': instance.cornerRadius.toJson(),
-      'animate': instance.animate,
-      'animationDurationInMillis': instance.animationDurationInMillis,
-    };
+    ProgressBarProperties instance) {
+  final val = <String, dynamic>{};
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('maxValue', instance.maxValue, instance.maxValue, 100);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor.toJson(), ColorRGBA.grey10);
+  writeNotNull('progressColor', instance.progressColor,
+      instance.progressColor.toJson(), ColorRGBA.black);
+  writeNotNull('isVertical', instance.isVertical, instance.isVertical, false);
+  writeNotNull('cornerRadius', instance.cornerRadius,
+      instance.cornerRadius.toJson(), CornerRadius.zero);
+  writeNotNull('animate', instance.animate, instance.animate, false);
+  writeNotNull('animationDurationInMillis', instance.animationDurationInMillis,
+      instance.animationDurationInMillis, 300);
+  return val;
+}

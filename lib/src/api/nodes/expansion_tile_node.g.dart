@@ -9,14 +9,11 @@ part of 'expansion_tile_node.dart';
 ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       isExpanded: json['isExpanded'] as bool?,
       listTileChild: json['listTileChild'] as String?,
       properties: ExpansionTileProperties.fromJson(
           Map<String, dynamic>.from(json['properties'] as Map)),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
       visible: json['visible'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
@@ -25,10 +22,10 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -50,8 +47,10 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           const [],
-      children:
-          (json['children'] as List<dynamic>).map((e) => e as String).toList(),
+      children: (json['children'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [],
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -73,37 +72,105 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
-  val['children'] = instance.children;
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('children', instance.children, instance.children, []);
   val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
   val['mainAxisAlignment'] =
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
@@ -111,7 +178,8 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
   val['type'] = instance.type;
   val['isExpanded'] = instance.isExpanded;
-  writeNotNull('listTileChild', instance.listTileChild);
+  writeNotNull(
+      'listTileChild', instance.listTileChild, instance.listTileChild, null);
   val['properties'] = instance.properties.toJson();
   return val;
 }
@@ -155,15 +223,15 @@ ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
     ExpansionTileProperties(
       backgroundColor: json['backgroundColor'] == null
           ? ColorRGBA.transparent
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
       collapsedBackgroundColor: json['collapsedBackgroundColor'] == null
           ? ColorRGBA.transparent
-          : ColorRGBA.fromJson(json['collapsedBackgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['collapsedBackgroundColor']),
       initiallyExpanded: json['initiallyExpanded'] as bool? ?? false,
       maintainState: json['maintainState'] as bool? ?? false,
       tilePadding: json['tilePadding'] == null
           ? kDefaultListTileContentPadding
-          : EdgeInsetsModel.fromJson(json['tilePadding'] as Map),
+          : EdgeInsetsModel.fromJson(json['tilePadding']),
       expandedAlignment: json['expandedAlignment'] == null
           ? AlignmentModel.center
           : AlignmentModel.fromJson(json['expandedAlignment'] as Map),
@@ -173,19 +241,19 @@ ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
           CrossAxisAlignmentC.center,
       childrenPadding: json['childrenPadding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['childrenPadding'] as Map),
+          : EdgeInsetsModel.fromJson(json['childrenPadding']),
       iconColor: json['iconColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['iconColor'] as Map),
+          : ColorRGBA.fromJson(json['iconColor']),
       collapsedIconColor: json['collapsedIconColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['collapsedIconColor'] as Map),
+          : ColorRGBA.fromJson(json['collapsedIconColor']),
       textColor: json['textColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['textColor'] as Map),
+          : ColorRGBA.fromJson(json['textColor']),
       collapsedTextColor: json['collapsedTextColor'] == null
           ? ColorRGBA.grey
-          : ColorRGBA.fromJson(json['collapsedTextColor'] as Map),
+          : ColorRGBA.fromJson(json['collapsedTextColor']),
       controlAffinity: $enumDecodeNullable(
           _$ListTileControlAffinityCEnumMap, json['controlAffinity']),
       visualDensity: json['visualDensity'] == null
@@ -199,30 +267,95 @@ Map<String, dynamic> _$ExpansionTilePropertiesToJson(
     ExpansionTileProperties instance) {
   final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('backgroundColor', instance.backgroundColor?.toJson());
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor?.toJson(), ColorRGBA.transparent);
+  writeNotNull('collapsedBackgroundColor', instance.collapsedBackgroundColor,
+      instance.collapsedBackgroundColor?.toJson(), ColorRGBA.transparent);
+  writeNotNull('initiallyExpanded', instance.initiallyExpanded,
+      instance.initiallyExpanded, false);
   writeNotNull(
-      'collapsedBackgroundColor', instance.collapsedBackgroundColor?.toJson());
-  val['initiallyExpanded'] = instance.initiallyExpanded;
-  val['maintainState'] = instance.maintainState;
-  writeNotNull('tilePadding', instance.tilePadding?.toJson());
-  writeNotNull('expandedAlignment', instance.expandedAlignment?.toJson());
-  val['expandedCrossAxisAlignment'] =
-      _$CrossAxisAlignmentCEnumMap[instance.expandedCrossAxisAlignment]!;
-  writeNotNull('childrenPadding', instance.childrenPadding?.toJson());
-  writeNotNull('iconColor', instance.iconColor?.toJson());
-  writeNotNull('collapsedIconColor', instance.collapsedIconColor?.toJson());
-  writeNotNull('textColor', instance.textColor?.toJson());
-  writeNotNull('collapsedTextColor', instance.collapsedTextColor?.toJson());
-  writeNotNull('controlAffinity',
-      _$ListTileControlAffinityCEnumMap[instance.controlAffinity]);
-  val['visualDensity'] = instance.visualDensity.toJson();
-  val['showDividers'] = instance.showDividers;
+      'maintainState', instance.maintainState, instance.maintainState, false);
+  writeNotNull('tilePadding', instance.tilePadding,
+      instance.tilePadding?.toJson(), kDefaultListTileContentPadding);
+  writeNotNull('expandedAlignment', instance.expandedAlignment,
+      instance.expandedAlignment?.toJson(), AlignmentModel.center);
+  writeNotNull(
+      'expandedCrossAxisAlignment',
+      instance.expandedCrossAxisAlignment,
+      _$CrossAxisAlignmentCEnumMap[instance.expandedCrossAxisAlignment]!,
+      CrossAxisAlignmentC.center);
+  writeNotNull('childrenPadding', instance.childrenPadding,
+      instance.childrenPadding?.toJson(), EdgeInsetsModel.zero);
+  writeNotNull('iconColor', instance.iconColor, instance.iconColor?.toJson(),
+      ColorRGBA.grey);
+  writeNotNull('collapsedIconColor', instance.collapsedIconColor,
+      instance.collapsedIconColor?.toJson(), ColorRGBA.grey);
+  writeNotNull('textColor', instance.textColor, instance.textColor?.toJson(),
+      ColorRGBA.grey);
+  writeNotNull('collapsedTextColor', instance.collapsedTextColor,
+      instance.collapsedTextColor?.toJson(), ColorRGBA.grey);
+  writeNotNull('controlAffinity', instance.controlAffinity,
+      _$ListTileControlAffinityCEnumMap[instance.controlAffinity], null);
+  writeNotNull('visualDensity', instance.visualDensity,
+      instance.visualDensity.toJson(), VisualDensityModel.standard);
+  writeNotNull(
+      'showDividers', instance.showDividers, instance.showDividers, true);
   return val;
 }
 

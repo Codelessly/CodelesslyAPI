@@ -19,10 +19,68 @@ VariablePart _$VariablePartFromJson(Map json) => VariablePart(
       valueString: json['valueString'] as String? ?? '',
     );
 
-Map<String, dynamic> _$VariablePartToJson(VariablePart instance) =>
-    <String, dynamic>{
-      'valueString': instance.valueString,
-    };
+Map<String, dynamic> _$VariablePartToJson(VariablePart instance) {
+  final val = <String, dynamic>{};
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('valueString', instance.valueString, instance.valueString, '');
+  return val;
+}
 
 Expression _$ExpressionFromJson(Map json) => Expression(
       operator: $enumDecode(_$ConditionOperationEnumMap, json['operator']),
@@ -88,14 +146,64 @@ Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) {
     'id': instance.id,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull(
-      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  writeNotNull('lastUpdated', instance.lastUpdated,
+      const DateTimeConverter().toJson(instance.lastUpdated), null);
   val['actions'] = instance.actions.map((e) => e.toJson()).toList();
   return val;
 }
@@ -117,14 +225,64 @@ Map<String, dynamic> _$ConditionToJson(Condition instance) {
     'id': instance.id,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull(
-      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  writeNotNull('lastUpdated', instance.lastUpdated,
+      const DateTimeConverter().toJson(instance.lastUpdated), null);
   val['expression'] = instance.expression.toJson();
   val['actions'] = instance.actions.map((e) => e.toJson()).toList();
   val['mode'] = _$ConditionModeEnumMap[instance.mode]!;
@@ -158,19 +316,70 @@ Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
     'id': instance.id,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull(
-      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  writeNotNull('lastUpdated', instance.lastUpdated,
+      const DateTimeConverter().toJson(instance.lastUpdated), null);
   val['ifCondition'] = instance.ifCondition.toJson();
   val['elseIfConditions'] =
       instance.elseIfConditions.map((e) => e.toJson()).toList();
-  writeNotNull('elseCondition', instance.elseCondition?.toJson());
-  writeNotNull('name', instance.name);
+  writeNotNull('elseCondition', instance.elseCondition,
+      instance.elseCondition?.toJson(), null);
+  writeNotNull('name', instance.name, instance.name, null);
   return val;
 }
 
@@ -192,14 +401,64 @@ Map<String, dynamic> _$CanvasConditionsToJson(CanvasConditions instance) {
     'conditions': instance.conditions.map((k, e) => MapEntry(k, e.toJson())),
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull(
-      'lastUpdated', const DateTimeConverter().toJson(instance.lastUpdated));
+  writeNotNull('lastUpdated', instance.lastUpdated,
+      const DateTimeConverter().toJson(instance.lastUpdated), null);
   val['owner'] = instance.owner;
   val['project'] = instance.projectId;
   return val;

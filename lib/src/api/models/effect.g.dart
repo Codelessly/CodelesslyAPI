@@ -11,9 +11,7 @@ Effect _$EffectFromJson(Map json) => Effect(
       type: $enumDecode(_$EffectTypeEnumMap, json['type']),
       radius: (json['radius'] as num).toDouble(),
       visible: json['visible'] as bool? ?? true,
-      color: json['color'] == null
-          ? null
-          : ColorRGBA.fromJson(json['color'] as Map),
+      color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
           unknownValue: BlendModeC.srcOver),
       offset:
@@ -25,20 +23,71 @@ Map<String, dynamic> _$EffectToJson(Effect instance) {
   final val = <String, dynamic>{
     'id': instance.id,
     'type': _$EffectTypeEnumMap[instance.type]!,
-    'visible': instance.visible,
-    'radius': instance.radius,
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('spread', instance.spread);
-  writeNotNull('color', instance.color?.toJson());
-  writeNotNull('blendMode', _$BlendModeCEnumMap[instance.blendMode]);
-  writeNotNull('offset', instance.offset?.toJson());
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  val['radius'] = instance.radius;
+  writeNotNull('spread', instance.spread, instance.spread, null);
+  writeNotNull('color', instance.color, instance.color?.toJson(), null);
+  writeNotNull('blendMode', instance.blendMode,
+      _$BlendModeCEnumMap[instance.blendMode], null);
+  writeNotNull('offset', instance.offset, instance.offset?.toJson(), null);
   return val;
 }
 

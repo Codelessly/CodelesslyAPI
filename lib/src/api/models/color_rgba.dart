@@ -10,8 +10,8 @@ import '../../../codelessly_api.dart';
 part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
-@JsonSerializable()
-class ColorRGBA with EquatableMixin, SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
   /// Red channel value, between 0 and 1
   final double r;
 
@@ -78,20 +78,6 @@ class ColorRGBA with EquatableMixin, SerializableMixin {
   @override
   List<Object> get props => [r, g, b, a];
 
-  /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
-  factory ColorRGBA.fromJson(Map json) => _$ColorRGBAFromJson(json);
-
-  /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
-  /// Returns null if cannot parse the JSON.
-  static ColorRGBA? tryFromJson(Map? json) {
-    if (json == null) return null;
-    try {
-      return ColorRGBA.fromJson(json);
-    } catch (e) {
-      return null;
-    }
-  }
-
   /// Factory constructor for creating a new [ColorRGBA] instance from hex string.
   static ColorRGBA? fromHex(String hex) {
     String hexCode = hex.replaceAll('#', '').toUpperCase();
@@ -121,7 +107,15 @@ class ColorRGBA with EquatableMixin, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$ColorRGBAToJson(this);
+  dynamic toJson() => toHex(opaque: false, includeHash: true);
+
+  /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
+  factory ColorRGBA.fromJson(dynamic json) {
+    if (json is String) {
+      return fromHex(json) ?? ColorRGBA.transparent;
+    }
+    return _$ColorRGBAFromJson(json);
+  }
 
   /// Creates a [PaintModel] with this color.
   PaintModel toPaint([String? id]) => PaintModel.solid(

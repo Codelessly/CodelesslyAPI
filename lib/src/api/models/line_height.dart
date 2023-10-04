@@ -32,7 +32,10 @@ class LineHeight extends Equatable with SerializableMixin {
   final LineHeightUnitEnum unit;
 
   /// Creates [LineHeight] with given values.
-  const LineHeight({this.value, required this.unit});
+  const LineHeight({
+    this.value,
+    this.unit = LineHeightUnitEnum.pixels,
+  });
 
   /// Creates pixel based [LineHeight] with given [value].
   const LineHeight.pixels([this.value]) : unit = LineHeightUnitEnum.pixels;

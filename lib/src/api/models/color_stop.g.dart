@@ -8,7 +8,7 @@ part of 'color_stop.dart';
 
 ColorStop _$ColorStopFromJson(Map json) => ColorStop(
       position: (json['position'] as num).toDouble(),
-      color: ColorRGBA.fromJson(json['color'] as Map),
+      color: ColorRGBA.fromJson(json['color']),
     );
 
 Map<String, dynamic> _$ColorStopToJson(ColorStop instance) => <String, dynamic>{

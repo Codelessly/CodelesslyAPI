@@ -54,6 +54,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// Overall opacity of paint.
   /// Colors within the paint can also have opacity
   /// values which would blend with this.
+  @JsonKey(toJson: roundDoubleToJson)
   final double opacity;
 
   // For solid paint:

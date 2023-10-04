@@ -8,6 +8,24 @@ import 'package:meta/meta.dart';
 import 'models/models.dart';
 import 'nodes/nodes.dart';
 
+/// Excludes [BoxConstraintsModel] from the json if it's technically doing
+/// nothing.
+bool excludeConstraintsIf(BaseNode node) =>
+    (node.constraints.minHeight == null || node.constraints.minHeight == 0) &&
+        (node.constraints.minWidth == null || node.constraints.minWidth == 0) &&
+        (node.constraints.maxHeight == null ||
+            node.constraints.maxHeight == double.infinity) &&
+        (node.constraints.maxWidth == null ||
+            node.constraints.maxWidth == double.infinity);
+
+/// Excludes [EdgePinsModel] from the json if it's technically doing nothing.
+bool excludeEdgePinsIf(BaseNode node) {
+  if (node.outerBoxLocal.edgeSize != SizeC.zero) return false;
+  if (!node.edgePins.isStandard) return false;
+
+  return true;
+}
+
 /// Defines nodes that are selectively exempted from default auto-layout
 /// interactions. Ex. auto canvas, expansion tile, list view, etc.
 mixin IsolatedMixin {}
@@ -47,10 +65,10 @@ abstract class DefaultShapeNode extends SceneNode
     List<PaintModel> fills = const [],
     List<PaintModel> strokes = const [],
     double strokeWeight = 0,
-    double? strokeMiterLimit,
+    double strokeMiterLimit = 4.0,
     StrokeAlignC strokeAlign = StrokeAlignC.inside,
     StrokeCapEnum strokeCap = StrokeCapEnum.square,
-    List<double>? dashPattern,
+    List<double> dashPattern = const [],
     StrokeSide strokeSide = StrokeSide.all,
   }) {
     setBlendMixin(
@@ -209,6 +227,7 @@ mixin ParentReactionMixin {
 /// [ChildrenMixin.setChildrenMixin] method in the constructor of the node.
 mixin ChildrenMixin on BaseNode {
   /// A list of node ids that are children of this node.
+  @JsonKey(defaultValue: [])
   late List<String> children;
 
   /// Sets the children of this node.
@@ -1075,6 +1094,14 @@ int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 mixin SerializableMixin {
   /// Returns a serializable map representation of the object.
   Map toJson();
+}
+
+/// This mixin is extended by every Undo Action and api models, so [toJson] can
+/// be called regardless of the class.
+/// It is used for storing actions on server.
+mixin DynamicSerializableMixin {
+  /// Returns a serializable dynamic representation of the object.
+  dynamic toJson();
 }
 
 /// A mixin that adds the ability to add conditions to a node.

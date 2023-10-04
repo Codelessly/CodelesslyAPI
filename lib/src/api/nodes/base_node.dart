@@ -57,6 +57,7 @@ abstract class BaseNode
   /// Constraints apply to the [middleBoxLocal].
   ///
   /// See [BoxConstraintsModel] for more information about constraints.
+  @JsonKey(excludeIf: excludeConstraintsIf)
   BoxConstraintsModel get constraints => _constraints;
 
   late BoxConstraintsModel _resolvedConstraints;
@@ -70,6 +71,7 @@ abstract class BaseNode
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
+  @JsonKey(excludeIf: excludeEdgePinsIf)
   EdgePinsModel edgePins;
 
   /// [PositioningMode] defines if the node positions itself using [alignment]
@@ -142,6 +144,7 @@ abstract class BaseNode
   /// OuterNodeBox.innerX/Y/Left/Right/Top/Bottom/Width/Height and the distance
   /// between the outer box and the middle box can be accessed through
   /// OuterNodeBox.edgeLeft/Right/Top/Bottom.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   OuterNodeBox get outerBoxLocal => _outerBoxLocal;
 
   NodeBox _basicBoxLocal;

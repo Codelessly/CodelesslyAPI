@@ -9,10 +9,7 @@ part of 'tab_bar_node.dart';
 TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
@@ -21,10 +18,10 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
           : AlignmentModel.fromJson(json['alignment'] as Map),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -73,47 +70,120 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
-  val['isScrollable'] = instance.isScrollable;
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull(
+      'isScrollable', instance.isScrollable, instance.isScrollable, false);
   val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;
   val['reverse'] = instance.reverse;
   val['primary'] = instance.primary;
-  val['physics'] = _$ScrollPhysicsCEnumMap[instance.physics]!;
+  writeNotNull(
+      'physics',
+      instance.physics,
+      _$ScrollPhysicsCEnumMap[instance.physics]!,
+      ScrollPhysicsC.alwaysScrollableScrollPhysics);
   val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
       instance.keyboardDismissBehavior]!;
   val['useFlutterListView'] = instance.useFlutterListView;
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
-  val['initialIndex'] = instance.initialIndex;
+  writeNotNull('initialIndex', instance.initialIndex, instance.initialIndex, 0);
   return val;
 }
 
@@ -155,17 +225,17 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
           const [],
       indicatorColor: json['indicatorColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['indicatorColor'] as Map),
+          : ColorRGBA.fromJson(json['indicatorColor']),
       indicatorWeight: (json['indicatorWeight'] as num?)?.toDouble() ?? 2.0,
       indicatorSize: $enumDecodeNullable(
               _$TabBarIndicatorSizeEnumEnumMap, json['indicatorSize']) ??
           TabBarIndicatorSizeEnum.tab,
       labelColor: json['labelColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['labelColor'] as Map),
+          : ColorRGBA.fromJson(json['labelColor']),
       unselectedLabelColor: json['unselectedLabelColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['unselectedLabelColor'] as Map),
+          : ColorRGBA.fromJson(json['unselectedLabelColor']),
       labelStyle: json['labelStyle'] == null
           ? null
           : TextProp.fromJson(json['labelStyle'] as Map),
@@ -174,16 +244,16 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
           : TextProp.fromJson(json['unselectedLabelStyle'] as Map),
       overlayColor: json['overlayColor'] == null
           ? ColorRGBA.grey10
-          : ColorRGBA.fromJson(json['overlayColor'] as Map),
+          : ColorRGBA.fromJson(json['overlayColor']),
       indicatorPadding: json['indicatorPadding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['indicatorPadding'] as Map),
+          : EdgeInsetsModel.fromJson(json['indicatorPadding']),
       dividerColor: json['dividerColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['dividerColor'] as Map),
+          : ColorRGBA.fromJson(json['dividerColor']),
       labelPadding: json['labelPadding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['labelPadding'] as Map),
+          : EdgeInsetsModel.fromJson(json['labelPadding']),
       tabItemDirection:
           $enumDecodeNullable(_$AxisCEnumMap, json['tabItemDirection']) ??
               AxisC.horizontal,
@@ -200,38 +270,114 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
               CShapeBorder.roundedRectangle,
       indicatorCornerRadius: json['indicatorCornerRadius'] == null
           ? CornerRadius.zero
-          : CornerRadius.fromJson(json['indicatorCornerRadius'] as Map),
+          : CornerRadius.fromJson(json['indicatorCornerRadius']),
     );
 
 Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
-  final val = <String, dynamic>{
-    'tabs': instance.tabs.map((e) => e.toJson()).toList(),
-    'indicatorColor': instance.indicatorColor.toJson(),
-    'indicatorWeight': instance.indicatorWeight,
-    'indicatorSize': _$TabBarIndicatorSizeEnumEnumMap[instance.indicatorSize]!,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('labelColor', instance.labelColor?.toJson());
+  writeNotNull('tabs', instance.tabs,
+      instance.tabs.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('indicatorColor', instance.indicatorColor,
+      instance.indicatorColor.toJson(), ColorRGBA.black);
+  writeNotNull('indicatorWeight', instance.indicatorWeight,
+      instance.indicatorWeight, 2.0);
+  writeNotNull(
+      'indicatorSize',
+      instance.indicatorSize,
+      _$TabBarIndicatorSizeEnumEnumMap[instance.indicatorSize]!,
+      TabBarIndicatorSizeEnum.tab);
+  writeNotNull('labelColor', instance.labelColor, instance.labelColor?.toJson(),
+      ColorRGBA.black);
   val['labelStyle'] = instance.labelStyle.toJson();
-  writeNotNull('unselectedLabelColor', instance.unselectedLabelColor?.toJson());
+  writeNotNull('unselectedLabelColor', instance.unselectedLabelColor,
+      instance.unselectedLabelColor?.toJson(), ColorRGBA.black);
   val['unselectedLabelStyle'] = instance.unselectedLabelStyle.toJson();
-  writeNotNull('overlayColor', instance.overlayColor?.toJson());
-  val['indicatorPadding'] = instance.indicatorPadding.toJson();
-  val['labelPadding'] = instance.labelPadding.toJson();
-  writeNotNull('dividerColor', instance.dividerColor?.toJson());
-  val['tabItemDirection'] = _$AxisCEnumMap[instance.tabItemDirection]!;
-  val['gap'] = instance.gap;
-  val['contentType'] = _$TabBarContentTypeEnumMap[instance.contentType]!;
-  val['showDivider'] = instance.showDivider;
-  val['indicatorStyle'] = _$TabIndicatorStyleEnumMap[instance.indicatorStyle]!;
-  val['indicatorShape'] = _$CShapeBorderEnumMap[instance.indicatorShape]!;
-  val['indicatorCornerRadius'] = instance.indicatorCornerRadius.toJson();
+  writeNotNull('overlayColor', instance.overlayColor,
+      instance.overlayColor?.toJson(), ColorRGBA.grey10);
+  writeNotNull('indicatorPadding', instance.indicatorPadding,
+      instance.indicatorPadding.toJson(), EdgeInsetsModel.zero);
+  writeNotNull('labelPadding', instance.labelPadding,
+      instance.labelPadding.toJson(), EdgeInsetsModel.zero);
+  writeNotNull('dividerColor', instance.dividerColor,
+      instance.dividerColor?.toJson(), ColorRGBA.black);
+  writeNotNull('tabItemDirection', instance.tabItemDirection,
+      _$AxisCEnumMap[instance.tabItemDirection]!, AxisC.horizontal);
+  writeNotNull('gap', instance.gap, instance.gap, 10);
+  writeNotNull(
+      'contentType',
+      instance.contentType,
+      _$TabBarContentTypeEnumMap[instance.contentType]!,
+      TabBarContentType.labelAndIcon);
+  writeNotNull('showDivider', instance.showDivider, instance.showDivider, true);
+  writeNotNull(
+      'indicatorStyle',
+      instance.indicatorStyle,
+      _$TabIndicatorStyleEnumMap[instance.indicatorStyle]!,
+      TabIndicatorStyle.underline);
+  writeNotNull(
+      'indicatorShape',
+      instance.indicatorShape,
+      _$CShapeBorderEnumMap[instance.indicatorShape]!,
+      CShapeBorder.roundedRectangle);
+  writeNotNull('indicatorCornerRadius', instance.indicatorCornerRadius,
+      instance.indicatorCornerRadius.toJson(), CornerRadius.zero);
   return val;
 }
 
@@ -273,9 +419,70 @@ TabItem _$TabItemFromJson(Map json) => TabItem(
           : MultiSourceIconModel.fromJson(json['icon'] as Map),
     );
 
-Map<String, dynamic> _$TabItemToJson(TabItem instance) => <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'id': instance.id,
-      'label': instance.label,
-      'icon': instance.icon.toJson(),
-    };
+Map<String, dynamic> _$TabItemToJson(TabItem instance) {
+  final val = <String, dynamic>{
+    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+    'id': instance.id,
+    'label': instance.label,
+  };
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('icon', instance.icon, instance.icon.toJson(),
+      const MultiSourceIconModel(size: 20, color: null));
+  return val;
+}

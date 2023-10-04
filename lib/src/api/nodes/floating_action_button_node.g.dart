@@ -10,20 +10,17 @@ FloatingActionButtonNode _$FloatingActionButtonNodeFromJson(Map json) =>
     FloatingActionButtonNode(
       id: json['id'] as String,
       name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal'] as Map),
-      outerBoxLocal: json['outerBoxLocal'] == null
-          ? null
-          : OuterNodeBox.fromJson(json['outerBoxLocal'] as Map),
+      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding'] as Map),
+          : EdgeInsetsModel.fromJson(json['padding']),
       margin: json['margin'] == null
           ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin'] as Map),
+          : EdgeInsetsModel.fromJson(json['margin']),
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       reactions: (json['reactions'] as List<dynamic>?)
@@ -65,36 +62,104 @@ FloatingActionButtonNode _$FloatingActionButtonNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$FloatingActionButtonNodeToJson(
     FloatingActionButtonNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'variables': instance.variables,
-    'multipleVariables': instance.multipleVariables,
-    'id': instance.id,
-    'name': instance.name,
-    'visible': instance.visible,
-    'constraints': instance.constraints.toJson(),
-    'edgePins': instance.edgePins.toJson(),
-    'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-    'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-    'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-    'flex': instance.flex,
-    'aspectRatioLock': instance.aspectRatioLock,
-    'alignment': instance.alignment.toJson(),
-    'outerBoxLocal': instance.outerBoxLocal.toJson(),
-    'basicBoxLocal': instance.basicBoxLocal.toJson(),
-    'margin': instance.margin.toJson(),
-    'padding': instance.padding.toJson(),
-    'rotation': instance.rotationDegrees,
-  };
+  final val = <String, dynamic>{};
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('widthFactor', instance.widthFactor);
-  writeNotNull('heightFactor', instance.heightFactor);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  if (!excludeEdgePinsIf(instance)) {
+    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+        EdgePinsModel.standard);
+  }
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
+  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
+  writeNotNull('margin', instance.margin, instance.margin.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull('padding', instance.padding, instance.padding.toJson(),
+      EdgeInsetsModel.zero);
+  writeNotNull(
+      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
+  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
+  writeNotNull(
+      'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;
@@ -118,10 +183,10 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
     FloatingActionButtonProperties(
       backgroundColor: json['backgroundColor'] == null
           ? ColorRGBA.black
-          : ColorRGBA.fromJson(json['backgroundColor'] as Map),
+          : ColorRGBA.fromJson(json['backgroundColor']),
       foregroundColor: json['foregroundColor'] == null
           ? ColorRGBA.white
-          : ColorRGBA.fromJson(json['foregroundColor'] as Map),
+          : ColorRGBA.fromJson(json['foregroundColor']),
       elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
       focusElevation: (json['focusElevation'] as num?)?.toDouble() ?? 0,
       hoverElevation: (json['hoverElevation'] as num?)?.toDouble() ?? 0,
@@ -142,21 +207,21 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
           : TextProp.fromJson(json['labelStyle'] as Map),
       focusColor: json['focusColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['focusColor'] as Map),
+          : ColorRGBA.fromJson(json['focusColor']),
       hoverColor: json['hoverColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['hoverColor'] as Map),
+          : ColorRGBA.fromJson(json['hoverColor']),
       splashColor: json['splashColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['splashColor'] as Map),
+          : ColorRGBA.fromJson(json['splashColor']),
       shape: $enumDecodeNullable(_$CShapeBorderEnumMap, json['shape']) ??
           CShapeBorder.circle,
       cornerRadius: json['cornerRadius'] == null
           ? CornerRadius.zero
-          : CornerRadius.fromJson(json['cornerRadius'] as Map),
+          : CornerRadius.fromJson(json['cornerRadius']),
       borderColor: json['borderColor'] == null
           ? null
-          : ColorRGBA.fromJson(json['borderColor'] as Map),
+          : ColorRGBA.fromJson(json['borderColor']),
       borderWidth: (json['borderWidth'] as num?)?.toDouble(),
       reactions: (json['reactions'] as List<dynamic>?)
           ?.map((e) => Reaction.fromJson(e as Map))
@@ -167,33 +232,101 @@ Map<String, dynamic> _$FloatingActionButtonPropertiesToJson(
     FloatingActionButtonProperties instance) {
   final val = <String, dynamic>{
     'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-    'shape': _$CShapeBorderEnumMap[instance.shape]!,
-    'cornerRadius': instance.cornerRadius.toJson(),
   };
 
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool listsEqual(List? a, List? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool mapsEqual(Map? a, Map? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    for (final k in a.keys) {
+      var bValue = b[k];
+      if (bValue == null && !b.containsKey(k)) return false;
+      if (bValue != a[k]) return false;
+    }
+
+    return true;
+  }
+
+  /// Code from: https://github.com/google/quiver-dart/blob/master/lib/src/collection/utils.dart
+  bool setsEqual(Set? a, Set? b) {
+    if (a == b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    return a.containsAll(b);
+  }
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    if (value == null) return;
+    bool areEqual = false;
+    if (value is List) {
+      areEqual = listsEqual(value, defaultValue);
+    } else if (value is Map) {
+      areEqual = mapsEqual(value, defaultValue);
+    } else if (value is Set) {
+      areEqual = setsEqual(value, defaultValue);
+    } else {
+      areEqual = value == defaultValue;
+    }
+
+    if (!areEqual) {
+      val[key] = jsonValue;
     }
   }
 
-  writeNotNull('borderWidth', instance.borderWidth);
-  writeNotNull('borderColor', instance.borderColor?.toJson());
-  val['backgroundColor'] = instance.backgroundColor.toJson();
-  val['foregroundColor'] = instance.foregroundColor.toJson();
-  val['elevation'] = instance.elevation;
-  val['focusElevation'] = instance.focusElevation;
-  val['hoverElevation'] = instance.hoverElevation;
-  val['highlightElevation'] = instance.highlightElevation;
-  val['type'] = _$FloatingActionButtonTypeEnumMap[instance.type]!;
-  val['location'] = _$FABLocationEnumMap[instance.location]!;
-  val['icon'] = instance.icon.toJson();
-  val['label'] = instance.label;
+  writeNotNull('shape', instance.shape, _$CShapeBorderEnumMap[instance.shape]!,
+      CShapeBorder.circle);
+  writeNotNull('cornerRadius', instance.cornerRadius,
+      instance.cornerRadius.toJson(), CornerRadius.zero);
+  writeNotNull('borderWidth', instance.borderWidth, instance.borderWidth, null);
+  writeNotNull('borderColor', instance.borderColor,
+      instance.borderColor?.toJson(), null);
+  writeNotNull('backgroundColor', instance.backgroundColor,
+      instance.backgroundColor.toJson(), ColorRGBA.black);
+  writeNotNull('foregroundColor', instance.foregroundColor,
+      instance.foregroundColor.toJson(), ColorRGBA.white);
+  writeNotNull('elevation', instance.elevation, instance.elevation, 0);
+  writeNotNull(
+      'focusElevation', instance.focusElevation, instance.focusElevation, 0);
+  writeNotNull(
+      'hoverElevation', instance.hoverElevation, instance.hoverElevation, 0);
+  writeNotNull('highlightElevation', instance.highlightElevation,
+      instance.highlightElevation, 0);
+  writeNotNull(
+      'type',
+      instance.type,
+      _$FloatingActionButtonTypeEnumMap[instance.type]!,
+      FloatingActionButtonType.regular);
+  writeNotNull('location', instance.location,
+      _$FABLocationEnumMap[instance.location]!, FABLocation.endFloat);
+  writeNotNull('icon', instance.icon, instance.icon.toJson(),
+      const MultiSourceIconModel());
+  writeNotNull('label', instance.label, instance.label, '');
   val['labelStyle'] = instance.labelStyle.toJson();
-  writeNotNull('focusColor', instance.focusColor?.toJson());
-  writeNotNull('hoverColor', instance.hoverColor?.toJson());
-  writeNotNull('splashColor', instance.splashColor?.toJson());
-  val['extendedIconLabelSpacing'] = instance.extendedIconLabelSpacing;
+  writeNotNull(
+      'focusColor', instance.focusColor, instance.focusColor?.toJson(), null);
+  writeNotNull(
+      'hoverColor', instance.hoverColor, instance.hoverColor?.toJson(), null);
+  writeNotNull('splashColor', instance.splashColor,
+      instance.splashColor?.toJson(), null);
+  writeNotNull('extendedIconLabelSpacing', instance.extendedIconLabelSpacing,
+      instance.extendedIconLabelSpacing, 0);
   return val;
 }
 
