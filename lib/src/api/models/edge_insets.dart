@@ -177,7 +177,7 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   /// from JSON data.
   factory EdgeInsetsModel.fromJson(dynamic json) {
     return switch (json) {
-      [num all] => EdgeInsetsModel.all(all.toDouble()),
+      num all => EdgeInsetsModel.all(all.toDouble()),
       [num horizontal, num vertical] => EdgeInsetsModel.symmetric(
           horizontal: horizontal.toDouble(),
           vertical: vertical.toDouble(),
