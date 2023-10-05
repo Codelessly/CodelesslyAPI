@@ -12,11 +12,11 @@ import 'nodes/nodes.dart';
 /// nothing.
 bool excludeConstraintsIf(BaseNode node) =>
     (node.constraints.minHeight == null || node.constraints.minHeight == 0) &&
-        (node.constraints.minWidth == null || node.constraints.minWidth == 0) &&
-        (node.constraints.maxHeight == null ||
-            node.constraints.maxHeight == double.infinity) &&
-        (node.constraints.maxWidth == null ||
-            node.constraints.maxWidth == double.infinity);
+    (node.constraints.minWidth == null || node.constraints.minWidth == 0) &&
+    (node.constraints.maxHeight == null ||
+        node.constraints.maxHeight == double.infinity) &&
+    (node.constraints.maxWidth == null ||
+        node.constraints.maxWidth == double.infinity);
 
 /// Excludes [EdgePinsModel] from the json if it's technically doing nothing.
 bool excludeEdgePinsIf(BaseNode node) {
@@ -1088,21 +1088,18 @@ mixin PortalMixin on BaseNode {
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 
-/// This mixin is extended by every Undo Action and api models, so [toJson] can
-/// be called regardless of the class.
-/// It is used for storing actions on server.
-mixin SerializableMixin {
+/// Base mixin for providing [toJson] method to every class for
+/// JSON serialization.
+mixin BaseSerializableMixin<T> {
   /// Returns a serializable map representation of the object.
-  Map toJson();
+  T toJson();
 }
 
-/// This mixin is extended by every Undo Action and api models, so [toJson] can
-/// be called regardless of the class.
-/// It is used for storing actions on server.
-mixin DynamicSerializableMixin {
-  /// Returns a serializable dynamic representation of the object.
-  dynamic toJson();
-}
+/// A mixin typedef that serializes class to a [Map].
+typedef SerializableMixin = BaseSerializableMixin<Map>;
+
+/// A mixin typedef that serializes class to a dynamic.
+typedef DynamicSerializableMixin = BaseSerializableMixin<dynamic>;
 
 /// A mixin that adds the ability to add conditions to a node.
 mixin ConditionsMixin {
