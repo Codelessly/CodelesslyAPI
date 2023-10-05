@@ -124,6 +124,20 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
   /// Factory constructor for creating a new [CornerRadius] instance from
   /// JSON data.
   factory CornerRadius.fromJson(dynamic json) {
+    if (json case [num radius, bool linked, String type]) {
+      return CornerRadius.all(
+        RadiusModel.circular(radius.toDouble()),
+        linked: linked,
+        type: RadiusType.values.byName(type),
+      );
+    }
+    if (json case [num x, num y, bool linked, String type]) {
+      return CornerRadius.all(
+        RadiusModel.elliptical(x.toDouble(), y.toDouble()),
+        linked: linked,
+        type: RadiusType.values.byName(type),
+      );
+    }
     if (json is Iterable) {
       return CornerRadius(
         tl: RadiusModel(
@@ -150,14 +164,33 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
   }
 
   @override
-  dynamic toJson() => [
-        ...tl.toJson(),
-        ...tr.toJson(),
-        ...bl.toJson(),
-        ...br.toJson(),
+  dynamic toJson() {
+    if (type == RadiusType.elliptical) {
+      return [
+        tl.x.toPrettyPrecision(3),
+        tl.y.toPrettyPrecision(3),
         linked,
         type.name,
       ];
+    }
+    if (tl == tr && tl == bl && tl == br) {
+      return [
+        tl.x.toPrettyPrecision(3),
+        if (tl.x.toPrettyPrecision(3) != tl.y.toPrettyPrecision(3))
+          tl.y.toPrettyPrecision(3),
+        linked,
+        type.name,
+      ];
+    }
+    return [
+      ...tl.toJson(),
+      ...tr.toJson(),
+      ...bl.toJson(),
+      ...br.toJson(),
+      linked,
+      type.name,
+    ];
+  }
 }
 
 /// A radius for either circular or elliptical shapes.
