@@ -105,9 +105,6 @@ class MaterialIcon extends IconModel {
   /// Style of this material icon.
   final MaterialIconStyle style;
 
-  /// Supported styles for this material icon.
-  final List<MaterialIconStyle> supportedStyles;
-
   /// Version of this material icon.
   final int? version;
 
@@ -120,28 +117,20 @@ class MaterialIcon extends IconModel {
     super.fontFamily = 'MaterialIcons',
     required super.name,
     required this.style,
-    required this.supportedStyles,
     this.version = 1,
   });
-
-  /// Whether this icon is two tone only.
-  bool get isTwoToneOnly =>
-      supportedStyles.length == 1 &&
-      supportedStyles.first == MaterialIconStyle.twoTone;
 
   /// Duplicates this instance of [MaterialIcon] with given data overrides.
   MaterialIcon copyWith({
     int? codepoint,
     String? name,
     MaterialIconStyle? style,
-    List<MaterialIconStyle>? supportedStyles,
     int? version,
   }) =>
       MaterialIcon(
         codepoint: codepoint ?? this.codepoint,
         name: name ?? this.name,
         style: style ?? this.style,
-        supportedStyles: supportedStyles ?? this.supportedStyles,
         version: version ?? this.version,
       );
 
@@ -156,7 +145,6 @@ class MaterialIcon extends IconModel {
         fontFamily,
         name,
         style,
-        supportedStyles,
         version,
       ];
 
