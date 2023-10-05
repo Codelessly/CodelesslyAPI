@@ -7,7 +7,7 @@ part of 'alignment.dart';
 // **************************************************************************
 
 AlignmentModel _$AlignmentModelFromJson(Map json) => AlignmentModel(
-      json['data'] == null ? null : AlignmentData.fromJson(json['data'] as Map),
+      json['data'] == null ? null : AlignmentData.fromJson(json['data']),
     );
 
 Map<String, dynamic> _$AlignmentModelToJson(AlignmentModel instance) {

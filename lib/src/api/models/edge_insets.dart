@@ -176,22 +176,36 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   /// Factory constructor for creating a new [EdgeInsetsModel] instance
   /// from JSON data.
   factory EdgeInsetsModel.fromJson(dynamic json) {
-    if (json case [num left, num top, num right, num bottom]) {
-      return EdgeInsetsModel.only(
-        left: left.toDouble(),
-        top: top.toDouble(),
-        right: right.toDouble(),
-        bottom: bottom.toDouble(),
-      );
-    }
-    return _$EdgeInsetsModelFromJson(json);
+    return switch (json) {
+      [num all] => EdgeInsetsModel.all(all.toDouble()),
+      [num horizontal, num vertical] => EdgeInsetsModel.symmetric(
+          horizontal: horizontal.toDouble(),
+          vertical: vertical.toDouble(),
+        ),
+      [num left, num top, num right, num bottom] => EdgeInsetsModel.only(
+          left: left.toDouble(),
+          top: top.toDouble(),
+          right: right.toDouble(),
+          bottom: bottom.toDouble(),
+        ),
+      _ => _$EdgeInsetsModelFromJson(json),
+    };
   }
 
   @override
-  dynamic toJson() => [
+  dynamic toJson() {
+    if (l == t && t == r && r == b) return l.toPrettyPrecision(3);
+    if (l == r && t == b) {
+      return [
         l.toPrettyPrecision(3),
         t.toPrettyPrecision(3),
-        r.toPrettyPrecision(3),
-        b.toPrettyPrecision(3)
       ];
+    }
+    return [
+      l.toPrettyPrecision(3),
+      t.toPrettyPrecision(3),
+      r.toPrettyPrecision(3),
+      b.toPrettyPrecision(3)
+    ];
+  }
 }
