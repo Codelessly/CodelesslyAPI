@@ -204,8 +204,8 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
 }
 
 /// A data class that holds the x and y values of the alignment.
-@JsonSerializable()
-class AlignmentData extends Equatable with SerializableMixin {
+@JsonSerializable(useDynamics: true)
+class AlignmentData extends Equatable with DynamicSerializableMixin {
   /// The x value of the alignment that represents how far it is from
   /// the left edge of the rect. -1 means left edge, 0 means center and
   /// 1 means the right edge.
@@ -228,8 +228,13 @@ class AlignmentData extends Equatable with SerializableMixin {
 
   /// Factory constructor for creating a new [AlignmentData] instance from
   /// JSON data.
-  factory AlignmentData.fromJson(Map json) => _$AlignmentDataFromJson(json);
+  factory AlignmentData.fromJson(dynamic json) {
+    if (json case [num x, num y]) {
+      return AlignmentData(x.toDouble(), y.toDouble());
+    }
+    return _$AlignmentDataFromJson(json);
+  }
 
   @override
-  Map toJson() => _$AlignmentDataToJson(this);
+  dynamic toJson() => [x, y];
 }
