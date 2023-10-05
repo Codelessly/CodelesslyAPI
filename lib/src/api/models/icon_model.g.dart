@@ -11,9 +11,6 @@ MaterialIcon _$MaterialIconFromJson(Map json) => MaterialIcon(
       fontFamily: json['fontFamily'] as String? ?? 'MaterialIcons',
       name: json['name'] as String,
       style: $enumDecode(_$MaterialIconStyleEnumMap, json['style']),
-      supportedStyles: (json['supportedStyles'] as List<dynamic>)
-          .map((e) => $enumDecode(_$MaterialIconStyleEnumMap, e))
-          .toList(),
       version: json['version'] as int? ?? 1,
     );
 
@@ -82,9 +79,6 @@ Map<String, dynamic> _$MaterialIconToJson(MaterialIcon instance) {
       'fontFamily', instance.fontFamily, instance.fontFamily, 'MaterialIcons');
   val['name'] = instance.name;
   val['style'] = _$MaterialIconStyleEnumMap[instance.style]!;
-  val['supportedStyles'] = instance.supportedStyles
-      .map((e) => _$MaterialIconStyleEnumMap[e]!)
-      .toList();
   writeNotNull('version', instance.version, instance.version, 1);
   return val;
 }

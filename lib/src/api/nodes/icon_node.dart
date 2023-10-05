@@ -18,7 +18,6 @@ const MaterialIcon defaultIcon = MaterialIcon(
   name: 'add',
   codepoint: 57669,
   style: MaterialIconStyle.filled,
-  supportedStyles: [...MaterialIconStyle.values],
 );
 
 /// A node that displays an icon.
