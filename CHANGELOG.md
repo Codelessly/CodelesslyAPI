@@ -1,3 +1,9 @@
+## 0.5.1
+- New shrink-wrap support for Buttons. Buttons can now resize based on the content inside them.
+- New shrink-wrapping support for Slider, Switch, and Radio Button components.
+- Fix ListView and PageView reverse scroll direction not enabled.
+- Add `resolvedConstraint` override.
+
 ## 0.5.0
 - Load APIs V1.
 - Fix ExpansionTiles layout and functionality issues.
