@@ -16,7 +16,7 @@ part 'accordion_node.g.dart';
 /// content.
 @JsonSerializable()
 class AccordionNode extends SceneNode
-    with ChildrenMixin, RowColumnMixin, IsolatedMixin {
+    with ChildrenMixin, RowColumnMixin, IsolatedMixin, CustomPropertiesMixin {
   @override
   final String type = 'accordion';
 
