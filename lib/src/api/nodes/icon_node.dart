@@ -75,6 +75,7 @@ class IconNode extends SceneNode
     List<Effect> effects = const [],
     BlendModeC blendMode = BlendModeC.srcOver,
     InkWellModel? inkWell,
+    List<Reaction> reactions = const [],
   }) {
     setBlendMixin(
       opacity: opacity,
@@ -84,6 +85,7 @@ class IconNode extends SceneNode
       inkWell: inkWell,
     );
     setSingleColorMixin(color: color);
+    setReactionMixin([...reactions]);
   }
 
   /// Creates an [IconNode] from a JSON data.
