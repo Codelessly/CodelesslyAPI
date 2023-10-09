@@ -54,6 +54,10 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map)),
+      reactions: (json['reactions'] as List<dynamic>?)
+              ?.map((e) => Reaction.fromJson(e as Map))
+              .toList() ??
+          const [],
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -64,9 +68,6 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
-      ..reactions = (json['reactions'] as List<dynamic>)
-          .map((e) => Reaction.fromJson(e as Map))
-          .toList()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
@@ -111,7 +112,8 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  val['reactions'] = instance.reactions.map((e) => e.toJson()).toList();
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
