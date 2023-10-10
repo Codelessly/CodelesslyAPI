@@ -45,7 +45,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       currentVariantId: json['currentVariantId'] as String?,
     )
       ..variables = (json['variables'] as Map?)?.map(
@@ -75,7 +75,8 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

@@ -42,7 +42,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       properties: ListViewProperties.fromJson(json['properties'] as Map),
       children: (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -93,7 +93,8 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -217,7 +218,8 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

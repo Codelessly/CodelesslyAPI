@@ -47,7 +47,7 @@ ListTileNode _$ListTileNodeFromJson(Map json) => ListTileNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       children: (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -71,7 +71,8 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -199,7 +200,8 @@ Map<String, dynamic> _$ListTilePropertiesToJson(ListTileProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

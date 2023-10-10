@@ -15,15 +15,15 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
       fills: (json['fills'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokes: (json['strokes'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
@@ -41,7 +41,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
       dashPattern: (json['dashPattern'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
-          const [],
+          [],
       padding: json['padding'] == null
           ? EdgeInsetsModel.zero
           : EdgeInsetsModel.fromJson(json['padding']),
@@ -57,7 +57,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -103,7 +103,8 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

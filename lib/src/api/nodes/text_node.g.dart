@@ -53,12 +53,12 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       characters: json['characters'] as String,
       textMixedProps: (json['textMixedProps'] as List<dynamic>?)
               ?.map((e) => StartEndProp.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       paragraphIndent: (json['paragraphIndent'] as num?)?.toDouble() ?? 0,
       paragraphSpacing: (json['paragraphSpacing'] as num?)?.toDouble() ?? 0,
       textAlignHorizontal: $enumDecodeNullable(
@@ -75,7 +75,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
@@ -102,7 +102,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
