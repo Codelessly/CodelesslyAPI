@@ -42,7 +42,7 @@ DividerNode _$DividerNodeFromJson(Map json) => DividerNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       properties: DividerProperties.fromJson(json['properties'] as Map),
     )
       ..variables = (json['variables'] as Map?)?.map(
@@ -63,7 +63,8 @@ Map<String, dynamic> _$DividerNodeToJson(DividerNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -143,7 +144,8 @@ Map<String, dynamic> _$DividerPropertiesToJson(DividerProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

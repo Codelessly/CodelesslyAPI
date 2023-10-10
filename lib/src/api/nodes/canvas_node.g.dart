@@ -59,7 +59,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
@@ -69,7 +69,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
       strokes: (json['strokes'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokeWeight: (json['strokeWeight'] as num?)?.toDouble() ?? 0,
       strokeMiterLimit: (json['strokeMiterLimit'] as num?)?.toDouble() ?? 4.0,
       strokeAlign:
@@ -81,14 +81,14 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
       dashPattern: (json['dashPattern'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
-          const [],
+          [],
       strokeSide:
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       createdTimestamp:
           const DateTimeConverter().fromJson(json['createdTimestamp'] as int?),
       clipsContent: json['clipsContent'] as bool? ?? true,
@@ -129,7 +129,8 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -367,7 +368,8 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

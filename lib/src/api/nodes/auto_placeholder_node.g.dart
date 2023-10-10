@@ -39,7 +39,7 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -62,18 +62,18 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
       fills: (json['fills'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokes: (json['strokes'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokeWeight: (json['strokeWeight'] as num?)?.toDouble() ?? 0,
       strokeMiterLimit: (json['strokeMiterLimit'] as num?)?.toDouble() ?? 4.0,
       strokeAlign:
@@ -85,7 +85,7 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       dashPattern: (json['dashPattern'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
-          const [],
+          [],
       strokeSide:
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
@@ -112,7 +112,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

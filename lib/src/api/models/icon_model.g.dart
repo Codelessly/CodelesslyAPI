@@ -21,7 +21,8 @@ Map<String, dynamic> _$MaterialIconToJson(MaterialIcon instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -78,7 +79,8 @@ Map<String, dynamic> _$CupertinoIconToJson(CupertinoIcon instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

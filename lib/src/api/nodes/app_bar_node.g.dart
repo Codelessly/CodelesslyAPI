@@ -25,7 +25,7 @@ AppBarNode _$AppBarNodeFromJson(Map json) => AppBarNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       horizontalFit:
           $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
               SizeFit.fixed,
@@ -63,7 +63,8 @@ Map<String, dynamic> _$AppBarNodeToJson(AppBarNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -135,7 +136,7 @@ AppBarProperties _$AppBarPropertiesFromJson(Map json) => AppBarProperties(
       actions: (json['actions'] as List<dynamic>?)
               ?.map((e) => IconAppBarActionItem.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       centerTitle: json['centerTitle'] as bool? ?? false,
       titleStyle: json['titleStyle'] == null
           ? null
@@ -154,7 +155,8 @@ Map<String, dynamic> _$AppBarPropertiesToJson(AppBarProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -187,7 +189,7 @@ IconAppBarActionItem _$IconAppBarActionItemFromJson(Map json) =>
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
     )..type = json['type'] as String;
 
 Map<String, dynamic> _$IconAppBarActionItemToJson(
@@ -196,7 +198,8 @@ Map<String, dynamic> _$IconAppBarActionItemToJson(
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

@@ -23,7 +23,8 @@ Map<String, dynamic> _$CustomComponentToJson(CustomComponent instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -51,7 +52,7 @@ ComponentData _$ComponentDataFromJson(Map json) => ComponentData(
                         Map<String, dynamic>.from(e as Map)))
                     .toSet()),
           ) ??
-          const {},
+          {},
       conditions: (json['conditions'] as Map?)?.map(
             (k, e) => MapEntry(
                 k as String,
@@ -60,7 +61,7 @@ ComponentData _$ComponentDataFromJson(Map json) => ComponentData(
                         Map<String, dynamic>.from(e as Map)))
                     .toSet()),
           ) ??
-          const {},
+          {},
     );
 
 Map<String, dynamic> _$ComponentDataToJson(ComponentData instance) {
@@ -72,7 +73,8 @@ Map<String, dynamic> _$ComponentDataToJson(ComponentData instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

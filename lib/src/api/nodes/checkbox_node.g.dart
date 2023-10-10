@@ -43,7 +43,7 @@ CheckboxNode _$CheckboxNodeFromJson(Map json) => CheckboxNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       properties: CheckboxProperties.fromJson(json['properties'] as Map),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -64,7 +64,8 @@ Map<String, dynamic> _$CheckboxNodeToJson(CheckboxNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -161,7 +162,8 @@ Map<String, dynamic> _$CheckboxPropertiesToJson(CheckboxProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

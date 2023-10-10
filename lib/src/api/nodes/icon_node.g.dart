@@ -46,7 +46,7 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
@@ -57,7 +57,7 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -77,7 +77,8 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

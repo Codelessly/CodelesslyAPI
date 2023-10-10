@@ -42,7 +42,7 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       currentValue: (json['currentValue'] as num?)?.toDouble() ?? 0,
       properties: ProgressBarProperties.fromJson(json['properties'] as Map),
       variables: (json['variables'] as Map?)?.map(
@@ -64,7 +64,8 @@ Map<String, dynamic> _$ProgressBarNodeToJson(ProgressBarNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -154,7 +155,8 @@ Map<String, dynamic> _$ProgressBarPropertiesToJson(
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
