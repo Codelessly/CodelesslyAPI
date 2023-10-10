@@ -55,18 +55,18 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
       effects: (json['effects'] as List<dynamic>?)
               ?.map((e) => Effect.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
       fills: (json['fills'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokes: (json['strokes'] as List<dynamic>?)
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       strokeWeight: (json['strokeWeight'] as num?)?.toDouble() ?? 0,
       strokeMiterLimit: (json['strokeMiterLimit'] as num?)?.toDouble() ?? 4.0,
       strokeAlign:
@@ -78,14 +78,14 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
       dashPattern: (json['dashPattern'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
-          const [],
+          [],
       strokeSide:
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       clipsContent: json['clipsContent'] as bool? ?? false,
       isScrollable: json['isScrollable'] as bool? ?? false,
       reverse: json['reverse'] as bool? ?? false,
@@ -120,7 +120,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;

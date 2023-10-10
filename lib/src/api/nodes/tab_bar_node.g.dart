@@ -42,7 +42,7 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
       reactions: (json['reactions'] as List<dynamic>?)
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -74,7 +74,8 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -175,7 +176,7 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
       tabs: (json['tabs'] as List<dynamic>?)
               ?.map((e) => TabItem.fromJson(e as Map))
               .toList() ??
-          const [],
+          [],
       indicatorColor: json['indicatorColor'] == null
           ? ColorRGBA.black
           : ColorRGBA.fromJson(json['indicatorColor']),
@@ -231,7 +232,8 @@ Map<String, dynamic> _$TabBarPropertiesToJson(TabBarProperties instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
@@ -334,7 +336,8 @@ Map<String, dynamic> _$TabItemToJson(TabItem instance) {
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize = shouldSerialize(key, value, jsonValue, defaultValue);
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
 
     if (serialize) {
       val[key] = jsonValue;
