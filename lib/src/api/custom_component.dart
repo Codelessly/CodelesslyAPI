@@ -114,8 +114,7 @@ class ComponentData with EquatableMixin, SerializableMixin {
     required this.nodes,
     this.variables = const {},
     this.conditions = const {},
-  })  : assert(nodes.isNotEmpty),
-        assert(width > 0 && height > 0);
+  }) : assert(width > 0 && height > 0);
 
   @override
   List<Object?> get props => [width, height, nodes, variables, conditions];
