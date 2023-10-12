@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "A node from the Codelessly API",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "The type of the node can be anything. But the most notable types is 'rowColumn' as it represents a row or column in the editor."
+    },
+    "id": {
+      "type": "string",
+      "description": "The unique ID of the node. This is used to identify the node in the editor programmatically."
+    },
+    "name": {
+      "type": "string",
+      "description": "The user-friendly name of the node. This is used to identify the node in the editor."
+    },
+    "horizontalFit": {
+      "type": "string",
+      "enum": [
+        "locked",
+        "fixed",
+        "expanded",
+        "flexible",
+        "shrinkWrap"
+      ],
+      "description": "Represents the type of sizing method this node has on the horizontal axis."
+    },
+    "verticalFit": {
+      "type": "string",
+      "enum": [
+        "locked",
+        "fixed",
+        "expanded",
+        "flexible",
+        "shrinkWrap"
+      ],
+      "description": "Represents the type of sizing method this node has on the vertical axis."
+    },
+    "alignment": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "description": "The alignment data of the node. The first number is the x alignment, the second number is the y alignment. The x alignment can be -1 (left), 0 (center), or 1 (right). The y alignment can be -1 (top), 0 (center), or 1 (bottom).",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "data"
+      ],
+      "description": "The alignment of the node. If this node is not aligned, it will be omitted and the basic box is used as an absolute position."
+    },
+    "edgePins": {
+      "type": "object",
+      "description": "Represents the edge pins of a node to its parent. This is omitted if the node has standard EdgePins (default positioning is top-left relative using the rect property), or is in a row or column or responsive with SizeFits that aren't fixed.",
+      "properties": {
+        "left": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Distance between node's left edge and its parent's left edge."
+        },
+        "top": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Distance between node's top edge and its parent's top edge."
+        },
+        "right": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Distance between node's right edge and its parent's right edge."
+        },
+        "bottom": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Distance between node's bottom edge and its parent's bottom edge."
+        }
+      },
+      "required": [
+        "left",
+        "top",
+        "right",
+        "bottom"
+      ]
+    },
+    "rect": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "The rect of the node. Defines the x and y absolute coordinates of this node relative to its parent, as well as the width and height of this node."
+    },
+    "children": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The IDs of the children inside of this node. This is omitted if this node does not have children or does not support having children."
+    },
+    "rowColumnType": {
+      "type": "string",
+      "enum": [
+        "row",
+        "column"
+      ],
+      "description": "Required if the node is of type 'rowColumn'. Represents if the node is a row or column."
+    },
+    "margin": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "The outer spacing to this node. If the array has 4 numbers, they represents LTRB. If the array has 2 numbers, they represent TB and LR. If the array has 1 number, it represents all sides."
+    },
+    "padding": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "The inner spacing to this node. If the array has 4 numbers, they represents LTRB. If the array has 2 numbers, they represent TB and LR. If the array has 1 number, it represents all sides."
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "minWidth": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxWidth": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "minHeight": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "maxHeight": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "required": [
+    "type",
+    "id",
+    "name",
+    "horizontalFit",
+    "verticalFit",
+    "rect"
+  ]
+}
