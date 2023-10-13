@@ -1,3 +1,6 @@
+## 0.5.2
+- Remove dependency on Flutter.
+
 ## 0.5.1
 - New shrink-wrap support for Buttons. Buttons can now resize based on the content inside them.
 - New shrink-wrapping support for Slider, Switch, and Radio Button components.
