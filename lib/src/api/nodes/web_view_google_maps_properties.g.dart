@@ -130,7 +130,7 @@ ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
         Map json) =>
     ViewGoogleMapsWebViewProperties(
       apiKey: json['apiKey'] as String?,
-      center: Vec.fromJson(json['center'] as Map),
+      center: Vec.fromJson(json['center']),
       zoom: json['zoom'] as int?,
       mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
       language: json['language'] as String?,
@@ -230,9 +230,7 @@ DirectionsGoogleMapsWebViewProperties
           mode: $enumDecodeNullable(
               _$GoogleMapsDirectionsModeEnumMap, json['mode']),
           units: $enumDecodeNullable(_$UnitSystemEnumMap, json['units']),
-          center: json['center'] == null
-              ? null
-              : Vec.fromJson(json['center'] as Map),
+          center: json['center'] == null ? null : Vec.fromJson(json['center']),
           zoom: json['zoom'] as int?,
           mapType:
               $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
@@ -351,9 +349,8 @@ StreetViewGoogleMapsWebViewProperties
     _$StreetViewGoogleMapsWebViewPropertiesFromJson(Map json) =>
         StreetViewGoogleMapsWebViewProperties(
           apiKey: json['apiKey'] as String?,
-          location: json['location'] == null
-              ? null
-              : Vec.fromJson(json['location'] as Map),
+          location:
+              json['location'] == null ? null : Vec.fromJson(json['location']),
           pano: json['pano'] as String?,
           heading: json['heading'] as int?,
           pitch: json['pitch'] as int?,
@@ -363,9 +360,7 @@ StreetViewGoogleMapsWebViewProperties
               $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
           language: json['language'] as String?,
           region: json['region'] as String?,
-          center: json['center'] == null
-              ? null
-              : Vec.fromJson(json['center'] as Map),
+          center: json['center'] == null ? null : Vec.fromJson(json['center']),
           controlVerticalScrollGesture:
               json['controlVerticalScrollGesture'] as bool?,
           controlHorizontalScrollGesture:

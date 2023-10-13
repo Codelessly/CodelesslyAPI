@@ -13,8 +13,8 @@ import 'size.dart';
 part 'vec.g.dart';
 
 /// Represents a vector in 2D space.
-@JsonSerializable()
-class Vec with SerializableMixin, EquatableMixin {
+@JsonSerializable(useDynamics: true)
+class Vec with DynamicSerializableMixin, EquatableMixin {
   /// X value: Typically the position on the horizontal x axis in 2D space.
   final double x;
 
@@ -139,8 +139,13 @@ class Vec with SerializableMixin, EquatableMixin {
   String toString() => 'Vec{x: $x, y: $y}';
 
   /// Creates a [Vec] from the given [json] map.
-  factory Vec.fromJson(Map json) => _$VecFromJson(json);
+  factory Vec.fromJson(dynamic json) {
+    if (json case [num x, num y]) {
+      return Vec(x.toDouble(), y.toDouble());
+    }
+    return _$VecFromJson(json);
+  }
 
   @override
-  Map toJson() => _$VecToJson(this);
+  dynamic toJson() => [x, y];
 }
