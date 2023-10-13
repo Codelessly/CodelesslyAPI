@@ -14,8 +14,7 @@ Effect _$EffectFromJson(Map json) => Effect(
       color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
       blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
           unknownValue: BlendModeC.srcOver),
-      offset:
-          json['offset'] == null ? null : Vec.fromJson(json['offset'] as Map),
+      offset: json['offset'] == null ? null : Vec.fromJson(json['offset']),
       spread: (json['spread'] as num?)?.toDouble(),
     );
 
