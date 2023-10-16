@@ -1046,6 +1046,26 @@ mixin ScrollableMixin on BaseNode {
   }
 }
 
+/// A mixin that links a node [A] to another node [B], in that the linked node
+/// [B] will be rendered into this node [A].
+mixin PortalMixin on BaseNode {
+  /// The id of the node that is linked to this node. IE: the node that this
+  /// node will render inside of it.
+  late String? portalID;
+
+  /// Whether to render the [portalID] node inside this node.
+  late bool showPortal;
+
+  /// Sets the properties of this mixin.
+  void setPortalMixin({
+    required String? portalID,
+    required bool showPortal,
+  }) {
+    this.portalID = portalID;
+    this.showPortal = showPortal;
+  }
+}
+
 /// Type casts rotation value to integer.
 int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
 

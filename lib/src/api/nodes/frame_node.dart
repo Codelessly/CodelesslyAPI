@@ -12,7 +12,7 @@ part 'frame_node.g.dart';
 /// A node that represents a frame that behaves like a stack.
 @JsonSerializable()
 class FrameNode extends DefaultShapeNode
-    with CornerMixin, ClipMixin, ChildrenMixin, ScrollableMixin {
+    with CornerMixin, ClipMixin, ChildrenMixin, ScrollableMixin, PortalMixin {
   @override
   final String type = 'frame';
 
@@ -55,8 +55,10 @@ class FrameNode extends DefaultShapeNode
     super.aspectRatioLock,
     super.positioningMode,
     super.parentID,
+
     // [ClipMixin] properties.
     bool clipsContent = true,
+
     // [ScrollableMixin] properties.
     bool isScrollable = false,
     AxisC scrollDirection = AxisC.vertical,
@@ -67,6 +69,10 @@ class FrameNode extends DefaultShapeNode
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
+
+    // [PortalMixin] properties.
+    String? portalID,
+    bool showPortal = false,
   }) {
     setCornerMixin(
         cornerRadius: cornerRadius, cornerSmoothing: cornerSmoothing);
@@ -84,6 +90,11 @@ class FrameNode extends DefaultShapeNode
       shrinkWrap: shrinkWrap,
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: useFlutterListView,
+    );
+
+    setPortalMixin(
+      portalID: portalID,
+      showPortal: showPortal,
     );
   }
 

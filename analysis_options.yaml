@@ -13,7 +13,11 @@ linter:
   rules:
     public_member_api_docs: true
     prefer_single_quotes: true
-    constant_identifier_names: false
+    constant_identifier_names: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_final_fields: true
     # allow nodes to override type.
     overridden_fields: false
     use_super_parameters: true
