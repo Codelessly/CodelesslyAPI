@@ -57,22 +57,22 @@ class SetStorageAction extends DataOperationActionModel
     String? key,
     StorageOperation? operation,
     VariableType? variableType,
-    String? value,
+    String? newValue,
     bool? toggled,
     ListOperation? listOperation,
     String? index,
     MapOperation? mapOperation,
     String? mapKey,
   }) {
-    final String? sanitizedValue = value == null
-        ? null
-        : sanitizeValueForVariableType(
-            value, variableType ?? this.variableType);
+    // final String? sanitizedValue = value == null
+    //     ? null
+    //     : sanitizeValueForVariableType(
+    //         value, variableType ?? this.variableType);
     return SetStorageAction(
       key: key ?? this.key,
       operation: operation ?? this.operation,
       variableType: variableType ?? this.variableType,
-      newValue: sanitizedValue ?? newValue,
+      newValue: newValue ?? this.newValue,
       toggled: toggled ?? this.toggled,
       listOperation: listOperation ?? this.listOperation,
       index: index ?? this.index,
