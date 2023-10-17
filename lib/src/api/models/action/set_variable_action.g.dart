@@ -9,7 +9,7 @@ part of 'set_variable_action.dart';
 SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       variable: VariableData.fromJson(
           Map<String, dynamic>.from(json['variable'] as Map)),
-      newValue: json['newValue'] as String,
+      newValue: json['newValue'] as String? ?? '',
       toggled: json['toggled'] as bool? ?? false,
       listOperation:
           $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
@@ -18,35 +18,20 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       mapOperation:
           $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
               MapOperation.replace,
-      key: json['key'] as String? ?? 'key',
+      mapKey: json['mapKey'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-    'variable': instance.variable.toJson(),
-    'newValue': instance.newValue,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
-  writeNotNull('listOperation', instance.listOperation,
-      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('index', instance.index, instance.index, '0');
-  writeNotNull('mapOperation', instance.mapOperation,
-      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('key', instance.key, instance.key, 'key');
-  return val;
-}
+Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'newValue': instance.newValue,
+      'toggled': instance.toggled,
+      'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
+      'index': instance.index,
+      'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
+      'mapKey': instance.mapKey,
+      'variable': instance.variable.toJson(),
+    };
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
@@ -73,4 +58,5 @@ const _$ActionTypeEnumMap = {
   ActionType.setVariable: 'setVariable',
   ActionType.callFunction: 'callFunction',
   ActionType.callApi: 'callApi',
+  ActionType.setStorage: 'setStorage',
 };

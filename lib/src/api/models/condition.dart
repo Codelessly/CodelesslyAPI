@@ -723,6 +723,9 @@ abstract interface class ActionVisitor<R> {
 
   /// Evaluates the action and returns the result.
   R? visitCallFunctionAction(CallFunctionAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitSetStorageAction(SetStorageAction action);
 }
 
 /// An interface for evaluating expressions.

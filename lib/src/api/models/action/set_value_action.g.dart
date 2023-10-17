@@ -27,6 +27,7 @@ const _$ActionTypeEnumMap = {
   ActionType.setVariable: 'setVariable',
   ActionType.callFunction: 'callFunction',
   ActionType.callApi: 'callApi',
+  ActionType.setStorage: 'setStorage',
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(

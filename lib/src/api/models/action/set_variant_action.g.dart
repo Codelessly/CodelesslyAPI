@@ -27,4 +27,5 @@ const _$ActionTypeEnumMap = {
   ActionType.setVariable: 'setVariable',
   ActionType.callFunction: 'callFunction',
   ActionType.callApi: 'callApi',
+  ActionType.setStorage: 'setStorage',
 };
