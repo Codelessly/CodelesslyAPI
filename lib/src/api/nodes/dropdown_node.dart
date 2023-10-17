@@ -119,7 +119,7 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
   /// Alignment applied to the selected option.
   AlignmentModel selectedItemAlignment;
 
-  /// Placeholder text displayed in the dropdown button when [value] is null,
+  /// Placeholder text displayed in the dropdown button when [newValue] is null,
   /// i.e. no option is selected.
   String hint;
 

@@ -1,14 +1,19 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'set_variable_action.dart';
+part of 'set_storage_action.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
-      variable: VariableData.fromJson(
-          Map<String, dynamic>.from(json['variable'] as Map)),
+SetStorageAction _$SetStorageActionFromJson(Map json) => SetStorageAction(
+      key: json['key'] as String? ?? 'key',
+      operation:
+          $enumDecodeNullable(_$StorageOperationEnumMap, json['operation']) ??
+              StorageOperation.addOrUpdate,
+      variableType:
+          $enumDecodeNullable(_$VariableTypeEnumMap, json['variableType']) ??
+              VariableType.text,
       newValue: json['newValue'] as String? ?? '',
       toggled: json['toggled'] as bool? ?? false,
       listOperation:
@@ -21,7 +26,7 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       mapKey: json['mapKey'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
+Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) =>
     <String, dynamic>{
       'type': _$ActionTypeEnumMap[instance.type]!,
       'newValue': instance.newValue,
@@ -30,8 +35,25 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
       'index': instance.index,
       'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
       'mapKey': instance.mapKey,
-      'variable': instance.variable.toJson(),
+      'key': instance.key,
+      'operation': _$StorageOperationEnumMap[instance.operation]!,
+      'variableType': _$VariableTypeEnumMap[instance.variableType]!,
     };
+
+const _$StorageOperationEnumMap = {
+  StorageOperation.remove: 'remove',
+  StorageOperation.addOrUpdate: 'addOrUpdate',
+};
+
+const _$VariableTypeEnumMap = {
+  VariableType.integer: 'integer',
+  VariableType.text: 'text',
+  VariableType.decimal: 'decimal',
+  VariableType.boolean: 'boolean',
+  VariableType.color: 'color',
+  VariableType.list: 'list',
+  VariableType.map: 'map',
+};
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
