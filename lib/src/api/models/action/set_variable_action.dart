@@ -82,43 +82,20 @@ enum MapOperation {
 
 /// An action that sets value of a variable.
 @JsonSerializable()
-class SetVariableAction extends ActionModel
+class SetVariableAction extends DataOperationActionModel
     with EquatableMixin, SerializableMixin {
   /// Variable whose value is to be set.
   final VariableData variable;
 
-  /// Value that the variable needs to be updated with.
-  final String newValue;
-
-  /// Whether to toggle the value of the variable instead of setting it
-  /// if the variable is a boolean.
-  final bool toggled;
-
-  /// Operation to be performed on the list type variable.
-  final ListOperation listOperation;
-
-  /// Index of the value to be updated/removed/inserted.
-  /// Can be a discrete value or a variable refered by '${}' syntax.
-  /// Used for list type variable.
-  final String index;
-
-  /// Operation to be performed on the map type variable.
-  final MapOperation mapOperation;
-
-  /// Key of the map to be updated/removed.
-  /// Can be a discrete value or a variable refered by '${}' syntax.
-  /// Used for map type variable.
-  final String key;
-
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
-    required this.newValue,
-    this.toggled = false,
-    this.listOperation = ListOperation.replace,
-    this.index = '0',
-    this.mapOperation = MapOperation.replace,
-    this.key = 'key',
+    required super.newValue,
+    super.toggled = false,
+    super.listOperation = ListOperation.replace,
+    super.index = '0',
+    super.mapOperation = MapOperation.replace,
+    super.mapKey = 'key',
   }) : super(type: ActionType.setVariable);
 
   @override
@@ -132,7 +109,7 @@ class SetVariableAction extends ActionModel
     ListOperation? listOperation,
     String? index,
     MapOperation? mapOperation,
-    String? key,
+    String? mapKey,
   }) =>
       SetVariableAction(
         variable: variable ?? this.variable,
@@ -141,7 +118,7 @@ class SetVariableAction extends ActionModel
         listOperation: listOperation ?? this.listOperation,
         index: index ?? this.index,
         mapOperation: mapOperation ?? this.mapOperation,
-        key: key ?? this.key,
+        mapKey: mapKey ?? this.mapKey,
       );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.

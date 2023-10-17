@@ -7,6 +7,7 @@ export 'action/api_call_action.dart';
 export 'action/call_function_action.dart';
 export 'action/link_action.dart';
 export 'action/navigation_action.dart';
+export 'action/set_storage_action.dart';
 export 'action/set_value_action.dart';
 export 'action/set_variable_action.dart';
 export 'action/set_variant_action.dart';

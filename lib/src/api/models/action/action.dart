@@ -29,7 +29,10 @@ enum ActionType {
   callFunction,
 
   /// Call an API.
-  callApi;
+  callApi,
+
+  /// Update data in local storage.
+  setStorage;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -50,6 +53,8 @@ enum ActionType {
         return 'Call Function';
       case ActionType.callApi:
         return 'Call API';
+      case ActionType.setStorage:
+        return 'Set Storage';
     }
   }
 }
@@ -105,6 +110,8 @@ abstract class ActionModel with SerializableMixin {
         return CallFunctionAction.fromJson(json);
       case ActionType.callApi:
         return ApiCallAction.fromJson(json);
+      case ActionType.setStorage:
+        return SetStorageAction.fromJson(json);
     }
   }
 
@@ -122,4 +129,39 @@ abstract class ActionModel with SerializableMixin {
   ///
   /// @returns The result of calling the visit method on the visitor.
   R? accept<R>(ActionVisitor<R> visitor);
+}
+
+/// A base action class that represents an action that can be performed to
+/// modify some data in some way depending on the data type.
+abstract class DataOperationActionModel extends ActionModel {
+  /// New value to be set.
+  final String newValue;
+
+  /// Whether to toggle the value. This is used for boolean type variable.
+  final bool toggled;
+
+  /// Operation to be performed on the list type variable.
+  final ListOperation listOperation;
+
+  /// Index of the value to be updated/removed/inserted.
+  /// Can be a discrete value or a variable refered by '${}' syntax.
+  /// Used for list type variable.
+  final String index;
+
+  /// Operation to be performed on the map type variable.
+  final MapOperation mapOperation;
+
+  /// Key of the value to be updated/removed/inserted in the map.
+  final String mapKey;
+
+  /// Creates a [DataOperationActionModel] with the given data.
+  DataOperationActionModel({
+    required super.type,
+    this.newValue = '',
+    this.toggled = false,
+    this.listOperation = ListOperation.replace,
+    this.index = '0',
+    this.mapOperation = MapOperation.replace,
+    this.mapKey = 'key',
+  });
 }
