@@ -5,7 +5,7 @@
 import 'dart:math' as math;
 
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
