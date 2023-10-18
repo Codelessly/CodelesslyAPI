@@ -97,6 +97,8 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
               json['keyboardDismissBehavior']) ??
           ScrollViewKeyboardDismissBehaviorC.manual,
       useFlutterListView: json['useFlutterListView'] as bool? ?? false,
+      portalID: json['portalID'] as String?,
+      showPortal: json['showPortal'] as bool? ?? false,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -216,6 +218,8 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
       ScrollViewKeyboardDismissBehaviorC.manual);
   writeNotNull('useFlutterListView', instance.useFlutterListView,
       instance.useFlutterListView, false);
+  writeNotNull('portalID', instance.portalID, instance.portalID, null);
+  writeNotNull('showPortal', instance.showPortal, instance.showPortal, false);
   val['type'] = instance.type;
   return val;
 }

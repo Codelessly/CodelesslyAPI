@@ -2,7 +2,7 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-import 'package:json_annotation/json_annotation.dart';
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 import '../extensions.dart';
 import '../mixins.dart';
