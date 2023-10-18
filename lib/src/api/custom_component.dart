@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE.md file.
 
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 import 'converters.dart';
 import 'mixins.dart';

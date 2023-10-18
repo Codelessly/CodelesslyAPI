@@ -1,4 +1,4 @@
-import 'package:json_annotation/json_annotation.dart';
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 import 'node_json_converter.dart';
 import 'nodes/base_node.dart';

@@ -2,7 +2,7 @@
 
 ```dart
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 part 'custom_node.g.dart';
 
