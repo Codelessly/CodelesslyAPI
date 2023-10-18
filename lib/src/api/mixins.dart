@@ -1070,17 +1070,27 @@ mixin ScrollableMixin on BaseNode {
 mixin PortalMixin on BaseNode {
   /// The id of the node that is linked to this node. IE: the node that this
   /// node will render inside of it.
-  late String? portalID;
+  late String? canvasID;
 
-  /// Whether to render the [portalID] node inside this node.
+  /// The id of the page that the linked node [canvasID] is in.
+  late String? pageID;
+
+  /// The id of the published layout that the linked node [canvasID] is in.
+  late String? layoutID;
+
+  /// Whether to render the [canvasID] node inside this node.
   late bool showPortal;
 
   /// Sets the properties of this mixin.
   void setPortalMixin({
-    required String? portalID,
+    required String? canvasID,
+    required String? pageID,
+    required String? layoutID,
     required bool showPortal,
   }) {
-    this.portalID = portalID;
+    this.canvasID = canvasID;
+    this.pageID = pageID;
+    this.layoutID = layoutID;
     this.showPortal = showPortal;
   }
 }

@@ -71,7 +71,9 @@ class FrameNode extends DefaultShapeNode
     bool useFlutterListView = false,
 
     // [PortalMixin] properties.
-    String? portalID,
+    String? canvasID,
+    String? pageID,
+    String? layoutID,
     bool showPortal = false,
   }) {
     setCornerMixin(
@@ -93,7 +95,9 @@ class FrameNode extends DefaultShapeNode
     );
 
     setPortalMixin(
-      portalID: portalID,
+      canvasID: canvasID,
+      pageID: pageID,
+      layoutID: layoutID,
       showPortal: showPortal,
     );
   }

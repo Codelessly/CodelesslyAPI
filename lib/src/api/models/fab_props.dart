@@ -148,7 +148,7 @@ enum FABLocation {
 }
 
 /// Location values for a regular sized FAB.
-const FABLocationsNormal = [
+const fabLocationsNormal = [
   FABLocation.startTop,
   FABLocation.miniStartTop,
   FABLocation.centerTop,
@@ -158,7 +158,7 @@ const FABLocationsNormal = [
 ];
 
 /// Location values for a floating FAB.
-const FABLocationsFloat = [
+const fabLocationsFloat = [
   FABLocation.startFloat,
   FABLocation.miniStartFloat,
   FABLocation.centerFloat,
@@ -168,7 +168,7 @@ const FABLocationsFloat = [
 ];
 
 /// Location values for a docked FAB.
-const FABLocationsDocked = [
+const fabLocationsDocked = [
   FABLocation.startDocked,
   FABLocation.miniStartDocked,
   FABLocation.centerDocked,
