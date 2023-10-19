@@ -4,8 +4,8 @@
 
 import 'dart:convert';
 
-import 'package:equatable/equatable.dart';
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
