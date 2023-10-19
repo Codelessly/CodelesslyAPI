@@ -26,19 +26,39 @@ SetStorageAction _$SetStorageActionFromJson(Map json) => SetStorageAction(
       mapKey: json['mapKey'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'newValue': instance.newValue,
-      'toggled': instance.toggled,
-      'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
-      'index': instance.index,
-      'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
-      'mapKey': instance.mapKey,
-      'key': instance.key,
-      'operation': _$StorageOperationEnumMap[instance.operation]!,
-      'variableType': _$VariableTypeEnumMap[instance.variableType]!,
-    };
+Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
+  writeNotNull('toggled', instance.toggled, instance.toggled, false);
+  writeNotNull('listOperation', instance.listOperation,
+      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
+  writeNotNull('index', instance.index, instance.index, '0');
+  writeNotNull('mapOperation', instance.mapOperation,
+      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
+  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
+  writeNotNull('key', instance.key, instance.key, 'key');
+  writeNotNull(
+      'operation',
+      instance.operation,
+      _$StorageOperationEnumMap[instance.operation]!,
+      StorageOperation.addOrUpdate);
+  writeNotNull('variableType', instance.variableType,
+      _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
+  return val;
+}
 
 const _$StorageOperationEnumMap = {
   StorageOperation.remove: 'remove',
