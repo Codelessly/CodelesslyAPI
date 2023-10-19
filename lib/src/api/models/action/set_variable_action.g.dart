@@ -21,17 +21,32 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       mapKey: json['mapKey'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'newValue': instance.newValue,
-      'toggled': instance.toggled,
-      'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
-      'index': instance.index,
-      'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
-      'mapKey': instance.mapKey,
-      'variable': instance.variable.toJson(),
-    };
+Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
+  writeNotNull('toggled', instance.toggled, instance.toggled, false);
+  writeNotNull('listOperation', instance.listOperation,
+      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
+  writeNotNull('index', instance.index, instance.index, '0');
+  writeNotNull('mapOperation', instance.mapOperation,
+      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
+  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
+  val['variable'] = instance.variable.toJson();
+  return val;
+}
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
