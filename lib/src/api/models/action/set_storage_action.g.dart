@@ -63,6 +63,7 @@ Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
 const _$StorageOperationEnumMap = {
   StorageOperation.remove: 'remove',
   StorageOperation.addOrUpdate: 'addOrUpdate',
+  StorageOperation.clear: 'clear',
 };
 
 const _$VariableTypeEnumMap = {

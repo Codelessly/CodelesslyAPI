@@ -2,8 +2,8 @@
 // All rights reserved. Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE.md file.
 
-import 'package:equatable/equatable.dart';
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../models.dart';
@@ -16,13 +16,26 @@ enum StorageOperation {
   remove,
 
   /// Add or update the data in storage.
-  addOrUpdate;
+  addOrUpdate,
+
+  /// Clear all data from storage.
+  clear;
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
         StorageOperation.addOrUpdate => 'Add/Update',
         StorageOperation.remove => 'Remove',
+        StorageOperation.clear => 'Clear',
       };
+
+  /// Whether the operation is [StorageOperation.remove].
+  bool get isRemove => this == StorageOperation.remove;
+
+  /// Whether the operation is [StorageOperation.clear].
+  bool get isClear => this == StorageOperation.clear;
+
+  /// Whether the operation is [StorageOperation.addOrUpdate].
+  bool get isAddOrUpdate => this == StorageOperation.addOrUpdate;
 }
 
 /// An action that sets value of a variable.
