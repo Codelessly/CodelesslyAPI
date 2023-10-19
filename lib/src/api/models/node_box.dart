@@ -197,7 +197,9 @@ class NodeBox with EquatableMixin, DynamicSerializableMixin {
 
   /// Creates a new [NodeBox] from a [json] Map.
   factory NodeBox.fromJson(dynamic json) {
-    if (json == null || (json is List && json.isEmpty) || (json is Map && json.isEmpty)) {
+    if (json == null ||
+        (json is List && json.isEmpty) ||
+        (json is Map && json.isEmpty)) {
       return NodeBox(0, 0, 0, 0);
     }
     if (json case [num x, num y, num width, num height]) {
@@ -439,7 +441,9 @@ class OuterNodeBox extends NodeBox {
 
   /// Creates an [OuterNodeBox] from a json map.
   factory OuterNodeBox.fromJson(dynamic json) {
-    if (json == null || (json is List && json.isEmpty) || (json is Map && json.isEmpty)) {
+    if (json == null ||
+        (json is List && json.isEmpty) ||
+        (json is Map && json.isEmpty)) {
       return OuterNodeBox(0, 0, 0, 0, edgeInsets: EdgeInsetsModel.zero);
     }
 
@@ -673,7 +677,9 @@ class InnerNodeBox extends NodeBox {
 
   /// Creates an [InnerNodeBox] from a JSON map.
   factory InnerNodeBox.fromJson(dynamic json) {
-    if (json == null || (json is List && json.isEmpty) || (json is Map && json.isEmpty)) {
+    if (json == null ||
+        (json is List && json.isEmpty) ||
+        (json is Map && json.isEmpty)) {
       return InnerNodeBox(0, 0, 0, 0, edgeInsets: EdgeInsetsModel.zero);
     }
 
@@ -749,7 +755,9 @@ class RotatedNodeBox extends NodeBox {
 
   /// Creates a [RotatedNodeBox] from a JSON map.
   factory RotatedNodeBox.fromJson(dynamic json) {
-    if (json == null || (json is List && json.isEmpty) || (json is Map && json.isEmpty)) {
+    if (json == null ||
+        (json is List && json.isEmpty) ||
+        (json is Map && json.isEmpty)) {
       return RotatedNodeBox(0, 0, 0, 0, rotationDegrees: 0);
     }
 
