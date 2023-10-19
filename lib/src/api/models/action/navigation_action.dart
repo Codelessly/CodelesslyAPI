@@ -45,21 +45,30 @@ class NavigationAction extends ActionModel
   /// Destination canvas node's ID.
   final String destinationId;
 
+  /// Parameters to pass to the destination page.
+  final Map<String, dynamic> params;
+
   /// Creates a new [NavigationAction].
   NavigationAction({
     this.navigationType = NavigationType.push,
     required this.destinationId,
-  }) : super(type: ActionType.navigation);
+    Map<String, String>? params,
+  })  : params = {...params ?? {}},
+        super(type: ActionType.navigation);
 
   @override
-  List<Object?> get props => [destinationId];
+  List<Object?> get props => [destinationId, navigationType, params];
 
   /// Duplicates this [NavigationAction] with given data overrides.
-  NavigationAction copyWith(
-          {NavigationType? navigationType, String? destinationId}) =>
+  NavigationAction copyWith({
+    NavigationType? navigationType,
+    String? destinationId,
+    Map<String, String>? params,
+  }) =>
       NavigationAction(
         navigationType: navigationType ?? this.navigationType,
         destinationId: destinationId ?? this.destinationId,
+        params: {...this.params, ...params ?? {}},
       );
 
   /// Creates a new [NavigationAction] instance from a JSON data.
