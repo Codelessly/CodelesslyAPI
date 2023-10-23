@@ -31,6 +31,9 @@ class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
   /// Represents black color.
   static const ColorRGBA black = ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 1.0);
 
+  /// Represents black color with 54% alpha.
+  static const ColorRGBA black54 = ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.54);
+
   /// Represents black color with 10% alpha.
   static const ColorRGBA black10 = ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.1);
 
