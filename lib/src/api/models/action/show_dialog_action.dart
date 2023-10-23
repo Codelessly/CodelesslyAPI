@@ -6,8 +6,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
-import '../condition.dart';
-import 'action.dart';
+import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
@@ -15,7 +14,6 @@ part 'show_dialog_action.g.dart';
 @JsonSerializable()
 class ShowDialogAction extends ActionModel
     with EquatableMixin, SerializableMixin {
-
   /// Destination canvas node's ID.
   final String destinationId;
 
@@ -25,27 +23,45 @@ class ShowDialogAction extends ActionModel
   /// Whether the dialog is dismissible by tapping outside the dialog.
   final bool barrierDismissible;
 
+  /// Color of the barrier that is shown behind the dialog.
+  final ColorRGBA? barrierColor;
+
+  /// Whether to show a close button on the dialog.
+  final bool showCloseButton;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
     Map<String, String>? params,
+    this.barrierColor = ColorRGBA.black54,
     this.barrierDismissible = true,
+    this.showCloseButton = false,
   })  : params = {...params ?? {}},
         super(type: ActionType.showDialog);
 
   @override
-  List<Object?> get props => [destinationId, params, barrierDismissible];
+  List<Object?> get props => [
+        destinationId,
+        params,
+        barrierDismissible,
+        barrierColor,
+        showCloseButton,
+      ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
     String? destinationId,
     Map<String, String>? params,
     bool? barrierDismissible,
+    ColorRGBA? barrierColor,
+    bool? showCloseButton,
   }) =>
       ShowDialogAction(
         destinationId: destinationId ?? this.destinationId,
         params: {...this.params, ...params ?? {}},
         barrierDismissible: barrierDismissible ?? this.barrierDismissible,
+        barrierColor: barrierColor ?? this.barrierColor,
+        showCloseButton: showCloseButton ?? this.showCloseButton,
       );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.

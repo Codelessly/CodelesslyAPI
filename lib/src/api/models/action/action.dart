@@ -10,6 +10,9 @@ enum ActionType {
   /// Navigate to a page.
   navigation,
 
+  /// Show a dialog.
+  showDialog,
+
   /// Open a link.
   link,
 
@@ -32,10 +35,7 @@ enum ActionType {
   callApi,
 
   /// Update data in local storage.
-  setStorage,
-
-  /// Show a dialog.
-  showDialog;
+  setStorage;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {

@@ -20,6 +20,7 @@ Map<String, dynamic> _$SetVariantActionToJson(SetVariantAction instance) =>
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
+  ActionType.showDialog: 'showDialog',
   ActionType.link: 'link',
   ActionType.submit: 'submit',
   ActionType.setValue: 'setValue',
@@ -28,5 +29,4 @@ const _$ActionTypeEnumMap = {
   ActionType.callFunction: 'callFunction',
   ActionType.callApi: 'callApi',
   ActionType.setStorage: 'setStorage',
-  ActionType.showDialog: 'showDialog',
 };
