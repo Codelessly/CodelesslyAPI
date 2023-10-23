@@ -1,24 +1,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'navigation_action.dart';
+part of 'show_dialog_action.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
-      navigationType: $enumDecodeNullable(
-              _$NavigationTypeEnumMap, json['navigationType']) ??
-          NavigationType.push,
+ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       destinationId: json['destinationId'] as String,
       params: (json['params'] as Map?)?.map(
         (k, e) => MapEntry(k as String, e as String),
       ),
+      barrierDismissible: json['barrierDismissible'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
+Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) {
   final val = <String, dynamic>{
     'type': _$ActionTypeEnumMap[instance.type]!,
+    'destinationId': instance.destinationId,
+    'params': instance.params,
   };
 
   void writeNotNull(
@@ -31,18 +31,10 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
     }
   }
 
-  writeNotNull('navigationType', instance.navigationType,
-      _$NavigationTypeEnumMap[instance.navigationType]!, NavigationType.push);
-  val['destinationId'] = instance.destinationId;
-  val['params'] = instance.params;
+  writeNotNull('barrierDismissible', instance.barrierDismissible,
+      instance.barrierDismissible, true);
   return val;
 }
-
-const _$NavigationTypeEnumMap = {
-  NavigationType.push: 'push',
-  NavigationType.pop: 'pop',
-  NavigationType.replace: 'replace',
-};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

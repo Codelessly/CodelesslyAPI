@@ -32,7 +32,10 @@ enum ActionType {
   callApi,
 
   /// Update data in local storage.
-  setStorage;
+  setStorage,
+
+  /// Show a dialog.
+  showDialog;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -55,6 +58,8 @@ enum ActionType {
         return 'Call API';
       case ActionType.setStorage:
         return 'Set Storage';
+      case ActionType.showDialog:
+        return 'Show Dialog';
     }
   }
 }
@@ -112,6 +117,8 @@ abstract class ActionModel with SerializableMixin {
         return ApiCallAction.fromJson(json);
       case ActionType.setStorage:
         return SetStorageAction.fromJson(json);
+      case ActionType.showDialog:
+        return ShowDialogAction.fromJson(json);
     }
   }
 
