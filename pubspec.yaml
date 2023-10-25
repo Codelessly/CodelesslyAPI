@@ -17,8 +17,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.6
-  flutter_lints: ^2.0.3
   codelessly_json_serializable: ^6.7.1
-  lints: ^2.1.1
+  lints: ^3.0.0
 
 scripts: scripts.yaml
