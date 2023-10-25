@@ -14,7 +14,10 @@ extension ObjectExt on Object? {
     if (value is R) return value;
 
     return switch (R) {
-      String => value.toString().tryCast<R>() ?? defaultValue,
+      String =>
+        (value is List || value is Map ? jsonEncode(value) : value.toString())
+                .tryCast<R>() ??
+            defaultValue,
       int => value.toInt().tryCast<R>() ?? defaultValue,
       double => value.toDouble().tryCast<R>() ?? defaultValue,
       num => value.toNum().tryCast<R>() ?? defaultValue,
@@ -202,7 +205,9 @@ extension ConversionExt on Object? {
       list = this as List;
     } else if (this is String) {
       final decoded = tryJsonDecode(this as String);
-      if (decoded is List) list = decoded;
+      if (decoded is List) {
+        list = decoded.map((e) => e is String ? e.parsedValue() : e).toList();
+      }
     }
     if (list == null) return null;
 
@@ -254,7 +259,9 @@ extension ConversionExt on Object? {
       set = this as Set;
     } else if (this is String) {
       final decoded = tryJsonDecode(this as String);
-      if (decoded is List) set = decoded.toSet();
+      if (decoded is List) {
+        set = decoded.map((e) => e is String ? e.parsedValue() : e).toSet();
+      }
     }
     if (set == null) return null;
 
