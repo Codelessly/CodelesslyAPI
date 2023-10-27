@@ -23,9 +23,11 @@ extension ObjectExt on Object? {
       const (num) => value.toNum().tryCast<R>() ?? defaultValue,
       const (bool) => value.toBool().tryCast<R>() ?? defaultValue,
       const (ColorRGBA) => value.toColorRGBA().tryCast<R>() ?? defaultValue,
-      const (ColorRGB) => ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
-          defaultValue,
-      const (PaintModel) => value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
+      const (ColorRGB) =>
+        ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
+            defaultValue,
+      const (PaintModel) =>
+        value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       _ when R.isMap => value.toMap().tryCast<R>(),
       _ when R.isList || R.isIterable => value.toList<R>(),
       _ when R.isSet => value.toSet<R>(),
