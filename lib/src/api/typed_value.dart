@@ -14,18 +14,18 @@ extension ObjectExt on Object? {
     if (value is R) return value;
 
     return switch (R) {
-      String =>
+      const (String) =>
         (value is List || value is Map ? jsonEncode(value) : value.toString())
                 .tryCast<R>() ??
             defaultValue,
-      int => value.toInt().tryCast<R>() ?? defaultValue,
-      double => value.toDouble().tryCast<R>() ?? defaultValue,
-      num => value.toNum().tryCast<R>() ?? defaultValue,
-      bool => value.toBool().tryCast<R>() ?? defaultValue,
-      ColorRGBA => value.toColorRGBA().tryCast<R>() ?? defaultValue,
-      ColorRGB => ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
+      const (int) => value.toInt().tryCast<R>() ?? defaultValue,
+      const (double) => value.toDouble().tryCast<R>() ?? defaultValue,
+      const (num) => value.toNum().tryCast<R>() ?? defaultValue,
+      const (bool) => value.toBool().tryCast<R>() ?? defaultValue,
+      const (ColorRGBA) => value.toColorRGBA().tryCast<R>() ?? defaultValue,
+      const (ColorRGB) => ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
           defaultValue,
-      PaintModel => value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
+      const (PaintModel) => value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       _ when R.isMap => value.toMap().tryCast<R>(),
       _ when R.isList || R.isIterable => value.toList<R>(),
       _ when R.isSet => value.toSet<R>(),
