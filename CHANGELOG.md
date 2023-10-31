@@ -1,3 +1,10 @@
+## 0.6.0
+- Embedded Canvases V1.
+  - Embed canvases into layouts.
+- Local Storage V1.
+  - Store and persist data locally.
+- Optimize JSON data to reduce data usage and storage by 80%.
+
 ## 0.5.2
 - Remove dependency on Flutter.
 
