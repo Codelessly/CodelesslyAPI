@@ -31,9 +31,3 @@ AlignmentData _$AlignmentDataFromJson(Map json) => AlignmentData(
       (json['x'] as num).toDouble(),
       (json['y'] as num).toDouble(),
     );
-
-Map<String, dynamic> _$AlignmentDataToJson(AlignmentData instance) =>
-    <String, dynamic>{
-      'x': instance.x,
-      'y': instance.y,
-    };

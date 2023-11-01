@@ -204,7 +204,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
 }
 
 /// A data class that holds the x and y values of the alignment.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable(useDynamics: true, createToJson: false)
 class AlignmentData extends Equatable with DynamicSerializableMixin {
   /// The x value of the alignment that represents how far it is from
   /// the left edge of the rect. -1 means left edge, 0 means center and
