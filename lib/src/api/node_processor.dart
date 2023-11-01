@@ -111,7 +111,6 @@ extension BaseNodeUpdateExtension on BaseNode {
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
-    bool forceUpdateEdgePins = false,
     bool updatingSortedNodeList = false,
   }) =>
       NodeProcessor.updateNode(
@@ -128,7 +127,6 @@ extension BaseNodeUpdateExtension on BaseNode {
         recursivelyCalculateChildrenGlobalBoxes:
             recursivelyCalculateChildrenGlobalBoxes,
         globalParentBoundingBoxPos: globalParentBoundingBoxPos,
-        forceUpdateEdgePins: forceUpdateEdgePins,
         updatingSortedNodeList: updatingSortedNodeList,
       );
 
@@ -307,16 +305,21 @@ class NodeProcessor {
   ///
   /// If [recursivelyCalculateChildrenGlobalBoxes] is true, all of the node's
   /// children are updated recursively. If it is set to false, only the node is
-  /// updated. This parameter is used during nodes initialization. Since all the
+  /// updated. This parameter is used during node initialization, since all the
   /// nodes are being laid out, there's no need for recursive updates.
   ///
-  /// if [updatingSortedNodeList] is true, then you are currently updating a
-  /// list of nodes one-by-one order from parent to child order. If this is
+  /// If [updatingSortedNodeList] is true, then you are currently updating a
+  /// list of nodes one-by-one from parent to child order. If this is
   /// the case, then we can make important assumptions that can help optimize
   /// and avoid recursive computation.
   ///
   /// [resolvedConstraints] overrides [node.resolvedConstraints] while being
-  /// still affected by user given constraints.
+  /// still affected by user-given constraints.
+  ///
+  /// [EdgePins] are updated if this function is triggered manually, without
+  /// the layout system. If the layout system triggers this function, edge pins
+  /// are not updated because there were used BY the layout system to figure out
+  /// the rest of the values (outer box global, middle box global, etc...).
   static void updateNode({
     required BaseNode node,
     EdgeInsetsModel? margin,
@@ -331,7 +334,6 @@ class NodeProcessor {
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
-    bool forceUpdateEdgePins = false,
     bool updatingSortedNodeList = false,
   }) {
     final bool marginChanged = margin != null && margin != node.margin;
@@ -394,7 +396,7 @@ class NodeProcessor {
       node._retainedOuterBoxLocal = node.outerBoxLocal.copyWith();
     }
 
-    if (node.id != kRootNode && (forceUpdateEdgePins || !performLayoutRan)) {
+    if (node.id != kRootNode && !performLayoutRan) {
       final BaseNode parentNode = getNode(node.parentID);
 
       node.edgePins = node.edgePins.copyWithLeft(
