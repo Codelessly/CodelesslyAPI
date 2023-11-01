@@ -10,7 +10,7 @@ import '../../../codelessly_api.dart';
 part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable(useDynamics: true, createToJson: false)
 class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
   /// Red channel value, between 0 and 1
   final double r;

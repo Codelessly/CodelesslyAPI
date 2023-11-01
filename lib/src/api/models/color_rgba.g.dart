@@ -12,10 +12,3 @@ ColorRGBA _$ColorRGBAFromJson(Map json) => ColorRGBA(
       b: (json['b'] as num).toDouble(),
       a: (json['a'] as num).toDouble(),
     );
-
-Map<String, dynamic> _$ColorRGBAToJson(ColorRGBA instance) => <String, dynamic>{
-      'r': instance.r,
-      'g': instance.g,
-      'b': instance.b,
-      'a': instance.a,
-    };
