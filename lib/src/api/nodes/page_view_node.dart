@@ -82,6 +82,9 @@ class PageViewNode extends SinglePlaceholderNode
   @override
   Map toJson() => _$PageViewNodeToJson(this);
 
+  @override
+  List<TriggerType> get triggerTypes => [TriggerType.changed];
+
   /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
   AlignmentModel childAlignment() {

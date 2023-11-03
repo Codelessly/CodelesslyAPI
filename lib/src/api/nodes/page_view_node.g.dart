@@ -86,10 +86,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'name': instance.name,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -101,6 +98,11 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
     }
   }
 
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
@@ -126,9 +128,6 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       AlignmentModel.none);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
