@@ -1,3 +1,10 @@
+## 0.7.0
+- New Dialogs feature! 100% customizable dialogs with customizable close button, background, and padding. 
+  - New show dialog action.
+  - New show dialog settings panel.
+- Fix Edge Pins not syncing with server.
+- Fix PageView triggers not executing.
+
 ## 0.6.0
 - Embedded Canvases V1.
   - Embed canvases into layouts.
