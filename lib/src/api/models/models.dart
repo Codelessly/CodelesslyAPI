@@ -49,6 +49,7 @@ export 'paint_type.dart';
 export 'pins_model.dart';
 export 'reaction.dart';
 export 'rect.dart';
+export 'safe_area.dart';
 export 'shape_border.dart';
 export 'size.dart';
 export 'start_end_prop.dart';
