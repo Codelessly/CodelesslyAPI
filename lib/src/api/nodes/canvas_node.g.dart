@@ -97,14 +97,16 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
           $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
               AxisC.vertical,
       reverse: json['reverse'] as bool? ?? false,
-      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
-          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
+              unknownValue: ScrollPhysicsC.platformDependent) ??
+          ScrollPhysicsC.platformDependent,
       primary: json['primary'] as bool? ?? true,
       keyboardDismissBehavior: $enumDecodeNullable(
               _$ScrollViewKeyboardDismissBehaviorCEnumMap,
               json['keyboardDismissBehavior']) ??
           ScrollViewKeyboardDismissBehaviorC.manual,
       useFlutterListView: json['useFlutterListView'] as bool? ?? false,
+      shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
       properties: CanvasProperties.fromJson(json['properties'] as Map),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -223,7 +225,7 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
       'physics',
       instance.physics,
       _$ScrollPhysicsCEnumMap[instance.physics]!,
-      ScrollPhysicsC.alwaysScrollableScrollPhysics);
+      ScrollPhysicsC.platformDependent);
   writeNotNull(
       'keyboardDismissBehavior',
       instance.keyboardDismissBehavior,
@@ -232,6 +234,8 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
       ScrollViewKeyboardDismissBehaviorC.manual);
   writeNotNull('useFlutterListView', instance.useFlutterListView,
       instance.useFlutterListView, false);
+  writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
+      instance.shouldAlwaysScroll, true);
   val['type'] = instance.type;
   writeNotNull('createdTimestamp', instance.createdTimestamp,
       const DateTimeConverter().toJson(instance.createdTimestamp), null);
@@ -339,7 +343,7 @@ const _$AxisCEnumMap = {
 };
 
 const _$ScrollPhysicsCEnumMap = {
-  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.platformDependent: 'platformDependent',
   ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
   ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
   ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',

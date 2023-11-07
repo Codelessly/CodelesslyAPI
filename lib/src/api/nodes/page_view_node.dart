@@ -52,10 +52,11 @@ class PageViewNode extends SinglePlaceholderNode
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
-    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
     bool primary = false,
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
+    bool shouldAlwaysScroll = true,
   }) : super(
           children: [],
           allowedTypes: [],
@@ -73,6 +74,7 @@ class PageViewNode extends SinglePlaceholderNode
       shrinkWrap: false,
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: true,
+      shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
 

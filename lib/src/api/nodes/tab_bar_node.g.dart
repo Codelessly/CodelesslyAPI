@@ -49,9 +49,11 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
           {},
       properties: TabBarProperties.fromJson(json['properties'] as Map),
       isScrollable: json['isScrollable'] as bool? ?? false,
-      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
-          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
+              unknownValue: ScrollPhysicsC.platformDependent) ??
+          ScrollPhysicsC.platformDependent,
       initialIndex: json['initialIndex'] as int? ?? 0,
+      shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
     )
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
@@ -82,8 +84,6 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
     }
   }
 
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -112,6 +112,8 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -131,10 +133,12 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
       'physics',
       instance.physics,
       _$ScrollPhysicsCEnumMap[instance.physics]!,
-      ScrollPhysicsC.alwaysScrollableScrollPhysics);
+      ScrollPhysicsC.platformDependent);
   val['keyboardDismissBehavior'] = _$ScrollViewKeyboardDismissBehaviorCEnumMap[
       instance.keyboardDismissBehavior]!;
   val['useFlutterListView'] = instance.useFlutterListView;
+  writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
+      instance.shouldAlwaysScroll, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('initialIndex', instance.initialIndex, instance.initialIndex, 0);
@@ -155,7 +159,7 @@ const _$PositioningModeEnumMap = {
 };
 
 const _$ScrollPhysicsCEnumMap = {
-  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.platformDependent: 'platformDependent',
   ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
   ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
   ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',
