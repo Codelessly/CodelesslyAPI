@@ -363,6 +363,9 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
           ? null
           : FloatingActionButtonProperties.fromJson(
               json['floatingActionButton'] as Map),
+      safeArea: json['safeArea'] == null
+          ? const SafeAreaModel.all(true)
+          : SafeAreaModel.fromJson(json['safeArea']),
     );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) {
@@ -389,5 +392,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) {
       instance.topAppBarPlaceholderId, null);
   writeNotNull('floatingActionButton', instance.floatingActionButton,
       instance.floatingActionButton?.toJson(), null);
+  writeNotNull('safeArea', instance.safeArea, instance.safeArea.toJson(),
+      const SafeAreaModel.all(true));
   return val;
 }

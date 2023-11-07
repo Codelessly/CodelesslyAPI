@@ -174,6 +174,9 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
   /// FAB properties if enabled.
   FloatingActionButtonProperties? floatingActionButton;
 
+  /// Safe area properties.
+  SafeAreaModel safeArea;
+
   /// Whether this canvas is a scaffold. A scaffold can hold an app bar, drawer,
   /// bottom navigation bar, and floating action button. If any of this is
   /// present, the canvas is a scaffold.
@@ -188,6 +191,7 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
     this.navigationBarPlaceholderId,
     this.topAppBarPlaceholderId,
     this.floatingActionButton,
+    this.safeArea = const SafeAreaModel.all(true),
   });
 
   @override
@@ -195,6 +199,7 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
         navigationBarPlaceholderId,
         topAppBarPlaceholderId,
         floatingActionButton,
+        safeArea,
       ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
