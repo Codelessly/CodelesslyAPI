@@ -940,7 +940,7 @@ enum ScrollPhysicsC {
   /// the scroll view to its normal range when released.
   ///
   /// See [AlwaysScrollableScrollPhysics] in Flutter for more details.
-  alwaysScrollableScrollPhysics,
+  platformDependent,
 
   /// Scroll physics for environments that allow the scroll offset to go beyond
   /// the bounds of the content, but then bounce the content back to the edge of
@@ -981,8 +981,8 @@ enum ScrollPhysicsC {
         return 'Clamping';
       case ScrollPhysicsC.neverScrollableScrollPhysics:
         return 'Never Scrollable';
-      case ScrollPhysicsC.alwaysScrollableScrollPhysics:
-        return 'Always Scrollable';
+      case ScrollPhysicsC.platformDependent:
+        return 'Platform Dependent';
     }
   }
 }
@@ -1035,6 +1035,7 @@ mixin ScrollableMixin on BaseNode {
   late bool primary;
 
   /// Physics to use for the scrollable.
+  @JsonKey(unknownEnumValue: ScrollPhysicsC.platformDependent)
   late ScrollPhysicsC physics;
 
   /// Defines how a [ScrollView] should dismiss the on-screen keyboard.
@@ -1043,6 +1044,9 @@ mixin ScrollableMixin on BaseNode {
   /// Whether to use a [ListView] instead of [SingleChildScrollView] in flutter
   /// code-gen and transformers.
   late bool useFlutterListView;
+
+  /// Whether to use AlwaysScrollableScrollPhysics or not.
+  late bool shouldAlwaysScroll;
 
   /// Sets the properties of this mixin.
   void setScrollableMixin({
@@ -1054,6 +1058,7 @@ mixin ScrollableMixin on BaseNode {
     required bool shrinkWrap,
     required ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior,
     required bool useFlutterListView,
+    required bool shouldAlwaysScroll,
   }) {
     this.isScrollable = isScrollable;
     this.scrollDirection = scrollDirection;
@@ -1062,6 +1067,7 @@ mixin ScrollableMixin on BaseNode {
     this.primary = primary;
     this.keyboardDismissBehavior = keyboardDismissBehavior;
     this.useFlutterListView = useFlutterListView;
+    this.shouldAlwaysScroll = shouldAlwaysScroll;
   }
 }
 

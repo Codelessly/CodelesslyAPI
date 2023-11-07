@@ -63,12 +63,13 @@ class FrameNode extends DefaultShapeNode
     bool isScrollable = false,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
-    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
     bool primary = true,
     bool shrinkWrap = false,
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
+    bool shouldAlwaysScroll = true,
 
     // [PortalMixin] properties.
     String? canvasID,
@@ -92,6 +93,7 @@ class FrameNode extends DefaultShapeNode
       shrinkWrap: shrinkWrap,
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: useFlutterListView,
+      shouldAlwaysScroll: shouldAlwaysScroll,
     );
 
     setPortalMixin(

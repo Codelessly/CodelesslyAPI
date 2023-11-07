@@ -68,12 +68,13 @@ class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
     // [ScrollableMixin] properties.
     bool isScrollable = false,
     bool reverse = false,
-    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
     bool primary = true,
     bool shrinkWrap = false,
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
+    bool shouldAlwaysScroll = true,
   }) {
     setRowColumnMixin(
       rowColumnType: rowColumnType,
@@ -90,6 +91,7 @@ class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
       shrinkWrap: shrinkWrap,
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: useFlutterListView,
+      shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
 

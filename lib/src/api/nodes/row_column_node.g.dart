@@ -89,14 +89,16 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
       clipsContent: json['clipsContent'] as bool? ?? false,
       isScrollable: json['isScrollable'] as bool? ?? false,
       reverse: json['reverse'] as bool? ?? false,
-      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
-          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
+              unknownValue: ScrollPhysicsC.platformDependent) ??
+          ScrollPhysicsC.platformDependent,
       primary: json['primary'] as bool? ?? true,
       keyboardDismissBehavior: $enumDecodeNullable(
               _$ScrollViewKeyboardDismissBehaviorCEnumMap,
               json['keyboardDismissBehavior']) ??
           ScrollViewKeyboardDismissBehaviorC.manual,
       useFlutterListView: json['useFlutterListView'] as bool? ?? false,
+      shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -212,7 +214,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
       'physics',
       instance.physics,
       _$ScrollPhysicsCEnumMap[instance.physics]!,
-      ScrollPhysicsC.alwaysScrollableScrollPhysics);
+      ScrollPhysicsC.platformDependent);
   writeNotNull(
       'keyboardDismissBehavior',
       instance.keyboardDismissBehavior,
@@ -221,6 +223,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
       ScrollViewKeyboardDismissBehaviorC.manual);
   writeNotNull('useFlutterListView', instance.useFlutterListView,
       instance.useFlutterListView, false);
+  writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
+      instance.shouldAlwaysScroll, true);
   val['type'] = instance.type;
   return val;
 }
@@ -313,7 +317,7 @@ const _$StrokeSideEnumMap = {
 };
 
 const _$ScrollPhysicsCEnumMap = {
-  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.platformDependent: 'platformDependent',
   ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
   ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
   ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',

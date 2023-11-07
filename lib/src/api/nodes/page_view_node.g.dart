@@ -57,13 +57,15 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
           $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
               AxisC.vertical,
       reverse: json['reverse'] as bool? ?? false,
-      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics']) ??
-          ScrollPhysicsC.alwaysScrollableScrollPhysics,
+      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
+              unknownValue: ScrollPhysicsC.platformDependent) ??
+          ScrollPhysicsC.platformDependent,
       primary: json['primary'] as bool? ?? false,
       keyboardDismissBehavior: $enumDecodeNullable(
               _$ScrollViewKeyboardDismissBehaviorCEnumMap,
               json['keyboardDismissBehavior']) ??
           ScrollViewKeyboardDismissBehaviorC.manual,
+      shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
     )
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
@@ -139,12 +141,12 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
@@ -154,7 +156,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       'physics',
       instance.physics,
       _$ScrollPhysicsCEnumMap[instance.physics]!,
-      ScrollPhysicsC.alwaysScrollableScrollPhysics);
+      ScrollPhysicsC.platformDependent);
   writeNotNull(
       'keyboardDismissBehavior',
       instance.keyboardDismissBehavior,
@@ -162,6 +164,8 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
           instance.keyboardDismissBehavior]!,
       ScrollViewKeyboardDismissBehaviorC.manual);
   val['useFlutterListView'] = instance.useFlutterListView;
+  writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
+      instance.shouldAlwaysScroll, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;
@@ -186,7 +190,7 @@ const _$AxisCEnumMap = {
 };
 
 const _$ScrollPhysicsCEnumMap = {
-  ScrollPhysicsC.alwaysScrollableScrollPhysics: 'alwaysScrollableScrollPhysics',
+  ScrollPhysicsC.platformDependent: 'platformDependent',
   ScrollPhysicsC.bouncingScrollPhysics: 'bouncingScrollPhysics',
   ScrollPhysicsC.clampingScrollPhysics: 'clampingScrollPhysics',
   ScrollPhysicsC.neverScrollableScrollPhysics: 'neverScrollableScrollPhysics',

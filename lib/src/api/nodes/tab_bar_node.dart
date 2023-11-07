@@ -52,8 +52,9 @@ class TabBarNode extends SceneNode
     super.variables,
     required this.properties,
     bool isScrollable = false,
-    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
     this.initialIndex = 0,
+    bool shouldAlwaysScroll = true,
   }) {
     setScrollableMixin(
       isScrollable: isScrollable,
@@ -64,6 +65,7 @@ class TabBarNode extends SceneNode
       shrinkWrap: false,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehaviorC.manual,
       useFlutterListView: false,
+      shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
 

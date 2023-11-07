@@ -94,12 +94,13 @@ class CanvasNode extends ParentNode
     bool isScrollable = false,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
-    ScrollPhysicsC physics = ScrollPhysicsC.alwaysScrollableScrollPhysics,
+    ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
     bool primary = true,
     bool shrinkWrap = false,
     ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior =
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
+    bool shouldAlwaysScroll = true,
 
     // Custom properties.
     required this.properties,
@@ -123,6 +124,7 @@ class CanvasNode extends ParentNode
       shrinkWrap: shrinkWrap,
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: useFlutterListView,
+      shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
 
