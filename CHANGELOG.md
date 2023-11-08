@@ -1,3 +1,7 @@
+## 0.7.1
+- Implement safe area for canvases.
+- Fix scroll physics and always scrollable option.
+
 ## 0.7.0
 - New Dialogs feature! 100% customizable dialogs with customizable close button, background, and padding. 
   - New show dialog action.
