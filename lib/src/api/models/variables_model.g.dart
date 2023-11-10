@@ -47,41 +47,6 @@ const _$VariableTypeEnumMap = {
   VariableType.map: 'map',
 };
 
-CanvasVariables _$CanvasVariablesFromJson(Map json) => CanvasVariables(
-      id: json['id'] as String,
-      variables: (json['variables'] as Map).map(
-        (k, e) => MapEntry(k as String,
-            CanvasVariableData.fromJson(Map<String, dynamic>.from(e as Map))),
-      ),
-      lastUpdated:
-          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
-      projectId: json['project'] as String,
-      owner: json['owner'] as String,
-    );
-
-Map<String, dynamic> _$CanvasVariablesToJson(CanvasVariables instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'variables': instance.variables.map((k, e) => MapEntry(k, e.toJson())),
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('lastUpdated', instance.lastUpdated,
-      const DateTimeConverter().toJson(instance.lastUpdated), null);
-  val['owner'] = instance.owner;
-  val['project'] = instance.projectId;
-  return val;
-}
-
 CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       id: json['id'] as String,
       canvasId: json['canvasId'] as String,
