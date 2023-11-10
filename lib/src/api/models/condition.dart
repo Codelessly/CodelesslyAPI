@@ -602,7 +602,7 @@ class CanvasConditions with EquatableMixin {
   @JsonKey(name: 'project')
   final String projectId;
 
-  /// Creates a new [CanvasVariables].
+  /// Creates a new [CanvasConditions].
   CanvasConditions({
     required this.id,
     required this.conditions,
@@ -611,7 +611,7 @@ class CanvasConditions with EquatableMixin {
     required this.owner,
   }) : lastUpdated = lastUpdated ?? DateTime.now();
 
-  /// Duplicate a [CanvasVariables] with the given parameters.
+  /// Duplicate a [CanvasConditions] with the given parameters.
   CanvasConditions copyWith({
     String? id,
     Map<String, BaseCondition>? conditions,
@@ -629,11 +629,11 @@ class CanvasConditions with EquatableMixin {
   @override
   List<Object?> get props => [id, conditions];
 
-  /// Creates a new [CanvasVariables] from a JSON map.
+  /// Creates a new [CanvasConditions] from a JSON map.
   factory CanvasConditions.fromJson(Map<String, dynamic> json) =>
       _$CanvasConditionsFromJson(json);
 
-  /// Converts this [CanvasVariables] into a JSON map.
+  /// Converts this [CanvasConditions] into a JSON map.
   Map<String, dynamic> toJson() => _$CanvasConditionsToJson(this)..remove('id');
 
   /// Allows to access canvas variables by variable id.

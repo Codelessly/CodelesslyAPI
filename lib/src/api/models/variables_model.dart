@@ -207,82 +207,6 @@ String? sanitizeValueForVariableType(Object? value, VariableType type) {
   }
 }
 
-/// Contains all the variables associated with a canvas inside a page.
-@JsonSerializable()
-class CanvasVariables with EquatableMixin {
-  /// Unique ID of the canvas.
-  final String id;
-
-  /// Variables associated with this canvas.
-  final Map<String, CanvasVariableData> variables;
-
-  /// Last updated time of this canvas.
-  @DateTimeConverter()
-  final DateTime lastUpdated;
-
-  /// ID of the project this canvas belongs to.
-  final String owner;
-
-  /// ID of the project this canvas belongs to.
-  @JsonKey(name: 'project')
-  final String projectId;
-
-  /// Creates a new [CanvasVariables].
-  CanvasVariables({
-    required this.id,
-    required this.variables,
-    DateTime? lastUpdated,
-    required this.projectId,
-    required this.owner,
-  }) : lastUpdated = lastUpdated ?? DateTime.now();
-
-  /// Duplicate a [CanvasVariables] with the given parameters.
-  CanvasVariables copyWith({
-    String? id,
-    Map<String, CanvasVariableData>? variables,
-    String? projectId,
-    String? owner,
-  }) =>
-      CanvasVariables(
-        id: id ?? this.id,
-        variables: variables ?? this.variables,
-        lastUpdated: DateTime.now(),
-        projectId: projectId ?? this.projectId,
-        owner: owner ?? this.owner,
-      );
-
-  @override
-  List<Object?> get props => [id, variables];
-
-  /// Creates a new [CanvasVariables] from a JSON map.
-  factory CanvasVariables.fromJson(Map<String, dynamic> json) {
-    final Map<String, dynamic> updated = {
-      ...json,
-      'variables': <String, dynamic>{
-        for (final entry in json['variables'].values)
-          entry['id']: {
-            'canvasId': json['id'],
-            ...entry,
-          },
-      },
-    };
-    return _$CanvasVariablesFromJson(updated);
-  }
-
-  /// Converts this [CanvasVariables] into a JSON map.
-  Map<String, dynamic> toJson() => _$CanvasVariablesToJson(this)..remove('id');
-
-  /// Allows to access canvas variables by variable id.
-  VariableData? operator [](String variableId) {
-    return variables[variableId];
-  }
-
-  /// Allows to assign canvas variables by variable id.
-  void operator []=(String variableId, CanvasVariableData value) {
-    variables[variableId] = value;
-  }
-}
-
 /// A variable that is scoped to a canvas.
 @JsonSerializable()
 class CanvasVariableData extends VariableData {
@@ -330,23 +254,6 @@ class CanvasVariableData extends VariableData {
   @override
   Map<String, dynamic> toJson() =>
       _$CanvasVariableDataToJson(this)..remove('canvasId');
-}
-
-/// Serializer for [CanvasVariables].
-Map<String, dynamic> canvasVariablesToJson(List<CanvasVariables> variables) {
-  return {
-    for (final variable in variables)
-      variable.id:
-          variable.variables.map((key, value) => MapEntry(key, value.toJson()))
-  };
-}
-
-/// Deserializer for [CanvasVariables].
-List<CanvasVariables> canvasVariablesFromJson(Map<String, dynamic> json) {
-  return [
-    for (final entry in json.entries)
-      CanvasVariables.fromJson({'id': entry.key, 'variables': entry.value}),
-  ];
 }
 
 /// A variable class that represents creation of a variable from given name.
