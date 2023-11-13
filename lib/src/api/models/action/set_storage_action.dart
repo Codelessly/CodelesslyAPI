@@ -52,7 +52,7 @@ class SetStorageAction extends DataOperationActionModel
   /// This is used to convert the value to the correct type.
   final VariableType variableType;
 
-  /// Creates a new [SetValueAction].
+  /// Creates a new [SetStorageAction].
   SetStorageAction({
     this.key = 'key',
     this.operation = StorageOperation.addOrUpdate,
