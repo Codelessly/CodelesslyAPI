@@ -1,16 +1,17 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'set_storage_action.dart';
+part of 'set_cloud_storage_action.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-SetStorageAction _$SetStorageActionFromJson(Map json) => SetStorageAction(
+SetCloudStorageAction _$SetCloudStorageActionFromJson(Map json) =>
+    SetCloudStorageAction(
       key: json['key'] as String? ?? 'key',
-      operation:
-          $enumDecodeNullable(_$StorageOperationEnumMap, json['operation']) ??
-              StorageOperation.addOrUpdate,
+      operation: $enumDecodeNullable(
+              _$CloudStorageOperationEnumMap, json['operation']) ??
+          CloudStorageOperation.addOrUpdate,
       variableType:
           $enumDecodeNullable(_$VariableTypeEnumMap, json['variableType']) ??
               VariableType.text,
@@ -26,7 +27,8 @@ SetStorageAction _$SetStorageActionFromJson(Map json) => SetStorageAction(
       mapKey: json['mapKey'] as String? ?? 'key',
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
+Map<String, dynamic> _$SetCloudStorageActionToJson(
+    SetCloudStorageAction instance) {
   final val = <String, dynamic>{
     'type': _$ActionTypeEnumMap[instance.type]!,
   };
@@ -53,17 +55,17 @@ Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
   writeNotNull(
       'operation',
       instance.operation,
-      _$StorageOperationEnumMap[instance.operation]!,
-      StorageOperation.addOrUpdate);
+      _$CloudStorageOperationEnumMap[instance.operation]!,
+      CloudStorageOperation.addOrUpdate);
   writeNotNull('variableType', instance.variableType,
       _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
   return val;
 }
 
-const _$StorageOperationEnumMap = {
-  StorageOperation.remove: 'remove',
-  StorageOperation.addOrUpdate: 'addOrUpdate',
-  StorageOperation.clear: 'clear',
+const _$CloudStorageOperationEnumMap = {
+  CloudStorageOperation.remove: 'remove',
+  CloudStorageOperation.addOrUpdate: 'addOrUpdate',
+  CloudStorageOperation.clear: 'clear',
 };
 
 const _$VariableTypeEnumMap = {

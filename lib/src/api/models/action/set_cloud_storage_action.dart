@@ -8,10 +8,10 @@ import 'package:equatable/equatable.dart';
 import '../../mixins.dart';
 import '../models.dart';
 
-part 'set_storage_action.g.dart';
+part 'set_cloud_storage_action.g.dart';
 
 /// Represents an operation to perform on a data in storage.
-enum StorageOperation {
+enum CloudStorageOperation {
   /// Remove the data from storage.
   remove,
 
@@ -23,39 +23,39 @@ enum StorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        StorageOperation.addOrUpdate => 'Add/Update',
-        StorageOperation.remove => 'Remove',
-        StorageOperation.clear => 'Clear',
+    CloudStorageOperation.addOrUpdate => 'Add/Update',
+    CloudStorageOperation.remove => 'Remove',
+    CloudStorageOperation.clear => 'Clear',
       };
 
-  /// Whether the operation is [StorageOperation.remove].
-  bool get isRemove => this == StorageOperation.remove;
+  /// Whether the operation is [CloudStorageOperation.remove].
+  bool get isRemove => this == CloudStorageOperation.remove;
 
-  /// Whether the operation is [StorageOperation.clear].
-  bool get isClear => this == StorageOperation.clear;
+  /// Whether the operation is [CloudStorageOperation.clear].
+  bool get isClear => this == CloudStorageOperation.clear;
 
-  /// Whether the operation is [StorageOperation.addOrUpdate].
-  bool get isAddOrUpdate => this == StorageOperation.addOrUpdate;
+  /// Whether the operation is [CloudStorageOperation.addOrUpdate].
+  bool get isAddOrUpdate => this == CloudStorageOperation.addOrUpdate;
 }
 
 /// An action that sets value of a variable.
 @JsonSerializable()
-class SetStorageAction extends DataOperationActionModel
+class SetCloudStorageAction extends DataOperationActionModel
     with EquatableMixin, SerializableMixin {
   /// Key of the data in storage.
   final String key;
 
   /// Operation to perform on the data.
-  final StorageOperation operation;
+  final CloudStorageOperation operation;
 
   /// Type of the variable.
   /// This is used to convert the value to the correct type.
   final VariableType variableType;
 
-  /// Creates a new [SetStorageAction].
-  SetStorageAction({
+  /// Creates a new [SetCloudStorageAction].
+  SetCloudStorageAction({
     this.key = 'key',
-    this.operation = StorageOperation.addOrUpdate,
+    this.operation = CloudStorageOperation.addOrUpdate,
     this.variableType = VariableType.text,
     super.newValue = '',
     super.toggled = false,
@@ -63,12 +63,12 @@ class SetStorageAction extends DataOperationActionModel
     super.index = '0',
     super.mapOperation = MapOperation.replace,
     super.mapKey = 'key',
-  }) : super(type: ActionType.setStorage);
+  }) : super(type: ActionType.setCloudStorage);
 
-  /// Duplicates this [SetStorageAction] with given data overrides.
-  SetStorageAction copyWith({
+  /// Duplicates this [SetCloudStorageAction] with given data overrides.
+  SetCloudStorageAction copyWith({
     String? key,
-    StorageOperation? operation,
+    CloudStorageOperation? operation,
     VariableType? variableType,
     String? newValue,
     bool? toggled,
@@ -81,7 +81,7 @@ class SetStorageAction extends DataOperationActionModel
     //     ? null
     //     : sanitizeValueForVariableType(
     //         value, variableType ?? this.variableType);
-    return SetStorageAction(
+    return SetCloudStorageAction(
       key: key ?? this.key,
       operation: operation ?? this.operation,
       variableType: variableType ?? this.variableType,
@@ -107,13 +107,13 @@ class SetStorageAction extends DataOperationActionModel
         mapKey,
       ];
 
-  /// Creates a new [SetStorageAction] instance from a JSON data.
-  factory SetStorageAction.fromJson(Map json) =>
-      _$SetStorageActionFromJson(json);
+  /// Creates a new [SetCloudStorageAction] instance from a JSON data.
+  factory SetCloudStorageAction.fromJson(Map json) =>
+      _$SetCloudStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetStorageActionToJson(this);
+  Map toJson() => _$SetCloudStorageActionToJson(this);
 
   @override
-  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetStorageAction(this);
+  R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetCloudStorageAction(this);
 }
