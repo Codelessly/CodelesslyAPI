@@ -43,6 +43,9 @@ abstract class ITextSizeCalculator {
   /// Returns The distance to the [baseline] of a defined [TextNode].
   /// The details are dependant on the implementation.
   double computeDistanceToActualBaseline(CTextBaseline baseline);
+
+  /// Returns the line height of a single line of text.
+  double getLineHeight();
 }
 
 /// Defines different styling options for a widget.
