@@ -1,3 +1,11 @@
+## 0.7.3
+- Migrate Variables and Conditions to use permissions model.
+- TextField Improvements
+  - Fix shrink-wrapping conflict with expands property.
+  - Fix text field model not calculating text field height properly for shrink-wrapping.
+  - Allow min lines and max lines input fields to clear.
+  - Fix shrink-wrap height calculation being affected by isDense property.
+
 ## 0.7.1
 - Implement safe area for canvases.
 - Fix scroll physics and always scrollable option.
