@@ -40,8 +40,8 @@ enum StorageOperation {
 
 /// An action that sets value of a variable.
 @JsonSerializable()
-class SetStorageAction extends DataOperationActionModel
-    with EquatableMixin, SerializableMixin {
+class SetStorageAction extends ActionModel
+    with EquatableMixin, SerializableMixin implements DataOperationInterface {
   /// Key of the data in storage.
   final String key;
 
@@ -52,17 +52,35 @@ class SetStorageAction extends DataOperationActionModel
   /// This is used to convert the value to the correct type.
   final VariableType variableType;
 
+  @override
+  final String index;
+
+  @override
+  final ListOperation listOperation;
+
+  @override
+  final String mapKey;
+
+  @override
+  final MapOperation mapOperation;
+
+  @override
+  final String newValue;
+
+  @override
+  final bool toggled;
+
   /// Creates a new [SetStorageAction].
   SetStorageAction({
     this.key = 'key',
     this.operation = StorageOperation.addOrUpdate,
     this.variableType = VariableType.text,
-    super.newValue = '',
-    super.toggled = false,
-    super.listOperation = ListOperation.replace,
-    super.index = '0',
-    super.mapOperation = MapOperation.replace,
-    super.mapKey = 'key',
+    this.newValue = '',
+    this.toggled = false,
+    this.listOperation = ListOperation.replace,
+    this.index = '0',
+    this.mapOperation = MapOperation.replace,
+    this.mapKey = 'key',
   }) : super(type: ActionType.setStorage);
 
   /// Duplicates this [SetStorageAction] with given data overrides.
