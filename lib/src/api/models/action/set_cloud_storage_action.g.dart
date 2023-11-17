@@ -8,30 +8,45 @@ part of 'set_cloud_storage_action.dart';
 
 SetCloudStorageAction _$SetCloudStorageActionFromJson(Map json) =>
     SetCloudStorageAction(
-      key: json['key'] as String? ?? 'key',
-      operation: $enumDecodeNullable(
-              _$CloudStorageOperationEnumMap, json['operation']) ??
-          CloudStorageOperation.addOrUpdate,
-      variableType:
-          $enumDecodeNullable(_$VariableTypeEnumMap, json['variableType']) ??
-              VariableType.text,
-      newValue: json['newValue'] as String? ?? '',
-      toggled: json['toggled'] as bool? ?? false,
-      listOperation:
-          $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
-              ListOperation.replace,
-      index: json['index'] as String? ?? '0',
-      mapOperation:
-          $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
-              MapOperation.replace,
-      mapKey: json['mapKey'] as String? ?? 'key',
+      subAction: SetCloudStorageSubAction.fromJson(json['subAction'] as Map),
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetCloudStorageActionToJson(
-    SetCloudStorageAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
+        SetCloudStorageAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'subAction': instance.subAction.toJson(),
+    };
+
+const _$ActionTypeEnumMap = {
+  ActionType.navigation: 'navigation',
+  ActionType.showDialog: 'showDialog',
+  ActionType.link: 'link',
+  ActionType.submit: 'submit',
+  ActionType.setValue: 'setValue',
+  ActionType.setVariant: 'setVariant',
+  ActionType.setVariable: 'setVariable',
+  ActionType.callFunction: 'callFunction',
+  ActionType.callApi: 'callApi',
+  ActionType.setStorage: 'setStorage',
+  ActionType.setCloudStorage: 'setCloudStorage',
+};
+
+AddDocumentSubAction _$AddDocumentSubActionFromJson(Map json) =>
+    AddDocumentSubAction(
+      path: json['path'] as String? ?? '',
+      documentId: json['documentId'] as String? ?? '',
+      autoGenerateId: json['autoGenerateId'] as bool? ?? false,
+      skipCreationIfDocumentExists:
+          json['skipCreationIfDocumentExists'] as bool? ?? true,
+      newValue: json['newValue'] as String? ?? '',
+      rawValue: json['rawValue'] as String? ?? '',
+      useRawValue: json['useRawValue'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$AddDocumentSubActionToJson(
+    AddDocumentSubAction instance) {
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -43,30 +58,101 @@ Map<String, dynamic> _$SetCloudStorageActionToJson(
     }
   }
 
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
-  writeNotNull('listOperation', instance.listOperation,
-      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('index', instance.index, instance.index, '0');
-  writeNotNull('mapOperation', instance.mapOperation,
-      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
-  writeNotNull('key', instance.key, instance.key, 'key');
+  writeNotNull('path', instance.path, instance.path, '');
+  writeNotNull('documentId', instance.documentId, instance.documentId, '');
+  writeNotNull('autoGenerateId', instance.autoGenerateId,
+      instance.autoGenerateId, false);
   writeNotNull(
-      'operation',
-      instance.operation,
-      _$CloudStorageOperationEnumMap[instance.operation]!,
-      CloudStorageOperation.addOrUpdate);
-  writeNotNull('variableType', instance.variableType,
-      _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
+      'skipCreationIfDocumentExists',
+      instance.skipCreationIfDocumentExists,
+      instance.skipCreationIfDocumentExists,
+      true);
+  writeNotNull('rawValue', instance.rawValue, instance.rawValue, '');
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
+  writeNotNull(
+      'useRawValue', instance.useRawValue, instance.useRawValue, false);
   return val;
 }
 
-const _$CloudStorageOperationEnumMap = {
-  CloudStorageOperation.remove: 'remove',
-  CloudStorageOperation.addOrUpdate: 'addOrUpdate',
-  CloudStorageOperation.clear: 'clear',
-};
+RemoveDocumentSubAction _$RemoveDocumentSubActionFromJson(Map json) =>
+    RemoveDocumentSubAction(
+      path: json['path'] as String? ?? '',
+      documentId: json['documentId'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$RemoveDocumentSubActionToJson(
+    RemoveDocumentSubAction instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('path', instance.path, instance.path, '');
+  writeNotNull('documentId', instance.documentId, instance.documentId, '');
+  return val;
+}
+
+UpdateDocumentSubAction _$UpdateDocumentSubActionFromJson(Map json) =>
+    UpdateDocumentSubAction(
+      path: json['path'] as String? ?? '',
+      documentId: json['documentId'] as String? ?? '',
+      rawValue: json['rawValue'] as String? ?? '',
+      key: json['key'] as String? ?? '',
+      variableType:
+          $enumDecodeNullable(_$VariableTypeEnumMap, json['variableType']) ??
+              VariableType.text,
+      index: json['index'] as String? ?? '0',
+      listOperation:
+          $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
+              ListOperation.replace,
+      mapKey: json['mapKey'] as String? ?? 'key',
+      mapOperation:
+          $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
+              MapOperation.replace,
+      newValue: json['newValue'] as String? ?? '',
+      toggled: json['toggled'] as bool? ?? false,
+      useRawValue: json['useRawValue'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$UpdateDocumentSubActionToJson(
+    UpdateDocumentSubAction instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('path', instance.path, instance.path, '');
+  writeNotNull('documentId', instance.documentId, instance.documentId, '');
+  writeNotNull('rawValue', instance.rawValue, instance.rawValue, '');
+  writeNotNull('key', instance.key, instance.key, '');
+  writeNotNull('variableType', instance.variableType,
+      _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
+  writeNotNull(
+      'useRawValue', instance.useRawValue, instance.useRawValue, false);
+  writeNotNull('index', instance.index, instance.index, '0');
+  writeNotNull('listOperation', instance.listOperation,
+      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
+  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
+  writeNotNull('mapOperation', instance.mapOperation,
+      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
+  writeNotNull('toggled', instance.toggled, instance.toggled, false);
+  return val;
+}
 
 const _$VariableTypeEnumMap = {
   VariableType.integer: 'integer',
@@ -92,18 +178,4 @@ const _$MapOperationEnumMap = {
   MapOperation.add: 'add',
   MapOperation.remove: 'remove',
   MapOperation.update: 'update',
-};
-
-const _$ActionTypeEnumMap = {
-  ActionType.navigation: 'navigation',
-  ActionType.showDialog: 'showDialog',
-  ActionType.link: 'link',
-  ActionType.submit: 'submit',
-  ActionType.setValue: 'setValue',
-  ActionType.setVariant: 'setVariant',
-  ActionType.setVariable: 'setVariable',
-  ActionType.callFunction: 'callFunction',
-  ActionType.callApi: 'callApi',
-  ActionType.setStorage: 'setStorage',
-  ActionType.setCloudStorage: 'setCloudStorage',
 };
