@@ -9,7 +9,7 @@ part of 'set_variable_action.dart';
 SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       variable: VariableData.fromJson(
           Map<String, dynamic>.from(json['variable'] as Map)),
-      newValue: json['newValue'] as String? ?? '',
+      newValue: json['newValue'] as String,
       toggled: json['toggled'] as bool? ?? false,
       listOperation:
           $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
@@ -24,6 +24,7 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
 Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
   final val = <String, dynamic>{
     'type': _$ActionTypeEnumMap[instance.type]!,
+    'variable': instance.variable.toJson(),
   };
 
   void writeNotNull(
@@ -36,15 +37,14 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
     }
   }
 
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
+  writeNotNull('index', instance.index, instance.index, '0');
   writeNotNull('listOperation', instance.listOperation,
       _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('index', instance.index, instance.index, '0');
+  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
   writeNotNull('mapOperation', instance.mapOperation,
       _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
-  val['variable'] = instance.variable.toJson();
+  val['newValue'] = instance.newValue;
+  writeNotNull('toggled', instance.toggled, instance.toggled, false);
   return val;
 }
 

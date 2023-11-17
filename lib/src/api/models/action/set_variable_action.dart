@@ -87,20 +87,38 @@ enum MapOperation {
 
 /// An action that sets value of a variable.
 @JsonSerializable()
-class SetVariableAction extends DataOperationActionModel
-    with EquatableMixin, SerializableMixin {
+class SetVariableAction extends ActionModel
+    with EquatableMixin, SerializableMixin implements DataOperationInterface {
   /// Variable whose value is to be set.
   final VariableData variable;
+
+  @override
+  final String index;
+
+  @override
+  final ListOperation listOperation;
+
+  @override
+  final String mapKey;
+
+  @override
+  final MapOperation mapOperation;
+
+  @override
+  final String newValue;
+
+  @override
+  final bool toggled;
 
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
-    required super.newValue,
-    super.toggled = false,
-    super.listOperation = ListOperation.replace,
-    super.index = '0',
-    super.mapOperation = MapOperation.replace,
-    super.mapKey = 'key',
+    required this.newValue,
+    this.toggled = false,
+    this.listOperation = ListOperation.replace,
+    this.index = '0',
+    this.mapOperation = MapOperation.replace,
+    this.mapKey = 'key',
   }) : super(type: ActionType.setVariable);
 
   @override

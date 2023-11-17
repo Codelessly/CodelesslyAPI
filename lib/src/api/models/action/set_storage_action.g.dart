@@ -41,14 +41,6 @@ Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
     }
   }
 
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
-  writeNotNull('listOperation', instance.listOperation,
-      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('index', instance.index, instance.index, '0');
-  writeNotNull('mapOperation', instance.mapOperation,
-      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
   writeNotNull('key', instance.key, instance.key, 'key');
   writeNotNull(
       'operation',
@@ -57,6 +49,14 @@ Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
       StorageOperation.addOrUpdate);
   writeNotNull('variableType', instance.variableType,
       _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
+  writeNotNull('index', instance.index, instance.index, '0');
+  writeNotNull('listOperation', instance.listOperation,
+      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
+  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
+  writeNotNull('mapOperation', instance.mapOperation,
+      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
+  writeNotNull('toggled', instance.toggled, instance.toggled, false);
   return val;
 }
 
