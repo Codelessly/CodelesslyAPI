@@ -27,7 +27,8 @@ bool excludeEdgePinsIf(BaseNode node) {
 }
 
 /// Defines nodes that are selectively exempted from default auto-layout
-/// interactions. Ex. auto canvas, expansion tile, list view, etc.
+/// interactions, specifically disallows edge detection.
+/// Ex: Canvases and placeholders
 mixin IsolatedMixin {}
 
 /// A base class for nodes that can have blends and decoration.
