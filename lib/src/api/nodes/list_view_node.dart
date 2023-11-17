@@ -10,7 +10,7 @@ part 'list_view_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class ListViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, IsolatedMixin {
+    with ScrollableMixin, CustomPropertiesMixin, ClipMixin {
   @override
   final String type = 'listView';
 

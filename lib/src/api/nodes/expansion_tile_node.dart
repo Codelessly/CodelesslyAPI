@@ -18,7 +18,7 @@ part 'expansion_tile_node.g.dart';
 /// for more details.
 @JsonSerializable()
 class ExpansionTileNode extends SceneNode
-    with ChildrenMixin, RowColumnMixin, CustomPropertiesMixin, IsolatedMixin {
+    with ChildrenMixin, RowColumnMixin, CustomPropertiesMixin {
   @override
   final String type = 'expansionTile';
 

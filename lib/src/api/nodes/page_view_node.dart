@@ -11,7 +11,7 @@ part 'page_view_node.g.dart';
 /// Each child of a page view is forced to be the same size as the viewport.
 @JsonSerializable()
 class PageViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, IsolatedMixin {
+    with ScrollableMixin, CustomPropertiesMixin, ClipMixin {
   @override
   final String type = 'pageView';
 
