@@ -1,3 +1,6 @@
+## 0.7.5
+- Fix drag and drop insert to the edge of Accordion, Expansion Tile, ListView, and PageView.
+
 ## 0.7.3
 - Migrate Variables and Conditions to use permissions model.
 - TextField Improvements
