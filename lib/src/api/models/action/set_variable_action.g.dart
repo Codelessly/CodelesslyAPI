@@ -9,7 +9,7 @@ part of 'set_variable_action.dart';
 SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
       variable: VariableData.fromJson(
           Map<String, dynamic>.from(json['variable'] as Map)),
-      newValue: json['newValue'] as String,
+      newValue: json['newValue'] as String? ?? '',
       toggled: json['toggled'] as bool? ?? false,
       listOperation:
           $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
@@ -43,7 +43,7 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
   writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
   writeNotNull('mapOperation', instance.mapOperation,
       _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  val['newValue'] = instance.newValue;
+  writeNotNull('newValue', instance.newValue, instance.newValue, '');
   writeNotNull('toggled', instance.toggled, instance.toggled, false);
   return val;
 }

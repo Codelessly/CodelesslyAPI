@@ -113,7 +113,7 @@ class SetVariableAction extends ActionModel
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
-    required this.newValue,
+    this.newValue = '',
     this.toggled = false,
     this.listOperation = ListOperation.replace,
     this.index = '0',
