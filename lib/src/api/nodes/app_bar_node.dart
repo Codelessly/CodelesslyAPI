@@ -55,6 +55,12 @@ class AppBarNode extends SceneNode
   });
 
   @override
+  late final List<ValueModel> propertyVariables = [
+    ...super.propertyVariables,
+    StringValue(name: 'title', value: properties.title),
+  ];
+
+  @override
   List<TriggerType> get triggerTypes => [TriggerType.click];
 
   @override
