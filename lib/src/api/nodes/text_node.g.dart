@@ -141,6 +141,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   val['characters'] = instance.characters;
   writeNotNull('textMixedProps', instance.textMixedProps,
       instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull(
       'textAlignHorizontal',
       instance.textAlignHorizontal,
