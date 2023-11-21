@@ -104,7 +104,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   @override
   BaseNode? fromJson(Map json) {
     if (json['type'] == null || _registry[json['type']] == null) {
-      throw UnsupportedError('Unsupported node type: ${json["type"]}');
+      throw UnsupportedError('Unsupported node type: ${json["type"]}\n$json');
     }
     return _registry[json['type']]!(json);
   }
