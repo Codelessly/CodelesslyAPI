@@ -732,6 +732,9 @@ abstract interface class ActionVisitor<R> {
 
   /// Evaluates the action and returns the result.
   R? visitSetCloudStorageAction(SetCloudStorageAction action);
+
+  /// Evaluates the action and returns the result.
+  R? visitLoadFromCloudStorageAction(LoadFromCloudStorageAction action);
 }
 
 /// An interface for evaluating expressions.
