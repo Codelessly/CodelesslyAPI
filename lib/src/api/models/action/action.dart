@@ -4,6 +4,7 @@
 
 import '../../mixins.dart';
 import '../models.dart';
+import 'load_from_cloud_storage_action.dart';
 
 /// Type of the action to perform on a user interaction.
 enum ActionType {
@@ -38,7 +39,9 @@ enum ActionType {
   setStorage,
 
   /// Update data in cloud storage.
-  setCloudStorage;
+  setCloudStorage,
+
+  loadFromCloudStorage;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -65,6 +68,8 @@ enum ActionType {
         return 'Show Dialog';
       case ActionType.setCloudStorage:
         return 'Set Cloud Storage';
+      case ActionType.loadFromCloudStorage:
+        return 'Load from Cloud Storage';
     }
   }
 }
@@ -126,6 +131,8 @@ abstract class ActionModel with SerializableMixin {
         return ShowDialogAction.fromJson(json);
       case ActionType.setCloudStorage:
         return SetCloudStorageAction.fromJson(json);
+      case ActionType.loadFromCloudStorage:
+        return LoadFromCloudStorageAction.fromJson(json);
     }
   }
 
