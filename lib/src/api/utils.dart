@@ -12,6 +12,9 @@ double roundDoubleToJson(double value) => value.roundToPrecision(3);
 /// Defines a function that returns a node by its id.
 typedef GetNode = BaseNode Function(String id);
 
+/// Defines a function that returns whether a node with given id exists.
+typedef HasNode = bool Function(String id);
+
 /// An interface for computing text information. This is meant to be used as an
 /// abstraction to Flutter's [TextPainter].
 abstract class ITextSizeCalculator {
