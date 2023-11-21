@@ -30,6 +30,7 @@ const _$ActionTypeEnumMap = {
   ActionType.callApi: 'callApi',
   ActionType.setStorage: 'setStorage',
   ActionType.setCloudStorage: 'setCloudStorage',
+  ActionType.loadFromCloudStorage: 'loadFromCloudStorage',
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(

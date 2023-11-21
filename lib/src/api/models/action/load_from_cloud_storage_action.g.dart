@@ -1,22 +1,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'navigation_action.dart';
+part of 'load_from_cloud_storage_action.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
-      navigationType: $enumDecodeNullable(
-              _$NavigationTypeEnumMap, json['navigationType']) ??
-          NavigationType.push,
-      destinationId: json['destinationId'] as String,
-      params: (json['params'] as Map?)?.map(
-        (k, e) => MapEntry(k as String, e as String),
-      ),
+LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
+    LoadFromCloudStorageAction(
+      path: json['path'] as String? ?? '',
+      documentId: json['documentId'] as String? ?? '',
+      variable: json['variable'] == null
+          ? null
+          : VariableData.fromJson(
+              Map<String, dynamic>.from(json['variable'] as Map)),
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
+Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
+    LoadFromCloudStorageAction instance) {
   final val = <String, dynamic>{
     'type': _$ActionTypeEnumMap[instance.type]!,
   };
@@ -31,18 +32,12 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
     }
   }
 
-  writeNotNull('navigationType', instance.navigationType,
-      _$NavigationTypeEnumMap[instance.navigationType]!, NavigationType.push);
-  val['destinationId'] = instance.destinationId;
-  val['params'] = instance.params;
+  writeNotNull('path', instance.path, instance.path, '');
+  writeNotNull('documentId', instance.documentId, instance.documentId, '');
+  writeNotNull(
+      'variable', instance.variable, instance.variable?.toJson(), null);
   return val;
 }
-
-const _$NavigationTypeEnumMap = {
-  NavigationType.push: 'push',
-  NavigationType.pop: 'pop',
-  NavigationType.replace: 'replace',
-};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
