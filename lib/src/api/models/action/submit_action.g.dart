@@ -36,6 +36,7 @@ const _$ActionTypeEnumMap = {
   ActionType.callApi: 'callApi',
   ActionType.setStorage: 'setStorage',
   ActionType.setCloudStorage: 'setCloudStorage',
+  ActionType.loadFromCloudStorage: 'loadFromCloudStorage',
 };
 
 MailchimpSubmitAction _$MailchimpSubmitActionFromJson(Map json) =>
