@@ -5,7 +5,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
-import '../extensions.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -157,13 +156,6 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
   @override
   Map toJson() => _$TextNodeToJson(this);
-
-  @override
-  void updateVariableName({required String oldName, required String newName}) {
-    super.updateVariableName(oldName: oldName, newName: newName);
-    if (characters.isEmpty) return;
-    characters = characters.replaceVariableName(oldName, newName);
-  }
 }
 
 /// [TextNode] specific properties.
