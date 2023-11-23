@@ -146,8 +146,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
       instance.textAlignHorizontal,
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
       TextAlignHorizontalEnum.left);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull(
       'textAlignVertical',
       instance.textAlignVertical,
@@ -157,6 +155,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
       'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
   writeNotNull('paragraphSpacing', instance.paragraphSpacing,
       instance.paragraphSpacing, 0);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
   writeNotNull('overflow', instance.overflow,
       _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);

@@ -78,6 +78,7 @@ const _$VariableTypeEnumMap = {
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
+  ListOperation.set: 'set',
   ListOperation.add: 'add',
   ListOperation.insert: 'insert',
   ListOperation.removeAt: 'removeAt',

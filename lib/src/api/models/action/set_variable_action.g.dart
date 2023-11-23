@@ -50,6 +50,7 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',
+  ListOperation.set: 'set',
   ListOperation.add: 'add',
   ListOperation.insert: 'insert',
   ListOperation.removeAt: 'removeAt',
