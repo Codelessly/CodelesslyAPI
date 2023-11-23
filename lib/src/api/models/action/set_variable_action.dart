@@ -12,10 +12,13 @@ import 'action.dart';
 
 part 'set_variable_action.g.dart';
 
-/// Defines the operation to be perfomed on a list type variable.
+/// Defines the operation to be performed on a list type variable.
 enum ListOperation {
   /// Replace entire list.
   replace,
+
+  /// Replaces the list with a custom variable.
+  set,
 
   /// Add [newValue] to the list.
   add,
@@ -37,6 +40,8 @@ enum ListOperation {
     switch (this) {
       case ListOperation.replace:
         return 'Replace';
+      case ListOperation.set:
+        return 'Set';
       case ListOperation.add:
         return 'Add';
       case ListOperation.insert:
