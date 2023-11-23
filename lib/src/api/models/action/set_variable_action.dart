@@ -88,7 +88,8 @@ enum MapOperation {
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetVariableAction extends ActionModel
-    with EquatableMixin, SerializableMixin implements DataOperationInterface {
+    with EquatableMixin, SerializableMixin
+    implements DataOperationInterface {
   /// Variable whose value is to be set.
   final VariableData variable;
 
