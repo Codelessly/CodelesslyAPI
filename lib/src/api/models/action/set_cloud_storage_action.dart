@@ -136,7 +136,8 @@ class AddDocumentSubAction extends SetCloudStorageSubAction {
       _$AddDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() => _$AddDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() =>
+      _$AddDocumentSubActionToJson(this)..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
@@ -179,7 +180,8 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
       _$RemoveDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() => _$RemoveDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() =>
+      _$RemoveDocumentSubActionToJson(this)..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
@@ -270,7 +272,8 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
       _$UpdateDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() => _$UpdateDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() =>
+      _$UpdateDocumentSubActionToJson(this)..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
