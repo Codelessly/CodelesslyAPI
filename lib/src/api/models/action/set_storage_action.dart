@@ -41,7 +41,8 @@ enum StorageOperation {
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin implements DataOperationInterface {
+    with EquatableMixin, SerializableMixin
+    implements DataOperationInterface {
   /// Key of the data in storage.
   final String key;
 
