@@ -4,7 +4,6 @@
 
 import '../../mixins.dart';
 import '../models.dart';
-import 'load_from_cloud_storage_action.dart';
 
 /// Type of the action to perform on a user interaction.
 enum ActionType {

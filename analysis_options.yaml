@@ -11,6 +11,7 @@ analyzer:
 
 linter:
   rules:
+    unnecessary_breaks: true
     public_member_api_docs: true
     prefer_single_quotes: true
     constant_identifier_names: true

@@ -674,19 +674,16 @@ abstract class BaseNode
       case NodeBoundaryType.middleRotatedBox:
         horizontalEdgeSpace = innerBoxLocal.horizontalEdgeSpace;
         verticalEdgeSpace = innerBoxLocal.verticalEdgeSpace;
-        break;
       case NodeBoundaryType.outerBox:
       case NodeBoundaryType.outerRotatedBox:
         horizontalEdgeSpace = outerBoxLocal.horizontalEdgeSpace +
             innerBoxLocal.horizontalEdgeSpace;
         verticalEdgeSpace =
             outerBoxLocal.verticalEdgeSpace + innerBoxLocal.verticalEdgeSpace;
-        break;
       case NodeBoundaryType.innerBox:
       case NodeBoundaryType.innerRotatedBox:
         horizontalEdgeSpace = -innerBoxLocal.horizontalEdgeSpace;
         verticalEdgeSpace = -innerBoxLocal.verticalEdgeSpace;
-        break;
     }
 
     switch (axis) {
