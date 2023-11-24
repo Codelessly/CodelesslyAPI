@@ -20,10 +20,8 @@ enum BoxWidthStyleEnum {
     switch (this) {
       case BoxWidthStyleEnum.max:
         text = 'Maximum';
-        break;
       case BoxWidthStyleEnum.tight:
         text = 'Tight';
-        break;
     }
     return text;
   }

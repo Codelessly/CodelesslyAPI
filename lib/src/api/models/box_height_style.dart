@@ -34,22 +34,16 @@ enum BoxHeightStyleEnum {
     switch (this) {
       case BoxHeightStyleEnum.includeLineSpacingBottom:
         text = 'Include line spacing bottom';
-        break;
       case BoxHeightStyleEnum.includeLineSpacingMiddle:
         text = 'Include line spacing middle';
-        break;
       case BoxHeightStyleEnum.includeLineSpacingTop:
         text = 'Include line spacing top';
-        break;
       case BoxHeightStyleEnum.max:
         text = 'Maximum';
-        break;
       case BoxHeightStyleEnum.strut:
         text = 'Strut';
-        break;
       case BoxHeightStyleEnum.tight:
         text = 'Tight';
-        break;
     }
     return text;
   }

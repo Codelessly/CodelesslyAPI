@@ -36,24 +36,15 @@ enum ListOperation {
   update;
 
   /// Returns a string representation of this enum.
-  String get prettify {
-    switch (this) {
-      case ListOperation.replace:
-        return 'Replace';
-      case ListOperation.set:
-        return 'Set';
-      case ListOperation.add:
-        return 'Add';
-      case ListOperation.insert:
-        return 'Insert';
-      case ListOperation.removeAt:
-        return 'Remove At';
-      case ListOperation.remove:
-        return 'Remove';
-      case ListOperation.update:
-        return 'Update';
-    }
-  }
+  String get prettify => switch (this) {
+        ListOperation.replace => 'Replace',
+        ListOperation.add => 'Add',
+        ListOperation.set => 'Set',
+        ListOperation.insert => 'Insert',
+        ListOperation.removeAt => 'Remove At',
+        ListOperation.remove => 'Remove',
+        ListOperation.update => 'Update'
+      };
 }
 
 /// Defines the operation to be perfomed on a map type variable.
@@ -68,21 +59,20 @@ enum MapOperation {
   remove,
 
   /// Update value at [key] with [newValue] in the map.
-  update;
+  update,
+
+  /// Same as replace but meant to replace the entire map with a new map from
+  /// a variable.
+  set;
 
   /// Returns a string representation of this enum.
-  String get prettify {
-    switch (this) {
-      case MapOperation.replace:
-        return 'Replace';
-      case MapOperation.add:
-        return 'Add';
-      case MapOperation.remove:
-        return 'Remove';
-      case MapOperation.update:
-        return 'Update';
-    }
-  }
+  String get prettify => switch (this) {
+        MapOperation.replace => 'Replace',
+        MapOperation.add => 'Add',
+        MapOperation.remove => 'Remove',
+        MapOperation.update => 'Update',
+        MapOperation.set => 'Set'
+      };
 }
 
 /// An action that sets value of a variable.
