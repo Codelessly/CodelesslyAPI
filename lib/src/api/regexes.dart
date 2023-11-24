@@ -216,6 +216,7 @@ const String hexColorPattern = r'^#[A-Fa-f0-9]{2,8}$';
 final RegExp hexColorRegex = RegExp(hexColorPattern);
 
 /// A regex that matches path separators.
+// ignore: unnecessary_string_escapes
 const String pathSeparatorPattern = '[.\/]';
 
 /// Regex for [pathSeparatorPattern].
