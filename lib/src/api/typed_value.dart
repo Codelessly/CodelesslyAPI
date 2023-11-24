@@ -121,10 +121,11 @@ extension TypedStringExt on String {
 }
 
 /// Declares extensions on Generic types that allows to type cast safely.
-extension CastExt<T> on T {
+extension CastExt<T> on T? {
   /// Tries to cast this object to given type [R]. Returns null if the cast
   /// fails.
   R? tryCast<R>() {
+    if (this == null) return null;
     try {
       return this as R;
     } catch (e) {
