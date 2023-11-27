@@ -17,6 +17,9 @@ enum ListOperation {
   /// Replace entire list.
   replace,
 
+  /// Replaces the entire list with a new list from a variable.
+  set,
+
   /// Add [newValue] to the list.
   add,
 
@@ -35,6 +38,7 @@ enum ListOperation {
   /// Returns a string representation of this enum.
   String get prettify => switch (this) {
         ListOperation.replace => 'Replace',
+        ListOperation.set => 'Set',
         ListOperation.add => 'Add',
         ListOperation.insert => 'Insert',
         ListOperation.removeAt => 'Remove At',
