@@ -40,6 +40,7 @@ enum ActionType {
   /// Update data in cloud storage.
   setCloudStorage,
 
+  /// Load data from cloud storage.
   loadFromCloudStorage;
 
   /// Displayable string representation of the [ActionType].
@@ -164,7 +165,7 @@ abstract interface class DataOperationInterface {
   abstract final ListOperation listOperation;
 
   /// Index of the value to be updated/removed/inserted.
-  /// Can be a discrete value or a variable refered by '${}' syntax.
+  /// Can be a discrete value or a variable referred by '${}' syntax.
   /// Used for list type variable.
   abstract final String index;
 

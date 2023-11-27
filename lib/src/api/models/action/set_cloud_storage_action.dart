@@ -10,7 +10,7 @@ import '../models.dart';
 
 part 'set_cloud_storage_action.g.dart';
 
-/// Represents an operation to perform on a data in storage.
+/// Represents an operation to perform on a data in cloud storage.
 enum SetCloudStorageOperation {
   /// Adds a new document to the collection.
   addDocument,
@@ -28,17 +28,22 @@ enum SetCloudStorageOperation {
         SetCloudStorageOperation.removeDocument => 'Remove Document',
       };
 
+  /// Whether this [StorageOperation] is [addDocument].
   bool get isAddDocument => this == addDocument;
 
+  /// Whether this [StorageOperation] is [updateDocument].
   bool get isUpdateDocument => this == updateDocument;
 
+  /// Whether this [StorageOperation] is [removeDocument].
   bool get isRemoveDocument => this == removeDocument;
 }
 
-/// An action that sets value of a variable.
+/// An action that changes data in cloud storage.
 @JsonSerializable()
 class SetCloudStorageAction extends ActionModel
     with EquatableMixin, SerializableMixin {
+  /// The sub action to perform. This can be one of [AddDocumentSubAction],
+  /// [UpdateDocumentSubAction] or [RemoveDocumentSubAction].
   final SetCloudStorageSubAction subAction;
 
   /// Creates a new [SetCloudStorageAction].
@@ -69,9 +74,12 @@ class SetCloudStorageAction extends ActionModel
       visitor.visitSetCloudStorageAction(this);
 }
 
+/// Represents a sub action to perform on a data in cloud storage.
 sealed class SetCloudStorageSubAction with EquatableMixin, SerializableMixin {
+  /// The operation to perform. Represents the type of the sub action.
   final SetCloudStorageOperation operation;
 
+  /// Creates a new [SetCloudStorageSubAction].
   const SetCloudStorageSubAction({required this.operation});
 
   @override
@@ -89,16 +97,49 @@ sealed class SetCloudStorageSubAction with EquatableMixin, SerializableMixin {
   }
 }
 
+/// Represents a sub action to add a document to a collection in cloud storage.
 @JsonSerializable()
 class AddDocumentSubAction extends SetCloudStorageSubAction {
+  /// Path to the collection where the document is located.
+  ///
+  /// A string that represents the path to the document excluding the document
+  /// id. The path must always resolve to a collection. If the [path] is empty,
+  /// then the document is added to "default" collection. If the path ends in
+  /// a document path, then "default" is suffixed to the path to make it a
+  /// collection path.
   final String path;
+
+  /// The id of the document in the collection. If [documentId] is empty, then
+  /// "default" is used as the document id. This is ignored if [autoGenerateId]
+  /// is set to true.
   final String documentId;
+
+  /// Whether to auto generate the document id. If this is set to true, then
+  /// [documentId] is ignored and a random id is generated for the document
+  /// instead.
   final bool autoGenerateId;
+
+  /// Whether to skip creation of the document if it already exists. If this is
+  /// set to true, then the document is not created if it already exists.
   final bool skipCreationIfDocumentExists;
+
+  /// Holds a serialized value of the document to add. This represents the
+  /// document data as a JSON string defined from the JSON editor in the
+  /// action settings.
+  ///
+  /// This is ignored if [useRawValue] is set to false. [newValue] is
+  /// used instead.
   final String rawValue;
+
+  /// A value composed from provided key-value pairs serialized as a JSON
+  /// string. This is used to create the document data. This is ignored if
+  /// [useRawValue] is set to true. [rawValue] is used instead.
   final String newValue;
+
+  /// Whether to use [rawValue] instead of [newValue] to create the document.
   final bool useRawValue;
 
+  /// Creates a new [AddDocumentSubAction].
   const AddDocumentSubAction({
     this.path = '',
     this.documentId = '',
@@ -151,11 +192,25 @@ class AddDocumentSubAction extends SetCloudStorageSubAction {
       ];
 }
 
+/// Represents a sub action to remove a document from a collection in cloud
+/// storage.
 @JsonSerializable()
 class RemoveDocumentSubAction extends SetCloudStorageSubAction {
+  /// Path to the collection where the document is located.
+  ///
+  /// A string that represents the path to the document excluding the document
+  /// id. The path must always resolve to a collection. If the [path] is empty,
+  /// then the document is added to "default" collection. If the path ends in
+  /// a document path, then "default" is suffixed to the path to make it a
+  /// collection path.
   final String path;
+
+  /// The id of the document in the collection. If [documentId] is empty, then
+  /// "default" is used as the document id. This is ignored if [autoGenerateId]
+  /// is set to true.
   final String documentId;
 
+  /// Creates a new [RemoveDocumentSubAction].
   const RemoveDocumentSubAction({
     this.path = '',
     this.documentId = '',
@@ -184,21 +239,45 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
       _$RemoveDocumentSubActionToJson(this)..['operation'] = operation.name;
 
   @override
-  List<Object?> get props => [
-        path,
-        documentId,
-      ];
+  List<Object?> get props => [path, documentId];
 }
 
+/// Represents a sub action to update a document in a collection in cloud
+/// storage.
 @JsonSerializable()
 class UpdateDocumentSubAction extends SetCloudStorageSubAction
     implements DataOperationInterface {
+  /// Path to the collection where the document is located.
+  ///
+  /// A string that represents the path to the document excluding the document
+  /// id. The path must always resolve to a collection. If the [path] is empty,
+  /// then the document is added to "default" collection. If the path ends in
+  /// a document path, then "default" is suffixed to the path to make it a
+  /// collection path.
   final String path;
+
+  /// The id of the document in the collection. If [documentId] is empty, then
+  /// "default" is used as the document id. This is ignored if [autoGenerateId]
+  /// is set to true.
   final String documentId;
+
+  /// Holds a serialized value of the document to add. This represents the
+  /// document data as a JSON string defined from the JSON editor in the
+  /// action settings.
+  ///
+  /// This is ignored if [useRawValue] is set to false. [newValue] is
+  /// used instead.
   final String rawValue;
+
+  /// Represents a key/field in the document to update. This is used to update
+  /// a single field in the document.
   final String key;
+
+  /// Represents the type of data the [key] field holds. This is used to better
+  /// handle the data when updating the document.
   final VariableType variableType;
 
+  /// Whether to use [rawValue] instead of [newValue] to create the document.
   final bool useRawValue;
 
   @override
@@ -219,6 +298,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
   @override
   final bool toggled;
 
+  /// Creates a new [UpdateDocumentSubAction].
   const UpdateDocumentSubAction({
     this.path = '',
     this.documentId = '',
@@ -234,7 +314,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
     this.useRawValue = false,
   }) : super(operation: SetCloudStorageOperation.updateDocument);
 
-  /// Duplicates this [AddDocumentSubAction] with given data overrides.
+  /// Duplicates this [UpdateDocumentSubAction] with given data overrides.
   UpdateDocumentSubAction copyWith({
     String? path,
     String? documentId,
@@ -267,7 +347,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
     );
   }
 
-  /// Creates a new [AddDocumentSubAction] instance from a JSON data.
+  /// Creates a new [UpdateDocumentSubAction] instance from a JSON data.
   factory UpdateDocumentSubAction.fromJson(Map json) =>
       _$UpdateDocumentSubActionFromJson(json);
 

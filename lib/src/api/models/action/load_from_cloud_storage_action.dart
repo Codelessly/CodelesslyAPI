@@ -10,12 +10,27 @@ import '../models.dart';
 
 part 'load_from_cloud_storage_action.g.dart';
 
-/// An action that loads data from cloud storage.
+/// An action that loads data from cloud storage. This is primarily used to
+/// load data from Firestore on canvas load.
 @JsonSerializable()
 class LoadFromCloudStorageAction extends ActionModel
     with EquatableMixin, SerializableMixin {
+  /// Path to the collection to load data from.
+  ///
+  /// A string that represents the path to the document excluding the document
+  /// id. The path must always resolve to a collection. If the [path] is empty,
+  /// then the document is added to "default" collection. If the path ends in
+  /// a document path, then "default" is suffixed to the path to make it a
+  /// collection path.
   final String path;
+
+  /// The id of the document in the collection. If [documentId] is empty, then
+  /// "default" is used as the document id.
   final String documentId;
+
+  /// The variable to store the loaded data in. The variable must be of type
+  /// [VariableType.map]. This variable will be updated with the new data
+  /// whenever the data on cloud storage changes.
   final VariableData? variable;
 
   /// Creates a new [LoadFromCloudStorageAction].
