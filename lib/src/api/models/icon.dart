@@ -10,6 +10,54 @@ import 'models.dart';
 
 part 'icon.g.dart';
 
+/// An icon model that can hold a [MultiSourceIconModel] and a list of
+/// [Reaction]s to that icon making it reactive.
+@JsonSerializable()
+class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
+  /// The icon model.
+  final MultiSourceIconModel icon;
+
+  @override
+  List<TriggerType> get triggerTypes => [TriggerType.click];
+
+  /// Creates [ReactiveIconModel].
+  ReactiveIconModel({
+    required this.icon,
+    List<Reaction> reactions = const [],
+  }) {
+    setReactionMixin(reactions);
+  }
+
+  /// Duplicates [ReactiveIconModel] with the given properties overrides.
+  ReactiveIconModel copyWith({
+    MultiSourceIconModel? icon,
+    List<Reaction>? reactions,
+  }) {
+    return ReactiveIconModel(
+      icon: icon ?? this.icon,
+      reactions: reactions ?? this.reactions,
+    );
+  }
+
+  @override
+  Map toJson() => _$ReactiveIconModelToJson(this);
+
+  /// Factory constructor for creating a new [ReactiveIconModel] instance
+  /// from JSON data.
+  factory ReactiveIconModel.fromJson(Map json) {
+    // backward compatibility
+    if (json.containsKey('show') || json.containsKey('type')) {
+      // old format
+      final icon = MultiSourceIconModel.fromJson(json);
+      return ReactiveIconModel(icon: icon);
+    }
+    return _$ReactiveIconModelFromJson(json);
+  }
+
+  @override
+  List<Object?> get props => [icon, reactions];
+}
+
 /// A model that represents an icon. The icon could be a standard font based
 /// icon or an image of an icon. The type of this icon is determined by the
 /// [type] property.

@@ -16,7 +16,8 @@ part 'text_field_node.g.dart';
 /// Refer to [TextField](https://api.flutter.dev/flutter/material/TextField-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class TextFieldNode extends SceneNode with CustomPropertiesMixin {
+class TextFieldNode extends SceneNode
+    with ParentReactionMixin, CustomPropertiesMixin {
   @override
   final String type = 'textField';
 
@@ -90,6 +91,16 @@ class TextFieldNode extends SceneNode with CustomPropertiesMixin {
         // TriggerType.editingComplete,
         TriggerType.submitted,
       ];
+
+  @override
+  List<ReactionMixin> get reactiveChildren {
+    return [
+      if (properties.decoration.prefixIcon.icon.show)
+        properties.decoration.prefixIcon,
+      if (properties.decoration.suffixIcon.icon.show)
+        properties.decoration.suffixIcon,
+    ];
+  }
 
   @override
   late final List<ValueModel> propertyVariables = [

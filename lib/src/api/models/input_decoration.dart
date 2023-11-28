@@ -97,7 +97,7 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
 
   /// An icon that appears before the [prefixText] and before the editable part
   /// of the text field, within the decoration's container.
-  final MultiSourceIconModel prefixIcon;
+  final ReactiveIconModel prefixIcon;
 
   /// The constraints for the prefix icon.
   final BoxConstraintsModel prefixIconConstraints;
@@ -110,7 +110,7 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
 
   /// An icon that appears after the editable part of the text field and after
   /// the [suffixText], within the decoration's container.
-  final MultiSourceIconModel suffixIcon;
+  final ReactiveIconModel suffixIcon;
 
   /// The constraints for the suffix icon.
   final BoxConstraintsModel suffixIconConstraints;
@@ -193,11 +193,11 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.floatingLabelBehavior = FloatingLabelBehaviorEnum.auto,
     this.isCollapsed = false,
     this.isDense = true,
-    this.prefixIcon = const MultiSourceIconModel(),
+    ReactiveIconModel? prefixIcon,
     this.prefixIconConstraints = const BoxConstraintsModel(),
     this.prefixText,
     TextProp? prefixStyle,
-    this.suffixIcon = const MultiSourceIconModel(),
+    ReactiveIconModel? suffixIcon,
     this.suffixText,
     TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
@@ -250,7 +250,11 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
         prefixStyle = prefixStyle ?? TextProp.general(),
         suffixStyle = suffixStyle ??
             TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        counterStyle = counterStyle ?? TextProp.general();
+        counterStyle = counterStyle ?? TextProp.general(),
+        prefixIcon =
+            prefixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel()),
+        suffixIcon =
+            suffixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel());
 
   /// Duplicates this instance with given data overrides.
   InputDecorationModel copyWith({
@@ -271,11 +275,11 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     bool? isCollapsed,
     bool? isDense,
     EdgeInsetsModel? contentPadding,
-    MultiSourceIconModel? prefixIcon,
+    ReactiveIconModel? prefixIcon,
     BoxConstraintsModel? prefixIconConstraints,
     String? prefixText,
     TextProp? prefixStyle,
-    MultiSourceIconModel? suffixIcon,
+    ReactiveIconModel? suffixIcon,
     String? suffixText,
     TextProp? suffixStyle,
     BoxConstraintsModel? suffixIconConstraints,

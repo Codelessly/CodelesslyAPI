@@ -91,6 +91,7 @@ const _$MapOperationEnumMap = {
   MapOperation.add: 'add',
   MapOperation.remove: 'remove',
   MapOperation.update: 'update',
+  MapOperation.set: 'set',
 };
 
 const _$ActionTypeEnumMap = {
