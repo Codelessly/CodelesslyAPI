@@ -40,8 +40,8 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       isCollapsed: json['isCollapsed'] as bool? ?? false,
       isDense: json['isDense'] as bool? ?? true,
       prefixIcon: json['prefixIcon'] == null
-          ? const MultiSourceIconModel()
-          : MultiSourceIconModel.fromJson(json['prefixIcon'] as Map),
+          ? null
+          : ReactiveIconModel.fromJson(json['prefixIcon'] as Map),
       prefixIconConstraints: json['prefixIconConstraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['prefixIconConstraints'] as Map),
@@ -50,8 +50,8 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           ? null
           : TextProp.fromJson(json['prefixStyle'] as Map),
       suffixIcon: json['suffixIcon'] == null
-          ? const MultiSourceIconModel()
-          : MultiSourceIconModel.fromJson(json['suffixIcon'] as Map),
+          ? null
+          : ReactiveIconModel.fromJson(json['suffixIcon'] as Map),
       suffixText: json['suffixText'] as String?,
       suffixStyle: json['suffixStyle'] == null
           ? null
@@ -145,14 +145,12 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   writeNotNull('isDense', instance.isDense, instance.isDense, true);
   writeNotNull('prefixText', instance.prefixText, instance.prefixText, null);
   val['prefixStyle'] = instance.prefixStyle.toJson();
-  writeNotNull('prefixIcon', instance.prefixIcon, instance.prefixIcon.toJson(),
-      const MultiSourceIconModel());
+  val['prefixIcon'] = instance.prefixIcon.toJson();
   writeNotNull('prefixIconConstraints', instance.prefixIconConstraints,
       instance.prefixIconConstraints.toJson(), const BoxConstraintsModel());
   writeNotNull('suffixText', instance.suffixText, instance.suffixText, null);
   val['suffixStyle'] = instance.suffixStyle.toJson();
-  writeNotNull('suffixIcon', instance.suffixIcon, instance.suffixIcon.toJson(),
-      const MultiSourceIconModel());
+  val['suffixIcon'] = instance.suffixIcon.toJson();
   writeNotNull('suffixIconConstraints', instance.suffixIconConstraints,
       instance.suffixIconConstraints.toJson(), const BoxConstraintsModel());
   writeNotNull('counterText', instance.counterText, instance.counterText, null);

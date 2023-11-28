@@ -6,6 +6,33 @@ part of 'icon.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+ReactiveIconModel _$ReactiveIconModelFromJson(Map json) => ReactiveIconModel(
+      icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
+      reactions: (json['reactions'] as List<dynamic>?)
+              ?.map((e) => Reaction.fromJson(e as Map))
+              .toList() ??
+          [],
+    );
+
+Map<String, dynamic> _$ReactiveIconModelToJson(ReactiveIconModel instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  val['icon'] = instance.icon.toJson();
+  return val;
+}
+
 MultiSourceIconModel _$MultiSourceIconModelFromJson(Map json) =>
     MultiSourceIconModel(
       type: $enumDecodeNullable(_$IconTypeEnumEnumMap, json['type']) ??
