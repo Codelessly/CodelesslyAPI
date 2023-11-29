@@ -120,6 +120,9 @@ UpdateDocumentSubAction _$UpdateDocumentSubActionFromJson(Map json) =>
       newValue: json['newValue'] as String? ?? '',
       toggled: json['toggled'] as bool? ?? false,
       useRawValue: json['useRawValue'] as bool? ?? false,
+      numberOperation: $enumDecodeNullable(
+              _$NumberOperationEnumMap, json['numberOperation']) ??
+          NumberOperation.set,
     );
 
 Map<String, dynamic> _$UpdateDocumentSubActionToJson(
@@ -152,6 +155,8 @@ Map<String, dynamic> _$UpdateDocumentSubActionToJson(
       _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
   writeNotNull('newValue', instance.newValue, instance.newValue, '');
   writeNotNull('toggled', instance.toggled, instance.toggled, false);
+  writeNotNull('numberOperation', instance.numberOperation,
+      _$NumberOperationEnumMap[instance.numberOperation]!, NumberOperation.set);
   return val;
 }
 
@@ -181,4 +186,10 @@ const _$MapOperationEnumMap = {
   MapOperation.remove: 'remove',
   MapOperation.update: 'update',
   MapOperation.set: 'set',
+};
+
+const _$NumberOperationEnumMap = {
+  NumberOperation.set: 'set',
+  NumberOperation.add: 'add',
+  NumberOperation.subtract: 'subtract',
 };

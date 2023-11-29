@@ -152,6 +152,81 @@ abstract class ActionModel with SerializableMixin {
   R? accept<R>(ActionVisitor<R> visitor);
 }
 
+/// Defines the operation to be performed on a list type variable.
+enum ListOperation {
+  /// Replace entire list.
+  replace,
+
+  /// Replaces the list with a custom variable.
+  set,
+
+  /// Add [newValue] to the list.
+  add,
+
+  /// Insert [newValue] at [index] in the list.
+  insert,
+
+  /// Remove value at [index] from the list.
+  removeAt,
+
+  /// Remove [newValue] from the list.
+  remove,
+
+  /// Update value at [index] with [newValue] in the list.
+  update;
+
+  /// Returns a string representation of this enum.
+  String get prettify => switch (this) {
+    ListOperation.replace => 'Replace',
+    ListOperation.add => 'Add',
+    ListOperation.set => 'Set',
+    ListOperation.insert => 'Insert',
+    ListOperation.removeAt => 'Remove At',
+    ListOperation.remove => 'Remove',
+    ListOperation.update => 'Update'
+  };
+}
+
+/// Defines the operation to be performed on a map type variable.
+enum MapOperation {
+  /// Replace entire map.
+  replace,
+
+  /// Add [newValue] to the map.
+  add,
+
+  /// Remove [key] from the map.
+  remove,
+
+  /// Update value at [key] with [newValue] in the map.
+  update,
+
+  /// Same as replace but meant to replace the entire map with a new map from
+  /// a variable.
+  set;
+
+  /// Returns a string representation of this enum.
+  String get prettify => switch (this) {
+    MapOperation.replace => 'Replace',
+    MapOperation.add => 'Add',
+    MapOperation.remove => 'Remove',
+    MapOperation.update => 'Update',
+    MapOperation.set => 'Set'
+  };
+}
+
+/// Represents operations that can be performed on a number.
+enum NumberOperation {
+  /// Replace the value at the given index.
+  set,
+
+  /// Add the value to the existing value.
+  add,
+
+  /// Subtract the value from the existing value.
+  subtract,
+}
+
 /// A base action class that represents an action that can be performed to
 /// modify some data in some way depending on the data type.
 abstract interface class DataOperationInterface {
@@ -174,4 +249,7 @@ abstract interface class DataOperationInterface {
 
   /// Key of the value to be updated/removed/inserted in the map.
   abstract final String mapKey;
+
+  /// Operation to be performed on the int/double type variable.
+  abstract final NumberOperation numberOperation;
 }
