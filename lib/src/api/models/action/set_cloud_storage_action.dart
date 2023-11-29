@@ -298,6 +298,9 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
   @override
   final bool toggled;
 
+  @override
+  final NumberOperation numberOperation;
+
   /// Creates a new [UpdateDocumentSubAction].
   const UpdateDocumentSubAction({
     this.path = '',
@@ -312,6 +315,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
     this.newValue = '',
     this.toggled = false,
     this.useRawValue = false,
+    this.numberOperation = NumberOperation.set,
   }) : super(operation: SetCloudStorageOperation.updateDocument);
 
   /// Duplicates this [UpdateDocumentSubAction] with given data overrides.
@@ -330,6 +334,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
     String? newValue,
     bool? toggled,
     bool? useRawValue,
+    NumberOperation? numberOperation,
   }) {
     return UpdateDocumentSubAction(
       path: path ?? this.path,
@@ -344,6 +349,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
       newValue: newValue ?? this.newValue,
       toggled: toggled ?? this.toggled,
       useRawValue: useRawValue ?? this.useRawValue,
+      numberOperation: numberOperation ?? this.numberOperation,
     );
   }
 
@@ -369,5 +375,6 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
         newValue,
         toggled,
         useRawValue,
+        numberOperation,
       ];
 }

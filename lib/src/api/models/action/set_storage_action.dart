@@ -71,6 +71,9 @@ class SetStorageAction extends ActionModel
   @override
   final bool toggled;
 
+  @override
+  final NumberOperation numberOperation;
+
   /// Creates a new [SetStorageAction].
   SetStorageAction({
     this.key = 'key',
@@ -82,6 +85,7 @@ class SetStorageAction extends ActionModel
     this.index = '0',
     this.mapOperation = MapOperation.replace,
     this.mapKey = 'key',
+    this.numberOperation = NumberOperation.set,
   }) : super(type: ActionType.setStorage);
 
   /// Duplicates this [SetStorageAction] with given data overrides.
@@ -95,6 +99,7 @@ class SetStorageAction extends ActionModel
     String? index,
     MapOperation? mapOperation,
     String? mapKey,
+    NumberOperation? numberOperation,
   }) {
     // final String? sanitizedValue = value == null
     //     ? null
@@ -110,6 +115,7 @@ class SetStorageAction extends ActionModel
       index: index ?? this.index,
       mapOperation: mapOperation ?? this.mapOperation,
       mapKey: mapKey ?? this.mapKey,
+      numberOperation: numberOperation ?? this.numberOperation,
     );
   }
 
@@ -124,6 +130,7 @@ class SetStorageAction extends ActionModel
         index,
         mapOperation,
         mapKey,
+        numberOperation,
       ];
 
   /// Creates a new [SetStorageAction] instance from a JSON data.
