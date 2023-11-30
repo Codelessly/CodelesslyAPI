@@ -166,6 +166,9 @@ enum ListOperation {
   /// Insert [newValue] at [index] in the list.
   insert,
 
+  /// Insert [newValue] at [index] in the list.
+  insertAll,
+
   /// Remove value at [index] from the list.
   removeAt,
 
@@ -177,14 +180,15 @@ enum ListOperation {
 
   /// Returns a string representation of this enum.
   String get prettify => switch (this) {
-    ListOperation.replace => 'Replace',
-    ListOperation.add => 'Add',
-    ListOperation.set => 'Set',
-    ListOperation.insert => 'Insert',
-    ListOperation.removeAt => 'Remove At',
-    ListOperation.remove => 'Remove',
-    ListOperation.update => 'Update'
-  };
+        ListOperation.replace => 'Replace',
+        ListOperation.add => 'Add',
+        ListOperation.set => 'Set',
+        ListOperation.insert => 'Insert',
+        ListOperation.insertAll => 'Insert All',
+        ListOperation.removeAt => 'Remove At',
+        ListOperation.remove => 'Remove',
+        ListOperation.update => 'Update'
+      };
 }
 
 /// Defines the operation to be performed on a map type variable.
@@ -207,12 +211,12 @@ enum MapOperation {
 
   /// Returns a string representation of this enum.
   String get prettify => switch (this) {
-    MapOperation.replace => 'Replace',
-    MapOperation.add => 'Add',
-    MapOperation.remove => 'Remove',
-    MapOperation.update => 'Update',
-    MapOperation.set => 'Set'
-  };
+        MapOperation.replace => 'Replace',
+        MapOperation.add => 'Add',
+        MapOperation.remove => 'Remove',
+        MapOperation.update => 'Update',
+        MapOperation.set => 'Set'
+      };
 }
 
 /// Represents operations that can be performed on a number.

@@ -58,6 +58,7 @@ const _$ListOperationEnumMap = {
   ListOperation.set: 'set',
   ListOperation.add: 'add',
   ListOperation.insert: 'insert',
+  ListOperation.insertAll: 'insertAll',
   ListOperation.removeAt: 'removeAt',
   ListOperation.remove: 'remove',
   ListOperation.update: 'update',
