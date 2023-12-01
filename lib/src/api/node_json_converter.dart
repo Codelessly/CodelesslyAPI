@@ -71,6 +71,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'progressBar': ProgressBarNode.fromJson,
       'variance': VarianceNode.fromJson,
       'listView': ListViewNode.fromJson,
+      'gridView': GridViewNode.fromJson,
       'pageView': PageViewNode.fromJson,
       'tabBar': TabBarNode.fromJson,
       'external': ExternalComponentNode.fromJson,
