@@ -17,6 +17,7 @@ export 'external_component_node.dart';
 export 'floating_action_button_node.dart';
 export 'frame_node.dart';
 export 'freeform_placeholder_node.dart';
+export 'grid_view_node.dart';
 export 'icon_node.dart';
 export 'list_tile_node.dart';
 export 'list_view_node.dart';
