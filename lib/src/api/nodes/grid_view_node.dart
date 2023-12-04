@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
@@ -25,12 +27,54 @@ class GridViewNode extends SinglePlaceholderNode
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
-    // TODO: implement relegatedConstraintsToChildren.
-    // if (scrollDirection == AxisC.vertical) {
-    //   return BoxConstraintsModel(maxHeight: properties.itemExtent);
-    // } else {
-    //   return BoxConstraintsModel(maxWidth: properties.itemExtent);
-    // }
+    // TODO: maybe I am not using it correctly? Saad, please fix this if that's the case.
+
+    // Total cross axis space available for the grid view.
+    final totalCrossAxisSize = scrollDirection.isVertical
+        ? innerBoxLocal.size.width
+        : innerBoxLocal.size.height;
+
+    double childMainAxisExtent, childCrossAxisExtent;
+    switch (properties.gridDelegate) {
+      case FixedCrossAxisCountGridDelegateProperties prop:
+        final double usableCrossAxisExtent = max(
+          0.0,
+          totalCrossAxisSize -
+              prop.crossAxisSpacing * (prop.crossAxisCount - 1),
+        );
+        childCrossAxisExtent = usableCrossAxisExtent / prop.crossAxisCount;
+        childMainAxisExtent =
+            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+      case MaxCrossAxisExtentGridDelegateProperties prop:
+        int crossAxisCount = (totalCrossAxisSize /
+                (prop.maxCrossAxisExtent + prop.crossAxisSpacing))
+            .ceil();
+        crossAxisCount = max(1, crossAxisCount);
+
+        final double usableCrossAxisExtent = max(
+          0.0,
+          totalCrossAxisSize - prop.crossAxisSpacing * (crossAxisCount - 1),
+        );
+        childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
+        childMainAxisExtent =
+            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+    }
+
+    if (scrollDirection.isHorizontal) {
+      return BoxConstraintsModel(
+        minWidth: childMainAxisExtent,
+        maxWidth: childMainAxisExtent,
+        minHeight: childCrossAxisExtent,
+        maxHeight: childCrossAxisExtent,
+      );
+    } else {
+      return BoxConstraintsModel(
+        minWidth: childCrossAxisExtent,
+        maxWidth: childCrossAxisExtent,
+        minHeight: childMainAxisExtent,
+        maxHeight: childMainAxisExtent,
+      );
+    }
   }
 
   /// Creates a [GridViewNode].
@@ -101,9 +145,9 @@ class GridViewNode extends SinglePlaceholderNode
   AlignmentModel childAlignment() {
     switch (scrollDirection) {
       case AxisC.horizontal:
-        return reverse ? AlignmentModel.centerRight : AlignmentModel.centerLeft;
+        return reverse ? AlignmentModel.topRight : AlignmentModel.topLeft;
       case AxisC.vertical:
-        return reverse ? AlignmentModel.bottomCenter : AlignmentModel.topCenter;
+        return reverse ? AlignmentModel.bottomLeft : AlignmentModel.topLeft;
     }
   }
 }
@@ -180,7 +224,10 @@ enum GridDelegateType {
       };
 }
 
+/// The properties of a grid delegate that controls the layout of a
+/// [GridViewNode].
 sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
+  /// Represents the type of grid delegate.
   final GridDelegateType type;
 
   /// Creates a new [GridDelegateProperties] instance.
@@ -204,10 +251,21 @@ sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
 /// in the cross axis.
 @JsonSerializable()
 class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
+  /// The number of children to fit in the cross axis for a grid view.
   final int crossAxisCount;
+
+  /// The number of logical pixels between each child along the main axis.
   final double mainAxisSpacing;
+
+  /// The number of logical pixels between each child along the cross axis.
   final double crossAxisSpacing;
+
+  /// The ratio of the cross-axis to the main-axis extent of each child. This
+  /// is ignored if [mainAxisExtent] is not null.
   final double childAspectRatio;
+
+  /// The main axis extent of each child in the grid. If this is null, then
+  /// [childAspectRatio] controls the main axis extent of each child.
   final double? mainAxisExtent;
 
   /// Creates a new [FixedCrossAxisCountGridDelegateProperties] instance.
@@ -223,6 +281,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   Map toJson() => _$FixedCrossAxisCountGridDelegatePropertiesToJson(this)
     ..['type'] = type.name;
 
+  /// Creates a [FixedCrossAxisCountGridDelegateProperties] from a JSON object.
   factory FixedCrossAxisCountGridDelegateProperties.fromJson(Map json) =>
       _$FixedCrossAxisCountGridDelegatePropertiesFromJson(json);
 
@@ -261,10 +320,21 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
 /// maximum cross-axis extent.
 @JsonSerializable()
 class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
+  /// The maximum extent of a child/item in the cross axis.
   final double maxCrossAxisExtent;
+
+  /// The number of logical pixels between each child along the main axis.
   final double mainAxisSpacing;
+
+  /// The number of logical pixels between each child along the cross axis.
   final double crossAxisSpacing;
+
+  /// The ratio of the cross-axis to the main-axis extent of each child. This
+  /// is ignored if [mainAxisExtent] is not null.
   final double childAspectRatio;
+
+  /// The main axis extent of each child in the grid. If this is null, then
+  /// [childAspectRatio] controls the main axis extent of each child.
   final double? mainAxisExtent;
 
   /// Creates a new [MaxCrossAxisExtentGridDelegateProperties] instance.
@@ -280,6 +350,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   Map toJson() => _$MaxCrossAxisExtentGridDelegatePropertiesToJson(this)
     ..['type'] = type.name;
 
+  /// Creates a [MaxCrossAxisExtentGridDelegateProperties] from a JSON object.
   factory MaxCrossAxisExtentGridDelegateProperties.fromJson(Map json) =>
       _$MaxCrossAxisExtentGridDelegatePropertiesFromJson(json);
 
