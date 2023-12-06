@@ -74,6 +74,7 @@ class SetStorageAction extends ActionModel
   @override
   final NumberOperation numberOperation;
 
+  /// Whether to skip the operation if the [key] already exists in storage.
   final bool skipIfAlreadyExists;
 
   /// Creates a new [SetStorageAction].
