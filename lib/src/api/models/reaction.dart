@@ -23,6 +23,7 @@ class Reaction with EquatableMixin, SerializableMixin {
   /// Event that will trigger the action.
   final TriggerModel trigger;
 
+  /// Unique id of the reaction.
   final String id;
 
   /// Creates a [Reaction] with the given data.
