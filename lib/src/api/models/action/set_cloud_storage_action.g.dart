@@ -9,14 +9,30 @@ part of 'set_cloud_storage_action.dart';
 SetCloudStorageAction _$SetCloudStorageActionFromJson(Map json) =>
     SetCloudStorageAction(
       subAction: SetCloudStorageSubAction.fromJson(json['subAction'] as Map),
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetCloudStorageActionToJson(
-        SetCloudStorageAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'subAction': instance.subAction.toJson(),
-    };
+    SetCloudStorageAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['subAction'] = instance.subAction.toJson();
+  return val;
+}
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

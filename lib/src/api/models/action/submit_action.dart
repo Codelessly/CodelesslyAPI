@@ -42,6 +42,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
     required this.service,
     required this.primaryTextField,
     required this.apiKey,
+    super.nonBlocking,
   }) : super(type: ActionType.submit);
 
   @override
@@ -92,6 +93,7 @@ class MailchimpSubmitAction extends SubmitAction {
     required this.listID,
     this.firstNameField = '',
     this.lastNameField = '',
+    super.nonBlocking,
   }) : super(service: SubmitActionService.mailchimp);
 
   @override

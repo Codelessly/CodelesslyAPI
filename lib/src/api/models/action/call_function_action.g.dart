@@ -11,14 +11,30 @@ CallFunctionAction _$CallFunctionActionFromJson(Map json) => CallFunctionAction(
       params: (json['params'] as Map?)?.map(
         (k, e) => MapEntry(k as String, e),
       ),
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'name': instance.name,
-      'params': instance.params,
-    };
+Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['name'] = instance.name;
+  val['params'] = instance.params;
+  return val;
+}
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

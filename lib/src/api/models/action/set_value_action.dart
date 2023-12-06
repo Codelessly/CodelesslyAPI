@@ -25,6 +25,7 @@ class SetValueAction extends ActionModel
   SetValueAction({
     required this.nodeID,
     required this.values,
+    super.nonBlocking,
   }) : super(type: ActionType.setValue);
 
   @override

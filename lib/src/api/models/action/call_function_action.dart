@@ -23,6 +23,7 @@ class CallFunctionAction extends ActionModel
   CallFunctionAction({
     required this.name,
     Map<String, dynamic>? params,
+    super.nonBlocking,
   })  : params = params ?? {},
         super(type: ActionType.callFunction);
 

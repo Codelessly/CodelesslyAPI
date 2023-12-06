@@ -49,6 +49,7 @@ class SetCloudStorageAction extends ActionModel
   /// Creates a new [SetCloudStorageAction].
   SetCloudStorageAction({
     required this.subAction,
+    super.nonBlocking,
   }) : super(type: ActionType.setCloudStorage);
 
   /// Duplicates this [SetCloudStorageAction] with given data overrides.
