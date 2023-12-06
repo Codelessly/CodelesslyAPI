@@ -74,6 +74,8 @@ class SetStorageAction extends ActionModel
   @override
   final NumberOperation numberOperation;
 
+  final bool skipIfAlreadyExists;
+
   /// Creates a new [SetStorageAction].
   SetStorageAction({
     this.key = 'key',
@@ -86,6 +88,7 @@ class SetStorageAction extends ActionModel
     this.mapOperation = MapOperation.replace,
     this.mapKey = 'key',
     this.numberOperation = NumberOperation.set,
+    this.skipIfAlreadyExists = false,
   }) : super(type: ActionType.setStorage);
 
   /// Duplicates this [SetStorageAction] with given data overrides.
@@ -100,6 +103,7 @@ class SetStorageAction extends ActionModel
     MapOperation? mapOperation,
     String? mapKey,
     NumberOperation? numberOperation,
+    bool? skipIfAlreadyExists,
   }) {
     // final String? sanitizedValue = value == null
     //     ? null
@@ -116,6 +120,7 @@ class SetStorageAction extends ActionModel
       mapOperation: mapOperation ?? this.mapOperation,
       mapKey: mapKey ?? this.mapKey,
       numberOperation: numberOperation ?? this.numberOperation,
+      skipIfAlreadyExists: skipIfAlreadyExists ?? this.skipIfAlreadyExists,
     );
   }
 
@@ -131,6 +136,7 @@ class SetStorageAction extends ActionModel
         mapOperation,
         mapKey,
         numberOperation,
+        skipIfAlreadyExists,
       ];
 
   /// Creates a new [SetStorageAction] instance from a JSON data.
