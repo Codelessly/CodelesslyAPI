@@ -28,6 +28,7 @@ SetStorageAction _$SetStorageActionFromJson(Map json) => SetStorageAction(
               _$NumberOperationEnumMap, json['numberOperation']) ??
           NumberOperation.set,
       skipIfAlreadyExists: json['skipIfAlreadyExists'] as bool? ?? false,
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
@@ -45,6 +46,8 @@ Map<String, dynamic> _$SetStorageActionToJson(SetStorageAction instance) {
     }
   }
 
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
   writeNotNull('key', instance.key, instance.key, 'key');
   writeNotNull(
       'operation',

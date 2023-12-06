@@ -36,6 +36,7 @@ class ShowDialogAction extends ActionModel
     this.barrierColor = ColorRGBA.black54,
     this.barrierDismissible = true,
     this.showCloseButton = false,
+    super.nonBlocking,
   })  : params = {...params ?? {}},
         super(type: ActionType.showDialog);
 

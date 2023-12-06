@@ -90,6 +90,7 @@ class SetStorageAction extends ActionModel
     this.mapKey = 'key',
     this.numberOperation = NumberOperation.set,
     this.skipIfAlreadyExists = false,
+    super.nonBlocking,
   }) : super(type: ActionType.setStorage);
 
   /// Duplicates this [SetStorageAction] with given data overrides.

@@ -16,13 +16,12 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
           : ColorRGBA.fromJson(json['barrierColor']),
       barrierDismissible: json['barrierDismissible'] as bool? ?? true,
       showCloseButton: json['showCloseButton'] as bool? ?? false,
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) {
   final val = <String, dynamic>{
     'type': _$ActionTypeEnumMap[instance.type]!,
-    'destinationId': instance.destinationId,
-    'params': instance.params,
   };
 
   void writeNotNull(
@@ -35,6 +34,10 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) {
     }
   }
 
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['destinationId'] = instance.destinationId;
+  val['params'] = instance.params;
   writeNotNull('barrierDismissible', instance.barrierDismissible,
       instance.barrierDismissible, true);
   writeNotNull('barrierColor', instance.barrierColor,

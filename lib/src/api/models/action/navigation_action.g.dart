@@ -14,6 +14,7 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
       params: (json['params'] as Map?)?.map(
         (k, e) => MapEntry(k as String, e as String),
       ),
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
@@ -31,6 +32,8 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
     }
   }
 
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
   writeNotNull('navigationType', instance.navigationType,
       _$NavigationTypeEnumMap[instance.navigationType]!, NavigationType.push);
   val['destinationId'] = instance.destinationId;

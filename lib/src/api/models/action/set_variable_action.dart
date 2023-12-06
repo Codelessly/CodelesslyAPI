@@ -51,6 +51,7 @@ class SetVariableAction extends ActionModel
     this.mapOperation = MapOperation.replace,
     this.mapKey = 'key',
     this.numberOperation = NumberOperation.set,
+    super.nonBlocking,
   }) : super(type: ActionType.setVariable);
 
   @override

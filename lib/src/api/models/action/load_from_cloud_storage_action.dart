@@ -38,6 +38,7 @@ class LoadFromCloudStorageAction extends ActionModel
     this.path = '',
     this.documentId = '',
     this.variable,
+    super.nonBlocking,
   }) : super(type: ActionType.loadFromCloudStorage);
 
   /// Duplicates this [LoadFromCloudStorageAction] with given data overrides.

@@ -9,14 +9,30 @@ part of 'set_value_action.dart';
 SetValueAction _$SetValueActionFromJson(Map json) => SetValueAction(
       nodeID: json['nodeID'] as String,
       values: valuesFromJson(json['values'] as List),
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'nodeID': instance.nodeID,
-      'values': instance.values.map((e) => e.toJson()).toList(),
-    };
+Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['nodeID'] = instance.nodeID;
+  val['values'] = instance.values.map((e) => e.toJson()).toList();
+  return val;
+}
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

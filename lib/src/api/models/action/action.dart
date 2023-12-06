@@ -101,8 +101,11 @@ abstract class ActionModel with SerializableMixin {
   /// Type of the action.
   ActionType type;
 
+  /// Whether the action is non-blocking.
+  bool nonBlocking = false;
+
   /// Creates an [ActionModel] with the given data.
-  ActionModel({required this.type});
+  ActionModel({required this.type, this.nonBlocking = false});
 
   /// Factory constructor for creating a new [ActionModel] instance from
   /// JSON data.

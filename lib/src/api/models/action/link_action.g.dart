@@ -8,13 +8,29 @@ part of 'link_action.dart';
 
 LinkAction _$LinkActionFromJson(Map json) => LinkAction(
       url: json['url'] as String,
+      nonBlocking: json['nonBlocking'] as bool? ?? false,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$LinkActionToJson(LinkAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'url': instance.url,
-    };
+Map<String, dynamic> _$LinkActionToJson(LinkAction instance) {
+  final val = <String, dynamic>{
+    'type': _$ActionTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull(
+      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['url'] = instance.url;
+  return val;
+}
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
