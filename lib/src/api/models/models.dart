@@ -65,3 +65,4 @@ export 'variables_model.dart';
 export 'vec.dart';
 export 'visual_density.dart';
 export 'webview_models.dart';
+export 'grid_delegate_type.dart';
