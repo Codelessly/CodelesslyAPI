@@ -4,7 +4,6 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
-import '../models/grid_delegate_type.dart';
 
 part 'grid_view_node.g.dart';
 
@@ -83,14 +82,28 @@ class GridViewNode extends SinglePlaceholderNode
     );
   }
 
-  @override
-  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
-    // Total cross axis space available for the grid view.
-    final totalCrossAxisSize = scrollDirection.isVertical
-        ? innerBoxLocal.size.width
-        : innerBoxLocal.size.height;
+  /// Calculates the fixed main axis extent of any child in the grid.
+  double calculateMainAxisExtent(
+    AxisC axis,
+    SizeC size, [
+    double? crossAxisExtent,
+  ]) {
+    final childCrossAxisExtent = crossAxisExtent ??
+        calculateCrossAxisExtent(
+          scrollDirection,
+          innerBoxLocal.size,
+        );
 
-    double childMainAxisExtent, childCrossAxisExtent;
+    return properties.gridDelegate.mainAxisExtent ??
+        childCrossAxisExtent / properties.gridDelegate.childAspectRatio;
+  }
+
+  /// Calculates the fixed cross axis extent of any child in the grid.
+  double calculateCrossAxisExtent(AxisC axis, SizeC size) {
+    // Total cross axis space available for the grid view.
+    final double totalCrossAxisSize =
+        axis.opposite.isHorizontal ? size.width : size.height;
+
     switch (properties.gridDelegate) {
       case FixedCrossAxisCountGridDelegateProperties prop:
         final double usableCrossAxisExtent = max(
@@ -98,9 +111,7 @@ class GridViewNode extends SinglePlaceholderNode
           totalCrossAxisSize -
               prop.crossAxisSpacing * (prop.crossAxisCount - 1),
         );
-        childCrossAxisExtent = usableCrossAxisExtent / prop.crossAxisCount;
-        childMainAxisExtent =
-            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+        return usableCrossAxisExtent / prop.crossAxisCount;
       case MaxCrossAxisExtentGridDelegateProperties prop:
         int crossAxisCount = (totalCrossAxisSize /
                 (prop.maxCrossAxisExtent + prop.crossAxisSpacing))
@@ -111,10 +122,21 @@ class GridViewNode extends SinglePlaceholderNode
           0.0,
           totalCrossAxisSize - prop.crossAxisSpacing * (crossAxisCount - 1),
         );
-        childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-        childMainAxisExtent =
-            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+        return usableCrossAxisExtent / crossAxisCount;
     }
+  }
+
+  @override
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
+    final double childCrossAxisExtent = calculateCrossAxisExtent(
+      scrollDirection,
+      innerBoxLocal.size,
+    );
+    final double childMainAxisExtent = calculateMainAxisExtent(
+      scrollDirection,
+      innerBoxLocal.size,
+      childCrossAxisExtent,
+    );
 
     return switch (scrollDirection) {
       AxisC.horizontal => BoxConstraintsModel(
@@ -226,7 +248,8 @@ sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
   final double? mainAxisExtent;
 
   /// Creates a new [GridDelegateProperties] instance.
-  const GridDelegateProperties(this.type, {
+  const GridDelegateProperties(
+    this.type, {
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
     this.childAspectRatio = 1,
