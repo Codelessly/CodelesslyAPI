@@ -4,6 +4,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../models/grid_delegate_type.dart';
 
 part 'grid_view_node.g.dart';
 
@@ -24,58 +25,6 @@ class GridViewNode extends SinglePlaceholderNode
 
   /// The properties of the [GridView].
   GridViewProperties properties;
-
-  @override
-  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
-    // TODO: maybe I am not using it correctly? Saad, please fix this if that's the case.
-
-    // Total cross axis space available for the grid view.
-    final totalCrossAxisSize = scrollDirection.isVertical
-        ? innerBoxLocal.size.width
-        : innerBoxLocal.size.height;
-
-    double childMainAxisExtent, childCrossAxisExtent;
-    switch (properties.gridDelegate) {
-      case FixedCrossAxisCountGridDelegateProperties prop:
-        final double usableCrossAxisExtent = max(
-          0.0,
-          totalCrossAxisSize -
-              prop.crossAxisSpacing * (prop.crossAxisCount - 1),
-        );
-        childCrossAxisExtent = usableCrossAxisExtent / prop.crossAxisCount;
-        childMainAxisExtent =
-            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
-      case MaxCrossAxisExtentGridDelegateProperties prop:
-        int crossAxisCount = (totalCrossAxisSize /
-                (prop.maxCrossAxisExtent + prop.crossAxisSpacing))
-            .ceil();
-        crossAxisCount = max(1, crossAxisCount);
-
-        final double usableCrossAxisExtent = max(
-          0.0,
-          totalCrossAxisSize - prop.crossAxisSpacing * (crossAxisCount - 1),
-        );
-        childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
-        childMainAxisExtent =
-            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
-    }
-
-    if (scrollDirection.isHorizontal) {
-      return BoxConstraintsModel(
-        minWidth: childMainAxisExtent,
-        maxWidth: childMainAxisExtent,
-        minHeight: childCrossAxisExtent,
-        maxHeight: childCrossAxisExtent,
-      );
-    } else {
-      return BoxConstraintsModel(
-        minWidth: childCrossAxisExtent,
-        maxWidth: childCrossAxisExtent,
-        minHeight: childMainAxisExtent,
-        maxHeight: childMainAxisExtent,
-      );
-    }
-  }
 
   /// Creates a [GridViewNode].
   GridViewNode({
@@ -132,6 +81,55 @@ class GridViewNode extends SinglePlaceholderNode
       useFlutterListView: false,
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
+  }
+
+  @override
+  BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
+    // Total cross axis space available for the grid view.
+    final totalCrossAxisSize = scrollDirection.isVertical
+        ? innerBoxLocal.size.width
+        : innerBoxLocal.size.height;
+
+    double childMainAxisExtent, childCrossAxisExtent;
+    switch (properties.gridDelegate) {
+      case FixedCrossAxisCountGridDelegateProperties prop:
+        final double usableCrossAxisExtent = max(
+          0.0,
+          totalCrossAxisSize -
+              prop.crossAxisSpacing * (prop.crossAxisCount - 1),
+        );
+        childCrossAxisExtent = usableCrossAxisExtent / prop.crossAxisCount;
+        childMainAxisExtent =
+            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+      case MaxCrossAxisExtentGridDelegateProperties prop:
+        int crossAxisCount = (totalCrossAxisSize /
+                (prop.maxCrossAxisExtent + prop.crossAxisSpacing))
+            .ceil();
+        crossAxisCount = max(1, crossAxisCount);
+
+        final double usableCrossAxisExtent = max(
+          0.0,
+          totalCrossAxisSize - prop.crossAxisSpacing * (crossAxisCount - 1),
+        );
+        childCrossAxisExtent = usableCrossAxisExtent / crossAxisCount;
+        childMainAxisExtent =
+            prop.mainAxisExtent ?? childCrossAxisExtent / prop.childAspectRatio;
+    }
+
+    return switch (scrollDirection) {
+      AxisC.horizontal => BoxConstraintsModel(
+          minWidth: childMainAxisExtent,
+          maxWidth: childMainAxisExtent,
+          minHeight: childCrossAxisExtent,
+          maxHeight: childCrossAxisExtent,
+        ),
+      AxisC.vertical => BoxConstraintsModel(
+          minWidth: childCrossAxisExtent,
+          maxWidth: childCrossAxisExtent,
+          minHeight: childMainAxisExtent,
+          maxHeight: childMainAxisExtent,
+        ),
+    };
   }
 
   /// Creates a [GridViewNode] from a JSON object.
@@ -207,31 +205,43 @@ class GridViewProperties with SerializableMixin, EquatableMixin {
       ];
 }
 
-/// Defines the type of grid delegate to use for a [GridViewNode].
-enum GridDelegateType {
-  /// Represents a delegate that makes grid layouts with a fixed number of tiles
-  /// in the cross axis.
-  fixedCrossAxisCount,
-
-  /// Represents a delegate that makes grid layouts with tiles that each have a
-  /// maximum cross-axis extent.
-  maxCrossAxisExtent;
-
-  /// Pretty name of the enum value.
-  String get label => switch (this) {
-        fixedCrossAxisCount => 'Fixed Cross Axis Count',
-        maxCrossAxisExtent => 'Max Cross Axis Extent',
-      };
-}
-
 /// The properties of a grid delegate that controls the layout of a
 /// [GridViewNode].
 sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
   /// Represents the type of grid delegate.
   final GridDelegateType type;
 
+  /// The number of logical pixels between each child along the main axis.
+  final double mainAxisSpacing;
+
+  /// The number of logical pixels between each child along the cross axis.
+  final double crossAxisSpacing;
+
+  /// The ratio of the cross-axis to the main-axis extent of each child. This
+  /// is ignored if [mainAxisExtent] is not null.
+  final double childAspectRatio;
+
+  /// The main axis extent of each child in the grid. If this is null, then
+  /// [childAspectRatio] controls the main axis extent of each child.
+  final double? mainAxisExtent;
+
   /// Creates a new [GridDelegateProperties] instance.
-  const GridDelegateProperties(this.type);
+  const GridDelegateProperties(this.type, {
+    this.mainAxisSpacing = 0,
+    this.crossAxisSpacing = 0,
+    this.childAspectRatio = 1,
+    this.mainAxisExtent,
+  });
+
+  /// Creates a copy of this [GridDelegateProperties] instance with the given
+  /// value overrides.
+  GridDelegateProperties copyWith({
+    double? mainAxisSpacing,
+    double? crossAxisSpacing,
+    double? childAspectRatio,
+    double? mainAxisExtent,
+    bool forceMainAxisExtent = false,
+  });
 
   factory GridDelegateProperties.fromJson(Map json) {
     final type = GridDelegateType.values.byName(json['type']);
@@ -254,27 +264,13 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   /// The number of children to fit in the cross axis for a grid view.
   final int crossAxisCount;
 
-  /// The number of logical pixels between each child along the main axis.
-  final double mainAxisSpacing;
-
-  /// The number of logical pixels between each child along the cross axis.
-  final double crossAxisSpacing;
-
-  /// The ratio of the cross-axis to the main-axis extent of each child. This
-  /// is ignored if [mainAxisExtent] is not null.
-  final double childAspectRatio;
-
-  /// The main axis extent of each child in the grid. If this is null, then
-  /// [childAspectRatio] controls the main axis extent of each child.
-  final double? mainAxisExtent;
-
   /// Creates a new [FixedCrossAxisCountGridDelegateProperties] instance.
   const FixedCrossAxisCountGridDelegateProperties({
     required this.crossAxisCount,
-    this.mainAxisSpacing = 0,
-    this.crossAxisSpacing = 0,
-    this.childAspectRatio = 1,
-    this.mainAxisExtent,
+    super.mainAxisSpacing = 0,
+    super.crossAxisSpacing = 0,
+    super.childAspectRatio = 1,
+    super.mainAxisExtent,
   }) : super(GridDelegateType.fixedCrossAxisCount);
 
   @override
@@ -287,6 +283,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
 
   /// Creates a copy of this [FixedCrossAxisCountGridDelegateProperties]
   /// instance with the given value overrides.
+  @override
   FixedCrossAxisCountGridDelegateProperties copyWith({
     int? crossAxisCount,
     double? mainAxisSpacing,
@@ -297,12 +294,12 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   }) {
     return FixedCrossAxisCountGridDelegateProperties(
       crossAxisCount: crossAxisCount ?? this.crossAxisCount,
-      mainAxisSpacing: mainAxisSpacing ?? this.mainAxisSpacing,
-      crossAxisSpacing: crossAxisSpacing ?? this.crossAxisSpacing,
-      childAspectRatio: childAspectRatio ?? this.childAspectRatio,
+      mainAxisSpacing: mainAxisSpacing ?? super.mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing ?? super.crossAxisSpacing,
+      childAspectRatio: childAspectRatio ?? super.childAspectRatio,
       mainAxisExtent: forceMainAxisExtent
           ? mainAxisExtent
-          : mainAxisExtent ?? this.mainAxisExtent,
+          : mainAxisExtent ?? super.mainAxisExtent,
     );
   }
 
@@ -310,9 +307,6 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   List<Object?> get props => [
         ...super.props,
         crossAxisCount,
-        mainAxisSpacing,
-        crossAxisSpacing,
-        childAspectRatio,
       ];
 }
 
@@ -323,27 +317,13 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   /// The maximum extent of a child/item in the cross axis.
   final double maxCrossAxisExtent;
 
-  /// The number of logical pixels between each child along the main axis.
-  final double mainAxisSpacing;
-
-  /// The number of logical pixels between each child along the cross axis.
-  final double crossAxisSpacing;
-
-  /// The ratio of the cross-axis to the main-axis extent of each child. This
-  /// is ignored if [mainAxisExtent] is not null.
-  final double childAspectRatio;
-
-  /// The main axis extent of each child in the grid. If this is null, then
-  /// [childAspectRatio] controls the main axis extent of each child.
-  final double? mainAxisExtent;
-
   /// Creates a new [MaxCrossAxisExtentGridDelegateProperties] instance.
   const MaxCrossAxisExtentGridDelegateProperties({
     required this.maxCrossAxisExtent,
-    this.mainAxisSpacing = 0,
-    this.crossAxisSpacing = 0,
-    this.childAspectRatio = 1,
-    this.mainAxisExtent,
+    super.mainAxisSpacing = 0,
+    super.crossAxisSpacing = 0,
+    super.childAspectRatio = 1,
+    super.mainAxisExtent,
   }) : super(GridDelegateType.maxCrossAxisExtent);
 
   @override
@@ -356,6 +336,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
 
   /// Creates a copy of this [MaxCrossAxisExtentGridDelegateProperties]
   /// instance with the given value overrides.
+  @override
   MaxCrossAxisExtentGridDelegateProperties copyWith({
     double? maxCrossAxisExtent,
     double? mainAxisSpacing,
@@ -366,12 +347,12 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   }) {
     return MaxCrossAxisExtentGridDelegateProperties(
       maxCrossAxisExtent: maxCrossAxisExtent ?? this.maxCrossAxisExtent,
-      mainAxisSpacing: mainAxisSpacing ?? this.mainAxisSpacing,
-      crossAxisSpacing: crossAxisSpacing ?? this.crossAxisSpacing,
-      childAspectRatio: childAspectRatio ?? this.childAspectRatio,
+      mainAxisSpacing: mainAxisSpacing ?? super.mainAxisSpacing,
+      crossAxisSpacing: crossAxisSpacing ?? super.crossAxisSpacing,
+      childAspectRatio: childAspectRatio ?? super.childAspectRatio,
       mainAxisExtent: forceMainAxisExtent
           ? mainAxisExtent
-          : mainAxisExtent ?? this.mainAxisExtent,
+          : mainAxisExtent ?? super.mainAxisExtent,
     );
   }
 
@@ -379,8 +360,5 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   List<Object?> get props => [
         ...super.props,
         maxCrossAxisExtent,
-        mainAxisSpacing,
-        crossAxisSpacing,
-        childAspectRatio,
       ];
 }
