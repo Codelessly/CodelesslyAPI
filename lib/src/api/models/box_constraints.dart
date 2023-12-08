@@ -203,26 +203,18 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// [returns] a [BoxConstraintsModel] that has overlapping constraints.
   BoxConstraintsModel union(BoxConstraintsModel constraints) {
     return BoxConstraintsModel(
-      minWidth: (minWidth == null)
-          ? constraints.minWidth
-          : (constraints.minWidth == null)
-              ? minWidth
-              : max(minWidth!, constraints.minWidth!),
-      maxWidth: (maxWidth == null)
-          ? constraints.maxWidth
-          : (constraints.maxWidth == null)
-              ? maxWidth
-              : min(maxWidth!, constraints.maxWidth!),
-      minHeight: (minHeight == null)
-          ? constraints.minHeight
-          : (constraints.minHeight == null)
-              ? minHeight
-              : max(minHeight!, constraints.minHeight!),
-      maxHeight: (maxHeight == null)
-          ? constraints.maxHeight
-          : (constraints.maxHeight == null)
-              ? maxHeight
-              : min(maxHeight!, constraints.maxHeight!),
+      minWidth: (minWidth == null || constraints.minWidth == null)
+          ? minWidth ?? constraints.minWidth
+          : max(minWidth!, constraints.minWidth!),
+      minHeight: (minHeight == null || constraints.minHeight == null)
+          ? minHeight ?? constraints.minHeight
+          : max(minHeight!, constraints.minHeight!),
+      maxWidth: (maxWidth == null || constraints.maxWidth == null)
+          ? maxWidth ?? constraints.maxWidth
+          : min(maxWidth!, constraints.maxWidth!),
+      maxHeight: (maxHeight == null || constraints.maxHeight == null)
+          ? maxHeight ?? constraints.maxHeight
+          : min(maxHeight!, constraints.maxHeight!),
     );
   }
 
