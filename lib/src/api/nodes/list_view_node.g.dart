@@ -215,6 +215,8 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       dividerProperties: json['dividerProperties'] == null
           ? null
           : DividerProperties.fromJson(json['dividerProperties'] as Map),
+      useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
+      collectionPath: json['collectionPath'] as String?,
     );
 
 Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) {
@@ -240,6 +242,10 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) {
   writeNotNull(
       'hasSeparator', instance.hasSeparator, instance.hasSeparator, false);
   val['dividerProperties'] = instance.dividerProperties.toJson();
+  writeNotNull('useCloudDatabase', instance.useCloudDatabase,
+      instance.useCloudDatabase, false);
+  writeNotNull(
+      'collectionPath', instance.collectionPath, instance.collectionPath, null);
   return val;
 }
 
