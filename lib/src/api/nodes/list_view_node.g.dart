@@ -58,6 +58,13 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
           ) ??
           {},
       clipsContent: json['clipsContent'] as bool? ?? true,
+      useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
+      collectionPath: json['collectionPath'] as String?,
+      limit: json['limit'] as int? ?? 20,
+      orderByOperations: (json['orderByOperations'] as List<dynamic>?)
+          ?.map((e) =>
+              OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
       scrollDirection:
           $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
               AxisC.vertical,
@@ -74,24 +81,25 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..maxAllowedSize = json['maxAllowedSize'] == null
+          ? null
+          : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
-      ..maxAllowedSize = json['maxAllowedSize'] == null
-          ? null
-          : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
+      ..whereFilters = (json['whereFilters'] as List<dynamic>)
+          .map((e) =>
+              WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'name': instance.name,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -103,6 +111,13 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
@@ -126,11 +141,6 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -142,12 +152,12 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
-  val['allowedTypes'] = instance.allowedTypes;
-  val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
   writeNotNull(
       'clipsContent', instance.clipsContent, instance.clipsContent, true);
+  val['allowedTypes'] = instance.allowedTypes;
+  val['deniedTypes'] = instance.deniedTypes;
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
@@ -167,6 +177,14 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   val['useFlutterListView'] = instance.useFlutterListView;
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
+  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
+  val['orderByOperations'] =
+      instance.orderByOperations.map((e) => e.toJson()).toList();
+  writeNotNull('useCloudDatabase', instance.useCloudDatabase,
+      instance.useCloudDatabase, false);
+  writeNotNull(
+      'collectionPath', instance.collectionPath, instance.collectionPath, null);
+  writeNotNull('limit', instance.limit, instance.limit, 20);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;
@@ -215,8 +233,6 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       dividerProperties: json['dividerProperties'] == null
           ? null
           : DividerProperties.fromJson(json['dividerProperties'] as Map),
-      useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
-      collectionPath: json['collectionPath'] as String?,
     );
 
 Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) {
@@ -242,10 +258,6 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) {
   writeNotNull(
       'hasSeparator', instance.hasSeparator, instance.hasSeparator, false);
   val['dividerProperties'] = instance.dividerProperties.toJson();
-  writeNotNull('useCloudDatabase', instance.useCloudDatabase,
-      instance.useCloudDatabase, false);
-  writeNotNull(
-      'collectionPath', instance.collectionPath, instance.collectionPath, null);
   return val;
 }
 

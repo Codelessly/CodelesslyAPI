@@ -10,7 +10,7 @@ part 'list_view_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class ListViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin {
+    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, QueryableMixin {
   @override
   final String type = 'listView';
 
@@ -58,6 +58,14 @@ class ListViewNode extends SinglePlaceholderNode
     super.variables,
     super.multipleVariables,
     bool clipsContent = true,
+
+    // [CloudDatabaseMixin] properties.
+    bool useCloudDatabase = false,
+    String? collectionPath,
+    int limit = 20,
+    List<WhereQueryFilter>? whereOperations,
+    List<OrderByQueryFilter>? orderByOperations,
+
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
@@ -86,6 +94,14 @@ class ListViewNode extends SinglePlaceholderNode
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: true,
       shouldAlwaysScroll: shouldAlwaysScroll,
+    );
+
+    setQueryableMixin(
+      useCloudDatabase: useCloudDatabase,
+      collectionPath: collectionPath,
+      limit: limit,
+      whereOperations: whereOperations ?? [],
+      orderByOperations: orderByOperations ?? [],
     );
   }
 
@@ -143,13 +159,6 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
-  /// Whether this list view should look for its items in Codelessly Cloud
-  /// Database directly.
-  bool useCloudDatabase;
-
-  /// The path to the collection in the Cloud Database to look for items in.
-  String? collectionPath;
-
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -159,8 +168,6 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
     this.separatorSpacing = 0,
     this.hasSeparator = false,
     DividerProperties? dividerProperties,
-    this.useCloudDatabase = false,
-    this.collectionPath,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
   /// Creates a copy of this [ListViewProperties] instance with the given value
@@ -180,9 +187,6 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
     double? dividerSpacing,
     bool? hasSeparator,
     DividerProperties? dividerProperties,
-    bool? useCloudStorage,
-    String? collectionPath,
-    bool forceCollectionPath = false,
   }) {
     return ListViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -192,9 +196,6 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
       separatorSpacing: separatorSpacing ?? this.separatorSpacing,
       hasSeparator: hasSeparator ?? this.hasSeparator,
       dividerProperties: dividerProperties ?? this.dividerProperties,
-      useCloudDatabase: useCloudStorage ?? this.useCloudDatabase,
-      collectionPath:
-          forceCollectionPath ? collectionPath : this.collectionPath,
     );
   }
 
