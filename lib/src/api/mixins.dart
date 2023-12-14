@@ -1123,3 +1123,41 @@ mixin ConditionsMixin {
   /// List of conditions that are applied to this node.
   List<BaseCondition> conditions = [];
 }
+
+/// A mixin that adds the ability to filter a collection of data
+/// on a node.
+mixin QueryableMixin on BaseNode {
+  /// List of where() operations to be applied to the query.
+  List<WhereQueryFilter> whereFilters = [];
+
+  /// List of orderBy() operations to be applied to the query.
+  List<OrderByQueryFilter> orderByOperations = [];
+
+  /// Whether to use cloud database.
+  late bool useCloudDatabase;
+
+  /// The path of the collection to query.
+  late String? collectionPath;
+
+  /// A limit integer to specify the number of documents to be returned.
+  late int limit;
+
+  /// Whether the query operation is going to be restrictive.
+  /// This pertains to Firestore's indexing rules.
+  bool get restrictedIndexing => useCloudDatabase;
+
+  /// Sets the properties of this mixin.
+  void setQueryableMixin({
+    required List<WhereQueryFilter> whereOperations,
+    required List<OrderByQueryFilter> orderByOperations,
+    required bool useCloudDatabase,
+    required String? collectionPath,
+    required int limit,
+  }) {
+    this.whereFilters = whereOperations;
+    this.orderByOperations = orderByOperations;
+    this.useCloudDatabase = useCloudDatabase;
+    this.collectionPath = collectionPath;
+    this.limit = limit;
+  }
+}

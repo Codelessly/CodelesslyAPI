@@ -66,3 +66,6 @@ export 'vec.dart';
 export 'visual_density.dart';
 export 'webview_models.dart';
 export 'grid_delegate_type.dart';
+export 'cloud_database_queries/query_filter.dart';
+export 'cloud_database_queries/where_query_filter.dart';
+export 'cloud_database_queries/order_by_query_filter.dart';
