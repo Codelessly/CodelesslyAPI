@@ -21,15 +21,15 @@ LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
           ?.map((e) =>
               WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      orderByOperations: (json['orderByOperations'] as List<dynamic>?)
+      orderByFilters: (json['orderByFilters'] as List<dynamic>?)
           ?.map((e) =>
               OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
+      limit: json['limit'] as int?,
     )
       ..type = $enumDecode(_$ActionTypeEnumMap, json['type'])
       ..useCloudDatabase = json['useCloudDatabase'] as bool
-      ..collectionPath = json['collectionPath'] as String?
-      ..limit = json['limit'] as int;
+      ..collectionPath = json['collectionPath'] as String?;
 
 Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
     LoadFromCloudStorageAction instance) {
@@ -56,7 +56,10 @@ Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
   val['useCloudDatabase'] = instance.useCloudDatabase;
   writeNotNull(
       'collectionPath', instance.collectionPath, instance.collectionPath, null);
-  val['limit'] = instance.limit;
+  writeNotNull('limit', instance.limit, instance.limit, null);
+  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
+  val['orderByFilters'] =
+      instance.orderByFilters.map((e) => e.toJson()).toList();
   writeNotNull('path', instance.path, instance.path, '');
   writeNotNull('documentId', instance.documentId, instance.documentId, '');
   writeNotNull(
