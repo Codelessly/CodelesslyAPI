@@ -1126,7 +1126,7 @@ mixin ConditionsMixin {
 
 /// A mixin that adds the ability to filter a collection of data
 /// on a node.
-mixin QueryableMixin on BaseNode {
+mixin QueryableMixin {
   /// List of where() operations to be applied to the query.
   List<WhereQueryFilter> whereFilters = [];
 
@@ -1148,13 +1148,13 @@ mixin QueryableMixin on BaseNode {
 
   /// Sets the properties of this mixin.
   void setQueryableMixin({
-    required List<WhereQueryFilter> whereOperations,
+    required List<WhereQueryFilter> whereFilters,
     required List<OrderByQueryFilter> orderByOperations,
     required bool useCloudDatabase,
     required String? collectionPath,
     required int limit,
   }) {
-    this.whereFilters = whereOperations;
+    this.whereFilters = whereFilters;
     this.orderByOperations = orderByOperations;
     this.useCloudDatabase = useCloudDatabase;
     this.collectionPath = collectionPath;

@@ -100,7 +100,7 @@ class ListViewNode extends SinglePlaceholderNode
       useCloudDatabase: useCloudDatabase,
       collectionPath: collectionPath,
       limit: limit,
-      whereOperations: whereOperations ?? [],
+      whereFilters: whereOperations ?? [],
       orderByOperations: orderByOperations ?? [],
     );
   }
