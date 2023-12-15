@@ -62,9 +62,9 @@ class ListViewNode extends SinglePlaceholderNode
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,
     String? collectionPath,
-    int limit = 20,
+    int? limit = 20,
     List<WhereQueryFilter>? whereOperations,
-    List<OrderByQueryFilter>? orderByOperations,
+    List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
@@ -101,7 +101,7 @@ class ListViewNode extends SinglePlaceholderNode
       collectionPath: collectionPath,
       limit: limit,
       whereFilters: whereOperations ?? [],
-      orderByOperations: orderByOperations ?? [],
+      orderByFilters: orderByFilters ?? [],
     );
   }
 
