@@ -14,7 +14,7 @@ part 'load_from_cloud_storage_action.g.dart';
 /// load data from Firestore on canvas load.
 @JsonSerializable()
 class LoadFromCloudStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with EquatableMixin, SerializableMixin, QueryableMixin {
   /// Path to the collection to load data from.
   ///
   /// A string that represents the path to the document excluding the document
@@ -33,29 +33,62 @@ class LoadFromCloudStorageAction extends ActionModel
   /// whenever the data on cloud storage changes.
   final VariableData? variable;
 
+  /// Whether to load a single document or all documents in the collection.
+  final bool loadSingleDocument;
+
   /// Creates a new [LoadFromCloudStorageAction].
   LoadFromCloudStorageAction({
     this.path = '',
     this.documentId = '',
     this.variable,
+    this.loadSingleDocument = true,
     super.nonBlocking,
     super.enabled,
-  }) : super(type: ActionType.loadFromCloudStorage);
+    List<WhereQueryFilter>? whereFilters,
+    List<OrderByQueryFilter>? orderByOperations,
+    int? limit,
+  }) : super(type: ActionType.loadFromCloudStorage) {
+    setQueryableMixin(
+      collectionPath: path,
+      limit: limit ?? -1,
+      whereFilters: whereFilters ?? [],
+      orderByOperations: orderByOperations ?? [],
+      useCloudDatabase: false,
+    );
+  }
 
   /// Duplicates this [LoadFromCloudStorageAction] with given data overrides.
   LoadFromCloudStorageAction copyWith({
     String? path,
     String? documentId,
     VariableData? variable,
+    bool? loadSingleDocument,
+    List<WhereQueryFilter>? whereFilters,
+    List<OrderByQueryFilter>? orderByOperations,
+    int? limit,
   }) =>
       LoadFromCloudStorageAction(
         path: path ?? this.path,
         documentId: documentId ?? this.documentId,
         variable: variable ?? this.variable,
+        loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
+        whereFilters: whereFilters ?? this.whereFilters,
+        orderByOperations: orderByOperations ?? this.orderByOperations,
+        limit: limit ?? this.limit,
       );
 
   @override
-  List<Object?> get props => [path, documentId, variable];
+  List<Object?> get props => [
+        path,
+        documentId,
+        variable,
+        loadSingleDocument,
+        whereFilters,
+        orderByOperations,
+        limit,
+        useCloudDatabase,
+        collectionPath,
+      ];
 
   /// Creates a new [LoadFromCloudStorageAction] instance from a JSON data.
   factory LoadFromCloudStorageAction.fromJson(Map json) =>
