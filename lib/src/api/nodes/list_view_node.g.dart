@@ -61,7 +61,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
       collectionPath: json['collectionPath'] as String?,
       limit: json['limit'] as int? ?? 20,
-      orderByOperations: (json['orderByOperations'] as List<dynamic>?)
+      orderByFilters: (json['orderByFilters'] as List<dynamic>?)
           ?.map((e) =>
               OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -177,14 +177,14 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   val['useFlutterListView'] = instance.useFlutterListView;
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
-  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
-  val['orderByOperations'] =
-      instance.orderByOperations.map((e) => e.toJson()).toList();
   writeNotNull('useCloudDatabase', instance.useCloudDatabase,
       instance.useCloudDatabase, false);
   writeNotNull(
       'collectionPath', instance.collectionPath, instance.collectionPath, null);
   writeNotNull('limit', instance.limit, instance.limit, 20);
+  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
+  val['orderByFilters'] =
+      instance.orderByFilters.map((e) => e.toJson()).toList();
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;

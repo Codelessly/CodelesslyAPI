@@ -45,15 +45,15 @@ class LoadFromCloudStorageAction extends ActionModel
     super.nonBlocking,
     super.enabled,
     List<WhereQueryFilter>? whereFilters,
-    List<OrderByQueryFilter>? orderByOperations,
+    List<OrderByQueryFilter>? orderByFilters,
     int? limit,
   }) : super(type: ActionType.loadFromCloudStorage) {
     setQueryableMixin(
       collectionPath: path,
-      limit: limit ?? -1,
+      limit: limit,
       whereFilters: whereFilters ?? [],
-      orderByOperations: orderByOperations ?? [],
-      useCloudDatabase: false,
+      orderByFilters: orderByFilters ?? [],
+      useCloudDatabase: true,
     );
   }
 
@@ -64,7 +64,7 @@ class LoadFromCloudStorageAction extends ActionModel
     VariableData? variable,
     bool? loadSingleDocument,
     List<WhereQueryFilter>? whereFilters,
-    List<OrderByQueryFilter>? orderByOperations,
+    List<OrderByQueryFilter>? orderByFilters,
     int? limit,
   }) =>
       LoadFromCloudStorageAction(
@@ -73,7 +73,7 @@ class LoadFromCloudStorageAction extends ActionModel
         variable: variable ?? this.variable,
         loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
         whereFilters: whereFilters ?? this.whereFilters,
-        orderByOperations: orderByOperations ?? this.orderByOperations,
+        orderByFilters: orderByFilters ?? this.orderByFilters,
         limit: limit ?? this.limit,
       );
 
@@ -84,7 +84,7 @@ class LoadFromCloudStorageAction extends ActionModel
         variable,
         loadSingleDocument,
         whereFilters,
-        orderByOperations,
+        orderByFilters,
         limit,
         useCloudDatabase,
         collectionPath,

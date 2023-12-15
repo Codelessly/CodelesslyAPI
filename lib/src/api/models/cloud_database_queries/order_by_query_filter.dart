@@ -39,11 +39,11 @@ class OrderByQueryFilter extends QueryFilter with EquatableMixin {
   /// parameters.
   OrderByQueryFilter copyWith({
     String? field,
-    OrderByQuerySortOrder? operator,
+    OrderByQuerySortOrder? sortOrder,
   }) {
     return OrderByQueryFilter(
       field: field ?? this.field,
-      sortOrder: operator ?? this.sortOrder,
+      sortOrder: sortOrder ?? this.sortOrder,
     );
   }
 

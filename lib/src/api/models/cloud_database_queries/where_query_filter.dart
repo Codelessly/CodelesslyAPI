@@ -43,16 +43,16 @@ enum WhereQueryOperator {
   greaterThanOrEqual('Greater Than Or Equal To', '>='),
 
   /// Checks if an array contains a value.
-  arrayContains('Array Contains', 'array-contains'),
+  arrayContains('Contains', 'array-contains'),
 
   /// Checks if an array contains any of the values in a given array.
-  arrayContainsAny('Array Contains Any', 'array-contains-any'),
+  arrayContainsAny('Contains any', 'array-contains-any'),
 
   /// Checks if a value is in a given array.
-  inArray('In Array', 'in'),
+  inArray('Is in', 'in'),
 
   /// Checks if a value is not in a given array.
-  notInArray('Not In Array', 'not-in');
+  notInArray('Is not in', 'not-in');
 
   /// The human-readable name of the operation.
   final String label;
@@ -79,6 +79,7 @@ enum WhereQueryOperator {
   bool get isEqualityOperator =>
       this == WhereQueryOperator.equal ||
       this == WhereQueryOperator.arrayContains ||
+      this == WhereQueryOperator.arrayContainsAny ||
       this == WhereQueryOperator.inArray;
 
   /// Returns a set of all range operators.
@@ -100,6 +101,7 @@ enum WhereQueryOperator {
   static Set<WhereQueryOperator> get equalityOperators => {
         WhereQueryOperator.equal,
         WhereQueryOperator.arrayContains,
+        WhereQueryOperator.arrayContainsAny,
         WhereQueryOperator.inArray,
       };
 
@@ -127,7 +129,7 @@ class WhereQueryFilter extends QueryFilter with EquatableMixin {
   final WhereQueryOperator operator;
 
   /// The value to compare against.
-  final dynamic value;
+  final String value;
 
   /// Creates a new [WhereQueryFilter] instance, given a [field], an [operator],
   /// and a [value].
