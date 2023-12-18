@@ -144,7 +144,7 @@ class WhereQueryFilter extends QueryFilter with EquatableMixin {
   WhereQueryFilter copyWith({
     String? field,
     WhereQueryOperator? operator,
-    dynamic value,
+    String? value,
   }) =>
       WhereQueryFilter(
         field: field ?? this.field,
