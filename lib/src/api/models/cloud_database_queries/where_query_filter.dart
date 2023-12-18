@@ -123,6 +123,8 @@ enum WhereQueryOperator {
 /// Takes three parameters: a field to filter on, a comparison operator, and a value.
 ///
 /// Reference: https://firebase.google.com/docs/firestore/query-data/queries?hl=en
+///
+/// TODO: Add support for OR queries.
 @JsonSerializable()
 class WhereQueryFilter extends QueryFilter with EquatableMixin {
   /// The where operation to perform.
