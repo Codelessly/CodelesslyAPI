@@ -241,9 +241,7 @@ FixedCrossAxisCountGridDelegateProperties
 
 Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
     FixedCrossAxisCountGridDelegateProperties instance) {
-  final val = <String, dynamic>{
-    'crossAxisCount': instance.crossAxisCount,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -263,6 +261,7 @@ Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
       instance.childAspectRatio, 1);
   writeNotNull(
       'mainAxisExtent', instance.mainAxisExtent, instance.mainAxisExtent, null);
+  val['crossAxisCount'] = instance.crossAxisCount;
   return val;
 }
 
@@ -278,9 +277,7 @@ MaxCrossAxisExtentGridDelegateProperties
 
 Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesToJson(
     MaxCrossAxisExtentGridDelegateProperties instance) {
-  final val = <String, dynamic>{
-    'maxCrossAxisExtent': instance.maxCrossAxisExtent,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -300,5 +297,6 @@ Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesToJson(
       instance.childAspectRatio, 1);
   writeNotNull(
       'mainAxisExtent', instance.mainAxisExtent, instance.mainAxisExtent, null);
+  val['maxCrossAxisExtent'] = instance.maxCrossAxisExtent;
   return val;
 }
