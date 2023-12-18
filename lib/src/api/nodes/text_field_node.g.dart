@@ -175,6 +175,8 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
           ? null
           : InputDecorationModel.fromJson(json['decoration'] as Map),
       expands: json['expands'] as bool? ?? false,
+      showDecimalKey: json['showDecimalKey'] as bool? ?? false,
+      showSignKey: json['showSignKey'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -202,6 +204,10 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
       'obscureText', instance.obscureText, instance.obscureText, false);
   writeNotNull('readOnly', instance.readOnly, instance.readOnly, false);
   writeNotNull('showCursor', instance.showCursor, instance.showCursor, true);
+  writeNotNull('showDecimalKey', instance.showDecimalKey,
+      instance.showDecimalKey, false);
+  writeNotNull(
+      'showSignKey', instance.showSignKey, instance.showSignKey, false);
   writeNotNull(
       'keyboardType',
       instance.keyboardType,

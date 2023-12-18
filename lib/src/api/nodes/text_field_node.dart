@@ -149,6 +149,12 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Whether to show the cursor in the field.
   late bool showCursor;
 
+  /// Whether to show the decimal key in the soft input keyboard.
+  late bool showDecimalKey;
+
+  /// Whether to show the sign key in the soft input keyboard.
+  late bool showSignKey;
+
   /// The type of keyboard that pops up when inputting text in the field.
   /// For example, if the field should only accept numbers, the keyboard type
   /// should be [TextInputTypeEnum.number].
@@ -228,6 +234,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     TextProp? inputStyle,
     InputDecorationModel? decoration,
     this.expands = false,
+    this.showDecimalKey = false,
+    this.showSignKey = false,
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -258,6 +266,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     TextProp? inputStyle,
     InputDecorationModel? decoration,
     bool? expands,
+    bool? showDecimalKey,
+    bool? showSignKey,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -284,6 +294,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       inputStyle: inputStyle ?? this.inputStyle,
       decoration: decoration ?? this.decoration,
       expands: expands ?? this.expands,
+      showDecimalKey: showDecimalKey ?? this.showDecimalKey,
+      showSignKey: showSignKey ?? this.showSignKey,
     );
   }
 
@@ -319,5 +331,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         inputStyle,
         decoration,
         expands,
+        showDecimalKey,
+        showSignKey,
       ];
 }
