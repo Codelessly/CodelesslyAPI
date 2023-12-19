@@ -49,6 +49,9 @@ abstract class ITextSizeCalculator {
 
   /// Returns the line height of a single line of text.
   double getLineHeight();
+
+  /// Disposes of this calculator.
+  void dispose();
 }
 
 /// Defines different styling options for a widget.
