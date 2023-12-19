@@ -84,7 +84,7 @@ class GridViewNode extends SinglePlaceholderNode
 
   /// Calculates the fixed main axis extent of any child in the grid.
   double calculateMainAxisExtent(
-    AxisC axis,
+    AxisC mainAxis,
     SizeC size, [
     double? crossAxisExtent,
   ]) {
@@ -99,10 +99,10 @@ class GridViewNode extends SinglePlaceholderNode
   }
 
   /// Calculates the fixed cross axis extent of any child in the grid.
-  double calculateCrossAxisExtent(AxisC axis, SizeC size) {
+  double calculateCrossAxisExtent(AxisC mainAxis, SizeC size) {
     // Total cross axis space available for the grid view.
     final double totalCrossAxisSize =
-        axis.opposite.isHorizontal ? size.width : size.height;
+        mainAxis.opposite.isHorizontal ? size.width : size.height;
 
     switch (properties.gridDelegate) {
       case FixedCrossAxisCountGridDelegateProperties prop:
