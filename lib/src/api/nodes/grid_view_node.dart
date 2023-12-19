@@ -12,7 +12,7 @@ part 'grid_view_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class GridViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin {
+    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, QueryableMixin {
   @override
   final String type = 'gridView';
 
@@ -51,6 +51,14 @@ class GridViewNode extends SinglePlaceholderNode
     super.variables,
     super.multipleVariables,
     bool clipsContent = true,
+
+    // [CloudDatabaseMixin] properties.
+    bool useCloudDatabase = false,
+    String? collectionPath,
+    int? limit = 20,
+    List<WhereQueryFilter>? whereOperations,
+    List<OrderByQueryFilter>? orderByFilters,
+
     // [ScrollableMixin] properties.
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
@@ -79,6 +87,14 @@ class GridViewNode extends SinglePlaceholderNode
       keyboardDismissBehavior: keyboardDismissBehavior,
       useFlutterListView: false,
       shouldAlwaysScroll: shouldAlwaysScroll,
+    );
+
+    setQueryableMixin(
+      useCloudDatabase: useCloudDatabase,
+      collectionPath: collectionPath,
+      limit: limit,
+      whereFilters: whereOperations ?? [],
+      orderByFilters: orderByFilters ?? [],
     );
   }
 
