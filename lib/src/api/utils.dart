@@ -19,9 +19,6 @@ typedef HasNode = bool Function(String id);
 /// abstraction to Flutter's [TextPainter].
 abstract class ITextSizeCalculator {
 
-  /// Disposes this instance of [ITextSizeCalculator].
-  void dispose();
-
   /// Returns the height of a defined [TextNode] based on its width.
   /// The details are dependant on the implementation.
   double getHeightForWidth(double width);
