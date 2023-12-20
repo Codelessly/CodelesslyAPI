@@ -17,6 +17,7 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       barrierDismissible: json['barrierDismissible'] as bool? ?? true,
       showCloseButton: json['showCloseButton'] as bool? ?? false,
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) {
@@ -36,6 +37,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['destinationId'] = instance.destinationId;
   val['params'] = instance.params;
   writeNotNull('barrierDismissible', instance.barrierDismissible,

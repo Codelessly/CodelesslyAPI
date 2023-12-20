@@ -21,6 +21,7 @@ class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
     this.apiId,
     Map<String, String>? parameters,
     super.nonBlocking,
+    super.enabled,
   })  : parameters = parameters ?? {},
         super(type: ActionType.callApi);
 

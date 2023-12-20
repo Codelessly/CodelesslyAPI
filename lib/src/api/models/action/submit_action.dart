@@ -43,6 +43,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
     required this.primaryTextField,
     required this.apiKey,
     super.nonBlocking,
+    super.enabled,
   }) : super(type: ActionType.submit);
 
   @override

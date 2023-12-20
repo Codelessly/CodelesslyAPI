@@ -10,6 +10,7 @@ SetValueAction _$SetValueActionFromJson(Map json) => SetValueAction(
       nodeID: json['nodeID'] as String,
       values: valuesFromJson(json['values'] as List),
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) {
@@ -29,6 +30,7 @@ Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['nodeID'] = instance.nodeID;
   val['values'] = instance.values.map((e) => e.toJson()).toList();
   return val;

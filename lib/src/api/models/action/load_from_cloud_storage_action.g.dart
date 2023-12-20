@@ -15,6 +15,7 @@ LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
           : VariableData.fromJson(
               Map<String, dynamic>.from(json['variable'] as Map)),
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
@@ -35,6 +36,7 @@ Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('path', instance.path, instance.path, '');
   writeNotNull('documentId', instance.documentId, instance.documentId, '');
   writeNotNull(

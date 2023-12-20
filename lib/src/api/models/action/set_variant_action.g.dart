@@ -10,6 +10,7 @@ SetVariantAction _$SetVariantActionFromJson(Map json) => SetVariantAction(
       nodeID: json['nodeID'] as String,
       variantID: json['variantID'] as String,
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetVariantActionToJson(SetVariantAction instance) {
@@ -29,6 +30,7 @@ Map<String, dynamic> _$SetVariantActionToJson(SetVariantAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['nodeID'] = instance.nodeID;
   val['variantID'] = instance.variantID;
   return val;

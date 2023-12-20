@@ -21,6 +21,7 @@ class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
   LinkAction({
     required this.url,
     super.nonBlocking,
+    super.enabled,
   }) : super(type: ActionType.link);
 
   @override

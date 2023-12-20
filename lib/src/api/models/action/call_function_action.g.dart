@@ -12,6 +12,7 @@ CallFunctionAction _$CallFunctionActionFromJson(Map json) => CallFunctionAction(
         (k, e) => MapEntry(k as String, e),
       ),
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) {
@@ -31,6 +32,7 @@ Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['name'] = instance.name;
   val['params'] = instance.params;
   return val;

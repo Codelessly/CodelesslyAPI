@@ -37,6 +37,7 @@ class ShowDialogAction extends ActionModel
     this.barrierDismissible = true,
     this.showCloseButton = false,
     super.nonBlocking,
+    super.enabled,
   })  : params = {...params ?? {}},
         super(type: ActionType.showDialog);
 

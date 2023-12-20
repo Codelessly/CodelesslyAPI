@@ -23,6 +23,7 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
               _$NumberOperationEnumMap, json['numberOperation']) ??
           NumberOperation.set,
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
@@ -42,6 +43,7 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['variable'] = instance.variable.toJson();
   writeNotNull('index', instance.index, instance.index, '0');
   writeNotNull('listOperation', instance.listOperation,
