@@ -23,10 +23,6 @@ abstract class ITextSizeCalculator {
   /// The details are dependant on the implementation.
   double getHeightForWidth(double width);
 
-  /// Returns the width of a defined [TextNode] based on its height.
-  /// The details are dependant on the implementation.
-  double getWidthForHeight(double height, double fallbackWidth);
-
   /// Returns The minimum possible width of a defined [TextNode].
   /// The details are dependant on the implementation.
   double getMinWidth();
@@ -40,16 +36,9 @@ abstract class ITextSizeCalculator {
   /// The details are dependant on the implementation.
   double getBestTextWidthAtCurrentNodeBox(double internalBoxWidth);
 
-  /// Returns The minimum height of a defined [TextNode].
-  /// The details are dependant on the implementation.
-  double getMinHeight();
-
   /// Returns The distance to the [baseline] of a defined [TextNode].
   /// The details are dependant on the implementation.
   double computeDistanceToActualBaseline(CTextBaseline baseline);
-
-  /// Returns the line height of a single line of text.
-  double getLineHeight();
 
   /// Disposes of this calculator.
   void dispose();
