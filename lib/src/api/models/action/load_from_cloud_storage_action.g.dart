@@ -50,9 +50,6 @@ Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
-  val['orderByOperations'] =
-      instance.orderByOperations.map((e) => e.toJson()).toList();
   val['useCloudDatabase'] = instance.useCloudDatabase;
   writeNotNull(
       'collectionPath', instance.collectionPath, instance.collectionPath, null);

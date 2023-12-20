@@ -63,7 +63,7 @@ class ListViewNode extends SinglePlaceholderNode
     bool useCloudDatabase = false,
     String? collectionPath,
     int? limit = 20,
-    List<WhereQueryFilter>? whereOperations,
+    List<WhereQueryFilter>? whereFilters,
     List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
@@ -100,7 +100,7 @@ class ListViewNode extends SinglePlaceholderNode
       useCloudDatabase: useCloudDatabase,
       collectionPath: collectionPath,
       limit: limit,
-      whereFilters: whereOperations ?? [],
+      whereFilters: whereFilters ?? [],
       orderByFilters: orderByFilters ?? [],
     );
   }

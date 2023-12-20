@@ -61,6 +61,10 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
       collectionPath: json['collectionPath'] as String?,
       limit: json['limit'] as int? ?? 20,
+      whereFilters: (json['whereFilters'] as List<dynamic>?)
+          ?.map((e) =>
+              WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
       orderByFilters: (json['orderByFilters'] as List<dynamic>?)
           ?.map((e) =>
               OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -92,10 +96,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
           .toList()
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
-      ..whereFilters = (json['whereFilters'] as List<dynamic>)
-          .map((e) =>
-              WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
