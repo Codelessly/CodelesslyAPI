@@ -12,6 +12,7 @@ ApiCallAction _$ApiCallActionFromJson(Map json) => ApiCallAction(
         (k, e) => MapEntry(k as String, e as String),
       ),
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$ApiCallActionToJson(ApiCallAction instance) {
@@ -31,6 +32,7 @@ Map<String, dynamic> _$ApiCallActionToJson(ApiCallAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('apiId', instance.apiId, instance.apiId, null);
   val['parameters'] = instance.parameters;
   return val;

@@ -54,6 +54,7 @@ class NavigationAction extends ActionModel
     required this.destinationId,
     Map<String, String>? params,
     super.nonBlocking,
+    super.enabled,
   })  : params = {...params ?? {}},
         super(type: ActionType.navigation);
 

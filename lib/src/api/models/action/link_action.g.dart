@@ -9,6 +9,7 @@ part of 'link_action.dart';
 LinkAction _$LinkActionFromJson(Map json) => LinkAction(
       url: json['url'] as String,
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$LinkActionToJson(LinkAction instance) {
@@ -28,6 +29,7 @@ Map<String, dynamic> _$LinkActionToJson(LinkAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['url'] = instance.url;
   return val;
 }

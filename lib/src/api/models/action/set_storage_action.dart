@@ -91,6 +91,7 @@ class SetStorageAction extends ActionModel
     this.numberOperation = NumberOperation.set,
     this.skipIfAlreadyExists = false,
     super.nonBlocking,
+    super.enabled,
   }) : super(type: ActionType.setStorage);
 
   /// Duplicates this [SetStorageAction] with given data overrides.

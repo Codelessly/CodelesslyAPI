@@ -11,6 +11,7 @@ SubmitAction _$SubmitActionFromJson(Map json) => SubmitAction(
       primaryTextField: json['primaryTextField'] as String,
       apiKey: json['apiKey'] as String,
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SubmitActionToJson(SubmitAction instance) {
@@ -30,6 +31,7 @@ Map<String, dynamic> _$SubmitActionToJson(SubmitAction instance) {
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['service'] = _$SubmitActionServiceEnumMap[instance.service]!;
   val['primaryTextField'] = instance.primaryTextField;
   val['apiKey'] = instance.apiKey;
@@ -66,6 +68,7 @@ MailchimpSubmitAction _$MailchimpSubmitActionFromJson(Map json) =>
       nonBlocking: json['nonBlocking'] as bool? ?? false,
     )
       ..type = $enumDecode(_$ActionTypeEnumMap, json['type'])
+      ..enabled = json['enabled'] as bool
       ..service = $enumDecode(_$SubmitActionServiceEnumMap, json['service']);
 
 Map<String, dynamic> _$MailchimpSubmitActionToJson(
@@ -86,6 +89,7 @@ Map<String, dynamic> _$MailchimpSubmitActionToJson(
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  val['enabled'] = instance.enabled;
   val['service'] = _$SubmitActionServiceEnumMap[instance.service]!;
   val['primaryTextField'] = instance.primaryTextField;
   val['apiKey'] = instance.apiKey;

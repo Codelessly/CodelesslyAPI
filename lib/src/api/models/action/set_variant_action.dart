@@ -24,6 +24,7 @@ class SetVariantAction extends ActionModel
     required this.nodeID,
     required this.variantID,
     super.nonBlocking,
+    super.enabled,
   }) : super(type: ActionType.setVariant);
 
   @override

@@ -10,6 +10,7 @@ SetCloudStorageAction _$SetCloudStorageActionFromJson(Map json) =>
     SetCloudStorageAction(
       subAction: SetCloudStorageSubAction.fromJson(json['subAction'] as Map),
       nonBlocking: json['nonBlocking'] as bool? ?? false,
+      enabled: json['enabled'] as bool? ?? true,
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetCloudStorageActionToJson(
@@ -30,6 +31,7 @@ Map<String, dynamic> _$SetCloudStorageActionToJson(
 
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['subAction'] = instance.subAction.toJson();
   return val;
 }
