@@ -56,7 +56,7 @@ class GridViewNode extends SinglePlaceholderNode
     bool useCloudDatabase = false,
     String? collectionPath,
     int? limit = 20,
-    List<WhereQueryFilter>? whereOperations,
+    List<WhereQueryFilter>? whereFilters,
     List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
@@ -70,9 +70,7 @@ class GridViewNode extends SinglePlaceholderNode
   }) : super(
           children: [],
           allowedTypes: [],
-          deniedTypes: [
-            'GridView',
-          ],
+          deniedTypes: ['GridView'],
         ) {
     setChildrenMixin(children: children);
     setClipMixin(clipsContent: clipsContent);
@@ -93,7 +91,7 @@ class GridViewNode extends SinglePlaceholderNode
       useCloudDatabase: useCloudDatabase,
       collectionPath: collectionPath,
       limit: limit,
-      whereFilters: whereOperations ?? [],
+      whereFilters: whereFilters ?? [],
       orderByFilters: orderByFilters ?? [],
     );
   }
