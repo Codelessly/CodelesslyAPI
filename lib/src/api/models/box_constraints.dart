@@ -49,6 +49,20 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
         maxHeight: maxHeight,
       );
 
+  /// Returns new box constraints that are smaller by the given edge dimensions.
+  BoxConstraintsModel deflate(EdgeInsetsModel edges) {
+    final double horizontal = edges.horizontal;
+    final double vertical = edges.vertical;
+    final double deflatedMinWidth = max(0.0, minWidth! - horizontal);
+    final double deflatedMinHeight = max(0.0, minHeight! - vertical);
+    return BoxConstraintsModel(
+      minWidth: deflatedMinWidth,
+      maxWidth: max(deflatedMinWidth, maxWidth! - horizontal),
+      minHeight: deflatedMinHeight,
+      maxHeight: max(deflatedMinHeight, maxHeight! - vertical),
+    );
+  }
+
   /// Duplicates instance of this class with given [minWidth] value override.
   BoxConstraintsModel updateMinWidth(double? value) => BoxConstraintsModel(
         minWidth: value,
@@ -87,6 +101,8 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
     return BoxConstraintsModel(
       maxWidth: maxWidth,
       maxHeight: maxHeight,
+      minWidth: 0,
+      minHeight: 0,
     );
   }
 

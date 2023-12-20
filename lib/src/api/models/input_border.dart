@@ -20,7 +20,16 @@ enum BorderTypeEnum {
   outline,
 
   /// Border under the input field.
-  underline,
+  underline;
+
+  /// A convenience getter to check if this border type is outline.
+  bool get isOutline => this == BorderTypeEnum.outline;
+
+  /// A convenience getter to check if this border type is underline.
+  bool get isUnderline => this == BorderTypeEnum.underline;
+
+  /// A convenience getter to check if this border type is none.
+  bool get isNone => this == BorderTypeEnum.none;
 }
 
 /// Represents decoration for an input border.
@@ -38,6 +47,15 @@ class InputBorderModel with EquatableMixin, SerializableMixin {
   /// Horizontal padding on either side of the border's
   /// [InputDecoration.labelText] width gap.
   final double gapPadding;
+
+  /// A convenience getter to check if this border is outline.
+  bool get isOutline => borderType.isOutline;
+
+  /// A convenience getter to check if this border is underline.
+  bool get isUnderline => borderType.isUnderline;
+
+  /// A convenience getter to check if this border is none.
+  bool get isNone => borderType.isNone;
 
   /// Creates an instance of input border model.
   const InputBorderModel({
