@@ -52,12 +52,14 @@ extension RoundNum on num {
   /// Step 3: round(12435678.9) = 12435679
   /// Step 4: 12435679 / 1000 = 12435.679
   double roundToPrecision(int decimal) {
+    if (isNaN || isInfinite) return toDouble();
     final double precision = pow(10, decimal).toDouble();
     return (this * precision).round() / precision;
   }
 
   /// Returns the double as a pretty rounded double.
   num toPrettyPrecision(int precision) {
+    if (isNaN || isInfinite) return this;
     _formatter.maximumFractionDigits = precision;
     return num.parse(_formatter.format(this));
   }
