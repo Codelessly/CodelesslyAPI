@@ -61,7 +61,7 @@ class AppBarNode extends SceneNode
   ];
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [];
 
   @override
   List<ReactionMixin> get reactiveChildren {
