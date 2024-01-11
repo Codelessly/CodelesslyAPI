@@ -88,6 +88,10 @@ class IconNode extends SceneNode
     setReactionMixin([...reactions]);
   }
 
+  @override
+  List<TriggerType> get triggerTypes =>
+      [TriggerType.click, TriggerType.longPress];
+
   /// Creates an [IconNode] from a JSON data.
   factory IconNode.fromJson(Map json) => _$IconNodeFromJson(json);
 

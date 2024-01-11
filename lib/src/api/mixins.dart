@@ -208,8 +208,7 @@ mixin ReactionMixin {
   }
 
   /// Default value for all nodes that don't override this.
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [];
 }
 
 /// A mixin that holds the children of the node that are reactive, i.e., can
