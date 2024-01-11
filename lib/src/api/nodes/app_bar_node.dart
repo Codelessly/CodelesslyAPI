@@ -61,9 +61,6 @@ class AppBarNode extends SceneNode
   ];
 
   @override
-  List<TriggerType> get triggerTypes => [];
-
-  @override
   List<ReactionMixin> get reactiveChildren {
     final List<ReactionMixin> items = [...properties.actions];
     if (properties.leading.icon.show &&

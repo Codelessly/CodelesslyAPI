@@ -174,9 +174,6 @@ class NavigationBarNode extends SceneNode
   });
 
   @override
-  List<TriggerType> get triggerTypes => [];
-
-  @override
   List<ReactionMixin> get reactiveChildren => properties.items;
 
   /// Creates a [NavigationBarNode] from a JSON object.

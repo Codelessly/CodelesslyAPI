@@ -70,7 +70,7 @@ class TabBarNode extends SceneNode
   }
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [TriggerType.changed];
 
   @override
   List<ReactionMixin> get reactiveChildren => properties.tabs;
