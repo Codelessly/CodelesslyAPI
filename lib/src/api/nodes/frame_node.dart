@@ -104,6 +104,10 @@ class FrameNode extends DefaultShapeNode
     );
   }
 
+  @override
+  List<TriggerType> get triggerTypes =>
+      [TriggerType.click, TriggerType.longPress];
+
   /// Creates a [FrameNode] from a JSON data.
   factory FrameNode.fromJson(Map json) => _$FrameNodeFromJson(json);
 
