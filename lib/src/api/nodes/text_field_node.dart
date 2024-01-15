@@ -86,7 +86,6 @@ class TextFieldNode extends SceneNode
 
   @override
   List<TriggerType> get triggerTypes => [
-        TriggerType.click,
         TriggerType.changed,
         // TriggerType.editingComplete,
         TriggerType.submitted,
