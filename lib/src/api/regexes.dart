@@ -123,7 +123,7 @@ final RegExp variablePathRegex = RegExp(variablePathPattern);
 /// on $ or ${} curly braces in a string while the text/path is actively being
 /// composed.
 const String variablePathComposingPattern =
-    r'(?<!\\)\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>(?:\[\d+\])+)?(?:\.(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*))*)?)?\}?';
+    r'(?<!\\)\$\{?(?<value>(?<name>[a-zA-Z][a-zA-Z0-9_]*)((?<accessor>(?:\[\d+\])+)?(?:\.(?!\.)(?<path>[a-zA-Z]+[a-zA-Z0-9_]*(?:\[\d+\])*)?)*)?)?\}?';
 
 /// Regex for [variablePathComposingPattern].
 final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
