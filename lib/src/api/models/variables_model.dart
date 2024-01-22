@@ -296,3 +296,51 @@ class RuntimeVariableData extends VariableData {
     );
   }
 }
+
+typedef GetValueCallback = Object? Function(Object? value);
+
+/// Defines an accessor for a variable.
+class Accessor with EquatableMixin {
+  /// Name of the accessor.
+  final String name;
+
+  /// Type of the accessor.
+  final VariableType type;
+
+  /// Defines a callback that can be used to get the value of the accessor.
+  final GetValueCallback? _getValue;
+
+  /// Creates a new [Accessor].
+  const Accessor({
+    required this.name,
+    required this.type,
+    GetValueCallback? getValue,
+  }) : _getValue = getValue;
+
+  @override
+  List<Object?> get props => [name, type];
+
+  /// Returns the value of the accessor for the given [value].
+  Object? getValue(Object? value) => _getValue?.call(value);
+
+  /// Converts this accessor to a leaf accessor.
+  LeafAccessor toLeaf() => LeafAccessor.from(this);
+}
+
+/// Defines an accessor for a variable that is a leaf node. Meaning it does not
+/// have any children.
+class LeafAccessor extends Accessor {
+  /// Creates a new [LeafAccessor].
+  const LeafAccessor({
+    required super.name,
+    required super.type,
+    super.getValue,
+  });
+
+  /// Creates a new [LeafAccessor] from an [Accessor].
+  LeafAccessor.from(Accessor accessor)
+      : super(
+            name: accessor.name,
+            type: accessor.type,
+            getValue: accessor.getValue);
+}
