@@ -1,3 +1,8 @@
+## 1.0.0
+- Official v1 release!
+- Update triggers types.
+- Fix integer functions crashing with NaN and infinite values.
+
 ## 0.8.0
 - Codelessly Data support. Save and write data to Codelessly Cloud. 
 - New GridView widget. 
