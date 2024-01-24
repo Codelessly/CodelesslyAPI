@@ -177,6 +177,12 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       expands: json['expands'] as bool? ?? false,
       showDecimalKey: json['showDecimalKey'] as bool? ?? false,
       showSignKey: json['showSignKey'] as bool? ?? false,
+      validator: $enumDecodeNullable(
+              _$TextInputValidatorCEnumMap, json['validator']) ??
+          TextInputValidatorC.none,
+      formatter: $enumDecodeNullable(
+              _$TextInputFormatterCEnumMap, json['formatter']) ??
+          TextInputFormatterC.none,
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -248,6 +254,16 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   val['inputStyle'] = instance.inputStyle.toJson();
   val['decoration'] = instance.decoration.toJson();
   writeNotNull('expands', instance.expands, instance.expands, false);
+  writeNotNull(
+      'validator',
+      instance.validator,
+      _$TextInputValidatorCEnumMap[instance.validator]!,
+      TextInputValidatorC.none);
+  writeNotNull(
+      'formatter',
+      instance.formatter,
+      _$TextInputFormatterCEnumMap[instance.formatter]!,
+      TextInputFormatterC.none);
   return val;
 }
 
@@ -290,4 +306,23 @@ const _$TextAlignVerticalEnumEnumMap = {
   TextAlignVerticalEnum.top: 'top',
   TextAlignVerticalEnum.center: 'center',
   TextAlignVerticalEnum.bottom: 'bottom',
+};
+
+const _$TextInputValidatorCEnumMap = {
+  TextInputValidatorC.none: 'none',
+  TextInputValidatorC.required: 'required',
+  TextInputValidatorC.email: 'email',
+  TextInputValidatorC.phoneNumber: 'phoneNumber',
+  TextInputValidatorC.url: 'url',
+};
+
+const _$TextInputFormatterCEnumMap = {
+  TextInputFormatterC.noSlashes: 'noSlashes',
+  TextInputFormatterC.noSpaces: 'noSpaces',
+  TextInputFormatterC.noSpecialCharacters: 'noSpecialCharacters',
+  TextInputFormatterC.lettersOnly: 'lettersOnly',
+  TextInputFormatterC.numericOnly: 'numericOnly',
+  TextInputFormatterC.alphaNumericOnly: 'alphaNumericOnly',
+  TextInputFormatterC.numbersAndSymbolsOnly: 'numbersAndSymbolsOnly',
+  TextInputFormatterC.none: 'none',
 };

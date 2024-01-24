@@ -208,6 +208,13 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Whether the field expands vertically.
   late bool expands;
 
+  /// A validator that validate the value of the field.
+  late TextInputValidatorC validator;
+
+  /// A formatter that selectively allows or denies specific
+  /// characters of the input.
+  late TextInputFormatterC formatter;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
@@ -235,6 +242,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.expands = false,
     this.showDecimalKey = false,
     this.showSignKey = false,
+    this.validator = TextInputValidatorC.none,
+    this.formatter = TextInputFormatterC.none,
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -267,6 +276,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     bool? expands,
     bool? showDecimalKey,
     bool? showSignKey,
+    TextInputValidatorC? validator,
+    TextInputFormatterC? formatter,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -295,6 +306,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       expands: expands ?? this.expands,
       showDecimalKey: showDecimalKey ?? this.showDecimalKey,
       showSignKey: showSignKey ?? this.showSignKey,
+      validator: validator ?? this.validator,
+      formatter: formatter ?? this.formatter,
     );
   }
 
@@ -332,5 +345,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         expands,
         showDecimalKey,
         showSignKey,
+        validator,
+        formatter,
       ];
 }
