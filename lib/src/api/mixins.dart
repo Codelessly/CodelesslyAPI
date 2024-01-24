@@ -614,11 +614,11 @@ mixin GeometryMixin on BaseNode {
   /// Returns true if the node has any fills that can be interpreted as strokes.
   bool get hasStroke => strokes.isNotEmpty && strokeWeight > 0;
 
-  @override
-  EdgeInsetsModel minimumPadding() {
-    final double additionalPadding = strokes.isNotEmpty ? strokeWeight : 0.0;
-    return super.minimumPadding() + EdgeInsetsModel.all(additionalPadding);
-  }
+  // @override
+  // EdgeInsetsModel minimumPadding() {
+  //   final double additionalPadding = strokes.isNotEmpty ? strokeWeight : 0.0;
+  //   return super.minimumPadding() + EdgeInsetsModel.all(additionalPadding);
+  // }
 
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
