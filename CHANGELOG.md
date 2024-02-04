@@ -1,3 +1,7 @@
+## 1.1.0
+- New AutoComplete support for Variables.
+- Fix disable automatic padding from Frames with strokes.
+
 ## 1.0.0
 - Official v1 release!
 - Update triggers types.
