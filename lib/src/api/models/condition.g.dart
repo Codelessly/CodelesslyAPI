@@ -64,6 +64,8 @@ const _$ConditionOperationEnumMap = {
   ConditionOperation.isOdd: 'isOdd',
   ConditionOperation.isEven: 'isEven',
   ConditionOperation.isNull: 'isNull',
+  ConditionOperation.isTrue: 'isTrue',
+  ConditionOperation.isFalse: 'isFalse',
 };
 
 ExpressionGroup _$ExpressionGroupFromJson(Map json) => ExpressionGroup(

@@ -50,7 +50,13 @@ enum ConditionOperation {
   isEven,
 
   /// Checks if the value of the variable is null.
-  isNull;
+  isNull,
+
+  /// Checks if the value of the variable is true.
+  isTrue,
+
+  /// Checks if the value of the variable is false.
+  isFalse;
 
   /// label for the operation
   String get label => switch (this) {
@@ -66,6 +72,8 @@ enum ConditionOperation {
         isOdd => 'Is Odd',
         isEven => 'Is Even',
         isNull => 'Is Null',
+        isTrue => 'Is True',
+        isFalse => 'Is False',
       };
 
   /// short description of the operation
@@ -82,6 +90,8 @@ enum ConditionOperation {
         isOdd => 'is odd',
         isEven => 'is even',
         isNull => 'is null',
+        isTrue => 'is true',
+        isFalse => 'is false',
       };
 
   /// short description of the operation
@@ -98,6 +108,8 @@ enum ConditionOperation {
         isOdd => null,
         isEven => null,
         isNull => null,
+        isTrue => null,
+        isFalse => null,
       };
 
   /// Allows the provided [visitor] to visit this operation.
@@ -117,6 +129,8 @@ enum ConditionOperation {
         isOdd => visitor.visitIsOddOperator(left),
         isEven => visitor.visitIsEvenOperator(left),
         isNull => visitor.visitIsNullOperator(left),
+        isTrue => visitor.visitIsTrueOperator(left),
+        isFalse => visitor.visitIsFalseOperator(left),
       };
 
   /// Returns true if the operation requires a right operand.
@@ -133,6 +147,8 @@ enum ConditionOperation {
         isOdd => false,
         isEven => false,
         isNull => false,
+        isTrue => false,
+        isFalse => false,
       };
 }
 
@@ -684,6 +700,12 @@ abstract interface class ConditionOperatorVisitor {
 
   /// Visits a [ConditionOperation.isNull] operator.
   bool visitIsNullOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isTrue] operator.
+  bool visitIsTrueOperator(Object? value);
+
+  /// Visits a [ConditionOperation.isFalse] operator.
+  bool visitIsFalseOperator(Object? value);
 }
 
 /// An interface for evaluating conditions.
