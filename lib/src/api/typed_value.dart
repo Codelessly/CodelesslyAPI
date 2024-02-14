@@ -182,12 +182,24 @@ extension ConversionExt on Object? {
   }
 
   /// Converts given object to [ColorRGBA] if possible. Returns null otherwise.
-  ColorRGBA? toColorRGBA() {
+  ColorRGBA? toColorRGBA([double alpha = 1.0]) {
     final value = this;
     if (value == null) return null;
     if (value is ColorRGBA) return value;
     if (value is String) return ColorRGBA.fromHex(value);
-    if (value is ColorRGB) return value.toColorRGBA();
+    if (value is ColorRGB)
+      return ColorRGBA(r: value.r, g: value.g, b: value.b, a: alpha);
+
+    return null;
+  }
+
+  /// Converts given object to [ColorRGB] if possible. Returns null otherwise.
+  ColorRGB? toColorRGB() {
+    final value = this;
+    if (value == null) return null;
+    if (value is ColorRGB) return value;
+    if (value is String) return ColorRGB.fromHex(value);
+    if (value is ColorRGBA) return ColorRGB(r: value.r, g: value.g, b: value.b);
 
     return null;
   }
