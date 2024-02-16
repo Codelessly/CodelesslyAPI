@@ -187,8 +187,17 @@ extension ConversionExt on Object? {
     if (value == null) return null;
     if (value is ColorRGBA) return value;
     if (value is String) return ColorRGBA.fromHex(value);
-    if (value is ColorRGB)
+    if (value is ColorRGB) {
       return ColorRGBA(r: value.r, g: value.g, b: value.b, a: alpha);
+    }
+    if (value is PaintModel) {
+      return ColorRGBA(
+        r: value.color?.r ?? 0,
+        g: value.color?.g ?? 0,
+        b: value.color?.b ?? 0,
+        a: value.opacity,
+      );
+    }
 
     return null;
   }
@@ -200,6 +209,13 @@ extension ConversionExt on Object? {
     if (value is ColorRGB) return value;
     if (value is String) return ColorRGB.fromHex(value);
     if (value is ColorRGBA) return ColorRGB(r: value.r, g: value.g, b: value.b);
+    if (value is PaintModel) {
+      return ColorRGB(
+        r: value.color?.r ?? 0,
+        g: value.color?.g ?? 0,
+        b: value.color?.b ?? 0,
+      );
+    }
 
     return null;
   }
