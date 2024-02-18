@@ -1,3 +1,7 @@
+## 1.2.0
+- Implement isTrue and isFalse operators for conditions.
+- Refactor operator filtering to use index if available.
+
 ## 1.1.0
 - New AutoComplete support for Variables.
 - Fix disable automatic padding from Frames with strokes.
