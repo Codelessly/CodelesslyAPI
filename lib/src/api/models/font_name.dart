@@ -136,13 +136,6 @@ class FontName extends Equatable with SerializableMixin {
     weight: FontWeightNumeric.w400,
   );
 
-  /// Represents regular Inter font.
-  static const FontName montserratRegular = FontName(
-    family: 'Montserrat',
-    style: 'Normal',
-    weight: FontWeightNumeric.w400,
-  );
-
   @override
   List<Object?> get props => [family, style, weight];
 
