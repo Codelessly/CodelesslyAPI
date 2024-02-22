@@ -202,6 +202,24 @@ class TextProp extends Equatable with SerializableMixin {
         isJsonPath: isJsonPath ?? this.isJsonPath,
       );
 
+  /// Returns true if this instance is equivalent to the [other].
+  /// The reason this comparison is not done in [Equatable] is because
+  /// [fills] is a list of [PaintModel]s which each has their own
+  /// id, differentiating them from each other. So, we need to compare
+  /// each [PaintModel] in the list.
+  bool isEquivalentTo(TextProp? other) {
+    return other != null &&
+        fills.length == other.fills.length &&
+        fills.every((e) => other.fills.contains(e)) &&
+        textDecoration == other.textDecoration &&
+        fontSize == other.fontSize &&
+        letterSpacing == other.letterSpacing &&
+        fontName == other.fontName &&
+        lineHeight == other.lineHeight &&
+        link == other.link &&
+        isJsonPath == other.isJsonPath;
+  }
+
   @override
   List<Object> get props => [
         fills,
