@@ -1,3 +1,6 @@
+## 1.3.0
+- Remove Montserrat font.
+
 ## 1.2.0
 - Implement isTrue and isFalse operators for conditions.
 - Refactor operator filtering to use index if available.
