@@ -79,6 +79,20 @@ class StartEndProp extends TextProp {
     super.isJsonPath,
   });
 
+  /// Creates a [StartEndProp] with the given data from a [TextProp].
+  StartEndProp.fromTextProp(
+      {required this.start, required this.end, required TextProp prop})
+      : super(
+          fills: prop.fills,
+          textDecoration: prop.textDecoration,
+          letterSpacing: prop.letterSpacing,
+          fontSize: prop.fontSize,
+          fontName: prop.fontName,
+          lineHeight: prop.lineHeight,
+          link: prop.link,
+          isJsonPath: prop.isJsonPath,
+        );
+
   @override
   StartEndProp copyWith({
     int? start,
@@ -210,7 +224,7 @@ class TextProp extends Equatable with SerializableMixin {
   bool isEquivalentTo(TextProp? other) {
     return other != null &&
         fills.length == other.fills.length &&
-        fills.every((e) => other.fills.contains(e)) &&
+        fills.every((a) => other.fills.any((b) => a.isEquivalentTo(b))) &&
         textDecoration == other.textDecoration &&
         fontSize == other.fontSize &&
         letterSpacing == other.letterSpacing &&
