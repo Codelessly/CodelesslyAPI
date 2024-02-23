@@ -484,6 +484,35 @@ class PaintModel with EquatableMixin, SerializableMixin {
     }
   }
 
+  /// [PaintModel]s differentiate themselves with an [id], so we
+  /// need to manually compare the other fields.
+  bool isEquivalentTo(PaintModel? other) {
+    if (other == null) return false;
+    if (type != other.type) return false;
+    if (visible != other.visible) return false;
+    if (opacity != other.opacity) return false;
+    if (color != other.color) return false;
+    if (blendMode != other.blendMode) return false;
+    if (gradientTransform != other.gradientTransform) return false;
+    if (gradientStops != other.gradientStops) return false;
+    if (imageTransform != other.imageTransform) return false;
+    if (hasImageBytes != other.hasImageBytes) return false;
+    if (downloadUrl != other.downloadUrl) return false;
+    if (imageName != other.imageName) return false;
+    if (imageHash != other.imageHash) return false;
+    if (fit != other.fit) return false;
+    if (alignment != other.alignment) return false;
+    if (scaleX != other.scaleX) return false;
+    if (scaleY != other.scaleY) return false;
+    if (imageRepeat != other.imageRepeat) return false;
+    if (assetID != other.assetID) return false;
+    if (sourceWidth != other.sourceWidth) return false;
+    if (sourceHeight != other.sourceHeight) return false;
+    if (cropData != other.cropData) return false;
+    if (croppedImageURL != other.croppedImageURL) return false;
+    return true;
+  }
+
   @override
   List<Object?> get props => [
         id,
@@ -498,17 +527,17 @@ class PaintModel with EquatableMixin, SerializableMixin {
         hasImageBytes,
         downloadUrl,
         imageName,
+        imageHash,
+        fit,
+        alignment,
         scaleX,
         scaleY,
-        imageHash,
-        alignment,
-        fit,
-        cropData,
-        croppedImageURL,
-        sourceWidth,
-        sourceHeight,
         imageRepeat,
         assetID,
+        sourceWidth,
+        sourceHeight,
+        cropData,
+        croppedImageURL,
       ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
