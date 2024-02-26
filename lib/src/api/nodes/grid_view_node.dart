@@ -168,15 +168,9 @@ class GridViewNode extends SinglePlaceholderNode
     };
   }
 
-  /// Creates a [GridViewNode] from a JSON object.
-  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
-
-  @override
-  Map toJson() => _$GridViewNodeToJson(this);
-
   /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
-  AlignmentModel childAlignment() {
+  AlignmentModel gridChildAlignment() {
     switch (scrollDirection) {
       case AxisC.horizontal:
         return reverse ? AlignmentModel.topRight : AlignmentModel.topLeft;
@@ -184,6 +178,12 @@ class GridViewNode extends SinglePlaceholderNode
         return reverse ? AlignmentModel.bottomLeft : AlignmentModel.topLeft;
     }
   }
+
+  /// Creates a [GridViewNode] from a JSON object.
+  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
+
+  @override
+  Map toJson() => _$GridViewNodeToJson(this);
 }
 
 /// The properties of a [GridViewNode].
