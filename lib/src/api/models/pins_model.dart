@@ -125,6 +125,13 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   /// pins model is one which has no pin on a given axis.
   bool get isInvalidVertically => top == null && bottom == null;
 
+  /// Whether this [EdgePinsModel] has any negative pins.
+  bool get anyNegativePins =>
+      (left != null && left! < 0) ||
+      (top != null && top! < 0) ||
+      (right != null && right! < 0) ||
+      (bottom != null && bottom! < 0);
+
   /// Whether this [EdgePinsModel] is invalid on at least one axis.
   /// An invalid pins model is one which has no pin on a given axis.
   bool get isOneAxisInvalid => isInvalidHorizontally || isInvalidVertically;
@@ -207,6 +214,34 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
         EdgePin.right => copyWithRight(value),
         EdgePin.bottom => copyWithBottom(value)
       };
+
+  /// Returns a new [EdgePinsModel] with all negative pins clamped to zero.
+  EdgePinsModel copyWithNoNegativePins() {
+    double? newLeft = left;
+    double? newTop = top;
+    double? newRight = right;
+    double? newBottom = bottom;
+
+    if (newLeft != null && newLeft < 0) {
+      newLeft = 0;
+    }
+    if (newTop != null && newTop < 0) {
+      newTop = 0;
+    }
+    if (newRight != null && newRight < 0) {
+      newRight = 0;
+    }
+    if (newBottom != null && newBottom < 0) {
+      newBottom = 0;
+    }
+
+    return EdgePinsModel(
+      left: newLeft,
+      top: newTop,
+      right: newRight,
+      bottom: newBottom,
+    );
+  }
 
   /// Get a pin from this instance of [EdgePinsModel], given a [pin] enum.
   ///
