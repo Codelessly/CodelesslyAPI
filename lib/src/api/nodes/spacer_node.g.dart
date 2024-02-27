@@ -67,10 +67,8 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
     writeNotNull('constraints', instance.constraints,
         instance.constraints.toJson(), const BoxConstraintsModel());
   }
-  if (!excludeEdgePinsIf(instance)) {
-    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-        EdgePinsModel.standard);
-  }
+  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+      EdgePinsModel.standard);
   val['positioningMode'] = _$PositioningModeEnumMap[instance.positioningMode]!;
   writeNotNull('horizontalFit', instance.horizontalFit,
       _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);

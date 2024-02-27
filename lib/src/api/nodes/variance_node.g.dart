@@ -95,10 +95,8 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
     writeNotNull('constraints', instance.constraints,
         instance.constraints.toJson(), const BoxConstraintsModel());
   }
-  if (!excludeEdgePinsIf(instance)) {
-    writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-        EdgePinsModel.standard);
-  }
+  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+      EdgePinsModel.standard);
   writeNotNull(
       'positioningMode',
       instance.positioningMode,
