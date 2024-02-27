@@ -71,7 +71,7 @@ abstract class BaseNode
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
-  @JsonKey(excludeIf: excludeEdgePinsIf)
+  // @JsonKey(excludeIf: excludeEdgePinsIf)
   EdgePinsModel edgePins;
 
   /// [PositioningMode] defines if the node positions itself using [alignment]
