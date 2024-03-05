@@ -3,7 +3,6 @@ import 'where_query_filter.dart';
 
 /// An abstract class that represents common firestore operations.
 abstract class QueryFilter {
-
   /// The name of the field to target.
   final String field;
 
