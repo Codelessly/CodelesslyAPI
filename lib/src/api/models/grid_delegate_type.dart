@@ -10,7 +10,7 @@ enum GridDelegateType {
 
   /// Pretty name of the enum value.
   String get label => switch (this) {
-    fixedCrossAxisCount => 'Fixed Cross Axis Count',
-    maxCrossAxisExtent => 'Max Cross Axis Extent',
-  };
+        fixedCrossAxisCount => 'Fixed Cross Axis Count',
+        maxCrossAxisExtent => 'Max Cross Axis Extent',
+      };
 }
