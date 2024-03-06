@@ -1,3 +1,10 @@
+## 1.4.0
+- New StyleSheets support! Define common color and text styles.
+- Update GridView `childAlignment` property. Minor refactor.
+- Improve Edge Pins.
+  - Fix edge pins not being saved.
+  - Clamp edge pins to positive values in wrapping parent layouts.
+
 ## 1.3.0
 - Remove Montserrat font.
 
