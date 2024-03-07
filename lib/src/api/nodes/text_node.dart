@@ -143,6 +143,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   }
 
   @override
+  List<TriggerType> get triggerTypes =>
+      [TriggerType.click, TriggerType.longPress];
+
+  @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     StringValue(name: 'characters', value: characters),
