@@ -132,6 +132,9 @@ class FloatingActionButtonProperties
   /// Space between the icon and label for [FloatingActionButtonType.extended].
   double extendedIconLabelSpacing;
 
+  @override
+  List<TriggerType> get triggerTypes => [TriggerType.click];
+
   /// Creates a [FloatingActionButtonProperties] with the given data.
   FloatingActionButtonProperties({
     this.backgroundColor = ColorRGBA.black,
