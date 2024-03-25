@@ -56,15 +56,11 @@ class Breakpoint with EquatableMixin, SerializableMixin {
   /// Upper bound of this breakpoint. It is an integer, but supports infinity.
   final num upperBound;
 
-  /// Scale mode of this breakpoint.
-  final ScaleMode scaleMode;
-
   /// Creates new [Breakpoint] with given values.
   const Breakpoint({
     required this.nodeId,
-    required this.lowerBound,
-    required this.upperBound,
-    required this.scaleMode,
+    this.lowerBound = 0,
+    this.upperBound = double.infinity,
   });
 
   /// Duplicates this [Breakpoint] with given data overrides.
@@ -72,17 +68,15 @@ class Breakpoint with EquatableMixin, SerializableMixin {
     String? nodeId,
     num? lowerBound,
     num? upperBound,
-    ScaleMode? scaleMode,
   }) =>
       Breakpoint(
         nodeId: nodeId ?? this.nodeId,
         lowerBound: lowerBound ?? this.lowerBound,
         upperBound: upperBound ?? this.upperBound,
-        scaleMode: scaleMode ?? this.scaleMode,
       );
 
   @override
-  List<Object?> get props => [nodeId, lowerBound, upperBound, scaleMode];
+  List<Object?> get props => [nodeId, lowerBound, upperBound];
 
   /// Factory constructor for creating a new [Breakpoint] instance from
   /// JSON data.
