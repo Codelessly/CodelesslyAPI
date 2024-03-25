@@ -50,6 +50,37 @@ class NullableDateTimeConverter extends JsonConverter<DateTime?, int?> {
 }
 
 /// Top level converter for serializing Nodes map to and from JSON.
+class CanvasesMapConverter extends JsonConverter<
+    Map<String, Map<String, BaseNode>>, Map<String, dynamic>> {
+  /// Creates a new instance of [CanvasesMapConverter].
+  const CanvasesMapConverter();
+
+  @override
+  Map<String, Map<String, BaseNode>> fromJson(Map<String, dynamic> json) =>
+      deserialize(json);
+
+  @override
+  Map<String, dynamic> toJson(Map<String, Map<String, BaseNode>> object) =>
+      serialize(object);
+
+  /// Top level function to deserialize a JSON Map into a map of node ID to node.
+  static Map<String, Map<String, BaseNode>> deserialize(
+          Map<String, dynamic> value) =>
+      {
+        for (final MapEntry(key: key, value: value) in value.entries)
+          key: NodesMapConverter.deserialize(value),
+      };
+
+  /// Top level function to serialize a map of node ID to node into a JSON map.
+  static Map<String, dynamic> serialize(
+          Map<String, Map<String, BaseNode>> canvases) =>
+      {
+        for (final MapEntry(key: key, value: value) in canvases.entries)
+          key: NodesMapConverter.serialize(value),
+      };
+}
+
+/// Top level converter for serializing Nodes map to and from JSON.
 class NodesMapConverter
     extends JsonConverter<Map<String, BaseNode>, Map<String, dynamic>> {
   /// Creates a new instance of [NodesMapConverter].
