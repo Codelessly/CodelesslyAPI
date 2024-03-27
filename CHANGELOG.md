@@ -1,3 +1,6 @@
+## 1.5.0
+- Fix text node not allowing actions.
+
 ## 1.4.0
 - New StyleSheets support! Define common color and text styles.
 - Update GridView `childAlignment` property. Minor refactor.
