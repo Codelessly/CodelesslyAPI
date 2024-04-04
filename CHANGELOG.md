@@ -1,3 +1,7 @@
+## 1.6.0
+- Initial CloudUI support for Layout Groups.
+  - Display different layouts for different screen sizes.
+
 ## 1.5.0
 - Fix text node not allowing actions.
 
