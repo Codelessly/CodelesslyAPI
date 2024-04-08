@@ -6,7 +6,6 @@ library codelessly_api;
 
 export 'src/api/constants.dart';
 export 'src/api/converters.dart';
-export 'src/api/custom_component.dart';
 export 'src/api/extensions.dart';
 export 'src/api/generate_id.dart';
 export 'src/api/math_helper.dart';
