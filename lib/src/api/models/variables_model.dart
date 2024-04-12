@@ -297,6 +297,7 @@ class RuntimeVariableData extends VariableData {
   }
 }
 
+/// A type that defines a callback to get the value of an accessor.
 typedef GetValueCallback = Object? Function(Object? value);
 
 /// Defines an accessor for a variable.
