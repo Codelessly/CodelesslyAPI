@@ -188,8 +188,13 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
 
   /// Factory constructor for creating a new [MultiSourceIconModel] instance
   /// from JSON data.
-  factory MultiSourceIconModel.fromJson(Map json) =>
-      _$MultiSourceIconModelFromJson(json);
+  factory MultiSourceIconModel.fromJson(Map json) {
+    if(json['type'] == 'MATERIAL_ICON') {
+      // backward compatibility
+      json['type'] = 'image';
+    }
+    return _$MultiSourceIconModelFromJson(json);
+  }
 
   @override
   Map toJson() => _$MultiSourceIconModelToJson(this);
