@@ -134,7 +134,22 @@ abstract class ValueModel<T extends Object?> with SerializableMixin {
 
   /// Creates a new [ValueModel] instance from a JSON data.
   static ValueModel fromJson(Map json) {
-    final type = ValueType.values.byName(json['type']);
+    final ValueType type;
+    if (json['type'] == null) {
+      // backward compatibility
+      final value = json['value'];
+      type = switch (value) {
+        String() => ValueType.string,
+        int() => ValueType.int,
+        double() => ValueType.double,
+        bool() => ValueType.bool,
+        Map() when value['value']?['r'] != null => ValueType.color,
+        Map() when value['value']?['id'] != null => ValueType.paint,
+        _ => throw 'Invalid value type: $value',
+      };
+    } else {
+      type = ValueType.values.byName(json['type'] ?? 'string');
+    }
     switch (type) {
       case ValueType.bool:
         return BoolValue.fromJson(json);
