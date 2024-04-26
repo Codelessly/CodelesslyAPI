@@ -47,13 +47,14 @@ class LoadFromCloudStorageAction extends ActionModel
     List<WhereQueryFilter>? whereFilters,
     List<OrderByQueryFilter>? orderByFilters,
     int? limit,
+    bool useCloudDatabase = true,
   }) : super(type: ActionType.loadFromCloudStorage) {
     setQueryableMixin(
       collectionPath: path,
       limit: limit,
       whereFilters: whereFilters ?? [],
       orderByFilters: orderByFilters ?? [],
-      useCloudDatabase: true,
+      useCloudDatabase: useCloudDatabase,
     );
   }
 

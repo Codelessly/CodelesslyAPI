@@ -26,9 +26,9 @@ LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
               OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
       limit: json['limit'] as int?,
+      useCloudDatabase: json['useCloudDatabase'] as bool? ?? true,
     )
       ..type = $enumDecode(_$ActionTypeEnumMap, json['type'])
-      ..useCloudDatabase = json['useCloudDatabase'] as bool
       ..collectionPath = json['collectionPath'] as String?;
 
 Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
@@ -50,7 +50,8 @@ Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
   writeNotNull(
       'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['useCloudDatabase'] = instance.useCloudDatabase;
+  writeNotNull('useCloudDatabase', instance.useCloudDatabase,
+      instance.useCloudDatabase, true);
   writeNotNull(
       'collectionPath', instance.collectionPath, instance.collectionPath, null);
   writeNotNull('limit', instance.limit, instance.limit, null);
