@@ -221,7 +221,7 @@ extension ConversionExt on Object? {
   }
 
   /// Converts given object to a map if possible. Returns null otherwise.
-  Map? toMap() {
+  Map<Object?,Object?>? toMap() {
     if (this == null) return null;
     if (this is Map) return this as Map;
     if (this is String) return tryJsonDecode(this as String).tryCast<Map>();
