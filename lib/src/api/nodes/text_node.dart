@@ -104,6 +104,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.positioningMode,
     super.parentID,
     super.reactions,
+
     // [TextMixin] properties.
     required String characters,
     List<StartEndProp> textMixedProps = const [],
@@ -113,6 +114,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TextAlignVerticalEnum textAlignVertical = TextAlignVerticalEnum.top,
     int? maxLines,
     TextOverflowC overflow = TextOverflowC.clip,
+    String? documentId,
     // [BlendMixin] properties.
     double opacity = 1.0,
     bool isMask = false,
@@ -131,6 +133,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
       paragraphSpacing: paragraphSpacing,
       maxLines: maxLines,
       overflow: overflow,
+      documentId: documentId,
     );
 
     setBlendMixin(
@@ -190,6 +193,10 @@ mixin TextMixin {
   /// Defines how the text would clip when it overflows the available space.
   late TextOverflowC overflow;
 
+  /// Whether this text node should render a [MarkdownDocumentModel] from the
+  /// user's account.
+  late String? documentId;
+
   /// Set text properties.
   void setTextMixin({
     required String characters,
@@ -200,6 +207,7 @@ mixin TextMixin {
     required double paragraphSpacing,
     required TextOverflowC overflow,
     int? maxLines,
+    String? documentId,
   }) {
     this.characters = characters;
     this.textMixedProps = textMixedProps;
@@ -209,6 +217,7 @@ mixin TextMixin {
     this.paragraphSpacing = paragraphSpacing;
     this.maxLines = maxLines;
     this.overflow = overflow;
+    this.documentId = documentId;
   }
 }
 

@@ -428,7 +428,7 @@ abstract class BaseNode
   /// [horizontalFit] and [verticalFit] are used to determine what type of
   /// numbers [internalConstraints] should use. It will normally use this
   /// node's [horizontalFit] and [verticalFit] if not provided. These two
-  /// SizeFits properties are mainly overridden to determine the validity of
+  /// SizeFit properties are mainly overridden to determine the validity of
   /// certain layout changes. For example, nodes with image fills change their
   /// constraints based on if they are shrink-wrapping or not.
   ///
@@ -454,19 +454,20 @@ abstract class BaseNode
 
   /// Returns ideal default padding for the node.
   ///
-  /// For example, when it comes to icon buttons, this is used when the
-  /// button's type, shape, or size fits change to allow the button to adjust
-  /// its padding to fit the new type, shape, or size.
-  /// Because if an icon button suddenly wraps with zero padding, it shows
-  /// only the icon, which is not ideal. So, [preferredDefaultPadding] is used
-  /// to set a default padding when that property changes.
+  /// For example, when it comes to icon buttons, when the button's type, shape,
+  /// or size fits change, the padding is automatically restructured to allow
+  /// the button to fit the new type, shape, or size with nice defaults.
+  /// If an icon button is switched to use wrapping fits, it might wrap with
+  /// zero padding which is undesirable as a default IconButton comes with
+  /// generous padding out of the box. This function is therefore used to set
+  /// nice default padding values when such properties change.
   ///
   /// When this is null, the padding is unaffected while editor operations
   /// are performed. If it is not null, the returned padding is enforced onto
   /// the node when editor operations are performed.
   EdgeInsetsModel? preferredDefaultPadding() => null;
 
-  /// We have the [padding] field, but we also have an [minimumPadding] field.
+  /// We have the [padding] field, but we also have a [minimumPadding] field.
   ///
   /// This function will resolve the maximum of every side of [minimumPadding]
   /// to the [padding] field to get a complete picture of the padding.
