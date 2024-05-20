@@ -198,7 +198,9 @@ mixin TextMixin {
     int? maxLines,
   }) {
     this.characters = characters;
-    this.textMixedProps = textMixedProps;
+    this.textMixedProps = textMixedProps.isEmpty && characters.isNotEmpty
+        ? [StartEndProp(start: 0, end: characters.length)]
+        : textMixedProps;
     this.textAlignHorizontal = textAlignHorizontal;
     this.textAlignVertical = textAlignVertical;
     this.paragraphIndent = paragraphIndent;

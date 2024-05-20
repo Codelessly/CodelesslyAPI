@@ -135,26 +135,38 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
       );
     }
     if (json is Iterable) {
-      return CornerRadius(
-        tl: RadiusModel(
-          x: json.elementAt(0).toDouble(),
-          y: json.elementAt(1).toDouble(),
-        ),
-        tr: RadiusModel(
-          x: json.elementAt(2).toDouble(),
-          y: json.elementAt(3).toDouble(),
-        ),
-        bl: RadiusModel(
-          x: json.elementAt(4).toDouble(),
-          y: json.elementAt(5).toDouble(),
-        ),
-        br: RadiusModel(
-          x: json.elementAt(6).toDouble(),
-          y: json.elementAt(7).toDouble(),
-        ),
-        linked: json.elementAt(8),
-        type: RadiusType.values.byName(json.elementAt(9)),
-      );
+      final length = json.length;
+      if (length == 6) {
+        return CornerRadius.only(
+          tl: RadiusModel.circular(json.elementAt(0).toDouble()),
+          tr: RadiusModel.circular(json.elementAt(1).toDouble()),
+          bl: RadiusModel.circular(json.elementAt(2).toDouble()),
+          br: RadiusModel.circular(json.elementAt(3).toDouble()),
+          linked: json.elementAt(4),
+          type: RadiusType.values.byName(json.elementAt(5)),
+        );
+      } else {
+        return CornerRadius(
+          tl: RadiusModel(
+            x: json.elementAt(0).toDouble(),
+            y: json.elementAt(1).toDouble(),
+          ),
+          tr: RadiusModel(
+            x: json.elementAt(2).toDouble(),
+            y: json.elementAt(3).toDouble(),
+          ),
+          bl: RadiusModel(
+            x: json.elementAt(4).toDouble(),
+            y: json.elementAt(5).toDouble(),
+          ),
+          br: RadiusModel(
+            x: json.elementAt(6).toDouble(),
+            y: json.elementAt(7).toDouble(),
+          ),
+          linked: json.elementAt(8),
+          type: RadiusType.values.byName(json.elementAt(9)),
+        );
+      }
     }
     return _$CornerRadiusFromJson(json);
   }
