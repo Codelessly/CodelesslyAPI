@@ -1,7 +1,3 @@
-// Copyright (c) 2022, Codelessly.
-// All rights reserved. Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE.md file.
-
 /// Represents different types of border shapes.
 enum CShapeBorder {
   /// Rectangle shape with sharp and pointy corners.

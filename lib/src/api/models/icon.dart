@@ -1,7 +1,3 @@
-// Copyright (c) 2022, Codelessly.
-// All rights reserved. Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE.md file.
-
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
@@ -189,7 +185,7 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   /// Factory constructor for creating a new [MultiSourceIconModel] instance
   /// from JSON data.
   factory MultiSourceIconModel.fromJson(Map json) {
-    if(json['type'] == 'MATERIAL_ICON') {
+    if (json['type'] == 'MATERIAL_ICON') {
       // backward compatibility
       json['type'] = 'image';
     }

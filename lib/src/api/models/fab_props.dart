@@ -1,7 +1,3 @@
-// Copyright (c) 2022, Codelessly.
-// All rights reserved. Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE.md file.
-
 /// Type of the FAB based on its size.
 enum FloatingActionButtonType {
   /// A FAB with regular size.

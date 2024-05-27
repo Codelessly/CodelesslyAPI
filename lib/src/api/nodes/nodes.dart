@@ -1,7 +1,3 @@
-// Copyright (c) 2022, Codelessly.
-// All rights reserved. Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE.md file.
-
 export 'accordion_node.dart';
 export 'app_bar_node.dart';
 export 'auto_placeholder_node.dart';
