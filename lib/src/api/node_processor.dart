@@ -247,13 +247,18 @@ class NodeProcessor {
     return parents;
   }
 
-  /// Sorted nodes is a list of nodes that go from parent -> child.
+  /// Sorted nodes is a list of nodes that go from parent -> child using
+  /// a merge sort with memoization.
   static void sortNodes(List<BaseNode> nodes) {
     // We cache the parent chains for each node to avoid
     // re-computing them multiple times as an optimization.
-    final Map<BaseNode, List<String>> parentChains = {};
+    // This is also known as memoization.
+    final Map<BaseNode, List<String>> parentChains = {
+      for (final node in nodes)
+        if (node.id != kRootNode) node: _allParentsOfNode(node),
+    };
 
-    nodes.sort((a, b) {
+    mergeSort(nodes, compare: (a, b) {
       if (a.id == kRootNode) return -1;
       if (b.id == kRootNode) return 1;
 
@@ -265,23 +270,18 @@ class NodeProcessor {
             bParent.childrenOrEmpty.indexOf(b.id);
       }
 
-      parentChains.putIfAbsent(a, () => _allParentsOfNode(a));
-      parentChains.putIfAbsent(b, () => _allParentsOfNode(b));
+      final List<String> aParents = parentChains[a]!;
+      final List<String> bParents = parentChains[b]!;
 
-      final List<String> aParents = parentChains[a] ?? const [];
-      final List<String> bParents = parentChains[b] ?? const [];
+      final bool aParentOfB = bParents.contains(a.id);
+      final bool bParentOfA = aParents.contains(b.id);
 
-      final int aIndex = bParents.indexOf(a.id);
-      final int bIndex = aParents.indexOf(b.id);
-
-      if (aIndex == -1 && bIndex == -1) {
-        return bParents.indexOf(kRootNode) - aParents.indexOf(kRootNode);
-      } else if (bIndex == -1) {
-        return -1;
-      } else if (aIndex == -1) {
+      if (bParentOfA) {
         return 1;
+      } else if (aParentOfB) {
+        return -1;
       } else {
-        return bIndex - aIndex;
+        return aParents.length - bParents.length;
       }
     });
   }
@@ -427,6 +427,7 @@ class NodeProcessor {
       recursivelyCalculateChildren:
           !performLayoutRan && recursivelyCalculateChildrenGlobalBoxes,
       updatingSortedNodeList: updatingSortedNodeList,
+      didPerformLayout: performLayoutRan,
     );
 
     _computeInnerBoxLocal(node);
@@ -436,14 +437,19 @@ class NodeProcessor {
     BaseNode node, {
     bool recursivelyCalculateChildren = true,
     bool updatingSortedNodeList = false,
+    bool didPerformLayout = false,
   }) {
     // Order matters.
     // Middle and inner boxes depend on outer.
     // Rotated boxes depend on all of them.
-    _computeOuterBoxGlobal(
-      node,
-      updatingSortedNodeList: updatingSortedNodeList,
-    );
+    // If a perform layout was run, then the layout system produced new
+    // global outer boxes. No need to recompute them.
+    if (!didPerformLayout) {
+      _computeOuterBoxGlobal(
+        node,
+        updatingSortedNodeList: updatingSortedNodeList,
+      );
+    }
     _computeMiddleBoxGlobal(node);
     _computeInnerBoxGlobal(node);
 
@@ -458,6 +464,7 @@ class NodeProcessor {
         _computeGlobalAndRotatedBoxes(
           childNode,
           updatingSortedNodeList: updatingSortedNodeList,
+          didPerformLayout: didPerformLayout,
         );
       }
     }
@@ -571,7 +578,7 @@ class NodeProcessor {
   /// top-left corner of the bounding box.
   ///
   /// if [updatingSortedNodeList] is true, then you are currently updating a
-  /// list of nodes one-by-one order from parent to child order. If this is
+  /// list of nodes one-by-one from parent to child order. If this is
   /// the case, then we can make important assumptions that can help optimize
   /// and avoid recursive computation.
   static Vec calculateGlobalRotatedBoxTopLeft(
@@ -698,7 +705,7 @@ class NodeProcessor {
   /// top-left corner of the bounding box.
   ///
   /// This function is used when you are updating a list of nodes one-by-one
-  /// order from parent to child order. If this is the case, then we can make
+  /// from parent to child order. If this is the case, then we can make
   /// important assumptions that can help optimize and avoid recursive
   /// computation.
   static Vec calculateSortedGlobalRotatedBoxTopLeft(
@@ -723,8 +730,6 @@ class NodeProcessor {
         ? parent.basicBoxLocal
         : boundaryType.getGlobalBoxForNode(parent);
     final NodeBox nodeBox = boundaryType.getLocalBoxForNode(node);
-
-    currentVec = Vec.zero;
 
     if (node.globalRotationDegrees == 0) {
       currentVec = parentBox is OuterNodeBox
