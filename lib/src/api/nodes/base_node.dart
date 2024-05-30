@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
 import '../constants.dart';
