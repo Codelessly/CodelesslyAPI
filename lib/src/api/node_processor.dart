@@ -249,7 +249,7 @@ class NodeProcessor {
 
   /// Sorted nodes is a list of nodes that go from parent -> child using
   /// a merge sort with memoization.
-  static void sortNodes(List<BaseNode> nodes) {
+  static void sortNodes(List<BaseNode> nodes, {bool reversed = false}) {
     // We cache the parent chains for each node to avoid
     // re-computing them multiple times as an optimization.
     // This is also known as memoization.
@@ -259,15 +259,20 @@ class NodeProcessor {
     };
 
     mergeSort(nodes, compare: (a, b) {
-      if (a.id == kRootNode) return -1;
-      if (b.id == kRootNode) return 1;
+      if (a.id == kRootNode) return reversed ? 1 : -1;
+      if (b.id == kRootNode) return reversed ? -1 : 1;
 
       final BaseNode aParent = getNode(a.parentID);
       final BaseNode bParent = getNode(b.parentID);
 
       if (aParent.id == bParent.id) {
-        return aParent.childrenOrEmpty.indexOf(a.id) -
-            bParent.childrenOrEmpty.indexOf(b.id);
+        if (reversed) {
+          return bParent.childrenOrEmpty.indexOf(b.id) -
+              aParent.childrenOrEmpty.indexOf(a.id);
+        } else {
+          return aParent.childrenOrEmpty.indexOf(a.id) -
+              bParent.childrenOrEmpty.indexOf(b.id);
+        }
       }
 
       final List<String> aParents = parentChains[a]!;
@@ -277,11 +282,15 @@ class NodeProcessor {
       final bool bParentOfA = aParents.contains(b.id);
 
       if (bParentOfA) {
-        return 1;
+        return reversed ? -1 : 1;
       } else if (aParentOfB) {
-        return -1;
+        return reversed ? 1 : -1;
       } else {
-        return aParents.length - bParents.length;
+        if (reversed) {
+          return bParents.length - aParents.length;
+        } else {
+          return aParents.length - bParents.length;
+        }
       }
     });
   }
