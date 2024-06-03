@@ -881,6 +881,12 @@ enum RowColumnType {
 
   /// Whether this is a column.
   bool get isColumn => this == RowColumnType.column;
+
+  /// Returns the opposite of this [RowColumnType].
+  RowColumnType get opposite => switch (this) {
+        RowColumnType.row => RowColumnType.column,
+        RowColumnType.column => RowColumnType.row,
+      };
 }
 
 /// A mixin that allows node to have sequential children layout like row and
