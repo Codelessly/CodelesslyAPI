@@ -145,6 +145,9 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
   /// Radius of the corners of the checkbox.
   late CornerRadius cornerRadius;
 
+  /// Whether the checkbox is compact.
+  late bool compact;
+
   /// Creates a [CheckboxProperties] with the given data.
   CheckboxProperties({
     this.checkColor = ColorRGBA.white,
@@ -157,6 +160,7 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
     this.cornerRadius = const CornerRadius.all(RadiusModel.circular(3)),
     this.splashRadius = kRadialReactionRadius,
     this.autofocus = false,
+    this.compact = false,
   });
 
   /// Duplicates this [CheckboxProperties] instance with the given data
@@ -172,6 +176,7 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
     CornerRadius? cornerRadius,
     double? splashRadius,
     bool? autofocus,
+    bool? compact,
   }) {
     return CheckboxProperties(
       checkColor: checkColor ?? this.checkColor,
@@ -184,6 +189,7 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
       focusColor: focusColor ?? this.focusColor,
       splashRadius: splashRadius ?? this.splashRadius,
       autofocus: autofocus ?? this.autofocus,
+      compact: compact ?? this.compact,
     );
   }
 
@@ -199,6 +205,7 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
         focusColor,
         splashRadius,
         autofocus,
+        compact,
       ];
 
   /// Creates a [CheckboxProperties] from a JSON object.
