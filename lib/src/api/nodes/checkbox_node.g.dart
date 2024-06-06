@@ -153,6 +153,7 @@ CheckboxProperties _$CheckboxPropertiesFromJson(Map json) => CheckboxProperties(
       splashRadius:
           (json['splashRadius'] as num?)?.toDouble() ?? kRadialReactionRadius,
       autofocus: json['autofocus'] as bool? ?? false,
+      compact: json['compact'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$CheckboxPropertiesToJson(CheckboxProperties instance) {
@@ -188,5 +189,6 @@ Map<String, dynamic> _$CheckboxPropertiesToJson(CheckboxProperties instance) {
       instance.cornerRadius,
       instance.cornerRadius.toJson(),
       const CornerRadius.all(RadiusModel.circular(3)));
+  writeNotNull('compact', instance.compact, instance.compact, false);
   return val;
 }
