@@ -64,7 +64,7 @@ abstract class DefaultShapeNode extends SceneNode
     double strokeWeight = 0,
     double strokeMiterLimit = 4.0,
     StrokeAlignC strokeAlign = StrokeAlignC.inside,
-    StrokeCapEnum strokeCap = StrokeCapEnum.butt,
+    StrokeCapEnum strokeCap = StrokeCapEnum.none,
     List<double> dashPattern = const [],
     StrokeSide strokeSide = StrokeSide.all,
   }) {
@@ -478,7 +478,7 @@ enum StrokeCapEnum {
   ///
   /// Compare to the [square] cap, which has the same shape, but extends past
   /// the end of the line by half a stroke width.
-  butt,
+  none,
 
   /// Begin and end contours with a half square extension. This is similar to
   /// extending each contour by half the stroke width/thickness.
@@ -576,7 +576,7 @@ mixin GeometryMixin on BaseNode {
   late StrokeAlignC strokeAlign;
 
   /// Type of line cap to use for the stroke.
-  @JsonKey(unknownEnumValue: StrokeCapEnum.butt)
+  @JsonKey(unknownEnumValue: StrokeCapEnum.none)
   late StrokeCapEnum strokeCap;
 
   /// The pattern of dashes and gaps to apply to the stroke in case of dashed
