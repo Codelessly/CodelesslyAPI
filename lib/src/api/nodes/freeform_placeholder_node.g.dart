@@ -71,8 +71,8 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
           $enumDecodeNullable(_$StrokeAlignCEnumMap, json['strokeAlign']) ??
               StrokeAlignC.inside,
       strokeCap: $enumDecodeNullable(_$StrokeCapEnumEnumMap, json['strokeCap'],
-              unknownValue: StrokeCapEnum.square) ??
-          StrokeCapEnum.square,
+              unknownValue: StrokeCapEnum.none) ??
+          StrokeCapEnum.none,
       dashPattern: (json['dashPattern'] as List<dynamic>?)
               ?.map((e) => (e as num).toDouble())
               .toList() ??
@@ -168,7 +168,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   writeNotNull('strokeAlign', instance.strokeAlign,
       _$StrokeAlignCEnumMap[instance.strokeAlign]!, StrokeAlignC.inside);
   writeNotNull('strokeCap', instance.strokeCap,
-      _$StrokeCapEnumEnumMap[instance.strokeCap]!, StrokeCapEnum.square);
+      _$StrokeCapEnumEnumMap[instance.strokeCap]!, StrokeCapEnum.none);
   writeNotNull(
       'dashPattern', instance.dashPattern, instance.dashPattern, const []);
   writeNotNull('strokeSide', instance.strokeSide,
@@ -230,7 +230,7 @@ const _$StrokeAlignCEnumMap = {
 
 const _$StrokeCapEnumEnumMap = {
   StrokeCapEnum.round: 'round',
-  StrokeCapEnum.butt: 'butt',
+  StrokeCapEnum.none: 'none',
   StrokeCapEnum.square: 'square',
 };
 

@@ -172,7 +172,7 @@ Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
 
 const _$StrokeCapEnumEnumMap = {
   StrokeCapEnum.round: 'round',
-  StrokeCapEnum.butt: 'butt',
+  StrokeCapEnum.none: 'none',
   StrokeCapEnum.square: 'square',
 };
 
