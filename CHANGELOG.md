@@ -1,5 +1,10 @@
+## 2.0.0
+- Update Checkbox shrinkwrap and padding sizing.
+- Change default Stroke cap to none.
+- Optimize node sorting algorithm.
+
 ## 1.8.0
-- Custom Layout IDs support! Use a human readable ID for CodelesslyWidgets to help identify and differentiate CloudUI in your code.
+- Custom Layout IDs support! Now you can give your CloudUIs a name which makes identifying them much easier.
 
 ## 1.7.0
 - Teams v1 support.
