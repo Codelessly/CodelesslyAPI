@@ -65,5 +65,9 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
   factory RectangleNode.fromJson(Map json) => _$RectangleNodeFromJson(json);
 
   @override
+  List<TriggerType> get triggerTypes =>
+      [TriggerType.click, TriggerType.longPress];
+
+  @override
   Map toJson() => _$RectangleNodeToJson(this);
 }
