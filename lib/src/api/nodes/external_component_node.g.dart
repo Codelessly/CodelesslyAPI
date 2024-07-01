@@ -41,16 +41,20 @@ ExternalComponentNode _$ExternalComponentNodeFromJson(Map json) =>
       positioningMode: $enumDecodeNullable(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
-    )
-      ..variables = (json['variables'] as Map?)?.map(
+      reactions: (json['reactions'] as List<dynamic>?)
+              ?.map((e) => Reaction.fromJson(e as Map))
+              .toList() ??
+          [],
+      variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
-          {}
-      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+          {},
+      multipleVariables: (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
-          {}
+          {},
+    )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
@@ -69,6 +73,8 @@ Map<String, dynamic> _$ExternalComponentNodeToJson(
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
