@@ -737,7 +737,13 @@ mixin CornerMixin on BaseNode {
 }
 
 /// Indicates that the node has some custom properties.
-mixin CustomPropertiesMixin on BaseNode {}
+mixin CustomPropertiesMixin on BaseNode {
+  /// Whether the node with custom properties handles its default reactions
+  /// like click, long press, etc. internally. If this is true then the
+  /// node itself is responsible for handling its own reactions. Otherwise,
+  /// the transformer will provide for the default reactions.
+  bool get handlesDefaultReactionsInternally => true;
+}
 
 /// Defines node that preserves its aspect ratio and cannot be resized by only
 /// its width or height.

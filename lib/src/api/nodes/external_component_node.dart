@@ -9,7 +9,7 @@ part 'external_component_node.g.dart';
 /// An inert node that does nothing.
 /// This is populated dynamically through the Codelessly SDK.
 @JsonSerializable()
-class ExternalComponentNode extends BaseNode with CustomPropertiesMixin {
+class ExternalComponentNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'external';
 
@@ -19,6 +19,9 @@ class ExternalComponentNode extends BaseNode with CustomPropertiesMixin {
   /// Another reason is that the ID can be used more than once to map multiple
   /// nodes to the same widget builder.
   String? builderID;
+
+  @override
+  bool get handlesDefaultReactionsInternally => false;
 
   /// Creates an [ExternalComponentNode] with the given data.
   ExternalComponentNode({
@@ -40,11 +43,19 @@ class ExternalComponentNode extends BaseNode with CustomPropertiesMixin {
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
+    super.parentID,
+    super.reactions,
+    super.variables,
+    super.multipleVariables,
   });
 
   /// Creates a [ExternalComponentNode] from a JSON object.
   factory ExternalComponentNode.fromJson(Map json) =>
       _$ExternalComponentNodeFromJson(json);
+
+  @override
+  List<TriggerType> get triggerTypes =>
+      [TriggerType.click, TriggerType.longPress];
 
   @override
   Map toJson() => _$ExternalComponentNodeToJson(this);
