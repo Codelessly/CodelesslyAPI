@@ -88,7 +88,10 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+  };
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -100,11 +103,6 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
     }
   }
 
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
@@ -128,6 +126,9 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       AlignmentModel.none);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -139,12 +140,12 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
