@@ -1,3 +1,7 @@
+## 2.0.2
+- Update external components with reactions.
+- Add click and long click reactions to rectangle node.
+
 ## 2.0.0
 - Update Checkbox shrinkwrap and padding sizing.
 - Change default Stroke cap to none.
