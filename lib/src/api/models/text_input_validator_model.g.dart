@@ -6,17 +6,97 @@ part of 'text_input_validator_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-TextInputValidatorModel _$TextInputValidatorModelFromJson(Map json) =>
-    TextInputValidatorModel(
+NoneTextInputValidatorModel _$NoneTextInputValidatorModelFromJson(Map json) =>
+    NoneTextInputValidatorModel();
+
+Map<String, dynamic> _$NoneTextInputValidatorModelToJson(
+        NoneTextInputValidatorModel instance) =>
+    <String, dynamic>{
+      'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
+    };
+
+const _$TextInputValidatorTypeEnumMap = {
+  TextInputValidatorType.none: 'none',
+  TextInputValidatorType.regex: 'regex',
+  TextInputValidatorType.url: 'url',
+};
+
+RegexTextInputValidatorModel _$RegexTextInputValidatorModelFromJson(Map json) =>
+    RegexTextInputValidatorModel(
       name: json['name'] as String,
       pattern: json['pattern'] as String,
       errorMessage: json['errorMessage'] as String,
+      caseSensitive: json['caseSensitive'] as bool? ?? true,
+      dotAll: json['dotAll'] as bool? ?? false,
+      multiLine: json['multiLine'] as bool? ?? false,
+      unicode: json['unicode'] as bool? ?? false,
+      validationType: $enumDecodeNullable(
+              _$RegexValidationTypeEnumMap, json['validationType']) ??
+          RegexValidationType.allow,
+      required: json['required'] as bool? ?? false,
     );
 
-Map<String, dynamic> _$TextInputValidatorModelToJson(
-        TextInputValidatorModel instance) =>
-    <String, dynamic>{
-      'pattern': instance.pattern,
-      'name': instance.name,
-      'errorMessage': instance.errorMessage,
-    };
+Map<String, dynamic> _$RegexTextInputValidatorModelToJson(
+    RegexTextInputValidatorModel instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('required', instance.required, instance.required, false);
+  val['type'] = _$TextInputValidatorTypeEnumMap[instance.type]!;
+  val['pattern'] = instance.pattern;
+  val['errorMessage'] = instance.errorMessage;
+  writeNotNull(
+      'caseSensitive', instance.caseSensitive, instance.caseSensitive, true);
+  writeNotNull('dotAll', instance.dotAll, instance.dotAll, false);
+  writeNotNull('multiLine', instance.multiLine, instance.multiLine, false);
+  writeNotNull('unicode', instance.unicode, instance.unicode, false);
+  writeNotNull(
+      'validationType',
+      instance.validationType,
+      _$RegexValidationTypeEnumMap[instance.validationType]!,
+      RegexValidationType.allow);
+  return val;
+}
+
+const _$RegexValidationTypeEnumMap = {
+  RegexValidationType.allow: 'allow',
+  RegexValidationType.deny: 'deny',
+};
+
+UrlTextInputValidatorModel _$UrlTextInputValidatorModelFromJson(Map json) =>
+    UrlTextInputValidatorModel(
+      errorMessage: json['errorMessage'] as String?,
+      required: json['required'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$UrlTextInputValidatorModelToJson(
+    UrlTextInputValidatorModel instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('required', instance.required, instance.required, false);
+  val['type'] = _$TextInputValidatorTypeEnumMap[instance.type]!;
+  writeNotNull(
+      'errorMessage', instance.errorMessage, instance.errorMessage, null);
+  return val;
+}

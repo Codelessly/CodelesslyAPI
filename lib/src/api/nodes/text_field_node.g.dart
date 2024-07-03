@@ -179,8 +179,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
           ? TextInputFormatterModel.none
           : TextInputFormatterModel.fromJson(json['formatter'] as Map),
       validator: json['validator'] == null
-          ? TextInputValidatorModel.none
-          : TextInputValidatorModel.fromJson(json['validator'] as Map),
+          ? const NoneTextInputValidatorModel()
+          : TextInputValidatorModel.fromJson(
+              Map<String, dynamic>.from(json['validator'] as Map)),
       autofillHints: (json['autofillHints'] as List<dynamic>?)
               ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
               .toList() ??
@@ -259,7 +260,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   writeNotNull('formatter', instance.formatter, instance.formatter.toJson(),
       TextInputFormatterModel.none);
   writeNotNull('validator', instance.validator, instance.validator.toJson(),
-      TextInputValidatorModel.none);
+      const NoneTextInputValidatorModel());
   writeNotNull(
       'autofillHints',
       instance.autofillHints,
