@@ -186,11 +186,6 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects the holder's last/family name as given on a credit
   /// card.
-  ///
-  /// This hint will be translated to the below values on different platforms:
-  ///
-  /// * web: ["cc-family-name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
-  /// * Otherwise, the hint string will be used as-is.
   creditCardFamilyName(
     'creditCardFamilyName',
     'Credit Card Family Name',
@@ -205,11 +200,6 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects the holder's first/given name as given on a credit
   /// card.
-  ///
-  /// This hint will be translated to the below values on different platforms:
-  ///
-  /// * web: ["cc-given-name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
-  /// * Otherwise, the hint string will be used as-is.
   creditCardGivenName(
     'creditCardGivenName',
     'Credit Card Given Name',
@@ -623,7 +613,6 @@ This hint will be translated to the below values on different platforms:
   ),
 
   /// The input field expects an extended ZIP/POSTAL code.
-// static const String postalAddressExtendedPostalCode = 'postalAddressExtendedPostalCode';
   postalAddressExtendedPostalCode(
     'postalAddressExtendedPostalCode',
     'Postal Address Extended Postal Code',
