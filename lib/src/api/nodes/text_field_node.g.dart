@@ -178,6 +178,13 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       formatter: json['formatter'] == null
           ? TextInputFormatterModel.none
           : TextInputFormatterModel.fromJson(json['formatter'] as Map),
+      validator: json['validator'] == null
+          ? TextInputValidatorModel.none
+          : TextInputValidatorModel.fromJson(json['validator'] as Map),
+      autofillHints: (json['autofillHints'] as List<dynamic>?)
+              ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
+              .toList() ??
+          [],
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -251,6 +258,15 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   writeNotNull('expands', instance.expands, instance.expands, false);
   writeNotNull('formatter', instance.formatter, instance.formatter.toJson(),
       TextInputFormatterModel.none);
+  writeNotNull('validator', instance.validator, instance.validator.toJson(),
+      TextInputValidatorModel.none);
+  writeNotNull(
+      'autofillHints',
+      instance.autofillHints,
+      instance.autofillHints
+          .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
+          .toList(),
+      const []);
   return val;
 }
 
@@ -293,4 +309,77 @@ const _$TextAlignVerticalEnumEnumMap = {
   TextAlignVerticalEnum.top: 'top',
   TextAlignVerticalEnum.center: 'center',
   TextAlignVerticalEnum.bottom: 'bottom',
+};
+
+const _$TextInputAutofillHintsEnumMap = {
+  TextInputAutofillHints.addressCity: 'addressCity',
+  TextInputAutofillHints.addressCityAndState: 'addressCityAndState',
+  TextInputAutofillHints.addressState: 'addressState',
+  TextInputAutofillHints.birthday: 'birthday',
+  TextInputAutofillHints.birthdayDay: 'birthdayDay',
+  TextInputAutofillHints.birthdayMonth: 'birthdayMonth',
+  TextInputAutofillHints.birthdayYear: 'birthdayYear',
+  TextInputAutofillHints.countryCode: 'countryCode',
+  TextInputAutofillHints.countryName: 'countryName',
+  TextInputAutofillHints.creditCardExpirationDate: 'creditCardExpirationDate',
+  TextInputAutofillHints.creditCardExpirationDay: 'creditCardExpirationDay',
+  TextInputAutofillHints.creditCardExpirationMonth: 'creditCardExpirationMonth',
+  TextInputAutofillHints.creditCardExpirationYear: 'creditCardExpirationYear',
+  TextInputAutofillHints.creditCardFamilyName: 'creditCardFamilyName',
+  TextInputAutofillHints.creditCardGivenName: 'creditCardGivenName',
+  TextInputAutofillHints.creditCardMiddleName: 'creditCardMiddleName',
+  TextInputAutofillHints.creditCardName: 'creditCardName',
+  TextInputAutofillHints.creditCardNumber: 'creditCardNumber',
+  TextInputAutofillHints.creditCardSecurityCode: 'creditCardSecurityCode',
+  TextInputAutofillHints.creditCardType: 'creditCardType',
+  TextInputAutofillHints.email: 'email',
+  TextInputAutofillHints.familyName: 'familyName',
+  TextInputAutofillHints.fullStreetAddress: 'fullStreetAddress',
+  TextInputAutofillHints.gender: 'gender',
+  TextInputAutofillHints.givenName: 'givenName',
+  TextInputAutofillHints.impp: 'impp',
+  TextInputAutofillHints.jobTitle: 'jobTitle',
+  TextInputAutofillHints.language: 'language',
+  TextInputAutofillHints.location: 'location',
+  TextInputAutofillHints.middleInitial: 'middleInitial',
+  TextInputAutofillHints.middleName: 'middleName',
+  TextInputAutofillHints.name: 'name',
+  TextInputAutofillHints.namePrefix: 'namePrefix',
+  TextInputAutofillHints.nameSuffix: 'nameSuffix',
+  TextInputAutofillHints.newPassword: 'newPassword',
+  TextInputAutofillHints.newUsername: 'newUsername',
+  TextInputAutofillHints.nickname: 'nickname',
+  TextInputAutofillHints.oneTimeCode: 'oneTimeCode',
+  TextInputAutofillHints.organizationName: 'organizationName',
+  TextInputAutofillHints.password: 'password',
+  TextInputAutofillHints.photo: 'photo',
+  TextInputAutofillHints.postalAddress: 'postalAddress',
+  TextInputAutofillHints.postalAddressExtended: 'postalAddressExtended',
+  TextInputAutofillHints.postalAddressExtendedPostalCode:
+      'postalAddressExtendedPostalCode',
+  TextInputAutofillHints.postalCode: 'postalCode',
+  TextInputAutofillHints.streetAddressLevel1: 'streetAddressLevel1',
+  TextInputAutofillHints.streetAddressLevel2: 'streetAddressLevel2',
+  TextInputAutofillHints.streetAddressLevel3: 'streetAddressLevel3',
+  TextInputAutofillHints.streetAddressLevel4: 'streetAddressLevel4',
+  TextInputAutofillHints.streetAddressLine1: 'streetAddressLine1',
+  TextInputAutofillHints.streetAddressLine2: 'streetAddressLine2',
+  TextInputAutofillHints.streetAddressLine3: 'streetAddressLine3',
+  TextInputAutofillHints.sublocality: 'sublocality',
+  TextInputAutofillHints.telephoneNumber: 'telephoneNumber',
+  TextInputAutofillHints.telephoneNumberAreaCode: 'telephoneNumberAreaCode',
+  TextInputAutofillHints.telephoneNumberCountryCode:
+      'telephoneNumberCountryCode',
+  TextInputAutofillHints.telephoneNumberDevice: 'telephoneNumberDevice',
+  TextInputAutofillHints.telephoneNumberExtension: 'telephoneNumberExtension',
+  TextInputAutofillHints.telephoneNumberLocal: 'telephoneNumberLocal',
+  TextInputAutofillHints.telephoneNumberLocalPrefix:
+      'telephoneNumberLocalPrefix',
+  TextInputAutofillHints.telephoneNumberLocalSuffix:
+      'telephoneNumberLocalSuffix',
+  TextInputAutofillHints.telephoneNumberNational: 'telephoneNumberNational',
+  TextInputAutofillHints.transactionAmount: 'transactionAmount',
+  TextInputAutofillHints.transactionCurrency: 'transactionCurrency',
+  TextInputAutofillHints.url: 'url',
+  TextInputAutofillHints.username: 'username',
 };
