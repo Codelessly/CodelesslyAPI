@@ -18,6 +18,9 @@ extension StringExtensions on String {
       return variablePath.replaceFirst('\${$oldName', '\${$newName');
     });
   }
+
+  /// Returns true if this string exactly matches the given [pattern].
+  bool hasExactMatch(Pattern pattern) => pattern.hasExactMatch(this);
 }
 
 /// A helper extension that adds additional functionality to [Iterable].
@@ -62,5 +65,15 @@ extension RoundNum on num {
     if (isNaN || isInfinite) return this;
     _formatter.maximumFractionDigits = precision;
     return num.parse(_formatter.format(this));
+  }
+}
+
+/// A helper extension that adds additional functionality to [Pattern].
+extension PatternExt on Pattern {
+  /// Returns true if [input] exactly matches the patten.
+  bool hasExactMatch(String? input) {
+    final Match? match = matchAsPrefix(input ??= '');
+    if (match == null) return false;
+    return match.start == 0 && match.end == input.length;
   }
 }

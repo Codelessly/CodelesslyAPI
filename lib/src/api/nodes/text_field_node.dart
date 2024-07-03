@@ -242,7 +242,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.showDecimalKey = false,
     this.showSignKey = false,
     this.formatter = TextInputFormatterModel.none,
-    this.validator = TextInputValidatorModel.none,
+    this.validator = const NoneTextInputValidatorModel(),
     this.autofillHints = const [],
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
