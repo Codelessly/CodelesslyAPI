@@ -124,85 +124,90 @@ class TextFieldNode extends SceneNode
 @JsonSerializable()
 class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Whether to enable automatically correct the input text.
-  late bool autoCorrect;
+  bool autoCorrect;
 
   /// Whether to focus on text field automatically.
-  late bool autoFocus;
+  bool autoFocus;
 
   /// Whether to enable text selection via mouse drag.
-  late bool enableInteractiveSelection;
+  bool enableInteractiveSelection;
 
   /// Whether the field is enabled.
-  late bool enabled;
+  bool enabled;
 
   /// Whether to obscure the input text. Used for password fields.
-  late bool obscureText;
+  bool obscureText;
 
   /// Whether the field is read-only.
-  late bool readOnly;
+  bool readOnly;
 
   /// Whether to show the cursor in the field.
-  late bool showCursor;
+  bool showCursor;
 
   /// Whether to show the decimal key in the soft input keyboard.
-  late bool showDecimalKey;
+  bool showDecimalKey;
 
   /// Whether to show the sign key in the soft input keyboard.
-  late bool showSignKey;
+  bool showSignKey;
 
   /// The type of keyboard that pops up when inputting text in the field.
   /// For example, if the field should only accept numbers, the keyboard type
   /// should be [TextInputTypeEnum.number].
-  late TextInputTypeEnum keyboardType;
+  TextInputTypeEnum keyboardType;
 
   /// Defines how the selection highlighter box covers space vertically.
   @JsonKey(unknownEnumValue: BoxHeightStyleEnum.tight)
-  late BoxHeightStyleEnum selectionHeightStyle;
+  BoxHeightStyleEnum selectionHeightStyle;
 
   /// Defines how the selection highlighter box covers space horizontally.
   @JsonKey(unknownEnumValue: BoxWidthStyleEnum.tight)
-  late BoxWidthStyleEnum selectionWidthStyle;
+  BoxWidthStyleEnum selectionWidthStyle;
 
   /// Defines how input text is aligned horizontally in the field.
-  late TextAlignHorizontalEnum textAlign;
+  TextAlignHorizontalEnum textAlign;
 
   /// Defines how input text is aligned vertically in the field.
-  late TextAlignVerticalEnum textAlignVertical;
+  TextAlignVerticalEnum textAlignVertical;
 
   /// Color of the field cursor.
-  late ColorRGB cursorColor;
+  ColorRGB cursorColor;
 
   /// Height of the field cursor.
-  late double cursorHeight;
+  double cursorHeight;
 
   /// Width of the field cursor.
-  late double cursorWidth;
+  double cursorWidth;
 
   /// Radius of the field cursor.
-  late double cursorRadius;
+  double cursorRadius;
 
   /// Maximum characters that can be inputted in the field.
-  late int? maxLength;
+  int? maxLength;
 
   /// Maximum lines of text that appear at a time before the field becomes
   /// scrollable.
-  late int? maxLines;
+  int? maxLines;
 
   /// Maximum lines of text that appear at a time.
-  late int? minLines;
+  int? minLines;
 
   /// Defines the character that is used to obscure the text in the field.
   /// Defaults to '•'.
-  late String obscuringCharacter;
+  String obscuringCharacter;
 
   /// Text style applied to the input text.
-  late TextProp inputStyle;
+  TextProp inputStyle;
 
   /// Text field decoration.
-  late InputDecorationModel decoration;
+  InputDecorationModel decoration;
 
   /// Whether the field expands vertically.
-  late bool expands;
+  bool expands;
+
+  /// Formatter to apply to the text field input.
+  TextInputFormatterModel formatter;
+
+  TextInputValidatorModel validator;
 
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
@@ -231,6 +236,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.expands = false,
     this.showDecimalKey = false,
     this.showSignKey = false,
+    this.formatter = TextInputFormatterModel.none,
+    this.validator = TextInputValidatorModel.none,
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -263,6 +270,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     bool? expands,
     bool? showDecimalKey,
     bool? showSignKey,
+    TextInputFormatterModel? formatter,
+    TextInputValidatorModel? validator,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -291,6 +300,8 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       expands: expands ?? this.expands,
       showDecimalKey: showDecimalKey ?? this.showDecimalKey,
       showSignKey: showSignKey ?? this.showSignKey,
+      formatter: formatter ?? this.formatter,
+      validator: validator ?? this.validator,
     );
   }
 
@@ -328,5 +339,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         expands,
         showDecimalKey,
         showSignKey,
+        formatter,
+        validator,
       ];
 }

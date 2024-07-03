@@ -72,6 +72,8 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -98,8 +100,6 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -175,6 +175,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       expands: json['expands'] as bool? ?? false,
       showDecimalKey: json['showDecimalKey'] as bool? ?? false,
       showSignKey: json['showSignKey'] as bool? ?? false,
+      formatter: json['formatter'] == null
+          ? TextInputFormatterModel.none
+          : TextInputFormatterModel.fromJson(json['formatter'] as Map),
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -246,6 +249,8 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   val['inputStyle'] = instance.inputStyle.toJson();
   val['decoration'] = instance.decoration.toJson();
   writeNotNull('expands', instance.expands, instance.expands, false);
+  writeNotNull('formatter', instance.formatter, instance.formatter.toJson(),
+      TextInputFormatterModel.none);
   return val;
 }
 
