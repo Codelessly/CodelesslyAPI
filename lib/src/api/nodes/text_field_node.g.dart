@@ -184,8 +184,8 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
               Map<String, dynamic>.from(json['validator'] as Map)),
       autofillHints: (json['autofillHints'] as List<dynamic>?)
               ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
-              .toList() ??
-          [],
+              .toSet() ??
+          {},
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -267,7 +267,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
       instance.autofillHints
           .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
           .toList(),
-      const []);
+      const {});
   return val;
 }
 

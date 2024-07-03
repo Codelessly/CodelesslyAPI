@@ -212,7 +212,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
 
   /// A list of autofill hints that the field should provide to underlying
   /// device's autofill service.
-  List<TextInputAutofillHints> autofillHints;
+  Set<TextInputAutofillHints> autofillHints;
 
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
@@ -243,7 +243,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.showSignKey = false,
     this.formatter = TextInputFormatterModel.none,
     this.validator = const NoneTextInputValidatorModel(),
-    this.autofillHints = const [],
+    this.autofillHints = const {},
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -278,7 +278,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     bool? showSignKey,
     TextInputFormatterModel? formatter,
     TextInputValidatorModel? validator,
-    List<TextInputAutofillHints>? autofillHints,
+    Set<TextInputAutofillHints>? autofillHints,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
