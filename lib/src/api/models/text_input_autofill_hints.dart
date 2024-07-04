@@ -58,11 +58,11 @@ This hint will be translated to the below values on different platforms:
   ''',
   ),
 
-  /// The input field expects a person's birth day(of the month).
+  /// The input field expects a person's birth day (of the month).
   birthdayDay(
     'birthdayDay',
     'Birthday Day',
-    "The input field expects a person's birth day(of the month).",
+    "The input field expects a person's birth day (of the month).",
     '''
 This hint will be translated to the below values on different platforms:
 
