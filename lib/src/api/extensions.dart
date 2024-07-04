@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 
 import '../../codelessly_api.dart';
@@ -75,5 +76,24 @@ extension PatternExt on Pattern {
     final Match? match = matchAsPrefix(input ??= '');
     if (match == null) return false;
     return match.start == 0 && match.end == input.length;
+  }
+}
+
+/// A helper extension that adds additional functionality to
+/// [TextInputValidatorModel] iterable.
+extension TextInputValidatorModelIterableExt<T extends TextInputValidatorModel>
+    on Iterable<T> {
+  /// Returns the first [TextInputValidatorModel] with the given [name].
+  /// Returns null if no validator is found.
+  T? byNameOrNull(String name) =>
+      firstWhereOrNull((model) => model.name == name);
+
+  /// Returns the first [TextInputValidatorModel] with the given [name].
+  T byName(String name) {
+    final T? model = byNameOrNull(name);
+    if (model == null) {
+      throw ArgumentError('No validator found with the name: $name');
+    }
+    return model;
   }
 }
