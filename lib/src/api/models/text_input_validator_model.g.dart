@@ -17,9 +17,20 @@ Map<String, dynamic> _$NoneTextInputValidatorModelToJson(
 
 const _$TextInputValidatorTypeEnumMap = {
   TextInputValidatorType.none: 'none',
+  TextInputValidatorType.required: 'required',
   TextInputValidatorType.regex: 'regex',
   TextInputValidatorType.url: 'url',
 };
+
+RequiredTextInputValidatorModel _$RequiredTextInputValidatorModelFromJson(
+        Map json) =>
+    RequiredTextInputValidatorModel();
+
+Map<String, dynamic> _$RequiredTextInputValidatorModelToJson(
+        RequiredTextInputValidatorModel instance) =>
+    <String, dynamic>{
+      'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
+    };
 
 RegexTextInputValidatorModel _$RegexTextInputValidatorModelFromJson(Map json) =>
     RegexTextInputValidatorModel(
@@ -40,6 +51,7 @@ Map<String, dynamic> _$RegexTextInputValidatorModelToJson(
     RegexTextInputValidatorModel instance) {
   final val = <String, dynamic>{
     'name': instance.name,
+    'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
   };
 
   void writeNotNull(
@@ -53,9 +65,8 @@ Map<String, dynamic> _$RegexTextInputValidatorModelToJson(
   }
 
   writeNotNull('required', instance.required, instance.required, false);
-  val['type'] = _$TextInputValidatorTypeEnumMap[instance.type]!;
-  val['pattern'] = instance.pattern;
   val['errorMessage'] = instance.errorMessage;
+  val['pattern'] = instance.pattern;
   writeNotNull(
       'caseSensitive', instance.caseSensitive, instance.caseSensitive, true);
   writeNotNull('dotAll', instance.dotAll, instance.dotAll, false);
@@ -76,13 +87,15 @@ const _$RegexValidationTypeEnumMap = {
 
 UrlTextInputValidatorModel _$UrlTextInputValidatorModelFromJson(Map json) =>
     UrlTextInputValidatorModel(
-      errorMessage: json['errorMessage'] as String?,
+      errorMessage: json['errorMessage'] as String? ?? 'Invalid URL',
       required: json['required'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$UrlTextInputValidatorModelToJson(
     UrlTextInputValidatorModel instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
+  };
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -95,8 +108,7 @@ Map<String, dynamic> _$UrlTextInputValidatorModelToJson(
   }
 
   writeNotNull('required', instance.required, instance.required, false);
-  val['type'] = _$TextInputValidatorTypeEnumMap[instance.type]!;
-  writeNotNull(
-      'errorMessage', instance.errorMessage, instance.errorMessage, null);
+  writeNotNull('errorMessage', instance.errorMessage, instance.errorMessage,
+      'Invalid URL');
   return val;
 }

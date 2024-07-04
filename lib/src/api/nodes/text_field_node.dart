@@ -210,6 +210,10 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// Validator to apply to the text field input.
   TextInputValidatorModel validator;
 
+  /// Represents when to autovalidate the field. Defaults to
+  /// [AutovalidateModeC.onUserInteraction].
+  AutovalidateModeC autovalidateMode;
+
   /// A list of autofill hints that the field should provide to underlying
   /// device's autofill service.
   Set<TextInputAutofillHints> autofillHints;
@@ -243,6 +247,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.showSignKey = false,
     this.formatter = TextInputFormatterModel.none,
     this.validator = const NoneTextInputValidatorModel(),
+    this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
@@ -279,6 +284,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     TextInputFormatterModel? formatter,
     TextInputValidatorModel? validator,
     Set<TextInputAutofillHints>? autofillHints,
+    AutovalidateModeC? autovalidateMode,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -310,6 +316,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       formatter: formatter ?? this.formatter,
       validator: validator ?? this.validator,
       autofillHints: autofillHints ?? this.autofillHints,
+      autovalidateMode: autovalidateMode ?? this.autovalidateMode,
     );
   }
 
@@ -350,5 +357,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         formatter,
         validator,
         autofillHints,
+        autovalidateMode,
       ];
 }

@@ -182,6 +182,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
           ? const NoneTextInputValidatorModel()
           : TextInputValidatorModel.fromJson(
               Map<String, dynamic>.from(json['validator'] as Map)),
+      autovalidateMode: $enumDecodeNullable(
+              _$AutovalidateModeCEnumMap, json['autovalidateMode']) ??
+          AutovalidateModeC.onUserInteraction,
       autofillHints: (json['autofillHints'] as List<dynamic>?)
               ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
               .toSet() ??
@@ -262,6 +265,11 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   writeNotNull('validator', instance.validator, instance.validator.toJson(),
       const NoneTextInputValidatorModel());
   writeNotNull(
+      'autovalidateMode',
+      instance.autovalidateMode,
+      _$AutovalidateModeCEnumMap[instance.autovalidateMode]!,
+      AutovalidateModeC.onUserInteraction);
+  writeNotNull(
       'autofillHints',
       instance.autofillHints,
       instance.autofillHints
@@ -310,6 +318,12 @@ const _$TextAlignVerticalEnumEnumMap = {
   TextAlignVerticalEnum.top: 'top',
   TextAlignVerticalEnum.center: 'center',
   TextAlignVerticalEnum.bottom: 'bottom',
+};
+
+const _$AutovalidateModeCEnumMap = {
+  AutovalidateModeC.disabled: 'disabled',
+  AutovalidateModeC.always: 'always',
+  AutovalidateModeC.onUserInteraction: 'onUserInteraction',
 };
 
 const _$TextInputAutofillHintsEnumMap = {
