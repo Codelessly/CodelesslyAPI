@@ -267,16 +267,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
     errorMessage: 'Invalid email address.',
   );
 
-  /// A validator for phone numbers.
-  static const RegexTextInputValidatorModel phoneNumber =
-      RegexTextInputValidatorModel(
-    name: 'Phone Number',
-    pattern:
-        r'^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$',
-    errorMessage: 'Invalid phone number.',
-  );
-
-  /// A validator for phone numbers.
+  /// A validator for custom regex patterns.
   static const RegexTextInputValidatorModel custom =
       RegexTextInputValidatorModel(
     name: 'Custom Regex',
@@ -290,7 +281,6 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
     RegexTextInputValidatorModel.alphabetsOnly,
     RegexTextInputValidatorModel.alphanumeric,
     RegexTextInputValidatorModel.email,
-    RegexTextInputValidatorModel.phoneNumber,
     RegexTextInputValidatorModel.custom,
   ];
 
