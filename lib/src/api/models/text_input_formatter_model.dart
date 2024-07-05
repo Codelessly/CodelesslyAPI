@@ -32,7 +32,7 @@ sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
     final TextInputFormatterType type =
         TextInputFormatterType.values.byName(json['type']);
     return switch (type) {
-      TextInputFormatterType.none => NoneTextInputFormatter.fromJson(json),
+      TextInputFormatterType.none => NoneTextInputFormatterModel.fromJson(json),
       TextInputFormatterType.regex =>
         RegexTextInputFormatterModel.fromJson(json),
     };
@@ -40,7 +40,7 @@ sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
 
   /// A list of all available text field formatters.
   static const List<TextInputFormatterModel> formatters = [
-    NoneTextInputFormatter(),
+    NoneTextInputFormatterModel(),
     ...RegexTextInputFormatterModel.formatters,
   ];
 
@@ -55,17 +55,17 @@ sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
 
 /// A formatter than does not restrict the input in any way.
 @JsonSerializable()
-class NoneTextInputFormatter extends TextInputFormatterModel {
-  /// Creates a new [NoneTextInputFormatter] instance.
-  const NoneTextInputFormatter()
+class NoneTextInputFormatterModel extends TextInputFormatterModel {
+  /// Creates a new [NoneTextInputFormatterModel] instance.
+  const NoneTextInputFormatterModel()
       : super(name: 'None', type: TextInputFormatterType.none);
 
   /// Creates a [TextInputFormatterModel] instance from a JSON object.
-  factory NoneTextInputFormatter.fromJson(Map<String, dynamic> json) =>
-      _$NoneTextInputFormatterFromJson(json);
+  factory NoneTextInputFormatterModel.fromJson(Map<String, dynamic> json) =>
+      _$NoneTextInputFormatterModelFromJson(json);
 
   @override
-  Map toJson() => _$NoneTextInputFormatterToJson(this);
+  Map toJson() => _$NoneTextInputFormatterModelToJson(this);
 }
 
 /// Text formatters that can be applied to the text field input to restrict the

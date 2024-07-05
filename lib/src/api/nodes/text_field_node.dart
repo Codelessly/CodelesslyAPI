@@ -245,7 +245,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.expands = false,
     this.showDecimalKey = false,
     this.showSignKey = false,
-    this.formatter = const NoneTextInputFormatter(),
+    this.formatter = const NoneTextInputFormatterModel(),
     this.validator = const NoneTextInputValidatorModel(),
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},

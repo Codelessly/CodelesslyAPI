@@ -24,13 +24,31 @@ const _$TextInputValidatorTypeEnumMap = {
 
 RequiredTextInputValidatorModel _$RequiredTextInputValidatorModelFromJson(
         Map json) =>
-    RequiredTextInputValidatorModel();
+    RequiredTextInputValidatorModel(
+      errorMessage:
+          json['errorMessage'] as String? ?? 'This field is required.',
+    );
 
 Map<String, dynamic> _$RequiredTextInputValidatorModelToJson(
-        RequiredTextInputValidatorModel instance) =>
-    <String, dynamic>{
-      'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
-    };
+    RequiredTextInputValidatorModel instance) {
+  final val = <String, dynamic>{
+    'type': _$TextInputValidatorTypeEnumMap[instance.type]!,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('errorMessage', instance.errorMessage, instance.errorMessage,
+      'This field is required.');
+  return val;
+}
 
 RegexTextInputValidatorModel _$RegexTextInputValidatorModelFromJson(Map json) =>
     RegexTextInputValidatorModel(
