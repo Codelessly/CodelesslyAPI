@@ -122,7 +122,7 @@ class RegexTextInputFormatterModel extends TextInputFormatterModel {
 
   /// Allow only phone number format in the text field.
   static const RegexTextInputFormatterModel noSpaces =
-      RegexTextInputFormatterModel(name: 'No Spaces', pattern: r'^[^\s]*$');
+      RegexTextInputFormatterModel(name: 'No Spaces', pattern: r'[\S]');
 
   /// Allow only phone number format in the text field.
   static const RegexTextInputFormatterModel custom =
