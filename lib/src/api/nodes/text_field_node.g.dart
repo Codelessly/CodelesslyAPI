@@ -176,8 +176,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       showDecimalKey: json['showDecimalKey'] as bool? ?? false,
       showSignKey: json['showSignKey'] as bool? ?? false,
       formatter: json['formatter'] == null
-          ? TextInputFormatterModel.none
-          : TextInputFormatterModel.fromJson(json['formatter'] as Map),
+          ? const NoneTextInputFormatter()
+          : TextInputFormatterModel.fromJson(
+              Map<String, dynamic>.from(json['formatter'] as Map)),
       validator: json['validator'] == null
           ? const NoneTextInputValidatorModel()
           : TextInputValidatorModel.fromJson(
@@ -261,7 +262,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
   val['decoration'] = instance.decoration.toJson();
   writeNotNull('expands', instance.expands, instance.expands, false);
   writeNotNull('formatter', instance.formatter, instance.formatter.toJson(),
-      TextInputFormatterModel.none);
+      const NoneTextInputFormatter());
   writeNotNull('validator', instance.validator, instance.validator.toJson(),
       const NoneTextInputValidatorModel());
   writeNotNull(
