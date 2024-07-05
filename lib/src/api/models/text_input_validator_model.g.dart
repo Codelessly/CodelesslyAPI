@@ -41,9 +41,7 @@ RegexTextInputValidatorModel _$RegexTextInputValidatorModelFromJson(Map json) =>
       dotAll: json['dotAll'] as bool? ?? false,
       multiLine: json['multiLine'] as bool? ?? false,
       unicode: json['unicode'] as bool? ?? false,
-      validationType: $enumDecodeNullable(
-              _$RegexValidationTypeEnumMap, json['validationType']) ??
-          RegexValidationType.allow,
+      allow: json['allow'] as bool? ?? true,
       required: json['required'] as bool? ?? false,
     );
 
@@ -72,18 +70,9 @@ Map<String, dynamic> _$RegexTextInputValidatorModelToJson(
   writeNotNull('dotAll', instance.dotAll, instance.dotAll, false);
   writeNotNull('multiLine', instance.multiLine, instance.multiLine, false);
   writeNotNull('unicode', instance.unicode, instance.unicode, false);
-  writeNotNull(
-      'validationType',
-      instance.validationType,
-      _$RegexValidationTypeEnumMap[instance.validationType]!,
-      RegexValidationType.allow);
+  writeNotNull('allow', instance.allow, instance.allow, true);
   return val;
 }
-
-const _$RegexValidationTypeEnumMap = {
-  RegexValidationType.allow: 'allow',
-  RegexValidationType.deny: 'deny',
-};
 
 UrlTextInputValidatorModel _$UrlTextInputValidatorModelFromJson(Map json) =>
     UrlTextInputValidatorModel(

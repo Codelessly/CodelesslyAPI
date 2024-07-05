@@ -167,7 +167,6 @@ sealed class ConfigurableTextInputValidatorModel
 
   /// Creates a copy of this instance with the given properties replaced.
   ConfigurableTextInputValidatorModel copyWith({
-    String? name,
     bool? required,
     String? errorMessage,
   });
@@ -197,15 +196,6 @@ class RequiredTextInputValidatorModel extends TextInputValidatorModel {
   Map toJson() => _$RequiredTextInputValidatorModelToJson(this);
 }
 
-/// Represents the type of validation to perform.
-enum RegexValidationType {
-  /// Allow the input if it matches the pattern.
-  allow,
-
-  /// Deny the input if it matches the pattern.
-  deny,
-}
-
 /// Represents a regular expression based text input validator.
 @JsonSerializable()
 class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
@@ -229,8 +219,8 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
   /// Defaults to `false`.
   final bool unicode;
 
-  /// The type of validation to perform. Default is [RegexValidationType.allow].
-  final RegexValidationType validationType;
+  /// Whether to allow or deny the pattern match.
+  final bool allow;
 
   /// Whether this is a custom regex validator.
   bool get isCustom => name == 'Custom Regex';
@@ -293,7 +283,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
     this.dotAll = false,
     this.multiLine = false,
     this.unicode = false,
-    this.validationType = RegexValidationType.allow,
+    this.allow = true,
     super.required,
   }) : super(type: TextInputValidatorType.regex);
 
@@ -304,11 +294,8 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       return null;
     }
     try {
-      final bool hasExactMatch = regex.hasExactMatch(input);
-      final bool isValid = switch (validationType) {
-        RegexValidationType.allow => hasExactMatch,
-        RegexValidationType.deny => !hasExactMatch,
-      };
+      final bool isValid =
+          allow ? regex.hasExactMatch(input) : regex.hasMatch(input);
 
       if (isValid) return null;
       return errorMessage;
@@ -340,25 +327,24 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
   /// Creates a copy of this instance with the given properties replaced.
   @override
   RegexTextInputValidatorModel copyWith({
-    String? name,
     String? pattern,
     String? errorMessage,
     bool? caseSensitive,
     bool? dotAll,
     bool? multiLine,
     bool? unicode,
-    RegexValidationType? validationType,
+    bool? allow,
     bool? required,
   }) {
     return RegexTextInputValidatorModel(
-      name: name ?? this.name,
+      name: name,
       pattern: pattern ?? this.pattern,
       errorMessage: errorMessage ?? this.errorMessage,
       caseSensitive: caseSensitive ?? this.caseSensitive,
       dotAll: dotAll ?? this.dotAll,
       multiLine: multiLine ?? this.multiLine,
       unicode: unicode ?? this.unicode,
-      validationType: validationType ?? this.validationType,
+      allow: allow ?? this.allow,
       required: required ?? this.required,
     );
   }
@@ -378,7 +364,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
         dotAll,
         multiLine,
         unicode,
-        validationType,
+        allow,
       ];
 }
 
