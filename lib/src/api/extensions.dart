@@ -97,3 +97,22 @@ extension TextInputValidatorModelIterableExt<T extends TextInputValidatorModel>
     return model;
   }
 }
+
+/// A helper extension that adds additional functionality to
+/// [TextInputValidatorModel] iterable.
+extension TextInputFormatterModelIterableExt<T extends TextInputFormatterModel>
+    on Iterable<T> {
+  /// Returns the first [TextInputFormatterModel] with the given [name].
+  /// Returns null if no validator is found.
+  T? byNameOrNull(String name) =>
+      firstWhereOrNull((model) => model.name == name);
+
+  /// Returns the first [TextInputValidatorModel] with the given [name].
+  T byName(String name) {
+    final T? model = byNameOrNull(name);
+    if (model == null) {
+      throw ArgumentError('No validator found with the name: $name');
+    }
+    return model;
+  }
+}
