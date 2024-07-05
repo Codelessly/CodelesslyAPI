@@ -6,11 +6,11 @@ part of 'text_input_formatter_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-NoneTextInputFormatter _$NoneTextInputFormatterFromJson(Map json) =>
-    NoneTextInputFormatter();
+NoneTextInputFormatterModel _$NoneTextInputFormatterModelFromJson(Map json) =>
+    NoneTextInputFormatterModel();
 
-Map<String, dynamic> _$NoneTextInputFormatterToJson(
-        NoneTextInputFormatter instance) =>
+Map<String, dynamic> _$NoneTextInputFormatterModelToJson(
+        NoneTextInputFormatterModel instance) =>
     <String, dynamic>{
       'type': _$TextInputFormatterTypeEnumMap[instance.type]!,
     };

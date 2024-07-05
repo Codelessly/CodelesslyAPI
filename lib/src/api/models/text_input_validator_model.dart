@@ -177,15 +177,31 @@ sealed class ConfigurableTextInputValidatorModel
 
 /// Represents absence of any validation.
 @JsonSerializable()
-class RequiredTextInputValidatorModel extends TextInputValidatorModel {
+class RequiredTextInputValidatorModel
+    extends ConfigurableTextInputValidatorModel {
   /// Creates a new [RequiredTextInputValidatorModel] instance.
-  const RequiredTextInputValidatorModel()
-      : super(name: 'Required', type: TextInputValidatorType.required);
+  const RequiredTextInputValidatorModel({
+    super.errorMessage = 'This field is required.',
+  }) : super(
+          name: 'Required',
+          type: TextInputValidatorType.required,
+          required: true,
+        );
 
   @override
   String? validate(String? input) {
-    if (input == null || input.isEmpty) return 'This field is required.';
+    if (input == null || input.isEmpty) return errorMessage;
     return null;
+  }
+
+  @override
+  RequiredTextInputValidatorModel copyWith({
+    bool? required,
+    String? errorMessage,
+  }) {
+    return RequiredTextInputValidatorModel(
+      errorMessage: errorMessage ?? this.errorMessage,
+    );
   }
 
   /// Creates a [TextInputValidatorModel] instance from a JSON object.
