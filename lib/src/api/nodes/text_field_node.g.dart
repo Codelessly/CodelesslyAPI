@@ -190,6 +190,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
               ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
               .toSet() ??
           {},
+      textInputAction: $enumDecodeNullable(
+              _$TextInputActionCEnumMap, json['textInputAction']) ??
+          TextInputActionC.none,
     );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
@@ -277,6 +280,11 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
           .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
           .toList(),
       const {});
+  writeNotNull(
+      'textInputAction',
+      instance.textInputAction,
+      _$TextInputActionCEnumMap[instance.textInputAction]!,
+      TextInputActionC.none);
   return val;
 }
 
@@ -398,4 +406,20 @@ const _$TextInputAutofillHintsEnumMap = {
   TextInputAutofillHints.transactionCurrency: 'transactionCurrency',
   TextInputAutofillHints.url: 'url',
   TextInputAutofillHints.username: 'username',
+};
+
+const _$TextInputActionCEnumMap = {
+  TextInputActionC.none: 'none',
+  TextInputActionC.unspecified: 'unspecified',
+  TextInputActionC.done: 'done',
+  TextInputActionC.go: 'go',
+  TextInputActionC.search: 'search',
+  TextInputActionC.send: 'send',
+  TextInputActionC.next: 'next',
+  TextInputActionC.previous: 'previous',
+  TextInputActionC.continueAction: 'continueAction',
+  TextInputActionC.join: 'join',
+  TextInputActionC.route: 'route',
+  TextInputActionC.emergencyCall: 'emergencyCall',
+  TextInputActionC.newline: 'newline',
 };

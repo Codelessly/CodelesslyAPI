@@ -218,6 +218,10 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
   /// device's autofill service.
   Set<TextInputAutofillHints> autofillHints;
 
+  /// The action the keyboard should take when the user presses the action
+  /// button on the keyboard.
+  TextInputActionC textInputAction;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
@@ -249,6 +253,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.validator = const NoneTextInputValidatorModel(),
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
+    this.textInputAction = TextInputActionC.none,
   })  : inputStyle = inputStyle ??
             StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
@@ -285,6 +290,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     TextInputValidatorModel? validator,
     Set<TextInputAutofillHints>? autofillHints,
     AutovalidateModeC? autovalidateMode,
+    TextInputActionC? textInputAction,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -317,6 +323,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       validator: validator ?? this.validator,
       autofillHints: autofillHints ?? this.autofillHints,
       autovalidateMode: autovalidateMode ?? this.autovalidateMode,
+      textInputAction: textInputAction ?? this.textInputAction,
     );
   }
 
@@ -358,5 +365,6 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
         validator,
         autofillHints,
         autovalidateMode,
+        textInputAction,
       ];
 }
