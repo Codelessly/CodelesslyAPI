@@ -48,7 +48,7 @@ class NavigationAction extends ActionModel
   NavigationAction({
     this.navigationType = NavigationType.push,
     required this.destinationId,
-    Map<String, String>? params,
+    Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
   })  : params = {...params ?? {}},
