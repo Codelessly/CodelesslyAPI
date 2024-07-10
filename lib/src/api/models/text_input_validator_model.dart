@@ -258,7 +258,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
   );
 
   /// Allow only alphabets and digits in the text field.
-  static const RegexTextInputValidatorModel alphanumeric =
+  static const RegexTextInputValidatorModel alphaNumeric =
       RegexTextInputValidatorModel(
     name: 'Alphanumeric',
     pattern: r'^[a-zA-Z0-9]+$',
@@ -285,7 +285,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
   static const List<RegexTextInputValidatorModel> defaultValidators = [
     RegexTextInputValidatorModel.digitsOnly,
     RegexTextInputValidatorModel.alphabetsOnly,
-    RegexTextInputValidatorModel.alphanumeric,
+    RegexTextInputValidatorModel.alphaNumeric,
     RegexTextInputValidatorModel.email,
     RegexTextInputValidatorModel.custom,
   ];
