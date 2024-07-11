@@ -1,3 +1,10 @@
+## 2.1.0
+- New TextInputField features! This is the first batch of improvements to the TextInput component and includes the following:  
+  - Added Autofill Hints support.
+  - Added Text Input Validator.
+  - Added Text Input Formatter.
+  - Added Submit Keyboard Action selector.
+
 ## 2.0.2
 - Update external components with reactions.
 - Add click and long click reactions to rectangle node.
