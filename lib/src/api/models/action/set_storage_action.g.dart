@@ -87,6 +87,7 @@ const _$VariableTypeEnumMap = {
   VariableType.color: 'color',
   VariableType.list: 'list',
   VariableType.map: 'map',
+  VariableType.image: 'image',
 };
 
 const _$ListOperationEnumMap = {
