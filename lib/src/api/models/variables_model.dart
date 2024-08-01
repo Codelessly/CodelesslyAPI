@@ -28,7 +28,10 @@ enum VariableType {
   list,
 
   /// Map type. Represents a map.
-  map;
+  map,
+
+  /// Image type. Represents an image URL.
+  image;
 
   /// Returns a string representation of the variable type.
   String get label => switch (this) {
@@ -39,6 +42,7 @@ enum VariableType {
         VariableType.color => 'Color',
         VariableType.list => 'List',
         VariableType.map => 'Map',
+        VariableType.image => 'Image',
       };
 
   factory VariableType.fromObjectType(Object obj) {
@@ -76,6 +80,9 @@ enum VariableType {
 
   /// Whether the variable type is [VariableType.text].
   bool get isText => this == VariableType.text;
+
+  /// Whether the variable type is [VariableType.text].
+  bool get isImage => this == VariableType.image;
 }
 
 /// Store information of a variable. [id] must not be empty when creating a
@@ -156,6 +163,7 @@ class VariableData
   /// Returns the value converted to the appropriate type according to [type].
   Object? getValue() => switch (type) {
         VariableType.text => value.isEmpty ? null : value,
+        VariableType.image => value.isEmpty ? null : value,
         VariableType.integer => num.tryParse(value).toInt(),
         VariableType.decimal => num.tryParse(value).toDouble(),
         VariableType.boolean => bool.tryParse(value, caseSensitive: false),
@@ -178,6 +186,7 @@ String? sanitizeValueForVariableType(Object? value, VariableType type) {
   if (value.toString().contains(variablePathPattern)) return value.toString();
   switch (type) {
     case VariableType.text:
+    case VariableType.image:
       return value.toString();
     case VariableType.integer:
       return num.tryParse(value.toString()).toInt()?.toString();
