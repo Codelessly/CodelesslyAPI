@@ -34,7 +34,8 @@ enum VariableType {
   image;
 
   /// Returns a string representation of the variable type.
-  String get label => switch (this) {
+  String get label =>
+      switch (this) {
         VariableType.integer => 'Integer',
         VariableType.text => 'Text',
         VariableType.decimal => 'Decimal',
@@ -55,8 +56,10 @@ enum VariableType {
       List() => VariableType.list,
       Map() => VariableType.map,
       String() => VariableType.text,
-      _ => throw UnsupportedError(
-          'object type ${obj.runtimeType} is not supported. Cannot determine variable type'),
+      _ =>
+      throw UnsupportedError(
+          'object type ${obj
+              .runtimeType} is not supported. Cannot determine variable type'),
     };
   }
 
@@ -109,13 +112,20 @@ class VariableData
   @JsonKey(unknownEnumValue: VariableType.text)
   final VariableType type;
 
+  /// Extra information that can be stored with the variable. This can be
+  /// metadata or any other information that is not part of the core variable.
+  final Map<String, dynamic> extra;
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
     required this.name,
     Object? value = '',
     this.type = VariableType.text,
-  }) : value = sanitizeValueForVariableType(value, type).toString();
+    Map<String, dynamic>? extra,
+  })
+      : value = sanitizeValueForVariableType(value, type).toString(),
+        extra = extra ?? {};
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -125,6 +135,7 @@ class VariableData
     VariableType? type,
     bool? isUsed,
     Set<String>? nodes,
+    Map<String, dynamic>? extra,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -134,6 +145,7 @@ class VariableData
       name: name ?? this.name,
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
+      extra: extra ?? this.extra,
     );
   }
 
@@ -152,7 +164,8 @@ class VariableData
 
   /// Allows to convert a [VariableData] into [CanvasVariableData] with the
   /// given [canvasId].
-  CanvasVariableData withCanvas(String canvasId) => CanvasVariableData(
+  CanvasVariableData withCanvas(String canvasId) =>
+      CanvasVariableData(
         id: id,
         canvasId: canvasId,
         name: name,
@@ -161,7 +174,8 @@ class VariableData
       );
 
   /// Returns the value converted to the appropriate type according to [type].
-  Object? getValue() => switch (type) {
+  Object? getValue() =>
+      switch (type) {
         VariableType.text => value.isEmpty ? null : value,
         VariableType.image => value.isEmpty ? null : value,
         VariableType.integer => num.tryParse(value).toInt(),
@@ -204,7 +218,7 @@ String? sanitizeValueForVariableType(Object? value, VariableType type) {
       final hexMatch = hexColorRegex.firstMatch(value.toString());
       if (hexMatch != null) return value.toString().toUpperCase();
       return null;
-    // This could be a bit expensive. Maybe enable only when required!
+  // This could be a bit expensive. Maybe enable only when required!
     case VariableType.map:
       if (value is Map) return jsonEncode(value);
       final map = value.toMap();
@@ -229,6 +243,7 @@ class CanvasVariableData extends VariableData {
     required super.name,
     required super.type,
     super.value,
+    super.extra,
   });
 
   @override
@@ -240,6 +255,7 @@ class CanvasVariableData extends VariableData {
     bool? isUsed,
     String? canvasId,
     Set<String>? nodes,
+    Map<String, dynamic>? extra,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -250,6 +266,7 @@ class CanvasVariableData extends VariableData {
       type: type ?? this.type,
       id: id ?? this.id,
       canvasId: canvasId ?? this.canvasId,
+      extra: extra ?? this.extra,
     );
   }
 
@@ -262,7 +279,8 @@ class CanvasVariableData extends VariableData {
 
   @override
   Map<String, dynamic> toJson() =>
-      _$CanvasVariableDataToJson(this)..remove('canvasId');
+      _$CanvasVariableDataToJson(this)
+        ..remove('canvasId');
 }
 
 /// A variable class that represents creation of a variable from given name.
@@ -283,6 +301,7 @@ class RuntimeVariableData extends VariableData {
     required super.name,
     super.value = '',
     super.type = VariableType.text,
+    super.extra,
   }) : super(id: id ?? generateId());
 
   @override
@@ -293,6 +312,7 @@ class RuntimeVariableData extends VariableData {
     VariableType? type,
     bool? isUsed,
     Set<String>? nodes,
+    Map<String, dynamic>? extra,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -302,6 +322,7 @@ class RuntimeVariableData extends VariableData {
       name: name ?? this.name,
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
+      extra: extra ?? this.extra,
     );
   }
 }
@@ -350,7 +371,7 @@ class LeafAccessor extends Accessor {
   /// Creates a new [LeafAccessor] from an [Accessor].
   LeafAccessor.from(Accessor accessor)
       : super(
-            name: accessor.name,
-            type: accessor.type,
-            getValue: accessor.getValue);
+      name: accessor.name,
+      type: accessor.type,
+      getValue: accessor.getValue);
 }
