@@ -3,6 +3,27 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'node_json_converter.dart';
 import 'nodes/base_node.dart';
 
+/// Converts [DateTime]? to and from ISO 8601 [String]?.
+class DateTimeISO8601NullableConverter
+    extends JsonConverter<DateTime?, String?> {
+  /// Creates a new instance of [DateTimeISO8601NullableConverter].
+  const DateTimeISO8601NullableConverter();
+
+  @override
+  DateTime? fromJson(String? json) => deserialize(json);
+
+  @override
+  String? toJson(DateTime? object) => serialize(object);
+
+  /// Serializes [DateTime] to [int].
+  static String? serialize(DateTime? object) => object?.toIso8601String();
+
+  /// Deserializes [int] to [DateTime].
+  static DateTime? deserialize(String? json) {
+    return json != null ? DateTime.parse(json) : null;
+  }
+}
+
 /// Top level converter for serializing [DateTime] to [millisecondsSinceEpoch].
 class DateTimeConverter extends JsonConverter<DateTime, int?> {
   /// Creates a new instance of [DateTimeConverter].
