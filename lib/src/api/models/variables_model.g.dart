@@ -56,8 +56,9 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       id: json['id'] as String,
       canvasId: json['canvasId'] as String,
       name: json['name'] as String,
-      type: $enumDecode(_$VariableTypeEnumMap, json['type'],
-          unknownValue: VariableType.text),
+      type: $enumDecodeNullable(_$VariableTypeEnumMap, json['type'],
+              unknownValue: VariableType.text) ??
+          VariableType.text,
       value: json['value'] ?? '',
       extra: (json['extra'] as Map?)?.map(
         (k, e) => MapEntry(k as String, e),
@@ -81,7 +82,8 @@ Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) {
   }
 
   writeNotNull('value', instance.value, instance.value, '');
-  val['type'] = _$VariableTypeEnumMap[instance.type]!;
+  writeNotNull('type', instance.type, _$VariableTypeEnumMap[instance.type]!,
+      VariableType.text);
   val['extra'] = instance.extra;
   val['canvasId'] = instance.canvasId;
   return val;
