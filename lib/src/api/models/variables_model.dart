@@ -235,7 +235,7 @@ class CanvasVariableData extends VariableData {
     required super.id,
     required this.canvasId,
     required super.name,
-    required super.type,
+    super.type,
     super.value,
     super.extra,
   });
