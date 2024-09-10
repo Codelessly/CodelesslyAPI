@@ -24,6 +24,24 @@ class DateTimeISO8601NullableConverter
   }
 }
 
+/// Converts [DateTime]? to and from ISO 8601 [String]
+class DateTimeISO8601Converter extends JsonConverter<DateTime, String> {
+  /// Creates a new instance of [DateTimeISO8601Converter].
+  const DateTimeISO8601Converter();
+
+  @override
+  DateTime fromJson(String json) => deserialize(json);
+
+  @override
+  String toJson(DateTime object) => serialize(object);
+
+  /// Serializes [DateTime] to [int].
+  static String serialize(DateTime object) => object.toIso8601String();
+
+  /// Deserializes [int] to [DateTime].
+  static DateTime deserialize(String json) => DateTime.parse(json);
+}
+
 /// Top level converter for serializing [DateTime] to [millisecondsSinceEpoch].
 class DateTimeConverter extends JsonConverter<DateTime, int?> {
   /// Creates a new instance of [DateTimeConverter].
