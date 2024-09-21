@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
-
 import '../../codelessly_api.dart';
 
 /// Declares extensions on [Object].
@@ -297,64 +295,56 @@ extension ConversionExt on Object? {
     if (set == null) return null;
 
     if (R == Set<int>) {
-      return set
-          .map<int?>((e) => e?.toInt())
-          .whereNotNull()
-          .toSet()
-          .tryCast<R>();
+      return set.map<int?>((e) => e?.toInt()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<int?>) {
-      return set.map<int?>((e) => e?.toInt()).toSet().tryCast<R>();
+      return set.map<int?>((e) => e?.toInt()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<double>) {
       return set
           .map<double?>((e) => e?.toDouble())
-          .whereNotNull()
+          .nonNulls
           .toSet()
           .tryCast<R>();
     }
     if (R == Set<double?>) {
-      return set.map<double?>((e) => e?.toDouble()).toSet().tryCast<R>();
+      return set
+          .map<double?>((e) => e?.toDouble())
+          .nonNulls
+          .toSet()
+          .tryCast<R>();
     }
     if (R == Set<num>) {
-      return set
-          .map<num?>((e) => e?.toNum())
-          .whereNotNull()
-          .toSet()
-          .tryCast<R>();
+      return set.map<num?>((e) => e?.toNum()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<num?>) {
-      return set.map<num?>((e) => e?.toNum()).toSet().tryCast<R>();
+      return set.map<num?>((e) => e?.toNum()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<bool>) {
-      return set
-          .map<bool?>((e) => e?.toBool())
-          .whereNotNull()
-          .toSet()
-          .tryCast<R>();
+      return set.map<bool?>((e) => e?.toBool()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<bool?>) {
-      return set.map<bool?>((e) => e?.toBool()).toSet().tryCast<R>();
+      return set.map<bool?>((e) => e?.toBool()).nonNulls.toSet().tryCast<R>();
     }
     if (R == Set<String>) {
       return set
           .map<String?>((e) => e?.toString())
-          .whereNotNull()
+          .nonNulls
           .toSet()
           .tryCast<R>();
     }
     if (R == Set<String?>) {
-      return set.map<String?>((e) => e?.toString()).toSet().tryCast<R>();
-    }
-    if (R == Set<Map>) {
       return set
-          .map<Map?>((e) => e?.toMap())
-          .whereNotNull()
+          .map<String?>((e) => e?.toString())
+          .nonNulls
           .toSet()
           .tryCast<R>();
     }
+    if (R == Set<Map>) {
+      return set.map<Map?>((e) => e?.toMap()).nonNulls.toSet().tryCast<R>();
+    }
     if (R == Set<Map?>) {
-      return set.map<Map?>((e) => e?.toMap()).toSet().tryCast<R>();
+      return set.map<Map?>((e) => e?.toMap()).nonNulls.toSet().tryCast<R>();
     }
 
     return set.tryCast<R>();

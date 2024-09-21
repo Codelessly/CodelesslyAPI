@@ -1,3 +1,8 @@
+## 4.0.0
+
+- Update codelessly_json_serializable to v4.9.0.
+- Require Dart SDK v3.5 or higher.
+
 ## 3.0.0
 
 - Owner field & admin Role migration.
