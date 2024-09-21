@@ -27,7 +27,7 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -52,7 +52,7 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
       physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
               unknownValue: ScrollPhysicsC.platformDependent) ??
           ScrollPhysicsC.platformDependent,
-      initialIndex: json['initialIndex'] as int? ?? 0,
+      initialIndex: (json['initialIndex'] as num?)?.toInt() ?? 0,
       shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
     )
       ..multipleVariables = (json['multipleVariables'] as Map?)?.map(

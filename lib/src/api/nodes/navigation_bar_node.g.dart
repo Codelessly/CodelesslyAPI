@@ -31,7 +31,7 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -43,7 +43,7 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
       positioningMode: $enumDecodeNullable(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
-      currentIndex: json['currentIndex'] as int? ?? 0,
+      currentIndex: (json['currentIndex'] as num?)?.toInt() ?? 0,
       properties: navigationBarPropertiesFromJson(json['properties'] as Map),
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),

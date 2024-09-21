@@ -7,8 +7,8 @@ part of 'text_node.dart';
 // **************************************************************************
 
 WidthRange _$WidthRangeFromJson(Map json) => WidthRange(
-      from: json['from'] as int,
-      to: json['to'] as int,
+      from: (json['from'] as num).toInt(),
+      to: (json['to'] as num).toInt(),
     );
 
 Map<String, dynamic> _$WidthRangeToJson(WidthRange instance) =>
@@ -38,7 +38,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -67,7 +67,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       textAlignVertical: $enumDecodeNullable(
               _$TextAlignVerticalEnumEnumMap, json['textAlignVertical']) ??
           TextAlignVerticalEnum.top,
-      maxLines: json['maxLines'] as int?,
+      maxLines: (json['maxLines'] as num?)?.toInt(),
       overflow: $enumDecodeNullable(_$TextOverflowCEnumMap, json['overflow']) ??
           TextOverflowC.clip,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,

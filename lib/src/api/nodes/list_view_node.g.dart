@@ -27,7 +27,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -60,7 +60,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       clipsContent: json['clipsContent'] as bool? ?? true,
       useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
       collectionPath: json['collectionPath'] as String?,
-      limit: json['limit'] as int? ?? 20,
+      limit: (json['limit'] as num?)?.toInt() ?? 20,
       whereFilters: (json['whereFilters'] as List<dynamic>?)
           ?.map((e) =>
               WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -220,7 +220,7 @@ const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
 };
 
 ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
-      itemCount: json['itemCount'] as int?,
+      itemCount: (json['itemCount'] as num?)?.toInt(),
       itemExtent: (json['itemExtent'] as num?)?.toDouble(),
       cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
       separator:

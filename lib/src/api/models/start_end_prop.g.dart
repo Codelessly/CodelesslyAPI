@@ -7,8 +7,8 @@ part of 'start_end_prop.dart';
 // **************************************************************************
 
 StartEndProp _$StartEndPropFromJson(Map json) => StartEndProp(
-      start: json['start'] as int,
-      end: json['end'] as int,
+      start: (json['start'] as num).toInt(),
+      end: (json['end'] as num).toInt(),
       fills: (json['fills'] as List<dynamic>?)
           ?.map((e) => PaintModel.fromJson(e as Map))
           .toList(),

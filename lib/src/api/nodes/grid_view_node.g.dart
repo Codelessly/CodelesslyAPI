@@ -27,7 +27,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) => GridViewNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -60,7 +60,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) => GridViewNode(
       clipsContent: json['clipsContent'] as bool? ?? true,
       useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
       collectionPath: json['collectionPath'] as String?,
-      limit: json['limit'] as int? ?? 20,
+      limit: (json['limit'] as num?)?.toInt() ?? 20,
       whereFilters: (json['whereFilters'] as List<dynamic>?)
           ?.map((e) =>
               WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
@@ -220,7 +220,7 @@ const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
 };
 
 GridViewProperties _$GridViewPropertiesFromJson(Map json) => GridViewProperties(
-      itemCount: json['itemCount'] as int?,
+      itemCount: (json['itemCount'] as num?)?.toInt(),
       cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
       gridDelegate:
           GridDelegateProperties.fromJson(json['gridDelegate'] as Map),
@@ -248,7 +248,7 @@ Map<String, dynamic> _$GridViewPropertiesToJson(GridViewProperties instance) {
 FixedCrossAxisCountGridDelegateProperties
     _$FixedCrossAxisCountGridDelegatePropertiesFromJson(Map json) =>
         FixedCrossAxisCountGridDelegateProperties(
-          crossAxisCount: json['crossAxisCount'] as int,
+          crossAxisCount: (json['crossAxisCount'] as num).toInt(),
           mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
           crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
           childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,

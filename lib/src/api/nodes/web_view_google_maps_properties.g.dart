@@ -11,7 +11,7 @@ PlacesGoogleMapsWebViewProperties _$PlacesGoogleMapsWebViewPropertiesFromJson(
     PlacesGoogleMapsWebViewProperties(
       apiKey: json['apiKey'] as String?,
       query: json['query'] as String,
-      zoom: json['zoom'] as int?,
+      zoom: (json['zoom'] as num?)?.toInt(),
       mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
       language: json['language'] as String?,
       region: json['region'] as String?,
@@ -131,7 +131,7 @@ ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
     ViewGoogleMapsWebViewProperties(
       apiKey: json['apiKey'] as String?,
       center: Vec.fromJson(json['center']),
-      zoom: json['zoom'] as int?,
+      zoom: (json['zoom'] as num?)?.toInt(),
       mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
       language: json['language'] as String?,
       region: json['region'] as String?,
@@ -231,7 +231,7 @@ DirectionsGoogleMapsWebViewProperties
               _$GoogleMapsDirectionsModeEnumMap, json['mode']),
           units: $enumDecodeNullable(_$UnitSystemEnumMap, json['units']),
           center: json['center'] == null ? null : Vec.fromJson(json['center']),
-          zoom: json['zoom'] as int?,
+          zoom: (json['zoom'] as num?)?.toInt(),
           mapType:
               $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
           language: json['language'] as String?,
@@ -352,10 +352,10 @@ StreetViewGoogleMapsWebViewProperties
           location:
               json['location'] == null ? null : Vec.fromJson(json['location']),
           pano: json['pano'] as String?,
-          heading: json['heading'] as int?,
-          pitch: json['pitch'] as int?,
-          fov: json['fov'] as int?,
-          zoom: json['zoom'] as int?,
+          heading: (json['heading'] as num?)?.toInt(),
+          pitch: (json['pitch'] as num?)?.toInt(),
+          fov: (json['fov'] as num?)?.toInt(),
+          zoom: (json['zoom'] as num?)?.toInt(),
           mapType:
               $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
           language: json['language'] as String?,
@@ -452,7 +452,7 @@ SearchGoogleMapsWebViewProperties _$SearchGoogleMapsWebViewPropertiesFromJson(
     SearchGoogleMapsWebViewProperties(
       apiKey: json['apiKey'] as String?,
       query: json['query'] as String,
-      zoom: json['zoom'] as int?,
+      zoom: (json['zoom'] as num?)?.toInt(),
       mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
       language: json['language'] as String?,
       region: json['region'] as String?,

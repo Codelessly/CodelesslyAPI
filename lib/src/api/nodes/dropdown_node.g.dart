@@ -31,7 +31,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -44,7 +44,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       properties: DropdownProperties.fromJson(json['properties'] as Map),
-      value: json['value'] as int?,
+      value: (json['value'] as num?)?.toInt(),
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -174,7 +174,7 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
       splashColor: json['splashColor'] == null
           ? null
           : ColorRGBA.fromJson(json['splashColor']),
-      elevation: json['elevation'] as int? ?? 8,
+      elevation: (json['elevation'] as num?)?.toInt() ?? 8,
       borderRadius: json['borderRadius'] == null
           ? CornerRadius.zero
           : CornerRadius.fromJson(json['borderRadius']),

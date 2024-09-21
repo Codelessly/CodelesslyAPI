@@ -31,7 +31,7 @@ EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) => EmbeddedVideoNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
@@ -138,8 +138,8 @@ EmbeddedYoutubeVideoProperties _$EmbeddedYoutubeVideoPropertiesFromJson(
       showVideoAnnotations: json['showVideoAnnotations'] as bool? ?? true,
       loop: json['loop'] as bool? ?? false,
       showCaptions: json['showCaptions'] as bool? ?? false,
-      startAt: json['startAt'] as int? ?? 0,
-      endAt: json['endAt'] as int?,
+      startAt: (json['startAt'] as num?)?.toInt() ?? 0,
+      endAt: (json['endAt'] as num?)?.toInt(),
       captionLanguage: json['captionLanguage'] as String? ?? 'en',
     )
       ..videoId = json['videoId'] as String?
@@ -288,7 +288,7 @@ VimeoVideoMetadata _$VimeoVideoMetadataFromJson(Map json) => VimeoVideoMetadata(
       authorUrl: json['author_url'] as String,
       width: (json['width'] as num).toDouble(),
       height: (json['height'] as num).toDouble(),
-      duration: durationFromSeconds(json['duration'] as int),
+      duration: durationFromSeconds((json['duration'] as num).toInt()),
       description: json['description'] as String,
       thumbnailUrl: json['thumbnail_url'] as String,
       thumbnailWidth: (json['thumbnail_width'] as num).toDouble(),
