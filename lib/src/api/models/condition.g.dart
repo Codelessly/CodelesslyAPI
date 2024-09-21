@@ -93,8 +93,8 @@ ElseCondition _$ElseConditionFromJson(Map json) => ElseCondition(
       actions: (json['actions'] as List<dynamic>?)
           ?.map((e) => ActionModel.fromJson(e as Map))
           .toList(),
-      lastUpdated:
-          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
+      lastUpdated: const DateTimeConverter()
+          .fromJson((json['lastUpdated'] as num?)?.toInt()),
     );
 
 Map<String, dynamic> _$ElseConditionToJson(ElseCondition instance) {
@@ -126,8 +126,8 @@ Condition _$ConditionFromJson(Map json) => Condition(
       actions: (json['actions'] as List<dynamic>)
           .map((e) => ActionModel.fromJson(e as Map))
           .toList(),
-      lastUpdated:
-          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
+      lastUpdated: const DateTimeConverter()
+          .fromJson((json['lastUpdated'] as num?)?.toInt()),
     );
 
 Map<String, dynamic> _$ConditionToJson(Condition instance) {
@@ -171,8 +171,8 @@ ConditionGroup _$ConditionGroupFromJson(Map json) => ConditionGroup(
           ? null
           : ElseCondition.fromJson(
               Map<String, dynamic>.from(json['elseCondition'] as Map)),
-      lastUpdated:
-          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
+      lastUpdated: const DateTimeConverter()
+          .fromJson((json['lastUpdated'] as num?)?.toInt()),
     );
 
 Map<String, dynamic> _$ConditionGroupToJson(ConditionGroup instance) {
@@ -207,8 +207,8 @@ CanvasConditions _$CanvasConditionsFromJson(Map json) => CanvasConditions(
         (k, e) => MapEntry(k as String,
             BaseCondition.fromJson(Map<String, dynamic>.from(e as Map))),
       ),
-      lastUpdated:
-          const DateTimeConverter().fromJson(json['lastUpdated'] as int?),
+      lastUpdated: const DateTimeConverter()
+          .fromJson((json['lastUpdated'] as num?)?.toInt()),
       projectId: json['project'] as String,
       owner: json['owner'] as String,
     );

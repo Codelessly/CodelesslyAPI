@@ -16,7 +16,7 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
       visible: json['visible'] as bool? ?? true,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       edgePins: json['edgePins'] == null
           ? EdgePinsModel.standard
           : EdgePinsModel.fromJson(

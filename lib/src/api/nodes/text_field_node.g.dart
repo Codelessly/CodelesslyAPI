@@ -31,7 +31,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -162,9 +162,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
       cursorHeight: (json['cursorHeight'] as num?)?.toDouble() ?? 14,
       cursorWidth: (json['cursorWidth'] as num?)?.toDouble() ?? 2.0,
       cursorRadius: (json['cursorRadius'] as num?)?.toDouble() ?? 2.0,
-      maxLength: json['maxLength'] as int?,
-      maxLines: json['maxLines'] as int? ?? 1,
-      minLines: json['minLines'] as int?,
+      maxLength: (json['maxLength'] as num?)?.toInt(),
+      maxLines: (json['maxLines'] as num?)?.toInt() ?? 1,
+      minLines: (json['minLines'] as num?)?.toInt(),
       obscuringCharacter: json['obscuringCharacter'] as String? ?? '•',
       inputStyle: json['inputStyle'] == null
           ? null

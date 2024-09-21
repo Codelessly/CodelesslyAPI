@@ -25,7 +25,7 @@ LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
           ?.map((e) =>
               OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
-      limit: json['limit'] as int?,
+      limit: (json['limit'] as num?)?.toInt(),
       useCloudDatabase: json['useCloudDatabase'] as bool? ?? true,
     )
       ..type = $enumDecode(_$ActionTypeEnumMap, json['type'])

@@ -27,7 +27,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -202,11 +202,11 @@ const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
-      itemCount: json['itemCount'] as int?,
+      itemCount: (json['itemCount'] as num?)?.toInt(),
       pageSnapping: json['pageSnapping'] as bool? ?? true,
       padEnds: json['padEnds'] as bool? ?? true,
       keepPage: json['keepPage'] as bool? ?? true,
-      initialPage: json['initialPage'] as int? ?? 0,
+      initialPage: (json['initialPage'] as num?)?.toInt() ?? 0,
       viewportFraction: (json['viewportFraction'] as num?)?.toDouble() ?? 1,
     );
 

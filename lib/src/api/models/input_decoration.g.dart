@@ -22,17 +22,17 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       helperStyle: json['helperStyle'] == null
           ? null
           : TextProp.fromJson(json['helperStyle'] as Map),
-      helperMaxLines: json['helperMaxLines'] as int? ?? 1,
+      helperMaxLines: (json['helperMaxLines'] as num?)?.toInt() ?? 1,
       hintText: json['hintText'] as String?,
       hintStyle: json['hintStyle'] == null
           ? null
           : TextProp.fromJson(json['hintStyle'] as Map),
-      hintMaxLines: json['hintMaxLines'] as int? ?? 1,
+      hintMaxLines: (json['hintMaxLines'] as num?)?.toInt() ?? 1,
       errorText: json['errorText'] as String?,
       errorStyle: json['errorStyle'] == null
           ? null
           : TextProp.fromJson(json['errorStyle'] as Map),
-      errorMaxLines: json['errorMaxLines'] as int? ?? 1,
+      errorMaxLines: (json['errorMaxLines'] as num?)?.toInt() ?? 1,
       floatingLabelBehavior: $enumDecodeNullable(
               _$FloatingLabelBehaviorEnumEnumMap,
               json['floatingLabelBehavior']) ??

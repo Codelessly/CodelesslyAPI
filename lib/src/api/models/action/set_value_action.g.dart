@@ -101,7 +101,7 @@ IntValue _$IntValueFromJson(Map json) => IntValue(
       name: json['name'] as String,
       mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
           SetValueMode.discrete,
-      value: json['value'] as int? ?? 0,
+      value: (json['value'] as num?)?.toInt() ?? 0,
     );
 
 Map<String, dynamic> _$IntValueToJson(IntValue instance) {

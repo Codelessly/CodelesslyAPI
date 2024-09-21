@@ -42,7 +42,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -89,8 +89,8 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           [],
-      createdTimestamp:
-          const DateTimeConverter().fromJson(json['createdTimestamp'] as int?),
+      createdTimestamp: const DateTimeConverter()
+          .fromJson((json['createdTimestamp'] as num?)?.toInt()),
       clipsContent: json['clipsContent'] as bool? ?? true,
       isScrollable: json['isScrollable'] as bool? ?? false,
       scrollDirection:

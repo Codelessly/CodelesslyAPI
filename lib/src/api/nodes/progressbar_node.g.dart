@@ -27,7 +27,7 @@ ProgressBarNode _$ProgressBarNodeFromJson(Map json) => ProgressBarNode(
               SizeFit.fixed,
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
-      flex: json['flex'] as int? ?? 1,
+      flex: (json['flex'] as num?)?.toInt() ?? 1,
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
@@ -144,7 +144,7 @@ ProgressBarProperties _$ProgressBarPropertiesFromJson(Map json) =>
           : CornerRadius.fromJson(json['cornerRadius']),
       animate: json['animate'] as bool? ?? false,
       animationDurationInMillis:
-          json['animationDurationInMillis'] as int? ?? 300,
+          (json['animationDurationInMillis'] as num?)?.toInt() ?? 300,
     );
 
 Map<String, dynamic> _$ProgressBarPropertiesToJson(
