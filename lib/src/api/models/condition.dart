@@ -1,7 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
-import '../converters.dart';
 import '../mixins.dart';
 import 'models.dart';
 
