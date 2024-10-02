@@ -178,6 +178,9 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
   /// Safe area properties.
   SafeAreaModel safeArea;
 
+  /// The brightness of the system UI.
+  BrightnessModel brightness;
+
   /// Whether this canvas is a scaffold. A scaffold can hold an app bar, drawer,
   /// bottom navigation bar, and floating action button. If any of this is
   /// present, the canvas is a scaffold.
@@ -193,6 +196,7 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
     this.topAppBarPlaceholderId,
     this.floatingActionButton,
     this.safeArea = const SafeAreaModel.all(true),
+    this.brightness = BrightnessModel.system,
   });
 
   @override
@@ -201,6 +205,7 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
         topAppBarPlaceholderId,
         floatingActionButton,
         safeArea,
+        brightness,
       ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
