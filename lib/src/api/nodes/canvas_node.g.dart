@@ -364,6 +364,9 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
       safeArea: json['safeArea'] == null
           ? const SafeAreaModel.all(true)
           : SafeAreaModel.fromJson(json['safeArea']),
+      brightness:
+          $enumDecodeNullable(_$BrightnessModelEnumMap, json['brightness']) ??
+              BrightnessModel.system,
     );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) {
@@ -392,5 +395,13 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) {
       instance.floatingActionButton?.toJson(), null);
   writeNotNull('safeArea', instance.safeArea, instance.safeArea.toJson(),
       const SafeAreaModel.all(true));
+  writeNotNull('brightness', instance.brightness,
+      _$BrightnessModelEnumMap[instance.brightness]!, BrightnessModel.system);
   return val;
 }
+
+const _$BrightnessModelEnumMap = {
+  BrightnessModel.light: 'light',
+  BrightnessModel.dark: 'dark',
+  BrightnessModel.system: 'system',
+};

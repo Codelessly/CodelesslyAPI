@@ -98,9 +98,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{
-    'characters': instance.characters,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -112,25 +110,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     }
   }
 
-  writeNotNull(
-      'textAlignHorizontal',
-      instance.textAlignHorizontal,
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-      TextAlignHorizontalEnum.left);
-  writeNotNull(
-      'textAlignVertical',
-      instance.textAlignVertical,
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-      TextAlignVerticalEnum.top);
-  writeNotNull(
-      'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
-      instance.paragraphSpacing, 0);
-  writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
-  writeNotNull('overflow', instance.overflow,
-      _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -155,10 +134,30 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('flex', instance.flex, instance.flex, 1);
   writeNotNull('aspectRatioLock', instance.aspectRatioLock,
       instance.aspectRatioLock, false);
+  val['characters'] = instance.characters;
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
   writeNotNull('textMixedProps', instance.textMixedProps,
       instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
+  writeNotNull(
+      'textAlignHorizontal',
+      instance.textAlignHorizontal,
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+      TextAlignHorizontalEnum.left);
+  writeNotNull(
+      'textAlignVertical',
+      instance.textAlignVertical,
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+      TextAlignVerticalEnum.top);
+  writeNotNull(
+      'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
+      instance.paragraphSpacing, 0);
+  writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
+  writeNotNull('overflow', instance.overflow,
+      _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
