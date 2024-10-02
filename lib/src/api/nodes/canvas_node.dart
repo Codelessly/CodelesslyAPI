@@ -22,6 +22,12 @@ class CanvasNode extends ParentNode
   @override
   final bool supportsPadding = true;
 
+  @override
+  bool get supportsMargin => false;
+
+  @override
+  bool get supportsRotation => false;
+
   /// Time of creation.
   @DateTimeConverter()
   late DateTime createdTimestamp;

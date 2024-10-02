@@ -25,6 +25,18 @@ class AppBarNode extends SceneNode
   /// Holds configurable properties of the app bar.
   AppBarProperties properties;
 
+  @override
+  bool get supportsMargin => false;
+
+  @override
+  bool get supportsRotation => false;
+
+  @override
+  bool get supportsConstraints => false;
+
+  @override
+  bool get supportsVisibility => false;
+
   /// Creates a new [AppBarNode] instance.
   AppBarNode({
     required super.id,

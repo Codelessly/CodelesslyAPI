@@ -899,6 +899,9 @@ enum RowColumnType {
 /// column.
 /// This contains common properties of row and columns.
 mixin RowColumnMixin on BaseNode {
+  @override
+  bool get supportsRotation => false;
+
   /// Whether the node is a row/column.
   late RowColumnType rowColumnType;
 
@@ -933,7 +936,10 @@ mixin RowColumnMixin on BaseNode {
 }
 
 /// A mixin that allows node behave like a placeholder for other nodes.
-mixin PlaceholderMixin on BaseNode {}
+mixin PlaceholderMixin on BaseNode {
+  @override
+  bool get supportsRotation => false;
+}
 
 /// Represents the physics for scrolling on scrollable nodes like list view.
 /// Corresponds to [ScrollPhysics] in Flutter.
@@ -1021,6 +1027,9 @@ enum ScrollViewKeyboardDismissBehaviorC {
 /// Nodes like [ListViewNode], [RowColumnNode] and [CanvasNode] uses this to
 /// provide options for its scroll behavior.
 mixin ScrollableMixin on BaseNode {
+  @override
+  bool get supportsRotation => false;
+
   /// Whether this widget enforces its scrollable behavior.
   /// [CanvasNode]s do not need to be scrollable but can.
   /// [ListViewNode]s, on the other hand, must be scrollable.

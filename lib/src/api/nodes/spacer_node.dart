@@ -13,6 +13,9 @@ class SpacerNode extends SceneNode {
   @override
   final String type = 'spacer';
 
+  @override
+  bool get supportsMargin => false;
+
   /// Creates a new [SpacerNode] with the given data.
   SpacerNode({
     required super.id,
