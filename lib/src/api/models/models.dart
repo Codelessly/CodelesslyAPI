@@ -20,6 +20,7 @@ export 'box_constraints.dart';
 export 'box_height_style.dart';
 export 'box_width_style.dart';
 export 'breakpoint.dart';
+export 'brightness.dart';
 export 'cloud_database_queries/query_filter.dart';
 export 'color_rgb.dart';
 export 'color_rgba.dart';
