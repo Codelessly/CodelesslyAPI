@@ -49,6 +49,9 @@ abstract class BaseNode
   /// Whether this node is visible or not.
   bool visible;
 
+  /// Determines whether this node supports visibility or not.
+  bool get supportsVisibility => true;
+
   BoxConstraintsModel _constraints;
 
   /// Constraints apply to the [middleBoxLocal].
@@ -65,6 +68,10 @@ abstract class BaseNode
   /// This is a runtime-computed value and is not serialized.
   @JsonKey(includeFromJson: false, includeToJson: false)
   BoxConstraintsModel get resolvedConstraints => _resolvedConstraints;
+
+  /// Determines whether this node supports constraints or not.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get supportsConstraints => true;
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
@@ -325,6 +332,10 @@ abstract class BaseNode
   @JsonKey(includeFromJson: false, includeToJson: false)
   double globalRotationRadians;
 
+  /// Determines whether this node allows itself to be rotated or not.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get supportsRotation => true;
+
   /// A simple label for console debugging.
   @JsonKey(includeFromJson: false, includeToJson: false)
   String get debugLabel => '$name [$id]';
@@ -337,6 +348,10 @@ abstract class BaseNode
   /// [EmbeddedVideoNode], [WebViewNode], [TextNode], etc.
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get supportsPadding => false;
+
+  /// Determines whether this node supports margin.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get supportsMargin => true;
 
   /// Width of the node in fraction of the parent's width.
   /// [widthFactor] of [0.5] means that the node will be half the width of its
