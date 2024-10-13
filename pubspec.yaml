@@ -17,7 +17,7 @@ dependencies:
 
 dev_dependencies:
   codelessly_json_serializable: 6.8.0
-  build_runner: ^2.4.12
-  lints: ^4.0.0
+  build_runner: ^2.4.13
+  lints: ^5.0.0
 
 scripts: scripts.yaml
