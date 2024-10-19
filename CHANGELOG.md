@@ -1,3 +1,8 @@
+## 4.1.0
+
+- Fix AppBar constraints.
+- Add `Brightness` property for Codelessly emulator support.
+
 ## 4.0.0
 
 - Update codelessly_json_serializable to v4.9.0.
