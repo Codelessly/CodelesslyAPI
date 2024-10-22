@@ -167,6 +167,14 @@ class NodeBox with EquatableMixin, DynamicSerializableMixin {
   NodeBox.fromRect(RectC rect)
       : this(rect.left, rect.top, rect.width, rect.height);
 
+  /// Creates a new [NodeBox] from a [SizeC] object.
+  NodeBox.fromCenter({
+    required Vec center,
+    required double width,
+    required double height,
+  }) : this(center.x - width / 2, center.y - height / 2, width.toDouble(),
+            height.toDouble());
+
   /// Creates a new [NodeBox] using the current values of this [NodeBox], and
   /// optionally allows different values. The new [NodeBox] immediately
   /// pre-computes its values.
