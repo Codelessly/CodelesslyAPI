@@ -16,6 +16,9 @@ class SinglePlaceholderNode extends SceneNode
   @override
   final bool supportsPadding = true;
 
+  /// Whether the placeholder is only meant to exist for a short period of time.
+  bool ephemeral = false;
+
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
     final superRelegated = super.relegatedConstraintsToChildren(child);
@@ -44,6 +47,7 @@ class SinglePlaceholderNode extends SceneNode
     required this.allowedTypes,
     required this.deniedTypes,
     this.maxAllowedSize,
+    this.ephemeral = false,
     required super.id,
     required super.name,
     required super.basicBoxLocal,
