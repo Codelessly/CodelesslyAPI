@@ -59,6 +59,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..ephemeral = json['ephemeral'] as bool
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -121,6 +122,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  val['ephemeral'] = instance.ephemeral;
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,

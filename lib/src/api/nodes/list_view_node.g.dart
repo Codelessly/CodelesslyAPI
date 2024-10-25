@@ -85,6 +85,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..ephemeral = json['ephemeral'] as bool
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -150,6 +151,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
+  val['ephemeral'] = instance.ephemeral;
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,

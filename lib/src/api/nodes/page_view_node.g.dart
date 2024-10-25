@@ -74,15 +74,16 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..ephemeral = json['ephemeral'] as bool
+      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList()
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
       ..type = json['type'] as String;
@@ -140,12 +141,13 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
+  val['ephemeral'] = instance.ephemeral;
+  val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
-  val['allowedTypes'] = instance.allowedTypes;
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
