@@ -17,6 +17,7 @@ SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
       maxAllowedSize: json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map),
+      ephemeral: json['ephemeral'] as bool? ?? false,
       id: json['id'] as String,
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
@@ -85,6 +86,8 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -111,8 +114,6 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -125,6 +126,7 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('children', instance.children, instance.children, []);
   val['type'] = instance.type;
+  writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
