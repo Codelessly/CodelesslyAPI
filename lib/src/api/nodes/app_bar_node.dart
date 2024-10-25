@@ -11,7 +11,7 @@ import 'nodes.dart';
 part 'app_bar_node.g.dart';
 
 /// Default height of an app bar.
-const double kAppBarDefaultHeight = 56;
+const double kDefaultAppBarHeight = 56;
 
 /// A Material Design app bar.
 /// Refer to [AppBar](https://api.flutter.dev/flutter/material/AppBar-class.html)
