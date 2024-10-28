@@ -89,6 +89,7 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       strokeSide:
           $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
               StrokeSide.all,
+      ephemeral: json['ephemeral'] as bool? ?? false,
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -120,6 +121,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -146,8 +149,6 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -194,6 +195,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
       CrossAxisAlignmentC.center);
   val['type'] = instance.type;
+  writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   return val;
 }
 
