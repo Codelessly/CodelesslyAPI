@@ -18,6 +18,11 @@ class AutoPlaceholderNode extends DefaultShapeNode
   @override
   final bool supportsPadding = true;
 
+  /// Whether the placeholder is only meant to exist for a short period of time.
+  /// This is used to determine whether the placeholder should be removed when
+  /// the user inserts anything into it.
+  bool ephemeral = false;
+
   /// Creates a new [AutoPlaceholderNode] instance.
   AutoPlaceholderNode({
     required super.id,
@@ -59,6 +64,9 @@ class AutoPlaceholderNode extends DefaultShapeNode
     super.strokeCap,
     super.dashPattern,
     super.strokeSide,
+
+    // PlaceholderMixin properties.
+    this.ephemeral = false,
   }) {
     setChildrenMixin(children: children);
     setRowColumnMixin(
