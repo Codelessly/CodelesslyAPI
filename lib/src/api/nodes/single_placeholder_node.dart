@@ -17,7 +17,8 @@ class SinglePlaceholderNode extends SceneNode
   final bool supportsPadding = true;
 
   /// Whether the placeholder is only meant to exist for a short period of time.
-  bool ephemeral = false;
+  @JsonKey(defaultValue: false)
+  bool ephemeral;
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {

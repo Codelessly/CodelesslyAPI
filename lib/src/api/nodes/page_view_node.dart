@@ -61,6 +61,7 @@ class PageViewNode extends SinglePlaceholderNode
           children: [],
           allowedTypes: [],
           deniedTypes: ['pageView'],
+          ephemeral: false,
         ) {
     setChildrenMixin(children: children);
     setClipMixin(clipsContent: clipsContent);

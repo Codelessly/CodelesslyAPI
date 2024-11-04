@@ -74,7 +74,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
-      ..ephemeral = json['ephemeral'] as bool
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -143,7 +143,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   writeNotNull('children', instance.children, instance.children, []);
   writeNotNull(
       'clipsContent', instance.clipsContent, instance.clipsContent, true);
-  val['ephemeral'] = instance.ephemeral;
+  writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,

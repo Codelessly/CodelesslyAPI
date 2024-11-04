@@ -71,6 +71,7 @@ class GridViewNode extends SinglePlaceholderNode
           children: [],
           allowedTypes: [],
           deniedTypes: ['GridView'],
+          ephemeral: false,
         ) {
     setChildrenMixin(children: children);
     setClipMixin(clipsContent: clipsContent);
