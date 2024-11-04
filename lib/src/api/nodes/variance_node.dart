@@ -78,7 +78,12 @@ class VarianceNode extends SinglePlaceholderNode {
     String? currentVariantId,
   })  : assert(variants.isNotEmpty),
         currentVariantId = currentVariantId ?? variants[0].id,
-        super(children: [], allowedTypes: [], deniedTypes: []);
+        super(
+          children: [],
+          allowedTypes: [],
+          deniedTypes: [],
+          ephemeral: false,
+        );
 
   @override
   void setChildrenMixin({required List<String> children}) {}
