@@ -80,6 +80,7 @@ class ListViewNode extends SinglePlaceholderNode
           deniedTypes: [
             'listView',
           ],
+          ephemeral: false,
         ) {
     setChildrenMixin(children: children);
     setClipMixin(clipsContent: clipsContent);
