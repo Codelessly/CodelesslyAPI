@@ -255,7 +255,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
   })  : inputStyle = inputStyle ??
-            StartEndProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+      TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
 
   /// Duplicates this [TextFieldProperties] instance with the given data
