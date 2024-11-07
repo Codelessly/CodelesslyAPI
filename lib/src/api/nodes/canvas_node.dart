@@ -143,6 +143,13 @@ class CanvasNode extends ParentNode
     }
   }
 
+  /// Checks if a node is symbiotic with its canvas, ie the node acts as the
+  /// canvas's body or navigation bar or top app bar.
+  bool isNodeAttachedToCanvas(String nodeID) =>
+      properties.bodyId == nodeID ||
+      properties.navigationBarPlaceholderId == nodeID ||
+      properties.topAppBarPlaceholderId == nodeID;
+
   /// Creates a new [CanvasNode] from a JSON data.
   factory CanvasNode.fromJson(Map json) => _$CanvasNodeFromJson(json);
 
@@ -198,6 +205,13 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
     this.safeArea = const SafeAreaModel.all(true),
     this.brightness = BrightnessModel.system,
   });
+
+  /// Checks if a node is symbiotic with its canvas, ie the node acts as the
+  /// canvas's body or navigation bar or top app bar.
+  bool isNodeAttachedToCanvas(String nodeID) =>
+      bodyId == nodeID ||
+      navigationBarPlaceholderId == nodeID ||
+      topAppBarPlaceholderId == nodeID;
 
   @override
   List<Object?> get props => [

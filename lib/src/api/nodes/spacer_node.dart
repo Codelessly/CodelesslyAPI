@@ -16,6 +16,12 @@ class SpacerNode extends SceneNode {
   @override
   bool get supportsMargin => false;
 
+  @override
+  bool get supportsRotation => false;
+
+  @override
+  bool get supportsVisibility => false;
+
   /// Creates a new [SpacerNode] with the given data.
   SpacerNode({
     required super.id,
