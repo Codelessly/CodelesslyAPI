@@ -15,7 +15,8 @@ class TabBarNode extends SceneNode
   final String type = 'tabBar';
 
   /// The properties of the TabBar].
-  TabBarProperties properties;
+  @override
+  covariant TabBarProperties properties;
 
   /// The index of the initially selected tab.
   int initialIndex = 0;
@@ -137,7 +138,7 @@ enum TabIndicatorStyle {
 
 /// The properties of a [TabBarNode].
 @JsonSerializable()
-class TabBarProperties with SerializableMixin, EquatableMixin {
+class TabBarProperties extends CustomProperties {
   /// The tabs of the [TabBarNode].
   List<TabItem> tabs;
 
@@ -268,7 +269,7 @@ class TabBarProperties with SerializableMixin, EquatableMixin {
   }
 
   @override
-  Map toJson() => _$TabBarPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$TabBarPropertiesToJson(this);
 
   /// Creates a [TabBarProperties] from a JSON object.
   factory TabBarProperties.fromJson(Map json) =>

@@ -1,4 +1,5 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import 'models/models.dart';
@@ -743,6 +744,12 @@ mixin CustomPropertiesMixin on BaseNode {
   /// node itself is responsible for handling its own reactions. Otherwise,
   /// the transformer will provide for the default reactions.
   bool get handlesDefaultReactionsInternally => true;
+
+  abstract CustomProperties properties;
+}
+
+abstract class CustomProperties with EquatableMixin {
+  Map<String, dynamic> toJson();
 }
 
 /// Defines node that preserves its aspect ratio and cannot be resized by only

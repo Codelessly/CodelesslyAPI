@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -15,7 +14,8 @@ class LoadingIndicatorNode extends SceneNode
   final String type = 'loadingIndicator';
 
   /// Holds configurable properties of the loading indicator.
-  LoadingIndicatorProperties properties;
+  @override
+  covariant LoadingIndicatorProperties properties;
 
   @override
   bool get supportsPadding => false;
@@ -91,8 +91,7 @@ class LoadingIndicatorNode extends SceneNode
 }
 
 /// Holds configurable properties of the loading indicator.
-abstract class LoadingIndicatorProperties
-    with EquatableMixin, SerializableMixin {
+abstract class LoadingIndicatorProperties extends CustomProperties {
   /// Type of the loading indicator.
   late final String type;
 
@@ -181,7 +180,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
       [type, color, strokeWidth, value, backgroundColor, strokeCap];
 
   @override
-  Map toJson() => _$MaterialLoadingIndicatorPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$MaterialLoadingIndicatorPropertiesToJson(this);
 
   /// Creates a [MaterialLoadingIndicatorProperties] from a JSON data.
   factory MaterialLoadingIndicatorProperties.fromJson(Map json) =>
@@ -224,7 +224,8 @@ class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties {
   List<Object?> get props => [type, color, radius];
 
   @override
-  Map toJson() => _$CupertinoLoadingIndicatorPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$CupertinoLoadingIndicatorPropertiesToJson(this);
 
   /// Creates a [CupertinoLoadingIndicatorProperties] from a JSON data.
   factory CupertinoLoadingIndicatorProperties.fromJson(Map json) =>

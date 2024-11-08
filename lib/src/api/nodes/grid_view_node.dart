@@ -23,7 +23,8 @@ class GridViewNode extends SinglePlaceholderNode
   bool get isScrollingEnforced => true;
 
   /// The properties of the [GridView].
-  GridViewProperties properties;
+  @override
+  covariant GridViewProperties properties;
 
   /// Creates a [GridViewNode].
   GridViewNode({
@@ -189,7 +190,7 @@ class GridViewNode extends SinglePlaceholderNode
 
 /// The properties of a [GridViewNode].
 @JsonSerializable()
-class GridViewProperties with SerializableMixin, EquatableMixin {
+class GridViewProperties extends CustomProperties {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -228,7 +229,7 @@ class GridViewProperties with SerializableMixin, EquatableMixin {
   }
 
   @override
-  Map toJson() => _$GridViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$GridViewPropertiesToJson(this);
 
   /// Creates a [GridViewProperties] from a JSON object.
   factory GridViewProperties.fromJson(Map json) =>

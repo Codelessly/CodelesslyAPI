@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -33,7 +32,8 @@ class CanvasNode extends ParentNode
   late DateTime createdTimestamp;
 
   /// Holds configurable properties for the canvas.
-  CanvasProperties properties;
+  @override
+  covariant CanvasProperties properties;
 
   /// Type of scaling for the canvas responsiveness.
   ScaleMode scaleMode;
@@ -169,7 +169,7 @@ class CanvasNode extends ParentNode
 
 /// Holds configurable properties for the canvas.
 @JsonSerializable()
-class CanvasProperties with SerializableMixin, EquatableMixin {
+class CanvasProperties extends CustomProperties {
   /// ID of the body node.
   String bodyId;
 
@@ -227,5 +227,5 @@ class CanvasProperties with SerializableMixin, EquatableMixin {
       _$CanvasPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$CanvasPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$CanvasPropertiesToJson(this);
 }

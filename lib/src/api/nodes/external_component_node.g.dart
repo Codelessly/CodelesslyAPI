@@ -11,7 +11,6 @@ ExternalComponentNode _$ExternalComponentNodeFromJson(Map json) =>
       id: json['id'] as String,
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
-      builderID: json['builderID'] as String?,
       visible: json['visible'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
@@ -54,6 +53,10 @@ ExternalComponentNode _$ExternalComponentNodeFromJson(Map json) =>
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {},
+      properties: json['properties'] == null
+          ? null
+          : ExternalComponentProperties.fromJson(
+              Map<String, dynamic>.from(json['properties'] as Map)),
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
@@ -112,7 +115,7 @@ Map<String, dynamic> _$ExternalComponentNodeToJson(
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   val['type'] = instance.type;
-  writeNotNull('builderID', instance.builderID, instance.builderID, null);
+  val['properties'] = instance.properties.toJson();
   return val;
 }
 
@@ -128,3 +131,26 @@ const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
 };
+
+ExternalComponentProperties _$ExternalComponentPropertiesFromJson(Map json) =>
+    ExternalComponentProperties(
+      builderID: json['builderID'] as String?,
+    );
+
+Map<String, dynamic> _$ExternalComponentPropertiesToJson(
+    ExternalComponentProperties instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('builderID', instance.builderID, instance.builderID, null);
+  return val;
+}
