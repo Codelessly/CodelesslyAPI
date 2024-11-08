@@ -56,7 +56,6 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
               ?.map((e) => e as String)
               .toList() ??
           [],
-      isExpanded: json['isExpanded'] as bool? ?? true,
       variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -66,6 +65,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {},
+      properties: json['properties'] == null
+          ? null
+          : AccordionProperties.fromJson(json['properties'] as Map),
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
@@ -136,7 +138,7 @@ Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) {
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
       CrossAxisAlignmentC.center);
   val['type'] = instance.type;
-  writeNotNull('isExpanded', instance.isExpanded, instance.isExpanded, true);
+  val['properties'] = instance.properties.toJson();
   return val;
 }
 
@@ -174,3 +176,25 @@ const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
 };
+
+AccordionProperties _$AccordionPropertiesFromJson(Map json) =>
+    AccordionProperties(
+      isExpanded: json['isExpanded'] as bool? ?? true,
+    );
+
+Map<String, dynamic> _$AccordionPropertiesToJson(AccordionProperties instance) {
+  final val = <String, dynamic>{};
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('isExpanded', instance.isExpanded, instance.isExpanded, true);
+  return val;
+}

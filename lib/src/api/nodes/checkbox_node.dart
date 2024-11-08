@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -35,7 +34,8 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   double get defaultHeight => kCheckboxDefaultSize;
 
   /// Holds configurable properties of the checkbox.
-  CheckboxProperties properties;
+  @override
+  covariant CheckboxProperties properties;
 
   /// Value of the checkbox.
   bool? value;
@@ -114,7 +114,7 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the checkbox.
 @JsonSerializable()
-class CheckboxProperties with SerializableMixin, EquatableMixin {
+class CheckboxProperties extends CustomProperties {
   /// Color of the tick mark.
   late ColorRGBA checkColor;
 
@@ -213,5 +213,5 @@ class CheckboxProperties with SerializableMixin, EquatableMixin {
       _$CheckboxPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$CheckboxPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$CheckboxPropertiesToJson(this);
 }

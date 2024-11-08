@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -18,7 +17,8 @@ class TextFieldNode extends SceneNode
   final String type = 'textField';
 
   /// Holds configurable properties of the text field.
-  TextFieldProperties properties;
+  @override
+  covariant TextFieldProperties properties;
 
   /// Initial text value of the field.
   String initialText = '';
@@ -122,7 +122,7 @@ class TextFieldNode extends SceneNode
 
 /// Holds configurable properties of the text field.
 @JsonSerializable()
-class TextFieldProperties with SerializableMixin, EquatableMixin {
+class TextFieldProperties extends CustomProperties {
   /// Whether to enable automatically correct the input text.
   bool autoCorrect;
 
@@ -255,7 +255,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
   })  : inputStyle = inputStyle ??
-      TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
         decoration = decoration ?? InputDecorationModel();
 
   /// Duplicates this [TextFieldProperties] instance with the given data
@@ -332,7 +332,7 @@ class TextFieldProperties with SerializableMixin, EquatableMixin {
       _$TextFieldPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$TextFieldPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TextFieldPropertiesToJson(this);
 
   @override
   List<Object?> get props => [

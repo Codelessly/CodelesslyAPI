@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -21,7 +20,8 @@ class ListViewNode extends SinglePlaceholderNode
   bool get isScrollingEnforced => true;
 
   /// The properties of the [ListView].
-  ListViewProperties properties;
+  @override
+  covariant ListViewProperties properties;
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
@@ -135,7 +135,7 @@ enum ListItemSeparator {
 
 /// The properties of a [ListViewNode].
 @JsonSerializable()
-class ListViewProperties with SerializableMixin, EquatableMixin {
+class ListViewProperties extends CustomProperties {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -201,7 +201,7 @@ class ListViewProperties with SerializableMixin, EquatableMixin {
   }
 
   @override
-  Map toJson() => _$ListViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ListViewPropertiesToJson(this);
 
   /// Creates a [ListViewProperties] from a JSON object.
   factory ListViewProperties.fromJson(Map json) =>

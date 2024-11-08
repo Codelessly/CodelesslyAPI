@@ -149,7 +149,7 @@ class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [TweetTwitterWebViewProperties] instance from a JSON map.
   factory TweetTwitterWebViewProperties.fromJson(Map json) =>
@@ -234,7 +234,8 @@ class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map toJson() => _$TimelineTwitterWebViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$TimelineTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [TimelineTwitterWebViewProperties] instance from a JSON map.
   factory TimelineTwitterWebViewProperties.fromJson(Map json) =>
@@ -325,7 +326,7 @@ class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map toJson() => _$FollowButtonTwitterWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$FollowButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -436,7 +437,7 @@ class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map toJson() => _$MentionButtonTwitterWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$MentionButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -558,7 +559,7 @@ class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map toJson() => _$HashtagButtonTwitterWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$HashtagButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a JSON
   /// map.

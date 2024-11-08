@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -22,7 +21,8 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
   final String type = 'divider';
 
   /// Holds configurable properties of the divider.
-  DividerProperties properties;
+  @override
+  covariant DividerProperties properties;
 
   @override
   bool get supportsPadding => false;
@@ -138,7 +138,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the divider.
 @JsonSerializable()
-class DividerProperties with SerializableMixin, EquatableMixin {
+class DividerProperties extends CustomProperties {
   /// Color of the divider.
   ColorRGBA color;
 
@@ -193,5 +193,5 @@ class DividerProperties with SerializableMixin, EquatableMixin {
       _$DividerPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$DividerPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$DividerPropertiesToJson(this);
 }

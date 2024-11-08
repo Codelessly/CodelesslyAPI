@@ -24,7 +24,8 @@ class EmbeddedVideoNode extends SceneNode with CustomPropertiesMixin {
   final String type = 'embeddedVideo';
 
   /// Holds configurable properties of the embedded video.
-  EmbeddedVideoProperties properties;
+  @override
+  covariant EmbeddedVideoProperties properties;
 
   /// Whether the video source url is provided.
   bool get hasUrl =>
@@ -78,7 +79,7 @@ class EmbeddedVideoNode extends SceneNode with CustomPropertiesMixin {
 }
 
 /// Holds configurable properties of the embedded video.
-abstract class EmbeddedVideoProperties with SerializableMixin, EquatableMixin {
+abstract class EmbeddedVideoProperties extends CustomProperties {
   /// Video's source URL.
   String? url;
 
@@ -189,7 +190,7 @@ class EmbeddedYoutubeVideoProperties extends EmbeddedVideoProperties {
       _$EmbeddedYoutubeVideoPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$EmbeddedYoutubeVideoPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$EmbeddedYoutubeVideoPropertiesToJson(this);
 }
 
 /// Holds configurable properties of the embedded vimeo video.
@@ -227,7 +228,7 @@ class EmbeddedVimeoVideoProperties extends EmbeddedVideoProperties {
       _$EmbeddedVimeoVideoPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$EmbeddedVimeoVideoPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$EmbeddedVimeoVideoPropertiesToJson(this);
 }
 
 /// Holds metadata of the youtube video.

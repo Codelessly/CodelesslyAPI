@@ -65,7 +65,8 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   final bool supportsPadding = true;
 
   /// Holds configurable properties of this button.
-  ButtonProperties properties;
+  @override
+  covariant ButtonProperties properties;
 
   /// Strictly used for previews. e.g in components panel.
   ButtonNode.empty()
@@ -161,7 +162,7 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of a [ButtonNode].
 @JsonSerializable()
-class ButtonProperties with ShapeBorderMixin, SerializableMixin {
+class ButtonProperties extends CustomProperties with ShapeBorderMixin {
   // Button properties.
 
   /// Type of the button.
@@ -270,5 +271,24 @@ class ButtonProperties with ShapeBorderMixin, SerializableMixin {
       _$ButtonPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$ButtonPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ButtonPropertiesToJson(this);
+
+  @override
+  List<Object?> get props => [
+        buttonType,
+        buttonColor,
+        shadowColor,
+        elevation,
+        cornerRadius,
+        enabled,
+        label,
+        labelStyle,
+        labelAlignment,
+        placement,
+        gap,
+        icon,
+        shape,
+        borderWidth,
+        borderColor,
+      ];
 }

@@ -7,7 +7,6 @@ part of 'icon_node.dart';
 // **************************************************************************
 
 IconNode _$IconNodeFromJson(Map json) => IconNode(
-      icon: IconModel.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
       id: json['id'] as String,
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
@@ -58,6 +57,9 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
               ?.map((e) => Reaction.fromJson(e as Map))
               .toList() ??
           [],
+      properties: json['properties'] == null
+          ? null
+          : IconProperties.fromJson(json['properties'] as Map),
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -131,7 +133,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   writeNotNull('effects', instance.effects,
       instance.effects.map((e) => e.toJson()).toList(), const []);
   writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
-  val['icon'] = instance.icon.toJson();
+  val['properties'] = instance.properties.toJson();
   val['type'] = instance.type;
   return val;
 }
@@ -180,3 +182,12 @@ const _$BlendModeCEnumMap = {
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
 };
+
+IconProperties _$IconPropertiesFromJson(Map json) => IconProperties(
+      icon: IconModel.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
+    );
+
+Map<String, dynamic> _$IconPropertiesToJson(IconProperties instance) =>
+    <String, dynamic>{
+      'icon': instance.icon.toJson(),
+    };

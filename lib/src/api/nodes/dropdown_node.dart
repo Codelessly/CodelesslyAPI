@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -21,7 +20,8 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
   bool get supportsPadding => true;
 
   /// Holds configurable properties of the dropdown.
-  DropdownProperties properties;
+  @override
+  covariant DropdownProperties properties;
 
   /// Index of the selected option in the dropdown.
   int? value;
@@ -83,7 +83,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the dropdown.
 @JsonSerializable()
-class DropdownProperties with SerializableMixin, EquatableMixin {
+class DropdownProperties extends CustomProperties {
   /// Whether the dropdown is in the enabled state.
   bool enabled;
 
@@ -287,5 +287,5 @@ class DropdownProperties with SerializableMixin, EquatableMixin {
       _$DropdownPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$DropdownPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$DropdownPropertiesToJson(this);
 }

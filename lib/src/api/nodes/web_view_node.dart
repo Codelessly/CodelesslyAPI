@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -22,7 +21,8 @@ class WebViewNode extends SceneNode with CustomPropertiesMixin {
   /// Accesses the properties of the webview. There are multiple versions of
   /// webview properties, [WebPageWebViewProperties],
   /// [TwitterWebViewProperties], and [GoogleMapsWebViewProperties].
-  WebViewProperties properties;
+  @override
+  covariant WebViewProperties properties;
 
   /// Returns whether this webview holds actual content in its
   /// [WebViewProperties.src].
@@ -89,7 +89,7 @@ class Base64JsonConverter implements JsonConverter<String?, String> {
 /// There are three classes that implement this class:
 /// [WebPageWebViewProperties], [TwitterWebViewProperties], and
 /// [GoogleMapsWebViewProperties].
-abstract class WebViewProperties with SerializableMixin, EquatableMixin {
+abstract class WebViewProperties extends CustomProperties {
   /// The [src] holds the actual content of the webview. It can be either a URL,
   /// an actual HTML string, an asset path, etc.
   @Base64JsonConverter()
@@ -310,7 +310,7 @@ class WebPageWebViewProperties extends WebViewProperties {
   }
 
   @override
-  Map toJson() => _$WebPageWebViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$WebPageWebViewPropertiesToJson(this);
 
   /// Creates a new [WebPageWebViewProperties] instance from a JSON map.
   factory WebPageWebViewProperties.fromJson(Map json) =>

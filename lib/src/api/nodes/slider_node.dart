@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -47,7 +46,8 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   double value;
 
   /// Holds configurable properties of the slider.
-  SliderProperties properties;
+  @override
+  covariant SliderProperties properties;
 
   /// Creates a mock slider preview.
   SliderNode.empty()
@@ -116,7 +116,7 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the slider.
 @JsonSerializable()
-class SliderProperties with SerializableMixin, EquatableMixin {
+class SliderProperties extends CustomProperties {
   /// Color of slider's track when it's active.
   ColorRGBA activeTrackColor;
 
@@ -318,5 +318,5 @@ class SliderProperties with SerializableMixin, EquatableMixin {
       _$SliderPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$SliderPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$SliderPropertiesToJson(this);
 }

@@ -16,8 +16,8 @@ class AccordionNode extends SceneNode
   @override
   final String type = 'accordion';
 
-  /// Whether the accordion is expanded or collapsed.
-  bool isExpanded;
+  @override
+  covariant AccordionProperties properties;
 
   /// Creates a new [AccordionNode] instance.
   AccordionNode({
@@ -44,10 +44,12 @@ class AccordionNode extends SceneNode
     super.parentID,
     super.reactions,
     required List<String> children,
-    this.isExpanded = true,
+    bool? isExpanded,
     super.variables,
     super.multipleVariables,
-  }) {
+    AccordionProperties? properties,
+  }) : properties =
+            properties ?? AccordionProperties(isExpanded: isExpanded ?? true) {
     setChildrenMixin(children: children);
     setRowColumnMixin(
       rowColumnType: rowColumnType,
@@ -61,4 +63,27 @@ class AccordionNode extends SceneNode
 
   @override
   Map toJson() => _$AccordionNodeToJson(this);
+}
+
+/// Custom properties for an [AccordionNode].
+@JsonSerializable()
+class AccordionProperties extends CustomProperties {
+  /// Whether the accordion is expanded or collapsed.
+  bool isExpanded;
+
+  /// Creates a new [AccordionProperties] instance.
+  AccordionProperties({
+    this.isExpanded = true,
+  });
+
+  @override
+  Map<String, dynamic> toJson() => _$AccordionPropertiesToJson(this);
+
+  /// Creates a [AccordionProperties] from a JSON data.
+
+  factory AccordionProperties.fromJson(Map json) =>
+      _$AccordionPropertiesFromJson(json);
+
+  @override
+  List<Object?> get props => [isExpanded];
 }

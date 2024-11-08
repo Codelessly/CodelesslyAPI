@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -16,7 +15,8 @@ class PageViewNode extends SinglePlaceholderNode
   final String type = 'pageView';
 
   /// The properties of the [PageViewNode].
-  PageViewProperties properties;
+  @override
+  covariant PageViewProperties properties;
 
   @override
   bool get supportsPadding => false;
@@ -102,7 +102,7 @@ class PageViewNode extends SinglePlaceholderNode
 
 /// The properties of a [PageViewNode].
 @JsonSerializable()
-class PageViewProperties with EquatableMixin, SerializableMixin {
+class PageViewProperties extends CustomProperties {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -162,7 +162,7 @@ class PageViewProperties with EquatableMixin, SerializableMixin {
       ];
 
   @override
-  Map toJson() => _$PageViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$PageViewPropertiesToJson(this);
 
   /// Creates a [PageViewProperties] from a JSON object.
   factory PageViewProperties.fromJson(Map json) =>
