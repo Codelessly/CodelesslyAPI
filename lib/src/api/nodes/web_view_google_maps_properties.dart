@@ -204,7 +204,7 @@ class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map toJson() => _$PlacesGoogleMapsWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$PlacesGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -284,7 +284,7 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map toJson() => _$ViewGoogleMapsWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$ViewGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a JSON map.
   factory ViewGoogleMapsWebViewProperties.fromJson(Map json) =>
@@ -441,7 +441,7 @@ class DirectionsGoogleMapsWebViewProperties
   }
 
   @override
-  Map toJson() => _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -595,7 +595,7 @@ class StreetViewGoogleMapsWebViewProperties
   }
 
   @override
-  Map toJson() => _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -678,7 +678,7 @@ class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map toJson() => _$SearchGoogleMapsWebViewPropertiesToJson(this);
+  Map<String,dynamic> toJson() => _$SearchGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a JSON
   /// map.

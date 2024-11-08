@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -33,7 +32,8 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   bool value = false;
 
   /// Holds configurable properties of the switch.
-  SwitchProperties properties;
+  @override
+  covariant SwitchProperties properties;
 
   /// Creates a mock switch preview.
   SwitchNode.empty()
@@ -102,7 +102,7 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the switch.
 @JsonSerializable()
-class SwitchProperties with SerializableMixin, EquatableMixin {
+class SwitchProperties extends CustomProperties {
   /// Color of switch's track when it's active.
   late ColorRGBA activeTrackColor;
 
@@ -214,5 +214,5 @@ class SwitchProperties with SerializableMixin, EquatableMixin {
       _$SwitchPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$SwitchPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$SwitchPropertiesToJson(this);
 }

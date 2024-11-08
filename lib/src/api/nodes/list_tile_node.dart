@@ -24,7 +24,7 @@ const double kDefaultListTileMinLeadingWidth = 40;
 
 /// Default value for [contentPadding] in [ListTile].
 const EdgeInsetsModel kDefaultListTileContentPadding =
-    EdgeInsetsModel.symmetric(horizontal: 16);
+EdgeInsetsModel.symmetric(horizontal: 16);
 
 /// A single fixed-height row that typically contains some text as well as a
 /// leading or trailing icon.
@@ -48,7 +48,8 @@ class ListTileNode extends SceneNode with ChildrenMixin, CustomPropertiesMixin {
   String? trailing;
 
   /// Holds configurable properties for the [ListTileNode].
-  ListTileProperties properties;
+  @override
+  covariant ListTileProperties properties;
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
@@ -66,18 +67,18 @@ class ListTileNode extends SceneNode with ChildrenMixin, CustomPropertiesMixin {
   ListTileNode.empty()
       : properties = ListTileProperties(),
         super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      );
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.fromProperties(this.properties)
       : super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    id: 'list_tile',
+    name: 'List Tile',
+    basicBoxLocal: NodeBox(0, 0, 300, 65),
+  );
 
   /// Creates a [ListTileNode] with the given data.
   ListTileNode({
@@ -148,8 +149,8 @@ class ListTileNode extends SceneNode with ChildrenMixin, CustomPropertiesMixin {
 
 /// Holds configurable properties for the [ListTileNode].
 @JsonSerializable()
-class ListTileProperties
-    with SerializableMixin, EquatableMixin, ShapeBorderMixin {
+class ListTileProperties extends CustomProperties
+    with ShapeBorderMixin {
   /// Whether this list tile is intended to display three lines of text.
   ///
   /// If true, then [subtitle] must be non-null (since it is expected to give
@@ -351,7 +352,8 @@ class ListTileProperties
   }
 
   @override
-  List<Object?> get props => [
+  List<Object?> get props =>
+      [
         isThreeLine,
         dense,
         visualDensity,
@@ -376,7 +378,7 @@ class ListTileProperties
       ];
 
   @override
-  Map toJson() => _$ListTilePropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ListTilePropertiesToJson(this);
 
   /// Creates a new [ListTileProperties] from a JSON data.
   factory ListTileProperties.fromJson(Map json) =>

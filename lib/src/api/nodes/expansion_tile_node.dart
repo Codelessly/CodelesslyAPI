@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -25,7 +24,8 @@ class ExpansionTileNode extends SceneNode
   String? listTileChild;
 
   /// Holds configurable properties for the [ExpansionTileNode].
-  ExpansionTileProperties properties;
+  @override
+  covariant ExpansionTileProperties properties;
 
   /// Strictly used for previews. e.g in components panel.
   ExpansionTileNode.empty()
@@ -104,7 +104,7 @@ class ExpansionTileNode extends SceneNode
 
 /// Holds configurable properties of an [ExpansionTileNode].
 @JsonSerializable()
-class ExpansionTileProperties with SerializableMixin, EquatableMixin {
+class ExpansionTileProperties extends CustomProperties {
   /// Color of the tile's background when it is expanded.
   ColorRGBA? backgroundColor;
 
@@ -272,7 +272,7 @@ class ExpansionTileProperties with SerializableMixin, EquatableMixin {
   List<Object?> get props => [];
 
   @override
-  Map toJson() => _$ExpansionTilePropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ExpansionTilePropertiesToJson(this);
 
   /// Creates a new [ExpansionTileProperties] from a JSON data.
   factory ExpansionTileProperties.fromJson(Map<String, dynamic> json) =>

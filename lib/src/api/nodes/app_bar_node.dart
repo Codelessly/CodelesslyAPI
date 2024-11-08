@@ -23,7 +23,8 @@ class AppBarNode extends SceneNode
   final String type = 'appBar';
 
   /// Holds configurable properties of the app bar.
-  AppBarProperties properties;
+  @override
+  covariant AppBarProperties properties;
 
   @override
   bool get supportsMargin => false;
@@ -120,7 +121,7 @@ class AppBarNode extends SceneNode
 
 /// Properties of an app bar.
 @JsonSerializable()
-class AppBarProperties with SerializableMixin, EquatableMixin {
+class AppBarProperties extends CustomProperties {
   /// Whether to align the title text in center.
   late bool centerTitle;
 
@@ -212,7 +213,7 @@ class AppBarProperties with SerializableMixin, EquatableMixin {
       _$AppBarPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$AppBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$AppBarPropertiesToJson(this);
 }
 
 /// An app bar action item.

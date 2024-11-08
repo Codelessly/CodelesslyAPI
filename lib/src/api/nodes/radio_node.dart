@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -21,7 +20,8 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   final String type = 'radio';
 
   /// Holds configurable properties of the radio.
-  RadioProperties properties;
+  @override
+  covariant RadioProperties properties;
 
   @override
   double get defaultWidth => kRadioDefaultSize;
@@ -94,7 +94,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the radio.
 @JsonSerializable()
-class RadioProperties with SerializableMixin, EquatableMixin {
+class RadioProperties extends CustomProperties {
   /// Color of radio when it is active.
   late ColorRGBA activeColor;
 
@@ -163,5 +163,5 @@ class RadioProperties with SerializableMixin, EquatableMixin {
   factory RadioProperties.fromJson(Map json) => _$RadioPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$RadioPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$RadioPropertiesToJson(this);
 }

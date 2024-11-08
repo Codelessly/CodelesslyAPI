@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -19,7 +18,8 @@ class FloatingActionButtonNode extends SceneNode with CustomPropertiesMixin {
   final String type = 'floatingActionButton';
 
   /// Holds configurable properties for the [FloatingActionButtonNode].
-  FloatingActionButtonProperties properties;
+  @override
+  covariant FloatingActionButtonProperties properties;
 
   /// Strictly used for previews. e.g in components panel.
   FloatingActionButtonNode.empty()
@@ -80,8 +80,8 @@ class FloatingActionButtonNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties for the [FloatingActionButtonNode].
 @JsonSerializable()
-class FloatingActionButtonProperties
-    with ShapeBorderMixin, SerializableMixin, EquatableMixin, ReactionMixin {
+class FloatingActionButtonProperties extends CustomProperties
+    with ShapeBorderMixin, ReactionMixin {
   /// Background color of the FAB.
   ColorRGBA backgroundColor;
 
@@ -235,5 +235,5 @@ class FloatingActionButtonProperties
       _$FloatingActionButtonPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$FloatingActionButtonPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$FloatingActionButtonPropertiesToJson(this);
 }

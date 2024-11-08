@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -140,8 +139,9 @@ class NavigationBarNode extends SceneNode
   int currentIndex;
 
   /// Holds configurable properties of the navigation bar.
+  @override
   @JsonKey(fromJson: navigationBarPropertiesFromJson)
-  NavigationBarProperties properties;
+  covariant NavigationBarProperties properties;
 
   /// Creates a [NavigationBarNode] instance with the given data.
   NavigationBarNode({
@@ -278,7 +278,7 @@ class NavigationBarNode extends SceneNode
 
 /// Holds configurable properties of the navigation bar.
 abstract class NavigationBarProperties<T extends NavigationBarItem>
-    with SerializableMixin, EquatableMixin {
+    extends CustomProperties {
   /// Defines the style of the navigation bar, i.e., Material 2 or Material 3.
   ///
   /// This has to be like this to force json serializable to serialize it.
@@ -433,7 +433,7 @@ class M3NavigationBarProperties
       ];
 
   @override
-  Map toJson() => _$M3NavigationBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesToJson(this);
 
   /// Creates a [M3NavigationBarProperties] instance from a JSON object.
   static M3NavigationBarProperties fromJson(Map json) =>
@@ -547,7 +547,7 @@ class M2NavigationBarProperties
       ];
 
   @override
-  Map toJson() => _$M2NavigationBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesToJson(this);
 
   /// Creates a [M2NavigationBarProperties] instance from a JSON object.
   factory M2NavigationBarProperties.fromJson(Map json) =>

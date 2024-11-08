@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -21,7 +20,8 @@ class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
   final String type = 'progressBar';
 
   /// Holds configurable properties of the progress bar.
-  ProgressBarProperties properties;
+  @override
+  covariant ProgressBarProperties properties;
 
   /// Current progress value of the progress bar.
   double currentValue = 0;
@@ -110,7 +110,7 @@ class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the progress bar.
 @JsonSerializable()
-class ProgressBarProperties with SerializableMixin, EquatableMixin {
+class ProgressBarProperties extends CustomProperties {
   /// Maximum value of the progress bar, i.e., when the progress is complete.
   double maxValue;
 
@@ -182,5 +182,5 @@ class ProgressBarProperties with SerializableMixin, EquatableMixin {
       _$ProgressBarPropertiesFromJson(json);
 
   @override
-  Map toJson() => _$ProgressBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ProgressBarPropertiesToJson(this);
 }
