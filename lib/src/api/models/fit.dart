@@ -65,8 +65,6 @@ enum Fit {
         return 'None';
       case Fit.scaleDown:
         return 'Scale Down';
-      default:
-        return 'None';
     }
   }
 }

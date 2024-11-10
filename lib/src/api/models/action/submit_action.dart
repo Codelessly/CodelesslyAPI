@@ -51,6 +51,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
     switch (service) {
       case SubmitActionService.mailchimp:
         return MailchimpSubmitAction.fromJson(json);
+      // ignore: unreachable_switch_default
       default:
         return _$SubmitActionFromJson(json);
     }
