@@ -38,8 +38,6 @@ enum PaintType {
         return 'Image';
       case PaintType.emoji:
         return 'Emoji';
-      default:
-        return 'Unknown';
     }
   }
 
