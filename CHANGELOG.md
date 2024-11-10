@@ -1,3 +1,12 @@
+## 4.2.1
+
+- Fix lint issues.
+
+## 4.2.0
+
+- Add `NodeBox.fromCenter` method.
+- Use TextProp instead of StartEndProp.
+
 ## 4.1.0
 
 - Fix AppBar constraints.
