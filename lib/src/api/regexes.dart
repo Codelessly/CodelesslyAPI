@@ -82,20 +82,20 @@
 /// ============================================================================
 ///   Regex explanation:
 /// ============================================================================
-/// (?<!\\)                         # Negative lookbehind to ensure "${" is not escaped.
+/// (?&lt;!\\)                         # Negative lookbehind to ensure "${" is not escaped.
 /// \$\{                            # Matches the starting "${" literal
-///   (?<value>                     # Named capture group "value" for the entire variable expression:
-///     (?<name>                    # Named capture group "name" for the variable name:
+///   (?&lt;value&gt;                     # Named capture group "value" for the entire variable expression:
+///     (?&lt;name&gt;                    # Named capture group "name" for the variable name:
 ///       [a-zA-Z]                  # Matches a single alphabet character
 ///       [a-zA-Z0-9_]*             # Matches zero or more alphanumeric characters or underscores
 ///     )                           # End of the named capture group "name"
 ///     (
-///       (?<accessor>              # Named capture group "accessor" for array access:
+///       (?&lt;accessor&gt;              # Named capture group "accessor" for array access:
 ///         (?:\[\d+\])+            # Non-capturing group for multiple occurrences of digits surrounded by square brackets
 ///       |
 ///       (?:                       # Non-capturing group for nested path access:
 ///         \.                      # Matches a dot (for nested properties)
-///         (?<path>                # Named capture group "path" for nested property name:
+///         (?&lt;path&gt;                # Named capture group "path" for nested property name:
 ///           [a-zA-Z]+             # Matches one or more alphabet characters
 ///           [a-zA-Z0-9_]*         # Matches zero or more alphanumeric characters or underscores
 ///           (?:                   # Non-capturing group for optional array access:
@@ -155,7 +155,7 @@ final RegExp variableSyntaxIdentifierRegex =
 ///
 /// (?<!\\)                      # Negative lookbehind to ensure "${" is not escaped.
 /// \$\{?                        # Matches the starting "${" literal (optional)
-/// (?<name>                     # Named capture group "name" for the variable name:
+/// (?&lt;name&gt;                     # Named capture group "name" for the variable name:
 ///   [a-zA-Z]+                  # Matches one or more alphabet characters
 ///   [a-zA-Z0-9_]*              # Matches zero or more alphanumeric characters or underscores
 /// )                            # End of the named capture group "name"
