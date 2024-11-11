@@ -116,3 +116,13 @@ extension TextInputFormatterModelIterableExt<T extends TextInputFormatterModel>
     return model;
   }
 }
+
+/// A helper extension that adds additional functionality to [List].
+extension ListExt<T> on List<T> {
+  /// Removes all the items in the [items] list from this list.
+  void removeAll(Iterable<T> items) {
+    for (final item in items) {
+      remove(item);
+    }
+  }
+}
