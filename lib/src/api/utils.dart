@@ -95,3 +95,15 @@ String resolveParentNodeIDs({
       )?.id ??
       kRootNode;
 }
+
+/// Returns the top-most parent ID of the given [nodes] map.
+/// Where [nodes] map is a map of node IDs to their respective node JSON.
+List<String> getTopMostParentIDs(Map<String, dynamic> nodes) {
+  List<String> parentIds = nodes.keys.toList();
+  for (final Map<String, dynamic> node in nodes.values) {
+    if (node.containsKey('children')) {
+      parentIds.removeAll(List<String>.from(node['children']));
+    }
+  }
+  return parentIds;
+}
