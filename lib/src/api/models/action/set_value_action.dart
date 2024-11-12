@@ -97,6 +97,9 @@ enum ValueType {
 
   /// Represents a paint value which can be color, gradient, etc.
   paint,
+
+  /// Represents a object value.
+  object,
 }
 
 /// Represents a value to set in a node.
@@ -159,6 +162,8 @@ abstract class ValueModel<T extends Object?> with SerializableMixin {
         return ColorValue.fromJson(json);
       case ValueType.paint:
         return PaintValue.fromJson(json);
+      case ValueType.object:
+        return ObjectValue.fromJson(json);
     }
   }
 }
@@ -306,6 +311,37 @@ class StringValue extends ValueModel<String> with SerializableMixin {
 
   @override
   Map toJson() => _$StringValueToJson(this);
+}
+
+/// Value of string type.
+@JsonSerializable()
+class ObjectValue extends ValueModel<Object?> with SerializableMixin {
+  /// Creates a new [StringValue].
+  ObjectValue({
+    required super.name,
+    SetValueMode mode = SetValueMode.syncValue,
+    super.value = '',
+  }) : super(type: ValueType.object, mode: SetValueMode.syncValue) {
+    // assert(
+    //     mode != SetValueMode.syncValue, '${mode.prettify} mode not supported.');
+  }
+
+  @override
+  ObjectValue copyWith({
+    SetValueMode? mode,
+    Object? value,
+  }) =>
+      ObjectValue(
+        name: name,
+        mode: mode ?? this.mode,
+        value: value ?? this.value,
+      );
+
+  /// Creates a new [StringValue] instance from a JSON data.
+  factory ObjectValue.fromJson(Map json) => _$ObjectValueFromJson(json);
+
+  @override
+  Map toJson() => _$ObjectValueToJson(this);
 }
 
 /// Value of boolean type.
