@@ -95,6 +95,7 @@ const _$ValueTypeEnumMap = {
   ValueType.bool: 'bool',
   ValueType.color: 'color',
   ValueType.paint: 'paint',
+  ValueType.object: 'object',
 };
 
 IntValue _$IntValueFromJson(Map json) => IntValue(
@@ -179,6 +180,35 @@ Map<String, dynamic> _$StringValueToJson(StringValue instance) {
 
   writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
       SetValueMode.discrete);
+  writeNotNull('value', instance.value, instance.value, '');
+  val['type'] = _$ValueTypeEnumMap[instance.type]!;
+  return val;
+}
+
+ObjectValue _$ObjectValueFromJson(Map json) => ObjectValue(
+      name: json['name'] as String,
+      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+          SetValueMode.syncValue,
+      value: json['value'] ?? '',
+    );
+
+Map<String, dynamic> _$ObjectValueToJson(ObjectValue instance) {
+  final val = <String, dynamic>{
+    'name': instance.name,
+  };
+
+  void writeNotNull(
+      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
+    final bool serialize =
+        shouldSerialize(key, value, jsonValue, defaultValue, false);
+
+    if (serialize) {
+      val[key] = jsonValue;
+    }
+  }
+
+  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
+      SetValueMode.syncValue);
   writeNotNull('value', instance.value, instance.value, '');
   val['type'] = _$ValueTypeEnumMap[instance.type]!;
   return val;

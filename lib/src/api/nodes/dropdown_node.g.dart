@@ -44,7 +44,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
       properties: DropdownProperties.fromJson(json['properties'] as Map),
-      value: (json['value'] as num?)?.toInt(),
+      value: json['value'],
     )
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),

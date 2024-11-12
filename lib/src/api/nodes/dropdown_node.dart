@@ -24,7 +24,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
   covariant DropdownProperties properties;
 
   /// Index of the selected option in the dropdown.
-  int? value;
+  Object? value;
 
   /// Creates a [DropdownNode] with the given data.
   DropdownNode({
@@ -57,7 +57,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
-    IntValue(name: 'value', value: value ?? -1),
+    ObjectValue(name: 'value', value: value),
   ];
 
   @override
