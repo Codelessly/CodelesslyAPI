@@ -14,6 +14,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
           .map((e) => Variant.fromJson(e as Map))
           .toList(),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -122,6 +123,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;

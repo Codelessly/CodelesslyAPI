@@ -27,6 +27,7 @@ class FreeformPlaceholderNode extends DefaultShapeNode
     super.retainedOuterBoxLocal,
     super.rotationDegrees,
     super.visible,
+    super.enabled,
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
     super.alignment,

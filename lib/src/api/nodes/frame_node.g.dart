@@ -32,6 +32,7 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
               unknownValue: BlendModeC.srcOver) ??
           BlendModeC.srcOver,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
       isMask: json['isMask'] as bool? ?? false,
       strokeWeight: (json['strokeWeight'] as num?)?.toDouble() ?? 0,
@@ -172,6 +173,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1);
   writeNotNull('blendMode', instance.blendMode,

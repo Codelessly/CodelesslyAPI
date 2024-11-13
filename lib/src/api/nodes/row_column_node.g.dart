@@ -22,6 +22,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
               _$CrossAxisAlignmentCEnumMap, json['crossAxisAlignment']) ??
           CrossAxisAlignmentC.center,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -168,6 +169,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1);
   writeNotNull('blendMode', instance.blendMode,

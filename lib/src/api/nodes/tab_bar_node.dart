@@ -33,6 +33,7 @@ class TabBarNode extends SceneNode
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,

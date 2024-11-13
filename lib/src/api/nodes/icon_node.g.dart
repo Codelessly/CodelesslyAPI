@@ -11,6 +11,7 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -125,6 +126,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('color', instance.color, instance.color?.toJson(), null);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1.0);
   writeNotNull('blendMode', instance.blendMode,

@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -97,6 +96,7 @@ class ListTileNode extends SceneNode with ChildrenMixin, CustomPropertiesMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,
