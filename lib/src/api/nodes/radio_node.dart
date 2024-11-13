@@ -62,6 +62,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.alignment,
     super.padding,
     super.margin,

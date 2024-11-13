@@ -22,6 +22,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -151,10 +152,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
       TextAlignVerticalEnum.top);
   writeNotNull(
       'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('paragraphSpacing', instance.paragraphSpacing,
       instance.paragraphSpacing, 0);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
   writeNotNull('overflow', instance.overflow,
       _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
@@ -168,6 +169,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1.0);
   writeNotNull('blendMode', instance.blendMode,
       _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);

@@ -32,6 +32,7 @@ class SpacerNode extends SceneNode {
     super.horizontalFit,
     super.verticalFit,
     super.visible,
+    super.enabled,
     super.flex,
     super.edgePins,
     super.parentID,

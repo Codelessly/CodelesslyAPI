@@ -28,6 +28,7 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     super.effects,
     super.blendMode,
     super.visible,
+    super.enabled,
     super.opacity,
     super.isMask,
     super.strokeWeight = 0,

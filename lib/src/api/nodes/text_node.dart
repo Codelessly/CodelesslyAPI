@@ -87,6 +87,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,

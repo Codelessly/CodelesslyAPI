@@ -13,6 +13,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) => DropdownNode(
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
@@ -110,6 +111,7 @@ Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('value', instance.value, instance.value, null);
