@@ -11,6 +11,7 @@ ButtonNode _$ButtonNodeFromJson(Map json) => ButtonNode(
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
@@ -109,6 +110,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;

@@ -35,6 +35,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
     super.retainedOuterBoxLocal,
     super.rotationDegrees,
     super.visible,
+    super.enabled,
     super.alignment,
     super.padding,
     super.margin,

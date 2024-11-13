@@ -13,6 +13,7 @@ RadioNode _$RadioNodeFromJson(Map json) => RadioNode(
       value: json['value'] as String? ?? '',
       groupValue: json['groupValue'] as String?,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
@@ -111,6 +112,7 @@ Map<String, dynamic> _$RadioNodeToJson(RadioNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('value', instance.value, instance.value, '');

@@ -363,6 +363,11 @@ abstract class BaseNode
   /// parent.
   double? heightFactor;
 
+  /// Determines whether the node is enabled or not. When translating the node
+  /// into a widget or code, this value is used to determine whether this node
+  /// should be included and accounted for or not.
+  bool enabled;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 
@@ -394,6 +399,7 @@ abstract class BaseNode
     this.parentID = '',
     this.widthFactor,
     this.heightFactor,
+    this.enabled = true,
     Map<String, String>? variables,
     Map<String, List<String>>? multipleVariables,
   })  : _basicBoxLocal = basicBoxLocal,

@@ -12,6 +12,7 @@ SwitchNode _$SwitchNodeFromJson(Map json) => SwitchNode(
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       value: json['value'] as bool? ?? false,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
@@ -110,6 +111,7 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   writeNotNull('value', instance.value, instance.value, false);
   val['properties'] = instance.properties.toJson();

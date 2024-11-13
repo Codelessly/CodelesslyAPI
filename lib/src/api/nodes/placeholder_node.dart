@@ -32,6 +32,7 @@ class PlaceholderNode extends SceneNode with PlaceholderMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,

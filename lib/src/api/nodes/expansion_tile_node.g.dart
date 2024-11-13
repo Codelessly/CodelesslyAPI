@@ -15,6 +15,7 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
       properties: ExpansionTileProperties.fromJson(
           Map<String, dynamic>.from(json['properties'] as Map)),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -122,6 +123,7 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   val['rowColumnType'] = _$RowColumnTypeEnumMap[instance.rowColumnType]!;
   val['mainAxisAlignment'] =

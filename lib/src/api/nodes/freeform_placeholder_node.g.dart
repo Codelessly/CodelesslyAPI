@@ -18,6 +18,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
           : AlignmentModel.fromJson(json['alignment'] as Map),
@@ -150,6 +151,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1);
   writeNotNull('blendMode', instance.blendMode,

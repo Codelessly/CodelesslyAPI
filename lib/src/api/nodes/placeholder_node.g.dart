@@ -13,6 +13,7 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) => PlaceholderNode(
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -110,6 +111,7 @@ Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   writeNotNull(
       'leadingAsset', instance.leadingAsset, instance.leadingAsset, null);

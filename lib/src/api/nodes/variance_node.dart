@@ -62,6 +62,7 @@ class VarianceNode extends SinglePlaceholderNode {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,

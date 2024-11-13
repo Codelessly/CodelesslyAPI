@@ -16,6 +16,7 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
       verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
           SizeFit.fixed,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       flex: (json['flex'] as num?)?.toInt() ?? 1,
       edgePins: json['edgePins'] == null
           ? EdgePinsModel.standard
@@ -81,6 +82,7 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   return val;
 }

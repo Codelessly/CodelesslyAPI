@@ -10,6 +10,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
       id: json['id'] as String,
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+      enabled: json['enabled'] as bool? ?? true,
       visible: json['visible'] as bool? ?? true,
       alignment: json['alignment'] == null
           ? AlignmentModel.none
@@ -110,6 +111,7 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('initialText', instance.initialText, instance.initialText, '');

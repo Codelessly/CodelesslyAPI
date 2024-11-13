@@ -11,6 +11,7 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
       name: json['name'] as String,
       basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -122,6 +123,7 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull(
       'isScrollable', instance.isScrollable, instance.isScrollable, false);
   val['scrollDirection'] = _$AxisCEnumMap[instance.scrollDirection]!;

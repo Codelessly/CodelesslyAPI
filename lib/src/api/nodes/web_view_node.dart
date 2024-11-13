@@ -40,6 +40,7 @@ class WebViewNode extends SceneNode with CustomPropertiesMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.alignment,
     super.padding,
     super.margin,

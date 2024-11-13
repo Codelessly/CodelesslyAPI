@@ -47,6 +47,7 @@ class AppBarNode extends SceneNode
     super.retainedOuterBoxLocal,
     super.rotationDegrees,
     super.visible,
+    super.enabled,
     super.alignment,
     super.padding,
     super.margin,

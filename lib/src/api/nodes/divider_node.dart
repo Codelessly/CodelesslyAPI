@@ -55,6 +55,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,

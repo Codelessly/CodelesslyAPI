@@ -20,6 +20,7 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
               _$CrossAxisAlignmentCEnumMap, json['crossAxisAlignment']) ??
           CrossAxisAlignmentC.center,
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -124,6 +125,7 @@ Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   writeNotNull('rowColumnType', instance.rowColumnType,
       _$RowColumnTypeEnumMap[instance.rowColumnType]!, RowColumnType.column);

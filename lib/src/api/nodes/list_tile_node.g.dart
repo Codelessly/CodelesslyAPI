@@ -16,6 +16,7 @@ ListTileNode _$ListTileNodeFromJson(Map json) => ListTileNode(
       trailing: json['trailing'] as String?,
       properties: ListTileProperties.fromJson(json['properties'] as Map),
       visible: json['visible'] as bool? ?? true,
+      enabled: json['enabled'] as bool? ?? true,
       rotationDegrees:
           json['rotation'] == null ? 0 : castRotation(json['rotation']),
       alignment: json['alignment'] == null
@@ -79,8 +80,6 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
     }
   }
 
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -107,6 +106,8 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -117,6 +118,7 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
+  writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
   val['type'] = instance.type;
   writeNotNull('leading', instance.leading, instance.leading, null);

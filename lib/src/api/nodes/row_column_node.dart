@@ -35,6 +35,7 @@ class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
     CrossAxisAlignmentC crossAxisAlignment = CrossAxisAlignmentC.center,
     super.retainedOuterBoxLocal,
     super.visible,
+    super.enabled,
     super.rotationDegrees,
     super.alignment,
     super.margin,
