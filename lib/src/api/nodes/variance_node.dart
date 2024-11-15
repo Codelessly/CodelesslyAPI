@@ -26,7 +26,7 @@ class VarianceNode extends SinglePlaceholderNode {
   List<String> get allVariantsChildren =>
       variants.expand((e) => e.children).toList();
 
-  /// Get all the children from the all the variants except the currently loaded
+  /// Get all the children from all the variants except the currently loaded
   /// variant.
   List<String> get unloadedVariantsChildren => variants
       .where((element) => element.id != currentVariantId)
