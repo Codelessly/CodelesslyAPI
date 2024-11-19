@@ -11,7 +11,7 @@ part 'variance_node.g.dart';
 /// and switch them based on certain conditions. For example, it can be used to
 /// create success and error states of a widget.
 @JsonSerializable()
-class VarianceNode extends SinglePlaceholderNode {
+class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   @override
   final String type = 'variance';
 
@@ -52,6 +52,10 @@ class VarianceNode extends SinglePlaceholderNode {
   /// All variants of the node.
   List<Variant> variants;
 
+  /// Holds configurable properties of the variance node.
+  @override
+  covariant VarianceProperties properties;
+
   /// Creates a [VarianceNode] instance with the given data.
   VarianceNode({
     bool? value,
@@ -77,8 +81,13 @@ class VarianceNode extends SinglePlaceholderNode {
     super.parentID,
     super.reactions,
     String? currentVariantId,
+    super.maxAllowedSize,
+    super.variables,
+    super.multipleVariables,
+    VarianceProperties? properties,
   })  : assert(variants.isNotEmpty),
         currentVariantId = currentVariantId ?? variants[0].id,
+        properties = properties ?? const VarianceProperties(),
         super(
           children: [],
           allowedTypes: [],
@@ -93,6 +102,8 @@ class VarianceNode extends SinglePlaceholderNode {
   List<Object?> get props => [
         ...super.props,
         variants,
+        properties,
+        currentVariantId,
       ];
 
   /// Creates a [VarianceNode] instance from a JSON object.
@@ -129,4 +140,21 @@ class Variant with SerializableMixin, EquatableMixin {
 
   /// Creates a [Variant] instance from a JSON object.
   factory Variant.fromJson(Map json) => _$VariantFromJson(json);
+}
+
+/// [VarianceProperties] is used to store custom properties of a [VarianceNode].
+@JsonSerializable()
+class VarianceProperties extends CustomProperties {
+  /// Creates a [VarianceProperties] instance with the given data.
+  const VarianceProperties();
+
+  @override
+  Map<String, dynamic> toJson() => _$VariancePropertiesToJson(this);
+
+  /// Creates a [VarianceProperties] instance from a JSON object.
+  factory VarianceProperties.fromJson(Map<String, dynamic> json) =>
+      _$VariancePropertiesFromJson(json);
+
+  @override
+  List<Object?> get props => [];
 }

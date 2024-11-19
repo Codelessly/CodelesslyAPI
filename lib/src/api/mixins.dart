@@ -747,10 +747,17 @@ mixin CustomPropertiesMixin on BaseNode {
   /// the transformer will provide for the default reactions.
   bool get handlesDefaultReactionsInternally => true;
 
+  /// Custom properties of the node.
   abstract CustomProperties properties;
 }
 
+/// A mixin that allows a node to have a custom properties object.
 abstract class CustomProperties with EquatableMixin {
+
+  /// Default constructor for this class.
+  const CustomProperties();
+
+  /// Serializes the properties to a JSON object.
   Map<String, dynamic> toJson();
 }
 
