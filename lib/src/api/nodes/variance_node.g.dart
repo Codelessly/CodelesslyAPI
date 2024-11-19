@@ -48,16 +48,23 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
               .toList() ??
           [],
       currentVariantId: json['currentVariantId'] as String?,
-    )
-      ..variables = (json['variables'] as Map?)?.map(
+      maxAllowedSize: json['maxAllowedSize'] == null
+          ? null
+          : SizeC.fromJson(json['maxAllowedSize'] as Map),
+      variables: (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
-          {}
-      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
+          {},
+      multipleVariables: (json['multipleVariables'] as Map?)?.map(
             (k, e) => MapEntry(k as String,
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
-          {}
+          {},
+      properties: json['properties'] == null
+          ? null
+          : VarianceProperties.fromJson(
+              Map<String, dynamic>.from(json['properties'] as Map)),
+    )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
@@ -67,9 +74,6 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
-      ..maxAllowedSize = json['maxAllowedSize'] == null
-          ? null
-          : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
@@ -132,6 +136,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
   val['type'] = instance.type;
   val['currentVariantId'] = instance.currentVariantId;
   val['variants'] = instance.variants.map((e) => e.toJson()).toList();
+  val['properties'] = instance.properties.toJson();
   return val;
 }
 
@@ -160,3 +165,9 @@ Map<String, dynamic> _$VariantToJson(Variant instance) => <String, dynamic>{
       'id': instance.id,
       'children': instance.children,
     };
+
+VarianceProperties _$VariancePropertiesFromJson(Map json) =>
+    VarianceProperties();
+
+Map<String, dynamic> _$VariancePropertiesToJson(VarianceProperties instance) =>
+    <String, dynamic>{};
