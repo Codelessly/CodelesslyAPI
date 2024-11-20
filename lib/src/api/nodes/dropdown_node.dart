@@ -61,20 +61,6 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
     ObjectValue(name: 'value', value: value),
   ];
 
-  @override
-  BoxConstraintsModel internalConstraints({
-    required SizeFit horizontalFit,
-    required SizeFit verticalFit,
-  }) {
-    final double iconSize = properties.icon.size ?? 24;
-    return super
-        .internalConstraints(
-          horizontalFit: horizontalFit,
-          verticalFit: verticalFit,
-        )
-        .union(BoxConstraintsModel(minWidth: iconSize));
-  }
-
   /// Creates a [DropdownNode] from a JSON object.
   factory DropdownNode.fromJson(Map json) => _$DropdownNodeFromJson(json);
 
