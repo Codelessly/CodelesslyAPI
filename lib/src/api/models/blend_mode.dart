@@ -1,426 +1,333 @@
-/// Enum describing how layer blends with layers below.
+/// Enum representing various blend modes for combining this layer with layers below.
 ///
-/// When drawing a shape or image onto a canvas, different algorithms can be
-/// used to blend the pixels. The different values of [BlendMode] specify
-/// different such algorithms.
+/// Blend modes determine how pixels from this layer are combined with pixels from layers below.
+/// They are used in drawing operations to create different visual effects by manipulating color and alpha values.
 enum BlendModeC {
-  // This list comes from Skia's SkXfermode.h and the values (order) should be
-  // kept in sync.
-  // See: https://skia.org/docs/user/api/skpaint_overview/#SkXfermode
+  /// Clear
+  ///
+  /// Completely clears the canvas, leaving it transparent.
+  ///
+  /// This mode removes this layer and all layers below it, resulting in a fully transparent canvas.
+  clear(
+    'Clear',
+    'Completely clears the canvas, leaving it transparent.\n\n'
+        'This mode removes this layer and all layers below it, resulting in a fully transparent canvas.',
+  ),
 
-  /// Drop both the source and destination images, leaving nothing.
+  /// Source
   ///
-  /// This corresponds to the "clear" Porter-Duff operator.
+  /// Shows only this layer and ignores everything else.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_clear.png)
-  clear,
+  /// This mode draws this layer and discards all the layers below it.
+  src(
+    'Source',
+    'Shows only this layer and ignores everything else.\n\n'
+        'This mode draws this layer and discards all the layers below it.',
+  ),
 
-  /// Drop the destination image, only paint the source image.
+  /// Destination
   ///
-  /// Conceptually, the destination is first cleared, then the source image is
-  /// painted.
+  /// Keeps everything as it was before and ignores this layer.
   ///
-  /// This corresponds to the "Copy" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_src.png)
-  src,
+  /// This mode leaves the layers below untouched and does not draw this layer.
+  dst(
+    'Destination',
+    'Keeps everything as it was before and ignores this layer.\n\n'
+        'This mode leaves the layers below untouched and does not draw this layer.',
+  ),
 
-  /// Drop the source image, only paint the destination image.
+  /// Source Over
   ///
-  /// Conceptually, the source image is discarded, leaving the destination
-  /// untouched.
+  /// Draws this layer on top of what was there before.
   ///
-  /// This corresponds to the "Destination" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dst.png)
-  dst,
+  /// This is the default mode where this layer is blended over the layers below.
+  srcOver(
+    'Source Over',
+    'Draws this layer on top of what was there before.\n\n'
+        'This is the default mode where this layer is blended over the layers below.',
+  ),
 
-  /// Composite the source image over the destination image.
+  /// Destination Over
   ///
-  /// This is the default value. It represents the most intuitive case, where
-  /// shapes are painted on top of what is below, with transparent areas showing
-  /// the destination layer.
+  /// Draws what was there before on top of this layer.
   ///
-  /// This corresponds to the "Source over Destination" Porter-Duff operator,
-  /// also known as the Painter's Algorithm.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcOver.png)
-  srcOver,
+  /// This mode renders the layers below over this layer, effectively placing this layer underneath.
+  dstOver(
+    'Destination Over',
+    'Draws what was there before on top of this layer.\n\n'
+        'This mode renders the layers below over this layer, effectively placing this layer underneath.',
+  ),
 
-  /// Composite the source image under the destination image.
+  /// Source In
   ///
-  /// This is the opposite of [srcOver].
+  /// Shows this layer only where it overlaps with what was there before.
   ///
-  /// This corresponds to the "Destination over Source" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstOver.png)
-  ///
-  /// This is useful when the source image should have been painted before the
-  /// destination image, but could not be.
-  dstOver,
+  /// This mode keeps the overlapping area of this layer and the layers below, discarding non-overlapping parts of this layer.
+  srcIn(
+    'Source In',
+    'Shows this layer only where it overlaps with what was there before.\n\n'
+        'This mode keeps the overlapping area of this layer and the layers below, discarding non-overlapping parts of this layer.',
+  ),
 
-  /// Show the source image, but only where the two images overlap. The
-  /// destination image is not rendered, it is treated merely as a mask. The
-  /// color channels of the destination are ignored, only the opacity has an
-  /// effect.
+  /// Destination In
   ///
-  /// To show the destination image instead, consider [dstIn].
+  /// Shows the layers below only where they overlap with this layer.
   ///
-  /// To reverse the semantic of the mask (only showing the source where the
-  /// destination is absent, rather than where it is present), consider
-  /// [srcOut].
-  ///
-  /// This corresponds to the "Source in Destination" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcIn.png)
-  srcIn,
+  /// This mode keeps the overlapping area of the layers below and this layer, discarding non-overlapping parts of the layers below.
+  dstIn(
+    'Destination In',
+    'Shows the layers below only where they overlap with this layer.\n\n'
+        'This mode keeps the overlapping area of the layers below and this layer, discarding non-overlapping parts of the layers below.',
+  ),
 
-  /// Show the destination image, but only where the two images overlap. The
-  /// source image is not rendered, it is treated merely as a mask. The color
-  /// channels of the source are ignored, only the opacity has an effect.
+  /// Source Out
   ///
-  /// To show the source image instead, consider [srcIn].
+  /// Shows this layer only where it does NOT overlap with what was there before.
   ///
-  /// To reverse the semantic of the mask (only showing the source where the
-  /// destination is present, rather than where it is absent), consider [dstOut].
-  ///
-  /// This corresponds to the "Destination in Source" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstIn.png)
-  dstIn,
+  /// This mode displays parts of this layer that are outside the bounds of the layers below.
+  srcOut(
+    'Source Out',
+    'Shows this layer only where it does NOT overlap with what was there before.\n\n'
+        'This mode displays parts of this layer that are outside the bounds of the layers below.',
+  ),
 
-  /// Show the source image, but only where the two images do not overlap. The
-  /// destination image is not rendered, it is treated merely as a mask. The color
-  /// channels of the destination are ignored, only the opacity has an effect.
+  /// Destination Out
   ///
-  /// To show the destination image instead, consider [dstOut].
+  /// Shows the layers below only where they do NOT overlap with this layer.
   ///
-  /// To reverse the semantic of the mask (only showing the source where the
-  /// destination is present, rather than where it is absent), consider [srcIn].
-  ///
-  /// This corresponds to the "Source out Destination" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcOut.png)
-  srcOut,
+  /// This mode displays parts of the layers below that are outside the bounds of this layer.
+  dstOut(
+    'Destination Out',
+    'Shows the layers below only where they do NOT overlap with this layer.\n\n'
+        'This mode displays parts of the layers below that are outside the bounds of this layer.',
+  ),
 
-  /// Show the destination image, but only where the two images do not overlap. The
-  /// source image is not rendered, it is treated merely as a mask. The color
-  /// channels of the source are ignored, only the opacity has an effect.
+  /// Source Atop
   ///
-  /// To show the source image instead, consider [srcOut].
+  /// Draws this layer on top, but only where it overlaps with what was there before.
   ///
-  /// To reverse the semantic of the mask (only showing the destination where the
-  /// source is present, rather than where it is absent), consider [dstIn].
-  ///
-  /// This corresponds to the "Destination out Source" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstOut.png)
-  dstOut,
+  /// This mode renders this layer over the layers below in the overlapping areas and shows the layers below elsewhere.
+  srcATop(
+    'Source Atop',
+    'Draws this layer on top, but only where it overlaps with what was there before.\n\n'
+        'This mode renders this layer over the layers below in the overlapping areas and shows the layers below elsewhere.',
+  ),
 
-  /// Composite the source image over the destination image, but only where it
-  /// overlaps the destination.
+  /// Destination Atop
   ///
-  /// This corresponds to the "Source atop Destination" Porter-Duff operator.
+  /// Draws what was there before on top, but only where it overlaps with this layer.
   ///
-  /// This is essentially the [srcOver] operator, but with the output's opacity
-  /// channel being set to that of the destination image instead of being a
-  /// combination of both image's opacity channels.
-  ///
-  /// For a variant with the destination on top instead of the source, see
-  /// [dstATop].
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_srcATop.png)
-  srcATop,
+  /// This mode renders the layers below over this layer in the overlapping areas and shows this layer elsewhere.
+  dstATop(
+    'Destination Atop',
+    'Draws what was there before on top, but only where it overlaps with this layer.\n\n'
+        'This mode renders the layers below over this layer in the overlapping areas and shows this layer elsewhere.',
+  ),
 
-  /// Composite the destination image over the source image, but only where it
-  /// overlaps the source.
+  /// XOR
   ///
-  /// This corresponds to the "Destination atop Source" Porter-Duff operator.
+  /// Combines this layer and the layers below but makes overlapping areas transparent.
   ///
-  /// This is essentially the [dstOver] operator, but with the output's opacity
-  /// channel being set to that of the source image instead of being a
-  /// combination of both image's opacity channels.
-  ///
-  /// For a variant with the source on top instead of the destination, see
-  /// [srcATop].
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_dstATop.png)
-  dstATop,
+  /// This mode displays non-overlapping regions of both this layer and the layers below, making overlapping regions transparent.
+  xor(
+    'XOR',
+    'Combines this layer and the layers below but makes overlapping areas transparent.\n\n'
+        'This mode displays non-overlapping regions of both this layer and the layers below, making overlapping regions transparent.',
+  ),
 
-  /// Apply a bitwise `xor` operator to the source and destination images. This
-  /// leaves transparency where they would overlap.
+  /// Add
   ///
-  /// This corresponds to the "Source xor Destination" Porter-Duff operator.
+  /// Makes the result brighter by adding the colors of this layer and the layers below.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_xor.png)
-  xor,
+  /// This mode sums the color values of this layer and the layers below, which can result in brighter colors or white if values exceed the maximum.
+  plus(
+    'Add',
+    'Makes the result brighter by adding the colors of this layer and the layers below.\n\n'
+        'This mode sums the color values of this layer and the layers below, which can result in brighter colors or white if values exceed the maximum.',
+  ),
 
-  /// Sum the components of the source and destination images.
+  /// Multiply
   ///
-  /// Transparency in a pixel of one of the images reduces the contribution of
-  /// that image to the corresponding output pixel, as if the color of that
-  /// pixel in that image was darker.
+  /// Darkens the result by multiplying the colors of this layer and the layers below.
   ///
-  /// This corresponds to the "Source plus Destination" Porter-Duff operator.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_plus.png)
-  plus,
+  /// This mode multiplies the color values of this layer with those of the layers below, resulting in darker colors.
+  modulate(
+    'Multiply',
+    'Darkens the result by multiplying the colors of this layer and the layers below.\n\n'
+        'This mode multiplies the color values of this layer with those of the layers below, resulting in darker colors.',
+  ),
 
-  /// Multiply the color components of the source and destination images.
+  /// Screen
   ///
-  /// This can only result in the same or darker colors (multiplying by white,
-  /// 1.0, results in no change; multiplying by black, 0.0, results in black).
+  /// Lightens the result by inverting, multiplying, and inverting the colors again.
   ///
-  /// When compositing two opaque images, this has similar effect to overlapping
-  /// two transparencies on a projector.
-  ///
-  /// For a variant that also multiplies the alpha channel, consider [multiply].
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_modulate.png)
-  ///
-  /// See also:
-  ///
-  ///  * [screen], which does a similar computation but inverted.
-  ///  * [overlay], which combines [modulate] and [screen] to favor the
-  ///    destination image.
-  ///  * [hardLight], which combines [modulate] and [screen] to favor the
-  ///    source image.
-  modulate,
+  /// This mode creates a lighter effect by combining this layer and the layers below in a way that preserves light areas.
+  screen(
+    'Screen',
+    'Lightens the result by inverting, multiplying, and inverting the colors again.\n\n'
+        'This mode creates a lighter effect by combining this layer and the layers below in a way that preserves light areas.',
+  ),
 
-  // Following blend modes are defined in the CSS Compositing standard.
+  /// Overlay
+  ///
+  /// Enhances contrast by combining Multiply and Screen modes.
+  ///
+  /// This mode applies Multiply blending on dark areas and Screen blending on light areas, using this layer to affect the layers below.
+  overlay(
+    'Overlay',
+    'Enhances contrast by combining Multiply and Screen modes.\n\n'
+        'This mode applies Multiply blending on dark areas and Screen blending on light areas, using this layer to affect the layers below.',
+  ),
 
-  /// Multiply the inverse of the components of the source and destination
-  /// images, and inverse the result.
+  /// Darken
   ///
-  /// Inverting the components means that a fully saturated channel (opaque
-  /// white) is treated as the value 0.0, and values normally treated as 0.0
-  /// (black, transparent) are treated as 1.0.
+  /// Keeps only the darkest parts of this layer and the layers below.
   ///
-  /// This is essentially the same as [modulate] blend mode, but with the values
-  /// of the colors inverted before the multiplication and the result being
-  /// inverted back before rendering.
-  ///
-  /// This can only result in the same or lighter colors (multiplying by black,
-  /// 1.0, results in no change; multiplying by white, 0.0, results in white).
-  /// Similarly, in the alpha channel, it can only result in more opaque colors.
-  ///
-  /// This has similar effect to two projectors displaying their images on the
-  /// same screen simultaneously.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_screen.png)
-  ///
-  /// See also:
-  ///
-  ///  * [modulate], which does a similar computation but without inverting the
-  ///    values.
-  ///  * [overlay], which combines [modulate] and [screen] to favor the
-  ///    destination image.
-  ///  * [hardLight], which combines [modulate] and [screen] to favor the
-  ///    source image.
-  screen, // The last coeff mode.
+  /// This mode compares each pixel and retains the lowest color values from this layer and the layers below.
+  darken(
+    'Darken',
+    'Keeps only the darkest parts of this layer and the layers below.\n\n'
+        'This mode compares each pixel and retains the lowest color values from this layer and the layers below.',
+  ),
 
-  /// Multiply the components of the source and destination images after
-  /// adjusting them to favor the destination.
+  /// Lighten
   ///
-  /// Specifically, if the destination value is smaller, this multiplies it with
-  /// the source value, whereas is the source value is smaller, it multiplies
-  /// the inverse of the source value with the inverse of the destination value,
-  /// then inverts the result.
+  /// Keeps only the lightest parts of this layer and the layers below.
   ///
-  /// Inverting the components means that a fully saturated channel (opaque
-  /// white) is treated as the value 0.0, and values normally treated as 0.0
-  /// (black, transparent) are treated as 1.0.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_overlay.png)
-  ///
-  /// See also:
-  ///
-  ///  * [modulate], which always multiplies the values.
-  ///  * [screen], which always multiplies the inverses of the values.
-  ///  * [hardLight], which is similar to [overlay] but favors the source image
-  ///    instead of the destination image.
-  overlay,
+  /// This mode compares each pixel and retains the highest color values from this layer and the layers below.
+  lighten(
+    'Lighten',
+    'Keeps only the lightest parts of this layer and the layers below.\n\n'
+        'This mode compares each pixel and retains the highest color values from this layer and the layers below.',
+  ),
 
-  /// Composite the source and destination image by choosing the lowest value
-  /// from each color channel.
+  /// Color Dodge
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver].
+  /// Brightens the layers below to reflect the colors of this layer.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_darken.png)
-  darken,
+  /// This mode divides the color values of the layers below by the inverse of this layer, resulting in a brighter composite.
+  colorDodge(
+    'Color Dodge',
+    'Brightens the layers below to reflect the colors of this layer.\n\n'
+        'This mode divides the color values of the layers below by the inverse of this layer, resulting in a brighter composite.',
+  ),
 
-  /// Composite the source and destination image by choosing the highest value
-  /// from each color channel.
+  /// Color Burn
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver].
+  /// Darkens the layers below to reflect the colors of this layer.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_lighten.png)
-  lighten,
+  /// This mode inverts the color values of this layer and divides them by the layers below, then inverts the result to create a darker effect.
+  colorBurn(
+    'Color Burn',
+    'Darkens the layers below to reflect the colors of this layer.\n\n'
+        'This mode inverts the color values of this layer and divides them by the layers below, then inverts the result to create a darker effect.',
+  ),
 
-  /// Divide the destination by the inverse of the source.
+  /// Hard Light
   ///
-  /// Inverting the components means that a fully saturated channel (opaque
-  /// white) is treated as the value 0.0, and values normally treated as 0.0
-  /// (black, transparent) are treated as 1.0.
+  /// Adds contrast by emphasizing this layer over the layers below.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_colorDodge.png)
-  colorDodge,
+  /// This mode uses this layer to determine whether to multiply or screen the colors, intensifying highlights and shadows.
+  hardLight(
+    'Hard Light',
+    'Adds contrast by emphasizing this layer over the layers below.\n\n'
+        'This mode uses this layer to determine whether to multiply or screen the colors, intensifying highlights and shadows.',
+  ),
 
-  /// Divide the inverse of the destination by the source, and inverse the result.
+  /// Soft Light
   ///
-  /// Inverting the components means that a fully saturated channel (opaque
-  /// white) is treated as the value 0.0, and values normally treated as 0.0
-  /// (black, transparent) are treated as 1.0.
+  /// Softly illuminates the layers below using this layer.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_colorBurn.png)
-  colorBurn,
+  /// This mode gently lightens or darkens the colors of the layers below based on this layer, similar to shining a diffused spotlight.
+  softLight(
+    'Soft Light',
+    'Softly illuminates the layers below using this layer.\n\n'
+        'This mode gently lightens or darkens the colors of the layers below based on this layer, similar to shining a diffused spotlight.',
+  ),
 
-  /// Multiply the components of the source and destination images after
-  /// adjusting them to favor the source.
+  /// Difference
   ///
-  /// Specifically, if the source value is smaller, this multiplies it with the
-  /// destination value, whereas is the destination value is smaller, it
-  /// multiplies the inverse of the destination value with the inverse of the
-  /// source value, then inverts the result.
+  /// Creates an inverted effect by subtracting colors.
   ///
-  /// Inverting the components means that a fully saturated channel (opaque
-  /// white) is treated as the value 0.0, and values normally treated as 0.0
-  /// (black, transparent) are treated as 1.0.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_hardLight.png)
-  ///
-  /// See also:
-  ///
-  ///  * [modulate], which always multiplies the values.
-  ///  * [screen], which always multiplies the inverses of the values.
-  ///  * [overlay], which is similar to [hardLight] but favors the destination
-  ///    image instead of the source image.
-  hardLight,
+  /// This mode subtracts the color values of this layer and the layers below from each other, resulting in high contrast and inverted colors.
+  difference(
+    'Difference',
+    'Creates an inverted effect by subtracting colors.\n\n'
+        'This mode subtracts the color values of this layer and the layers below from each other, resulting in high contrast and inverted colors.',
+  ),
 
-  /// Use [colorDodge] for source values below 0.5 and [colorBurn] for source
-  /// values above 0.5.
+  /// Exclusion
   ///
-  /// This results in a similar but softer effect than [overlay].
+  /// Creates a muted, low-contrast blend of this layer and the layers below.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_softLight.png)
-  ///
-  /// See also:
-  ///
-  ///  * [color], which is a more subtle tinting effect.
-  softLight,
+  /// This mode produces an effect similar to Difference but with less contrast, resulting in a more subtle blend.
+  exclusion(
+    'Exclusion',
+    'Creates a muted, low-contrast blend of this layer and the layers below.\n\n'
+        'This mode produces an effect similar to Difference but with less contrast, resulting in a more subtle blend.',
+  ),
 
-  /// Subtract the smaller value from the bigger value for each channel.
+  /// Alpha Multiply
   ///
-  /// Compositing black has no effect; compositing white inverts the colors of
-  /// the other image.
+  /// Darkens the image by multiplying colors and transparency.
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver].
-  ///
-  /// The effect is similar to [exclusion] but harsher.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_difference.png)
-  difference,
+  /// This mode multiplies both the color and alpha (transparency) values of this layer with those of the layers below.
+  multiply(
+    'Alpha Multiply',
+    'Darkens the image by multiplying colors and transparency.\n\n'
+        'This mode multiplies both the color and alpha (transparency) values of this layer with those of the layers below.',
+  ),
 
-  /// Subtract double the product of the two images from the sum of the two
-  /// images.
+  /// Hue
   ///
-  /// Compositing black has no effect; compositing white inverts the colors of
-  /// the other image.
+  /// Applies the color tint of this layer to the layers below.
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver].
-  ///
-  /// The effect is similar to [difference] but softer.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_exclusion.png)
-  exclusion,
+  /// This mode combines the hue (color) of this layer with the luminosity and saturation of the layers below.
+  hue(
+    'Hue',
+    'Applies the color tint of this layer to the layers below.\n\n'
+        'This mode combines the hue (color) of this layer with the luminosity and saturation of the layers below.',
+  ),
 
-  /// Multiply the components of the source and destination images, including
-  /// the alpha channel.
+  /// Saturation
   ///
-  /// This can only result in the same or darker colors (multiplying by white,
-  /// 1.0, results in no change; multiplying by black, 0.0, results in black).
+  /// Applies the color intensity of this layer to the layers below.
   ///
-  /// Since the alpha channel is also multiplied, a fully-transparent pixel
-  /// (opacity 0.0) in one image results in a fully transparent pixel in the
-  /// output. This is similar to [dstIn], but with the colors combined.
-  ///
-  /// For a variant that multiplies the colors but does not multiply the alpha
-  /// channel, consider [modulate].
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_multiply.png)
-  multiply, // The last separable mode.
+  /// This mode uses the saturation of this layer with the hue and luminosity of the layers below to adjust color vividness.
+  saturation(
+    'Saturation',
+    'Applies the color intensity of this layer to the layers below.\n\n'
+        'This mode uses the saturation of this layer with the hue and luminosity of the layers below to adjust color vividness.',
+  ),
 
-  /// Take the hue of the source image, and the saturation and luminosity of the
-  /// destination image.
+  /// Color
   ///
-  /// The effect is to tint the destination image with the source image.
+  /// Blends the hue and saturation of this layer with the brightness of the layers below.
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver]. Regions that are entirely transparent in the source image take
-  /// their hue from the destination.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_hue.png)
-  ///
-  /// See also:
-  ///
-  ///  * [color], which is a similar but stronger effect as it also applies the
-  ///    saturation of the source image.
-  ///  * [HSVColor], which allows colors to be expressed using Hue rather than
-  ///    the red/green/blue channels of [Color].
-  hue,
+  /// This mode applies the color aspects (hue and saturation) of this layer to the layers below while preserving their luminosity.
+  color(
+    'Color',
+    'Blends the hue and saturation of this layer with the brightness of the layers below.\n\n'
+        'This mode applies the color aspects (hue and saturation) of this layer to the layers below while preserving their luminosity.',
+  ),
 
-  /// Take the saturation of the source image, and the hue and luminosity of the
-  /// destination image.
+  /// Luminosity
   ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver]. Regions that are entirely transparent in the source image take
-  /// their saturation from the destination.
+  /// Applies the brightness of this layer to the color of the layers below.
   ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_hue.png)
-  ///
-  /// See also:
-  ///
-  ///  * [color], which also applies the hue of the source image.
-  ///  * [luminosity], which applies the luminosity of the source image to the
-  ///    destination.
-  saturation,
+  /// This mode combines the luminosity of this layer with the hue and saturation of the layers below, affecting overall lightness.
+  luminosity(
+    'Luminosity',
+    'Applies the brightness of this layer to the color of the layers below.\n\n'
+        'This mode combines the luminosity of this layer with the hue and saturation of the layers below, affecting overall lightness.',
+  );
 
-  /// Take the hue and saturation of the source image, and the luminosity of the
-  /// destination image.
-  ///
-  /// The effect is to tint the destination image with the source image.
-  ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver]. Regions that are entirely transparent in the source image take
-  /// their hue and saturation from the destination.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_color.png)
-  ///
-  /// See also:
-  ///
-  ///  * [hue], which is a similar but weaker effect.
-  ///  * [softLight], which is a similar tinting effect but also tints white.
-  ///  * [saturation], which only applies the saturation of the source image.
-  color,
+  /// The user-friendly label for this blend mode.
+  final String label;
 
-  /// Take the luminosity of the source image, and the hue and saturation of the
-  /// destination image.
-  ///
-  /// The opacity of the output image is computed in the same way as for
-  /// [srcOver]. Regions that are entirely transparent in the source image take
-  /// their luminosity from the destination.
-  ///
-  /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_luminosity.png)
-  ///
-  /// See also:
-  ///
-  ///  * [saturation], which applies the saturation of the source image to the
-  ///    destination.
-  ///  * [ImageFilter.blur], which can be used with [BackdropFilter] for a
-  ///    related effect.
-  luminosity,
+  /// The user-friendly description for this blend mode.
+  final String description;
+
+  /// Creates a blend mode with the given label and description.
+  const BlendModeC(this.label, this.description);
 }
