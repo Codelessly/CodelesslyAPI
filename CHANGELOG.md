@@ -1,3 +1,11 @@
+## 4.3.0
+
+- Create new Placeholders node.
+- Add enable and disable node feature.
+- Add new BlendModes support.
+- Enable RenderedLayoutModel for buttons and dropdowns.
+- Fix dropdown onChanged callback value.
+
 ## 4.2.1
 
 - Fix lint issues.
