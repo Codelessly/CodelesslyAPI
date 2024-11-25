@@ -29,6 +29,8 @@ extension ObjectExt on Object? {
       _ when R.isMap => value.toMap().tryCast<R>(),
       _ when R.isList || R.isIterable => value.toList<R>(),
       _ when R.isSet => value.toSet<R>(),
+      const (CornerRadius) =>
+        CornerRadius.fromJson(value).tryCast<R>() ?? defaultValue,
       _ => defaultValue,
     };
   }
