@@ -753,7 +753,6 @@ mixin CustomPropertiesMixin on BaseNode {
 
 /// A mixin that allows a node to have a custom properties object.
 abstract class CustomProperties with EquatableMixin {
-
   /// Default constructor for this class.
   const CustomProperties();
 
@@ -1191,5 +1190,35 @@ mixin QueryableMixin {
     this.useCloudDatabase = useCloudDatabase;
     this.collectionPath = collectionPath;
     this.limit = limit;
+  }
+}
+
+/// Represents the type of the component.
+enum ComponentMarkerType {
+  /// Indicates that the node is marked as a component.
+  component,
+
+  /// Indicates that the node is marked as an instance of a component.
+  instance;
+}
+
+/// A mixin that allows a node to be connected to a component or identify
+/// itself as an instance of a component.
+mixin ComponentMixin on BaseNode {
+  /// The id of the component that this node is connected to either as a
+  /// component or as an instance.
+  String? componentId;
+
+  /// The representation type of the component. Null indicates that this is
+  /// just a normal node.
+  ComponentMarkerType? markerType;
+
+  /// Allows to set the component mixin properties.
+  void setComponentMixin({
+    String? componentId,
+    ComponentMarkerType? markerType,
+  }) {
+    this.componentId = componentId;
+    this.markerType = markerType;
   }
 }

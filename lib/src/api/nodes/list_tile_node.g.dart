@@ -65,6 +65,9 @@ ListTileNode _$ListTileNodeFromJson(Map json) => ListTileNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
@@ -120,6 +123,9 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) {
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   writeNotNull('leading', instance.leading, instance.leading, null);
   writeNotNull('title', instance.title, instance.title, null);
@@ -140,6 +146,11 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 ListTileProperties _$ListTilePropertiesFromJson(Map json) => ListTileProperties(

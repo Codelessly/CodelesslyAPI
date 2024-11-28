@@ -125,6 +125,9 @@ CanvasNode _$CanvasNodeFromJson(Map json) => CanvasNode(
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
@@ -236,6 +239,9 @@ Map<String, dynamic> _$CanvasNodeToJson(CanvasNode instance) {
       instance.useFlutterListView, false);
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   writeNotNull('createdTimestamp', instance.createdTimestamp,
       const DateTimeConverter().toJson(instance.createdTimestamp), null);
@@ -353,6 +359,11 @@ const _$ScrollPhysicsCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(

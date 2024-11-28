@@ -96,6 +96,9 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
@@ -177,6 +180,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('effects', instance.effects,
       instance.effects.map((e) => e.toJson()).toList(), const []);
   writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
@@ -244,4 +250,9 @@ const _$BlendModeCEnumMap = {
   BlendModeC.saturation: 'saturation',
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };

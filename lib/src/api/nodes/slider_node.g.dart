@@ -58,6 +58,9 @@ SliderNode _$SliderNodeFromJson(Map json) => SliderNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) {
@@ -112,6 +115,9 @@ Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['value'] = instance.value;
   val['properties'] = instance.properties.toJson();
@@ -129,6 +135,11 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(

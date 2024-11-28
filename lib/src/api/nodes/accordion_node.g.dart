@@ -72,6 +72,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) => AccordionNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) {
@@ -139,6 +142,9 @@ Map<String, dynamic> _$AccordionNodeToJson(AccordionNode instance) {
       instance.crossAxisAlignment,
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
       CrossAxisAlignmentC.center);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;
@@ -177,6 +183,11 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 AccordionProperties _$AccordionPropertiesFromJson(Map json) =>

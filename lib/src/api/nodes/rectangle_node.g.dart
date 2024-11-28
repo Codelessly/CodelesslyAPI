@@ -97,6 +97,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
@@ -179,6 +182,9 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
       'cornerSmoothing', instance.cornerSmoothing, instance.cornerSmoothing, 0);
   writeNotNull('cornerRadius', instance.cornerRadius,
       instance.cornerRadius.toJson(), CornerRadius.zero);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
@@ -246,4 +252,9 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };

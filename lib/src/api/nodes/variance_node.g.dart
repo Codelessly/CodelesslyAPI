@@ -67,6 +67,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) => VarianceNode(
     )
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
@@ -128,6 +131,9 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
@@ -151,6 +157,11 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 Variant _$VariantFromJson(Map json) => Variant(

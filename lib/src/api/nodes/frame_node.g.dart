@@ -120,6 +120,9 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
@@ -228,6 +231,9 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
   writeNotNull('pageID', instance.pageID, instance.pageID, null);
   writeNotNull('layoutID', instance.layoutID, instance.layoutID, null);
   writeNotNull('showPortal', instance.showPortal, instance.showPortal, false);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
@@ -313,4 +319,9 @@ const _$ScrollPhysicsCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };

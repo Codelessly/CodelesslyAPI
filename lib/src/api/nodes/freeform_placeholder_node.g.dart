@@ -97,6 +97,9 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
@@ -175,6 +178,9 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
       'dashPattern', instance.dashPattern, instance.dashPattern, const []);
   writeNotNull('strokeSide', instance.strokeSide,
       _$StrokeSideEnumMap[instance.strokeSide]!, StrokeSide.all);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
@@ -242,4 +248,9 @@ const _$StrokeSideEnumMap = {
   StrokeSide.bottom: 'bottom',
   StrokeSide.top: 'top',
   StrokeSide.all: 'all',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
