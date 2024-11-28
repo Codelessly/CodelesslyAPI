@@ -70,6 +70,9 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
           $enumDecode(_$MainAxisAlignmentCEnumMap, json['mainAxisAlignment'])
       ..crossAxisAlignment =
           $enumDecode(_$CrossAxisAlignmentCEnumMap, json['crossAxisAlignment'])
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
@@ -130,6 +133,9 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
   val['crossAxisAlignment'] =
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['isExpanded'] = instance.isExpanded;
   writeNotNull(
@@ -171,6 +177,11 @@ const _$CrossAxisAlignmentCEnumMap = {
   CrossAxisAlignmentC.end: 'end',
   CrossAxisAlignmentC.stretch: 'stretch',
   CrossAxisAlignmentC.baseline: 'baseline',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
