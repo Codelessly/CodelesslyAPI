@@ -70,6 +70,9 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
           _$ScrollViewKeyboardDismissBehaviorCEnumMap,
           json['keyboardDismissBehavior'])
       ..useFlutterListView = json['useFlutterListView'] as bool
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
@@ -139,6 +142,9 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
   val['useFlutterListView'] = instance.useFlutterListView;
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('initialIndex', instance.initialIndex, instance.initialIndex, 0);
@@ -174,6 +180,11 @@ const _$AxisCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
