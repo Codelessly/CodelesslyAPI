@@ -91,15 +91,15 @@ RectangleNode _$RectangleNodeFromJson(Map json) => RectangleNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
@@ -115,11 +115,16 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
     }
   }
 
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -141,8 +146,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
   writeNotNull('flex', instance.flex, instance.flex, 1);
   writeNotNull('aspectRatioLock', instance.aspectRatioLock,
       instance.aspectRatioLock, false);
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -182,9 +185,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) {
       'cornerSmoothing', instance.cornerSmoothing, instance.cornerSmoothing, 0);
   writeNotNull('cornerRadius', instance.cornerRadius,
       instance.cornerRadius.toJson(), CornerRadius.zero);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
