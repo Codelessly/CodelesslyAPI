@@ -84,11 +84,11 @@ GridViewNode _$GridViewNodeFromJson(Map json) => GridViewNode(
           ScrollViewKeyboardDismissBehaviorC.manual,
       shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
     )
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
@@ -116,9 +116,14 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -142,8 +147,6 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -156,16 +159,13 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) {
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
