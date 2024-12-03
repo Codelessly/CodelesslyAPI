@@ -71,11 +71,11 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
@@ -94,6 +94,9 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -138,9 +141,6 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   writeNotNull('effects', instance.effects,
       instance.effects.map((e) => e.toJson()).toList(), const []);
   writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['properties'] = instance.properties.toJson();
   val['type'] = instance.type;
   return val;

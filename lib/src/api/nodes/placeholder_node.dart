@@ -22,6 +22,9 @@ class PlaceholderNode extends SceneNode with PlaceholderMixin {
   /// Text displayed in the placeholder.
   String? text;
 
+  @override
+  bool get canBeMarked => false;
+
   /// Creates a [PlaceholderNode] instance with the given data.
   PlaceholderNode({
     required this.text,

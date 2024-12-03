@@ -22,6 +22,9 @@ class GridViewNode extends SinglePlaceholderNode
   @override
   bool get isScrollingEnforced => true;
 
+  @override
+  bool get canBeMarked => true;
+
   /// The properties of the [GridView].
   @override
   covariant GridViewProperties properties;

@@ -56,11 +56,11 @@ SwitchNode _$SwitchNodeFromJson(Map json) => SwitchNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
@@ -79,6 +79,9 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -115,9 +118,6 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   writeNotNull('value', instance.value, instance.value, false);
   val['properties'] = instance.properties.toJson();

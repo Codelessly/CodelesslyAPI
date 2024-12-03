@@ -62,6 +62,9 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
           ) ??
           {},
     )
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..rowColumnType =
@@ -70,9 +73,6 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) => ExpansionTileNode(
           $enumDecode(_$MainAxisAlignmentCEnumMap, json['mainAxisAlignment'])
       ..crossAxisAlignment =
           $enumDecode(_$CrossAxisAlignmentCEnumMap, json['crossAxisAlignment'])
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
@@ -91,6 +91,9 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -133,9 +136,6 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(ExpansionTileNode instance) {
       _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!;
   val['crossAxisAlignment'] =
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!;
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['isExpanded'] = instance.isExpanded;
   writeNotNull(
@@ -155,6 +155,11 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 const _$RowColumnTypeEnumMap = {
@@ -177,11 +182,6 @@ const _$CrossAxisAlignmentCEnumMap = {
   CrossAxisAlignmentC.end: 'end',
   CrossAxisAlignmentC.stretch: 'stretch',
   CrossAxisAlignmentC.baseline: 'baseline',
-};
-
-const _$ComponentMarkerTypeEnumMap = {
-  ComponentMarkerType.component: 'component',
-  ComponentMarkerType.instance: 'instance',
 };
 
 ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>

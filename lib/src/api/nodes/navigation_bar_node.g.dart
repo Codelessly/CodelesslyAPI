@@ -56,11 +56,11 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) => NavigationBarNode(
           ) ??
           {},
     )
-      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
-      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
+      ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) {
@@ -79,6 +79,9 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -115,9 +118,6 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   writeNotNull('currentIndex', instance.currentIndex, instance.currentIndex, 0);
   val['properties'] = instance.properties.toJson();

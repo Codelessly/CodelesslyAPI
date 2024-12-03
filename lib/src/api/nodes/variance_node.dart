@@ -18,6 +18,9 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   @override
   bool get supportsPadding => false;
 
+  @override
+  bool get canBeMarked => true;
+
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   List<String> get children => currentVariant.children;
