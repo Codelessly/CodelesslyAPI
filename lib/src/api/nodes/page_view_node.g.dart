@@ -73,11 +73,11 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
-      ..maxAllowedSize = json['maxAllowedSize'] == null
-          ? null
-          : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
@@ -85,11 +85,11 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
+      ..maxAllowedSize = json['maxAllowedSize'] == null
+          ? null
+          : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
@@ -105,11 +105,12 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
     }
   }
 
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -133,6 +134,8 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -145,13 +148,13 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
-  writeNotNull('maxAllowedSize', instance.maxAllowedSize,
-      instance.maxAllowedSize?.toJson(), null);
   writeNotNull(
       'clipsContent', instance.clipsContent, instance.clipsContent, true);
   writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
+  writeNotNull('maxAllowedSize', instance.maxAllowedSize,
+      instance.maxAllowedSize?.toJson(), null);
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
@@ -171,9 +174,6 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
   val['useFlutterListView'] = instance.useFlutterListView;
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   return val;

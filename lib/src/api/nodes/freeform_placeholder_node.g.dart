@@ -91,20 +91,23 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
     FreeformPlaceholderNode instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+  };
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -116,11 +119,6 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
     }
   }
 
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
@@ -144,6 +142,12 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
       AlignmentModel.none);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -178,9 +182,6 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
       'dashPattern', instance.dashPattern, instance.dashPattern, const []);
   writeNotNull('strokeSide', instance.strokeSide,
       _$StrokeSideEnumMap[instance.strokeSide]!, StrokeSide.all);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }

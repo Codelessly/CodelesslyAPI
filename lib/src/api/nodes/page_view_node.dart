@@ -24,6 +24,9 @@ class PageViewNode extends SinglePlaceholderNode
   @override
   bool get isScrollingEnforced => true;
 
+  @override
+  bool get canBeMarked => true;
+
   /// Creates a [PageViewNode].
   PageViewNode({
     required super.id,

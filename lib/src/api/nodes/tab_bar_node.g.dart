@@ -61,6 +61,9 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..scrollDirection = $enumDecode(_$AxisCEnumMap, json['scrollDirection'])
@@ -70,9 +73,6 @@ TabBarNode _$TabBarNodeFromJson(Map json) => TabBarNode(
           _$ScrollViewKeyboardDismissBehaviorCEnumMap,
           json['keyboardDismissBehavior'])
       ..useFlutterListView = json['useFlutterListView'] as bool
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
@@ -91,6 +91,9 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -142,9 +145,6 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) {
   val['useFlutterListView'] = instance.useFlutterListView;
   writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
       instance.shouldAlwaysScroll, true);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   val['properties'] = instance.properties.toJson();
   writeNotNull('initialIndex', instance.initialIndex, instance.initialIndex, 0);
@@ -172,6 +172,11 @@ const _$ScrollPhysicsCEnumMap = {
   ScrollPhysicsC.rangeMaintainingScrollPhysics: 'rangeMaintainingScrollPhysics',
 };
 
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
+};
+
 const _$AxisCEnumMap = {
   AxisC.horizontal: 'horizontal',
   AxisC.vertical: 'vertical',
@@ -180,11 +185,6 @@ const _$AxisCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
-};
-
-const _$ComponentMarkerTypeEnumMap = {
-  ComponentMarkerType.component: 'component',
-  ComponentMarkerType.instance: 'instance',
 };
 
 TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(

@@ -35,6 +35,9 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..positioningMode =
           $enumDecode(_$PositioningModeEnumMap, json['positioningMode'])
       ..aspectRatioLock = json['aspectRatioLock'] as bool
@@ -43,9 +46,6 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
           .toList()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
@@ -64,6 +64,9 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -86,9 +89,6 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }
@@ -101,12 +101,12 @@ const _$SizeFitEnumMap = {
   SizeFit.shrinkWrap: 'shrinkWrap',
 };
 
-const _$PositioningModeEnumMap = {
-  PositioningMode.align: 'align',
-  PositioningMode.pin: 'pin',
-};
-
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
+};
+
+const _$PositioningModeEnumMap = {
+  PositioningMode.align: 'align',
+  PositioningMode.pin: 'pin',
 };

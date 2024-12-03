@@ -8,6 +8,7 @@ part 'spacer_node.g.dart';
 
 /// A node that can be used to create space between other nodes inside a row or
 /// column or any other flexible spaces.
+// TODO: SpacerNode should extend BaseNode, not SceneNode. Reactions should not be allowed on this.
 @JsonSerializable()
 class SpacerNode extends SceneNode {
   @override
@@ -21,6 +22,9 @@ class SpacerNode extends SceneNode {
 
   @override
   bool get supportsVisibility => false;
+
+  @override
+  bool get canBeMarked => false;
 
   /// Creates a new [SpacerNode] with the given data.
   SpacerNode({
