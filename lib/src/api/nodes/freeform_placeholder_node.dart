@@ -17,6 +17,9 @@ class FreeformPlaceholderNode extends DefaultShapeNode
   @override
   final bool supportsPadding = true;
 
+  @override
+  bool get canBeMarked => false;
+
   /// Creates a new [FreeformPlaceholderNode] instance with given data.
   FreeformPlaceholderNode({
     required super.id,

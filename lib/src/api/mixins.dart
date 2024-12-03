@@ -1204,7 +1204,7 @@ enum ComponentMarkerType {
 
 /// A mixin that allows a node to be connected to a component or identify
 /// itself as an instance of a component.
-mixin ComponentMixin on BaseNode {
+mixin ComponentMixin {
   /// The id of the component that this node is connected to either as a
   /// component or as an instance.
   String? componentId;
@@ -1212,6 +1212,9 @@ mixin ComponentMixin on BaseNode {
   /// The representation type of the component. Null indicates that this is
   /// just a normal node.
   ComponentMarkerType? markerType;
+
+  /// Whether this node is allowed to be a component or an instance.
+  bool get canBeMarked => true;
 
   /// Allows to set the component mixin properties.
   void setComponentMixin({

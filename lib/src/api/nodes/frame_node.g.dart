@@ -114,15 +114,15 @@ FrameNode _$FrameNodeFromJson(Map json) => FrameNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map))
-      ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
@@ -141,6 +141,9 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -231,9 +234,6 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) {
   writeNotNull('pageID', instance.pageID, instance.pageID, null);
   writeNotNull('layoutID', instance.layoutID, instance.layoutID, null);
   writeNotNull('showPortal', instance.showPortal, instance.showPortal, false);
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   val['type'] = instance.type;
   return val;
 }

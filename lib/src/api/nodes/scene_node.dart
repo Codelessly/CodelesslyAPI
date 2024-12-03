@@ -4,7 +4,7 @@ import 'base_node.dart';
 
 /// SceneNode should never be called directly, only inherited by other nodes.
 abstract class SceneNode extends BaseNode
-    with ReactionMixin, PropertyVariableMixin, ComponentMixin {
+    with ReactionMixin, PropertyVariableMixin {
   /// Creates a [SceneNode] with the given data.
   SceneNode({
     required super.id,
@@ -29,13 +29,9 @@ abstract class SceneNode extends BaseNode
     List<Reaction> reactions = const [],
     super.variables,
     super.multipleVariables,
-    String? componentId,
-    ComponentMarkerType? componentType,
+    super.componentId,
+    super.componentType,
   }) {
     setReactionMixin([...reactions]);
-    setComponentMixin(
-      componentId: componentId,
-      markerType: componentType,
-    );
   }
 }
