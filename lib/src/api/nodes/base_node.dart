@@ -10,6 +10,7 @@ import '../constants.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../property_access.dart';
 import '../utils.dart';
 
 part '../node_processor.dart';
@@ -31,7 +32,8 @@ abstract class BaseNode
         SerializableMixin,
         EquatableMixin,
         VariablePropertiesMixin,
-        ComponentMixin {
+        ComponentMixin,
+        BagOfFieldsMixin {
   /// [type] is a string representation for the type of this node. It is a
   /// unique key that this node class uses for static registration. It is
   /// usually the lowerCamelCase of the class' name. Overriding [type] is
@@ -380,6 +382,13 @@ abstract class BaseNode
 
   /// Whether the node's height is sized in fraction of the parent's height.
   bool get isFractionallySizedVertically => heightFactor != null;
+
+  final Map<String, FieldAccess> _fields = {};
+
+  /// A map of fields that this node has. This is used to determine what
+  /// properties this node has and what properties can be modified at runtime.
+  @override
+  Map<String, FieldAccess> get fields => _fields;
 
   /// Default constructor of this class.
   BaseNode({
