@@ -4,6 +4,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../property_access.dart';
 
 part 'paint.g.dart';
 
@@ -36,7 +37,7 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 /// A solid color, gradient, or image texture that can be applied as fill or
 /// stroke.
 @JsonSerializable()
-class PaintModel with EquatableMixin, SerializableMixin {
+class PaintModel with EquatableMixin, SerializableMixin, BagOfFieldsMixin {
   /// identifier of this paint.
   @JsonKey(readValue: _readId)
   final String id;
@@ -45,13 +46,13 @@ class PaintModel with EquatableMixin, SerializableMixin {
   final PaintType type;
 
   /// Whether the paint is visible.
-  final bool visible;
+  bool visible;
 
   /// Overall opacity of paint.
   /// Colors within the paint can also have opacity
   /// values which would blend with this.
   @JsonKey(toJson: roundDoubleToJson)
-  final double opacity;
+  double opacity;
 
   // For solid paint:
 
@@ -59,13 +60,13 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// This is used with [opacity] to generate Flutter's Color.
   /// This isn't a ColorRGBA because [opacity] is used in images or gradients.
   /// Having two opacity fields for a single color could be confusing.
-  final ColorRGB? color;
+  ColorRGB? color;
 
   // For gradient paint:
 
   /// Describes how this node blends with nodes behind it in the scene.
   @JsonKey(unknownEnumValue: BlendModeC.srcOver)
-  final BlendModeC blendMode;
+  BlendModeC blendMode;
 
   /// This field contains three vectors, each of which are a position in
   /// normalized object space (normalized object space is if the top left
@@ -172,6 +173,32 @@ class PaintModel with EquatableMixin, SerializableMixin {
   /// Whether image fill type has source size.
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
+  late final Map<String, FieldAccess> _fields = {
+    'color': FieldAccess<ColorRGB?, Object?>(
+      (value) => color = value.typedValue<ColorRGB>(),
+      () => color,
+    ),
+    'blendMode': ExactFieldAccess<BlendModeC>.options(
+      (value) => blendMode = value,
+      () => blendMode,
+      options: () => BlendModeC.values,
+      defaultValue: () => BlendModeC.srcOver,
+    ),
+    'opacity': FieldAccess<double, Object?>(
+      (value) => opacity = value.typedValue<double>()!,
+      () => opacity,
+    ),
+    'visible': FieldAccess<bool, Object?>(
+      (value) => visible = value.typedValue<bool>()!,
+      () => visible,
+    ),
+  };
+
+  /// A map of fields that this node has. This is used to determine what
+  /// properties this node has and what properties can be modified at runtime.
+  @override
+  Map<String, FieldAccess> get fields => _fields;
+
   /// Helper constructor for when a black paint is needed, like tests.
   static PaintModel get blackPaint => PaintModel.solid(
         id: generateId(),
@@ -209,7 +236,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
       );
 
   /// Create a Solid Paint with only the required properties.
-  const PaintModel.solid({
+  PaintModel.solid({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -235,7 +262,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Create an Image Paint with only the required properties.
-  const PaintModel.image({
+  PaintModel.image({
     required this.id,
     required this.downloadUrl,
     required this.fit,
@@ -263,7 +290,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         color = null;
 
   /// Creates [PaintModel] with linear gradient.
-  const PaintModel.linearGradient({
+  PaintModel.linearGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -289,7 +316,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with radial gradient.
-  const PaintModel.radialGradient({
+  PaintModel.radialGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -315,7 +342,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with angular gradient.
-  const PaintModel.angularGradient({
+  PaintModel.angularGradient({
     required this.id,
     this.visible = true,
     this.opacity = 1,
@@ -341,7 +368,7 @@ class PaintModel with EquatableMixin, SerializableMixin {
         assetID = null;
 
   /// Creates [PaintModel] with given data.
-  const PaintModel({
+  PaintModel({
     required this.id,
     required this.type,
     this.visible = true,
