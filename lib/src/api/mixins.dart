@@ -2,8 +2,8 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-import 'models/models.dart';
-import 'nodes/nodes.dart';
+import '../../codelessly_api.dart';
+import 'property_access.dart';
 
 /// Excludes [BoxConstraintsModel] from the json if it's technically doing
 /// nothing.
@@ -601,7 +601,17 @@ mixin GeometryMixin on BaseNode {
     required StrokeSide? strokeSide,
   }) {
     this.fills = fills;
+    fields['fills'] = ExactFieldAccess<List<PaintModel>>(
+      (value) => this.fills = value,
+      () => this.fills,
+    );
+
     this.strokes = strokes;
+    fields['strokes'] = ExactFieldAccess<List<PaintModel>>(
+      (value) => this.strokes = value,
+      () => this.strokes,
+    );
+
     this.strokeWeight = strokeWeight;
     this.strokeMiterLimit = strokeMiterLimit ?? 4;
     this.strokeAlign = strokeAlign;
@@ -612,12 +622,6 @@ mixin GeometryMixin on BaseNode {
 
   /// Returns true if the node has any fills that can be interpreted as strokes.
   bool get hasStroke => strokes.isNotEmpty && strokeWeight > 0;
-
-  // @override
-  // EdgeInsetsModel minimumPadding() {
-  //   final double additionalPadding = strokes.isNotEmpty ? strokeWeight : 0.0;
-  //   return super.minimumPadding() + EdgeInsetsModel.all(additionalPadding);
-  // }
 
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
@@ -731,7 +735,15 @@ mixin CornerMixin on BaseNode {
     required double cornerSmoothing,
   }) {
     this.cornerRadius = cornerRadius;
+    fields['cornerRadius'] = ExactFieldAccess<CornerRadius>(
+      (value) => this.cornerRadius = value,
+      () => this.cornerRadius,
+    );
     this.cornerSmoothing = cornerSmoothing;
+    fields['cornerSmoothing'] = ExactFieldAccess<double>(
+      (value) => this.cornerSmoothing = value,
+      () => this.cornerSmoothing,
+    );
   }
 
   @override
