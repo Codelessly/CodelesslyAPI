@@ -7,10 +7,10 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
 import '../constants.dart';
+import '../field_access.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
 import '../models/models.dart';
-import '../property_access.dart';
 import '../utils.dart';
 
 part '../node_processor.dart';
@@ -33,7 +33,7 @@ abstract class BaseNode
         EquatableMixin,
         VariablePropertiesMixin,
         ComponentMixin,
-        BagOfFieldsMixin {
+        FieldsHolder {
   /// [type] is a string representation for the type of this node. It is a
   /// unique key that this node class uses for static registration. It is
   /// usually the lowerCamelCase of the class' name. Overriding [type] is
