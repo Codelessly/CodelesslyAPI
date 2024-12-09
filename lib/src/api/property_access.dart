@@ -24,43 +24,38 @@ final class ExactFieldAccess<T extends Object?> extends FieldAccess<T, T> {
             options: options, defaultValue: defaultValue);
 }
 
-class FieldAccess<T extends Object?, S extends Object?> {
-  final SetterCallback<S> _setter;
-  final GetterCallback<T> _getter;
+class FieldAccess<GetValue extends Object?, SetValue extends Object?> {
+  final SetterCallback<SetValue> _setter;
+  final GetterCallback<GetValue> _getter;
 
-  SetterCallback<S> get setValue => _setter;
+  SetterCallback<SetValue> get setValue => _setter;
 
-  GetterCallback<T> get getValue => _getter;
+  GetterCallback<GetValue> get getValue => _getter;
 
-  GetterCallback<List<BagOfFieldsMixin>> get getList =>
-      getValue as GetterCallback<List<BagOfFieldsMixin>>;
+  final FieldOptionsGetter<GetValue>? _options;
 
-  bool get hasNested => getValue() is List<BagOfFieldsMixin>;
-
-  final FieldOptionsGetter<T>? _options;
-
-  FieldOptionsGetter<T>? get getOptions => _options;
+  FieldOptionsGetter<GetValue>? get getOptions => _options;
 
   bool get hasOptions => _options != null;
 
-  final DefaultValueCallback<T>? _defaultValue;
+  final DefaultValueCallback<GetValue>? _defaultValue;
 
-  DefaultValueCallback<T>? get getDefaultValue => _defaultValue;
+  DefaultValueCallback<GetValue>? get getDefaultValue => _defaultValue;
 
   const FieldAccess(
-    SetterCallback<S> setter,
-    GetterCallback<T> getter, {
-    DefaultValueCallback<T>? defaultValue,
+    SetterCallback<SetValue> setter,
+    GetterCallback<GetValue> getter, {
+    DefaultValueCallback<GetValue>? defaultValue,
   })  : _setter = setter,
         _getter = getter,
         _defaultValue = defaultValue,
         _options = null;
 
   const FieldAccess.options(
-    SetterCallback<S> setter,
-    GetterCallback<T> getter, {
-    required FieldOptionsGetter<T> options,
-    DefaultValueCallback<T>? defaultValue,
+    SetterCallback<SetValue> setter,
+    GetterCallback<GetValue> getter, {
+    required FieldOptionsGetter<GetValue> options,
+    DefaultValueCallback<GetValue>? defaultValue,
   })  : _setter = setter,
         _getter = getter,
         _options = options,
