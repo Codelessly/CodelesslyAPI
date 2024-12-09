@@ -4,7 +4,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
-import '../property_access.dart';
+import '../field_access.dart';
 
 part 'paint.g.dart';
 
@@ -37,7 +37,7 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 /// A solid color, gradient, or image texture that can be applied as fill or
 /// stroke.
 @JsonSerializable()
-class PaintModel with EquatableMixin, SerializableMixin, BagOfFieldsMixin {
+class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
   /// identifier of this paint.
   @JsonKey(readValue: _readId)
   final String id;
@@ -174,22 +174,30 @@ class PaintModel with EquatableMixin, SerializableMixin, BagOfFieldsMixin {
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
   late final Map<String, FieldAccess> _fields = {
-    'color': FieldAccess<ColorRGB?, Object?>(
-      (value) => color = value.typedValue<ColorRGB>(),
+    'color': ColorFieldAccess(
+      () => 'Color',
+      () => 'The color of the paint.',
+      (value) => color = value,
       () => color,
     ),
-    'blendMode': ExactFieldAccess<BlendModeC>.options(
+    'blendMode': EnumFieldAccess<BlendModeC>(
+      () => 'Blend Mode',
+      () => 'How this node blends with nodes behind it in the scene.',
       (value) => blendMode = value,
       () => blendMode,
       options: () => BlendModeC.values,
       defaultValue: () => BlendModeC.srcOver,
     ),
-    'opacity': FieldAccess<double, Object?>(
-      (value) => opacity = value.typedValue<double>()!,
+    'opacity': NumFieldAccess<double>(
+      () => 'Opacity',
+      () => 'The transparency of this layer.',
+      (value) => opacity = value,
       () => opacity,
     ),
-    'visible': FieldAccess<bool, Object?>(
-      (value) => visible = value.typedValue<bool>()!,
+    'visible': BoolFieldAccess(
+      () => 'Visible',
+      () => 'Whether this layer is visible or not.',
+      (value) => visible = value,
       () => visible,
     ),
   };
