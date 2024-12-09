@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../codelessly_api.dart';
-import 'property_access.dart';
+import 'field_access.dart';
 
 /// Excludes [BoxConstraintsModel] from the json if it's technically doing
 /// nothing.
@@ -601,13 +601,17 @@ mixin GeometryMixin on BaseNode {
     required StrokeSide? strokeSide,
   }) {
     this.fills = fills;
-    fields['fills'] = ExactFieldAccess<List<PaintModel>>(
+    fields['fills'] = IterableFieldAccess<List<PaintModel>>(
+      () => 'Fills',
+      () => 'A list of fills applied to the node.',
       (value) => this.fills = value,
       () => this.fills,
     );
 
     this.strokes = strokes;
-    fields['strokes'] = ExactFieldAccess<List<PaintModel>>(
+    fields['strokes'] = IterableFieldAccess<List<PaintModel>>(
+      () => 'Strokes',
+      () => 'A list of strokes applied to the node.',
       (value) => this.strokes = value,
       () => this.strokes,
     );
@@ -735,12 +739,16 @@ mixin CornerMixin on BaseNode {
     required double cornerSmoothing,
   }) {
     this.cornerRadius = cornerRadius;
-    fields['cornerRadius'] = ExactFieldAccess<CornerRadius>(
+    fields['cornerRadius'] = RadiusFieldAccess(
+      () => 'Corner Radius',
+      () => 'Radius of the corners of the node.',
       (value) => this.cornerRadius = value,
       () => this.cornerRadius,
     );
     this.cornerSmoothing = cornerSmoothing;
-    fields['cornerSmoothing'] = ExactFieldAccess<double>(
+    fields['cornerSmoothing'] = NumFieldAccess<double>(
+      () => 'Corner Smoothing',
+      () => 'Level of pixel smoothing applied to the corners.',
       (value) => this.cornerSmoothing = value,
       () => this.cornerSmoothing,
     );
