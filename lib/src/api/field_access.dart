@@ -3,68 +3,61 @@ import 'dart:core';
 import '../../codelessly_api.dart';
 
 /// Signature for callbacks that report that an underlying value has changed.
-///
-/// See also:
-///
-///  * [ValueSetter], for callbacks that report that a value has been set.
 typedef ValueChanged<T> = void Function(T value);
 
-/// A utility class to access properties of a class.
+/// Signature for callbacks that return a value.
 typedef GetterCallback<T extends Object?> = T Function();
 
-/// A callback that returns the default value of a property.
+/// Signature for callbacks that return the default value of a property.
 typedef DefaultValueCallback<T> = T? Function();
 
-/// A callback that returns the options of a property.
+/// Signature for callbacks that return the options of a property.
 typedef FieldOptionsGetter<T> = Iterable<T> Function();
 
+/// A mixin that provides a map of extrinsic meta access to a list of fields.
 mixin FieldsHolder {
+  /// The map of fields.
   Map<String, FieldAccess> get fields;
-
-// String get dynamicKeyType;
 }
 
 /// A class that provides extrinsic meta access to a field.
-// final class ExactFieldAccess<T extends Object?> extends FieldAccess<T, T> {
-//   /// Constructs an exact field access.
-//   const ExactFieldAccess(
-//     super.setter,
-//     super.getter, {
-//     super.defaultValue,
-//   });
-//
-//   /// Constructs an exact field access with options.
-//   const ExactFieldAccess.options(
-//     super.setter,
-//     super.getter, {
-//     required super.options,
-//     super.defaultValue,
-//   }) : super.options();
-// }
-
-/// A class that provides extrinsic meta access to a field.
 sealed class FieldAccess<GetValue extends Object?> {
+  /// The label of the field.
   final GetterCallback<String> label;
 
+  /// The description of the field.
   final GetterCallback<String> description;
+
+  /// The setter of the field.
   final ValueChanged<GetValue> setter;
 
   final GetterCallback<GetValue> _getter;
 
+  /// The getter of the field.
   GetterCallback<GetValue> get getValue => _getter;
 
+  /// Sets the value of the field.
   void setValue(Object? value);
 
   final DefaultValueCallback<GetValue>? _defaultValue;
 
+  /// The default value of the field.
   DefaultValueCallback<GetValue>? get getDefaultValue => _defaultValue;
 
+  /// The serialized value of the field.
   dynamic get serialize;
 
+  /// The dynamic key type of the field, used by the dynamic settings panel to
+  /// determine the type of the field to be displayed and modified.
   String get dynamicKeyType;
 
+  /// The supplementary schema of the field, used by the dynamic settings panel
+  /// to provide additional information about the field, such as constraints,
+  /// regex input pattern, etc...
   Map<String, dynamic>? get supplementarySchema => null;
 
+  /// The schema of the field, used to generate a complete dynamic settings
+  /// panel entry for this field.
   dynamic get schema => {
         'type': dynamicKeyType,
         'value': serialize,
@@ -74,7 +67,7 @@ sealed class FieldAccess<GetValue extends Object?> {
           ...supplementary
       };
 
-  /// Constructs a field access.
+  /// Constructs a new [FieldAccess] instance with the given parameters.
   const FieldAccess(
     this.label,
     this.description,
@@ -84,7 +77,9 @@ sealed class FieldAccess<GetValue extends Object?> {
   }) : _defaultValue = defaultValue;
 }
 
+/// A field accessor for a [String] field.
 final class StringFieldAccess extends FieldAccess<String> {
+  /// Constructs a new [StringFieldAccess] instance with the given parameters.
   const StringFieldAccess(
     super.label,
     super.description,
@@ -103,7 +98,9 @@ final class StringFieldAccess extends FieldAccess<String> {
   void setValue(Object? value) => setter(value.typedValue<String>()!);
 }
 
+/// A field accessor for a [num] field.
 final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
+  /// Constructs a new [NumFieldAccess] instance with the given parameters.
   const NumFieldAccess(
     super.label,
     super.description,
@@ -120,8 +117,10 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
   @override
   dynamic get serialize => getValue();
 
+  /// The minimum value of the field.
   final GetterCallback<Number>? min;
 
+  /// The maximum value of the field.
   final GetterCallback<Number>? max;
 
   @override
@@ -135,7 +134,9 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
   void setValue(Object? value) => setter(value.typedValue<Number>()!);
 }
 
+/// A field accessor for a [bool] field.
 final class BoolFieldAccess extends FieldAccess<bool> {
+  /// Constructs a new [BoolFieldAccess] instance with the given parameters.
   const BoolFieldAccess(
     super.label,
     super.description,
@@ -154,17 +155,19 @@ final class BoolFieldAccess extends FieldAccess<bool> {
   void setValue(Object? value) => setter(value.typedValue<bool>()!);
 }
 
+/// A field accessor for an [Enum] field.
 final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
+  /// Constructs a new [EnumFieldAccess] instance with the given parameters.
   const EnumFieldAccess(
     super.label,
     super.description,
     super.setter,
     super.getter, {
-    required DefaultValueCallback<T>? defaultValue,
+    required super.defaultValue,
     required FieldOptionsGetter<T> options,
-  })  : getOptions = options,
-        super(defaultValue: defaultValue);
+  }) : getOptions = options;
 
+  /// The options of the field.
   final FieldOptionsGetter<T> getOptions;
 
   @override
@@ -188,8 +191,10 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   }
 }
 
+/// A field accessor for an [Iterable] field.
 final class IterableFieldAccess<T extends List<Object?>>
     extends FieldAccess<T> {
+  /// Constructs a new [IterableFieldAccess] instance with the given parameters.
   const IterableFieldAccess(
     super.label,
     super.description,
@@ -219,7 +224,9 @@ final class IterableFieldAccess<T extends List<Object?>>
   void setValue(Object? value) => setter(value as T);
 }
 
+/// A field accessor for a [ColorRGB] field.
 final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
+  /// Constructs a new [ColorFieldAccess] instance with the given parameters.
   ColorFieldAccess(
     super.label,
     super.description,
@@ -243,7 +250,9 @@ final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
   void setValue(Object? value) => setter(value.typedValue<ColorRGB>());
 }
 
+/// A field accessor for a [CornerRadius] field.
 final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
+  /// Constructs a new [RadiusFieldAccess] instance with the given parameters.
   RadiusFieldAccess(
     super.label,
     super.description,
