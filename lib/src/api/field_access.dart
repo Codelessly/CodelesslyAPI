@@ -5,19 +5,19 @@ import 'package:meta/meta.dart';
 import '../../codelessly_api.dart';
 
 /// Signature for callbacks that report that an underlying value has changed.
-typedef ValueChanged<T> = void Function(T value);
+typedef FieldSetterCallback<T> = void Function(T value);
 
 /// Signature for callbacks that return a value.
-typedef GetterCallback<T extends Object?> = T Function();
+typedef FieldGetterCallback<T extends Object?> = T Function();
 
 /// Signature for callbacks that return the default value of a property.
-typedef DefaultValueCallback<T> = T Function();
+typedef DefaultFieldValueCallback<T> = T Function();
 
 /// Signature for callbacks that return the options of a property.
 typedef FieldOptionsGetter<T> = Iterable<T> Function();
 
 /// Signature for callbacks that return a label of an item in an iterable.
-typedef IterableItemIdentifier<T> = String Function(T item);
+typedef IterableFieldItemIdentifier<T> = String Function(T item);
 
 /// A mixin that provides a map of extrinsic meta access to a list of fields.
 mixin FieldsHolder {
@@ -33,25 +33,25 @@ mixin FieldsHolder {
 /// A class that provides extrinsic meta access to a field.
 sealed class FieldAccess<T extends Object?> {
   /// The label of the field.
-  final GetterCallback<String> label;
+  final FieldGetterCallback<String> label;
 
   /// The description of the field.
-  final GetterCallback<String> description;
+  final FieldGetterCallback<String> description;
 
   /// The setter of the field.
   @protected
-  final ValueChanged<T> setter;
+  final FieldSetterCallback<T> setter;
 
   /// Returns the value of the field.
-  final GetterCallback<T> getValue;
+  final FieldGetterCallback<T> getValue;
 
   /// Sets the value of the field.
   void setValue(Object? value);
 
-  final DefaultValueCallback<T>? _defaultValue;
+  final DefaultFieldValueCallback<T>? _defaultValue;
 
   /// The default value of the field.
-  DefaultValueCallback<T>? get getDefaultValue => _defaultValue;
+  DefaultFieldValueCallback<T>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
   dynamic serialize(T obj) => obj;
@@ -72,7 +72,7 @@ sealed class FieldAccess<T extends Object?> {
         'label': label(),
         'description': description(),
         'value': serialize(getValue()),
-        if (getDefaultValue case DefaultValueCallback<T> defaultValue)
+        if (getDefaultValue case DefaultFieldValueCallback<T> defaultValue)
           'default': serialize(defaultValue()),
         if (supplementarySchema case Map<String, dynamic> supplementary)
           ...supplementary
@@ -84,7 +84,7 @@ sealed class FieldAccess<T extends Object?> {
     this.description,
     this.getValue,
     this.setter, {
-    DefaultValueCallback<T>? defaultValue,
+    DefaultFieldValueCallback<T>? defaultValue,
   }) : _defaultValue = defaultValue;
 }
 
@@ -123,16 +123,16 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
   String get dynamicKeyType => 'num';
 
   /// The minimum value of the field.
-  final GetterCallback<Number>? min;
+  final FieldGetterCallback<Number>? min;
 
   /// The maximum value of the field.
-  final GetterCallback<Number>? max;
+  final FieldGetterCallback<Number>? max;
 
   @override
   Map<String, dynamic> get supplementarySchema => {
         if (getValue() is double) 'fractionDigits': 2,
-        if (min case GetterCallback<Number> min) 'min': min(),
-        if (max case GetterCallback<Number> max) 'max': max(),
+        if (min case FieldGetterCallback<Number> min) 'min': min(),
+        if (max case FieldGetterCallback<Number> max) 'max': max(),
       };
 
   @override
@@ -206,13 +206,14 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
   });
 
   /// The label of an item in this iterable.
-  final IterableItemIdentifier<T> itemLabel;
+  final IterableFieldItemIdentifier<T> itemLabel;
 
   @override
   String get dynamicKeyType => 'items';
 
   Map<String, dynamic> _wrap(T item, dynamic nested) => {
         'label': itemLabel(item),
+        // 'type': item.runtimeType.subTypeString,
         'properties': nested,
       };
 
