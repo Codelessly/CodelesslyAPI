@@ -601,19 +601,21 @@ mixin GeometryMixin on BaseNode {
     required StrokeSide? strokeSide,
   }) {
     this.fills = fills;
-    fields['fills'] = IterableFieldAccess<List<PaintModel>>(
+    fields['fills'] = IterableFieldAccess<PaintModel>(
       () => 'Fills',
       () => 'A list of fills applied to the node.',
       () => this.fills,
       (value) => this.fills = value,
+      (item) => item.id,
     );
 
     this.strokes = strokes;
-    fields['strokes'] = IterableFieldAccess<List<PaintModel>>(
+    fields['strokes'] = IterableFieldAccess<PaintModel>(
       () => 'Strokes',
       () => 'A list of strokes applied to the node.',
       () => this.strokes,
       (value) => this.strokes = value,
+      (item) => item.id,
     );
 
     this.strokeWeight = strokeWeight;
