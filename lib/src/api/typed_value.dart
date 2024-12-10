@@ -114,6 +114,7 @@ extension TypedStringExt on String {
       'List' => List,
       'Set' => Set,
       'Iterable' => Iterable,
+      'PaintModel' => PaintModel,
       'Object' => Object,
       _ => Object,
     };
