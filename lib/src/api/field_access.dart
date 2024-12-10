@@ -11,7 +11,7 @@ typedef ValueChanged<T> = void Function(T value);
 typedef GetterCallback<T extends Object?> = T Function();
 
 /// Signature for callbacks that return the default value of a property.
-typedef DefaultValueCallback<T> = T? Function();
+typedef DefaultValueCallback<T> = T Function();
 
 /// Signature for callbacks that return the options of a property.
 typedef FieldOptionsGetter<T> = Iterable<T> Function();
@@ -20,10 +20,14 @@ typedef FieldOptionsGetter<T> = Iterable<T> Function();
 mixin FieldsHolder {
   /// The map of fields.
   Map<String, FieldAccess> get fields;
+
+  dynamic get schema => {
+        for (final MapEntry(:key, :value) in fields.entries) key: value.schema,
+      };
 }
 
 /// A class that provides extrinsic meta access to a field.
-sealed class FieldAccess<GetValue extends Object?> {
+sealed class FieldAccess<T extends Object?> {
   /// The label of the field.
   final GetterCallback<String> label;
 
@@ -32,21 +36,21 @@ sealed class FieldAccess<GetValue extends Object?> {
 
   /// The setter of the field.
   @protected
-  final ValueChanged<GetValue> setter;
+  final ValueChanged<T> setter;
 
   /// Returns the value of the field.
-  final GetterCallback<GetValue> getValue;
+  final GetterCallback<T> getValue;
 
   /// Sets the value of the field.
   void setValue(Object? value);
 
-  final DefaultValueCallback<GetValue>? _defaultValue;
+  final DefaultValueCallback<T>? _defaultValue;
 
   /// The default value of the field.
-  DefaultValueCallback<GetValue>? get getDefaultValue => _defaultValue;
+  DefaultValueCallback<T>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
-  dynamic get serialize => getValue();
+  dynamic serialize(T obj) => obj;
 
   /// The dynamic key type of the field, used by the dynamic settings panel to
   /// determine the type of the field to be displayed and modified.
@@ -61,9 +65,11 @@ sealed class FieldAccess<GetValue extends Object?> {
   /// panel entry for this field.
   dynamic get schema => {
         'type': dynamicKeyType,
-        'value': serialize,
-        if (getDefaultValue?.call() case Object defaultValue)
-          'default': defaultValue,
+        'label': label(),
+        'description': description(),
+        'value': serialize(getValue()),
+        if (getDefaultValue case DefaultValueCallback<T> defaultValue)
+          'default': serialize(defaultValue()),
         if (supplementarySchema case Map<String, dynamic> supplementary)
           ...supplementary
       };
@@ -74,7 +80,7 @@ sealed class FieldAccess<GetValue extends Object?> {
     this.description,
     this.getValue,
     this.setter, {
-    DefaultValueCallback<GetValue>? defaultValue,
+    DefaultValueCallback<T>? defaultValue,
   }) : _defaultValue = defaultValue;
 }
 
@@ -166,7 +172,7 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   String get dynamicKeyType => 'options';
 
   @override
-  dynamic get serialize => getValue().name;
+  dynamic serialize(T obj) => obj.name;
 
   @override
   Map<String, dynamic> get supplementarySchema => {
@@ -179,41 +185,50 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   @override
   void setValue(Object? value) {
     final Map<String, T> allValues = getOptions().asNameMap();
-    setter(allValues[value] ?? getDefaultValue!()!);
+    setter(allValues[value] ?? getDefaultValue!());
   }
 }
 
+typedef IterableIdentifierCallback<T extends Object?> = String Function(T item);
+
 /// A field accessor for an [Iterable] field.
-final class IterableFieldAccess<T extends List<Object?>>
-    extends FieldAccess<T> {
+final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
   /// Constructs a new [IterableFieldAccess] instance with the given parameters.
   const IterableFieldAccess(
     super.label,
     super.description,
     super.getValue,
-    super.setter, {
+    super.setter,
+    this.itemLabel, {
     super.defaultValue,
   });
+
+  final IterableIdentifierCallback<T> itemLabel;
 
   @override
   String get dynamicKeyType => 'items';
 
-  @override
-  dynamic get serialize => [
-        for (final Object? item in getValue())
-          item is FieldAccess ? item.serialize : item,
-      ];
-
-  @override
-  Map<String, dynamic> get supplementarySchema => {
-        'items': [
-          for (final Object? item in getValue())
-            item is FieldAccess ? item.schema : item,
-        ],
+  Map<String, dynamic> _wrap(T item, dynamic nested) => {
+        'label': itemLabel(item),
+        'properties': nested,
       };
 
   @override
-  void setValue(Object? value) => setter(value as T);
+  dynamic get schema {
+    final items = [];
+    for (final T item in getValue()) {
+      if (item is FieldsHolder) {
+        items.add(_wrap(item, item.schema));
+      } else if (item is FieldAccess) {
+        items.add(_wrap(item, item.schema));
+      } else {}
+    }
+
+    return items;
+  }
+
+  @override
+  void setValue(Object? value) => setter(value as List<T>);
 }
 
 /// A field accessor for a [ColorRGB] field.
@@ -231,12 +246,7 @@ final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
   String get dynamicKeyType => 'color';
 
   @override
-  dynamic get serialize => getValue()?.toJson();
-
-  @override
-  Map<String, dynamic> get supplementarySchema => {
-        'pattern': r'^#(?:[0-9a-fA-F]{3}){1,2}$',
-      };
+  dynamic serialize(ColorRGB? obj) => obj?.toJson();
 
   @override
   void setValue(Object? value) => setter(value.typedValue<ColorRGB>());
@@ -257,7 +267,7 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
   String get dynamicKeyType => 'radius';
 
   @override
-  dynamic get serialize => getValue().toJson();
+  dynamic serialize(CornerRadius obj) => obj.toJson();
 
   @override
   void setValue(Object? value) => setter(value.typedValue<CornerRadius>()!);
