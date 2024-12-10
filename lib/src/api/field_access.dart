@@ -16,11 +16,15 @@ typedef DefaultValueCallback<T> = T Function();
 /// Signature for callbacks that return the options of a property.
 typedef FieldOptionsGetter<T> = Iterable<T> Function();
 
+/// Signature for callbacks that return a label of an item in an iterable.
+typedef IterableItemIdentifier<T> = String Function(T item);
+
 /// A mixin that provides a map of extrinsic meta access to a list of fields.
 mixin FieldsHolder {
   /// The map of fields.
   Map<String, FieldAccess> get fields;
 
+  /// The complete schema of the [FieldsHolder]'s [fields].
   dynamic get schema => {
         for (final MapEntry(:key, :value) in fields.entries) key: value.schema,
       };
@@ -189,8 +193,6 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   }
 }
 
-typedef IterableIdentifierCallback<T extends Object?> = String Function(T item);
-
 /// A field accessor for an [Iterable] field.
 final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
   /// Constructs a new [IterableFieldAccess] instance with the given parameters.
@@ -203,7 +205,8 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
     super.defaultValue,
   });
 
-  final IterableIdentifierCallback<T> itemLabel;
+  /// The label of an item in this iterable.
+  final IterableItemIdentifier<T> itemLabel;
 
   @override
   String get dynamicKeyType => 'items';
@@ -221,7 +224,9 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
         items.add(_wrap(item, item.schema));
       } else if (item is FieldAccess) {
         items.add(_wrap(item, item.schema));
-      } else {}
+      } else {
+        throw UnimplementedError();
+      }
     }
 
     return items;
