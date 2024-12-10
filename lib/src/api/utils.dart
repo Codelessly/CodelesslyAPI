@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:path/path.dart' as p;
 
 import '../../codelessly_api.dart';
 
@@ -106,4 +107,23 @@ List<String> getTopMostParentIDs(Map<String, dynamic> nodes) {
     }
   }
   return parentIds;
+}
+
+/// Takes a url and returns a file name based on it.
+String extractFileNameFromUrl(String url, {bool withExtension = true}) {
+  // Decode url to restore spaces and other encoded characters.
+  // remove query param part of the url.
+  final decodedUrl = Uri.decodeFull(url).replaceAll(RegExp(r'\?.*$'), '');
+  // Retrieve the file name from url.
+  if (withExtension) return p.basename(decodedUrl);
+  return p.basenameWithoutExtension(decodedUrl);
+}
+
+/// Takes a url and returns a file extension based on it.
+String extractFileExtensionFromUrl(String url) {
+  // Decode url to restore spaces and other encoded characters.
+  // remove query param part of the url.
+  final decodedUrl = Uri.decodeFull(url).replaceAll(RegExp(r'\?.*$'), '');
+  // Retrieve the file name from url.
+  return p.extension(p.basename(decodedUrl));
 }
