@@ -1,5 +1,7 @@
 import 'dart:core';
 
+import 'package:meta/meta.dart';
+
 import '../../codelessly_api.dart';
 
 /// Signature for callbacks that report that an underlying value has changed.
@@ -29,12 +31,11 @@ sealed class FieldAccess<GetValue extends Object?> {
   final GetterCallback<String> description;
 
   /// The setter of the field.
+  @protected
   final ValueChanged<GetValue> setter;
 
-  final GetterCallback<GetValue> _getter;
-
-  /// The getter of the field.
-  GetterCallback<GetValue> get getValue => _getter;
+  /// Returns the value of the field.
+  final GetterCallback<GetValue> getValue;
 
   /// Sets the value of the field.
   void setValue(Object? value);
@@ -45,7 +46,7 @@ sealed class FieldAccess<GetValue extends Object?> {
   DefaultValueCallback<GetValue>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
-  dynamic get serialize;
+  dynamic get serialize => getValue();
 
   /// The dynamic key type of the field, used by the dynamic settings panel to
   /// determine the type of the field to be displayed and modified.
@@ -71,8 +72,8 @@ sealed class FieldAccess<GetValue extends Object?> {
   const FieldAccess(
     this.label,
     this.description,
-    this.setter,
-    this._getter, {
+    this.getValue,
+    this.setter, {
     DefaultValueCallback<GetValue>? defaultValue,
   }) : _defaultValue = defaultValue;
 }
@@ -83,16 +84,13 @@ final class StringFieldAccess extends FieldAccess<String> {
   const StringFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     super.defaultValue,
   });
 
   @override
   String get dynamicKeyType => 'string';
-
-  @override
-  dynamic get serialize => getValue();
 
   @override
   void setValue(Object? value) => setter(value.typedValue<String>()!);
@@ -104,8 +102,8 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
   const NumFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     this.min,
     this.max,
     super.defaultValue,
@@ -113,9 +111,6 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
 
   @override
   String get dynamicKeyType => 'num';
-
-  @override
-  dynamic get serialize => getValue();
 
   /// The minimum value of the field.
   final GetterCallback<Number>? min;
@@ -140,13 +135,10 @@ final class BoolFieldAccess extends FieldAccess<bool> {
   const BoolFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     super.defaultValue,
   });
-
-  @override
-  dynamic get serialize => getValue();
 
   @override
   String get dynamicKeyType => 'bool';
@@ -161,8 +153,8 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   const EnumFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     required super.defaultValue,
     required FieldOptionsGetter<T> options,
   }) : getOptions = options;
@@ -198,8 +190,8 @@ final class IterableFieldAccess<T extends List<Object?>>
   const IterableFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     super.defaultValue,
   });
 
@@ -230,8 +222,8 @@ final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
   ColorFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     super.defaultValue,
   });
 
@@ -256,8 +248,8 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
   RadiusFieldAccess(
     super.label,
     super.description,
-    super.setter,
-    super.getter, {
+    super.getValue,
+    super.setter, {
     super.defaultValue,
   });
 
