@@ -606,7 +606,20 @@ mixin GeometryMixin on BaseNode {
       () => 'A list of fills applied to the node.',
       () => this.fills,
       (value) => this.fills = value,
-      (item) => item.id,
+      (item) => switch (item.type) {
+        PaintType.solid => item.color?.toHex() ?? '',
+        PaintType.image => item.imageName ??
+            extractFileNameFromUrl(
+              item.downloadUrl ?? '',
+              withExtension: false,
+            ),
+        PaintType.gradientLinear ||
+        PaintType.gradientRadial ||
+        PaintType.gradientAngular ||
+        PaintType.gradientDiamond ||
+        PaintType.emoji =>
+          item.type.prettify,
+      },
     );
 
     this.strokes = strokes;
@@ -615,7 +628,20 @@ mixin GeometryMixin on BaseNode {
       () => 'A list of strokes applied to the node.',
       () => this.strokes,
       (value) => this.strokes = value,
-      (item) => item.id,
+      (item) => switch (item.type) {
+        PaintType.solid => item.color?.toHex() ?? '',
+        PaintType.image => item.imageName ??
+            extractFileNameFromUrl(
+              item.downloadUrl ?? '',
+              withExtension: false,
+            ),
+        PaintType.gradientLinear ||
+        PaintType.gradientRadial ||
+        PaintType.gradientAngular ||
+        PaintType.gradientDiamond ||
+        PaintType.emoji =>
+          item.type.prettify,
+      },
     );
 
     this.strokeWeight = strokeWeight;
