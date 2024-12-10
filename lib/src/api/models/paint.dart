@@ -177,28 +177,28 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     'color': ColorFieldAccess(
       () => 'Color',
       () => 'The color of the paint.',
-      (value) => color = value,
       () => color,
+      (value) => color = value,
     ),
     'blendMode': EnumFieldAccess<BlendModeC>(
       () => 'Blend Mode',
       () => 'How this node blends with nodes behind it in the scene.',
-      (value) => blendMode = value,
       () => blendMode,
+      (value) => blendMode = value,
       options: () => BlendModeC.values,
       defaultValue: () => BlendModeC.srcOver,
     ),
     'opacity': NumFieldAccess<double>(
       () => 'Opacity',
       () => 'The transparency of this layer.',
-      (value) => opacity = value,
       () => opacity,
+      (value) => opacity = value,
     ),
     'visible': BoolFieldAccess(
       () => 'Visible',
       () => 'Whether this layer is visible or not.',
-      (value) => visible = value,
       () => visible,
+      (value) => visible = value,
     ),
   };
 

@@ -604,16 +604,16 @@ mixin GeometryMixin on BaseNode {
     fields['fills'] = IterableFieldAccess<List<PaintModel>>(
       () => 'Fills',
       () => 'A list of fills applied to the node.',
-      (value) => this.fills = value,
       () => this.fills,
+      (value) => this.fills = value,
     );
 
     this.strokes = strokes;
     fields['strokes'] = IterableFieldAccess<List<PaintModel>>(
       () => 'Strokes',
       () => 'A list of strokes applied to the node.',
-      (value) => this.strokes = value,
       () => this.strokes,
+      (value) => this.strokes = value,
     );
 
     this.strokeWeight = strokeWeight;
@@ -742,15 +742,15 @@ mixin CornerMixin on BaseNode {
     fields['cornerRadius'] = RadiusFieldAccess(
       () => 'Corner Radius',
       () => 'Radius of the corners of the node.',
-      (value) => this.cornerRadius = value,
       () => this.cornerRadius,
+      (value) => this.cornerRadius = value,
     );
     this.cornerSmoothing = cornerSmoothing;
     fields['cornerSmoothing'] = NumFieldAccess<double>(
       () => 'Corner Smoothing',
       () => 'Level of pixel smoothing applied to the corners.',
-      (value) => this.cornerSmoothing = value,
       () => this.cornerSmoothing,
+      (value) => this.cornerSmoothing = value,
     );
   }
 
