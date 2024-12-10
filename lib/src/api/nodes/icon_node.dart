@@ -93,7 +93,16 @@ class IconNode extends SceneNode
       ];
 
   /// Creates an [IconNode] from a JSON data.
-  factory IconNode.fromJson(Map json) => _$IconNodeFromJson(json);
+  factory IconNode.fromJson(Map json) {
+    // backwards compatibility: before properties were added to IconNode.
+    if (json.containsKey('icon') && !json.containsKey('properties')) {
+      json['properties'] = <String, dynamic>{
+        'icon': json['icon'],
+      };
+      json.remove('icon');
+    }
+    return _$IconNodeFromJson(json);
+  }
 
   @override
   Map toJson() => _$IconNodeToJson(this);
