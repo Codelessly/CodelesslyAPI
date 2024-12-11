@@ -3,20 +3,6 @@ import 'package:equatable/equatable.dart';
 
 part 'field_target.g.dart';
 
-/// Determines whether a particular [FieldTarget] is a single field that targets
-/// a single node, or a single field that targets multiple nodes, or a group of
-/// fields.
-enum FieldTargetType {
-  /// A single field that targets a single node.
-  single,
-
-  /// A single field that targets multiple nodes.
-  multi,
-
-  /// A group of fields.
-  group,
-}
-
 /// A class that represents a single field or a collection of fields to be
 /// accessed dynamically by a [FieldsHolder].
 @JsonSerializable(explicitToJson: true, createFactory: false)
@@ -27,9 +13,10 @@ sealed class FieldTarget with EquatableMixin {
   /// A user-facing description of the field.
   final String description;
 
-  /// Determines whether this field is a single field, a multi field, or a group
-  /// of fields.
-  final FieldTargetType type;
+  /// Determines the real type of this field target. Eg: double, int, text,
+  /// color, radius, etc...
+  /// 'group' is used to represent a group of fields.
+  final String type;
 
   FieldTarget({
     required this.label,
@@ -91,6 +78,8 @@ final class SingleFieldTarget extends FieldTarget {
   @override
   Map<String, dynamic> toJson() => {
         ..._$SingleFieldTargetToJson(this),
+        // Forcefully flatten the extras map instead of nesting it as a field
+        // in the json output.
         ...?extras,
       };
 
@@ -185,9 +174,7 @@ final class GroupOfFieldTargets extends FieldTarget {
     required super.label,
     required super.description,
     required this.properties,
-  }) : super(
-          type: FieldTargetType.group,
-        );
+  }) : super(type: 'group');
 
   /// Converts this object to a JSON-serializable map.
   factory GroupOfFieldTargets.fromJson(Map<String, dynamic> json) =>
@@ -195,6 +182,7 @@ final class GroupOfFieldTargets extends FieldTarget {
 
   @override
   Map<String, dynamic> toJson() => {
+        // Optimized out by codelessly_json_annotation.
         'type': type,
         ..._$GroupOfFieldTargetsToJson(this),
       };
