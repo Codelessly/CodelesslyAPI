@@ -159,13 +159,13 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
   writeNotNull('children', instance.children, instance.children, []);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
   val['allowedTypes'] = instance.allowedTypes;
   val['deniedTypes'] = instance.deniedTypes;
   writeNotNull('maxAllowedSize', instance.maxAllowedSize,
       instance.maxAllowedSize?.toJson(), null);
+  writeNotNull(
+      'clipsContent', instance.clipsContent, instance.clipsContent, true);
   val['isScrollable'] = instance.isScrollable;
   writeNotNull('scrollDirection', instance.scrollDirection,
       _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);

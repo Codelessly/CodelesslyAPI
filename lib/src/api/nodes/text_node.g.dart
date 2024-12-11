@@ -102,9 +102,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{
-    'characters': instance.characters,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -116,6 +114,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     }
   }
 
+  writeNotNull('textMixedProps', instance.textMixedProps,
+      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
   writeNotNull(
       'textAlignHorizontal',
       instance.textAlignHorizontal,
@@ -162,10 +162,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('flex', instance.flex, instance.flex, 1);
   writeNotNull('aspectRatioLock', instance.aspectRatioLock,
       instance.aspectRatioLock, false);
+  val['characters'] = instance.characters;
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('textMixedProps', instance.textMixedProps,
-      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);

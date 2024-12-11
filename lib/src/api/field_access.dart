@@ -54,7 +54,7 @@ sealed class FieldAccess<T extends Object?> {
   DefaultFieldValueCallback<T>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
-  dynamic serialize(T obj) => obj;
+  dynamic serialize(T? obj) => obj;
 
   /// The dynamic key type of the field, used by the dynamic settings panel to
   /// determine the type of the field to be displayed and modified.
@@ -120,7 +120,7 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
   });
 
   @override
-  String get dynamicKeyType => 'num';
+  String get dynamicKeyType => getValue() is double ? 'double' : 'int';
 
   /// The minimum value of the field.
   final FieldGetterCallback<Number>? min;
@@ -176,7 +176,7 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   String get dynamicKeyType => 'options';
 
   @override
-  dynamic serialize(T obj) => obj.name;
+  dynamic serialize(T? obj) => obj?.name;
 
   @override
   Map<String, dynamic> get supplementarySchema => {
@@ -213,7 +213,6 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
 
   Map<String, dynamic> _wrap(T item, dynamic nested) => {
         'label': itemLabel(item),
-        // 'type': item.runtimeType.subTypeString,
         'properties': nested,
       };
 
@@ -273,7 +272,7 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
   String get dynamicKeyType => 'radius';
 
   @override
-  dynamic serialize(CornerRadius obj) => obj.toJson();
+  dynamic serialize(CornerRadius? obj) => obj?.toJson();
 
   @override
   void setValue(Object? value) => setter(value.typedValue<CornerRadius>()!);
