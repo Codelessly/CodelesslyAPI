@@ -1266,6 +1266,7 @@ mixin ComponentMixin {
   /// The version of the component from which this instance is created.
   /// This is used to determine if the component has been updated and if the
   /// instance needs to be updated as well.
+  @JsonKey(defaultValue: 1)
   int componentVersion = 1;
 
   /// Allows to set the component mixin properties.
