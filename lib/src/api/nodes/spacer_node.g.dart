@@ -26,9 +26,6 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
     )
-      ..reactions = (json['reactions'] as List<dynamic>)
-          .map((e) => Reaction.fromJson(e as Map))
-          .toList()
       ..variables = (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
@@ -41,17 +38,19 @@ SpacerNode _$SpacerNodeFromJson(Map json) => SpacerNode(
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num).toInt()
       ..positioningMode =
           $enumDecode(_$PositioningModeEnumMap, json['positioningMode'])
       ..aspectRatioLock = json['aspectRatioLock'] as bool
+      ..reactions = (json['reactions'] as List<dynamic>)
+          .map((e) => Reaction.fromJson(e as Map))
+          .toList()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
-  final val = <String, dynamic>{
-    'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -69,6 +68,7 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
   writeNotNull('componentId', instance.componentId, instance.componentId, null);
   writeNotNull('markerType', instance.markerType,
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  val['componentVersion'] = instance.componentVersion;
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
@@ -85,6 +85,7 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) {
       _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
   writeNotNull('flex', instance.flex, instance.flex, 1);
   val['aspectRatioLock'] = instance.aspectRatioLock;
+  val['reactions'] = instance.reactions.map((e) => e.toJson()).toList();
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
   writeNotNull(
