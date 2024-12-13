@@ -417,6 +417,7 @@ abstract class BaseNode
     Map<String, List<String>>? multipleVariables,
     String? componentId,
     ComponentMarkerType? componentType,
+    int? componentVersion,
   })  : _basicBoxLocal = basicBoxLocal,
         _rotationDegrees = rotationDegrees,
         globalRotationDegrees = rotationDegrees,
@@ -444,6 +445,7 @@ abstract class BaseNode
     setComponentMixin(
       componentId: componentId,
       markerType: componentType,
+      componentVersion: componentVersion,
     );
 
     NodeProcessor._computeInnerBoxLocal(this);

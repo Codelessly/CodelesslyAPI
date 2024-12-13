@@ -87,6 +87,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) => ListViewNode(
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num).toInt()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
@@ -124,6 +125,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   writeNotNull('componentId', instance.componentId, instance.componentId, null);
   writeNotNull('markerType', instance.markerType,
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  val['componentVersion'] = instance.componentVersion;
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);

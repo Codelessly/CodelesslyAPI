@@ -113,6 +113,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) => RowColumnNode(
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num).toInt()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
@@ -140,6 +141,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(RowColumnNode instance) {
   writeNotNull('componentId', instance.componentId, instance.componentId, null);
   writeNotNull('markerType', instance.markerType,
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  val['componentVersion'] = instance.componentVersion;
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);

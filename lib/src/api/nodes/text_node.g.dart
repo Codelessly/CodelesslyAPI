@@ -97,6 +97,7 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num).toInt()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
@@ -128,10 +129,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
       TextAlignVerticalEnum.top);
   writeNotNull(
       'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
-  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
-      instance.paragraphSpacing, 0);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
+      instance.paragraphSpacing, 0);
   writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
   writeNotNull('overflow', instance.overflow,
       _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
@@ -141,6 +142,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('componentId', instance.componentId, instance.componentId, null);
   writeNotNull('markerType', instance.markerType,
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  val['componentVersion'] = instance.componentVersion;
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
