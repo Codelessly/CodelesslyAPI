@@ -3,7 +3,6 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../codelessly_api.dart';
-import 'field_access.dart';
 
 /// Excludes [BoxConstraintsModel] from the json if it's technically doing
 /// nothing.
@@ -1264,12 +1263,19 @@ mixin ComponentMixin {
   /// Whether this node is allowed to be a component or an instance.
   bool get canBeMarked => true;
 
+  /// The version of the component from which this instance is created.
+  /// This is used to determine if the component has been updated and if the
+  /// instance needs to be updated as well.
+  int componentVersion = 1;
+
   /// Allows to set the component mixin properties.
   void setComponentMixin({
     String? componentId,
     ComponentMarkerType? markerType,
+    int? componentVersion,
   }) {
     this.componentId = componentId;
     this.markerType = markerType;
+    this.componentVersion = componentVersion ?? 1;
   }
 }
