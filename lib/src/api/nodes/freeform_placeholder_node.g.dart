@@ -94,7 +94,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
       ..componentId = json['componentId'] as String?
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
-      ..componentVersion = (json['componentVersion'] as num).toInt()
+      ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
@@ -123,7 +123,8 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   writeNotNull('componentId', instance.componentId, instance.componentId, null);
   writeNotNull('markerType', instance.markerType,
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
-  val['componentVersion'] = instance.componentVersion;
+  writeNotNull('componentVersion', instance.componentVersion,
+      instance.componentVersion, 1);
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
