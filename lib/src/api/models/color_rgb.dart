@@ -86,11 +86,11 @@ class ColorRGB extends Equatable with DynamicSerializableMixin {
   }
 
   /// Converts this [ColorRGBA] to [ColorRGB] by removing the alpha channel.
-  String toHex({bool includeHash = true}) {
+  String toHex({bool includeHash = true, bool includeAlpha = false}) {
     final r = (this.r * 255).toInt().toRadixString(16).padLeft(2, '0');
     final g = (this.g * 255).toInt().toRadixString(16).padLeft(2, '0');
     final b = (this.b * 255).toInt().toRadixString(16).padLeft(2, '0');
-    return '${includeHash ? '#' : ''}$r$g$b'.toUpperCase();
+    return '${includeHash ? '#' : ''}${includeAlpha ? 'FF' : ''}$r$g$b'.toUpperCase();
   }
 
   @override

@@ -8,7 +8,6 @@ export 'src/api/constants.dart';
 export 'src/api/converters.dart';
 export 'src/api/extensions.dart';
 export 'src/api/field_access.dart';
-export 'src/api/field_target.dart';
 export 'src/api/generate_id.dart';
 export 'src/api/math_helper.dart';
 export 'src/api/mixins.dart';

@@ -6,7 +6,7 @@ import '../../codelessly_api.dart';
 extension ObjectExt on Object? {
   /// Converts given string to a typed value if possible.
   /// Returns [defaultValue] or null otherwise.
-  R? typedValue<R extends Object>({R? defaultValue}) {
+  R? typedValue<R extends Object?>({R? defaultValue}) {
     final value = this;
     if (this == null) return defaultValue;
     if (value is R) return value;
