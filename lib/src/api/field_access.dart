@@ -25,8 +25,8 @@ mixin FieldsHolder {
   Map<String, FieldAccess> get fields;
 
   /// The complete schema of the [FieldsHolder]'s [fields].
-  dynamic get schema => {
-        for (final MapEntry(:key, :value) in fields.entries) key: value.schema,
+  dynamic get fieldSchema => {
+        for (final MapEntry(:key, :value) in fields.entries) key: value.fieldSchema,
       };
 }
 
@@ -67,7 +67,7 @@ sealed class FieldAccess<T extends Object?> {
 
   /// The schema of the field, used to generate a complete dynamic settings
   /// panel entry for this field.
-  dynamic get schema => {
+  dynamic get fieldSchema => {
         'type': dynamicKeyType,
         'label': label(),
         'description': description(),
@@ -107,7 +107,7 @@ final class StringFieldAccess extends FieldAccess<String> {
 }
 
 /// A field accessor for a [num] field.
-final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
+final class NumFieldAccess<Number extends num?> extends FieldAccess<Number> {
   /// Constructs a new [NumFieldAccess] instance with the given parameters.
   const NumFieldAccess(
     super.label,
@@ -136,7 +136,7 @@ final class NumFieldAccess<Number extends num> extends FieldAccess<Number> {
       };
 
   @override
-  void setValue(Object? value) => setter(value.typedValue<Number>()!);
+  void setValue(Object? value) => setter(value?.typedValue<Number>() as Number);
 }
 
 /// A field accessor for a [bool] field.
@@ -155,6 +155,27 @@ final class BoolFieldAccess extends FieldAccess<bool> {
 
   @override
   void setValue(Object? value) => setter(value.typedValue<bool>()!);
+}
+
+/// A field accessor for a [FieldsHolder] field. e.g. An object that holds
+/// multiple fields.
+final class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
+  /// Constructs a new [ObjectFieldAccess] instance with the given parameters.
+  const ObjectFieldAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+  });
+
+  @override
+  String get dynamicKeyType => 'bool';
+
+  @override
+  void setValue(Object? value) {
+    if (value is T) setter(value);
+  }
 }
 
 /// A field accessor for an [Enum] field.
@@ -217,13 +238,13 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
       };
 
   @override
-  dynamic get schema {
+  dynamic get fieldSchema {
     final items = [];
     for (final T item in getValue()) {
       if (item is FieldsHolder) {
-        items.add(_wrap(item, item.schema));
+        items.add(_wrap(item, item.fieldSchema));
       } else if (item is FieldAccess) {
-        items.add(_wrap(item, item.schema));
+        items.add(_wrap(item, item.fieldSchema));
       } else {
         throw UnimplementedError();
       }
@@ -237,7 +258,7 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
 }
 
 /// A field accessor for a [ColorRGB] field.
-final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
+final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
   /// Constructs a new [ColorFieldAccess] instance with the given parameters.
   ColorFieldAccess(
     super.label,
@@ -254,7 +275,13 @@ final class ColorFieldAccess extends FieldAccess<ColorRGB?> {
   dynamic serialize(ColorRGB? obj) => obj?.toJson();
 
   @override
-  void setValue(Object? value) => setter(value.typedValue<ColorRGB>());
+  void setValue(Object? value) {
+    if (T == ColorRGBA) {
+      setter(value?.typedValue<ColorRGBA>() as T?);
+    } else {
+      setter(value?.typedValue<ColorRGB>() as T?);
+    }
+  }
 }
 
 /// A field accessor for a [CornerRadius] field.

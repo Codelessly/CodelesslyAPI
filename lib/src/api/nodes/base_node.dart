@@ -418,6 +418,7 @@ abstract class BaseNode
     String? componentId,
     ComponentMarkerType? componentType,
     int? componentVersion,
+    Map<String, dynamic>? componentSchema,
   })  : _basicBoxLocal = basicBoxLocal,
         _rotationDegrees = rotationDegrees,
         globalRotationDegrees = rotationDegrees,
@@ -446,6 +447,7 @@ abstract class BaseNode
       componentId: componentId,
       markerType: componentType,
       componentVersion: componentVersion,
+      componentSchema: componentSchema,
     );
 
     NodeProcessor._computeInnerBoxLocal(this);

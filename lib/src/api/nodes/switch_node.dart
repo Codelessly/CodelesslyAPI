@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -80,7 +81,14 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
     // Custom properties.
     required this.properties,
     super.variables,
-  });
+  }) {
+    fields['properties'] = ObjectFieldAccess<SwitchProperties>(
+      () => 'Properties',
+      () => 'Holds configurable properties of the switch.',
+      () => properties,
+      (value) => properties = value,
+    );
+  }
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -103,7 +111,7 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the switch.
 @JsonSerializable()
-class SwitchProperties extends CustomProperties {
+class SwitchProperties extends CustomProperties with FieldsHolder {
   /// Color of switch's track when it's active.
   late ColorRGBA activeTrackColor;
 
@@ -193,6 +201,106 @@ class SwitchProperties extends CustomProperties {
       useMaterial3: useMaterial3 ?? this.useMaterial3,
     );
   }
+
+  @override
+  late final Map<String, FieldAccess<Object?>> fields = {
+    'activeTrackColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Active Track Color',
+      () => 'Color of switch\'s track when it\'s active.',
+      () => activeTrackColor,
+      (ColorRGBA? value) {
+        if (value != null) activeTrackColor = value;
+      },
+    ),
+    'inactiveTrackColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Inactive Track Color',
+      () => 'Color of switch\'s track when it\'s inactive.',
+      () => inactiveTrackColor,
+      (ColorRGBA? value) {
+        if (value != null) inactiveTrackColor = value;
+      },
+    ),
+    'activeThumbColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Active Thumb Color',
+      () => 'Color of switch\'s thumb when it\'s active.',
+      () => activeThumbColor,
+      (ColorRGBA? value) {
+        if (value != null) activeThumbColor = value;
+      },
+    ),
+    'inactiveThumbColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Inactive Thumb Color',
+      () => 'Color of switch\'s thumb when it\'s inactive.',
+      () => inactiveThumbColor,
+      (ColorRGBA? value) {
+        if (value != null) inactiveThumbColor = value;
+      },
+    ),
+    'hoverColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Hover Color',
+      () => 'Color of switch when it is hovered.',
+      () => hoverColor,
+      (ColorRGBA? value) {
+        if (value != null) hoverColor = value;
+      },
+    ),
+    'focusColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Focus Color',
+      () => 'Color of switch when it is focused.',
+      () => focusColor,
+      (ColorRGBA? value) {
+        if (value != null) focusColor = value;
+      },
+    ),
+    'splashRadius': NumFieldAccess<double>(
+      () => 'Splash Radius',
+      () => 'Splash radius of the circular ink response.',
+      () => splashRadius,
+      (double? value) {
+        if (value != null) splashRadius = value;
+      },
+    ),
+    'autofocus': BoolFieldAccess(
+      () => 'Autofocus',
+      () => 'Whether to focus on the switch automatically.',
+      () => autofocus,
+      (bool? value) {
+        if (value != null) autofocus = value;
+      },
+    ),
+    'activeTrackBorderColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Active Track Border Color',
+      () => 'Color of switch\'s track border when it\'s active.',
+      () => activeTrackBorderColor,
+      (ColorRGBA? value) {
+        if (value != null) activeTrackBorderColor = value;
+      },
+    ),
+    'inactiveTrackBorderColor': ColorFieldAccess<ColorRGBA>(
+      () => 'Inactive Track Border Color',
+      () => 'Color of switch\'s track border when it\'s inactive.',
+      () => inactiveTrackBorderColor,
+      (ColorRGBA? value) {
+        if (value != null) inactiveTrackBorderColor = value;
+      },
+    ),
+    'trackOutlineWidth': NumFieldAccess<double>(
+      () => 'Track Outline Width',
+      () => 'Width of switch\'s track border.',
+      () => trackOutlineWidth,
+      (double? value) {
+        if (value != null) trackOutlineWidth = value;
+      },
+    ),
+    'useMaterial3': BoolFieldAccess(
+      () => 'Use Material 3',
+      () => 'Whether to use material 3 style.',
+      () => useMaterial3,
+      (bool? value) {
+        if (value != null) useMaterial3 = value;
+      },
+    ),
+  };
 
   @override
   List<Object?> get props => [
