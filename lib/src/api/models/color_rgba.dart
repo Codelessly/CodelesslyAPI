@@ -1,5 +1,4 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
-import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -7,16 +6,7 @@ part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
 @JsonSerializable(useDynamics: true, createToJson: false)
-class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
-  /// Red channel value, between 0 and 1
-  final double r;
-
-  /// Green channel value, between 0 and 1
-  final double g;
-
-  /// Blue channel value, between 0 and 1
-  final double b;
-
+class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   /// Alpha channel value, between 0 and 1
   final double a;
 
@@ -47,9 +37,9 @@ class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
 
   /// Creates a [ColorRGBA] with given red, blue, green and alpha values.
   const ColorRGBA({
-    required this.r,
-    required this.g,
-    required this.b,
+    required super.r,
+    required super.g,
+    required super.b,
     required this.a,
   });
 
@@ -75,7 +65,7 @@ class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
       ColorRGBA(r: r, g: g, b: b, a: a * alpha);
 
   @override
-  List<Object> get props => [r, g, b, a];
+  List<Object> get props => [...super.props, a];
 
   /// Factory constructor for creating a new [ColorRGBA] instance from hex string.
   static ColorRGBA? fromHex(String hex) {
@@ -96,17 +86,18 @@ class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
     );
   }
 
-  /// Converts this [ColorRGBA] to [ColorRGB] by removing the alpha channel.
-  String toHex({bool opaque = false, bool includeHash = true}) {
+  @override
+  String toHex({bool includeHash = true, bool includeAlpha = true}) {
     final r = (this.r * 255).toInt().toRadixString(16).padLeft(2, '0');
     final g = (this.g * 255).toInt().toRadixString(16).padLeft(2, '0');
     final b = (this.b * 255).toInt().toRadixString(16).padLeft(2, '0');
     final a = (this.a * 255).toInt().toRadixString(16).padLeft(2, '0');
-    return '${includeHash ? '#' : ''}${opaque ? '' : a}$r$g$b'.toUpperCase();
+    return '${includeHash ? '#' : ''}${includeAlpha ? a : ''}$r$g$b'
+        .toUpperCase();
   }
 
   @override
-  dynamic toJson() => toHex(opaque: false, includeHash: true);
+  dynamic toJson() => toHex(includeHash: true);
 
   /// Factory constructor for creating a new [ColorRGBA] instance form JSON data.
   factory ColorRGBA.fromJson(dynamic json) {
@@ -117,9 +108,10 @@ class ColorRGBA with EquatableMixin, DynamicSerializableMixin {
   }
 
   /// Creates a [PaintModel] with this color.
-  PaintModel toPaint([String? id]) => PaintModel.solid(
+  @override
+  PaintModel toPaint([String? id, double? opacity]) => PaintModel.solid(
         id: id ?? generateId(),
         color: ColorRGB.fromColorRGBA(this),
-        opacity: a,
+        opacity: opacity ?? a,
       );
 }

@@ -105,6 +105,10 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       ..markerType =
           $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
       ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
+      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
@@ -136,6 +140,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(AutoPlaceholderNode instance) {
       _$ComponentMarkerTypeEnumMap[instance.markerType], null);
   writeNotNull('componentVersion', instance.componentVersion,
       instance.componentVersion, 1);
+  writeNotNull('componentSchema', instance.componentSchema,
+      instance.componentSchema, {});
   val['id'] = instance.id;
   val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);

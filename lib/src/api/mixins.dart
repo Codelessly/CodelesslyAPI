@@ -600,6 +600,13 @@ mixin GeometryMixin on BaseNode {
     required StrokeSide? strokeSide,
   }) {
     this.fills = fills;
+    // [fields] comes from [BaseNode.fields]
+    //
+    // USAGE:
+    //   0RhPTVSn0wBWIz4f2Uzd.fills.0.color
+    // Converts to:
+    //  node.fields['fills'][0].fields['color].setValue(Color(0xFFFFFF));
+    //
     fields['fills'] = IterableFieldAccess<PaintModel>(
       () => 'Fills',
       () => 'A list of fills applied to the node.',
@@ -1269,14 +1276,21 @@ mixin ComponentMixin {
   @JsonKey(defaultValue: 1)
   int componentVersion = 1;
 
+  /// The schema for custom properties of the component.
+  /// Schema of the component.
+  @JsonKey(defaultValue: {})
+  Map<String, dynamic> componentSchema = {};
+
   /// Allows to set the component mixin properties.
   void setComponentMixin({
     String? componentId,
     ComponentMarkerType? markerType,
     int? componentVersion,
+    Map<String, dynamic>? componentSchema,
   }) {
     this.componentId = componentId;
     this.markerType = markerType;
     this.componentVersion = componentVersion ?? 1;
+    this.componentSchema = componentSchema ?? {};
   }
 }
