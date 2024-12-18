@@ -1,3 +1,8 @@
+## 4.4.0
+
+- Add CornerRadius typedValue.
+- Fix icon props deserialization for backwards compatibility.
+
 ## 4.3.0
 
 - Create new Placeholders node.
