@@ -26,7 +26,8 @@ mixin FieldsHolder {
 
   /// The complete schema of the [FieldsHolder]'s [fields].
   dynamic get fieldSchema => {
-        for (final MapEntry(:key, :value) in fields.entries) key: value.fieldSchema,
+        for (final MapEntry(:key, :value) in fields.entries)
+          key: value.fieldSchema,
       };
 }
 
@@ -303,4 +304,41 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
 
   @override
   void setValue(Object? value) => setter(value.typedValue<CornerRadius>()!);
+}
+
+/// A field accessor for variants.
+final class VariantAccess extends FieldAccess<String> {
+  /// Constructs a new [VariantAccess] instance with the given parameters.
+  const VariantAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    required super.defaultValue,
+    // Variant ID -> Variant Name.
+    required FieldOptionsGetter<String> options,
+  }) : getOptions = options;
+
+  /// The options of the field. Variant ID -> Variant Name.
+  final FieldOptionsGetter<String> getOptions;
+
+  @override
+  String get dynamicKeyType => 'options';
+
+  @override
+  dynamic serialize(String? obj) => obj;
+
+  @override
+  Map<String, dynamic> get supplementarySchema => {
+        'options': {
+          for (final String name in getOptions()) name: name,
+        },
+      };
+
+  @override
+  void setValue(Object? value) {
+    if (value case String? value) {
+      setter(value ?? getDefaultValue!());
+    }
+  }
 }
