@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -19,11 +20,7 @@ const MaterialIcon defaultIcon = MaterialIcon(
 /// A node that displays an icon.
 @JsonSerializable()
 class IconNode extends SceneNode
-    with
-        BlendMixin,
-        SingleColorMixin,
-        FixedAspectRatioMixin,
-        CustomPropertiesMixin {
+    with BlendMixin, FixedAspectRatioMixin, CustomPropertiesMixin {
   /// Strictly used for previews. e.g in components panel.
   IconNode.empty()
       : this(
@@ -44,6 +41,16 @@ class IconNode extends SceneNode
 
   @override
   double get aspectRatio => 1;
+
+  @override
+  late final Map<String, FieldAccess<Object?>> fields = {
+    'properties': ObjectFieldAccess<IconProperties>(
+      () => 'Properties',
+      () => 'Icon properties',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates an [IconNode] with the given data.
   IconNode({
@@ -74,7 +81,13 @@ class IconNode extends SceneNode
     InkWellModel? inkWell,
     List<Reaction> reactions = const [],
     IconProperties? properties,
-  }) : properties = properties ?? IconProperties(icon: icon ?? defaultIcon) {
+  }) : properties = properties ??
+            IconProperties(
+              icon: MultiSourceIconModel.icon(
+                icon: icon ?? defaultIcon,
+                color: color,
+              ),
+            ) {
     setBlendMixin(
       opacity: opacity,
       isMask: isMask,
@@ -82,7 +95,6 @@ class IconNode extends SceneNode
       blendMode: blendMode,
       inkWell: inkWell,
     );
-    setSingleColorMixin(color: color);
     setReactionMixin([...reactions]);
   }
 
@@ -98,8 +110,20 @@ class IconNode extends SceneNode
     if (json.containsKey('icon') && !json.containsKey('properties')) {
       json['properties'] = <String, dynamic>{
         'icon': json['icon'],
+        'show': true,
+        'color': json['color'],
       };
       json.remove('icon');
+    }
+    if (json.containsKey('properties') && json['properties']['icon']['icon'] == null) {
+      // Backwards compatibility for migration to MultiSourceIconModel.
+      json['properties']['icon'] = {
+        'icon': {
+          'icon': json['properties']['icon'],
+          'show': true,
+          'color': json['color'],
+        },
+      };
     }
     return _$IconNodeFromJson(json);
   }
@@ -110,9 +134,9 @@ class IconNode extends SceneNode
 
 /// Properties for an [IconNode].
 @JsonSerializable()
-class IconProperties extends CustomProperties {
+class IconProperties extends CustomProperties with FieldsHolder {
   /// The icon to display.
-  IconModel icon;
+  MultiSourceIconModel icon;
 
   /// Creates [IconProperties] with the given data.
   IconProperties({
@@ -127,4 +151,14 @@ class IconProperties extends CustomProperties {
 
   @override
   List<Object?> get props => [icon];
+
+  @override
+  late final Map<String, FieldAccess<Object?>> fields = {
+    'icon': IconFieldAccess(
+      () => 'Icon',
+      () => 'Icon to display',
+      () => icon,
+      (value) => icon = value,
+    ),
+  };
 }
