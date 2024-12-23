@@ -40,7 +40,6 @@ IconNode _$IconNodeFromJson(Map json) => IconNode(
       positioningMode: $enumDecodeNullable(
               _$PositioningModeEnumMap, json['positioningMode']) ??
           PositioningMode.align,
-      color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
       opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
       isMask: json['isMask'] as bool? ?? false,
       effects: (json['effects'] as List<dynamic>?)
@@ -96,6 +95,8 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -129,8 +130,6 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -142,7 +141,6 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) {
   writeNotNull(
       'heightFactor', instance.heightFactor, instance.heightFactor, null);
   writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('color', instance.color, instance.color?.toJson(), null);
   writeNotNull('opacity', instance.opacity, instance.opacity, 1.0);
   writeNotNull('blendMode', instance.blendMode,
       _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
@@ -206,7 +204,7 @@ const _$ComponentMarkerTypeEnumMap = {
 };
 
 IconProperties _$IconPropertiesFromJson(Map json) => IconProperties(
-      icon: IconModel.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
+      icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
     );
 
 Map<String, dynamic> _$IconPropertiesToJson(IconProperties instance) =>
