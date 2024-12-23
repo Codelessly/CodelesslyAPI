@@ -179,6 +179,29 @@ final class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
   }
 }
 
+/// A field accessor for a [IconModel] field.
+final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
+  /// Constructs a new [IconFieldAccess] instance with the given parameters.
+  const IconFieldAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+  });
+
+  @override
+  String get dynamicKeyType => 'icon';
+
+  @override
+  dynamic serialize(MultiSourceIconModel? obj) => obj?.toJson();
+
+  @override
+  void setValue(Object? value) {
+    if (value is MultiSourceIconModel) setter(value);
+  }
+}
+
 /// A field accessor for an [Enum] field.
 final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   /// Constructs a new [EnumFieldAccess] instance with the given parameters.
