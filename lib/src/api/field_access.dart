@@ -198,6 +198,11 @@ final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
 
   @override
   void setValue(Object? value) {
+    if (value is Map) {
+      final MultiSourceIconModel typedValue =
+          MultiSourceIconModel.fromJson(value);
+      setter(typedValue);
+    }
     if (value is MultiSourceIconModel) setter(value);
   }
 }
@@ -233,8 +238,10 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
 
   @override
   void setValue(Object? value) {
+    if (value is T) return setter(value);
     final Map<String, T> allValues = getOptions().asNameMap();
-    setter(allValues[value] ?? getDefaultValue!());
+    final T? typedValue = allValues[value];
+    if (typedValue != null) setter(typedValue);
   }
 }
 
@@ -278,7 +285,10 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
   }
 
   @override
-  void setValue(Object? value) => setter(value as List<T>);
+  void setValue(Object? value) {
+    if (value is! List) return;
+    setter(value as List<T>);
+  }
 }
 
 /// A field accessor for a [ColorRGB] field.
@@ -301,9 +311,17 @@ final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
   @override
   void setValue(Object? value) {
     if (T == ColorRGBA) {
-      setter(value?.typedValue<ColorRGBA>() as T?);
+      final ColorRGBA? typedValue = switch (value) {
+        Map() || String() => ColorRGBA.fromJson(value),
+        _ => value?.typedValue<ColorRGBA>(),
+      };
+      setter(typedValue as T?);
     } else {
-      setter(value?.typedValue<ColorRGB>() as T?);
+      final ColorRGB? typedValue = switch (value) {
+        Map() || String() => ColorRGB.fromJson(value),
+        _ => value?.typedValue<ColorRGB>(),
+      };
+      setter(typedValue as T?);
     }
   }
 }
@@ -326,7 +344,13 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
   dynamic serialize(CornerRadius? obj) => obj?.toJson();
 
   @override
-  void setValue(Object? value) => setter(value.typedValue<CornerRadius>()!);
+  void setValue(Object? value) {
+    final CornerRadius? typedValue = switch (value) {
+      Map() || List() => CornerRadius.fromJson(value),
+      _ => value?.typedValue<CornerRadius>()
+    };
+    if (typedValue != null) setter(typedValue);
+  }
 }
 
 /// A field accessor for variants.

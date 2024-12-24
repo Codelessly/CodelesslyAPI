@@ -6,7 +6,7 @@ part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
 @JsonSerializable(useDynamics: true, createToJson: false)
-class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
+final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   /// Alpha channel value, between 0 and 1
   final double a;
 
