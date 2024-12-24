@@ -9,7 +9,7 @@ part 'color_rgb.g.dart';
 
 /// An opaque color with no controllable opacity/alpha.
 @JsonSerializable(useDynamics: true)
-class ColorRGB extends Equatable with DynamicSerializableMixin {
+base class ColorRGB extends Equatable with DynamicSerializableMixin {
   /// Red channel value, between 0 and 1.
   final double r;
 
