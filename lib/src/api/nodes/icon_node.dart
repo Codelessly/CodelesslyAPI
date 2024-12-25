@@ -108,18 +108,23 @@ class IconNode extends SceneNode
   factory IconNode.fromJson(Map json) {
     // backwards compatibility: before properties were added to IconNode.
     if (json.containsKey('icon') && !json.containsKey('properties')) {
+      // Very old model where icon was in IconNode.
       json['properties'] = <String, dynamic>{
-        'icon': json['icon'],
-        'show': true,
-        'color': json['color'],
+        'icon': {
+          'icon': json['icon'],
+          'show': true,
+          'color': json['color'],
+        },
       };
       json.remove('icon');
     }
-    if (json.containsKey('properties') && json['properties']['icon']['icon'] == null) {
+    if (json.containsKey('properties') &&
+        json['properties']['icon']['codepoint'] != null) {
       // Backwards compatibility for migration to MultiSourceIconModel.
+      // Old model where properties.icon was IconModel.
       json['properties']['icon'] = {
         'icon': {
-          'icon': json['properties']['icon'],
+          'icon': json['icon'] ?? json['properties']['icon'],
           'show': true,
           'color': json['color'],
         },
