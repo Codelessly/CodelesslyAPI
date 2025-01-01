@@ -383,13 +383,6 @@ abstract class BaseNode
   /// Whether the node's height is sized in fraction of the parent's height.
   bool get isFractionallySizedVertically => heightFactor != null;
 
-  final Map<String, FieldAccess> _fields = {};
-
-  /// A map of fields that this node has. This is used to determine what
-  /// properties this node has and what properties can be modified at runtime.
-  @override
-  Map<String, FieldAccess> get fields => _fields;
-
   /// Default constructor of this class.
   BaseNode({
     required this.id,

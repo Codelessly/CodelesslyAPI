@@ -81,6 +81,8 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
     }
   }
 
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -114,8 +116,6 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) {
       instance.aspectRatioLock, false);
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
