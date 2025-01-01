@@ -107,7 +107,10 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+  };
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -119,8 +122,40 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     }
   }
 
+  writeNotNull('visible', instance.visible, instance.visible, true);
+  if (!excludeConstraintsIf(instance)) {
+    writeNotNull('constraints', instance.constraints,
+        instance.constraints.toJson(), const BoxConstraintsModel());
+  }
+  val['characters'] = instance.characters;
   writeNotNull('textMixedProps', instance.textMixedProps,
       instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  writeNotNull('componentVersion', instance.componentVersion,
+      instance.componentVersion, 1);
+  writeNotNull('componentSchema', instance.componentSchema,
+      instance.componentSchema, {});
+  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
+      EdgePinsModel.standard);
+  writeNotNull(
+      'positioningMode',
+      instance.positioningMode,
+      _$PositioningModeEnumMap[instance.positioningMode]!,
+      PositioningMode.align);
+  writeNotNull('horizontalFit', instance.horizontalFit,
+      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
+  writeNotNull('verticalFit', instance.verticalFit,
+      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
+  writeNotNull('flex', instance.flex, instance.flex, 1);
+  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
+      instance.aspectRatioLock, false);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
   writeNotNull(
       'textAlignHorizontal',
       instance.textAlignHorizontal,
@@ -140,40 +175,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
   writeNotNull('overflow', instance.overflow,
       _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
-  writeNotNull('componentVersion', instance.componentVersion,
-      instance.componentVersion, 1);
-  writeNotNull('componentSchema', instance.componentSchema,
-      instance.componentSchema, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  if (!excludeConstraintsIf(instance)) {
-    writeNotNull('constraints', instance.constraints,
-        instance.constraints.toJson(), const BoxConstraintsModel());
-  }
-  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-      EdgePinsModel.standard);
-  writeNotNull(
-      'positioningMode',
-      instance.positioningMode,
-      _$PositioningModeEnumMap[instance.positioningMode]!,
-      PositioningMode.align);
-  writeNotNull('horizontalFit', instance.horizontalFit,
-      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
-  writeNotNull('verticalFit', instance.verticalFit,
-      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
-  writeNotNull('flex', instance.flex, instance.flex, 1);
-  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
-      instance.aspectRatioLock, false);
-  val['characters'] = instance.characters;
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);

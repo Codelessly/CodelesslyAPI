@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:meta/meta.dart';
 
 import '../../codelessly_api.dart';
@@ -19,25 +20,33 @@ typedef FieldOptionsGetter<T> = Iterable<T> Function();
 /// Signature for callbacks that return a label of an item in an iterable.
 typedef IterableFieldItemIdentifier<T> = String Function(T item);
 
+/// Represents a map of fields.
+typedef FieldsMap = Map<String, FieldAccess<Object?>>;
+
 /// A mixin that provides a map of extrinsic meta access to a list of fields.
 mixin FieldsHolder {
-  /// The map of fields.
-  Map<String, FieldAccess> get fields;
+  /// The map of fields. Key: Field name, Value: Field accessor.
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  late final FieldsMap fields = Map.unmodifiable(generateFields());
 
   /// The complete schema of the [FieldsHolder]'s [fields].
-  dynamic get fieldSchema => {
+  Object get fieldSchema => {
         for (final MapEntry(:key, :value) in fields.entries)
           key: value.fieldSchema,
       };
+
+  /// Generates the fields of the [FieldsHolder].
+  @mustCallSuper
+  FieldsMap generateFields() => {};
 }
 
 /// A class that provides extrinsic meta access to a field.
 sealed class FieldAccess<T extends Object?> {
   /// The label of the field.
-  final FieldGetterCallback<String> label;
+  final String label;
 
   /// The description of the field.
-  final FieldGetterCallback<String> description;
+  final String? description;
 
   /// The setter of the field.
   @protected
@@ -68,10 +77,10 @@ sealed class FieldAccess<T extends Object?> {
 
   /// The schema of the field, used to generate a complete dynamic settings
   /// panel entry for this field.
-  dynamic get fieldSchema => {
+  Map<String, dynamic> get fieldSchema => {
         'type': dynamicKeyType,
-        'label': label(),
-        'description': description(),
+        'label': label,
+        'description': description,
         'value': serialize(getValue()),
         if (getDefaultValue case DefaultFieldValueCallback<T> defaultValue)
           'default': serialize(defaultValue()),
@@ -269,8 +278,8 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
       };
 
   @override
-  dynamic get fieldSchema {
-    final items = [];
+  Map<String, dynamic> get fieldSchema {
+    final List<Object> items = [];
     for (final T item in getValue()) {
       if (item is FieldsHolder) {
         items.add(_wrap(item, item.fieldSchema));
@@ -281,7 +290,12 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
       }
     }
 
-    return items;
+    return {
+      'type': dynamicKeyType,
+      'label': label,
+      'description': description,
+      'items': items,
+    };
   }
 
   @override

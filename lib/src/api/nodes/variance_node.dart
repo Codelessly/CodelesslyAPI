@@ -61,22 +61,6 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   @override
   covariant VarianceProperties properties;
 
-  @override
-  late final Map<String, FieldAccess> fields = {
-    'currentVariantId': VariantAccess(
-      () => 'Variant',
-      () => 'Select a variant to load',
-      () => currentVariant.name,
-      (String name) {
-        final String? newId =
-            variants.firstWhereOrNull((e) => e.name == name)?.id;
-        if (newId != null) currentVariantId = newId;
-      },
-      options: () => variants.map((variant) => variant.name).toList(),
-      defaultValue: () => 'default',
-    ),
-  };
-
   /// Creates a [VarianceNode] instance with the given data.
   VarianceNode({
     bool? value,
@@ -115,6 +99,23 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
           deniedTypes: [],
           ephemeral: false,
         );
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'currentVariantId': VariantAccess(
+          'Variant',
+          'Select a variant to load',
+          () => currentVariant.name,
+          (String name) {
+            final String? newId =
+                variants.firstWhereOrNull((e) => e.name == name)?.id;
+            if (newId != null) currentVariantId = newId;
+          },
+          options: () => variants.map((variant) => variant.name).toList(),
+          defaultValue: () => 'default',
+        ),
+      };
 
   @override
   void setChildrenMixin({required List<String> children}) {}
