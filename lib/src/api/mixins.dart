@@ -2,8 +2,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-import 'models/models.dart';
-import 'nodes/nodes.dart';
+import '../../codelessly_api.dart';
 
 /// Excludes [BoxConstraintsModel] from the json if it's technically doing
 /// nothing.
@@ -613,11 +612,56 @@ mixin GeometryMixin on BaseNode {
   /// Returns true if the node has any fills that can be interpreted as strokes.
   bool get hasStroke => strokes.isNotEmpty && strokeWeight > 0;
 
-  // @override
-  // EdgeInsetsModel minimumPadding() {
-  //   final double additionalPadding = strokes.isNotEmpty ? strokeWeight : 0.0;
-  //   return super.minimumPadding() + EdgeInsetsModel.all(additionalPadding);
-  // }
+  // [fields] comes from [BaseNode.fields]
+  //
+  // USAGE:
+  //   0RhPTVSn0wBWIz4f2Uzd.fills.0.color
+  // Converts to:
+  //  node.fields['fills'][0].fields['color].setValue(Color(0xFFFFFF));
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'fills': IterableFieldAccess<PaintModel>(
+          'Fills',
+          'A list of fills applied to the node.',
+          () => fills,
+          (value) => fills = value,
+          (item) => switch (item.type) {
+            PaintType.solid => item.color?.toHex() ?? '',
+            PaintType.image => item.imageName ??
+                extractFileNameFromUrl(
+                  item.downloadUrl ?? '',
+                  withExtension: false,
+                ),
+            PaintType.gradientLinear ||
+            PaintType.gradientRadial ||
+            PaintType.gradientAngular ||
+            PaintType.gradientDiamond ||
+            PaintType.emoji =>
+              item.type.prettify,
+          },
+        ),
+        'strokes': IterableFieldAccess<PaintModel>(
+          'Strokes',
+          'A list of strokes applied to the node.',
+          () => strokes,
+          (value) => strokes = value,
+          (item) => switch (item.type) {
+            PaintType.solid => item.color?.toHex() ?? '',
+            PaintType.image => item.imageName ??
+                extractFileNameFromUrl(
+                  item.downloadUrl ?? '',
+                  withExtension: false,
+                ),
+            PaintType.gradientLinear ||
+            PaintType.gradientRadial ||
+            PaintType.gradientAngular ||
+            PaintType.gradientDiamond ||
+            PaintType.emoji =>
+              item.type.prettify,
+          },
+        )
+      };
 
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
@@ -735,6 +779,23 @@ mixin CornerMixin on BaseNode {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'cornerRadius': RadiusFieldAccess(
+          'Corner Radius',
+          'Radius of the corners of the node.',
+          () => cornerRadius,
+          (value) => cornerRadius = value,
+        ),
+        'cornerSmoothing': NumFieldAccess<double>(
+          'Corner Smoothing',
+          'Level of pixel smoothing applied to the corners.',
+          () => cornerSmoothing,
+          (value) => cornerSmoothing = value,
+        ),
+      };
+
+  @override
   String toString() =>
       '${super.toString()}\n Corner(cornerSmoothing: $cornerSmoothing, radius: ${cornerRadius.toString()})';
 }
@@ -753,7 +814,6 @@ mixin CustomPropertiesMixin on BaseNode {
 
 /// A mixin that allows a node to have a custom properties object.
 abstract class CustomProperties with EquatableMixin {
-
   /// Default constructor for this class.
   const CustomProperties();
 
@@ -1191,5 +1251,53 @@ mixin QueryableMixin {
     this.useCloudDatabase = useCloudDatabase;
     this.collectionPath = collectionPath;
     this.limit = limit;
+  }
+}
+
+/// Represents the type of the component.
+enum ComponentMarkerType {
+  /// Indicates that the node is marked as a component.
+  component,
+
+  /// Indicates that the node is marked as an instance of a component.
+  instance;
+}
+
+/// A mixin that allows a node to be connected to a component or identify
+/// itself as an instance of a component.
+mixin ComponentMixin {
+  /// The id of the component that this node is connected to either as a
+  /// component or as an instance.
+  String? componentId;
+
+  /// The representation type of the component. Null indicates that this is
+  /// just a normal node.
+  ComponentMarkerType? markerType;
+
+  /// Whether this node is allowed to be a component or an instance.
+  bool get canBeMarked => true;
+
+  /// The version of the component from which this instance is created.
+  /// This is used to determine if the component has been updated and if the
+  /// instance needs to be updated as well.
+  @JsonKey(defaultValue: 1)
+  int componentVersion = 1;
+
+  /// The schema for custom properties of the component.
+  /// Schema of the component.
+  @JsonKey(defaultValue: {})
+  Map<String, dynamic> componentSchema = {};
+
+  /// Allows to set the component mixin properties.
+  void setComponentMixin({
+    String? componentId,
+    ComponentMarkerType? markerType,
+    int? componentVersion,
+    Map<String, dynamic>? componentSchema,
+  }) {
+    this.componentId = componentId;
+    this.markerType = markerType;
+    this.componentVersion = componentVersion ?? 1;
+    this.componentSchema = componentSchema ?? {};
   }
 }

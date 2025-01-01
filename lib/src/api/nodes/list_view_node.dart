@@ -19,6 +19,9 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   bool get isScrollingEnforced => true;
 
+  @override
+  bool get canBeMarked => true;
+
   /// The properties of the [ListView].
   @override
   covariant ListViewProperties properties;

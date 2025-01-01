@@ -94,6 +94,24 @@ enum ConditionOperation {
       };
 
   /// short description of the operation
+  String get longSentence => switch (this) {
+        equalsTo => 'is equal to',
+        notEqualsTo => 'is not equal to',
+        greaterThan => 'is greater than',
+        lessThan => 'is less than',
+        greaterThanOrEqualTo => 'is greater than or equal to',
+        lessThanOrEqualTo => 'is less than or equal to',
+        isEmpty => 'is empty',
+        isNotEmpty => 'is not empty',
+        contains => 'contains',
+        isOdd => 'is odd',
+        isEven => 'is even',
+        isNull => 'is null',
+        isTrue => 'is true',
+        isFalse => 'is false',
+      };
+
+  /// short description of the operation
   String? get sign => switch (this) {
         equalsTo => '==',
         notEqualsTo => '!=',

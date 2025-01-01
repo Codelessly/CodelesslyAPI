@@ -29,6 +29,8 @@ abstract class SceneNode extends BaseNode
     List<Reaction> reactions = const [],
     super.variables,
     super.multipleVariables,
+    super.componentId,
+    super.componentType,
   }) {
     setReactionMixin([...reactions]);
   }

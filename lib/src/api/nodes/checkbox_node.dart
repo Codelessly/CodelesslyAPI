@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -95,6 +96,17 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<CheckboxProperties>(
+          'Properties',
+          'Holds configurable properties of the checkbox.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
+  @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
 
   @override
@@ -115,7 +127,7 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the checkbox.
 @JsonSerializable()
-class CheckboxProperties extends CustomProperties {
+class CheckboxProperties extends CustomProperties with FieldsHolder {
   /// Color of the tick mark.
   late ColorRGBA checkColor;
 
@@ -193,6 +205,70 @@ class CheckboxProperties extends CustomProperties {
       compact: compact ?? this.compact,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'checkColor': ColorFieldAccess<ColorRGBA>(
+            'Check Color', 'Color of the tick mark.', () => checkColor,
+            (ColorRGBA? value) {
+          if (value != null) checkColor = value;
+        }),
+        'activeColor': ColorFieldAccess<ColorRGBA>(
+            'Active Color',
+            'Color of the tick/dash mark when active.',
+            () => activeColor, (ColorRGBA? value) {
+          if (value != null) activeColor = value;
+        }),
+        'borderColor': ColorFieldAccess<ColorRGBA>(
+            'Border Color',
+            'Border color of the checkbox when inactive.',
+            () => borderColor, (ColorRGBA? value) {
+          if (value != null) borderColor = value;
+        }),
+        'hoverColor': ColorFieldAccess<ColorRGBA>(
+            'Hover Color',
+            'Hover overlay color of the checkbox.',
+            () => hoverColor, (ColorRGBA? value) {
+          if (value != null) hoverColor = value;
+        }),
+        'focusColor': ColorFieldAccess<ColorRGBA>(
+            'Focus Color',
+            'Overlay color of the checkbox when focused.',
+            () => focusColor, (ColorRGBA? value) {
+          if (value != null) focusColor = value;
+        }),
+        'splashRadius': NumFieldAccess<double>(
+            'Splash Radius',
+            'Overlay radius.',
+            () => splashRadius,
+            (double value) => splashRadius = value),
+        'autofocus': BoolFieldAccess(
+            'Autofocus',
+            'Whether to automatically focus the checkbox.',
+            () => autofocus,
+            (bool value) => autofocus = value),
+        'tristate': BoolFieldAccess(
+            'Tristate',
+            'Whether the checkbox is tristate.',
+            () => tristate,
+            (bool value) => tristate = value),
+        'borderWidth': NumFieldAccess<double>(
+            'Border Width',
+            'Border width for the checkbox.',
+            () => borderWidth,
+            (double value) => borderWidth = value),
+        'cornerRadius': RadiusFieldAccess(
+            'Corner Radius',
+            'Radius of the corners of the checkbox.',
+            () => cornerRadius,
+            (CornerRadius value) => cornerRadius = value),
+        'compact': BoolFieldAccess(
+            'Compact',
+            'Whether the checkbox is compact.',
+            () => compact,
+            (bool value) => compact = value),
+      };
 
   @override
   List<Object?> get props => [

@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
 import '../constants.dart';
+import '../field_access.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
 import '../models/models.dart';
@@ -27,7 +28,12 @@ bool kIsTestLayout = false;
 /// use the [update] extension method or the [updateNode] method inside the
 /// [NodeProcessor] class.
 abstract class BaseNode
-    with SerializableMixin, EquatableMixin, VariablePropertiesMixin {
+    with
+        SerializableMixin,
+        EquatableMixin,
+        VariablePropertiesMixin,
+        ComponentMixin,
+        FieldsHolder {
   /// [type] is a string representation for the type of this node. It is a
   /// unique key that this node class uses for static registration. It is
   /// usually the lowerCamelCase of the class' name. Overriding [type] is
@@ -402,6 +408,10 @@ abstract class BaseNode
     this.enabled = true,
     Map<String, String>? variables,
     Map<String, List<String>>? multipleVariables,
+    String? componentId,
+    ComponentMarkerType? componentType,
+    int? componentVersion,
+    Map<String, dynamic>? componentSchema,
   })  : _basicBoxLocal = basicBoxLocal,
         _rotationDegrees = rotationDegrees,
         globalRotationDegrees = rotationDegrees,
@@ -425,6 +435,13 @@ abstract class BaseNode
     _rotatedTopLeftCorner = middleBoxLocal.topLeft;
 
     _resolvedConstraints = _constraints;
+
+    setComponentMixin(
+      componentId: componentId,
+      markerType: componentType,
+      componentVersion: componentVersion,
+      componentSchema: componentSchema,
+    );
 
     NodeProcessor._computeInnerBoxLocal(this);
     NodeProcessor._computeInnerBoxGlobal(this);

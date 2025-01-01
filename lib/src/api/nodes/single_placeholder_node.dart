@@ -21,6 +21,9 @@ class SinglePlaceholderNode extends SceneNode
   bool ephemeral;
 
   @override
+  bool get canBeMarked => false;
+
+  @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
     final superRelegated = super.relegatedConstraintsToChildren(child);
     return superRelegated == null

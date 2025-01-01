@@ -73,6 +73,14 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
                 (e as List<dynamic>).map((e) => e as String).toList()),
           ) ??
           {}
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
+      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
@@ -90,10 +98,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) => PageViewNode(
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'name': instance.name,
-  };
+  final val = <String, dynamic>{};
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -105,6 +110,18 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
     }
   }
 
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  writeNotNull('componentVersion', instance.componentVersion,
+      instance.componentVersion, 1);
+  writeNotNull('componentSchema', instance.componentSchema,
+      instance.componentSchema, {});
+  val['id'] = instance.id;
+  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
@@ -128,9 +145,6 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) {
       AlignmentModel.none);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
@@ -203,6 +217,11 @@ const _$ScrollPhysicsCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(

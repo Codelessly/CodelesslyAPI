@@ -1,6 +1,8 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -17,6 +19,9 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
 
   @override
   bool get supportsPadding => false;
+
+  @override
+  bool get canBeMarked => true;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
@@ -94,6 +99,23 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
           deniedTypes: [],
           ephemeral: false,
         );
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'currentVariantId': VariantAccess(
+          'Variant',
+          'Select a variant to load',
+          () => currentVariant.name,
+          (String name) {
+            final String? newId =
+                variants.firstWhereOrNull((e) => e.name == name)?.id;
+            if (newId != null) currentVariantId = newId;
+          },
+          options: () => variants.map((variant) => variant.name).toList(),
+          defaultValue: () => 'default',
+        ),
+      };
 
   @override
   void setChildrenMixin({required List<String> children}) {}

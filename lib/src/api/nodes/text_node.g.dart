@@ -94,12 +94,23 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map)),
     )
+      ..componentId = json['componentId'] as String?
+      ..markerType =
+          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
+      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+            (k, e) => MapEntry(k as String, e),
+          ) ??
+          {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{};
+  final val = <String, dynamic>{
+    'id': instance.id,
+    'name': instance.name,
+  };
 
   void writeNotNull(
       String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
@@ -111,16 +122,24 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
     }
   }
 
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
   writeNotNull('visible', instance.visible, instance.visible, true);
   if (!excludeConstraintsIf(instance)) {
     writeNotNull('constraints', instance.constraints,
         instance.constraints.toJson(), const BoxConstraintsModel());
   }
+  val['characters'] = instance.characters;
+  writeNotNull('textMixedProps', instance.textMixedProps,
+      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('variables', instance.variables, instance.variables, {});
+  writeNotNull('multipleVariables', instance.multipleVariables,
+      instance.multipleVariables, {});
+  writeNotNull('componentId', instance.componentId, instance.componentId, null);
+  writeNotNull('markerType', instance.markerType,
+      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
+  writeNotNull('componentVersion', instance.componentVersion,
+      instance.componentVersion, 1);
+  writeNotNull('componentSchema', instance.componentSchema,
+      instance.componentSchema, {});
   writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
       EdgePinsModel.standard);
   writeNotNull(
@@ -135,11 +154,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
   writeNotNull('flex', instance.flex, instance.flex, 1);
   writeNotNull('aspectRatioLock', instance.aspectRatioLock,
       instance.aspectRatioLock, false);
-  val['characters'] = instance.characters;
   writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
       AlignmentModel.none);
-  writeNotNull('textMixedProps', instance.textMixedProps,
-      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
   writeNotNull(
       'textAlignHorizontal',
       instance.textAlignHorizontal,
@@ -152,10 +168,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
       TextAlignVerticalEnum.top);
   writeNotNull(
       'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
-  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
-      instance.paragraphSpacing, 0);
   writeNotNull('reactions', instance.reactions,
       instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
+      instance.paragraphSpacing, 0);
   writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
   writeNotNull('overflow', instance.overflow,
       _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
@@ -244,4 +260,9 @@ const _$BlendModeCEnumMap = {
   BlendModeC.saturation: 'saturation',
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
