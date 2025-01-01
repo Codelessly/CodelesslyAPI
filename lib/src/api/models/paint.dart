@@ -4,7 +4,6 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
-import '../field_access.dart';
 
 part 'paint.g.dart';
 
@@ -173,39 +172,36 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
   /// Whether image fill type has source size.
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
-  late final Map<String, FieldAccess> _fields = {
-    'color': ColorFieldAccess(
-      () => 'Color',
-      () => 'The color of the paint.',
-      () => color,
-      (value) => color = value,
-    ),
-    'blendMode': EnumFieldAccess<BlendModeC>(
-      () => 'Blend Mode',
-      () => 'How this node blends with nodes behind it in the scene.',
-      () => blendMode,
-      (value) => blendMode = value,
-      options: () => BlendModeC.values,
-      defaultValue: () => BlendModeC.srcOver,
-    ),
-    'opacity': NumFieldAccess<double>(
-      () => 'Opacity',
-      () => 'The transparency of this layer.',
-      () => opacity,
-      (value) => opacity = value,
-    ),
-    'visible': BoolFieldAccess(
-      () => 'Visible',
-      () => 'Whether this layer is visible or not.',
-      () => visible,
-      (value) => visible = value,
-    ),
-  };
-
-  /// A map of fields that this node has. This is used to determine what
-  /// properties this node has and what properties can be modified at runtime.
   @override
-  Map<String, FieldAccess> get fields => _fields;
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'color': ColorFieldAccess(
+          'Color',
+          'The color of the paint.',
+          () => color,
+          (value) => color = value,
+        ),
+        'blendMode': EnumFieldAccess<BlendModeC>(
+          'Blend Mode',
+          'How this node blends with nodes behind it in the scene.',
+          () => blendMode,
+          (value) => blendMode = value,
+          options: () => BlendModeC.values,
+          defaultValue: () => BlendModeC.srcOver,
+        ),
+        'opacity': NumFieldAccess<double>(
+          'Opacity',
+          'The transparency of this layer.',
+          () => opacity,
+          (value) => opacity = value,
+        ),
+        'visible': BoolFieldAccess(
+          'Visible',
+          'Whether this layer is visible or not.',
+          () => visible,
+          (value) => visible = value,
+        ),
+      };
 
   /// Helper constructor for when a black paint is needed, like tests.
   static PaintModel get blackPaint => PaintModel.solid(

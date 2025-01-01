@@ -43,14 +43,15 @@ class IconNode extends SceneNode
   double get aspectRatio => 1;
 
   @override
-  late final Map<String, FieldAccess<Object?>> fields = {
-    'properties': ObjectFieldAccess<IconProperties>(
-      () => 'Properties',
-      () => 'Icon properties',
-      () => properties,
-      (value) => properties = value,
-    ),
-  };
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<IconProperties>(
+          'Properties',
+          'Icon properties',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
 
   /// Creates an [IconNode] with the given data.
   IconNode({
@@ -158,12 +159,13 @@ class IconProperties extends CustomProperties with FieldsHolder {
   List<Object?> get props => [icon];
 
   @override
-  late final Map<String, FieldAccess<Object?>> fields = {
-    'icon': IconFieldAccess(
-      () => 'Icon',
-      () => 'Icon to display',
-      () => icon,
-      (value) => icon = value,
-    ),
-  };
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'icon': IconFieldAccess(
+          'Icon',
+          'Icon to display',
+          () => icon,
+          (value) => icon = value,
+        ),
+      };
 }

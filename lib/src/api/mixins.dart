@@ -600,56 +600,7 @@ mixin GeometryMixin on BaseNode {
     required StrokeSide? strokeSide,
   }) {
     this.fills = fills;
-    // [fields] comes from [BaseNode.fields]
-    //
-    // USAGE:
-    //   0RhPTVSn0wBWIz4f2Uzd.fills.0.color
-    // Converts to:
-    //  node.fields['fills'][0].fields['color].setValue(Color(0xFFFFFF));
-    //
-    fields['fills'] = IterableFieldAccess<PaintModel>(
-      () => 'Fills',
-      () => 'A list of fills applied to the node.',
-      () => this.fills,
-      (value) => this.fills = value,
-      (item) => switch (item.type) {
-        PaintType.solid => item.color?.toHex() ?? '',
-        PaintType.image => item.imageName ??
-            extractFileNameFromUrl(
-              item.downloadUrl ?? '',
-              withExtension: false,
-            ),
-        PaintType.gradientLinear ||
-        PaintType.gradientRadial ||
-        PaintType.gradientAngular ||
-        PaintType.gradientDiamond ||
-        PaintType.emoji =>
-          item.type.prettify,
-      },
-    );
-
     this.strokes = strokes;
-    fields['strokes'] = IterableFieldAccess<PaintModel>(
-      () => 'Strokes',
-      () => 'A list of strokes applied to the node.',
-      () => this.strokes,
-      (value) => this.strokes = value,
-      (item) => switch (item.type) {
-        PaintType.solid => item.color?.toHex() ?? '',
-        PaintType.image => item.imageName ??
-            extractFileNameFromUrl(
-              item.downloadUrl ?? '',
-              withExtension: false,
-            ),
-        PaintType.gradientLinear ||
-        PaintType.gradientRadial ||
-        PaintType.gradientAngular ||
-        PaintType.gradientDiamond ||
-        PaintType.emoji =>
-          item.type.prettify,
-      },
-    );
-
     this.strokeWeight = strokeWeight;
     this.strokeMiterLimit = strokeMiterLimit ?? 4;
     this.strokeAlign = strokeAlign;
@@ -660,6 +611,57 @@ mixin GeometryMixin on BaseNode {
 
   /// Returns true if the node has any fills that can be interpreted as strokes.
   bool get hasStroke => strokes.isNotEmpty && strokeWeight > 0;
+
+  // [fields] comes from [BaseNode.fields]
+  //
+  // USAGE:
+  //   0RhPTVSn0wBWIz4f2Uzd.fills.0.color
+  // Converts to:
+  //  node.fields['fills'][0].fields['color].setValue(Color(0xFFFFFF));
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'fills': IterableFieldAccess<PaintModel>(
+          'Fills',
+          'A list of fills applied to the node.',
+          () => fills,
+          (value) => fills = value,
+          (item) => switch (item.type) {
+            PaintType.solid => item.color?.toHex() ?? '',
+            PaintType.image => item.imageName ??
+                extractFileNameFromUrl(
+                  item.downloadUrl ?? '',
+                  withExtension: false,
+                ),
+            PaintType.gradientLinear ||
+            PaintType.gradientRadial ||
+            PaintType.gradientAngular ||
+            PaintType.gradientDiamond ||
+            PaintType.emoji =>
+              item.type.prettify,
+          },
+        ),
+        'strokes': IterableFieldAccess<PaintModel>(
+          'Strokes',
+          'A list of strokes applied to the node.',
+          () => strokes,
+          (value) => strokes = value,
+          (item) => switch (item.type) {
+            PaintType.solid => item.color?.toHex() ?? '',
+            PaintType.image => item.imageName ??
+                extractFileNameFromUrl(
+                  item.downloadUrl ?? '',
+                  withExtension: false,
+                ),
+            PaintType.gradientLinear ||
+            PaintType.gradientRadial ||
+            PaintType.gradientAngular ||
+            PaintType.gradientDiamond ||
+            PaintType.emoji =>
+              item.type.prettify,
+          },
+        )
+      };
 
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
@@ -773,20 +775,25 @@ mixin CornerMixin on BaseNode {
     required double cornerSmoothing,
   }) {
     this.cornerRadius = cornerRadius;
-    fields['cornerRadius'] = RadiusFieldAccess(
-      () => 'Corner Radius',
-      () => 'Radius of the corners of the node.',
-      () => this.cornerRadius,
-      (value) => this.cornerRadius = value,
-    );
     this.cornerSmoothing = cornerSmoothing;
-    fields['cornerSmoothing'] = NumFieldAccess<double>(
-      () => 'Corner Smoothing',
-      () => 'Level of pixel smoothing applied to the corners.',
-      () => this.cornerSmoothing,
-      (value) => this.cornerSmoothing = value,
-    );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'cornerRadius': RadiusFieldAccess(
+          'Corner Radius',
+          'Radius of the corners of the node.',
+          () => cornerRadius,
+          (value) => cornerRadius = value,
+        ),
+        'cornerSmoothing': NumFieldAccess<double>(
+          'Corner Smoothing',
+          'Level of pixel smoothing applied to the corners.',
+          () => cornerSmoothing,
+          (value) => cornerSmoothing = value,
+        ),
+      };
 
   @override
   String toString() =>

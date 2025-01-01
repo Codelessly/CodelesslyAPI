@@ -121,8 +121,8 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
     }
   }
 
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
+  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
+      AlignmentModel.none);
   writeNotNull('variables', instance.variables, instance.variables, {});
   writeNotNull('multipleVariables', instance.multipleVariables,
       instance.multipleVariables, {});
@@ -154,8 +154,8 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) {
   writeNotNull('flex', instance.flex, instance.flex, 1);
   writeNotNull('aspectRatioLock', instance.aspectRatioLock,
       instance.aspectRatioLock, false);
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
+  writeNotNull('reactions', instance.reactions,
+      instance.reactions.map((e) => e.toJson()).toList(), const []);
   val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
   writeNotNull('margin', instance.margin, instance.margin.toJson(),
       EdgeInsetsModel.zero);
