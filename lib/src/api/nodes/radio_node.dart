@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -81,6 +82,17 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   });
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<RadioProperties>(
+          'Properties',
+          'Properties of radio button.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
+  @override
   List<TriggerType> get triggerTypes => [TriggerType.click];
 
   /// Creates a [RadioNode] instance from a JSON object.
@@ -95,7 +107,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
 /// Holds configurable properties of the radio.
 @JsonSerializable()
-class RadioProperties extends CustomProperties {
+class RadioProperties extends CustomProperties with FieldsHolder {
   /// Color of radio when it is active.
   late ColorRGBA activeColor;
 
@@ -148,6 +160,65 @@ class RadioProperties extends CustomProperties {
       toggleable: toggleable ?? this.toggleable,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'activeColor': ColorFieldAccess<ColorRGBA>(
+          'Active Color',
+          'Color of radio when it is active.',
+          () => activeColor,
+          (ColorRGBA? value) {
+            if (value != null) activeColor = value;
+          },
+        ),
+        'inactiveColor': ColorFieldAccess<ColorRGBA>(
+          'Inactive Color',
+          'Color of radio when it is inactive.',
+          () => inactiveColor,
+          (ColorRGBA? value) {
+            if (value != null) inactiveColor = value;
+          },
+        ),
+        'hoverColor': ColorFieldAccess<ColorRGBA>(
+          'Hover Color',
+          'Color of radio when it is hovered.',
+          () => hoverColor,
+          (ColorRGBA? value) {
+            if (value != null) hoverColor = value;
+          },
+        ),
+        'focusColor': ColorFieldAccess<ColorRGBA>(
+          'Focus Color',
+          'Color of radio when it is focused.',
+          () => focusColor,
+          (ColorRGBA? value) {
+            if (value != null) focusColor = value;
+          },
+        ),
+        'splashRadius': NumFieldAccess<double>(
+          'Splash Radius',
+          'Splash radius of the circular ink response.',
+          () => splashRadius,
+          (double value) => splashRadius = value,
+        ),
+        'autofocus': BoolFieldAccess(
+          'Autofocus',
+          'Whether to focus the radio automatically.',
+          () => autofocus,
+          (bool? value) {
+            if (value != null) autofocus = value;
+          },
+        ),
+        'toggleable': BoolFieldAccess(
+          'Toggleable',
+          'Whether the button\'s value can be toggled on tap.',
+          () => toggleable,
+          (bool? value) {
+            if (value != null) toggleable = value;
+          },
+        ),
+      };
 
   @override
   List<Object?> get props => [

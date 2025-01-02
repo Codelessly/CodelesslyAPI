@@ -1,6 +1,7 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
 import '../extensions.dart';
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -130,6 +131,17 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   });
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<ButtonProperties>(
+          'Properties',
+          'Properties of a button',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
+  @override
   List<TriggerType> get triggerTypes =>
       [TriggerType.click, TriggerType.longPress];
 
@@ -163,7 +175,8 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of a [ButtonNode].
 @JsonSerializable()
-class ButtonProperties extends CustomProperties with ShapeBorderMixin {
+class ButtonProperties extends CustomProperties
+    with ShapeBorderMixin, FieldsHolder {
   // Button properties.
 
   /// Type of the button.
@@ -266,6 +279,130 @@ class ButtonProperties extends CustomProperties with ShapeBorderMixin {
       borderColor: borderColor ?? this.borderColor,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        // 'buttonType': EnumFieldAccess<ButtonTypeEnum>(
+        //   'Button Type',
+        //   'Type of the button.',
+        //   () => buttonType,
+        //   (ButtonTypeEnum? value) {
+        //     if (value != null) buttonType = value;
+        //   },
+        //   ButtonTypeEnum.values,
+        // ),
+        'buttonColor': ColorFieldAccess<ColorRGBA>(
+          'Button Color',
+          'Color of the button.',
+          () => buttonColor,
+          (ColorRGBA? value) {
+            if (value != null) buttonColor = value;
+          },
+        ),
+        'shadowColor': ColorFieldAccess<ColorRGBA>(
+          'Shadow Color',
+          'Color of button\'s shadow.',
+          () => shadowColor,
+          (ColorRGBA? value) {
+            if (value != null) shadowColor = value;
+          },
+        ),
+        'elevation': NumFieldAccess<double>(
+          'Elevation',
+          'Elevation of the button.',
+          () => elevation,
+          (double value) => elevation = value,
+        ),
+        'cornerRadius': RadiusFieldAccess(
+          'Corner Radius',
+          'Corner radius of the button.',
+          () => cornerRadius,
+          (CornerRadius? value) {
+            if (value != null) cornerRadius = value;
+          },
+        ),
+        'enabled': BoolFieldAccess(
+          'Enabled',
+          'Whether the button is enabled.',
+          () => enabled,
+          (bool? value) {
+            if (value != null) enabled = value;
+          },
+        ),
+        'label': StringFieldAccess(
+          'Label',
+          'Text label of the button.',
+          () => label,
+          (String? value) {
+            if (value != null) label = value;
+          },
+        ),
+        'labelStyle': TextStyleFieldAccess(
+          'Label Style',
+          'Style of the button\'s label text.',
+          () => labelStyle,
+          (TextProp value) => labelStyle = value,
+        ),
+        'labelAlignment': EnumFieldAccess<TextAlignHorizontalEnum>(
+          'Label Alignment',
+          'Horizontal alignment of the label text.',
+          () => labelAlignment,
+          (TextAlignHorizontalEnum? value) {
+            if (value != null) labelAlignment = value;
+          },
+          defaultValue: () => TextAlignHorizontalEnum.left,
+          options: () => TextAlignHorizontalEnum.values,
+        ),
+        'placement': EnumFieldAccess<IconPlacementEnum>(
+          'Icon Placement',
+          'Placement of the icon relative to the label.',
+          () => placement,
+          (IconPlacementEnum? value) {
+            if (value != null) placement = value;
+          },
+          defaultValue: () => IconPlacementEnum.start,
+          options: () => IconPlacementEnum.values,
+        ),
+        'gap': NumFieldAccess<double>(
+          'Gap',
+          'Space between icon and label.',
+          () => gap,
+          (double value) => gap = value,
+        ),
+        'icon': IconFieldAccess(
+          'Icon',
+          'Icon displayed in the button.',
+          () => icon,
+          (MultiSourceIconModel? value) {
+            if (value != null) icon = value;
+          },
+        ),
+        'shape': EnumFieldAccess<CShapeBorder>(
+          'Shape',
+          'Shape of the button.',
+          () => shape,
+          (CShapeBorder? value) {
+            if (value != null) shape = value;
+          },
+          options: () => CShapeBorder.values,
+          defaultValue: () => CShapeBorder.roundedRectangle,
+        ),
+        'borderWidth': NumFieldAccess<double?>(
+          'Border Width',
+          'Width of the button\'s border.',
+          () => borderWidth,
+          (double? value) => borderWidth = value,
+        ),
+        'borderColor': ColorFieldAccess<ColorRGBA>(
+          'Border Color',
+          'Color of the button\'s border.',
+          () => borderColor,
+          (ColorRGBA? value) {
+            if (value != null) borderColor = value;
+          },
+        ),
+      };
 
   /// Creates a [ButtonProperties] from a JSON data.
   factory ButtonProperties.fromJson(Map json) =>

@@ -38,7 +38,7 @@ enum TextDecorationEnum {
 /// Holds text properties in addition to start and end index of the characters
 /// which the properties belong to.
 @JsonSerializable()
-class StartEndProp extends TextProp {
+final class StartEndProp extends TextProp {
   /// Index of the first character to which the properties belong.
   final int start;
 
