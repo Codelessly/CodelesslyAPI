@@ -188,6 +188,39 @@ final class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
   }
 }
 
+/// A field accessor for a [FieldsHolder] field. e.g. An object that holds
+/// multiple fields.
+final class TextStyleFieldAccess<T extends TextProp> extends FieldAccess<T> {
+  /// Constructs a new [TextStyleFieldAccess] instance with the given parameters.
+  const TextStyleFieldAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+  });
+
+  @override
+  String get dynamicKeyType => 'text-style';
+
+  @override
+  void setValue(Object? value) {
+    if (T == StartEndProp) {
+      final StartEndProp? typedValue = switch (value) {
+        Map() => StartEndProp.fromJson(value),
+        _ => null,
+      };
+      if (typedValue != null) setter(typedValue as T);
+    } else if (T == TextProp) {
+      final TextProp? typedValue = switch (value) {
+        Map() => TextProp.fromJson(value),
+        _ => null,
+      };
+      if (typedValue != null) setter(typedValue as T);
+    }
+  }
+}
+
 /// A field accessor for a [IconModel] field.
 final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
   /// Constructs a new [IconFieldAccess] instance with the given parameters.
@@ -330,7 +363,7 @@ final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
         _ => value?.typedValue<ColorRGBA>(),
       };
       setter(typedValue as T?);
-    } else {
+    } else if (T == ColorRGB) {
       final ColorRGB? typedValue = switch (value) {
         Map() || String() => ColorRGB.fromJson(value),
         _ => value?.typedValue<ColorRGB>(),
