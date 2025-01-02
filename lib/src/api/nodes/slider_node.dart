@@ -363,6 +363,7 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Height of slider\'s track.',
           () => trackHeight,
           (double value) => trackHeight = value,
+          requiresLayout: true,
         ),
         'label': StringFieldAccess(
           'Label',
@@ -431,12 +432,14 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Radius of slider\'s thumb.',
           () => thumbRadius,
           (double value) => thumbRadius = value,
+          requiresLayout: true,
         ),
         'showThumb': BoolFieldAccess(
           'Show Thumb',
           'Whether to show slider\'s thumb.',
           () => showThumb,
           (bool value) => showThumb = value,
+          requiresLayout: true,
         ),
         'trackShape': EnumFieldAccess<SliderTrackShapeEnum>(
           'Track Shape',
@@ -450,6 +453,7 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Tick Mark Radius',
           'Radius of slider\'s tick mark.',
           () => tickMarkRadius,
+          requiresLayout: true,
           (double value) => tickMarkRadius = value,
         ),
         'valueIndicatorShape': EnumFieldAccess<SliderValueIndicatorShape>(
