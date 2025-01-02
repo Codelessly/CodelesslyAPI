@@ -60,11 +60,14 @@ sealed class FieldAccess<T extends Object?> {
 
   final DefaultFieldValueCallback<T>? _defaultValue;
 
+  /// Whether the field requires layout when changed.
+  final bool requiresLayout;
+
   /// The default value of the field.
   DefaultFieldValueCallback<T>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
-  dynamic serialize(T? obj) => obj;
+  Object? serialize(T? obj) => obj;
 
   /// The dynamic key type of the field, used by the dynamic settings panel to
   /// determine the type of the field to be displayed and modified.
@@ -95,6 +98,7 @@ sealed class FieldAccess<T extends Object?> {
     this.getValue,
     this.setter, {
     DefaultFieldValueCallback<T>? defaultValue,
+    this.requiresLayout = false,
   }) : _defaultValue = defaultValue;
 }
 
@@ -107,6 +111,7 @@ final class StringFieldAccess extends FieldAccess<String> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
@@ -127,22 +132,23 @@ final class NumFieldAccess<Number extends num?> extends FieldAccess<Number> {
     this.min,
     this.max,
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
   String get dynamicKeyType => getValue() is double ? 'double' : 'int';
 
   /// The minimum value of the field.
-  final FieldGetterCallback<Number>? min;
+  final Number? min;
 
   /// The maximum value of the field.
-  final FieldGetterCallback<Number>? max;
+  final Number? max;
 
   @override
   Map<String, dynamic> get supplementarySchema => {
         if (getValue() is double) 'fractionDigits': 2,
-        if (min case FieldGetterCallback<Number> min) 'min': min(),
-        if (max case FieldGetterCallback<Number> max) 'max': max(),
+        if (min case Number min) 'min': min,
+        if (max case Number max) 'max': max,
       };
 
   @override
@@ -158,6 +164,7 @@ final class BoolFieldAccess extends FieldAccess<bool> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
@@ -177,6 +184,7 @@ final class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
@@ -198,21 +206,27 @@ final class TextStyleFieldAccess<T extends TextProp> extends FieldAccess<T> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
   String get dynamicKeyType => 'text-style';
 
   @override
+  Object? serialize(TextProp? obj) => obj?.toJson();
+
+  @override
   void setValue(Object? value) {
     if (T == StartEndProp) {
       final StartEndProp? typedValue = switch (value) {
+        StartEndProp prop => prop,
         Map() => StartEndProp.fromJson(value),
         _ => null,
       };
       if (typedValue != null) setter(typedValue as T);
     } else if (T == TextProp) {
       final TextProp? typedValue = switch (value) {
+        TextProp prop => prop,
         Map() => TextProp.fromJson(value),
         _ => null,
       };
@@ -230,13 +244,14 @@ final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override
   String get dynamicKeyType => 'icon';
 
   @override
-  dynamic serialize(MultiSourceIconModel? obj) => obj?.toJson();
+  Object? serialize(MultiSourceIconModel? obj) => obj?.toJson();
 
   @override
   void setValue(Object? value) {
@@ -259,6 +274,7 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
     super.setter, {
     required super.defaultValue,
     required FieldOptionsGetter<T> options,
+    super.requiresLayout,
   }) : getOptions = options;
 
   /// The options of the field.
@@ -268,7 +284,7 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   String get dynamicKeyType => 'options';
 
   @override
-  dynamic serialize(T? obj) => obj?.name;
+  Object? serialize(T? obj) => obj?.name;
 
   @override
   Map<String, dynamic> get supplementarySchema => {
@@ -297,6 +313,7 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
     super.setter,
     this.itemLabel, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   /// The label of an item in this iterable.
@@ -353,7 +370,7 @@ final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
   String get dynamicKeyType => 'color';
 
   @override
-  dynamic serialize(ColorRGB? obj) => obj?.toJson();
+  Object? serialize(ColorRGB? obj) => obj?.toJson();
 
   @override
   void setValue(Object? value) {
@@ -420,7 +437,7 @@ final class VariantAccess extends FieldAccess<String> {
   String get dynamicKeyType => 'options';
 
   @override
-  dynamic serialize(String? obj) => obj;
+  Object? serialize(String? obj) => obj;
 
   @override
   Map<String, dynamic> get supplementarySchema => {

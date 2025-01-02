@@ -257,6 +257,7 @@ class CheckboxProperties extends CustomProperties with FieldsHolder {
             'Border Width',
             'Border width for the checkbox.',
             () => borderWidth,
+            requiresLayout: true,
             (double value) => borderWidth = value),
         'cornerRadius': RadiusFieldAccess(
             'Corner Radius',
@@ -267,6 +268,7 @@ class CheckboxProperties extends CustomProperties with FieldsHolder {
             'Compact',
             'Whether the checkbox is compact.',
             () => compact,
+            requiresLayout: true,
             (bool value) => compact = value),
       };
 
