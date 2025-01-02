@@ -750,5 +750,22 @@ abstract class BaseNode
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'visible': BoolFieldAccess(
+          'Visible',
+          'Whether this widget is visible or not.',
+          () => visible,
+          (value) => visible = value,
+        ),
+        'enabled': BoolFieldAccess(
+          'Exclude',
+          'Whether this widget is enabled or not.',
+          () => !enabled,
+          (value) => enabled = !value,
+        ),
+      };
+
+  @override
   List<Object?> get props => [id];
 }

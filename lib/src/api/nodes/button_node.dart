@@ -334,6 +334,7 @@ class ButtonProperties extends CustomProperties
           'Label',
           'Text label of the button.',
           () => label,
+          requiresLayout: true,
           (String? value) {
             if (value != null) label = value;
           },
@@ -342,6 +343,7 @@ class ButtonProperties extends CustomProperties
           'Label Style',
           'Style of the button\'s label text.',
           () => labelStyle,
+          requiresLayout: true,
           (TextProp value) => labelStyle = value,
         ),
         'labelAlignment': EnumFieldAccess<TextAlignHorizontalEnum>(
@@ -368,12 +370,14 @@ class ButtonProperties extends CustomProperties
           'Gap',
           'Space between icon and label.',
           () => gap,
+          requiresLayout: true,
           (double value) => gap = value,
         ),
         'icon': IconFieldAccess(
           'Icon',
           'Icon displayed in the button.',
           () => icon,
+          requiresLayout: true,
           (MultiSourceIconModel? value) {
             if (value != null) icon = value;
           },
@@ -386,12 +390,14 @@ class ButtonProperties extends CustomProperties
             if (value != null) shape = value;
           },
           options: () => CShapeBorder.values,
+          requiresLayout: true,
           defaultValue: () => CShapeBorder.roundedRectangle,
         ),
         'borderWidth': NumFieldAccess<double?>(
           'Border Width',
           'Width of the button\'s border.',
           () => borderWidth,
+          requiresLayout: true,
           (double? value) => borderWidth = value,
         ),
         'borderColor': ColorFieldAccess<ColorRGBA>(

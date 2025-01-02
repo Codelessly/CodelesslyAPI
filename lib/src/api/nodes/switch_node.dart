@@ -292,6 +292,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
       'Track Outline Width',
       'Width of switch\'s track border.',
       () => trackOutlineWidth,
+      requiresLayout: true,
       (double? value) {
         if (value != null) trackOutlineWidth = value;
       },
@@ -300,6 +301,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
       'Use Material 3',
       'Whether to use material 3 style.',
       () => useMaterial3,
+      requiresLayout: true,
       (bool? value) {
         if (value != null) useMaterial3 = value;
       },

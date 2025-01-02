@@ -165,6 +165,7 @@ class IconProperties extends CustomProperties with FieldsHolder {
           'Icon',
           'Icon to display',
           () => icon,
+          requiresLayout: true,
           (value) => icon = value,
         ),
       };

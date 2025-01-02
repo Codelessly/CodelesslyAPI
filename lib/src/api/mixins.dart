@@ -285,6 +285,23 @@ mixin BlendMixin on BaseNode {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'effects': IterableFieldAccess<Effect>(
+          'Effects',
+          'A list of fills applied to the node.',
+          () => effects,
+          (value) => effects = value,
+          (item) => switch (item.type) {
+            EffectType.innerShadow => 'Inner Shadow',
+            EffectType.dropShadow => 'Drop Shadow',
+            EffectType.layerBlur => 'Layer Blur',
+            EffectType.backgroundBlur => 'Background Blur',
+          },
+        ),
+      };
+
+  @override
   String toString() =>
       "${super.toString()}\n Blend(${"opacity: $opacity, isMask: $isMask, effects: $effects, blendMode: $blendMode, inkWell: $inkWell"})";
 }
@@ -644,6 +661,7 @@ mixin GeometryMixin on BaseNode {
         'strokes': IterableFieldAccess<PaintModel>(
           'Strokes',
           'A list of strokes applied to the node.',
+          requiresLayout: true,
           () => strokes,
           (value) => strokes = value,
           (item) => switch (item.type) {
@@ -725,6 +743,17 @@ mixin ClipMixin on BaseNode {
   }) {
     this.clipsContent = clipsContent;
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'clipsContent': BoolFieldAccess(
+          'Clip Content',
+          'Clip the content outside.',
+          () => clipsContent,
+          (value) => clipsContent = value,
+        ),
+      };
 }
 
 /// Adds border shape properties to a node enabling the node to have differently
@@ -1009,6 +1038,29 @@ mixin RowColumnMixin on BaseNode {
     this.mainAxisAlignment = mainAxisAlignment;
     this.crossAxisAlignment = crossAxisAlignment;
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'mainAxisAlignment': EnumFieldAccess<MainAxisAlignmentC>(
+          'Main Axis Alignment',
+          'Alignment of the children along the main axis.',
+          () => mainAxisAlignment,
+          (value) => mainAxisAlignment = value,
+          defaultValue: () => MainAxisAlignmentC.center,
+          options: () => MainAxisAlignmentC.values,
+          requiresLayout: true,
+        ),
+        'crossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+          'Cross Axis Alignment',
+          'Alignment of the children along the cross axis.',
+          () => crossAxisAlignment,
+          (value) => crossAxisAlignment = value,
+          defaultValue: () => CrossAxisAlignmentC.center,
+          options: () => CrossAxisAlignmentC.values,
+          requiresLayout: true,
+        ),
+      };
 }
 
 /// A mixin that allows node behave like a placeholder for other nodes.

@@ -1,6 +1,7 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../field_access.dart';
 import '../generate_id.dart';
 import '../mixins.dart';
 import 'models.dart';
@@ -43,33 +44,33 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 
 /// A visual effect such as a shadow or blur.
 @JsonSerializable()
-class Effect with EquatableMixin, SerializableMixin {
+class Effect with EquatableMixin, SerializableMixin, FieldsHolder {
   @JsonKey(readValue: _readId)
 
   /// Unique identifier of the effect.
   final String id;
 
   /// Type of effect.
-  final EffectType type;
+  EffectType type;
 
   /// Whether the affect is visible.
-  final bool visible;
+  bool visible;
 
   /// Radius of the effect.
-  final double radius;
+  double radius;
 
   /// The shadow spread, before blur is applied.
-  final double? spread;
+  double? spread;
 
   /// The color of the shadow.
-  final ColorRGBA? color;
+  ColorRGBA? color;
 
   /// Blend mode of the shadow.
   @JsonKey(unknownEnumValue: BlendModeC.srcOver)
-  final BlendModeC? blendMode;
+  BlendModeC? blendMode;
 
   /// How far the shadow is projected in the x and y directions.
-  final Vec? offset;
+  Vec? offset;
 
   /// Creates new [Effect] with given data.
   Effect({
@@ -173,6 +174,42 @@ class Effect with EquatableMixin, SerializableMixin {
         return copyWith(id: changeIds ? generateId() : id);
     }
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'color': ColorFieldAccess<ColorRGBA>(
+          'Color',
+          'The color of the effect.',
+          () => color,
+          (value) => color = value,
+        ),
+        'offsetX': NumFieldAccess<double?>(
+          'Offset X',
+          'How far the shadow is projected in the x and y directions.',
+          () => offset?.x,
+          (value) => offset = Vec(value ?? 0, offset?.y ?? 0),
+        ),
+        'offsetY': NumFieldAccess<double?>(
+          'Offset Y',
+          'How far the shadow is projected in the x and y directions.',
+          () => offset?.y,
+          (value) => offset = Vec(offset?.x ?? 0, value ?? 0),
+        ),
+        'spread': NumFieldAccess<double?>(
+          'Spread',
+          'The shadow spread, before blur is applied.',
+          () => spread,
+          (value) => spread = value,
+        ),
+        'radius': NumFieldAccess<double>(
+          'Radius',
+          'Radius of the effect.',
+          () => radius,
+          (value) => radius = value,
+          min: 0,
+        ),
+      };
 
   @override
   List<Object?> get props => [
