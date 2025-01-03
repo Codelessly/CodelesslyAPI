@@ -58,13 +58,11 @@ sealed class FieldAccess<T extends Object?> {
   /// Sets the value of the field.
   void setValue(Object? value);
 
-  final DefaultFieldValueCallback<T>? _defaultValue;
+  /// The default value of the field.
+  final DefaultFieldValueCallback<T>? defaultValue;
 
   /// Whether the field requires layout when changed.
   final bool requiresLayout;
-
-  /// The default value of the field.
-  DefaultFieldValueCallback<T>? get getDefaultValue => _defaultValue;
 
   /// The serialized value of the field.
   Object? serialize(T? obj) => obj;
@@ -85,7 +83,7 @@ sealed class FieldAccess<T extends Object?> {
         'label': label,
         'description': description,
         'value': serialize(getValue()),
-        if (getDefaultValue case DefaultFieldValueCallback<T> defaultValue)
+        if (defaultValue case DefaultFieldValueCallback<T> defaultValue)
           'default': serialize(defaultValue()),
         if (supplementarySchema case Map<String, dynamic> supplementary)
           ...supplementary
@@ -97,9 +95,9 @@ sealed class FieldAccess<T extends Object?> {
     this.description,
     this.getValue,
     this.setter, {
-    DefaultFieldValueCallback<T>? defaultValue,
+    this.defaultValue,
     this.requiresLayout = false,
-  }) : _defaultValue = defaultValue;
+  });
 }
 
 /// A field accessor for a [String] field.
@@ -449,7 +447,7 @@ final class VariantAccess extends FieldAccess<String> {
   @override
   void setValue(Object? value) {
     if (value case String? value) {
-      setter(value ?? getDefaultValue!());
+      setter(value ?? defaultValue!());
     }
   }
 }
