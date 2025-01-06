@@ -745,7 +745,7 @@ abstract class BaseNode
   /// [edgePins] to [EdgePinsModel.standard] (top left).
   void clearAlignmentAndPins() {
     _alignment = AlignmentModel.none;
-    edgePins = EdgePinsModel.standard;
+    edgePins = EdgePinsModel.fromVec(outerBoxLocal.topLeft);
     positioningMode = PositioningMode.align;
   }
 

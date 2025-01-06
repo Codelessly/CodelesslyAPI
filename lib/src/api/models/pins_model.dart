@@ -94,6 +94,10 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
     required this.bottom,
   });
 
+  /// Create a new [EdgePinsModel] from a [Vec] object.
+  EdgePinsModel.fromVec(Vec vec)
+      : this(left: vec.x, top: vec.y, right: null, bottom: null);
+
   /// Creates a standard [EdgePinsModel] that pins the node to the parent's
   /// top-left corner.
   static const EdgePinsModel standard =
