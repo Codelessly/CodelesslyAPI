@@ -339,7 +339,7 @@ class ButtonProperties extends CustomProperties
             if (value != null) label = value;
           },
         ),
-        'labelStyle': TextStyleFieldAccess(
+        'labelStyle': TextStyleFieldAccess<TextProp>(
           'Label Style',
           'Style of the button\'s label text.',
           () => labelStyle,
@@ -400,13 +400,11 @@ class ButtonProperties extends CustomProperties
           requiresLayout: true,
           (double? value) => borderWidth = value,
         ),
-        'borderColor': ColorFieldAccess<ColorRGBA>(
+        'borderColor': ColorFieldAccess<ColorRGBA?>(
           'Border Color',
           'Color of the button\'s border.',
           () => borderColor,
-          (ColorRGBA? value) {
-            if (value != null) borderColor = value;
-          },
+          (ColorRGBA? value) => borderColor = value,
         ),
       };
 

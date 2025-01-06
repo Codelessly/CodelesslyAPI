@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import '../utils.dart';
@@ -131,7 +132,7 @@ const double kDefaultNavigationBarHeight = 80;
 /// Inspired from: https://m3.material.io/components/navigation-bar.
 @JsonSerializable()
 class NavigationBarNode extends SceneNode
-    with CustomPropertiesMixin, ParentReactionMixin {
+    with CustomPropertiesMixin, ParentReactionMixin, FieldsHolder {
   @override
   final String type = 'navigationBar';
 
@@ -179,6 +180,17 @@ class NavigationBarNode extends SceneNode
 
   @override
   Map toJson() => _$NavigationBarNodeToJson(this);
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<NavigationBarProperties>(
+          'Properties',
+          'Properties of the navigation bar.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -279,7 +291,7 @@ class NavigationBarNode extends SceneNode
 
 /// Holds configurable properties of the navigation bar.
 abstract class NavigationBarProperties<T extends NavigationBarItem>
-    extends CustomProperties {
+    extends CustomProperties with FieldsHolder {
   /// Defines the style of the navigation bar, i.e., Material 2 or Material 3.
   ///
   /// This has to be like this to force json serializable to serialize it.
@@ -288,7 +300,7 @@ abstract class NavigationBarProperties<T extends NavigationBarItem>
   late final StyleDefinition styleDefinition;
 
   /// Navigation bar's items.
-  final List<T> items;
+  List<T> items;
 
   /// Add notch to the navigation bar.
   bool makeNotched;
@@ -302,6 +314,30 @@ abstract class NavigationBarProperties<T extends NavigationBarItem>
     this.makeNotched = false,
     this.notchMargin = 4,
   });
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'makeNotched': BoolFieldAccess(
+          'Make Notched',
+          'Whether to make the navigation bar notched.',
+          () => makeNotched,
+          (value) => makeNotched = value,
+        ),
+        'notchMargin': NumFieldAccess<double>(
+          'Notch Margin',
+          'The margin between the floating action button and the navigation bar\'s notch.',
+          () => notchMargin,
+          (value) => notchMargin = value,
+        ),
+        'items': IterableFieldAccess<T>(
+          'Items',
+          'Nav items of the navigation bar.',
+          () => items,
+          (value) => items = value,
+          (item) => item.label,
+        ),
+      };
 }
 
 /// Holds configurable properties of the material navigation bar.

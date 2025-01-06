@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -16,7 +17,7 @@ const double kDividerDefaultHeight = 16;
 /// Refer to [Divider](https://api.flutter.dev/flutter/material/Divider-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class DividerNode extends SceneNode with CustomPropertiesMixin {
+class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
   final String type = 'divider';
 
@@ -79,6 +80,17 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
   });
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<DividerProperties>(
+          'Properties',
+          'Properties of the divider.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
+  @override
   List<Object?> get props => [
         ...super.props,
         properties,
@@ -139,7 +151,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the divider.
 @JsonSerializable()
-class DividerProperties extends CustomProperties {
+class DividerProperties extends CustomProperties with FieldsHolder {
   /// Color of the divider.
   ColorRGBA color;
 
@@ -180,6 +192,42 @@ class DividerProperties extends CustomProperties {
       isVertical: isVertical ?? this.isVertical,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'color': ColorFieldAccess<ColorRGBA>(
+          'Color',
+          'Color of the divider.',
+          () => color,
+          (value) => color = value,
+        ),
+        'indent': NumFieldAccess<double>(
+          'Indent',
+          'Start indent of the divider.',
+          () => indent,
+          (value) => indent = value,
+        ),
+        'endIndent': NumFieldAccess<double>(
+          'End Indent',
+          'End indent of the divider.',
+          () => endIndent,
+          (value) => endIndent = value,
+        ),
+        'isVertical': BoolFieldAccess(
+          'Is Vertical',
+          'Whether this is a vertical divider.',
+          () => isVertical,
+          (value) => isVertical = value,
+          requiresLayout: true,
+        ),
+        'thickness': NumFieldAccess<double>(
+          'Thickness',
+          'Thickness of the diving line.',
+          () => thickness,
+          (value) => thickness = value,
+        ),
+      };
 
   @override
   List<Object?> get props => [

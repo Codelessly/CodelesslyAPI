@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -15,7 +16,8 @@ const double kProgressBarDefaultHeight = 10;
 /// Progress bar is a widget that displays the current progress of an ongoing
 /// process. For example, an image being downloaded.
 @JsonSerializable()
-class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
+class ProgressBarNode extends SceneNode
+    with CustomPropertiesMixin, FieldsHolder {
   @override
   final String type = 'progressBar';
 
@@ -89,6 +91,17 @@ class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<ProgressBarProperties>(
+          'Properties',
+          'properties of the progress bar',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
+  @override
   List<Object?> get props => [
         ...super.props,
         properties,
@@ -111,7 +124,7 @@ class ProgressBarNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the progress bar.
 @JsonSerializable()
-class ProgressBarProperties extends CustomProperties {
+class ProgressBarProperties extends CustomProperties with FieldsHolder {
   /// Maximum value of the progress bar, i.e., when the progress is complete.
   double maxValue;
 
@@ -166,6 +179,58 @@ class ProgressBarProperties extends CustomProperties {
           animationDurationInMillis ?? this.animationDurationInMillis,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'maxValue': NumFieldAccess<double>(
+          'Max Value',
+          'Maximum value of the progress bar',
+          () => maxValue,
+          (value) => maxValue = value,
+        ),
+        'backgroundColor': ColorFieldAccess<ColorRGBA>(
+          'Background Color',
+          'Color of progress bar\'s background',
+          () => backgroundColor,
+          (value) {
+            if (value != null) backgroundColor = value;
+          },
+        ),
+        'progressColor': ColorFieldAccess<ColorRGBA>(
+          'Progress Color',
+          'Color that indicates progress, i.e., color of the foreground bar',
+          () => progressColor,
+          (value) {
+            if (value != null) progressColor = value;
+          },
+        ),
+        'isVertical': BoolFieldAccess(
+          'Is Vertical',
+          'Whether the bar is vertically oriented',
+          () => isVertical,
+          (value) => isVertical = value,
+          requiresLayout: true,
+        ),
+        'cornerRadius': RadiusFieldAccess(
+          'Corner Radius',
+          'Corner radii of the bar',
+          () => cornerRadius,
+          (value) => cornerRadius = value,
+        ),
+        'animate': BoolFieldAccess(
+          'Animate',
+          'Whether the bar animates to show progress',
+          () => animate,
+          (value) => animate = value,
+        ),
+        'animationDurationInMillis': NumFieldAccess<int>(
+          'Animation Duration',
+          'Duration of animation in milliseconds',
+          () => animationDurationInMillis,
+          (value) => animationDurationInMillis = value,
+        ),
+      };
 
   @override
   List<Object?> get props => [
