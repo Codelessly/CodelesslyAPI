@@ -12,6 +12,16 @@ extension ObjectExt on Object? {
     if (value is R) return value;
 
     return switch (R) {
+      const (CornerRadius) =>
+        CornerRadius.fromJson(value).tryCast<R>() ?? defaultValue,
+      const (EdgeInsetsModel) =>
+        value.toEdgeInsetsModel().tryCast<R>() ?? defaultValue,
+      const (ColorRGB) =>
+        ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
+            defaultValue,
+      const (ColorRGBA) => value.toColorRGBA().tryCast<R>() ?? defaultValue,
+      const (PaintModel) =>
+        value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       const (String) =>
         (value is List || value is Map ? jsonEncode(value) : value.toString())
                 .tryCast<R>() ??
@@ -20,17 +30,9 @@ extension ObjectExt on Object? {
       const (double) => value.toDouble().tryCast<R>() ?? defaultValue,
       const (num) => value.toNum().tryCast<R>() ?? defaultValue,
       const (bool) => value.toBool().tryCast<R>() ?? defaultValue,
-      const (ColorRGBA) => value.toColorRGBA().tryCast<R>() ?? defaultValue,
-      const (ColorRGB) =>
-        ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
-            defaultValue,
-      const (PaintModel) =>
-        value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       _ when R.isMap => value.toMap().tryCast<R>(),
       _ when R.isList || R.isIterable => value.toList<R>(),
       _ when R.isSet => value.toSet<R>(),
-      const (CornerRadius) =>
-        CornerRadius.fromJson(value).tryCast<R>() ?? defaultValue,
       _ => defaultValue,
     };
   }
@@ -198,6 +200,18 @@ extension ConversionExt on Object? {
         b: value.color?.b ?? 0,
         a: value.opacity,
       );
+    }
+
+    return null;
+  }
+
+  /// Converts given object to [EdgeInsetsModel] if possible. Returns null otherwise.
+  EdgeInsetsModel? toEdgeInsetsModel() {
+    final value = this;
+    if (value == null) return null;
+    if (value is EdgeInsetsModel) return value;
+    if (value case num || [num, num] || [num, num, num, num]) {
+      return EdgeInsetsModel.fromJson(value);
     }
 
     return null;

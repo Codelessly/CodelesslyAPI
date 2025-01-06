@@ -4,6 +4,7 @@ import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../extensions.dart';
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -18,7 +19,7 @@ const double kDefaultAppBarHeight = 56;
 /// in Flutter for more details.
 @JsonSerializable()
 class AppBarNode extends SceneNode
-    with CustomPropertiesMixin, ParentReactionMixin {
+    with CustomPropertiesMixin, ParentReactionMixin, FieldsHolder {
   @override
   final String type = 'appBar';
 
@@ -69,6 +70,17 @@ class AppBarNode extends SceneNode
     ...super.propertyVariables,
     StringValue(name: 'title', value: properties.title),
   ];
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<AppBarProperties>(
+          'Properties',
+          'Properties of the app bar.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
 
   @override
   List<ReactionMixin> get reactiveChildren {
@@ -122,7 +134,7 @@ class AppBarNode extends SceneNode
 
 /// Properties of an app bar.
 @JsonSerializable()
-class AppBarProperties extends CustomProperties {
+class AppBarProperties extends CustomProperties with FieldsHolder {
   /// Whether to align the title text in center.
   late bool centerTitle;
 
@@ -196,6 +208,66 @@ class AppBarProperties extends CustomProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'centerTitle': BoolFieldAccess(
+          'Center Title',
+          'Whether to align the title text in center.',
+          () => centerTitle,
+          (value) => centerTitle = value,
+        ),
+        'elevation': NumFieldAccess<double>(
+          'Elevation',
+          'Elevation of the app bar.',
+          () => elevation,
+          (value) => elevation = value,
+        ),
+        'leading': ObjectFieldAccess<IconAppBarActionItem>(
+          'Leading',
+          'Leading icon of the app bar.',
+          () => leading,
+          (value) => leading = value,
+        ),
+        'automaticallyImplyLeading': BoolFieldAccess(
+          'Automatically Imply Leading',
+          'Whether to automatically show/hide leading icon based on the route.',
+          () => automaticallyImplyLeading,
+          (value) => automaticallyImplyLeading = value,
+        ),
+        'titleStyle': TextStyleFieldAccess<TextProp>(
+          'Title Style',
+          'Style of the title text.',
+          () => titleStyle,
+          (value) => titleStyle = value,
+        ),
+        'backgroundColor': ColorFieldAccess<ColorRGBA>(
+          'Background Color',
+          'Background color of the app bar.',
+          () => backgroundColor,
+          (value) => backgroundColor = value,
+        ),
+        'title': StringFieldAccess(
+          'Title',
+          'Title text of the app bar.',
+          () => title,
+          (value) => title = value,
+        ),
+        'titleSpacing': NumFieldAccess<double>(
+          'Title Spacing',
+          'Spacing between the leading icon (if given) and the title text.',
+          () => titleSpacing,
+          (value) => titleSpacing = value,
+        ),
+        'shadowColor': ColorFieldAccess<ColorRGBA>(
+          'Shadow Color',
+          'Elevation shadow color of the app bar.',
+          () => shadowColor,
+          (value) => shadowColor = value,
+        ),
+        // TODO: Actions
+      };
+
+  @override
   List<Object?> get props => [
         actions,
         centerTitle,
@@ -245,7 +317,7 @@ abstract class AppBarActionItem
 
 /// An app bar action item with an icon.
 @JsonSerializable()
-class IconAppBarActionItem extends AppBarActionItem {
+class IconAppBarActionItem extends AppBarActionItem with FieldsHolder {
   /// Icon of the action item.
   MultiSourceIconModel icon;
 
@@ -277,6 +349,29 @@ class IconAppBarActionItem extends AppBarActionItem {
         reactions: reactions ?? this.reactions,
         tooltip: tooltip ?? this.tooltip,
       );
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'icon': IconFieldAccess<MultiSourceIconModel>(
+          'Icon',
+          'Icon of the action item.',
+          () => icon,
+          (value) => icon = value,
+        ),
+        'tooltip': StringFieldAccess(
+          'Tooltip',
+          'Tooltip text to show when the action item is hovered.',
+          () => tooltip ?? '',
+          (value) {
+            if (value.isEmpty) {
+              tooltip = null;
+            } else {
+              tooltip = value;
+            }
+          },
+        ),
+      };
 
   @override
   List<Object?> get props => [icon, reactions, tooltip];

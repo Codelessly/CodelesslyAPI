@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -9,7 +10,7 @@ part 'loading_indicator_node.g.dart';
 /// A node that displays a loading indicator.
 @JsonSerializable()
 class LoadingIndicatorNode extends SceneNode
-    with CustomPropertiesMixin, FixedAspectRatioMixin {
+    with CustomPropertiesMixin, FixedAspectRatioMixin, FieldsHolder {
   @override
   final String type = 'loadingIndicator';
 
@@ -63,6 +64,17 @@ class LoadingIndicatorNode extends SceneNode
     required this.properties,
   });
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<LoadingIndicatorProperties>(
+          'Properties',
+          'Properties of the loading indicator.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
   /// Creates a [LoadingIndicatorNode] from a JSON data.
   factory LoadingIndicatorNode.fromJson(Map json) =>
       _$LoadingIndicatorNodeFromJson(json);
@@ -92,8 +104,10 @@ class LoadingIndicatorNode extends SceneNode
 }
 
 /// Holds configurable properties of the loading indicator.
-abstract class LoadingIndicatorProperties extends CustomProperties {
-  /// Type of the loading indicator.
+abstract class LoadingIndicatorProperties extends CustomProperties
+    with FieldsHolder {
+  /// Type of the loading indicator
+  // TODO: how to support this for dynamic settings?
   late final String type;
 
   /// Creates a [LoadingIndicatorProperties].
@@ -130,7 +144,8 @@ abstract class LoadingIndicatorProperties extends CustomProperties {
 /// Refer to Flutter's [CircularProgressIndicator](https://api.flutter.dev/flutter/material/CircularProgressIndicator-class.html)
 /// for more information.
 @JsonSerializable()
-class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
+class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
+    with FieldsHolder {
   @override
   final String type = 'material';
 
@@ -177,6 +192,37 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'color': ColorFieldAccess<ColorRGBA>(
+          'Color',
+          'Color of the loading indicator.',
+          () => color,
+          (value) => color = value,
+        ),
+        'backgroundColor': ColorFieldAccess<ColorRGBA>(
+          'Background Color',
+          'Background color of the loading indicator.',
+          () => backgroundColor,
+          (value) => backgroundColor = value,
+        ),
+        'strokeWidth': NumFieldAccess<double>(
+          'Stroke Width',
+          'Thickness of the loading indicator.',
+          () => strokeWidth,
+          (value) => strokeWidth = value,
+        ),
+        'strokeCap': EnumFieldAccess<StrokeCapEnum>(
+          'Stroke Cap',
+          'Stroke cap of the loading indicator.',
+          () => strokeCap,
+          (value) => strokeCap = value,
+          defaultValue: () => StrokeCapEnum.square,
+          options: () => StrokeCapEnum.values,
+        ),
+      };
+
+  @override
   List<Object?> get props =>
       [type, color, strokeWidth, value, backgroundColor, strokeCap];
 
@@ -193,7 +239,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties {
 /// Refer to Flutter's [CupertinoActivityIndicator](https://api.flutter.dev/flutter/cupertino/CupertinoActivityIndicator-class.html)
 /// for more information.
 @JsonSerializable()
-class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties {
+class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties
+    with FieldsHolder {
   @override
   final String type = 'cupertino';
 
@@ -220,6 +267,23 @@ class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties {
       radius: radius ?? this.radius,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'color': ColorFieldAccess<ColorRGBA>(
+          'Color',
+          'Color of the loading indicator.',
+          () => color,
+          (value) => color = value,
+        ),
+        'radius': NumFieldAccess<double>(
+          'Radius',
+          'Radius of the loading indicator.',
+          () => radius,
+          (value) => radius = value,
+        ),
+      };
 
   @override
   List<Object?> get props => [type, color, radius];

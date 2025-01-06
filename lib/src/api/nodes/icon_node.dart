@@ -161,7 +161,7 @@ class IconProperties extends CustomProperties with FieldsHolder {
   @override
   FieldsMap generateFields() => {
         ...super.generateFields(),
-        'icon': IconFieldAccess(
+        'icon': IconFieldAccess<MultiSourceIconModel>(
           'Icon',
           'Icon to display',
           () => icon,

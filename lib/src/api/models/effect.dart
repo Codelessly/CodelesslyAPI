@@ -178,7 +178,7 @@ class Effect with EquatableMixin, SerializableMixin, FieldsHolder {
   @override
   FieldsMap generateFields() => {
         ...super.generateFields(),
-        'color': ColorFieldAccess<ColorRGBA>(
+        'color': ColorFieldAccess<ColorRGBA?>(
           'Color',
           'The color of the effect.',
           () => color,
