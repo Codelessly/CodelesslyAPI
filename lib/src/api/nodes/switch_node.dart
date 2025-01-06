@@ -272,21 +272,17 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
         if (value != null) autofocus = value;
       },
     ),
-    'activeTrackBorderColor': ColorFieldAccess<ColorRGBA>(
+    'activeTrackBorderColor': ColorFieldAccess<ColorRGBA?>(
       'Active Track Border Color',
       'Color of switch\'s track border when it\'s active.',
       () => activeTrackBorderColor,
-      (ColorRGBA? value) {
-        if (value != null) activeTrackBorderColor = value;
-      },
+      (value) => activeTrackBorderColor = value,
     ),
-    'inactiveTrackBorderColor': ColorFieldAccess<ColorRGBA>(
+    'inactiveTrackBorderColor': ColorFieldAccess<ColorRGBA?>(
       'Inactive Track Border Color',
       'Color of switch\'s track border when it\'s inactive.',
       () => inactiveTrackBorderColor,
-      (ColorRGBA? value) {
-        if (value != null) inactiveTrackBorderColor = value;
-      },
+      (value) => inactiveTrackBorderColor = value,
     ),
     'trackOutlineWidth': NumFieldAccess<double>(
       'Track Outline Width',

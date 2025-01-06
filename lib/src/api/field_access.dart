@@ -234,7 +234,11 @@ final class TextStyleFieldAccess<T extends TextProp> extends FieldAccess<T> {
 }
 
 /// A field accessor for a [IconModel] field.
-final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
+final class IconFieldAccess<T extends MultiSourceIconModel?>
+    extends FieldAccess<T> {
+  /// Whether this field is required.
+  final bool required;
+
   /// Constructs a new [IconFieldAccess] instance with the given parameters.
   const IconFieldAccess(
     super.label,
@@ -243,6 +247,7 @@ final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
     super.setter, {
     super.defaultValue,
     super.requiresLayout,
+    this.required = true,
   });
 
   @override
@@ -253,12 +258,12 @@ final class IconFieldAccess extends FieldAccess<MultiSourceIconModel> {
 
   @override
   void setValue(Object? value) {
-    if (value is Map) {
-      final MultiSourceIconModel typedValue =
-          MultiSourceIconModel.fromJson(value);
-      setter(typedValue);
+    if (value is Map?) {
+      final MultiSourceIconModel? typedValue =
+          value?.isEmpty != true ? MultiSourceIconModel.fromJson(value!) : null;
+      if (typedValue is T) setter(typedValue);
     }
-    if (value is MultiSourceIconModel) setter(value);
+    if (value is T) setter(value);
   }
 }
 
@@ -354,7 +359,7 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
 }
 
 /// A field accessor for a [ColorRGB] field.
-final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
+final class ColorFieldAccess<T extends ColorRGB?> extends FieldAccess<T> {
   /// Constructs a new [ColorFieldAccess] instance with the given parameters.
   ColorFieldAccess(
     super.label,
@@ -377,13 +382,13 @@ final class ColorFieldAccess<T extends ColorRGB> extends FieldAccess<T?> {
         Map() || String() => ColorRGBA.fromJson(value),
         _ => value?.typedValue<ColorRGBA>(),
       };
-      setter(typedValue as T?);
+      setter(typedValue as T);
     } else if (T == ColorRGB) {
       final ColorRGB? typedValue = switch (value) {
         Map() || String() => ColorRGB.fromJson(value),
         _ => value?.typedValue<ColorRGB>(),
       };
-      setter(typedValue as T?);
+      setter(typedValue as T);
     }
   }
 }
@@ -410,6 +415,33 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
     final CornerRadius? typedValue = switch (value) {
       Map() || List() => CornerRadius.fromJson(value),
       _ => value?.typedValue<CornerRadius>()
+    };
+    if (typedValue != null) setter(typedValue);
+  }
+}
+
+/// A field accessor for a [EdgeInsetsModel] field.
+final class SpacingFieldAccess extends FieldAccess<EdgeInsetsModel> {
+  /// Constructs a new [SpacingFieldAccess] instance with the given parameters.
+  SpacingFieldAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+  });
+
+  @override
+  String get dynamicKeyType => 'radius';
+
+  @override
+  dynamic serialize(EdgeInsetsModel? obj) => obj?.toJson();
+
+  @override
+  void setValue(Object? value) {
+    final EdgeInsetsModel? typedValue = switch (value) {
+      Map() || List() => EdgeInsetsModel.fromJson(value),
+      _ => value?.typedValue<EdgeInsetsModel>()
     };
     if (typedValue != null) setter(typedValue);
   }
