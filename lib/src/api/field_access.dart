@@ -501,7 +501,7 @@ final class SpacingFieldAccess extends FieldAccess<EdgeInsetsModel> {
   });
 
   @override
-  String get dynamicKeyType => 'radius';
+  String get dynamicKeyType => 'spacing';
 
   @override
   dynamic serialize(EdgeInsetsModel? obj) => obj?.toJson();
