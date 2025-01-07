@@ -12,7 +12,12 @@ part 'grid_view_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class GridViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, QueryableMixin {
+    with
+        ScrollableMixin,
+        CustomPropertiesMixin,
+        ClipMixin,
+        QueryableMixin,
+        FieldsHolder {
   @override
   final String type = 'gridView';
 
@@ -185,6 +190,17 @@ class GridViewNode extends SinglePlaceholderNode
     }
   }
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<GridViewProperties>(
+          'Properties',
+          'Properties of the GridView.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
   /// Creates a [GridViewNode] from a JSON object.
   factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
 
@@ -194,7 +210,7 @@ class GridViewNode extends SinglePlaceholderNode
 
 /// The properties of a [GridViewNode].
 @JsonSerializable()
-class GridViewProperties extends CustomProperties {
+class GridViewProperties extends CustomProperties with FieldsHolder {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -233,6 +249,17 @@ class GridViewProperties extends CustomProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'gridDelegate': ObjectFieldAccess<GridDelegateProperties>(
+          'Grid',
+          'Properties of the ListView',
+          () => gridDelegate,
+          (value) => gridDelegate = value,
+        ),
+      };
+
+  @override
   Map<String, dynamic> toJson() => _$GridViewPropertiesToJson(this);
 
   /// Creates a [GridViewProperties] from a JSON object.
@@ -249,26 +276,27 @@ class GridViewProperties extends CustomProperties {
 
 /// The properties of a grid delegate that controls the layout of a
 /// [GridViewNode].
-sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
+sealed class GridDelegateProperties
+    with EquatableMixin, SerializableMixin, FieldsHolder {
   /// Represents the type of grid delegate.
   final GridDelegateType type;
 
   /// The number of logical pixels between each child along the main axis.
-  final double mainAxisSpacing;
+  double mainAxisSpacing;
 
   /// The number of logical pixels between each child along the cross axis.
-  final double crossAxisSpacing;
+  double crossAxisSpacing;
 
   /// The ratio of the cross-axis to the main-axis extent of each child. This
   /// is ignored if [mainAxisExtent] is not null.
-  final double childAspectRatio;
+  double childAspectRatio;
 
   /// The main axis extent of each child in the grid. If this is null, then
   /// [childAspectRatio] controls the main axis extent of each child.
-  final double? mainAxisExtent;
+  double? mainAxisExtent;
 
   /// Creates a new [GridDelegateProperties] instance.
-  const GridDelegateProperties(
+  GridDelegateProperties(
     this.type, {
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
@@ -298,6 +326,39 @@ sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
 
   @override
   List<Object?> get props => [type];
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'mainAxisSpacing': NumFieldAccess<double>(
+          'Main Axis Spacing',
+          'The number of logical pixels between each child along the main axis.',
+          () => mainAxisSpacing,
+          (value) => mainAxisSpacing = value,
+          requiresLayout: true,
+        ),
+        'crossAxisSpacing': NumFieldAccess<double>(
+          'Cross Axis Spacing',
+          'The number of logical pixels between each child along the cross axis.',
+          () => crossAxisSpacing,
+          (value) => crossAxisSpacing = value,
+          requiresLayout: true,
+        ),
+        'childAspectRatio': NumFieldAccess<double>(
+          'Child Aspect Ratio',
+          'The ratio of the cross-axis to the main-axis extent of each child.',
+          () => childAspectRatio,
+          (value) => childAspectRatio = value,
+          requiresLayout: true,
+        ),
+        'mainAxisExtent': NumFieldAccess<double?>(
+          'Main Axis Extent',
+          'The main axis extent of each child in the grid.',
+          () => mainAxisExtent,
+          (value) => mainAxisExtent = value,
+          requiresLayout: true,
+        ),
+      };
 }
 
 /// Represents a delegate that makes grid layouts with a fixed number of tiles
@@ -305,10 +366,10 @@ sealed class GridDelegateProperties with EquatableMixin, SerializableMixin {
 @JsonSerializable()
 class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   /// The number of children to fit in the cross axis for a grid view.
-  final int crossAxisCount;
+  int crossAxisCount;
 
   /// Creates a new [FixedCrossAxisCountGridDelegateProperties] instance.
-  const FixedCrossAxisCountGridDelegateProperties({
+  FixedCrossAxisCountGridDelegateProperties({
     required this.crossAxisCount,
     super.mainAxisSpacing = 0,
     super.crossAxisSpacing = 0,
@@ -347,6 +408,18 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'crossAxisCount': NumFieldAccess<int>(
+          'Cross Axis Count',
+          'The number of children to fit in the cross axis for a grid view.',
+          () => crossAxisCount,
+          (value) => crossAxisCount = value,
+          requiresLayout: true,
+        ),
+      };
+
+  @override
   List<Object?> get props => [
         ...super.props,
         crossAxisCount,
@@ -358,10 +431,10 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
 @JsonSerializable()
 class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   /// The maximum extent of a child/item in the cross axis.
-  final double maxCrossAxisExtent;
+  double maxCrossAxisExtent;
 
   /// Creates a new [MaxCrossAxisExtentGridDelegateProperties] instance.
-  const MaxCrossAxisExtentGridDelegateProperties({
+  MaxCrossAxisExtentGridDelegateProperties({
     required this.maxCrossAxisExtent,
     super.mainAxisSpacing = 0,
     super.crossAxisSpacing = 0,
@@ -398,6 +471,18 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
           : mainAxisExtent ?? super.mainAxisExtent,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'maxCrossAxisExtent': NumFieldAccess<double>(
+          'Max Cross Axis Extent',
+          'The maximum extent of a child/item in the cross axis.',
+          () => maxCrossAxisExtent,
+          (value) => maxCrossAxisExtent = value,
+          requiresLayout: true,
+        ),
+      };
 
   @override
   List<Object?> get props => [

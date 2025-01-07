@@ -192,6 +192,21 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
     return 'Custom';
   }
 
+  /// Displayable string representation of the object.
+  String get name => switch (this) {
+        topLeft => 'topLeft',
+        topCenter => 'topCenter',
+        topRight => 'topRight',
+        centerLeft => 'centerLeft',
+        center => 'center',
+        centerRight => 'centerRight',
+        bottomLeft => 'bottomLeft',
+        bottomCenter => 'bottomCenter',
+        bottomRight => 'bottomRight',
+        none => 'none',
+        _ => 'custom',
+      };
+
   /// Scales the x and y values of this alignment by the given scale factors.
   AlignmentModel scale(double scaleX, double scaleY) {
     if (data == null) return this;

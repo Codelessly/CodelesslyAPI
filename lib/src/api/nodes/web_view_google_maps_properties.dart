@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../models/models.dart';
 import 'web_view_node.dart';
 
@@ -14,7 +15,7 @@ part 'web_view_google_maps_properties.g.dart';
 /// [DirectionsGoogleMapsWebViewProperties],
 /// [StreetViewGoogleMapsWebViewProperties], and
 /// [SearchGoogleMapsWebViewProperties].
-abstract class GoogleMapsWebViewProperties extends WebViewProperties {
+sealed class GoogleMapsWebViewProperties extends WebViewProperties {
   /// The API key from the Google Cloud Platform Console.
   ///
   /// This is required for all types and sub-types of
@@ -90,6 +91,43 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
     super.backgroundColor,
   });
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'apiKey': StringFieldAccess(
+          'API Key',
+          'The API key from the Google Cloud Platform Console.',
+          () => apiKey ?? '',
+          (value) => apiKey = value.isEmpty ? null : value,
+        ),
+        'zoom': NumFieldAccess<int?>(
+          'Zoom',
+          'Sets initial zoom level of the map.',
+          () => zoom,
+          (value) => zoom = value,
+        ),
+        'mapType': EnumFieldAccess<GoogleMapsMapType?>(
+          'Map Type',
+          'Defines type of map tiles to load.',
+          () => mapType,
+          (value) => mapType = value,
+          defaultValue: () => null,
+          options: () => GoogleMapsMapType.values,
+        ),
+        'language': StringFieldAccess(
+          'Language',
+          'Defines the language to use for UI elements and for the display of labels on map tiles.',
+          () => language ?? '',
+          (value) => language = value.isEmpty ? null : value,
+        ),
+        'region': StringFieldAccess(
+          'Region',
+          'Defines the appropriate borders and labels to display, based on geo-political sensitivities.',
+          () => region ?? '',
+          (value) => region = value.isEmpty ? null : value,
+        ),
+      };
+
   /// Creates a new [GoogleMapsWebViewProperties] instance from a JSON map.
   ///
   /// The [mapMode] is checked manually in order to return the most appropriate
@@ -144,7 +182,8 @@ abstract class GoogleMapsWebViewProperties extends WebViewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#place_mode
 @JsonSerializable()
-class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
+final class PlacesGoogleMapsWebViewProperties
+    extends GoogleMapsWebViewProperties {
   /// Defines map marker location.
   ///
   /// URL-escaped place name, address, plus code, or place ID.
@@ -204,7 +243,19 @@ class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$PlacesGoogleMapsWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'query': StringFieldAccess(
+          'Query',
+          'Defines map marker location.',
+          () => query,
+          (value) => query = value,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$PlacesGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -226,7 +277,8 @@ class PlacesGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#view_mode
 @JsonSerializable()
-class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
+final class ViewGoogleMapsWebViewProperties
+    extends GoogleMapsWebViewProperties {
   /// Defines center of the map view.
   ///
   /// Accepts comma-separated latitude and longitude value;
@@ -284,7 +336,25 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$ViewGoogleMapsWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'centerX': NumFieldAccess<double>(
+          'Latitude',
+          'Defines center of the map view (latitude).',
+          () => center.x,
+          (value) => center = Vec(value, center.y),
+        ),
+        'centerY': NumFieldAccess<double>(
+          'Longitude',
+          'Defines center of the map view (longitude).',
+          () => center.y,
+          (value) => center = Vec(center.x, value),
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ViewGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a JSON map.
   factory ViewGoogleMapsWebViewProperties.fromJson(Map json) =>
@@ -305,7 +375,7 @@ class ViewGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#directions_mode
 @JsonSerializable()
-class DirectionsGoogleMapsWebViewProperties
+final class DirectionsGoogleMapsWebViewProperties
     extends GoogleMapsWebViewProperties {
   /// Defines the starting point from which to display directions.
   ///
@@ -441,7 +511,53 @@ class DirectionsGoogleMapsWebViewProperties
   }
 
   @override
-  Map<String,dynamic> toJson() => _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'origin': StringFieldAccess(
+          'Origin',
+          'Defines the starting point from which to display directions.',
+          () => origin,
+          (value) => origin = value,
+        ),
+        'destination': StringFieldAccess(
+          'Destination',
+          'Defines the end point of the directions.',
+          () => destination,
+          (value) => destination = value,
+        ),
+        'mode': EnumFieldAccess<GoogleMapsDirectionsMode?>(
+          'Mode',
+          'Defines the method of travel.',
+          () => mode,
+          (value) => mode = value,
+          defaultValue: () => null,
+          options: () => GoogleMapsDirectionsMode.values,
+        ),
+        'units': EnumFieldAccess<UnitSystem?>(
+          'Units',
+          'Specifies measurement method, metric or imperial, when displaying distances in the results.',
+          () => units,
+          (value) => units = value,
+          defaultValue: () => null,
+          options: () => UnitSystem.values,
+        ),
+        'centerX': NumFieldAccess<double?>(
+          'Latitude',
+          'Defines center of the map view (latitude).',
+          () => center?.x,
+          (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
+        ),
+        'centerY': NumFieldAccess<double?>(
+          'Longitude',
+          'Defines center of the map view (longitude).',
+          () => center?.y,
+          (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -464,7 +580,7 @@ class DirectionsGoogleMapsWebViewProperties
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#streetview_mode
 @JsonSerializable()
-class StreetViewGoogleMapsWebViewProperties
+final class StreetViewGoogleMapsWebViewProperties
     extends GoogleMapsWebViewProperties {
   /// [location] accepts a latitude and a longitude as comma-separated values
   /// (46.414382,10.013988). The API will display the panorama photographed
@@ -595,7 +711,63 @@ class StreetViewGoogleMapsWebViewProperties
   }
 
   @override
-  Map<String,dynamic> toJson() => _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'locationX': NumFieldAccess<double?>(
+          'Latitude',
+          'Defines center of the map view (latitude).',
+          () => location?.x,
+          (value) =>
+              location = value != null ? Vec(value, location?.y ?? 0) : null,
+        ),
+        'locationY': NumFieldAccess<double?>(
+          'Longitude',
+          'Defines center of the map view (longitude).',
+          () => location?.y,
+          (value) =>
+              location = value != null ? Vec(location?.x ?? 0, value) : null,
+        ),
+        'pano': StringFieldAccess(
+          'Pano',
+          'A specific panorama ID. Location may also be specified with panorama ID. The location will be only be used if the API cannot find the panorama ID.',
+          () => pano ?? '',
+          (value) => pano = value.isEmpty ? null : value,
+        ),
+        'heading': NumFieldAccess<int?>(
+          'Heading',
+          'Indicates the compass heading of the camera in degrees clockwise from North.',
+          () => heading,
+          (value) => heading = value,
+        ),
+        'pitch': NumFieldAccess<int?>(
+          'Pitch',
+          'Specifies the angle, up or down, of the camera. Positive values will angle the camera up, while negative values will angle the camera down. The default pitch of 0° is set based on on the position of the camera when the image was captured.',
+          () => pitch,
+          (value) => pitch = value,
+        ),
+        'fov': NumFieldAccess<int?>(
+          'Field of View',
+          'Determines the horizontal field of view of the image. It defaults to 90°. When dealing with a fixed-size viewport the field of view is can be considered the zoom level, with smaller numbers indicating a higher level of zoom.',
+          () => fov,
+          (value) => fov = value,
+        ),
+        'centerX': NumFieldAccess<double?>(
+          'Center-Latitude',
+          'Defines center of the map view (latitude).',
+          () => center?.x,
+          (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
+        ),
+        'centerY': NumFieldAccess<double?>(
+          'Center-Longitude',
+          'Defines center of the map view (longitude).',
+          () => center?.y,
+          (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -620,7 +792,8 @@ class StreetViewGoogleMapsWebViewProperties
 ///
 /// Refer to: https://developers.google.com/maps/documentation/embed/embedding-map#search_mode
 @JsonSerializable()
-class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
+final class SearchGoogleMapsWebViewProperties
+    extends GoogleMapsWebViewProperties {
   /// Defines the search term.
   ///
   /// It can include a geographic restriction, such as in+Seattle or near+98033.
@@ -678,7 +851,19 @@ class SearchGoogleMapsWebViewProperties extends GoogleMapsWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$SearchGoogleMapsWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'query': StringFieldAccess(
+          'Query',
+          'Defines the search term.',
+          () => query,
+          (value) => query = value,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$SearchGoogleMapsWebViewPropertiesToJson(this);
 
   /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a JSON
   /// map.

@@ -9,7 +9,12 @@ part 'list_view_node.g.dart';
 /// in Flutter for more details.
 @JsonSerializable()
 class ListViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, QueryableMixin {
+    with
+        ScrollableMixin,
+        CustomPropertiesMixin,
+        ClipMixin,
+        QueryableMixin,
+        FieldsHolder {
   @override
   final String type = 'listView';
 
@@ -126,6 +131,17 @@ class ListViewNode extends SinglePlaceholderNode
         return reverse ? AlignmentModel.bottomCenter : AlignmentModel.topCenter;
     }
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<ListViewProperties>(
+          'Properties',
+          'Properties of the ListView',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
 }
 
 /// Defines the type of separator to use between list view items.
@@ -139,7 +155,7 @@ enum ListItemSeparator {
 
 /// The properties of a [ListViewNode].
 @JsonSerializable()
-class ListViewProperties extends CustomProperties {
+class ListViewProperties extends CustomProperties with FieldsHolder {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -203,6 +219,41 @@ class ListViewProperties extends CustomProperties {
       dividerProperties: dividerProperties ?? this.dividerProperties,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+    'hasSeparator': BoolFieldAccess(
+          'Has Separator',
+          'Whether to use a separator between list view items.',
+          () => hasSeparator,
+          (value) => hasSeparator = value,
+          requiresLayout: true,
+        ),
+        'separatorSpacing': NumFieldAccess<double>(
+          'Separator Spacing',
+          'The amount of pixels the spacing separator should have, if enabled.',
+          () => separatorSpacing,
+          (value) => separatorSpacing = value,
+          requiresLayout: true,
+        ),
+        'separator': EnumFieldAccess<ListItemSeparator>(
+          'Separator',
+          'The type of separator to use between list view items.',
+          () => separator,
+          (value) => separator = value,
+          defaultValue: () => ListItemSeparator.space,
+          options: () => ListItemSeparator.values,
+          requiresLayout: true,
+        ),
+        'dividerProperties': ObjectFieldAccess<DividerProperties>(
+          'Divider Properties',
+          'The properties of the divider to use as a separator between list view items, if enabled.',
+          () => dividerProperties,
+          (value) => dividerProperties = value,
+          requiresLayout: true,
+        ),
+      };
 
   @override
   Map<String, dynamic> toJson() => _$ListViewPropertiesToJson(this);
