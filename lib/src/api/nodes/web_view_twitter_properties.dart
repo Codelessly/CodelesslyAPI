@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../models/models.dart';
 import 'web_view_node.dart';
 
@@ -14,7 +15,7 @@ part 'web_view_twitter_properties.g.dart';
 /// [FollowButtonTwitterWebViewProperties],
 /// [MentionButtonTwitterWebViewProperties],
 /// [HashtagButtonTwitterWebViewProperties],
-abstract class TwitterWebViewProperties extends WebViewProperties {
+sealed class TwitterWebViewProperties extends WebViewProperties {
   /// The color theme that the Twitter webview should use.
   TwitterEmbedTheme? theme;
 
@@ -85,6 +86,31 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
     super.backgroundColor,
   });
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'theme': EnumFieldAccess<TwitterEmbedTheme?>(
+          'Theme',
+          'The color theme that the Twitter webview should use.',
+          () => theme,
+          (value) => theme = value,
+          defaultValue: () => TwitterEmbedTheme.light,
+          options: () => TwitterEmbedTheme.values,
+        ),
+        'twitterTailoring': BoolFieldAccess(
+          'Twitter Tailoring',
+          'Opt-out of tailoring Twitter',
+          () => twitterTailoring ?? false,
+          (value) => twitterTailoring = value,
+        ),
+        'languageCode': StringFieldAccess(
+          'Language Code',
+          'The language code to use for the Twitter webview.',
+          () => languageCode ?? '',
+          (value) => languageCode = value.isEmpty ? null : value,
+        ),
+      };
+
   /// Creates a new [TwitterWebViewProperties] instance from a JSON map.
   ///
   /// The [embedType] is checked manually in order to return the most
@@ -112,7 +138,7 @@ abstract class TwitterWebViewProperties extends WebViewProperties {
 
 /// Implements the Twitter Tweet embed.
 @JsonSerializable()
-class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
+final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The URL of the tweet to use.
   String tweetURL;
 
@@ -149,6 +175,23 @@ class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'tweetURL': StringFieldAccess(
+          'Tweet URL',
+          'The URL of the tweet to use.',
+          () => tweetURL,
+          (value) => tweetURL = value,
+        ),
+        'hideConversation': BoolFieldAccess(
+          'Hide Conversation',
+          'Whether to hide the tweet\'s conversation.',
+          () => hideConversation ?? false,
+          (value) => hideConversation = value,
+        ),
+      };
+
+  @override
   Map<String, dynamic> toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [TweetTwitterWebViewProperties] instance from a JSON map.
@@ -180,7 +223,7 @@ class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
 
 /// Implements the Twitter Timeline embed.
 @JsonSerializable()
-class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
+final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
   /// The URL of the timeline to be displayed.
   String timelineURL;
 
@@ -234,6 +277,29 @@ class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'timelineURL': StringFieldAccess(
+          'Timeline URL',
+          'The URL of the timeline to be displayed.',
+          () => timelineURL,
+          (value) => timelineURL = value,
+        ),
+        'width': NumFieldAccess<double>(
+          'Width',
+          'The width of the timeline in pixels.',
+          () => width ?? 300,
+          (value) => width = value,
+        ),
+        'height': NumFieldAccess<double>(
+          'Height',
+          'The height of the timeline in pixels.',
+          () => height ?? 400,
+          (value) => height = value,
+        ),
+      };
+
+  @override
   Map<String, dynamic> toJson() =>
       _$TimelineTwitterWebViewPropertiesToJson(this);
 
@@ -268,7 +334,8 @@ class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
 
 /// Implements the Twitter Follow button embed.
 @JsonSerializable()
-class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
+final class FollowButtonTwitterWebViewProperties
+    extends TwitterWebViewProperties {
   /// The handle of the user to follow.
   String handle;
 
@@ -326,7 +393,31 @@ class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$FollowButtonTwitterWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'handle': StringFieldAccess(
+          'Handle',
+          'The handle of the user to follow.',
+          () => handle,
+          (value) => handle = value,
+        ),
+        'hideUsername': BoolFieldAccess(
+          'Hide Username',
+          'Whether to hide the username from the rendered button element.',
+          () => hideUsername ?? false,
+          (value) => hideUsername = value,
+        ),
+        'largeButton': BoolFieldAccess(
+          'Large Button',
+          'Whether to create a large-form button instead of the standard one.',
+          () => largeButton ?? false,
+          (value) => largeButton = value,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$FollowButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -366,7 +457,8 @@ class FollowButtonTwitterWebViewProperties extends TwitterWebViewProperties {
 
 /// Implements the Twitter Mention button embed.
 @JsonSerializable()
-class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
+final class MentionButtonTwitterWebViewProperties
+    extends TwitterWebViewProperties {
   /// The handle of the user to mention.
   String handle;
 
@@ -437,7 +529,31 @@ class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$MentionButtonTwitterWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'handle': StringFieldAccess(
+          'Handle',
+          'The handle of the user to mention.',
+          () => handle,
+          (value) => handle = value,
+        ),
+        'largeButton': BoolFieldAccess(
+          'Large Button',
+          'Whether to create a large-form button instead of the standard one.',
+          () => largeButton ?? false,
+          (value) => largeButton = value,
+        ),
+        'prefilledText': StringFieldAccess(
+          'Prefilled Text',
+          'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
+          () => prefilledText ?? '',
+          (value) => prefilledText = value,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$MentionButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -480,7 +596,8 @@ class MentionButtonTwitterWebViewProperties extends TwitterWebViewProperties {
 
 /// Implements the Twitter Hashtag button embed.
 @JsonSerializable()
-class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
+final class HashtagButtonTwitterWebViewProperties
+    extends TwitterWebViewProperties {
   /// The hashtag to search for.
   String hashtag;
 
@@ -559,7 +676,37 @@ class HashtagButtonTwitterWebViewProperties extends TwitterWebViewProperties {
   }
 
   @override
-  Map<String,dynamic> toJson() => _$HashtagButtonTwitterWebViewPropertiesToJson(this);
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'hashtag': StringFieldAccess(
+          'Hashtag',
+          'The hashtag to search for.',
+          () => hashtag,
+          (value) => hashtag = value,
+        ),
+        'largeButton': BoolFieldAccess(
+          'Large Button',
+          'Whether to create a large-form button instead of the standard one.',
+          () => largeButton ?? false,
+          (value) => largeButton = value,
+        ),
+        'prefilledText': StringFieldAccess(
+          'Prefilled Text',
+          'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
+          () => prefilledText ?? '',
+          (value) => prefilledText = value,
+        ),
+        'specificURLInTweet': StringFieldAccess(
+          'Specific URL In Tweet',
+          'Optional specific URL to associate with the tweet.',
+          () => specificURLInTweet ?? '',
+          (value) => specificURLInTweet = value,
+        ),
+      };
+
+  @override
+  Map<String, dynamic> toJson() =>
+      _$HashtagButtonTwitterWebViewPropertiesToJson(this);
 
   /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a JSON
   /// map.

@@ -784,6 +784,36 @@ mixin ShapeBorderMixin {
     this.borderColor = borderColor;
   }
 
+  FieldsMap generateShapeBorderMixinFields() => {
+        'shape': EnumFieldAccess<CShapeBorder>(
+          'Shape',
+          'Shape of the border.',
+          () => shape,
+          (value) => shape = value,
+          defaultValue: () => CShapeBorder.rectangle,
+          options: () => CShapeBorder.values,
+        ),
+        'cornerRadius': RadiusFieldAccess(
+          'Corner Radius',
+          'Radius of the corners of the border.',
+          () => cornerRadius,
+          (value) => cornerRadius = value,
+        ),
+        'borderWidth': NumFieldAccess<double?>(
+          'Border Width',
+          'Thickness of the border.',
+          () => borderWidth,
+          (value) => borderWidth = value,
+          requiresLayout: true,
+        ),
+        'borderColor': ColorFieldAccess<ColorRGBA?>(
+          'Border Color',
+          'Color of the border.',
+          () => borderColor,
+          (value) => borderColor = value,
+        ),
+      };
+
   @override
   String toString() =>
       '${super.toString()}\n ShapeBorder(shape: $shape, cornerRadius: $cornerRadius, borderColor: $borderColor, borderWidth: $borderWidth)';
