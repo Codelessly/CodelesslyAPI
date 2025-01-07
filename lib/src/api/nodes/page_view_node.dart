@@ -10,7 +10,7 @@ part 'page_view_node.g.dart';
 /// Each child of a page view is forced to be the same size as the viewport.
 @JsonSerializable()
 class PageViewNode extends SinglePlaceholderNode
-    with ScrollableMixin, CustomPropertiesMixin, ClipMixin {
+    with ScrollableMixin, CustomPropertiesMixin, ClipMixin, FieldsHolder {
   @override
   final String type = 'pageView';
 
@@ -83,6 +83,17 @@ class PageViewNode extends SinglePlaceholderNode
     );
   }
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<PageViewProperties>(
+          'Properties',
+          'Properties of the Page View',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
   /// Creates a [ListViewNode] from a JSON object.
   factory PageViewNode.fromJson(Map json) => _$PageViewNodeFromJson(json);
 
@@ -106,7 +117,7 @@ class PageViewNode extends SinglePlaceholderNode
 
 /// The properties of a [PageViewNode].
 @JsonSerializable()
-class PageViewProperties extends CustomProperties {
+class PageViewProperties extends CustomProperties with FieldsHolder {
   /// The number of items to display in the list view. Can be null if the list
   /// is infinite.
   int? itemCount;
@@ -154,6 +165,37 @@ class PageViewProperties extends CustomProperties {
       viewportFraction: viewportFraction ?? this.viewportFraction,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'pageSnapping': BoolFieldAccess(
+          'Page Snapping',
+          'Set to false to disable page snapping, useful for custom scroll behavior.',
+          () => pageSnapping,
+          (value) => pageSnapping = value,
+        ),
+        'padEnds': BoolFieldAccess(
+          'Pad Ends',
+          'Whether to add padding to both ends of the list.',
+          () => padEnds,
+          (value) => padEnds = value,
+          requiresLayout: true,
+        ),
+        'keepPage': BoolFieldAccess(
+          'Keep Page',
+          'Keep current page in memory and restore it when the page is recreated.',
+          () => keepPage,
+          (value) => keepPage = value,
+        ),
+        'viewportFraction': NumFieldAccess<double>(
+          'Viewport Fraction',
+          'The fraction of the viewport that each page should occupy.',
+          () => viewportFraction,
+          (value) => viewportFraction = value,
+          requiresLayout: true,
+        ),
+      };
 
   @override
   List<Object?> get props => [

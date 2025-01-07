@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import '../../codelessly_api.dart';
@@ -16,6 +17,8 @@ typedef DefaultFieldValueCallback<T> = T Function();
 
 /// Signature for callbacks that return the options of a property.
 typedef FieldOptionsGetter<T> = Iterable<T> Function();
+
+typedef FieldOptionsMapGetter<T> = Map<String, T> Function();
 
 /// Signature for callbacks that return a label of an item in an iterable.
 typedef IterableFieldItemIdentifier<T> = String Function(T item);
@@ -174,7 +177,7 @@ final class BoolFieldAccess extends FieldAccess<bool> {
 
 /// A field accessor for a [FieldsHolder] field. e.g. An object that holds
 /// multiple fields.
-final class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
+base class ObjectFieldAccess<T extends FieldsHolder> extends FieldAccess<T> {
   /// Constructs a new [ObjectFieldAccess] instance with the given parameters.
   const ObjectFieldAccess(
     super.label,
@@ -268,7 +271,7 @@ final class IconFieldAccess<T extends MultiSourceIconModel?>
 }
 
 /// A field accessor for an [Enum] field.
-final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
+final class EnumFieldAccess<T extends Enum?> extends FieldAccess<T> {
   /// Constructs a new [EnumFieldAccess] instance with the given parameters.
   const EnumFieldAccess(
     super.label,
@@ -293,17 +296,82 @@ final class EnumFieldAccess<T extends Enum> extends FieldAccess<T> {
   Map<String, dynamic> get supplementarySchema => {
         'options': {
           for (final T option in getOptions())
-            option.name: option.name.toUpperCase(),
+            if (option != null) option.name: option.name.toUpperCase(),
         }
       };
 
   @override
   void setValue(Object? value) {
     if (value is T) return setter(value);
-    final Map<String, T> allValues = getOptions().asNameMap();
+    final T? typedValue =
+        getOptions().firstWhereOrNull((option) => option?.name == value);
+    if (typedValue != null) setter(typedValue);
+  }
+}
+
+/// A field accessor for a field with limited set of options.
+final class OptionsFieldAccess<T> extends FieldAccess<T> {
+  /// The label of an item in this iterable.
+  final IterableFieldItemIdentifier<T> itemLabel;
+
+  /// Constructs a new [OptionsFieldAccess] instance with the given parameters.
+  const OptionsFieldAccess(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter,
+    this.itemLabel, {
+    required super.defaultValue,
+    required FieldOptionsMapGetter<T> options,
+    super.requiresLayout,
+  }) : getOptions = options;
+
+  /// The options of the field.
+  final FieldOptionsMapGetter<T> getOptions;
+
+  @override
+  String get dynamicKeyType => 'options';
+
+  @override
+  Object? serialize(T? obj) =>
+      obj is BaseSerializableMixin ? obj.toJson() : obj?.toString();
+
+  @override
+  Map<String, dynamic> get supplementarySchema => {
+        'options': {
+          for (final MapEntry(:key, :value) in getOptions().entries)
+            key: itemLabel(value),
+        }
+      };
+
+  @override
+  void setValue(Object? value) {
+    if (value is T) return setter(value);
+    final Map<String, T> allValues = getOptions();
     final T? typedValue = allValues[value];
     if (typedValue != null) setter(typedValue);
   }
+}
+
+final class AlignmentFieldAccess extends OptionsFieldAccess<AlignmentModel> {
+  AlignmentFieldAccess(
+    String label,
+    String? description,
+    FieldGetterCallback<AlignmentModel> getValue,
+    FieldSetterCallback<AlignmentModel> setter, {
+    super.defaultValue,
+  }) : super(
+          label,
+          description,
+          getValue,
+          setter,
+          (item) => item.prettify,
+          options: () => {
+            for (final alignment in AlignmentModel.values)
+              alignment.name: alignment,
+          },
+          requiresLayout: true,
+        );
 }
 
 /// A field accessor for an [Iterable] field.
@@ -429,6 +497,7 @@ final class SpacingFieldAccess extends FieldAccess<EdgeInsetsModel> {
     super.getValue,
     super.setter, {
     super.defaultValue,
+    super.requiresLayout,
   });
 
   @override

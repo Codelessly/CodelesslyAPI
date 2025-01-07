@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -12,7 +13,7 @@ part 'accordion_node.g.dart';
 /// content.
 @JsonSerializable()
 class AccordionNode extends SceneNode
-    with ChildrenMixin, RowColumnMixin, CustomPropertiesMixin {
+    with ChildrenMixin, RowColumnMixin, CustomPropertiesMixin, FieldsHolder {
   @override
   final String type = 'accordion';
 
@@ -59,6 +60,17 @@ class AccordionNode extends SceneNode
     );
   }
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<AccordionProperties>(
+          'Properties',
+          'Properties of the accordion',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
   /// Creates a [AccordionNode] from a JSON data.
   factory AccordionNode.fromJson(Map json) => _$AccordionNodeFromJson(json);
 
@@ -68,7 +80,7 @@ class AccordionNode extends SceneNode
 
 /// Custom properties for an [AccordionNode].
 @JsonSerializable()
-class AccordionProperties extends CustomProperties {
+class AccordionProperties extends CustomProperties with FieldsHolder {
   /// Whether the accordion is expanded or collapsed.
   bool isExpanded;
 
@@ -76,6 +88,17 @@ class AccordionProperties extends CustomProperties {
   AccordionProperties({
     this.isExpanded = true,
   });
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'isExpanded': BoolFieldAccess(
+          'Is Expanded',
+          'Whether the accordion is expanded or collapsed',
+          () => isExpanded,
+          (value) => isExpanded = value,
+        ),
+      };
 
   @override
   Map<String, dynamic> toJson() => _$AccordionPropertiesToJson(this);

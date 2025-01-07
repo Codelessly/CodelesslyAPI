@@ -1,5 +1,6 @@
 import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -12,7 +13,7 @@ part 'dropdown_node.g.dart';
 /// Refer to [DropdownButton](https://api.flutter.dev/flutter/material/DropdownButton-class.html)
 /// in Flutter for more details.
 @JsonSerializable()
-class DropdownNode extends SceneNode with CustomPropertiesMixin {
+class DropdownNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
   final String type = 'dropdown';
 
@@ -61,6 +62,17 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
     ObjectValue(name: 'value', value: value),
   ];
 
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'properties': ObjectFieldAccess<DropdownProperties>(
+          'Properties',
+          'Properties of the dropdown.',
+          () => properties,
+          (value) => properties = value,
+        ),
+      };
+
   /// Creates a [DropdownNode] from a JSON object.
   factory DropdownNode.fromJson(Map json) => _$DropdownNodeFromJson(json);
 
@@ -70,7 +82,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin {
 
 /// Holds configurable properties of the dropdown.
 @JsonSerializable()
-class DropdownProperties extends CustomProperties {
+class DropdownProperties extends CustomProperties with FieldsHolder {
   /// Whether the dropdown is in the enabled state.
   bool enabled;
 
@@ -88,7 +100,7 @@ class DropdownProperties extends CustomProperties {
   bool enableFeedback;
 
   /// Dropdown options.
-  final List<String> items;
+  List<String> items;
 
   /// Text style applied to the dropdown's options.
   TextProp itemTextStyle;
@@ -244,6 +256,167 @@ class DropdownProperties extends CustomProperties {
       itemLabel: itemLabel ?? this.itemLabel,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+        ...super.generateFields(),
+        'enabled': BoolFieldAccess(
+          'Enabled',
+          'Whether the dropdown is in the enabled state.',
+          () => enabled,
+          (value) => enabled = value,
+        ),
+        'dense': BoolFieldAccess(
+          'Dense',
+          'Whether to reduce dropdown button\'s height.',
+          () => dense,
+          (value) => dense = value,
+          requiresLayout: true,
+        ),
+        'expanded': BoolFieldAccess(
+          'Expanded',
+          'Whether to expand the dropdown button\'s width.',
+          () => expanded,
+          (value) => expanded = value,
+          requiresLayout: true,
+        ),
+        'autoFocus': BoolFieldAccess(
+          'Auto Focus',
+          'Whether to automatically focus the dropdown button.',
+          () => autoFocus,
+          (value) => autoFocus = value,
+        ),
+        'enableFeedback': BoolFieldAccess(
+          'Enable Feedback',
+          'Whether to enable device-specific haptic feedback when dropdown button is tapped or long pressed.',
+          () => enableFeedback,
+          (value) => enableFeedback = value,
+        ),
+        'items': IterableFieldAccess<String>(
+          'Items',
+          'Dropdown options.',
+          () => items,
+          (value) => items = value,
+          (item) => item,
+        ),
+        'itemTextStyle': TextStyleFieldAccess<TextProp>(
+          'Item Text Style',
+          'Text style applied to the dropdown\'s options.',
+          () => itemTextStyle,
+          (value) => itemTextStyle = value,
+          requiresLayout: true,
+        ),
+        'itemAlignment': AlignmentFieldAccess(
+          'Item Alignment',
+          'Alignment applied to the dropdown\'s options.',
+          () => itemAlignment,
+          (value) => itemAlignment = value,
+          defaultValue: () => AlignmentModel.centerLeft,
+        ),
+        'selectedItemTextStyle': TextStyleFieldAccess<TextProp>(
+          'Selected Item Text Style',
+          'Text style applied to the selected option.',
+          () => selectedItemTextStyle,
+          (value) => selectedItemTextStyle = value,
+          requiresLayout: true,
+        ),
+        'selectedItemAlignment': AlignmentFieldAccess(
+          'Selected Item Alignment',
+          'Alignment applied to the selected option.',
+          () => selectedItemAlignment,
+          (value) => selectedItemAlignment = value,
+          defaultValue: () => AlignmentModel.centerLeft,
+        ),
+        'hint': StringFieldAccess(
+          'Hint',
+          'Placeholder text displayed in the dropdown button when [newValue] is null, i.e. no option is selected.',
+          () => hint,
+          (value) => hint = value,
+        ),
+        'hintStyle': TextStyleFieldAccess<TextProp>(
+          'Hint Style',
+          'Text style applied to hint.',
+          () => hintStyle,
+          (value) => hintStyle = value,
+          requiresLayout: true,
+        ),
+        'iconDisabledColor': ColorFieldAccess<ColorRGBA>(
+          'Icon Disabled Color',
+          'Color of icon when the dropdown button is disabled.',
+          () => iconDisabledColor,
+          (value) => iconDisabledColor = value,
+        ),
+        'iconEnabledColor': ColorFieldAccess<ColorRGBA>(
+          'Icon Enabled Color',
+          'Color of icon when the dropdown button is enabled.',
+          () => iconEnabledColor,
+          (value) => iconEnabledColor = value,
+        ),
+        'iconSize': NumFieldAccess<double>(
+          'Icon Size',
+          'Icon size in dropdown button.',
+          () => iconSize,
+          (value) => iconSize = value,
+          requiresLayout: true,
+        ),
+        'icon': IconFieldAccess<MultiSourceIconModel>(
+          'Icon',
+          'Dropdown button\'s icon.',
+          () => icon,
+          (value) => icon = value,
+          requiresLayout: true,
+        ),
+        'dropdownColor': ColorFieldAccess<ColorRGBA>(
+          'Dropdown Color',
+          'Color of dropdown overlay.',
+          () => dropdownColor,
+          (value) => dropdownColor = value,
+        ),
+        'focusColor': ColorFieldAccess<ColorRGBA>(
+          'Focus Color',
+          'Color of dropdown button when it is focused.',
+          () => focusColor,
+          (value) => focusColor = value,
+        ),
+        'hoverColor': ColorFieldAccess<ColorRGBA?>(
+          'Hover Color',
+          'Color of dropdown button and menu item when it is hovered.',
+          () => hoverColor,
+          (value) => hoverColor = value,
+        ),
+        'splashColor': ColorFieldAccess<ColorRGBA?>(
+          'Splash Color',
+          'Splash Color of dropdown button.',
+          () => splashColor,
+          (value) => splashColor = value,
+        ),
+        'elevation': NumFieldAccess<int>(
+          'Elevation',
+          'The z-coordinate of the dropdown overlay.',
+          () => elevation,
+          (value) => elevation = value,
+        ),
+        'borderRadius': RadiusFieldAccess(
+          'Border Radius',
+          'Corner radii of the dropdown overlay.',
+          () => borderRadius,
+          (value) => borderRadius = value,
+        ),
+        'underline': BoolFieldAccess(
+          'Underline',
+          'Whether to underline dropdown button\'s contents.',
+          () => underline,
+          (value) => underline = value,
+          requiresLayout: true,
+        ),
+        'itemLabel': StringFieldAccess(
+          'Item Label',
+          'Label of the data source to use. This is only used when [useDataSource] is true. Allows to specify a template for item builder.',
+          () => itemLabel,
+          (value) => itemLabel = value,
+          requiresLayout: true,
+        ),
+      };
 
   @override
   List<Object?> get props => [
