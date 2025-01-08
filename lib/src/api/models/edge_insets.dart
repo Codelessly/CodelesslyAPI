@@ -22,7 +22,13 @@ enum EdgeInsetsDirection {
   R,
 
   /// Bottom.
-  B,
+  B;
+
+  AxisC get axis => switch (this) {
+        EdgeInsetsDirection.L || EdgeInsetsDirection.R => AxisC.horizontal,
+        EdgeInsetsDirection.T || EdgeInsetsDirection.B => AxisC.vertical,
+        EdgeInsetsDirection.all => AxisC.horizontal,
+      };
 }
 
 /// Holds edge insets data for margin/padding.
@@ -162,6 +168,18 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
         r: r ?? this.r,
         b: b ?? this.b,
       );
+
+  /// Returns the values of the edge insets as a list.
+  List<double> get values => [l, t, r, b];
+
+  /// Returns the value of the edge insets based on the given [direction].
+  double getValue(EdgeInsetsDirection direction) => switch (direction) {
+        EdgeInsetsDirection.all => l,
+        EdgeInsetsDirection.L => l,
+        EdgeInsetsDirection.T => t,
+        EdgeInsetsDirection.R => r,
+        EdgeInsetsDirection.B => b
+      };
 
   @override
   String toString() => 'EdgeInsets(l: $l, t: $t, r: $r, b: $b)';

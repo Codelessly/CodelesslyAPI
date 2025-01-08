@@ -399,7 +399,7 @@ class ListTileProperties extends CustomProperties
           () => textColor,
           (value) => textColor = value,
         ),
-        'contentPadding': SpacingFieldAccess(
+        'contentPadding': SpacingFieldAccess.padding(
           'Content Padding',
           'The tile\'s internal padding.',
           () => contentPadding,
