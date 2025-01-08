@@ -227,12 +227,14 @@ abstract class NavigationBarProperties<T extends NavigationBarItem>
           'Whether to make the navigation bar notched.',
           () => makeNotched,
           (value) => makeNotched = value,
+          requiresLayout: true,
         ),
         'notchMargin': NumFieldAccess<double>(
           'Notch Margin',
           'The margin between the floating action button and the navigation bar\'s notch.',
           () => notchMargin,
           (value) => notchMargin = value,
+          requiresLayout: true,
         ),
         'items': IterableFieldAccess<T>(
           'Items',
