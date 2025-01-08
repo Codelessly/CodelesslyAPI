@@ -490,21 +490,51 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
 
 /// A field accessor for a [EdgeInsetsModel] field.
 final class SpacingFieldAccess extends FieldAccess<EdgeInsetsModel> {
+  /// The type of the inset. Either 'margin' or 'padding'.
+  final String insetType;
+
   /// Constructs a new [SpacingFieldAccess] instance with the given parameters.
-  SpacingFieldAccess(
+  SpacingFieldAccess.raw(
     super.label,
     super.description,
     super.getValue,
     super.setter, {
     super.defaultValue,
     super.requiresLayout,
+    required this.insetType,
   });
+
+  /// Constructs a new [SpacingFieldAccess] instance with the given parameters
+  /// for margin.
+  SpacingFieldAccess.margin(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+    super.requiresLayout,
+  }) : insetType = 'margin';
+
+  /// Constructs a new [SpacingFieldAccess] instance with the given parameters
+  /// for padding.
+  SpacingFieldAccess.padding(
+    super.label,
+    super.description,
+    super.getValue,
+    super.setter, {
+    super.defaultValue,
+    super.requiresLayout,
+  }) : insetType = 'padding';
 
   @override
   String get dynamicKeyType => 'spacing';
 
   @override
   dynamic serialize(EdgeInsetsModel? obj) => obj?.toJson();
+
+  @override
+  Map<String, dynamic> get fieldSchema =>
+      {...super.fieldSchema, 'insetType': insetType};
 
   @override
   void setValue(Object? value) {

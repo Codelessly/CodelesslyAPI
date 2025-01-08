@@ -344,13 +344,13 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
           () => overlayColor,
           (value) => overlayColor = value,
         ),
-        'indicatorPadding': SpacingFieldAccess(
+        'indicatorPadding': SpacingFieldAccess.padding(
           'Indicator Padding',
           'The padding of the tab indicator',
           () => indicatorPadding,
           (value) => indicatorPadding = value,
         ),
-        'labelPadding': SpacingFieldAccess(
+        'labelPadding': SpacingFieldAccess.margin(
           'Label Padding',
           'The padding of the tab label',
           () => labelPadding,

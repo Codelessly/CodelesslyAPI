@@ -309,7 +309,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
           () => maintainState,
           (value) => maintainState = value,
         ),
-        'tilePadding': SpacingFieldAccess(
+        'tilePadding': SpacingFieldAccess.padding(
           'Tile Padding',
           'Specifies padding for the ListTile.',
           () => tilePadding ?? EdgeInsetsModel.zero,
@@ -330,7 +330,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
           defaultValue: () => CrossAxisAlignmentC.center,
           options: () => CrossAxisAlignmentC.values,
         ),
-        'childrenPadding': SpacingFieldAccess(
+        'childrenPadding': SpacingFieldAccess.padding(
           'Children Padding',
           'Specifies padding for children.',
           () => childrenPadding ?? EdgeInsetsModel.zero,
