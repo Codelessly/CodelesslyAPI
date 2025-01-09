@@ -445,13 +445,13 @@ final class ColorFieldAccess<T extends ColorRGB?> extends FieldAccess<T> {
 
   @override
   void setValue(Object? value) {
-    if (T == ColorRGBA) {
+    if (T.toString() case 'ColorRGBA' || 'ColorRGBA?') {
       final ColorRGBA? typedValue = switch (value) {
         Map() || String() => ColorRGBA.fromJson(value),
         _ => value?.typedValue<ColorRGBA>(),
       };
       setter(typedValue as T);
-    } else if (T == ColorRGB) {
+    } else if (T.toString() case 'ColorRGB' || 'ColorRGB?') {
       final ColorRGB? typedValue = switch (value) {
         Map() || String() => ColorRGB.fromJson(value),
         _ => value?.typedValue<ColorRGB>(),
