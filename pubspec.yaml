@@ -8,7 +8,7 @@ environment:
   sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
-  codelessly_json_annotation: 4.9.0+2
+  codelessly_json_annotation: 4.9.0+3
   equatable: ">=2.0.5 <3.0.0"
   vector_math: ">=2.1.4 <3.0.0"
   collection: ">=1.17.0 <2.0.0"
@@ -17,8 +17,8 @@ dependencies:
   path: ^1.9.0
 
 dev_dependencies:
-  codelessly_json_serializable: 6.8.0
-  build_runner: ^2.4.13
-  lints: ^5.0.0
+  codelessly_json_serializable: 6.8.0+1
+  build_runner: ^2.4.14
+  lints: ^5.1.1
 
 scripts: scripts.yaml
