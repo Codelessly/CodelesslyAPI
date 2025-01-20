@@ -305,7 +305,7 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Color of slider\'s track when it\'s active.',
           () => activeTrackColor,
           (value) {
-            if (value != null) activeTrackColor = value;
+            activeTrackColor = value;
           },
         ),
         'inactiveTrackColor': ColorFieldAccess<ColorRGBA>(
@@ -313,7 +313,7 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Color of slider\'s track when it\'s inactive.',
           () => inactiveTrackColor,
           (value) {
-            if (value != null) inactiveTrackColor = value;
+            inactiveTrackColor = value;
           },
         ),
         'thumbColor': ColorFieldAccess<ColorRGBA>(
@@ -321,7 +321,7 @@ class SliderProperties extends CustomProperties with FieldsHolder {
           'Color of slider\'s thumb.',
           () => thumbColor,
           (value) {
-            if (value != null) thumbColor = value;
+            thumbColor = value;
           },
         ),
         'overlayColor': ColorFieldAccess<ColorRGBA>(

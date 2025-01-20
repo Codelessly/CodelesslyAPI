@@ -194,7 +194,7 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
           'Color of progress bar\'s background',
           () => backgroundColor,
           (value) {
-            if (value != null) backgroundColor = value;
+            backgroundColor = value;
           },
         ),
         'progressColor': ColorFieldAccess<ColorRGBA>(
@@ -202,7 +202,7 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
           'Color that indicates progress, i.e., color of the foreground bar',
           () => progressColor,
           (value) {
-            if (value != null) progressColor = value;
+            progressColor = value;
           },
         ),
         'isVertical': BoolFieldAccess(
