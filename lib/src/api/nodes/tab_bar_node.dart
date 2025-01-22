@@ -287,6 +287,7 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
+        ...super.generateFields(),
         'tabs': IterableFieldAccess<TabItem>(
           'Tabs',
           'The tabs of the TabBar',
