@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
@@ -34,23 +35,31 @@ class ProgressBarNode extends SceneNode
   /// Creates a mock progress bar preview.
   /// Strictly used for previews. e.g in components panel.
   ProgressBarNode.empty()
-      : properties = ProgressBarProperties(),
-        super(
-          id: 'progressbar',
-          name: 'ProgressBar',
-          basicBoxLocal: NodeBox(
-              0, 0, kProgressBarDefaultWidth, kProgressBarDefaultHeight),
-        );
+    : properties = ProgressBarProperties(),
+      super(
+        id: 'progressbar',
+        name: 'ProgressBar',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kProgressBarDefaultWidth,
+          kProgressBarDefaultHeight,
+        ),
+      );
 
   /// Creates progress bar from the given properties.
   /// Strictly used for previews. e.g in components panel.
   ProgressBarNode.fromProperties(this.properties)
-      : super(
-          id: 'progressbar',
-          name: 'ProgressBar',
-          basicBoxLocal: NodeBox(
-              0, 0, kProgressBarDefaultWidth, kProgressBarDefaultHeight),
-        );
+    : super(
+        id: 'progressbar',
+        name: 'ProgressBar',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kProgressBarDefaultWidth,
+          kProgressBarDefaultHeight,
+        ),
+      );
 
   /// Creates a [ProgressBarNode] instance with the given data.
   ProgressBarNode({
@@ -87,27 +96,29 @@ class ProgressBarNode extends SceneNode
     super.multipleVariables,
   }) {
     setVariablesMixin(
-        variables: variables, multipleVariables: multipleVariables);
+      variables: variables,
+      multipleVariables: multipleVariables,
+    );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<ProgressBarProperties>(
-          'Properties',
-          'properties of the progress bar',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<ProgressBarProperties>(
+      'Properties',
+      'properties of the progress bar',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        properties,
-        variables,
-        multipleVariables,
-      ];
+    ...super.props,
+    properties,
+    variables,
+    multipleVariables,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [
@@ -182,66 +193,66 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'maxValue': NumFieldAccess<double>(
-          'Max Value',
-          'Maximum value of the progress bar',
-          () => maxValue,
-          (value) => maxValue = value,
-        ),
-        'backgroundColor': ColorFieldAccess<ColorRGBA>(
-          'Background Color',
-          'Color of progress bar\'s background',
-          () => backgroundColor,
-          (value) {
-            backgroundColor = value;
-          },
-        ),
-        'progressColor': ColorFieldAccess<ColorRGBA>(
-          'Progress Color',
-          'Color that indicates progress, i.e., color of the foreground bar',
-          () => progressColor,
-          (value) {
-            progressColor = value;
-          },
-        ),
-        'isVertical': BoolFieldAccess(
-          'Is Vertical',
-          'Whether the bar is vertically oriented',
-          () => isVertical,
-          (value) => isVertical = value,
-          requiresLayout: true,
-        ),
-        'cornerRadius': RadiusFieldAccess(
-          'Corner Radius',
-          'Corner radii of the bar',
-          () => cornerRadius,
-          (value) => cornerRadius = value,
-        ),
-        'animate': BoolFieldAccess(
-          'Animate',
-          'Whether the bar animates to show progress',
-          () => animate,
-          (value) => animate = value,
-        ),
-        'animationDurationInMillis': NumFieldAccess<int>(
-          'Animation Duration',
-          'Duration of animation in milliseconds',
-          () => animationDurationInMillis,
-          (value) => animationDurationInMillis = value,
-        ),
-      };
+    ...super.generateFields(),
+    'maxValue': NumFieldAccess<double>(
+      'Max Value',
+      'Maximum value of the progress bar',
+      () => maxValue,
+      (value) => maxValue = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA>(
+      'Background Color',
+      'Color of progress bar\'s background',
+      () => backgroundColor,
+      (value) {
+        backgroundColor = value;
+      },
+    ),
+    'progressColor': ColorFieldAccess<ColorRGBA>(
+      'Progress Color',
+      'Color that indicates progress, i.e., color of the foreground bar',
+      () => progressColor,
+      (value) {
+        progressColor = value;
+      },
+    ),
+    'isVertical': BoolFieldAccess(
+      'Is Vertical',
+      'Whether the bar is vertically oriented',
+      () => isVertical,
+      (value) => isVertical = value,
+      requiresLayout: true,
+    ),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Corner radii of the bar',
+      () => cornerRadius,
+      (value) => cornerRadius = value,
+    ),
+    'animate': BoolFieldAccess(
+      'Animate',
+      'Whether the bar animates to show progress',
+      () => animate,
+      (value) => animate = value,
+    ),
+    'animationDurationInMillis': NumFieldAccess<int>(
+      'Animation Duration',
+      'Duration of animation in milliseconds',
+      () => animationDurationInMillis,
+      (value) => animationDurationInMillis = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        maxValue,
-        backgroundColor,
-        progressColor,
-        isVertical,
-        cornerRadius,
-        animate,
-        animationDurationInMillis,
-      ];
+    maxValue,
+    backgroundColor,
+    progressColor,
+    isVertical,
+    cornerRadius,
+    animate,
+    animationDurationInMillis,
+  ];
 
   /// Creates a [ProgressBarProperties] instance from a JSON object.
   factory ProgressBarProperties.fromJson(Map json) =>

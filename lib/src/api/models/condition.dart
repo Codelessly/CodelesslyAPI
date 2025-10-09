@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../../codelessly_api.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -59,75 +60,75 @@ enum ConditionOperation {
 
   /// label for the operation
   String get label => switch (this) {
-        equalsTo => 'Equals To',
-        notEqualsTo => 'Not Equal To',
-        greaterThan => 'Greater Than',
-        lessThan => 'Less Than',
-        greaterThanOrEqualTo => 'Greater Than Or Equal To',
-        lessThanOrEqualTo => 'Less Than Or Equal To',
-        isEmpty => 'Is Empty',
-        isNotEmpty => 'Is Not Empty',
-        contains => 'Contains',
-        isOdd => 'Is Odd',
-        isEven => 'Is Even',
-        isNull => 'Is Null',
-        isTrue => 'Is True',
-        isFalse => 'Is False',
-      };
+    equalsTo => 'Equals To',
+    notEqualsTo => 'Not Equal To',
+    greaterThan => 'Greater Than',
+    lessThan => 'Less Than',
+    greaterThanOrEqualTo => 'Greater Than Or Equal To',
+    lessThanOrEqualTo => 'Less Than Or Equal To',
+    isEmpty => 'Is Empty',
+    isNotEmpty => 'Is Not Empty',
+    contains => 'Contains',
+    isOdd => 'Is Odd',
+    isEven => 'Is Even',
+    isNull => 'Is Null',
+    isTrue => 'Is True',
+    isFalse => 'Is False',
+  };
 
   /// short description of the operation
   String get sentence => switch (this) {
-        equalsTo => 'equal to',
-        notEqualsTo => 'not equal to',
-        greaterThan => 'greater than',
-        lessThan => 'less than',
-        greaterThanOrEqualTo => 'greater than or equal to',
-        lessThanOrEqualTo => 'less than or equal to',
-        isEmpty => 'is empty',
-        isNotEmpty => 'is not empty',
-        contains => 'contains',
-        isOdd => 'is odd',
-        isEven => 'is even',
-        isNull => 'is null',
-        isTrue => 'is true',
-        isFalse => 'is false',
-      };
+    equalsTo => 'equal to',
+    notEqualsTo => 'not equal to',
+    greaterThan => 'greater than',
+    lessThan => 'less than',
+    greaterThanOrEqualTo => 'greater than or equal to',
+    lessThanOrEqualTo => 'less than or equal to',
+    isEmpty => 'is empty',
+    isNotEmpty => 'is not empty',
+    contains => 'contains',
+    isOdd => 'is odd',
+    isEven => 'is even',
+    isNull => 'is null',
+    isTrue => 'is true',
+    isFalse => 'is false',
+  };
 
   /// short description of the operation
   String get longSentence => switch (this) {
-        equalsTo => 'is equal to',
-        notEqualsTo => 'is not equal to',
-        greaterThan => 'is greater than',
-        lessThan => 'is less than',
-        greaterThanOrEqualTo => 'is greater than or equal to',
-        lessThanOrEqualTo => 'is less than or equal to',
-        isEmpty => 'is empty',
-        isNotEmpty => 'is not empty',
-        contains => 'contains',
-        isOdd => 'is odd',
-        isEven => 'is even',
-        isNull => 'is null',
-        isTrue => 'is true',
-        isFalse => 'is false',
-      };
+    equalsTo => 'is equal to',
+    notEqualsTo => 'is not equal to',
+    greaterThan => 'is greater than',
+    lessThan => 'is less than',
+    greaterThanOrEqualTo => 'is greater than or equal to',
+    lessThanOrEqualTo => 'is less than or equal to',
+    isEmpty => 'is empty',
+    isNotEmpty => 'is not empty',
+    contains => 'contains',
+    isOdd => 'is odd',
+    isEven => 'is even',
+    isNull => 'is null',
+    isTrue => 'is true',
+    isFalse => 'is false',
+  };
 
   /// short description of the operation
   String? get sign => switch (this) {
-        equalsTo => '==',
-        notEqualsTo => '!=',
-        greaterThan => '>',
-        lessThan => '<',
-        greaterThanOrEqualTo => '>=',
-        lessThanOrEqualTo => '<=',
-        isEmpty => null,
-        isNotEmpty => null,
-        contains => null,
-        isOdd => null,
-        isEven => null,
-        isNull => null,
-        isTrue => null,
-        isFalse => null,
-      };
+    equalsTo => '==',
+    notEqualsTo => '!=',
+    greaterThan => '>',
+    lessThan => '<',
+    greaterThanOrEqualTo => '>=',
+    lessThanOrEqualTo => '<=',
+    isEmpty => null,
+    isNotEmpty => null,
+    contains => null,
+    isOdd => null,
+    isEven => null,
+    isNull => null,
+    isTrue => null,
+    isFalse => null,
+  };
 
   /// Allows the provided [visitor] to visit this operation.
   bool accept(Object? left, Object? right, ConditionOperatorVisitor visitor) =>
@@ -136,10 +137,14 @@ enum ConditionOperation {
         notEqualsTo => visitor.visitNotEqualsOperator(left, right),
         greaterThan => visitor.visitGreaterThanOperator(left, right),
         lessThan => visitor.visitLessThanOperator(left, right),
-        greaterThanOrEqualTo =>
-          visitor.visitGreaterThanOrEqualToOperator(left, right),
-        lessThanOrEqualTo =>
-          visitor.visitLessThanOrEqualToOperator(left, right),
+        greaterThanOrEqualTo => visitor.visitGreaterThanOrEqualToOperator(
+          left,
+          right,
+        ),
+        lessThanOrEqualTo => visitor.visitLessThanOrEqualToOperator(
+          left,
+          right,
+        ),
         isEmpty => visitor.visitIsEmptyOperator(left),
         isNotEmpty => visitor.visitIsNotEmptyOperator(left),
         contains => visitor.visitContainsOperator(left, right),
@@ -152,21 +157,21 @@ enum ConditionOperation {
 
   /// Returns true if the operation requires a right operand.
   bool get requiresRightOperand => switch (this) {
-        equalsTo => true,
-        notEqualsTo => true,
-        greaterThan => true,
-        lessThan => true,
-        greaterThanOrEqualTo => true,
-        lessThanOrEqualTo => true,
-        isEmpty => false,
-        isNotEmpty => false,
-        contains => true,
-        isOdd => false,
-        isEven => false,
-        isNull => false,
-        isTrue => false,
-        isFalse => false,
-      };
+    equalsTo => true,
+    notEqualsTo => true,
+    greaterThan => true,
+    lessThan => true,
+    greaterThanOrEqualTo => true,
+    lessThanOrEqualTo => true,
+    isEmpty => false,
+    isNotEmpty => false,
+    contains => true,
+    isOdd => false,
+    isEven => false,
+    isNull => false,
+    isTrue => false,
+    isFalse => false,
+  };
 }
 
 /// join operator for complex conditions
@@ -201,10 +206,10 @@ enum ConditionMode {
 
   /// label for the condition
   String get label => switch (this) {
-        ConditionMode.ifMode => 'If',
-        ConditionMode.elseIfMode => 'Else If',
-        ConditionMode.elseMode => 'Else',
-      };
+    ConditionMode.ifMode => 'If',
+    ConditionMode.elseIfMode => 'Else If',
+    ConditionMode.elseMode => 'Else',
+  };
 }
 
 /// Represents an expression in a condition.
@@ -281,14 +286,11 @@ class RawValuePart extends ExpressionPart {
 @JsonSerializable()
 class VariablePart extends ExpressionPart {
   @JsonKey(defaultValue: '')
-
   /// the actual string interpolated with variables.
   final String valueString;
 
   /// Creates a variable part.
-  VariablePart({
-    required this.valueString,
-  });
+  VariablePart({required this.valueString});
 
   /// Factory constructor for creating a new [VariablePart] instance from
   /// JSON data.
@@ -296,12 +298,8 @@ class VariablePart extends ExpressionPart {
       _$VariablePartFromJson(json);
 
   /// Duplicates the variable part with the provided values.
-  VariablePart copyWith({
-    String? valueString,
-  }) {
-    return VariablePart(
-      valueString: valueString ?? this.valueString,
-    );
+  VariablePart copyWith({String? valueString}) {
+    return VariablePart(valueString: valueString ?? this.valueString);
   }
 
   @override
@@ -425,10 +423,8 @@ sealed class BaseCondition with EquatableMixin, SerializableMixin {
   final DateTime lastUpdated;
 
   /// Creates a base condition.
-  BaseCondition({
-    required this.id,
-    DateTime? lastUpdated,
-  }) : lastUpdated = lastUpdated ?? DateTime.now();
+  BaseCondition({required this.id, DateTime? lastUpdated})
+    : lastUpdated = lastUpdated ?? DateTime.now();
 
   /// Factory constructor for creating a new [BaseCondition] instance from
   /// JSON data.
@@ -471,10 +467,7 @@ class ElseCondition extends BaseCondition {
 
   /// Duplicates the else condition with the provided actions list.
   @override
-  ElseCondition copyWith({
-    String? id,
-    List<ActionModel>? actions,
-  }) {
+  ElseCondition copyWith({String? id, List<ActionModel>? actions}) {
     return ElseCondition(
       id: id ?? this.id,
       actions: actions ?? this.actions,
@@ -650,14 +643,13 @@ class CanvasConditions with EquatableMixin {
     Map<String, BaseCondition>? conditions,
     String? projectId,
     String? owner,
-  }) =>
-      CanvasConditions(
-        id: id ?? this.id,
-        conditions: conditions ?? this.conditions,
-        lastUpdated: DateTime.now(),
-        projectId: projectId ?? this.projectId,
-        owner: owner ?? this.owner,
-      );
+  }) => CanvasConditions(
+    id: id ?? this.id,
+    conditions: conditions ?? this.conditions,
+    lastUpdated: DateTime.now(),
+    projectId: projectId ?? this.projectId,
+    owner: owner ?? this.owner,
+  );
 
   @override
   List<Object?> get props => [id, conditions];

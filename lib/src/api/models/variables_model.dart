@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -35,15 +35,15 @@ enum VariableType {
 
   /// Returns a string representation of the variable type.
   String get label => switch (this) {
-        VariableType.integer => 'Integer',
-        VariableType.text => 'Text',
-        VariableType.decimal => 'Decimal',
-        VariableType.boolean => 'Boolean',
-        VariableType.color => 'Color',
-        VariableType.list => 'List',
-        VariableType.map => 'Map',
-        VariableType.image => 'Image',
-      };
+    VariableType.integer => 'Integer',
+    VariableType.text => 'Text',
+    VariableType.decimal => 'Decimal',
+    VariableType.boolean => 'Boolean',
+    VariableType.color => 'Color',
+    VariableType.list => 'List',
+    VariableType.map => 'Map',
+    VariableType.image => 'Image',
+  };
 
   factory VariableType.fromObjectType(Object obj) {
     return switch (obj) {
@@ -56,7 +56,8 @@ enum VariableType {
       Map() => VariableType.map,
       String() => VariableType.text,
       _ => throw UnsupportedError(
-          'object type ${obj.runtimeType} is not supported. Cannot determine variable type'),
+        'object type ${obj.runtimeType} is not supported. Cannot determine variable type',
+      ),
     };
   }
 
@@ -120,8 +121,8 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
-  })  : value = sanitizeValueForVariableType(value, type).toString(),
-        extra = extra ?? {};
+  }) : value = sanitizeValueForVariableType(value, type).toString(),
+       extra = extra ?? {};
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -161,24 +162,24 @@ class VariableData
   /// Allows to convert a [VariableData] into [CanvasVariableData] with the
   /// given [canvasId].
   CanvasVariableData withCanvas(String canvasId) => CanvasVariableData(
-        id: id,
-        canvasId: canvasId,
-        name: name,
-        value: value,
-        type: type,
-      );
+    id: id,
+    canvasId: canvasId,
+    name: name,
+    value: value,
+    type: type,
+  );
 
   /// Returns the value converted to the appropriate type according to [type].
   Object? getValue() => switch (type) {
-        VariableType.text => value.isEmpty ? null : value,
-        VariableType.image => value.isEmpty ? null : value,
-        VariableType.integer => num.tryParse(value).toInt(),
-        VariableType.decimal => num.tryParse(value).toDouble(),
-        VariableType.boolean => bool.tryParse(value, caseSensitive: false),
-        VariableType.color => ColorRGBA.fromHex(value),
-        VariableType.map => tryJsonDecode(value),
-        VariableType.list => value.toList(),
-      };
+    VariableType.text => value.isEmpty ? null : value,
+    VariableType.image => value.isEmpty ? null : value,
+    VariableType.integer => num.tryParse(value).toInt(),
+    VariableType.decimal => num.tryParse(value).toDouble(),
+    VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+    VariableType.color => ColorRGBA.fromHex(value),
+    VariableType.map => tryJsonDecode(value),
+    VariableType.list => value.toList(),
+  };
 }
 
 /// Returns the value converted to the appropriate type according to [type].
@@ -363,8 +364,9 @@ class LeafAccessor extends Accessor {
 
   /// Creates a new [LeafAccessor] from an [Accessor].
   LeafAccessor.from(Accessor accessor)
-      : super(
-            name: accessor.name,
-            type: accessor.type,
-            getValue: accessor.getValue);
+    : super(
+        name: accessor.name,
+        type: accessor.type,
+        getValue: accessor.getValue,
+      );
 }

@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE.md file.
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -13,7 +13,7 @@ import 'size.dart';
 part 'vec.g.dart';
 
 /// Represents a vector in 2D space.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class Vec with DynamicSerializableMixin, EquatableMixin {
   /// X value: Typically the position on the horizontal x axis in 2D space.
   final double x;

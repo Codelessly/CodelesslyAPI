@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../models/models.dart';
 import 'web_view_node.dart';
@@ -93,40 +94,40 @@ sealed class GoogleMapsWebViewProperties extends WebViewProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'apiKey': StringFieldAccess(
-          'API Key',
-          'The API key from the Google Cloud Platform Console.',
-          () => apiKey ?? '',
-          (value) => apiKey = value.isEmpty ? null : value,
-        ),
-        'zoom': NumFieldAccess<int?>(
-          'Zoom',
-          'Sets initial zoom level of the map.',
-          () => zoom,
-          (value) => zoom = value,
-        ),
-        'mapType': EnumFieldAccess<GoogleMapsMapType?>(
-          'Map Type',
-          'Defines type of map tiles to load.',
-          () => mapType,
-          (value) => mapType = value,
-          defaultValue: () => null,
-          options: () => GoogleMapsMapType.values,
-        ),
-        'language': StringFieldAccess(
-          'Language',
-          'Defines the language to use for UI elements and for the display of labels on map tiles.',
-          () => language ?? '',
-          (value) => language = value.isEmpty ? null : value,
-        ),
-        'region': StringFieldAccess(
-          'Region',
-          'Defines the appropriate borders and labels to display, based on geo-political sensitivities.',
-          () => region ?? '',
-          (value) => region = value.isEmpty ? null : value,
-        ),
-      };
+    ...super.generateFields(),
+    'apiKey': StringFieldAccess(
+      'API Key',
+      'The API key from the Google Cloud Platform Console.',
+      () => apiKey ?? '',
+      (value) => apiKey = value.isEmpty ? null : value,
+    ),
+    'zoom': NumFieldAccess<int?>(
+      'Zoom',
+      'Sets initial zoom level of the map.',
+      () => zoom,
+      (value) => zoom = value,
+    ),
+    'mapType': EnumFieldAccess<GoogleMapsMapType?>(
+      'Map Type',
+      'Defines type of map tiles to load.',
+      () => mapType,
+      (value) => mapType = value,
+      defaultValue: () => null,
+      options: () => GoogleMapsMapType.values,
+    ),
+    'language': StringFieldAccess(
+      'Language',
+      'Defines the language to use for UI elements and for the display of labels on map tiles.',
+      () => language ?? '',
+      (value) => language = value.isEmpty ? null : value,
+    ),
+    'region': StringFieldAccess(
+      'Region',
+      'Defines the appropriate borders and labels to display, based on geo-political sensitivities.',
+      () => region ?? '',
+      (value) => region = value.isEmpty ? null : value,
+    ),
+  };
 
   /// Creates a new [GoogleMapsWebViewProperties] instance from a JSON map.
   ///
@@ -152,8 +153,14 @@ sealed class GoogleMapsWebViewProperties extends WebViewProperties {
     }
   }
 
-  String _appendParams(GoogleMapsMapMode mapMode, String? src, int? zoom,
-      GoogleMapsMapType? mapType, String? language, String? region) {
+  String _appendParams(
+    GoogleMapsMapMode mapMode,
+    String? src,
+    int? zoom,
+    GoogleMapsMapType? mapType,
+    String? language,
+    String? region,
+  ) {
     var params = <String>[];
     if (zoom != null && mapMode != GoogleMapsMapMode.streetView) {
       params.add('zoom=$zoom');
@@ -229,7 +236,8 @@ final class PlacesGoogleMapsWebViewProperties
         'https://www.google.com/maps/embed/v1/place?key=$apiKey&q=${Uri.encodeQueryComponent(query)}'
         '';
     url = _appendParams(mapMode, url, zoom, mapType, language, region);
-    src = '''
+    src =
+        '''
 <iframe
   width="100%"
   height="100%"
@@ -244,14 +252,14 @@ final class PlacesGoogleMapsWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'query': StringFieldAccess(
-          'Query',
-          'Defines map marker location.',
-          () => query,
-          (value) => query = value,
-        ),
-      };
+    ...super.generateFields(),
+    'query': StringFieldAccess(
+      'Query',
+      'Defines map marker location.',
+      () => query,
+      (value) => query = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -263,14 +271,7 @@ final class PlacesGoogleMapsWebViewProperties
       _$PlacesGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [
-        apiKey,
-        query,
-        zoom,
-        mapType,
-        language,
-        region,
-      ];
+  List<Object?> get props => [apiKey, query, zoom, mapType, language, region];
 }
 
 /// Implements the Google Cloud Platform View API.
@@ -322,7 +323,8 @@ final class ViewGoogleMapsWebViewProperties
         '''https://www.google.com/maps/embed/v1/view?key=$apiKey&center=${center.x},${center.y}''';
     url = _appendParams(mapMode, url, zoom, mapType, language, region);
 
-    src = '''
+    src =
+        '''
 <iframe
   width="100%"
   height="100%"
@@ -337,20 +339,20 @@ final class ViewGoogleMapsWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'centerX': NumFieldAccess<double>(
-          'Latitude',
-          'Defines center of the map view (latitude).',
-          () => center.x,
-          (value) => center = Vec(value, center.y),
-        ),
-        'centerY': NumFieldAccess<double>(
-          'Longitude',
-          'Defines center of the map view (longitude).',
-          () => center.y,
-          (value) => center = Vec(center.x, value),
-        ),
-      };
+    ...super.generateFields(),
+    'centerX': NumFieldAccess<double>(
+      'Latitude',
+      'Defines center of the map view (latitude).',
+      () => center.x,
+      (value) => center = Vec(value, center.y),
+    ),
+    'centerY': NumFieldAccess<double>(
+      'Longitude',
+      'Defines center of the map view (longitude).',
+      () => center.y,
+      (value) => center = Vec(center.x, value),
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -361,14 +363,7 @@ final class ViewGoogleMapsWebViewProperties
       _$ViewGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [
-        apiKey,
-        center,
-        zoom,
-        mapType,
-        language,
-        region,
-      ];
+  List<Object?> get props => [apiKey, center, zoom, mapType, language, region];
 }
 
 /// Implements the Google Cloud Platform Directions View API.
@@ -497,7 +492,8 @@ final class DirectionsGoogleMapsWebViewProperties
 
     url = _appendParams(mapMode, url, zoom, mapType, language, region);
 
-    src = '''
+    src =
+        '''
 <iframe
   width="100%"
   height="100%"
@@ -512,48 +508,48 @@ final class DirectionsGoogleMapsWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'origin': StringFieldAccess(
-          'Origin',
-          'Defines the starting point from which to display directions.',
-          () => origin,
-          (value) => origin = value,
-        ),
-        'destination': StringFieldAccess(
-          'Destination',
-          'Defines the end point of the directions.',
-          () => destination,
-          (value) => destination = value,
-        ),
-        'mode': EnumFieldAccess<GoogleMapsDirectionsMode?>(
-          'Mode',
-          'Defines the method of travel.',
-          () => mode,
-          (value) => mode = value,
-          defaultValue: () => null,
-          options: () => GoogleMapsDirectionsMode.values,
-        ),
-        'units': EnumFieldAccess<UnitSystem?>(
-          'Units',
-          'Specifies measurement method, metric or imperial, when displaying distances in the results.',
-          () => units,
-          (value) => units = value,
-          defaultValue: () => null,
-          options: () => UnitSystem.values,
-        ),
-        'centerX': NumFieldAccess<double?>(
-          'Latitude',
-          'Defines center of the map view (latitude).',
-          () => center?.x,
-          (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
-        ),
-        'centerY': NumFieldAccess<double?>(
-          'Longitude',
-          'Defines center of the map view (longitude).',
-          () => center?.y,
-          (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
-        ),
-      };
+    ...super.generateFields(),
+    'origin': StringFieldAccess(
+      'Origin',
+      'Defines the starting point from which to display directions.',
+      () => origin,
+      (value) => origin = value,
+    ),
+    'destination': StringFieldAccess(
+      'Destination',
+      'Defines the end point of the directions.',
+      () => destination,
+      (value) => destination = value,
+    ),
+    'mode': EnumFieldAccess<GoogleMapsDirectionsMode?>(
+      'Mode',
+      'Defines the method of travel.',
+      () => mode,
+      (value) => mode = value,
+      defaultValue: () => null,
+      options: () => GoogleMapsDirectionsMode.values,
+    ),
+    'units': EnumFieldAccess<UnitSystem?>(
+      'Units',
+      'Specifies measurement method, metric or imperial, when displaying distances in the results.',
+      () => units,
+      (value) => units = value,
+      defaultValue: () => null,
+      options: () => UnitSystem.values,
+    ),
+    'centerX': NumFieldAccess<double?>(
+      'Latitude',
+      'Defines center of the map view (latitude).',
+      () => center?.x,
+      (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
+    ),
+    'centerY': NumFieldAccess<double?>(
+      'Longitude',
+      'Defines center of the map view (longitude).',
+      () => center?.y,
+      (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -566,14 +562,14 @@ final class DirectionsGoogleMapsWebViewProperties
 
   @override
   List<Object?> get props => [
-        apiKey,
-        origin,
-        destination,
-        zoom,
-        mapType,
-        language,
-        region,
-      ];
+    apiKey,
+    origin,
+    destination,
+    zoom,
+    mapType,
+    language,
+    region,
+  ];
 }
 
 /// Implements the Google Cloud Platform Street View View API.
@@ -697,7 +693,8 @@ final class StreetViewGoogleMapsWebViewProperties
 
     url = _appendParams(mapMode, url, zoom, mapType, language, region);
 
-    src = '''
+    src =
+        '''
 <iframe
   width="100%"
   height="100%"
@@ -712,58 +709,56 @@ final class StreetViewGoogleMapsWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'locationX': NumFieldAccess<double?>(
-          'Latitude',
-          'Defines center of the map view (latitude).',
-          () => location?.x,
-          (value) =>
-              location = value != null ? Vec(value, location?.y ?? 0) : null,
-        ),
-        'locationY': NumFieldAccess<double?>(
-          'Longitude',
-          'Defines center of the map view (longitude).',
-          () => location?.y,
-          (value) =>
-              location = value != null ? Vec(location?.x ?? 0, value) : null,
-        ),
-        'pano': StringFieldAccess(
-          'Pano',
-          'A specific panorama ID. Location may also be specified with panorama ID. The location will be only be used if the API cannot find the panorama ID.',
-          () => pano ?? '',
-          (value) => pano = value.isEmpty ? null : value,
-        ),
-        'heading': NumFieldAccess<int?>(
-          'Heading',
-          'Indicates the compass heading of the camera in degrees clockwise from North.',
-          () => heading,
-          (value) => heading = value,
-        ),
-        'pitch': NumFieldAccess<int?>(
-          'Pitch',
-          'Specifies the angle, up or down, of the camera. Positive values will angle the camera up, while negative values will angle the camera down. The default pitch of 0° is set based on on the position of the camera when the image was captured.',
-          () => pitch,
-          (value) => pitch = value,
-        ),
-        'fov': NumFieldAccess<int?>(
-          'Field of View',
-          'Determines the horizontal field of view of the image. It defaults to 90°. When dealing with a fixed-size viewport the field of view is can be considered the zoom level, with smaller numbers indicating a higher level of zoom.',
-          () => fov,
-          (value) => fov = value,
-        ),
-        'centerX': NumFieldAccess<double?>(
-          'Center-Latitude',
-          'Defines center of the map view (latitude).',
-          () => center?.x,
-          (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
-        ),
-        'centerY': NumFieldAccess<double?>(
-          'Center-Longitude',
-          'Defines center of the map view (longitude).',
-          () => center?.y,
-          (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
-        ),
-      };
+    ...super.generateFields(),
+    'locationX': NumFieldAccess<double?>(
+      'Latitude',
+      'Defines center of the map view (latitude).',
+      () => location?.x,
+      (value) => location = value != null ? Vec(value, location?.y ?? 0) : null,
+    ),
+    'locationY': NumFieldAccess<double?>(
+      'Longitude',
+      'Defines center of the map view (longitude).',
+      () => location?.y,
+      (value) => location = value != null ? Vec(location?.x ?? 0, value) : null,
+    ),
+    'pano': StringFieldAccess(
+      'Pano',
+      'A specific panorama ID. Location may also be specified with panorama ID. The location will be only be used if the API cannot find the panorama ID.',
+      () => pano ?? '',
+      (value) => pano = value.isEmpty ? null : value,
+    ),
+    'heading': NumFieldAccess<int?>(
+      'Heading',
+      'Indicates the compass heading of the camera in degrees clockwise from North.',
+      () => heading,
+      (value) => heading = value,
+    ),
+    'pitch': NumFieldAccess<int?>(
+      'Pitch',
+      'Specifies the angle, up or down, of the camera. Positive values will angle the camera up, while negative values will angle the camera down. The default pitch of 0° is set based on on the position of the camera when the image was captured.',
+      () => pitch,
+      (value) => pitch = value,
+    ),
+    'fov': NumFieldAccess<int?>(
+      'Field of View',
+      'Determines the horizontal field of view of the image. It defaults to 90°. When dealing with a fixed-size viewport the field of view is can be considered the zoom level, with smaller numbers indicating a higher level of zoom.',
+      () => fov,
+      (value) => fov = value,
+    ),
+    'centerX': NumFieldAccess<double?>(
+      'Center-Latitude',
+      'Defines center of the map view (latitude).',
+      () => center?.x,
+      (value) => center = value != null ? Vec(value, center?.y ?? 0) : null,
+    ),
+    'centerY': NumFieldAccess<double?>(
+      'Center-Longitude',
+      'Defines center of the map view (longitude).',
+      () => center?.y,
+      (value) => center = value != null ? Vec(center?.x ?? 0, value) : null,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -776,16 +771,16 @@ final class StreetViewGoogleMapsWebViewProperties
 
   @override
   List<Object?> get props => [
-        apiKey,
-        location,
-        heading,
-        pitch,
-        fov,
-        zoom,
-        mapType,
-        language,
-        region,
-      ];
+    apiKey,
+    location,
+    heading,
+    pitch,
+    fov,
+    zoom,
+    mapType,
+    language,
+    region,
+  ];
 }
 
 /// Implements the Google Cloud Platform Search Maps API.
@@ -837,7 +832,8 @@ final class SearchGoogleMapsWebViewProperties
 
     url = _appendParams(mapMode, url, zoom, mapType, language, region);
 
-    src = '''
+    src =
+        '''
 <iframe
   width="100%"
   height="100%"
@@ -852,14 +848,14 @@ final class SearchGoogleMapsWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'query': StringFieldAccess(
-          'Query',
-          'Defines the search term.',
-          () => query,
-          (value) => query = value,
-        ),
-      };
+    ...super.generateFields(),
+    'query': StringFieldAccess(
+      'Query',
+      'Defines the search term.',
+      () => query,
+      (value) => query = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -871,12 +867,5 @@ final class SearchGoogleMapsWebViewProperties
       _$SearchGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [
-        apiKey,
-        query,
-        zoom,
-        mapType,
-        language,
-        region,
-      ];
+  List<Object?> get props => [apiKey, query, zoom, mapType, language, region];
 }

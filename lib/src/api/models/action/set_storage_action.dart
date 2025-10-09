@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../models.dart';
 
@@ -19,10 +20,10 @@ enum StorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        StorageOperation.addOrUpdate => 'Add/Update',
-        StorageOperation.remove => 'Remove',
-        StorageOperation.clear => 'Clear',
-      };
+    StorageOperation.addOrUpdate => 'Add/Update',
+    StorageOperation.remove => 'Remove',
+    StorageOperation.clear => 'Clear',
+  };
 
   /// Whether the operation is [StorageOperation.remove].
   bool get isRemove => this == StorageOperation.remove;
@@ -125,18 +126,18 @@ class SetStorageAction extends ActionModel
 
   @override
   List<Object?> get props => [
-        key,
-        operation,
-        variableType,
-        newValue,
-        toggled,
-        listOperation,
-        index,
-        mapOperation,
-        mapKey,
-        numberOperation,
-        skipIfAlreadyExists,
-      ];
+    key,
+    operation,
+    variableType,
+    newValue,
+    toggled,
+    listOperation,
+    index,
+    mapOperation,
+    mapKey,
+    numberOperation,
+    skipIfAlreadyExists,
+  ];
 
   /// Creates a new [SetStorageAction] instance from a JSON data.
   factory SetStorageAction.fromJson(Map json) =>

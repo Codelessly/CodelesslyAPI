@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
@@ -22,18 +23,15 @@ class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
     Map<String, String>? parameters,
     super.nonBlocking,
     super.enabled,
-  })  : parameters = parameters ?? {},
-        super(type: ActionType.callApi);
+  }) : parameters = parameters ?? {},
+       super(type: ActionType.callApi);
 
   @override
   List<Object?> get props => [apiId, parameters];
 
   /// Creates a copy of this [ApiCallAction] but with the given fields replaced
   /// with the new values.
-  ApiCallAction copyWith({
-    String? apiId,
-    Map<String, String>? parameters,
-  }) =>
+  ApiCallAction copyWith({String? apiId, Map<String, String>? parameters}) =>
       ApiCallAction(
         apiId: apiId ?? this.apiId,
         parameters: parameters ?? this.parameters,

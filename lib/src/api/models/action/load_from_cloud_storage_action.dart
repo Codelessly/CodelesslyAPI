@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../models.dart';
 
@@ -63,29 +64,28 @@ class LoadFromCloudStorageAction extends ActionModel
     List<WhereQueryFilter>? whereFilters,
     List<OrderByQueryFilter>? orderByFilters,
     int? limit,
-  }) =>
-      LoadFromCloudStorageAction(
-        path: path ?? this.path,
-        documentId: documentId ?? this.documentId,
-        variable: variable ?? this.variable,
-        loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
-        whereFilters: whereFilters ?? this.whereFilters,
-        orderByFilters: orderByFilters ?? this.orderByFilters,
-        limit: limit ?? this.limit,
-      );
+  }) => LoadFromCloudStorageAction(
+    path: path ?? this.path,
+    documentId: documentId ?? this.documentId,
+    variable: variable ?? this.variable,
+    loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
+    whereFilters: whereFilters ?? this.whereFilters,
+    orderByFilters: orderByFilters ?? this.orderByFilters,
+    limit: limit ?? this.limit,
+  );
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        variable,
-        loadSingleDocument,
-        whereFilters,
-        orderByFilters,
-        limit,
-        useCloudDatabase,
-        collectionPath,
-      ];
+    path,
+    documentId,
+    variable,
+    loadSingleDocument,
+    whereFilters,
+    orderByFilters,
+    limit,
+    useCloudDatabase,
+    collectionPath,
+  ];
 
   /// Creates a new [LoadFromCloudStorageAction] instance from a JSON data.
   factory LoadFromCloudStorageAction.fromJson(Map json) =>

@@ -1,5 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+
+import '../../converters.dart';
 
 part 'query_filter.g.dart';
 
@@ -99,26 +101,26 @@ enum WhereQueryOperator {
 
   /// Returns a set of all range operators.
   static Set<WhereQueryOperator> get rangeOperators => {
-        WhereQueryOperator.greaterThan,
-        WhereQueryOperator.greaterThanOrEqual,
-        WhereQueryOperator.lessThan,
-        WhereQueryOperator.lessThanOrEqual,
-      };
+    WhereQueryOperator.greaterThan,
+    WhereQueryOperator.greaterThanOrEqual,
+    WhereQueryOperator.lessThan,
+    WhereQueryOperator.lessThanOrEqual,
+  };
 
   /// Returns a set of all inequality operators.
   static Set<WhereQueryOperator> get inequalityOperators => {
-        ...rangeOperators,
-        WhereQueryOperator.notEqual,
-        WhereQueryOperator.notInArray,
-      };
+    ...rangeOperators,
+    WhereQueryOperator.notEqual,
+    WhereQueryOperator.notInArray,
+  };
 
   /// Returns a set of all equality operators.
   static Set<WhereQueryOperator> get equalityOperators => {
-        WhereQueryOperator.equal,
-        WhereQueryOperator.arrayContains,
-        WhereQueryOperator.arrayContainsAny,
-        WhereQueryOperator.inArray,
-      };
+    WhereQueryOperator.equal,
+    WhereQueryOperator.arrayContains,
+    WhereQueryOperator.arrayContainsAny,
+    WhereQueryOperator.inArray,
+  };
 
   /// Returns true if the given [operators] iterable contains any equality
   /// operator.
@@ -162,12 +164,11 @@ final class WhereQueryFilter extends QueryFilter with EquatableMixin {
     String? field,
     WhereQueryOperator? operator,
     String? value,
-  }) =>
-      WhereQueryFilter(
-        field: field ?? this.field,
-        operator: operator ?? this.operator,
-        value: value ?? this.value,
-      );
+  }) => WhereQueryFilter(
+    field: field ?? this.field,
+    operator: operator ?? this.operator,
+    value: value ?? this.value,
+  );
 
   /// Converts a JSON object to a [WhereQueryFilter] instance.
   factory WhereQueryFilter.fromJson(Map<String, dynamic> json) =>

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -29,12 +29,14 @@ sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
 
   /// Creates a [TextInputFormatterModel] instance from a JSON object.
   factory TextInputFormatterModel.fromJson(Map<String, dynamic> json) {
-    final TextInputFormatterType type =
-        TextInputFormatterType.values.byName(json['type']);
+    final TextInputFormatterType type = TextInputFormatterType.values.byName(
+      json['type'],
+    );
     return switch (type) {
       TextInputFormatterType.none => NoneTextInputFormatterModel.fromJson(json),
-      TextInputFormatterType.regex =>
-        RegexTextInputFormatterModel.fromJson(json),
+      TextInputFormatterType.regex => RegexTextInputFormatterModel.fromJson(
+        json,
+      ),
     };
   }
 
@@ -58,7 +60,7 @@ sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
 class NoneTextInputFormatterModel extends TextInputFormatterModel {
   /// Creates a new [NoneTextInputFormatterModel] instance.
   const NoneTextInputFormatterModel()
-      : super(name: 'None', type: TextInputFormatterType.none);
+    : super(name: 'None', type: TextInputFormatterType.none);
 
   /// Creates a [TextInputFormatterModel] instance from a JSON object.
   factory NoneTextInputFormatterModel.fromJson(Map<String, dynamic> json) =>
@@ -105,20 +107,21 @@ class RegexTextInputFormatterModel extends TextInputFormatterModel {
 
   /// Allow only digits in the text field.
   static const RegexTextInputFormatterModel digitsOnly =
-      RegexTextInputFormatterModel(
-    name: 'Digits Only',
-    pattern: r'[0-9]',
-  );
+      RegexTextInputFormatterModel(name: 'Digits Only', pattern: r'[0-9]');
 
   /// Allow only alphabets in the text field.
   static const RegexTextInputFormatterModel alphabetsOnly =
       RegexTextInputFormatterModel(
-          name: 'Alphabets Only', pattern: r'[a-zA-Z]');
+        name: 'Alphabets Only',
+        pattern: r'[a-zA-Z]',
+      );
 
   /// Allow only alpha-numeric characters in the text field.
   static const RegexTextInputFormatterModel alphaNumeric =
       RegexTextInputFormatterModel(
-          name: 'Alpha-numeric', pattern: r'[a-zA-Z0-9]');
+        name: 'Alpha-numeric',
+        pattern: r'[a-zA-Z0-9]',
+      );
 
   /// Allow only phone number format in the text field.
   static const RegexTextInputFormatterModel noSpaces =
@@ -183,13 +186,13 @@ class RegexTextInputFormatterModel extends TextInputFormatterModel {
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        pattern,
-        caseSensitive,
-        dotAll,
-        multiLine,
-        unicode,
-        replacementString,
-        allow,
-      ];
+    ...super.props,
+    pattern,
+    caseSensitive,
+    dotAll,
+    multiLine,
+    unicode,
+    replacementString,
+    allow,
+  ];
 }

@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 
 part 'breakpoint.g.dart';
@@ -60,11 +61,7 @@ class Breakpoint with EquatableMixin, SerializableMixin {
   });
 
   /// Duplicates this [Breakpoint] with given data overrides.
-  Breakpoint copyWith({
-    String? nodeId,
-    num? lowerBound,
-    num? upperBound,
-  }) =>
+  Breakpoint copyWith({String? nodeId, num? lowerBound, num? upperBound}) =>
       Breakpoint(
         nodeId: nodeId ?? this.nodeId,
         lowerBound: lowerBound ?? this.lowerBound,

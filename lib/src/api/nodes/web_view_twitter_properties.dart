@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../models/models.dart';
 import 'web_view_node.dart';
@@ -88,28 +89,28 @@ sealed class TwitterWebViewProperties extends WebViewProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'theme': EnumFieldAccess<TwitterEmbedTheme?>(
-          'Theme',
-          'The color theme that the Twitter webview should use.',
-          () => theme,
-          (value) => theme = value,
-          defaultValue: () => TwitterEmbedTheme.light,
-          options: () => TwitterEmbedTheme.values,
-        ),
-        'twitterTailoring': BoolFieldAccess(
-          'Twitter Tailoring',
-          'Opt-out of tailoring Twitter',
-          () => twitterTailoring ?? false,
-          (value) => twitterTailoring = value,
-        ),
-        'languageCode': StringFieldAccess(
-          'Language Code',
-          'The language code to use for the Twitter webview.',
-          () => languageCode ?? '',
-          (value) => languageCode = value.isEmpty ? null : value,
-        ),
-      };
+    ...super.generateFields(),
+    'theme': EnumFieldAccess<TwitterEmbedTheme?>(
+      'Theme',
+      'The color theme that the Twitter webview should use.',
+      () => theme,
+      (value) => theme = value,
+      defaultValue: () => TwitterEmbedTheme.light,
+      options: () => TwitterEmbedTheme.values,
+    ),
+    'twitterTailoring': BoolFieldAccess(
+      'Twitter Tailoring',
+      'Opt-out of tailoring Twitter',
+      () => twitterTailoring ?? false,
+      (value) => twitterTailoring = value,
+    ),
+    'languageCode': StringFieldAccess(
+      'Language Code',
+      'The language code to use for the Twitter webview.',
+      () => languageCode ?? '',
+      (value) => languageCode = value.isEmpty ? null : value,
+    ),
+  };
 
   /// Creates a new [TwitterWebViewProperties] instance from a JSON map.
   ///
@@ -165,7 +166,8 @@ final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   void regenSource() {
-    src = '<blockquote class="twitter-tweet"'
+    src =
+        '<blockquote class="twitter-tweet"'
         '${languageCode == null ? '' : ' data-lang="$languageCode"'}'
         '${theme == null ? '' : ' data-theme="${theme!.name}"'}'
         '${twitterTailoring == null ? '' : ' data-dnt="$twitterTailoring"'}>'
@@ -176,20 +178,20 @@ final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'tweetURL': StringFieldAccess(
-          'Tweet URL',
-          'The URL of the tweet to use.',
-          () => tweetURL,
-          (value) => tweetURL = value,
-        ),
-        'hideConversation': BoolFieldAccess(
-          'Hide Conversation',
-          'Whether to hide the tweet\'s conversation.',
-          () => hideConversation ?? false,
-          (value) => hideConversation = value,
-        ),
-      };
+    ...super.generateFields(),
+    'tweetURL': StringFieldAccess(
+      'Tweet URL',
+      'The URL of the tweet to use.',
+      () => tweetURL,
+      (value) => tweetURL = value,
+    ),
+    'hideConversation': BoolFieldAccess(
+      'Hide Conversation',
+      'Whether to hide the tweet\'s conversation.',
+      () => hideConversation ?? false,
+      (value) => hideConversation = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
@@ -199,8 +201,13 @@ final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
       _$TweetTwitterWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props =>
-      [tweetURL, hideConversation, theme, twitterTailoring, languageCode];
+  List<Object?> get props => [
+    tweetURL,
+    hideConversation,
+    theme,
+    twitterTailoring,
+    languageCode,
+  ];
 
   /// Copies this [TweetTwitterWebViewProperties] instance into a new instance
   /// with optionally changed parameters.
@@ -266,7 +273,8 @@ final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   void regenSource() {
-    src = '<a class="twitter-timeline"'
+    src =
+        '<a class="twitter-timeline"'
         '${languageCode == null ? '' : ' data-lang="$languageCode"'}'
         '${theme == null ? '' : ' data-theme="${theme!.name}"'}'
         '${width == null ? '' : ' data-width="${width! * 2}"'}'
@@ -278,26 +286,26 @@ final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'timelineURL': StringFieldAccess(
-          'Timeline URL',
-          'The URL of the timeline to be displayed.',
-          () => timelineURL,
-          (value) => timelineURL = value,
-        ),
-        'width': NumFieldAccess<double>(
-          'Width',
-          'The width of the timeline in pixels.',
-          () => width ?? 300,
-          (value) => width = value,
-        ),
-        'height': NumFieldAccess<double>(
-          'Height',
-          'The height of the timeline in pixels.',
-          () => height ?? 400,
-          (value) => height = value,
-        ),
-      };
+    ...super.generateFields(),
+    'timelineURL': StringFieldAccess(
+      'Timeline URL',
+      'The URL of the timeline to be displayed.',
+      () => timelineURL,
+      (value) => timelineURL = value,
+    ),
+    'width': NumFieldAccess<double>(
+      'Width',
+      'The width of the timeline in pixels.',
+      () => width ?? 300,
+      (value) => width = value,
+    ),
+    'height': NumFieldAccess<double>(
+      'Height',
+      'The height of the timeline in pixels.',
+      () => height ?? 400,
+      (value) => height = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -308,8 +316,14 @@ final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
       _$TimelineTwitterWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props =>
-      [timelineURL, width, height, theme, twitterTailoring, languageCode];
+  List<Object?> get props => [
+    timelineURL,
+    width,
+    height,
+    theme,
+    twitterTailoring,
+    languageCode,
+  ];
 
   /// Copies this [TimelineTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
@@ -382,7 +396,8 @@ final class FollowButtonTwitterWebViewProperties
         ? handle
         : 'https://twitter.com/intent/tweet?screen_name=${handle.startsWith('@') ? handle.substring(1) : handle}';
 
-    src = '<a class="twitter-follow-button"'
+    src =
+        '<a class="twitter-follow-button"'
         '${languageCode == null ? '' : ' data-lang="$languageCode"'}'
         '${theme == null ? '' : ' data-theme="${theme!.name}"'}'
         '${largeButton == null ? '' : ' data-size="$largeButton"'}'
@@ -394,26 +409,26 @@ final class FollowButtonTwitterWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'handle': StringFieldAccess(
-          'Handle',
-          'The handle of the user to follow.',
-          () => handle,
-          (value) => handle = value,
-        ),
-        'hideUsername': BoolFieldAccess(
-          'Hide Username',
-          'Whether to hide the username from the rendered button element.',
-          () => hideUsername ?? false,
-          (value) => hideUsername = value,
-        ),
-        'largeButton': BoolFieldAccess(
-          'Large Button',
-          'Whether to create a large-form button instead of the standard one.',
-          () => largeButton ?? false,
-          (value) => largeButton = value,
-        ),
-      };
+    ...super.generateFields(),
+    'handle': StringFieldAccess(
+      'Handle',
+      'The handle of the user to follow.',
+      () => handle,
+      (value) => handle = value,
+    ),
+    'hideUsername': BoolFieldAccess(
+      'Hide Username',
+      'Whether to hide the username from the rendered button element.',
+      () => hideUsername ?? false,
+      (value) => hideUsername = value,
+    ),
+    'largeButton': BoolFieldAccess(
+      'Large Button',
+      'Whether to create a large-form button instead of the standard one.',
+      () => largeButton ?? false,
+      (value) => largeButton = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -426,13 +441,13 @@ final class FollowButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
-        handle,
-        hideUsername,
-        largeButton,
-        theme,
-        twitterTailoring,
-        languageCode
-      ];
+    handle,
+    hideUsername,
+    largeButton,
+    theme,
+    twitterTailoring,
+    languageCode,
+  ];
 
   /// Copies this [FollowButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
@@ -517,7 +532,8 @@ final class MentionButtonTwitterWebViewProperties
         ? handle
         : 'https://twitter.com/intent/tweet?screen_name=${handle.startsWith('@') ? handle.substring(1) : handle}';
 
-    src = '<a class="twitter-mention-button"'
+    src =
+        '<a class="twitter-mention-button"'
         '${languageCode == null ? '' : 'data-lang="$languageCode"'}'
         '${theme == null ? '' : ' data-theme="${theme!.name}"'}'
         '${twitterTailoring == null ? '' : 'data-dnt="$twitterTailoring"'}'
@@ -530,26 +546,26 @@ final class MentionButtonTwitterWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'handle': StringFieldAccess(
-          'Handle',
-          'The handle of the user to mention.',
-          () => handle,
-          (value) => handle = value,
-        ),
-        'largeButton': BoolFieldAccess(
-          'Large Button',
-          'Whether to create a large-form button instead of the standard one.',
-          () => largeButton ?? false,
-          (value) => largeButton = value,
-        ),
-        'prefilledText': StringFieldAccess(
-          'Prefilled Text',
-          'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
-          () => prefilledText ?? '',
-          (value) => prefilledText = value,
-        ),
-      };
+    ...super.generateFields(),
+    'handle': StringFieldAccess(
+      'Handle',
+      'The handle of the user to mention.',
+      () => handle,
+      (value) => handle = value,
+    ),
+    'largeButton': BoolFieldAccess(
+      'Large Button',
+      'Whether to create a large-form button instead of the standard one.',
+      () => largeButton ?? false,
+      (value) => largeButton = value,
+    ),
+    'prefilledText': StringFieldAccess(
+      'Prefilled Text',
+      'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
+      () => prefilledText ?? '',
+      (value) => prefilledText = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -562,14 +578,14 @@ final class MentionButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
-        handle,
-        largeButton,
-        prefilledText,
-        recommendedAccounts,
-        theme,
-        twitterTailoring,
-        languageCode
-      ];
+    handle,
+    largeButton,
+    prefilledText,
+    recommendedAccounts,
+    theme,
+    twitterTailoring,
+    languageCode,
+  ];
 
   /// Copies this [MentionButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.
@@ -663,7 +679,8 @@ final class HashtagButtonTwitterWebViewProperties
         ? hashtag
         : 'https://twitter.com/intent/tweet?button_hashtag=${hashtag.startsWith('#') ? hashtag.substring(1) : hashtag}';
 
-    src = '<a class="twitter-hashtag-button"'
+    src =
+        '<a class="twitter-hashtag-button"'
         '${languageCode == null ? '' : ' data-lang="$languageCode"'}'
         '${theme == null ? '' : ' data-theme="${theme!.name}"'}'
         '${largeButton == null ? '' : ' data-size="$largeButton"'}'
@@ -677,32 +694,32 @@ final class HashtagButtonTwitterWebViewProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'hashtag': StringFieldAccess(
-          'Hashtag',
-          'The hashtag to search for.',
-          () => hashtag,
-          (value) => hashtag = value,
-        ),
-        'largeButton': BoolFieldAccess(
-          'Large Button',
-          'Whether to create a large-form button instead of the standard one.',
-          () => largeButton ?? false,
-          (value) => largeButton = value,
-        ),
-        'prefilledText': StringFieldAccess(
-          'Prefilled Text',
-          'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
-          () => prefilledText ?? '',
-          (value) => prefilledText = value,
-        ),
-        'specificURLInTweet': StringFieldAccess(
-          'Specific URL In Tweet',
-          'Optional specific URL to associate with the tweet.',
-          () => specificURLInTweet ?? '',
-          (value) => specificURLInTweet = value,
-        ),
-      };
+    ...super.generateFields(),
+    'hashtag': StringFieldAccess(
+      'Hashtag',
+      'The hashtag to search for.',
+      () => hashtag,
+      (value) => hashtag = value,
+    ),
+    'largeButton': BoolFieldAccess(
+      'Large Button',
+      'Whether to create a large-form button instead of the standard one.',
+      () => largeButton ?? false,
+      (value) => largeButton = value,
+    ),
+    'prefilledText': StringFieldAccess(
+      'Prefilled Text',
+      'The text to include in the tweet, loaded instantly and prefilled, ready to be edited by the user.',
+      () => prefilledText ?? '',
+      (value) => prefilledText = value,
+    ),
+    'specificURLInTweet': StringFieldAccess(
+      'Specific URL In Tweet',
+      'Optional specific URL to associate with the tweet.',
+      () => specificURLInTweet ?? '',
+      (value) => specificURLInTweet = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() =>
@@ -715,15 +732,15 @@ final class HashtagButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
-        hashtag,
-        largeButton,
-        prefilledText,
-        recommendedAccounts,
-        specificURLInTweet,
-        theme,
-        twitterTailoring,
-        languageCode
-      ];
+    hashtag,
+    largeButton,
+    prefilledText,
+    recommendedAccounts,
+    specificURLInTweet,
+    theme,
+    twitterTailoring,
+    languageCode,
+  ];
 
   /// Copies this [HashtagButtonTwitterWebViewProperties] instance into a new
   /// instance with optionally changed parameters.

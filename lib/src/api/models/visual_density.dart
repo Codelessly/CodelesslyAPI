@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import 'vec.dart';
 
@@ -79,8 +80,9 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
   });
 
   /// A standard visual density.
-  static const VisualDensityModel standard =
-      VisualDensityModel(type: VisualDensityType.standard);
+  static const VisualDensityModel standard = VisualDensityModel(
+    type: VisualDensityType.standard,
+  );
 
   /// A comfortable visual density.
   static const VisualDensityModel comfortable = VisualDensityModel(

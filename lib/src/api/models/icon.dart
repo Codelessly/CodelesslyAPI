@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -17,10 +18,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
   List<TriggerType> get triggerTypes => [TriggerType.click];
 
   /// Creates [ReactiveIconModel].
-  ReactiveIconModel({
-    required this.icon,
-    List<Reaction> reactions = const [],
-  }) {
+  ReactiveIconModel({required this.icon, List<Reaction> reactions = const []}) {
     setReactionMixin(reactions);
   }
 
@@ -105,10 +103,10 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     this.size = 24,
     this.color = ColorRGBA.black,
     this.show = true,
-  })  : type = IconTypeEnum.icon,
-        iconImage = null,
-        scale = 1,
-        imageName = null;
+  }) : type = IconTypeEnum.icon,
+       iconImage = null,
+       scale = 1,
+       imageName = null;
 
   /// Creates an instance of this class with image icon.
   const MultiSourceIconModel.image({
@@ -118,8 +116,8 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     this.show = true,
     this.imageName,
     this.scale = 1,
-  })  : type = IconTypeEnum.image,
-        icon = null;
+  }) : type = IconTypeEnum.image,
+       icon = null;
 
   /// Default constructor of this class.
   const MultiSourceIconModel({
@@ -134,8 +132,15 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   });
 
   @override
-  List<Object?> get props =>
-      [type, icon, iconImage, size, color, show, imageName];
+  List<Object?> get props => [
+    type,
+    icon,
+    iconImage,
+    size,
+    color,
+    show,
+    imageName,
+  ];
 
   /// Duplicates [MultiSourceIconModel] with the given properties overrides.
   MultiSourceIconModel copyWith({

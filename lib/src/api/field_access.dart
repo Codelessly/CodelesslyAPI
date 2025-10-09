@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
@@ -34,9 +34,8 @@ mixin FieldsHolder {
 
   /// The complete schema of the [FieldsHolder]'s [fields].
   Object get fieldSchema => {
-        for (final MapEntry(:key, :value) in fields.entries)
-          key: value.fieldSchema,
-      };
+    for (final MapEntry(:key, :value) in fields.entries) key: value.fieldSchema,
+  };
 
   /// Generates the fields of the [FieldsHolder].
   @mustCallSuper
@@ -82,15 +81,15 @@ sealed class FieldAccess<T extends Object?> {
   /// The schema of the field, used to generate a complete dynamic settings
   /// panel entry for this field.
   Map<String, dynamic> get fieldSchema => {
-        'type': dynamicKeyType,
-        'label': label,
-        'description': description,
-        'value': serialize(getValue()),
-        if (defaultValue case DefaultFieldValueCallback<T> defaultValue)
-          'default': serialize(defaultValue()),
-        if (supplementarySchema case Map<String, dynamic> supplementary)
-          ...supplementary
-      };
+    'type': dynamicKeyType,
+    'label': label,
+    'description': description,
+    'value': serialize(getValue()),
+    if (defaultValue case DefaultFieldValueCallback<T> defaultValue)
+      'default': serialize(defaultValue()),
+    if (supplementarySchema case Map<String, dynamic> supplementary)
+      ...supplementary,
+  };
 
   /// Constructs a new [FieldAccess] instance with the given parameters.
   const FieldAccess(
@@ -147,10 +146,10 @@ final class NumFieldAccess<Number extends num?> extends FieldAccess<Number> {
 
   @override
   Map<String, dynamic> get supplementarySchema => {
-        if (getValue() is double) 'fractionDigits': 2,
-        if (min case Number min) 'min': min,
-        if (max case Number max) 'max': max,
-      };
+    if (getValue() is double) 'fractionDigits': 2,
+    if (min case Number min) 'min': min,
+    if (max case Number max) 'max': max,
+  };
 
   @override
   void setValue(Object? value) => setter(value?.typedValue<Number>() as Number);
@@ -263,8 +262,9 @@ final class IconFieldAccess<T extends MultiSourceIconModel?>
   @override
   void setValue(Object? value) {
     if (value is Map?) {
-      final MultiSourceIconModel? typedValue =
-          value?.isEmpty != true ? MultiSourceIconModel.fromJson(value!) : null;
+      final MultiSourceIconModel? typedValue = value?.isEmpty != true
+          ? MultiSourceIconModel.fromJson(value!)
+          : null;
       if (typedValue is T) setter(typedValue);
     }
     if (value is T) setter(value);
@@ -295,17 +295,18 @@ final class EnumFieldAccess<T extends Enum?> extends FieldAccess<T> {
 
   @override
   Map<String, dynamic> get supplementarySchema => {
-        'options': {
-          for (final T option in getOptions())
-            if (option != null) option.name: option.name.toUpperCase(),
-        }
-      };
+    'options': {
+      for (final T option in getOptions())
+        if (option != null) option.name: option.name.toUpperCase(),
+    },
+  };
 
   @override
   void setValue(Object? value) {
     if (value is T) return setter(value);
-    final T? typedValue =
-        getOptions().firstWhereOrNull((option) => option?.name == value);
+    final T? typedValue = getOptions().firstWhereOrNull(
+      (option) => option?.name == value,
+    );
     if (typedValue != null) setter(typedValue);
   }
 }
@@ -339,11 +340,11 @@ final class OptionsFieldAccess<T> extends FieldAccess<T> {
 
   @override
   Map<String, dynamic> get supplementarySchema => {
-        'options': {
-          for (final MapEntry(:key, :value) in getOptions().entries)
-            key: itemLabel(value),
-        }
-      };
+    'options': {
+      for (final MapEntry(:key, :value) in getOptions().entries)
+        key: itemLabel(value),
+    },
+  };
 
   @override
   void setValue(Object? value) {
@@ -362,17 +363,17 @@ final class AlignmentFieldAccess extends OptionsFieldAccess<AlignmentModel> {
     FieldSetterCallback<AlignmentModel> setter, {
     super.defaultValue,
   }) : super(
-          label,
-          description,
-          getValue,
-          setter,
-          (item) => item.prettify,
-          options: () => {
-            for (final alignment in AlignmentModel.values)
-              alignment.name: alignment,
-          },
-          requiresLayout: true,
-        );
+         label,
+         description,
+         getValue,
+         setter,
+         (item) => item.prettify,
+         options: () => {
+           for (final alignment in AlignmentModel.values)
+             alignment.name: alignment,
+         },
+         requiresLayout: true,
+       );
 }
 
 /// A field accessor for an [Iterable] field.
@@ -395,9 +396,9 @@ final class IterableFieldAccess<T> extends FieldAccess<List<T>> {
   String get dynamicKeyType => 'items';
 
   Map<String, dynamic> _wrap(T item, dynamic nested) => {
-        'label': itemLabel(item),
-        'properties': nested,
-      };
+    'label': itemLabel(item),
+    'properties': nested,
+  };
 
   @override
   Map<String, dynamic> get fieldSchema {
@@ -484,7 +485,7 @@ final class RadiusFieldAccess extends FieldAccess<CornerRadius> {
   void setValue(Object? value) {
     final CornerRadius? typedValue = switch (value) {
       Map() || List() => CornerRadius.fromJson(value),
-      _ => value?.typedValue<CornerRadius>()
+      _ => value?.typedValue<CornerRadius>(),
     };
     if (typedValue != null) setter(typedValue);
   }
@@ -535,14 +536,16 @@ final class SpacingFieldAccess extends FieldAccess<EdgeInsetsModel> {
   dynamic serialize(EdgeInsetsModel? obj) => obj?.toJson();
 
   @override
-  Map<String, dynamic> get fieldSchema =>
-      {...super.fieldSchema, 'insetType': insetType};
+  Map<String, dynamic> get fieldSchema => {
+    ...super.fieldSchema,
+    'insetType': insetType,
+  };
 
   @override
   void setValue(Object? value) {
     final EdgeInsetsModel? typedValue = switch (value) {
       Map() || List() => EdgeInsetsModel.fromJson(value),
-      _ => value?.typedValue<EdgeInsetsModel>()
+      _ => value?.typedValue<EdgeInsetsModel>(),
     };
     if (typedValue != null) setter(typedValue);
   }
@@ -572,10 +575,8 @@ final class VariantAccess extends FieldAccess<String> {
 
   @override
   Map<String, dynamic> get supplementarySchema => {
-        'options': {
-          for (final String name in getOptions()) name: name,
-        },
-      };
+    'options': {for (final String name in getOptions()) name: name},
+  };
 
   @override
   void setValue(Object? value) {

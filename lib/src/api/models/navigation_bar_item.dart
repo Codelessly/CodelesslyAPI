@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import 'models.dart';
@@ -43,46 +44,52 @@ abstract class NavigationBarItem
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'label': StringFieldAccess(
-          'Label',
-          'Name/label of this item.',
-          () => label,
-          (value) => label = value,
-        ),
-        'icon': IconFieldAccess<MultiSourceIconModel>(
-          'Icon',
-          'Icon of this item.',
-          () => icon,
-          (value) => icon = value,
-        ),
-        'selectedIcon': IconFieldAccess<MultiSourceIconModel?>(
-          'Selected Icon',
-          'Icon when this item is selected.',
-          () => differSelectedIcon ? selectedIcon : null,
-          (value) {
-            differSelectedIcon = value != null;
-            selectedIcon = value;
-          },
-          required: false,
-        ),
-        'tooltip': StringFieldAccess(
-          'Tooltip',
-          'Tooltip text when hovered.',
-          () => tooltip ?? '',
-          (value) {
-            if (value.isEmpty) {
-              tooltip = null;
-            } else {
-              tooltip = value;
-            }
-          },
-        ),
-      };
+    ...super.generateFields(),
+    'label': StringFieldAccess(
+      'Label',
+      'Name/label of this item.',
+      () => label,
+      (value) => label = value,
+    ),
+    'icon': IconFieldAccess<MultiSourceIconModel>(
+      'Icon',
+      'Icon of this item.',
+      () => icon,
+      (value) => icon = value,
+    ),
+    'selectedIcon': IconFieldAccess<MultiSourceIconModel?>(
+      'Selected Icon',
+      'Icon when this item is selected.',
+      () => differSelectedIcon ? selectedIcon : null,
+      (value) {
+        differSelectedIcon = value != null;
+        selectedIcon = value;
+      },
+      required: false,
+    ),
+    'tooltip': StringFieldAccess(
+      'Tooltip',
+      'Tooltip text when hovered.',
+      () => tooltip ?? '',
+      (value) {
+        if (value.isEmpty) {
+          tooltip = null;
+        } else {
+          tooltip = value;
+        }
+      },
+    ),
+  };
 
   @override
-  List<Object?> get props =>
-      [label, icon, selectedIcon, differSelectedIcon, tooltip, reactions];
+  List<Object?> get props => [
+    label,
+    icon,
+    selectedIcon,
+    differSelectedIcon,
+    tooltip,
+    reactions,
+  ];
 }
 
 /// A navigation bar item that adheres to material 2.0 design specs.
@@ -108,14 +115,14 @@ class M2NavigationBarItem extends NavigationBarItem {
 
   @override
   FieldsMap generateFields() => {
-        'backgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Background Color',
-          'Fills the entire navigation bar\'s background color when this item is selected.',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-        ...super.generateFields(),
-      };
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Fills the entire navigation bar\'s background color when this item is selected.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    ...super.generateFields(),
+  };
 
   /// Factory constructor for creating a new [M2NavigationBarItem] instance
   /// from JSON data.

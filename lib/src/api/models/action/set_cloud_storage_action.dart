@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../models.dart';
 
@@ -19,10 +20,10 @@ enum SetCloudStorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        SetCloudStorageOperation.addDocument => 'Add Document',
-        SetCloudStorageOperation.updateDocument => 'Update Document',
-        SetCloudStorageOperation.removeDocument => 'Remove Document',
-      };
+    SetCloudStorageOperation.addDocument => 'Add Document',
+    SetCloudStorageOperation.updateDocument => 'Update Document',
+    SetCloudStorageOperation.removeDocument => 'Remove Document',
+  };
 
   /// Whether this [StorageOperation] is [addDocument].
   bool get isAddDocument => this == addDocument;
@@ -50,12 +51,8 @@ class SetCloudStorageAction extends ActionModel
   }) : super(type: ActionType.setCloudStorage);
 
   /// Duplicates this [SetCloudStorageAction] with given data overrides.
-  SetCloudStorageAction copyWith({
-    SetCloudStorageSubAction? subAction,
-  }) =>
-      SetCloudStorageAction(
-        subAction: subAction ?? this.subAction,
-      );
+  SetCloudStorageAction copyWith({SetCloudStorageSubAction? subAction}) =>
+      SetCloudStorageAction(subAction: subAction ?? this.subAction);
 
   @override
   List<Object?> get props => [subAction];
@@ -82,11 +79,13 @@ sealed class SetCloudStorageSubAction with EquatableMixin, SerializableMixin {
 
   @override
   factory SetCloudStorageSubAction.fromJson(Map json) {
-    final operation =
-        SetCloudStorageOperation.values.byName(json['operation'].toString());
+    final operation = SetCloudStorageOperation.values.byName(
+      json['operation'].toString(),
+    );
     return switch (operation) {
-      SetCloudStorageOperation.addDocument =>
-        AddDocumentSubAction.fromJson(json),
+      SetCloudStorageOperation.addDocument => AddDocumentSubAction.fromJson(
+        json,
+      ),
       SetCloudStorageOperation.updateDocument =>
         UpdateDocumentSubAction.fromJson(json),
       SetCloudStorageOperation.removeDocument =>
@@ -180,14 +179,14 @@ class AddDocumentSubAction extends SetCloudStorageSubAction {
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        autoGenerateId,
-        skipCreationIfDocumentExists,
-        newValue,
-        rawValue,
-        useRawValue,
-      ];
+    path,
+    documentId,
+    autoGenerateId,
+    skipCreationIfDocumentExists,
+    newValue,
+    rawValue,
+    useRawValue,
+  ];
 }
 
 /// Represents a sub action to remove a document from a collection in cloud
@@ -209,10 +208,8 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
   final String documentId;
 
   /// Creates a new [RemoveDocumentSubAction].
-  const RemoveDocumentSubAction({
-    this.path = '',
-    this.documentId = '',
-  }) : super(operation: SetCloudStorageOperation.removeDocument);
+  const RemoveDocumentSubAction({this.path = '', this.documentId = ''})
+    : super(operation: SetCloudStorageOperation.removeDocument);
 
   /// Duplicates this [AddDocumentSubAction] with given data overrides.
   RemoveDocumentSubAction copyWith({
@@ -361,18 +358,18 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        rawValue,
-        key,
-        variableType,
-        index,
-        listOperation,
-        mapKey,
-        mapOperation,
-        newValue,
-        toggled,
-        useRawValue,
-        numberOperation,
-      ];
+    path,
+    documentId,
+    rawValue,
+    key,
+    variableType,
+    index,
+    listOperation,
+    mapKey,
+    mapOperation,
+    newValue,
+    toggled,
+    useRawValue,
+    numberOperation,
+  ];
 }

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../codelessly_api.dart';
@@ -21,17 +21,14 @@ class CallFunctionAction extends ActionModel
     Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
-  })  : params = params ?? {},
-        super(type: ActionType.callFunction);
+  }) : params = params ?? {},
+       super(type: ActionType.callFunction);
 
   @override
   List<Object?> get props => [name, params];
 
   /// Duplicates this [CallFunctionAction] with given data overrides.
-  CallFunctionAction copyWith({
-    String? name,
-    Map<String, dynamic>? params,
-  }) =>
+  CallFunctionAction copyWith({String? name, Map<String, dynamic>? params}) =>
       CallFunctionAction(
         name: name ?? this.name,
         params: params ?? this.params,

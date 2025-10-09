@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 
 part 'font_name.g.dart';
@@ -111,12 +112,11 @@ class FontName extends Equatable with SerializableMixin {
     String? family,
     String? style,
     FontWeightNumeric? weight,
-  }) =>
-      FontName(
-        family: family ?? this.family,
-        style: style ?? this.style,
-        weight: weight ?? this.weight,
-      );
+  }) => FontName(
+    family: family ?? this.family,
+    style: style ?? this.style,
+    weight: weight ?? this.weight,
+  );
 
   /// Represents regular Roboto font.
   static const FontName robotoRegular = FontName(

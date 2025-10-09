@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
@@ -62,14 +63,14 @@ class WebViewNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<WebViewProperties>(
-          'Properties',
-          'Properties of the WebView',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<WebViewProperties>(
+      'Properties',
+      'Properties of the WebView',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a new [WebViewNode] instance from a JSON map.
   factory WebViewNode.fromJson(Map json) => _$WebViewNodeFromJson(json);
@@ -270,66 +271,65 @@ abstract class WebViewProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'controlVerticalScrollGesture': BoolFieldAccess(
-          'Control Vertical Scroll Gesture',
-          'Whether this webview should consume any vertical scroll gestures',
-          () => controlVerticalScrollGesture ?? false,
-          (value) => controlVerticalScrollGesture = value,
-        ),
-        'controlHorizontalScrollGesture': BoolFieldAccess(
-          'Control Horizontal Scroll Gesture',
-          'Whether this webview should consume any horizontal scroll gestures',
-          () => controlHorizontalScrollGesture ?? false,
-          (value) => controlHorizontalScrollGesture = value,
-        ),
-        'controlScaleGesture': BoolFieldAccess(
-          'Control Scale Gesture',
-          'Whether this webview should consume any zooming/scalable or scaling gestures',
-          () => controlScaleGesture ?? false,
-          (value) => controlScaleGesture = value,
-        ),
-        'controlTapGesture': BoolFieldAccess(
-          'Control Tap Gesture',
-          'Whether this webview should consume any tap gestures',
-          () => controlTapGesture ?? false,
-          (value) => controlTapGesture = value,
-        ),
-        'controlLongPressGesture': BoolFieldAccess(
-          'Control Long Press Gesture',
-          'Whether this webview should consume any long press gestures',
-          () => controlLongPressGesture ?? false,
-          (value) => controlLongPressGesture = value,
-        ),
-        'controlForcePressGesture': BoolFieldAccess(
-          'Control Force Press Gesture',
-          'Whether this webview should consume any force press gestures',
-          () => controlForcePressGesture ?? false,
-          (value) => controlForcePressGesture = value,
-        ),
-        'allowsInlineMediaPlayback': BoolFieldAccess(
-          'Allows Inline Media Playback',
-          'Controls whether inline playback of HTML5 videos is allowed on iOS',
-          () => allowsInlineMediaPlayback ?? false,
-          (value) => allowsInlineMediaPlayback = value,
-        ),
-        'mediaAutoPlaybackPolicy':
-            EnumFieldAccess<WebViewMediaAutoPlaybackPolicy>(
-          'Media Auto Playback Policy',
-          'Media auto playback policy is used to control whether HTML5 media should automatically start playing when the webview is loaded',
-          () => mediaAutoPlaybackPolicy,
-          (value) => mediaAutoPlaybackPolicy = value,
-          defaultValue: () =>
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          options: () => WebViewMediaAutoPlaybackPolicy.values,
-        ),
-        'backgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Background Color',
-          'The background color of the webview',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-      };
+    ...super.generateFields(),
+    'controlVerticalScrollGesture': BoolFieldAccess(
+      'Control Vertical Scroll Gesture',
+      'Whether this webview should consume any vertical scroll gestures',
+      () => controlVerticalScrollGesture ?? false,
+      (value) => controlVerticalScrollGesture = value,
+    ),
+    'controlHorizontalScrollGesture': BoolFieldAccess(
+      'Control Horizontal Scroll Gesture',
+      'Whether this webview should consume any horizontal scroll gestures',
+      () => controlHorizontalScrollGesture ?? false,
+      (value) => controlHorizontalScrollGesture = value,
+    ),
+    'controlScaleGesture': BoolFieldAccess(
+      'Control Scale Gesture',
+      'Whether this webview should consume any zooming/scalable or scaling gestures',
+      () => controlScaleGesture ?? false,
+      (value) => controlScaleGesture = value,
+    ),
+    'controlTapGesture': BoolFieldAccess(
+      'Control Tap Gesture',
+      'Whether this webview should consume any tap gestures',
+      () => controlTapGesture ?? false,
+      (value) => controlTapGesture = value,
+    ),
+    'controlLongPressGesture': BoolFieldAccess(
+      'Control Long Press Gesture',
+      'Whether this webview should consume any long press gestures',
+      () => controlLongPressGesture ?? false,
+      (value) => controlLongPressGesture = value,
+    ),
+    'controlForcePressGesture': BoolFieldAccess(
+      'Control Force Press Gesture',
+      'Whether this webview should consume any force press gestures',
+      () => controlForcePressGesture ?? false,
+      (value) => controlForcePressGesture = value,
+    ),
+    'allowsInlineMediaPlayback': BoolFieldAccess(
+      'Allows Inline Media Playback',
+      'Controls whether inline playback of HTML5 videos is allowed on iOS',
+      () => allowsInlineMediaPlayback ?? false,
+      (value) => allowsInlineMediaPlayback = value,
+    ),
+    'mediaAutoPlaybackPolicy': EnumFieldAccess<WebViewMediaAutoPlaybackPolicy>(
+      'Media Auto Playback Policy',
+      'Media auto playback policy is used to control whether HTML5 media should automatically start playing when the webview is loaded',
+      () => mediaAutoPlaybackPolicy,
+      (value) => mediaAutoPlaybackPolicy = value,
+      defaultValue: () =>
+          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+      options: () => WebViewMediaAutoPlaybackPolicy.values,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'The background color of the webview',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [src];
@@ -387,22 +387,22 @@ class WebPageWebViewProperties extends WebViewProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'pageSourceType': EnumFieldAccess<WebViewWebpageSourceType>(
-          'Page Source Type',
-          'Type of source for a webview',
-          () => pageSourceType,
-          (value) => pageSourceType = value,
-          defaultValue: () => WebViewWebpageSourceType.url,
-          options: () => WebViewWebpageSourceType.values,
-        ),
-        'input': StringFieldAccess(
-          'Input',
-          'Can be a URL, an HTML string, or an asset path based on the page source type.',
-          () => input,
-          (value) => input = value,
-        ),
-      };
+    ...super.generateFields(),
+    'pageSourceType': EnumFieldAccess<WebViewWebpageSourceType>(
+      'Page Source Type',
+      'Type of source for a webview',
+      () => pageSourceType,
+      (value) => pageSourceType = value,
+      defaultValue: () => WebViewWebpageSourceType.url,
+      options: () => WebViewWebpageSourceType.values,
+    ),
+    'input': StringFieldAccess(
+      'Input',
+      'Can be a URL, an HTML string, or an asset path based on the page source type.',
+      () => input,
+      (value) => input = value,
+    ),
+  };
 
   @override
   Map<String, dynamic> toJson() => _$WebPageWebViewPropertiesToJson(this);

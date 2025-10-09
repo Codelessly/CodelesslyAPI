@@ -1,8 +1,9 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -39,11 +40,11 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// For individual properties, use [updateMinWidth], [updateMaxWidth],
   /// [updateMinHeight], and [updateMaxHeight] instead.
   BoxConstraintsModel copy() => BoxConstraintsModel(
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        minHeight: minHeight,
-        maxHeight: maxHeight,
-      );
+    minWidth: minWidth,
+    maxWidth: maxWidth,
+    minHeight: minHeight,
+    maxHeight: maxHeight,
+  );
 
   /// Returns new box constraints that are smaller by the given edge dimensions.
   BoxConstraintsModel deflate(EdgeInsetsModel edges) {
@@ -61,35 +62,35 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
 
   /// Duplicates instance of this class with given [minWidth] value override.
   BoxConstraintsModel updateMinWidth(double? value) => BoxConstraintsModel(
-        minWidth: value,
-        maxWidth: maxWidth,
-        minHeight: minHeight,
-        maxHeight: maxHeight,
-      );
+    minWidth: value,
+    maxWidth: maxWidth,
+    minHeight: minHeight,
+    maxHeight: maxHeight,
+  );
 
   /// Duplicates instance of this class with given [maxWidth] value override.
   BoxConstraintsModel updateMaxWidth(double? value) => BoxConstraintsModel(
-        minWidth: minWidth,
-        maxWidth: value,
-        minHeight: minHeight,
-        maxHeight: maxHeight,
-      );
+    minWidth: minWidth,
+    maxWidth: value,
+    minHeight: minHeight,
+    maxHeight: maxHeight,
+  );
 
   /// Duplicates instance of this class with given [minHeight] value override.
   BoxConstraintsModel updateMinHeight(double? value) => BoxConstraintsModel(
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        minHeight: value,
-        maxHeight: maxHeight,
-      );
+    minWidth: minWidth,
+    maxWidth: maxWidth,
+    minHeight: value,
+    maxHeight: maxHeight,
+  );
 
   /// Duplicates instance of this class with given [maxHeight] value override.
   BoxConstraintsModel updateMaxHeight(double? value) => BoxConstraintsModel(
-        minWidth: minWidth,
-        maxWidth: maxWidth,
-        minHeight: minHeight,
-        maxHeight: value,
-      );
+    minWidth: minWidth,
+    maxWidth: maxWidth,
+    minHeight: minHeight,
+    maxHeight: value,
+  );
 
   /// Returns new box constraints that remove the minimum width and height
   /// requirements.
@@ -106,14 +107,26 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// as close as possible to the original constraints.
   BoxConstraintsModel enforce(BoxConstraintsModel constraints) {
     return BoxConstraintsModel(
-      minWidth:
-          _clampDouble(minWidth, constraints.minWidth, constraints.maxWidth),
-      maxWidth:
-          _clampDouble(maxWidth, constraints.minWidth, constraints.maxWidth),
-      minHeight:
-          _clampDouble(minHeight, constraints.minHeight, constraints.maxHeight),
-      maxHeight:
-          _clampDouble(maxHeight, constraints.minHeight, constraints.maxHeight),
+      minWidth: _clampDouble(
+        minWidth,
+        constraints.minWidth,
+        constraints.maxWidth,
+      ),
+      maxWidth: _clampDouble(
+        maxWidth,
+        constraints.minWidth,
+        constraints.maxWidth,
+      ),
+      minHeight: _clampDouble(
+        minHeight,
+        constraints.minHeight,
+        constraints.maxHeight,
+      ),
+      maxHeight: _clampDouble(
+        maxHeight,
+        constraints.minHeight,
+        constraints.maxHeight,
+      ),
     );
   }
 
@@ -155,8 +168,10 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
   /// Returns the size that both satisfies the constraints and is as close as
   /// possible to the given size.
   SizeC constrain(SizeC size) {
-    final SizeC result =
-        SizeC(constrainWidth(size.width), constrainHeight(size.height));
+    final SizeC result = SizeC(
+      constrainWidth(size.width),
+      constrainHeight(size.height),
+    );
     return result;
   }
 

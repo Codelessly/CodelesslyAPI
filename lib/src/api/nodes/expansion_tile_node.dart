@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
@@ -30,12 +31,12 @@ class ExpansionTileNode extends SceneNode
 
   /// Strictly used for previews. e.g in components panel.
   ExpansionTileNode.empty()
-      : properties = ExpansionTileProperties(),
-        super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : properties = ExpansionTileProperties(),
+      super(
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      );
 
   /// Creates a [ExpansionTileNode] with given data.
   ExpansionTileNode({
@@ -46,8 +47,8 @@ class ExpansionTileNode extends SceneNode
     // Start ExpansionTile.
     this.listTileChild,
     required this.properties,
-    // End ExpansionTile.
 
+    // End ExpansionTile.
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
@@ -83,14 +84,14 @@ class ExpansionTileNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<ExpansionTileProperties>(
-          'Properties',
-          'Properties of the ExpansionTile',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<ExpansionTileProperties>(
+      'Properties',
+      'Properties of the ExpansionTile',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   void onChildIDChanged(String oldID, String newID) {
@@ -211,7 +212,8 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
 
   /// Platform or null affinity defaults to trailing.
   ListTileControlAffinityC effectiveAffinity(
-      ListTileControlAffinityC? affinity) {
+    ListTileControlAffinityC? affinity,
+  ) {
     switch (affinity ?? ListTileControlAffinityC.trailing) {
       case ListTileControlAffinityC.leading:
         return ListTileControlAffinityC.leading;
@@ -283,100 +285,100 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'backgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Background Color',
-          'Color of the tile\'s background when it is expanded.',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-        'collapsedBackgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Background Color',
-          'Color of the tile\'s background when it is collapsed.',
-          () => collapsedBackgroundColor,
-          (value) => collapsedBackgroundColor = value,
-        ),
-        'initiallyExpanded': BoolFieldAccess(
-          'Initially Expanded',
-          'Specifies if the list tile is initially expanded or collapsed.',
-          () => initiallyExpanded,
-          (value) => initiallyExpanded = value,
-          requiresLayout: true,
-        ),
-        'maintainState': BoolFieldAccess(
-          'Maintain State',
-          'Specifies whether the state of the children is maintained when the tile expands and collapses.',
-          () => maintainState,
-          (value) => maintainState = value,
-        ),
-        'tilePadding': SpacingFieldAccess.padding(
-          'Tile Padding',
-          'Specifies padding for the ListTile.',
-          () => tilePadding ?? EdgeInsetsModel.zero,
-          (value) => tilePadding = value,
-          requiresLayout: true,
-        ),
-        'expandedAlignment': AlignmentFieldAccess(
-          'Expanded Alignment',
-          'Specifies the alignment of children when the tile is expanded.',
-          () => expandedAlignment ?? AlignmentModel.center,
-          (value) => expandedAlignment = value,
-        ),
-        'expandedCrossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
-          'Expanded Cross Axis Alignment',
-          'Specifies the alignment of each child within children when the tile is expanded.',
-          () => expandedCrossAxisAlignment,
-          (value) => expandedCrossAxisAlignment = value,
-          defaultValue: () => CrossAxisAlignmentC.center,
-          options: () => CrossAxisAlignmentC.values,
-        ),
-        'childrenPadding': SpacingFieldAccess.padding(
-          'Children Padding',
-          'Specifies padding for children.',
-          () => childrenPadding ?? EdgeInsetsModel.zero,
-          (value) => childrenPadding = value,
-          requiresLayout: true,
-        ),
-        'iconColor': ColorFieldAccess<ColorRGBA?>(
-          'Icon Color',
-          'The icon color of tile\'s expansion arrow icon when the sublist is expanded.',
-          () => iconColor,
-          (value) => iconColor = value,
-        ),
-        'collapsedIconColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Icon Color',
-          'The icon color of tile\'s expansion arrow icon when the sublist is collapsed.',
-          () => collapsedIconColor,
-          (value) => collapsedIconColor = value,
-        ),
-        'textColor': ColorFieldAccess<ColorRGBA?>(
-          'Text Color',
-          'The color of the tile\'s titles when the sublist is expanded.',
-          () => textColor,
-          (value) => textColor = value,
-        ),
-        'collapsedTextColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Text Color',
-          'The color of the tile\'s titles when the sublist is collapsed.',
-          () => collapsedTextColor,
-          (value) => collapsedTextColor = value,
-        ),
-        'controlAffinity': EnumFieldAccess<ListTileControlAffinityC?>(
-          'Control Affinity',
-          'Platform or null affinity defaults to trailing.',
-          () => controlAffinity,
-          (value) => controlAffinity = value,
-          defaultValue: () => ListTileControlAffinityC.trailing,
-          options: () => ListTileControlAffinityC.values,
-        ),
-        'showDividers': BoolFieldAccess(
-          'Show Dividers',
-          'Whether to show a divider between header and body.',
-          () => showDividers,
-          (value) => showDividers = value,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of the tile\'s background when it is expanded.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'collapsedBackgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Background Color',
+      'Color of the tile\'s background when it is collapsed.',
+      () => collapsedBackgroundColor,
+      (value) => collapsedBackgroundColor = value,
+    ),
+    'initiallyExpanded': BoolFieldAccess(
+      'Initially Expanded',
+      'Specifies if the list tile is initially expanded or collapsed.',
+      () => initiallyExpanded,
+      (value) => initiallyExpanded = value,
+      requiresLayout: true,
+    ),
+    'maintainState': BoolFieldAccess(
+      'Maintain State',
+      'Specifies whether the state of the children is maintained when the tile expands and collapses.',
+      () => maintainState,
+      (value) => maintainState = value,
+    ),
+    'tilePadding': SpacingFieldAccess.padding(
+      'Tile Padding',
+      'Specifies padding for the ListTile.',
+      () => tilePadding ?? EdgeInsetsModel.zero,
+      (value) => tilePadding = value,
+      requiresLayout: true,
+    ),
+    'expandedAlignment': AlignmentFieldAccess(
+      'Expanded Alignment',
+      'Specifies the alignment of children when the tile is expanded.',
+      () => expandedAlignment ?? AlignmentModel.center,
+      (value) => expandedAlignment = value,
+    ),
+    'expandedCrossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+      'Expanded Cross Axis Alignment',
+      'Specifies the alignment of each child within children when the tile is expanded.',
+      () => expandedCrossAxisAlignment,
+      (value) => expandedCrossAxisAlignment = value,
+      defaultValue: () => CrossAxisAlignmentC.center,
+      options: () => CrossAxisAlignmentC.values,
+    ),
+    'childrenPadding': SpacingFieldAccess.padding(
+      'Children Padding',
+      'Specifies padding for children.',
+      () => childrenPadding ?? EdgeInsetsModel.zero,
+      (value) => childrenPadding = value,
+      requiresLayout: true,
+    ),
+    'iconColor': ColorFieldAccess<ColorRGBA?>(
+      'Icon Color',
+      'The icon color of tile\'s expansion arrow icon when the sublist is expanded.',
+      () => iconColor,
+      (value) => iconColor = value,
+    ),
+    'collapsedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Icon Color',
+      'The icon color of tile\'s expansion arrow icon when the sublist is collapsed.',
+      () => collapsedIconColor,
+      (value) => collapsedIconColor = value,
+    ),
+    'textColor': ColorFieldAccess<ColorRGBA?>(
+      'Text Color',
+      'The color of the tile\'s titles when the sublist is expanded.',
+      () => textColor,
+      (value) => textColor = value,
+    ),
+    'collapsedTextColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Text Color',
+      'The color of the tile\'s titles when the sublist is collapsed.',
+      () => collapsedTextColor,
+      (value) => collapsedTextColor = value,
+    ),
+    'controlAffinity': EnumFieldAccess<ListTileControlAffinityC?>(
+      'Control Affinity',
+      'Platform or null affinity defaults to trailing.',
+      () => controlAffinity,
+      (value) => controlAffinity = value,
+      defaultValue: () => ListTileControlAffinityC.trailing,
+      options: () => ListTileControlAffinityC.values,
+    ),
+    'showDividers': BoolFieldAccess(
+      'Show Dividers',
+      'Whether to show a divider between header and body.',
+      () => showDividers,
+      (value) => showDividers = value,
+      requiresLayout: true,
+    ),
+  };
 
   @override
   List<Object?> get props => [];

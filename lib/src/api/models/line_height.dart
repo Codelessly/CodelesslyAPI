@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 
 part 'line_height.g.dart';
@@ -15,7 +16,7 @@ enum LineHeightUnitEnum {
   percent,
 
   /// Auto line height.
-  auto;
+  auto,
 }
 
 /// Height of a line in a text paragraph.
@@ -28,10 +29,7 @@ class LineHeight extends Equatable with SerializableMixin {
   final LineHeightUnitEnum unit;
 
   /// Creates [LineHeight] with given values.
-  const LineHeight({
-    this.value,
-    this.unit = LineHeightUnitEnum.pixels,
-  });
+  const LineHeight({this.value, this.unit = LineHeightUnitEnum.pixels});
 
   /// Creates pixel based [LineHeight] with given [value].
   const LineHeight.pixels([this.value]) : unit = LineHeightUnitEnum.pixels;
@@ -40,8 +38,10 @@ class LineHeight extends Equatable with SerializableMixin {
   const LineHeight.percent([this.value]) : unit = LineHeightUnitEnum.percent;
 
   /// Auto line height.
-  static const LineHeight auto =
-      LineHeight(value: 0, unit: LineHeightUnitEnum.auto);
+  static const LineHeight auto = LineHeight(
+    value: 0,
+    unit: LineHeightUnitEnum.auto,
+  );
 
   @override
   List<Object?> get props => [value, unit];

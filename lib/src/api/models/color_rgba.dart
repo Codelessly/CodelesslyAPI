@@ -1,18 +1,22 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
 part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
-@JsonSerializable(useDynamics: true, createToJson: false)
+@JsonSerializable(createToJson: false)
 final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   /// Alpha channel value, between 0 and 1
   final double a;
 
   /// Represents transparent color.
-  static const ColorRGBA transparent =
-      ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 0.0);
+  static const ColorRGBA transparent = ColorRGBA(
+    r: 0.0,
+    g: 0.0,
+    b: 0.0,
+    a: 0.0,
+  );
 
   /// Represents black color.
   static const ColorRGBA black = ColorRGBA(r: 0.0, g: 0.0, b: 0.0, a: 1.0);
@@ -44,18 +48,8 @@ final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   });
 
   /// Duplicates this [ColorRGBA] with given value overrides.
-  ColorRGBA copyWith({
-    double? r,
-    double? g,
-    double? b,
-    double? a,
-  }) =>
-      ColorRGBA(
-        r: r ?? this.r,
-        g: g ?? this.g,
-        b: b ?? this.b,
-        a: a ?? this.a,
-      );
+  ColorRGBA copyWith({double? r, double? g, double? b, double? a}) =>
+      ColorRGBA(r: r ?? this.r, g: g ?? this.g, b: b ?? this.b, a: a ?? this.a);
 
   /// In gradients, each color-stop has an RGBA color. In addition to that,
   /// the fill that holds these color-stops has it's own opacity.
@@ -110,8 +104,8 @@ final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   /// Creates a [PaintModel] with this color.
   @override
   PaintModel toPaint([String? id, double? opacity]) => PaintModel.solid(
-        id: id ?? generateId(),
-        color: ColorRGB.fromColorRGBA(this),
-        opacity: opacity ?? a,
-      );
+    id: id ?? generateId(),
+    color: ColorRGB.fromColorRGBA(this),
+    opacity: opacity ?? a,
+  );
 }

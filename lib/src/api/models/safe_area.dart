@@ -1,10 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 part 'safe_area.g.dart';
 
 /// Represents a safe area.
-@JsonSerializable(useDynamics: true, createToJson: false)
+@JsonSerializable(createToJson: false)
 class SafeAreaModel with EquatableMixin {
   /// Whether to apply safe area to the top side of the widget.
   final bool top;
@@ -32,13 +32,13 @@ class SafeAreaModel with EquatableMixin {
 
   /// Creates a new [SafeAreaModel] instance with all sides set to [value].
   const SafeAreaModel.all(bool value)
-      : this(
-          top: value,
-          bottom: value,
-          left: value,
-          right: value,
-          enabled: value,
-        );
+    : this(
+        top: value,
+        bottom: value,
+        left: value,
+        right: value,
+        enabled: value,
+      );
 
   /// Creates a new [SafeAreaModel] instance with overridden values.
   SafeAreaModel copyWith({
@@ -58,13 +58,7 @@ class SafeAreaModel with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => [
-        top,
-        bottom,
-        left,
-        right,
-        enabled,
-      ];
+  List<Object?> get props => [top, bottom, left, right, enabled];
 
   /// Creates a new [SafeAreaModel] from a JSON data.
   factory SafeAreaModel.fromJson(dynamic json) {
@@ -86,8 +80,13 @@ class SafeAreaModel with EquatableMixin {
         enabled: enabled,
       );
     }
-    if (json
-        case [bool left, bool top, bool right, bool bottom, bool enabled]) {
+    if (json case [
+      bool left,
+      bool top,
+      bool right,
+      bool bottom,
+      bool enabled,
+    ]) {
       return SafeAreaModel(
         top: top,
         bottom: bottom,

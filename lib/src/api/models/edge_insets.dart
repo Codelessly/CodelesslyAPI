@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../extensions.dart';
 import '../mixins.dart';
 import 'models.dart';
@@ -25,14 +26,14 @@ enum EdgeInsetsDirection {
   B;
 
   AxisC get axis => switch (this) {
-        EdgeInsetsDirection.L || EdgeInsetsDirection.R => AxisC.horizontal,
-        EdgeInsetsDirection.T || EdgeInsetsDirection.B => AxisC.vertical,
-        EdgeInsetsDirection.all => AxisC.horizontal,
-      };
+    EdgeInsetsDirection.L || EdgeInsetsDirection.R => AxisC.horizontal,
+    EdgeInsetsDirection.T || EdgeInsetsDirection.B => AxisC.vertical,
+    EdgeInsetsDirection.all => AxisC.horizontal,
+  };
 }
 
 /// Holds edge insets data for margin/padding.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   /// Left spacing.
   final double l;
@@ -54,56 +55,61 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
 
   /// Creates a new instance of [EdgeInsetsModel] with given data.
   const EdgeInsetsModel({this.l = 0, this.t = 0, this.r = 0, this.b = 0})
-      : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
+    : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
 
   /// Creates [EdgeInsetsModel] by taking all directional values.
   const EdgeInsetsModel.fromLTRB(this.l, this.t, this.r, this.b)
-      : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
+    : assert(l >= 0 && t >= 0 && r >= 0 && b >= 0, 'All values must be >= 0');
 
   /// Creates [EdgeInsetsModel] by taking any of the directional values.
-  const EdgeInsetsModel.only(
-      {double left = 0, double top = 0, double right = 0, double bottom = 0})
-      : l = left,
-        t = top,
-        r = right,
-        b = bottom,
-        assert(left >= 0 && top >= 0 && right >= 0 && bottom >= 0,
-            'All values must be >= 0');
+  const EdgeInsetsModel.only({
+    double left = 0,
+    double top = 0,
+    double right = 0,
+    double bottom = 0,
+  }) : l = left,
+       t = top,
+       r = right,
+       b = bottom,
+       assert(
+         left >= 0 && top >= 0 && right >= 0 && bottom >= 0,
+         'All values must be >= 0',
+       );
 
   /// Creates [EdgeInsetsModel] with all directions set to the same value.
   const EdgeInsetsModel.all(double value)
-      : l = value,
-        t = value,
-        r = value,
-        b = value,
-        assert(value >= 0, 'Value must be >= 0');
+    : l = value,
+      t = value,
+      r = value,
+      b = value,
+      assert(value >= 0, 'Value must be >= 0');
 
   /// Creates [EdgeInsetsModel] with parallel directions set to the same value.
   const EdgeInsetsModel.symmetric({double horizontal = 0, double vertical = 0})
-      : l = horizontal,
-        t = vertical,
-        r = horizontal,
-        b = vertical,
-        assert(horizontal >= 0 && vertical >= 0, 'All values must be >= 0');
+    : l = horizontal,
+      t = vertical,
+      r = horizontal,
+      b = vertical,
+      assert(horizontal >= 0 && vertical >= 0, 'All values must be >= 0');
 
   /// Represents zero edge insets.
   static const EdgeInsetsModel zero = EdgeInsetsModel();
 
   /// Adds given [value] edge insets to this and returns the result.
   EdgeInsetsModel add(EdgeInsetsModel value) => EdgeInsetsModel(
-        l: l + value.l,
-        t: t + value.t,
-        r: r + value.r,
-        b: b + value.b,
-      );
+    l: l + value.l,
+    t: t + value.t,
+    r: r + value.r,
+    b: b + value.b,
+  );
 
   /// Maxes this edge insets with given [value] and returns the result.
   EdgeInsetsModel max(EdgeInsetsModel value) => EdgeInsetsModel(
-        l: l > value.l ? l : value.l,
-        t: t > value.t ? t : value.t,
-        r: r > value.r ? r : value.r,
-        b: b > value.b ? b : value.b,
-      );
+    l: l > value.l ? l : value.l,
+    t: t > value.t ? t : value.t,
+    r: r > value.r ? r : value.r,
+    b: b > value.b ? b : value.b,
+  );
 
   /// Returns true if the [other] model has any side that is larger than
   /// this model's respective side.
@@ -121,11 +127,11 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   /// Duplicates this instance with given [axis] values intact but resetting
   /// other values to zero.
   EdgeInsetsModel onlyAxis(AxisC axis) => EdgeInsetsModel(
-        l: axis == AxisC.horizontal ? l : 0,
-        t: axis == AxisC.vertical ? t : 0,
-        r: axis == AxisC.horizontal ? r : 0,
-        b: axis == AxisC.vertical ? b : 0,
-      );
+    l: axis == AxisC.horizontal ? l : 0,
+    t: axis == AxisC.vertical ? t : 0,
+    r: axis == AxisC.horizontal ? r : 0,
+    b: axis == AxisC.vertical ? b : 0,
+  );
 
   /// Duplicates this instance with given [direction] values intact but
   /// resetting other values to zero.
@@ -156,12 +162,7 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   }
 
   /// Duplicates this instance of [EdgeInsetsModel] with given data overrides.
-  EdgeInsetsModel copyWith({
-    double? l,
-    double? t,
-    double? r,
-    double? b,
-  }) =>
+  EdgeInsetsModel copyWith({double? l, double? t, double? r, double? b}) =>
       EdgeInsetsModel(
         l: l ?? this.l,
         t: t ?? this.t,
@@ -174,12 +175,12 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
 
   /// Returns the value of the edge insets based on the given [direction].
   double getValue(EdgeInsetsDirection direction) => switch (direction) {
-        EdgeInsetsDirection.all => l,
-        EdgeInsetsDirection.L => l,
-        EdgeInsetsDirection.T => t,
-        EdgeInsetsDirection.R => r,
-        EdgeInsetsDirection.B => b
-      };
+    EdgeInsetsDirection.all => l,
+    EdgeInsetsDirection.L => l,
+    EdgeInsetsDirection.T => t,
+    EdgeInsetsDirection.R => r,
+    EdgeInsetsDirection.B => b,
+  };
 
   @override
   String toString() => 'EdgeInsets(l: $l, t: $t, r: $r, b: $b)';
@@ -193,15 +194,15 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
     return switch (json) {
       num all => EdgeInsetsModel.all(all.toDouble()),
       [num horizontal, num vertical] => EdgeInsetsModel.symmetric(
-          horizontal: horizontal.toDouble(),
-          vertical: vertical.toDouble(),
-        ),
+        horizontal: horizontal.toDouble(),
+        vertical: vertical.toDouble(),
+      ),
       [num left, num top, num right, num bottom] => EdgeInsetsModel.only(
-          left: left.toDouble(),
-          top: top.toDouble(),
-          right: right.toDouble(),
-          bottom: bottom.toDouble(),
-        ),
+        left: left.toDouble(),
+        top: top.toDouble(),
+        right: right.toDouble(),
+        bottom: bottom.toDouble(),
+      ),
       _ => _$EdgeInsetsModelFromJson(json),
     };
   }
@@ -210,16 +211,13 @@ class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
   dynamic toJson() {
     if (l == t && t == r && r == b) return l.toPrettyPrecision(3);
     if (l == r && t == b) {
-      return [
-        l.toPrettyPrecision(3),
-        t.toPrettyPrecision(3),
-      ];
+      return [l.toPrettyPrecision(3), t.toPrettyPrecision(3)];
     }
     return [
       l.toPrettyPrecision(3),
       t.toPrettyPrecision(3),
       r.toPrettyPrecision(3),
-      b.toPrettyPrecision(3)
+      b.toPrettyPrecision(3),
     ];
   }
 }

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../codelessly_api.dart';
@@ -27,10 +27,7 @@ class SetVariantAction extends ActionModel
   List<Object?> get props => [nodeID, variantID];
 
   /// Duplicates this [SetVariantAction] with given data overrides.
-  SetVariantAction copyWith({
-    String? nodeID,
-    String? variantID,
-  }) =>
+  SetVariantAction copyWith({String? nodeID, String? variantID}) =>
       SetVariantAction(
         nodeID: nodeID ?? this.nodeID,
         variantID: variantID ?? this.variantID,

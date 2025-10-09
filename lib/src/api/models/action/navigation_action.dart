@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
@@ -51,8 +52,8 @@ class NavigationAction extends ActionModel
     Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
-  })  : params = {...params ?? {}},
-        super(type: ActionType.navigation);
+  }) : params = {...params ?? {}},
+       super(type: ActionType.navigation);
 
   @override
   List<Object?> get props => [destinationId, navigationType, params];
@@ -62,12 +63,11 @@ class NavigationAction extends ActionModel
     NavigationType? navigationType,
     String? destinationId,
     Map<String, String>? params,
-  }) =>
-      NavigationAction(
-        navigationType: navigationType ?? this.navigationType,
-        destinationId: destinationId ?? this.destinationId,
-        params: {...this.params, ...params ?? {}},
-      );
+  }) => NavigationAction(
+    navigationType: navigationType ?? this.navigationType,
+    destinationId: destinationId ?? this.destinationId,
+    params: {...this.params, ...params ?? {}},
+  );
 
   /// Creates a new [NavigationAction] instance from a JSON data.
   factory NavigationAction.fromJson(Map json) =>

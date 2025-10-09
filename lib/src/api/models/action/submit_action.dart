@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
@@ -105,15 +106,14 @@ class MailchimpSubmitAction extends SubmitAction {
     String? listID,
     String? firstNameField,
     String? lastNameField,
-  }) =>
-      MailchimpSubmitAction(
-        primaryTextField: primaryTextField ?? this.primaryTextField,
-        apiKey: apiKey ?? this.apiKey,
-        dataCenter: dataCenter ?? this.dataCenter,
-        listID: listID ?? this.listID,
-        firstNameField: firstNameField ?? this.firstNameField,
-        lastNameField: lastNameField ?? this.lastNameField,
-      );
+  }) => MailchimpSubmitAction(
+    primaryTextField: primaryTextField ?? this.primaryTextField,
+    apiKey: apiKey ?? this.apiKey,
+    dataCenter: dataCenter ?? this.dataCenter,
+    listID: listID ?? this.listID,
+    firstNameField: firstNameField ?? this.firstNameField,
+    lastNameField: lastNameField ?? this.lastNameField,
+  );
 
   /// Creates a new [MailchimpSubmitAction] instance from a JSON data.
   factory MailchimpSubmitAction.fromJson(Map json) =>

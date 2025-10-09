@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
@@ -38,22 +39,20 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   /// Creates a mock switch preview.
   SwitchNode.empty()
-      : properties = SwitchProperties(),
-        super(
-          id: 'switch',
-          name: 'Switch',
-          basicBoxLocal:
-              NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
-        );
+    : properties = SwitchProperties(),
+      super(
+        id: 'switch',
+        name: 'Switch',
+        basicBoxLocal: NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
+      );
 
   /// Creates a switch from the given properties.
   SwitchNode.fromProperties(this.properties)
-      : super(
-          id: 'switch',
-          name: 'Switch',
-          basicBoxLocal:
-              NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
-        );
+    : super(
+        id: 'switch',
+        name: 'Switch',
+        basicBoxLocal: NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
+      );
 
   /// Creates a [SwitchNode] instance with the given data.
   SwitchNode({
@@ -85,14 +84,14 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<SwitchProperties>(
-          'Properties',
-          'Holds configurable properties of the switch.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<SwitchProperties>(
+      'Properties',
+      'Holds configurable properties of the switch.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -306,19 +305,19 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
 
   @override
   List<Object?> get props => [
-        activeTrackColor,
-        inactiveTrackColor,
-        activeThumbColor,
-        inactiveThumbColor,
-        hoverColor,
-        focusColor,
-        splashRadius,
-        autofocus,
-        activeTrackBorderColor,
-        inactiveTrackBorderColor,
-        trackOutlineWidth,
-        useMaterial3,
-      ];
+    activeTrackColor,
+    inactiveTrackColor,
+    activeThumbColor,
+    inactiveThumbColor,
+    hoverColor,
+    focusColor,
+    splashRadius,
+    autofocus,
+    activeTrackBorderColor,
+    inactiveTrackBorderColor,
+    trackOutlineWidth,
+    useMaterial3,
+  ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.
   factory SwitchProperties.fromJson(Map json) =>

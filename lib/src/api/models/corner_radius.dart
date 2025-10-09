@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -29,11 +29,11 @@ enum RadiusType {
   circular,
 
   /// A corner shape controlled by an elliptical shape formula.
-  elliptical;
+  elliptical,
 }
 
 /// Holds corner radius values for a rect. Similar to Flutter's [BorderRadius].
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class CornerRadius extends Equatable with DynamicSerializableMixin {
   /// Radius for the top-left corner.
   final RadiusModel tl;
@@ -72,13 +72,13 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
     RadiusType type = RadiusType.circular,
     bool linked = false,
   }) : this.only(
-          type: type,
-          tl: radius,
-          tr: radius,
-          bl: radius,
-          br: radius,
-          linked: linked,
-        );
+         type: type,
+         tl: radius,
+         tr: radius,
+         bl: radius,
+         br: radius,
+         linked: linked,
+       );
 
   /// Creates a [CornerRadius] with individual corner radius values.
   const CornerRadius.only({
@@ -107,15 +107,14 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
     RadiusModel? bl,
     RadiusModel? br,
     bool? linked,
-  }) =>
-      CornerRadius(
-        type: type ?? this.type,
-        linked: linked ?? this.linked,
-        tl: tl ?? this.tl,
-        tr: tr ?? this.tr,
-        bl: bl ?? this.bl,
-        br: br ?? this.br,
-      );
+  }) => CornerRadius(
+    type: type ?? this.type,
+    linked: linked ?? this.linked,
+    tl: tl ?? this.tl,
+    tr: tr ?? this.tr,
+    bl: bl ?? this.bl,
+    br: br ?? this.br,
+  );
 
   /// Factory constructor for creating a new [CornerRadius] instance from
   /// JSON data.
@@ -190,7 +189,7 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
 }
 
 /// A radius for either circular or elliptical shapes.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class RadiusModel extends Equatable with DynamicSerializableMixin {
   /// The radius value on the horizontal axis.
   final double x;

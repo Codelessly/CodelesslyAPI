@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
@@ -14,11 +15,8 @@ class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
   final String url;
 
   /// Creates a new [LinkAction] with the given data.
-  LinkAction({
-    required this.url,
-    super.nonBlocking,
-    super.enabled,
-  }) : super(type: ActionType.link);
+  LinkAction({required this.url, super.nonBlocking, super.enabled})
+    : super(type: ActionType.link);
 
   @override
   List<Object?> get props => [url];

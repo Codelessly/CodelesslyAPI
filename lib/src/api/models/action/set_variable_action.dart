@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import '../variables_model.dart';
@@ -53,15 +54,15 @@ class SetVariableAction extends ActionModel
 
   @override
   List<Object?> get props => [
-        variable,
-        newValue,
-        toggled,
-        listOperation,
-        index,
-        mapOperation,
-        mapKey,
-        numberOperation,
-      ];
+    variable,
+    newValue,
+    toggled,
+    listOperation,
+    index,
+    mapOperation,
+    mapKey,
+    numberOperation,
+  ];
 
   /// Duplicates this [SetVariableAction] with given data overrides.
   SetVariableAction copyWith({
@@ -73,17 +74,16 @@ class SetVariableAction extends ActionModel
     MapOperation? mapOperation,
     String? mapKey,
     NumberOperation? numberOperation,
-  }) =>
-      SetVariableAction(
-        variable: variable ?? this.variable,
-        newValue: newValue ?? this.newValue,
-        toggled: toggled ?? this.toggled,
-        listOperation: listOperation ?? this.listOperation,
-        index: index ?? this.index,
-        mapOperation: mapOperation ?? this.mapOperation,
-        mapKey: mapKey ?? this.mapKey,
-        numberOperation: numberOperation ?? this.numberOperation,
-      );
+  }) => SetVariableAction(
+    variable: variable ?? this.variable,
+    newValue: newValue ?? this.newValue,
+    toggled: toggled ?? this.toggled,
+    listOperation: listOperation ?? this.listOperation,
+    index: index ?? this.index,
+    mapOperation: mapOperation ?? this.mapOperation,
+    mapKey: mapKey ?? this.mapKey,
+    numberOperation: numberOperation ?? this.numberOperation,
+  );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
   factory SetVariableAction.fromJson(Map json) =>

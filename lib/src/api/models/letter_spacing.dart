@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 
 part 'letter_spacing.g.dart';
@@ -11,7 +12,7 @@ enum LetterSpacingUnitEnum {
   pixels,
 
   /// Letter spacing in percentage.
-  percent;
+  percent,
 }
 
 /// The spacing between the text characters.
@@ -34,7 +35,7 @@ class LetterSpacing extends Equatable with SerializableMixin {
 
   /// Creates a percentage based [LetterSpacing] instance.
   const LetterSpacing.percent(this.value)
-      : unit = LetterSpacingUnitEnum.percent;
+    : unit = LetterSpacingUnitEnum.percent;
 
   /// Creates a [LetterSpacing] instance with zero value.
   static const LetterSpacing zero = LetterSpacing(
@@ -53,12 +54,6 @@ class LetterSpacing extends Equatable with SerializableMixin {
   Map toJson() => _$LetterSpacingToJson(this);
 
   /// Duplicates this instance with given data overrides.
-  LetterSpacing copyWith({
-    double? value,
-    LetterSpacingUnitEnum? unit,
-  }) =>
-      LetterSpacing(
-        value: value ?? this.value,
-        unit: unit ?? this.unit,
-      );
+  LetterSpacing copyWith({double? value, LetterSpacingUnitEnum? unit}) =>
+      LetterSpacing(value: value ?? this.value, unit: unit ?? this.unit);
 }

@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../../converters.dart';
 import '../../mixins.dart';
 import '../models.dart';
 
@@ -34,17 +35,17 @@ class ShowDialogAction extends ActionModel
     this.showCloseButton = false,
     super.nonBlocking,
     super.enabled,
-  })  : params = {...params ?? {}},
-        super(type: ActionType.showDialog);
+  }) : params = {...params ?? {}},
+       super(type: ActionType.showDialog);
 
   @override
   List<Object?> get props => [
-        destinationId,
-        params,
-        barrierDismissible,
-        barrierColor,
-        showCloseButton,
-      ];
+    destinationId,
+    params,
+    barrierDismissible,
+    barrierColor,
+    showCloseButton,
+  ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
@@ -53,14 +54,13 @@ class ShowDialogAction extends ActionModel
     bool? barrierDismissible,
     ColorRGBA? barrierColor,
     bool? showCloseButton,
-  }) =>
-      ShowDialogAction(
-        destinationId: destinationId ?? this.destinationId,
-        params: {...this.params, ...params ?? {}},
-        barrierDismissible: barrierDismissible ?? this.barrierDismissible,
-        barrierColor: barrierColor ?? this.barrierColor,
-        showCloseButton: showCloseButton ?? this.showCloseButton,
-      );
+  }) => ShowDialogAction(
+    destinationId: destinationId ?? this.destinationId,
+    params: {...this.params, ...params ?? {}},
+    barrierDismissible: barrierDismissible ?? this.barrierDismissible,
+    barrierColor: barrierColor ?? this.barrierColor,
+    showCloseButton: showCloseButton ?? this.showCloseButton,
+  );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
   factory ShowDialogAction.fromJson(Map json) =>
