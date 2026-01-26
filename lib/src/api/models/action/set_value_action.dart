@@ -12,16 +12,17 @@ part 'set_value_action.g.dart';
 class SetValueAction extends ActionModel
     with EquatableMixin, SerializableMixin {
   /// ID of the node whose values are to be set.
+  @JsonKey(defaultValue: '')
   final String nodeID;
 
   /// List of values to be set in the node.
-  @JsonKey(fromJson: valuesFromJson)
+  @JsonKey(fromJson: valuesFromJson, defaultValue: [])
   final List<ValueModel> values;
 
   /// Creates a new [SetValueAction].
   SetValueAction({
-    required this.nodeID,
-    required this.values,
+    this.nodeID = '',
+    this.values = const [],
     super.nonBlocking,
     super.enabled,
   }) : super(type: ActionType.setValue);

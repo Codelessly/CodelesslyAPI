@@ -1,0 +1,40 @@
+{
+  "id": "gridview-horizontal-1",
+  "name": "Horizontal Grid View",
+  "type": "gridView",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 800.0,
+    "height": 300.0
+  },
+  "children": [],
+  "allowedTypes": [],
+  "deniedTypes": [],
+  "isScrollable": true,
+  "useFlutterListView": false,
+  "placeholder": {
+    "type": "auto",
+    "showIcon": true
+  },
+  "properties": {
+    "itemCount": 20,
+    "cacheExtent": 100.0,
+    "gridDelegate": {
+      "type": "fixedCrossAxisCount",
+      "crossAxisCount": 2,
+      "mainAxisSpacing": 8.0,
+      "crossAxisSpacing": 8.0,
+      "childAspectRatio": 1.5,
+      "mainAxisExtent": null
+    }
+  },
+  "scrollDirection": "horizontal",
+  "reverse": false,
+  "physics": "clampingScrollPhysics",
+  "primary": false,
+  "keyboardDismissBehavior": "manual",
+  "clipsContent": true,
+  "reactions": []
+}

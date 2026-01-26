@@ -1,0 +1,20 @@
+{
+  "id": "slider-basic-1",
+  "name": "Basic Slider",
+  "type": "slider",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 40.0
+  },
+  "properties": {
+    "min": 0.0,
+    "max": 100.0,
+    "divisions": 10,
+    "showLabel": true
+  },
+  "value": 50.0,
+  "reactions": []
+}

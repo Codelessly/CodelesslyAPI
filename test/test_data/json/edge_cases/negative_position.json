@@ -1,0 +1,13 @@
+{
+  "id": "rect-negative-pos",
+  "name": "Rectangle with Negative Position",
+  "type": "rectangle",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": -50.0,
+    "y": -50.0,
+    "width": 100.0,
+    "height": 100.0
+  },
+  "reactions": []
+}

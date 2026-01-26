@@ -7,28 +7,15 @@ part of 'reaction.dart';
 // **************************************************************************
 
 Reaction _$ReactionFromJson(Map json) => Reaction(
-      id: json['id'] as String?,
-      name: json['name'] as String? ?? 'Action',
-      action: ActionModel.fromJson(json['action'] as Map),
-      trigger: TriggerModel.fromJson(json['trigger'] as Map),
-    );
+  id: json['id'] as String?,
+  name: json['name'] as String? ?? 'Action',
+  action: ActionModel.fromJson(json['action'] as Map),
+  trigger: TriggerModel.fromJson(json['trigger'] as Map),
+);
 
-Map<String, dynamic> _$ReactionToJson(Reaction instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('name', instance.name, instance.name, 'Action');
-  val['action'] = instance.action.toJson();
-  val['trigger'] = instance.trigger.toJson();
-  val['id'] = instance.id;
-  return val;
-}
+Map<String, dynamic> _$ReactionToJson(Reaction instance) => <String, dynamic>{
+  'name': instance.name,
+  'action': instance.action.toJson(),
+  'trigger': instance.trigger.toJson(),
+  'id': instance.id,
+};

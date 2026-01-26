@@ -1,0 +1,17 @@
+{
+  "id": "progressbar-linear-1",
+  "name": "Linear Progress Bar",
+  "type": "progressBar",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 4.0
+  },
+  "properties": {
+    "value": 0.7,
+    "showValue": false
+  },
+  "reactions": []
+}

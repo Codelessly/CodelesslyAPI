@@ -1,0 +1,23 @@
+{
+  "id": "appbar-basic-1",
+  "name": "Basic App Bar",
+  "type": "appBar",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 375.0,
+    "height": 56.0
+  },
+  "properties": {
+    "title": "App Title",
+    "centerTitle": true,
+    "elevation": 4.0
+  },
+  "reactions": [],
+  "title": {
+    "type": "text",
+    "value": "App Bar"
+  },
+  "actions": []
+}

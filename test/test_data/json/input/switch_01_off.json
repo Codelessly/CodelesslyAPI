@@ -1,0 +1,24 @@
+{
+  "id": "switch-off-1",
+  "name": "Switch Off",
+  "type": "switch",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 51.0,
+    "height": 31.0
+  },
+  "value": false,
+  "properties": {},
+  "reactions": [
+    {
+      "trigger": {
+        "type": "changed"
+      },
+      "action": {
+        "type": "setValue"
+      }
+    }
+  ]
+}

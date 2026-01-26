@@ -1,0 +1,34 @@
+{
+  "id": "icon-basic-1",
+  "name": "Basic Icon",
+  "type": "icon",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 24.0,
+    "height": 24.0
+  },
+  "properties": {
+    "icon": {
+      "type": "icon",
+      "icon": {
+        "name": "star",
+        "codepoint": 59448,
+        "style": "filled"
+      },
+      "color": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      }
+    }
+  },
+  "reactions": [],
+  "icon": {
+    "type": "MATERIAL_ICON",
+    "name": "star",
+    "codePoint": 59450
+  }
+}

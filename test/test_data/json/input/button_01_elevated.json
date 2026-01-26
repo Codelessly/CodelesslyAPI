@@ -1,0 +1,18 @@
+{
+  "id": "button-elevated-1",
+  "name": "Elevated Button",
+  "type": "button",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 120.0,
+    "height": 48.0
+  },
+  "properties": {
+    "label": "Elevated",
+    "buttonType": "elevated"
+  },
+  "reactions": [],
+  "label": ""
+}

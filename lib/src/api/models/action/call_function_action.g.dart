@@ -7,36 +7,20 @@ part of 'call_function_action.dart';
 // **************************************************************************
 
 CallFunctionAction _$CallFunctionActionFromJson(Map json) => CallFunctionAction(
-      name: json['name'] as String,
-      params: (json['params'] as Map?)?.map(
-        (k, e) => MapEntry(k as String, e),
-      ),
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  name: json['name'] as String,
+  params: (json['params'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['name'] = instance.name;
-  val['params'] = instance.params;
-  return val;
-}
+Map<String, dynamic> _$CallFunctionActionToJson(CallFunctionAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'name': instance.name,
+      'params': instance.params,
+    };
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

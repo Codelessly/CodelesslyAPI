@@ -7,41 +7,24 @@ part of 'navigation_action.dart';
 // **************************************************************************
 
 NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
-      navigationType: $enumDecodeNullable(
-              _$NavigationTypeEnumMap, json['navigationType']) ??
-          NavigationType.push,
-      destinationId: json['destinationId'] as String,
-      params: (json['params'] as Map?)?.map(
-        (k, e) => MapEntry(k as String, e),
-      ),
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  navigationType:
+      $enumDecodeNullable(_$NavigationTypeEnumMap, json['navigationType']) ??
+      NavigationType.push,
+  destinationId: json['destinationId'] as String,
+  params: (json['params'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('navigationType', instance.navigationType,
-      _$NavigationTypeEnumMap[instance.navigationType]!, NavigationType.push);
-  val['destinationId'] = instance.destinationId;
-  val['params'] = instance.params;
-  return val;
-}
+Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'navigationType': _$NavigationTypeEnumMap[instance.navigationType]!,
+      'destinationId': instance.destinationId,
+      'params': instance.params,
+    };
 
 const _$NavigationTypeEnumMap = {
   NavigationType.push: 'push',

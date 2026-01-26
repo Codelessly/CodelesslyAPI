@@ -1,0 +1,59 @@
+{
+  "id": "appbar-actions-1",
+  "name": "App Bar with Actions",
+  "type": "appBar",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 375.0,
+    "height": 56.0
+  },
+  "properties": {
+    "title": "Messages",
+    "centerTitle": false,
+    "elevation": 2.0,
+    "leading": {
+      "id": "leading-icon",
+      "type": "icon",
+      "icon": {
+        "type": "icon",
+        "icon": {
+          "name": "menu",
+          "codepoint": 58834,
+          "style": "filled"
+        },
+        "show": true
+      }
+    },
+    "actions": [
+      {
+        "id": "action-search",
+        "type": "icon",
+        "icon": {
+          "type": "icon",
+          "icon": {
+            "name": "search",
+            "codepoint": 59574,
+            "style": "filled"
+          },
+          "show": true
+        }
+      },
+      {
+        "id": "action-more",
+        "type": "icon",
+        "icon": {
+          "type": "icon",
+          "icon": {
+            "name": "more_vert",
+            "codepoint": 58836,
+            "style": "filled"
+          },
+          "show": true
+        }
+      }
+    ]
+  },
+  "reactions": []
+}

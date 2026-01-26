@@ -1,0 +1,32 @@
+{
+  "id": "canvas-empty",
+  "name": "Empty Canvas",
+  "type": "canvas",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 0.0,
+    "height": 0.0
+  },
+  "children": [],
+  "properties": {
+    "bodyId": "body-1",
+    "safeArea": {
+      "left": false,
+      "right": false,
+      "top": false,
+      "bottom": false
+    },
+    "brightness": "system"
+  },
+  "scaleMode": "autoScale",
+  "rowColumnType": "column",
+  "mainAxisAlignment": "center",
+  "crossAxisAlignment": "center",
+  "isScrollable": false,
+  "fills": [],
+  "reactions": [],
+  "isLocked": false,
+  "includeInLayout": true
+}

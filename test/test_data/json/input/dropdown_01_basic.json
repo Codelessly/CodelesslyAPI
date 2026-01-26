@@ -1,0 +1,23 @@
+{
+  "id": "dropdown-basic-1",
+  "name": "Basic Dropdown",
+  "type": "dropdown",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 200.0,
+    "height": 48.0
+  },
+  "properties": {
+    "hint": "Select option",
+    "items": [
+      "Option 1",
+      "Option 2",
+      "Option 3"
+    ]
+  },
+  "value": "",
+  "reactions": [],
+  "items": []
+}

@@ -36,13 +36,15 @@ abstract class IconModel with EquatableMixin, SerializableMixin {
   factory IconModel.fromJson(Map<String, dynamic> json) {
     switch (json['type']) {
       case 'MATERIAL_ICON':
+      case 'icon': // Backwards compatibility for simplified format
+      case null: // Default to MaterialIcon when type is not specified
         return MaterialIcon.fromJson(json);
       case 'MATERIAL_SYMBOL':
         return MaterialSymbol.fromJson(json);
       case 'CUPERTINO_ICON':
         return CupertinoIcon.fromJson(json);
     }
-    throw UnimplementedError('Unknown icon type');
+    throw UnimplementedError('Unknown icon type: ${json['type']}');
   }
 }
 
@@ -101,6 +103,7 @@ enum MaterialSymbolStyle {
 @JsonSerializable()
 class MaterialIcon extends IconModel {
   /// Style of this material icon.
+  @JsonKey(defaultValue: MaterialIconStyle.filled)
   final MaterialIconStyle style;
 
   /// Version of this material icon.
@@ -114,7 +117,7 @@ class MaterialIcon extends IconModel {
     required super.codepoint,
     super.fontFamily = 'MaterialIcons',
     required super.name,
-    required this.style,
+    this.style = MaterialIconStyle.filled,
     this.version = 1,
   });
 

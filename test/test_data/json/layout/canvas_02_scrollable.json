@@ -1,0 +1,47 @@
+{
+  "id": "canvas-scrollable-1",
+  "name": "Scrollable Canvas",
+  "type": "canvas",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 375.0,
+    "height": 812.0
+  },
+  "children": [],
+  "properties": {
+    "bodyId": "body-1",
+    "safeArea": {
+      "left": true,
+      "right": true,
+      "top": true,
+      "bottom": true
+    },
+    "brightness": "system"
+  },
+  "scaleMode": "autoScale",
+  "rowColumnType": "column",
+  "mainAxisAlignment": "start",
+  "crossAxisAlignment": "stretch",
+  "isScrollable": true,
+  "scrollDirection": "vertical",
+  "physics": "bouncingScrollPhysics",
+  "fills": [
+    {
+      "id": "fill-1",
+      "type": "solid",
+      "visible": true,
+      "opacity": 1.0,
+      "color": {
+        "r": 0.95,
+        "g": 0.95,
+        "b": 0.95,
+        "a": 1.0
+      }
+    }
+  ],
+  "reactions": [],
+  "isLocked": false,
+  "includeInLayout": true
+}

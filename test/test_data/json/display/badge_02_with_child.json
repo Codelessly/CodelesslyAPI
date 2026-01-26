@@ -1,0 +1,30 @@
+{
+  "id": "badge-icon-1",
+  "name": "Badge on Icon",
+  "type": "badge",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 32.0,
+    "height": 32.0
+  },
+  "properties": {
+    "label": "99+",
+    "showBadge": true,
+    "backgroundColor": {
+      "r": 1.0,
+      "g": 0.0,
+      "b": 0.0,
+      "a": 1.0
+    },
+    "textColor": {
+      "r": 1.0,
+      "g": 1.0,
+      "b": 1.0,
+      "a": 1.0
+    }
+  },
+  "child": "icon-1",
+  "reactions": []
+}

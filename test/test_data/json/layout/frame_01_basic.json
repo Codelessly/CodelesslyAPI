@@ -1,0 +1,28 @@
+{
+  "id": "frame-basic-1",
+  "name": "Basic Frame",
+  "type": "frame",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 200.0
+  },
+  "children": [],
+  "fills": [
+    {
+      "id": "fill-1",
+      "type": "solid",
+      "visible": true,
+      "opacity": 1.0,
+      "color": {
+        "r": 0.9,
+        "g": 0.9,
+        "b": 0.9,
+        "a": 1.0
+      }
+    }
+  ],
+  "reactions": []
+}

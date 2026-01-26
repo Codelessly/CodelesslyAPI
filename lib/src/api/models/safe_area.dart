@@ -7,18 +7,23 @@ part 'safe_area.g.dart';
 @JsonSerializable(createToJson: false)
 class SafeAreaModel with EquatableMixin {
   /// Whether to apply safe area to the top side of the widget.
+  @JsonKey(defaultValue: true)
   final bool top;
 
   /// Whether to apply safe area to the bottom side of the widget.
+  @JsonKey(defaultValue: true)
   final bool bottom;
 
   /// Whether to apply safe area to the left side of the widget.
+  @JsonKey(defaultValue: true)
   final bool left;
 
   /// Whether to apply safe area to the right side of the widget.
+  @JsonKey(defaultValue: true)
   final bool right;
 
   /// Whether to apply safe area to the widget.
+  @JsonKey(defaultValue: true)
   final bool enabled;
 
   /// Creates a new [SafeAreaModel] instance.

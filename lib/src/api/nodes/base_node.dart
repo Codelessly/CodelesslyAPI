@@ -93,6 +93,7 @@ abstract class BaseNode
   /// [edgePins] are never null and will always reflect the [middleBoxLocal]
   /// in some way, while [alignment] can have a null data model inside to
   /// indicate freeform (no-alignment) positioning.
+  @JsonKey(defaultValue: PositioningMode.align)
   PositioningMode positioningMode;
 
   /// The horizontal fit of a node determines how this node gets its box laid
@@ -116,6 +117,7 @@ abstract class BaseNode
   int flex;
 
   /// Whether the node preserves its aspect ratio while resizing.
+  @JsonKey(defaultValue: false)
   bool aspectRatioLock;
 
   /// The ID of the parent of this node.

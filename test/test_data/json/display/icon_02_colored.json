@@ -1,0 +1,44 @@
+{
+  "id": "icon-colored-1",
+  "name": "Colored Icon",
+  "type": "icon",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 32.0,
+    "height": 32.0
+  },
+  "properties": {
+    "icon": {
+      "type": "icon",
+      "icon": {
+        "name": "favorite",
+        "codepoint": 59470,
+        "style": "filled"
+      },
+      "color": {
+        "r": 1.0,
+        "g": 0.0,
+        "b": 0.0,
+        "a": 1.0
+      }
+    }
+  },
+  "opacity": 1.0,
+  "reactions": [
+    {
+      "trigger": {
+        "type": "click"
+      },
+      "action": {
+        "type": "setValue"
+      }
+    }
+  ],
+  "icon": {
+    "type": "MATERIAL_ICON",
+    "name": "star",
+    "codePoint": 59450
+  }
+}

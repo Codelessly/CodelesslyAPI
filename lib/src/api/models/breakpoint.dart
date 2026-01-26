@@ -51,6 +51,8 @@ class Breakpoint with EquatableMixin, SerializableMixin {
   final num lowerBound;
 
   /// Upper bound of this breakpoint. It is an integer, but supports infinity.
+  /// Uses [InfinityNumConverter] to handle [double.infinity] in JSON.
+  @InfinityNumConverter()
   final num upperBound;
 
   /// Creates new [Breakpoint] with given values.

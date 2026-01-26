@@ -1,0 +1,46 @@
+{
+  "id": "gridview-three-column-1",
+  "name": "Three Column Grid",
+  "type": "gridView",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 600.0,
+    "height": 800.0
+  },
+  "children": [],
+  "allowedTypes": [],
+  "deniedTypes": [],
+  "isScrollable": true,
+  "useFlutterListView": false,
+  "placeholder": {
+    "type": "auto",
+    "showIcon": true
+  },
+  "properties": {
+    "itemCount": 12,
+    "cacheExtent": 250.0,
+    "gridDelegate": {
+      "type": "fixedCrossAxisCount",
+      "crossAxisCount": 3,
+      "mainAxisSpacing": 16.0,
+      "crossAxisSpacing": 16.0,
+      "childAspectRatio": 0.75,
+      "mainAxisExtent": null
+    }
+  },
+  "scrollDirection": "vertical",
+  "reverse": false,
+  "physics": "bouncingScrollPhysics",
+  "primary": true,
+  "keyboardDismissBehavior": "onDrag",
+  "clipsContent": true,
+  "padding": {
+    "left": 16.0,
+    "top": 16.0,
+    "right": 16.0,
+    "bottom": 16.0
+  },
+  "reactions": []
+}

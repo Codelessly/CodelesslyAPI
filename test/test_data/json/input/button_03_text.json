@@ -1,0 +1,18 @@
+{
+  "id": "button-text-1",
+  "name": "Text Button",
+  "type": "button",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 100.0,
+    "height": 40.0
+  },
+  "properties": {
+    "label": "Text",
+    "buttonType": "text"
+  },
+  "reactions": [],
+  "label": ""
+}

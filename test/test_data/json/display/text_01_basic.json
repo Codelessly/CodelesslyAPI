@@ -1,0 +1,14 @@
+{
+  "id": "text-basic-1",
+  "name": "Basic Text",
+  "type": "text",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 200.0,
+    "height": 30.0
+  },
+  "characters": "Hello World",
+  "reactions": []
+}

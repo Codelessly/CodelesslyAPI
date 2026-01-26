@@ -172,8 +172,8 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
   /// Creates a new [AppBarProperties] instance.
   AppBarProperties({
     required this.title,
-    required this.backgroundColor,
-    required this.leading,
+    ColorRGBA? backgroundColor,
+    IconAppBarActionItem? leading,
     this.actions = const [],
     this.centerTitle = false,
     TextProp? titleStyle,
@@ -181,7 +181,14 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
     this.automaticallyImplyLeading = true,
     this.titleSpacing = 16,
     this.shadowColor = ColorRGBA.black,
-  }) : titleStyle = titleStyle ?? TextProp(fontSize: 20);
+  }) : leading =
+           leading ??
+           IconAppBarActionItem(
+             id: 'leading',
+             icon: MultiSourceIconModel(show: false),
+           ),
+       titleStyle = titleStyle ?? TextProp(fontSize: 20),
+       backgroundColor = backgroundColor ?? ColorRGBA.white;
 
   /// Duplicate this [AppBarProperties] instance with the given data overrides.
   AppBarProperties copyWith({

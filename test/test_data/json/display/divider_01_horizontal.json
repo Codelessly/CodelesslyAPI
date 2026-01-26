@@ -1,0 +1,22 @@
+{
+  "id": "divider-h-1",
+  "name": "Horizontal Divider",
+  "type": "divider",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 1.0
+  },
+  "properties": {
+    "thickness": 1.0,
+    "color": {
+      "r": 0.8,
+      "g": 0.8,
+      "b": 0.8,
+      "a": 1.0
+    }
+  },
+  "reactions": []
+}

@@ -7,43 +7,25 @@ part of 'input_border.dart';
 // **************************************************************************
 
 InputBorderModel _$InputBorderModelFromJson(Map json) => InputBorderModel(
-      borderType:
-          $enumDecodeNullable(_$BorderTypeEnumEnumMap, json['borderType']) ??
-              BorderTypeEnum.outline,
-      borderSide: json['borderSide'] == null
-          ? const BorderSideModel()
-          : BorderSideModel.fromJson(json['borderSide'] as Map),
-      cornerRadius: json['cornerRadius'] == null
-          ? const CornerRadius.all(RadiusModel.circular(4))
-          : CornerRadius.fromJson(json['cornerRadius']),
-      gapPadding: (json['gapPadding'] as num?)?.toDouble() ?? 4,
-    );
+  borderType:
+      $enumDecodeNullable(_$BorderTypeEnumEnumMap, json['borderType']) ??
+      BorderTypeEnum.outline,
+  borderSide: json['borderSide'] == null
+      ? const BorderSideModel()
+      : BorderSideModel.fromJson(json['borderSide'] as Map),
+  cornerRadius: json['cornerRadius'] == null
+      ? const CornerRadius.all(RadiusModel.circular(4))
+      : CornerRadius.fromJson(json['cornerRadius']),
+  gapPadding: (json['gapPadding'] as num?)?.toDouble() ?? 4,
+);
 
-Map<String, dynamic> _$InputBorderModelToJson(InputBorderModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('borderType', instance.borderType,
-      _$BorderTypeEnumEnumMap[instance.borderType]!, BorderTypeEnum.outline);
-  writeNotNull('borderSide', instance.borderSide, instance.borderSide.toJson(),
-      const BorderSideModel());
-  writeNotNull(
-      'cornerRadius',
-      instance.cornerRadius,
-      instance.cornerRadius.toJson(),
-      const CornerRadius.all(RadiusModel.circular(4)));
-  writeNotNull('gapPadding', instance.gapPadding, instance.gapPadding, 4);
-  return val;
-}
+Map<String, dynamic> _$InputBorderModelToJson(InputBorderModel instance) =>
+    <String, dynamic>{
+      'borderType': _$BorderTypeEnumEnumMap[instance.borderType]!,
+      'borderSide': instance.borderSide.toJson(),
+      'cornerRadius': instance.cornerRadius.toJson(),
+      'gapPadding': instance.gapPadding,
+    };
 
 const _$BorderTypeEnumEnumMap = {
   BorderTypeEnum.none: 'none',

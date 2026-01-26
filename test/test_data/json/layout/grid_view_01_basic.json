@@ -1,0 +1,40 @@
+{
+  "id": "gridview-basic-1",
+  "name": "Basic Grid View",
+  "type": "gridView",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 400.0,
+    "height": 600.0
+  },
+  "children": [],
+  "allowedTypes": [],
+  "deniedTypes": [],
+  "isScrollable": true,
+  "useFlutterListView": false,
+  "placeholder": {
+    "type": "auto",
+    "showIcon": true
+  },
+  "properties": {
+    "itemCount": 6,
+    "cacheExtent": null,
+    "gridDelegate": {
+      "type": "fixedCrossAxisCount",
+      "crossAxisCount": 2,
+      "mainAxisSpacing": 10.0,
+      "crossAxisSpacing": 10.0,
+      "childAspectRatio": 1.0,
+      "mainAxisExtent": null
+    }
+  },
+  "scrollDirection": "vertical",
+  "reverse": false,
+  "physics": "platformDependent",
+  "primary": false,
+  "keyboardDismissBehavior": "manual",
+  "clipsContent": true,
+  "reactions": []
+}

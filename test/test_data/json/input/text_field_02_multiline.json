@@ -1,0 +1,22 @@
+{
+  "id": "textfield-multiline-1",
+  "name": "Multiline Text Field",
+  "type": "textField",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 120.0
+  },
+  "properties": {
+    "hintText": "Enter description",
+    "labelText": "Description",
+    "keyboardType": "multiline",
+    "textInputAction": "newline",
+    "maxLines": 5,
+    "minLines": 3
+  },
+  "value": "",
+  "reactions": []
+}

@@ -1,0 +1,16 @@
+{
+  "id": "radio-unselected-1",
+  "name": "Radio Button Unselected",
+  "type": "radio",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 40.0,
+    "height": 40.0
+  },
+  "value": "false",
+  "groupValue": "option-1",
+  "properties": {},
+  "reactions": []
+}

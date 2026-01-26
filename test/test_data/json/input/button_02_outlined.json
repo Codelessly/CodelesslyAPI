@@ -1,0 +1,18 @@
+{
+  "id": "button-outlined-1",
+  "name": "Outlined Button",
+  "type": "button",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 120.0,
+    "height": 48.0
+  },
+  "properties": {
+    "label": "Outlined",
+    "buttonType": "outlined"
+  },
+  "reactions": [],
+  "label": ""
+}

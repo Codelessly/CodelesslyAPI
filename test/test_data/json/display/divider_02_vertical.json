@@ -1,0 +1,24 @@
+{
+  "id": "divider-v-1",
+  "name": "Vertical Divider",
+  "type": "divider",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 1.0,
+    "height": 200.0
+  },
+  "properties": {
+    "thickness": 1.0,
+    "indent": 8.0,
+    "endIndent": 8.0,
+    "color": {
+      "r": 0.5,
+      "g": 0.5,
+      "b": 0.5,
+      "a": 1.0
+    }
+  },
+  "reactions": []
+}

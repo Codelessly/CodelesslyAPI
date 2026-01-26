@@ -141,6 +141,25 @@ class DateTimeMapConverter
   };
 }
 
+/// Converter for numbers that can be infinity.
+///
+/// Converts `double.infinity` to `null` on serialize (excluded by include_if_null: false)
+/// and `null` back to `double.infinity` on deserialize.
+///
+/// This is needed because `double.infinity` cannot be encoded by [jsonEncode].
+class InfinityNumConverter extends JsonConverter<num, num?> {
+  /// Creates a new instance of [InfinityNumConverter].
+  const InfinityNumConverter();
+
+  @override
+  num fromJson(num? json) =>
+      json == null || json == double.infinity ? double.infinity : json;
+
+  @override
+  num? toJson(num object) =>
+      object == double.infinity || object.isInfinite ? null : object;
+}
+
 /// Compares two lists for equality.
 bool listsEqual(List? a, List? b) => const ListEquality().equals(a, b);
 

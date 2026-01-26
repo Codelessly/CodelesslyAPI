@@ -7,95 +7,73 @@ part of 'paint.dart';
 // **************************************************************************
 
 PaintModel _$PaintModelFromJson(Map json) => PaintModel(
-      id: _readId(json, 'id') as String,
-      type: $enumDecode(_$PaintTypeEnumMap, json['type']),
-      visible: json['visible'] as bool? ?? true,
-      opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
-      color: json['color'] == null ? null : ColorRGB.fromJson(json['color']),
-      blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
-              unknownValue: BlendModeC.srcOver) ??
-          BlendModeC.srcOver,
-      gradientTransform: (json['gradientTransform'] as List<dynamic>?)
-          ?.map((e) => e as num)
-          .toList(),
-      gradientStops: (json['gradientStops'] as List<dynamic>?)
-          ?.map((e) => ColorStop.fromJson(e as Map))
-          .toList(),
-      imageTransform: (json['imageTransform'] as List<dynamic>?)
-          ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
-          .toList(),
-      downloadUrl: json['downloadUrl'] as String?,
-      imageHash: json['imageHash'] as String?,
-      fit: $enumDecodeNullable(_$FitEnumMap, json['fit']) ?? Fit.none,
-      alignment: json['alignment'] == null
-          ? AlignmentModel.none
-          : AlignmentModel.fromJson(json['alignment'] as Map),
-      scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
-      scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
-      cropData: json['cropData'] == null
-          ? null
-          : CropData.fromJson(json['cropData'] as Map),
-      croppedImageURL: json['croppedImageURL'] as String?,
-      imageName: json['imageName'] as String?,
-      sourceWidth: (json['sourceWidth'] as num?)?.toDouble(),
-      sourceHeight: (json['sourceHeight'] as num?)?.toDouble(),
-      assetID: json['assetID'] as String?,
-      imageRepeat:
-          $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
-              ImageRepeatEnum.noRepeat,
-    );
+  id: _readId(json, 'id') as String,
+  type: $enumDecode(_$PaintTypeEnumMap, json['type']),
+  visible: json['visible'] as bool? ?? true,
+  opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
+  color: json['color'] == null ? null : ColorRGB.fromJson(json['color']),
+  blendMode:
+      $enumDecodeNullable(
+        _$BlendModeCEnumMap,
+        json['blendMode'],
+        unknownValue: BlendModeC.srcOver,
+      ) ??
+      BlendModeC.srcOver,
+  gradientTransform: (json['gradientTransform'] as List<dynamic>?)
+      ?.map((e) => e as num)
+      .toList(),
+  gradientStops: (json['gradientStops'] as List<dynamic>?)
+      ?.map((e) => ColorStop.fromJson(e as Map))
+      .toList(),
+  imageTransform: (json['imageTransform'] as List<dynamic>?)
+      ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
+      .toList(),
+  downloadUrl: json['downloadUrl'] as String?,
+  imageHash: json['imageHash'] as String?,
+  fit: $enumDecodeNullable(_$FitEnumMap, json['fit']) ?? Fit.none,
+  alignment: json['alignment'] == null
+      ? AlignmentModel.none
+      : AlignmentModel.fromJson(json['alignment'] as Map),
+  scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
+  scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
+  cropData: json['cropData'] == null
+      ? null
+      : CropData.fromJson(json['cropData'] as Map),
+  croppedImageURL: json['croppedImageURL'] as String?,
+  imageName: json['imageName'] as String?,
+  sourceWidth: (json['sourceWidth'] as num?)?.toDouble(),
+  sourceHeight: (json['sourceHeight'] as num?)?.toDouble(),
+  assetID: json['assetID'] as String?,
+  imageRepeat:
+      $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
+      ImageRepeatEnum.noRepeat,
+);
 
-Map<String, dynamic> _$PaintModelToJson(PaintModel instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'type': _$PaintTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  writeNotNull(
-      'opacity', instance.opacity, roundDoubleToJson(instance.opacity), 1);
-  writeNotNull('color', instance.color, instance.color?.toJson(), null);
-  writeNotNull('blendMode', instance.blendMode,
-      _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
-  writeNotNull('gradientTransform', instance.gradientTransform,
-      instance.gradientTransform, null);
-  writeNotNull('gradientStops', instance.gradientStops,
-      instance.gradientStops?.map((e) => e.toJson()).toList(), null);
-  writeNotNull(
-      'imageTransform', instance.imageTransform, instance.imageTransform, null);
-  writeNotNull('downloadUrl', instance.downloadUrl, instance.downloadUrl, null);
-  writeNotNull('imageName', instance.imageName, instance.imageName, null);
-  writeNotNull('imageHash', instance.imageHash, instance.imageHash, null);
-  writeNotNull('assetID', instance.assetID, instance.assetID, null);
-  writeNotNull('fit', instance.fit, _$FitEnumMap[instance.fit]!, Fit.none);
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
-  writeNotNull('scaleX', instance.scaleX, instance.scaleX, 1);
-  writeNotNull('scaleY', instance.scaleY, instance.scaleY, 1);
-  writeNotNull(
-      'cropData', instance.cropData, instance.cropData?.toJson(), null);
-  writeNotNull('croppedImageURL', instance.croppedImageURL,
-      instance.croppedImageURL, null);
-  writeNotNull('sourceWidth', instance.sourceWidth, instance.sourceWidth, null);
-  writeNotNull(
-      'sourceHeight', instance.sourceHeight, instance.sourceHeight, null);
-  writeNotNull(
-      'imageRepeat',
-      instance.imageRepeat,
-      _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
-      ImageRepeatEnum.noRepeat);
-  return val;
-}
+Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'type': _$PaintTypeEnumMap[instance.type]!,
+      'visible': instance.visible,
+      'opacity': roundDoubleToJson(instance.opacity),
+      'color': ?instance.color?.toJson(),
+      'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
+      'gradientTransform': ?instance.gradientTransform,
+      'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
+      'imageTransform': ?instance.imageTransform,
+      'downloadUrl': ?instance.downloadUrl,
+      'imageName': ?instance.imageName,
+      'imageHash': ?instance.imageHash,
+      'assetID': ?instance.assetID,
+      'fit': _$FitEnumMap[instance.fit]!,
+      'alignment': instance.alignment.toJson(),
+      'scaleX': instance.scaleX,
+      'scaleY': instance.scaleY,
+      'cropData': ?instance.cropData?.toJson(),
+      'croppedImageURL': ?instance.croppedImageURL,
+      'sourceWidth': ?instance.sourceWidth,
+      'sourceHeight': ?instance.sourceHeight,
+      'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
+    };
 
 const _$PaintTypeEnumMap = {
   PaintType.solid: 'solid',
@@ -157,15 +135,15 @@ const _$ImageRepeatEnumEnumMap = {
 };
 
 CropData _$CropDataFromJson(Map json) => CropData(
-      x: (json['x'] as num).toDouble(),
-      y: (json['y'] as num).toDouble(),
-      width: (json['width'] as num).toDouble(),
-      height: (json['height'] as num).toDouble(),
-    );
+  x: (json['x'] as num).toDouble(),
+  y: (json['y'] as num).toDouble(),
+  width: (json['width'] as num).toDouble(),
+  height: (json['height'] as num).toDouble(),
+);
 
 Map<String, dynamic> _$CropDataToJson(CropData instance) => <String, dynamic>{
-      'x': instance.x,
-      'y': instance.y,
-      'width': instance.width,
-      'height': instance.height,
-    };
+  'x': instance.x,
+  'y': instance.y,
+  'width': instance.width,
+  'height': instance.height,
+};

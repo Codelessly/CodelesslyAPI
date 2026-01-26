@@ -24,11 +24,21 @@ enum ButtonTypeEnum {
   text,
 
   /// Outlined buttons are medium-emphasis buttons. They contain actions that
-  /// are important, but aren’t the primary action in an app.
+  /// are important, but aren't the primary action in an app.
   outlined,
 
   /// A button made of only an icon, no label.
-  icon;
+  icon,
+
+  /// Filled buttons are high-emphasis buttons in Material 3. They have a
+  /// solid background color and are used for primary actions.
+  /// Refer to [FilledButton](https://api.flutter.dev/flutter/material/FilledButton-class.html)
+  filled,
+
+  /// Filled tonal buttons are medium-emphasis buttons in Material 3. They have
+  /// a lighter tonal background and are used for secondary actions.
+  /// Refer to [FilledButton.tonal](https://api.flutter.dev/flutter/material/FilledButton/FilledButton.tonal.html)
+  filledTonal;
 
   /// Whether this button type is icon.
   bool get isIconButton => this == ButtonTypeEnum.icon;
@@ -36,11 +46,21 @@ enum ButtonTypeEnum {
   /// Whether this button type is elevated.
   bool get isElevatedButton => this == ButtonTypeEnum.elevated;
 
-  /// Whether this button type is outlined.
+  /// Whether this button type is text.
   bool get isTextButton => this == ButtonTypeEnum.text;
 
   /// Whether this button type is outlined.
   bool get isOutlinedButton => this == ButtonTypeEnum.outlined;
+
+  /// Whether this button type is filled (Material 3).
+  bool get isFilledButton => this == ButtonTypeEnum.filled;
+
+  /// Whether this button type is filled tonal (Material 3).
+  bool get isFilledTonalButton => this == ButtonTypeEnum.filledTonal;
+
+  /// Whether this button type is one of the filled variants (Material 3).
+  bool get isFilledVariant =>
+      this == ButtonTypeEnum.filled || this == ButtonTypeEnum.filledTonal;
 
   /// Displayable string representation of this button type.
   String get prettify {
@@ -53,6 +73,10 @@ enum ButtonTypeEnum {
         return 'Outlined Button';
       case ButtonTypeEnum.icon:
         return 'Icon Button';
+      case ButtonTypeEnum.filled:
+        return 'Filled Button';
+      case ButtonTypeEnum.filledTonal:
+        return 'Filled Tonal Button';
     }
   }
 }

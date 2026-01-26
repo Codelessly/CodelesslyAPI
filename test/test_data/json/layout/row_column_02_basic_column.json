@@ -1,0 +1,15 @@
+{
+  "id": "column-basic-1",
+  "name": "Basic Column",
+  "type": "rowColumn",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 100.0,
+    "height": 300.0
+  },
+  "rowColumnType": "column",
+  "children": [],
+  "reactions": []
+}

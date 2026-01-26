@@ -1,0 +1,29 @@
+{
+  "id": "loading-circular-1",
+  "name": "Circular Loading Indicator",
+  "type": "loadingIndicator",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 40.0,
+    "height": 40.0
+  },
+  "properties": {
+    "type": "material",
+    "color": {
+      "r": 0.13,
+      "g": 0.59,
+      "b": 0.95,
+      "a": 1.0
+    },
+    "backgroundColor": {
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 0.0
+    },
+    "strokeWidth": 4.0
+  },
+  "reactions": []
+}

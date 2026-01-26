@@ -1,0 +1,14 @@
+{
+  "id": "text-multiline-1",
+  "name": "Multiline Text",
+  "type": "text",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 300.0,
+    "height": 100.0
+  },
+  "characters": "This is a longer text\nthat spans multiple lines\nfor testing purposes.",
+  "reactions": []
+}

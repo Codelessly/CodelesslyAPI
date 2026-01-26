@@ -136,6 +136,7 @@ abstract class LoadingIndicatorProperties extends CustomProperties
       case 'cupertino':
         return CupertinoLoadingIndicatorProperties.fromJson(json);
       case 'material':
+      case null: // Default to material if type is not specified
         return MaterialLoadingIndicatorProperties.fromJson(json);
       default:
         throw Exception('Unknown type: ${json['type']}');

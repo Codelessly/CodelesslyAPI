@@ -1,0 +1,33 @@
+{
+  "id": "dropdown-selected-1",
+  "name": "Dropdown with Selection",
+  "type": "dropdown",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 250.0,
+    "height": 48.0
+  },
+  "properties": {
+    "hint": "Choose...",
+    "items": [
+      "Apple",
+      "Banana",
+      "Orange",
+      "Grape"
+    ]
+  },
+  "value": "Banana",
+  "reactions": [
+    {
+      "trigger": {
+        "type": "changed"
+      },
+      "action": {
+        "type": "setValue"
+      }
+    }
+  ],
+  "items": []
+}

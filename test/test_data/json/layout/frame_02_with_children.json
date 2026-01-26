@@ -1,0 +1,49 @@
+{
+  "id": "frame-container-1",
+  "name": "Frame with Children",
+  "type": "frame",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 20.0,
+    "y": 20.0,
+    "width": 350.0,
+    "height": 250.0
+  },
+  "children": ["child-1", "child-2"],
+  "padding": {
+    "left": 16.0,
+    "right": 16.0,
+    "top": 16.0,
+    "bottom": 16.0
+  },
+  "fills": [
+    {
+      "id": "fill-1",
+      "type": "solid",
+      "visible": true,
+      "opacity": 1.0,
+      "color": {
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0
+      }
+    }
+  ],
+  "strokes": [
+    {
+      "id": "stroke-1",
+      "type": "solid",
+      "visible": true,
+      "opacity": 1.0,
+      "color": {
+        "r": 0.8,
+        "g": 0.8,
+        "b": 0.8,
+        "a": 1.0
+      }
+    }
+  ],
+  "strokeWeight": 1.0,
+  "reactions": []
+}

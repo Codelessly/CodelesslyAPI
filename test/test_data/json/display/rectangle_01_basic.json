@@ -1,0 +1,13 @@
+{
+  "id": "rectangle-basic-1",
+  "name": "Basic Rectangle",
+  "type": "rectangle",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 100.0,
+    "height": 100.0
+  },
+  "reactions": []
+}

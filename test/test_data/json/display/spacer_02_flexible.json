@@ -1,0 +1,25 @@
+{
+  "id": "spacer-flex-1",
+  "name": "Flexible Spacer",
+  "type": "spacer",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 1.0,
+    "height": 50.0
+  },
+  "flex": 2,
+  "reactions": [],
+  "alignment": {
+    "type": "none"
+  },
+  "horizontalFit": "fixed",
+  "verticalFit": "fixed",
+  "margin": {
+    "left": 0.0,
+    "top": 0.0,
+    "right": 0.0,
+    "bottom": 0.0
+  }
+}

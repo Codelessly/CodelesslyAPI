@@ -1,0 +1,19 @@
+{
+  "id": "scrollable-row-1",
+  "name": "Scrollable Row",
+  "type": "rowColumn",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 375.0,
+    "height": 100.0
+  },
+  "rowColumnType": "row",
+  "mainAxisAlignment": "start",
+  "crossAxisAlignment": "center",
+  "children": [],
+  "isScrollable": true,
+  "physics": "clampingScrollPhysics",
+  "reactions": []
+}

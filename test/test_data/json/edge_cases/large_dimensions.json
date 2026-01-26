@@ -1,0 +1,13 @@
+{
+  "id": "rect-large",
+  "name": "Rectangle with Large Dimensions",
+  "type": "rectangle",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 10000.0,
+    "height": 10000.0
+  },
+  "reactions": []
+}

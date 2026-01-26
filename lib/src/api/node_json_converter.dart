@@ -50,6 +50,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'button': ButtonNode.fromJson,
       'textField': TextFieldNode.fromJson,
       'checkbox': CheckboxNode.fromJson,
+      'chip': ChipNode.fromJson,
       'appBar': AppBarNode.fromJson,
       'navigationBar': NavigationBarNode.fromJson,
       'floatingActionButton': FloatingActionButtonNode.fromJson,
@@ -58,6 +59,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'slider': SliderNode.fromJson,
       'expansionTile': ExpansionTileNode.fromJson,
       'accordion': AccordionNode.fromJson,
+      'badge': BadgeNode.fromJson,
       'listTile': ListTileNode.fromJson,
       'embeddedVideo': EmbeddedVideoNode.fromJson,
       'divider': DividerNode.fromJson,
@@ -70,6 +72,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'gridView': GridViewNode.fromJson,
       'pageView': PageViewNode.fromJson,
       'tabBar': TabBarNode.fromJson,
+      'segmentedButton': SegmentedButtonNode.fromJson,
       'external': ExternalComponentNode.fromJson,
     };
   }

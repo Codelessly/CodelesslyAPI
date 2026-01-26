@@ -1,0 +1,25 @@
+{
+  "id": "radio-selected-1",
+  "name": "Radio Button Selected",
+  "type": "radio",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 40.0,
+    "height": 40.0
+  },
+  "value": "true",
+  "groupValue": "option-1",
+  "properties": {},
+  "reactions": [
+    {
+      "trigger": {
+        "type": "changed"
+      },
+      "action": {
+        "type": "setValue"
+      }
+    }
+  ]
+}

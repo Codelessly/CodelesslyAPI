@@ -1,0 +1,17 @@
+{
+  "id": "badge-basic-1",
+  "name": "Basic Badge",
+  "type": "badge",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 24.0,
+    "height": 24.0
+  },
+  "properties": {
+    "label": "5",
+    "showBadge": true
+  },
+  "reactions": []
+}

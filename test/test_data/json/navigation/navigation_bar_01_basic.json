@@ -1,0 +1,64 @@
+{
+  "id": "navbar-basic-1",
+  "name": "Basic Navigation Bar",
+  "type": "navigationBar",
+  "visible": true,
+  "basicBoxLocal": {
+    "x": 0.0,
+    "y": 0.0,
+    "width": 375.0,
+    "height": 80.0
+  },
+  "currentIndex": 0,
+  "properties": {
+    "styleDefinition": "material_3",
+    "items": [
+      {
+        "id": "nav-item-home",
+        "label": "Home",
+        "icon": {
+          "type": "icon",
+          "icon": {
+            "name": "home",
+            "codepoint": 59530,
+            "style": "filled"
+          },
+          "show": true
+        },
+        "differSelectedIcon": false,
+        "reactions": []
+      },
+      {
+        "id": "nav-item-search",
+        "label": "Search",
+        "icon": {
+          "type": "icon",
+          "icon": {
+            "name": "search",
+            "codepoint": 59574,
+            "style": "filled"
+          },
+          "show": true
+        },
+        "differSelectedIcon": false,
+        "reactions": []
+      },
+      {
+        "id": "nav-item-profile",
+        "label": "Profile",
+        "icon": {
+          "type": "icon",
+          "icon": {
+            "name": "person",
+            "codepoint": 59389,
+            "style": "filled"
+          },
+          "show": true
+        },
+        "differSelectedIcon": false,
+        "reactions": []
+      }
+    ]
+  },
+  "reactions": []
+}
