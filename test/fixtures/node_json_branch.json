@@ -1,0 +1,173 @@
+{
+  "branch_badge": {
+    "variables": {},
+    "multipleVariables": {},
+    "componentVersion": 1,
+    "componentSchema": {},
+    "id": "branch_badge",
+    "name": "branch_badge",
+    "visible": true,
+    "constraints": {},
+    "edgePins": {
+      "left": 0,
+      "top": 0
+    },
+    "positioningMode": "align",
+    "horizontalFit": "fixed",
+    "verticalFit": "fixed",
+    "flex": 1,
+    "aspectRatioLock": false,
+    "alignment": {},
+    "reactions": [],
+    "basicBoxLocal": [
+      0,
+      0,
+      48,
+      48
+    ],
+    "margin": 0,
+    "padding": 0,
+    "rotation": 0,
+    "enabled": true,
+    "type": "badge",
+    "properties": {
+      "badgeType": "count",
+      "label": "1200",
+      "backgroundColor": "#FFFF0000",
+      "labelStyle": {
+        "fills": [],
+        "fontSize": 12.0
+      },
+      "alignment": "topLeft",
+      "offsetX": 0,
+      "offsetY": 0,
+      "isLabelVisible": true,
+      "dotSize": 6,
+      "padding": [
+        4,
+        0
+      ]
+    },
+    "childID": "icon-1"
+  },
+  "branch_chip": {
+    "variables": {},
+    "multipleVariables": {},
+    "componentVersion": 1,
+    "componentSchema": {},
+    "id": "branch_chip",
+    "name": "branch_chip",
+    "visible": true,
+    "constraints": {},
+    "edgePins": {
+      "left": 0,
+      "top": 0
+    },
+    "positioningMode": "align",
+    "horizontalFit": "fixed",
+    "verticalFit": "fixed",
+    "flex": 1,
+    "aspectRatioLock": false,
+    "alignment": {},
+    "reactions": [],
+    "basicBoxLocal": [
+      0,
+      0,
+      100,
+      32
+    ],
+    "margin": 0,
+    "padding": 0,
+    "rotation": 0,
+    "enabled": true,
+    "type": "chip",
+    "properties": {
+      "chipType": "filter",
+      "label": "Category",
+      "labelStyle": {
+        "fills": [],
+        "fontSize": 12.0
+      },
+      "icon": {
+        "size": 18.0
+      },
+      "selected": true,
+      "selectedColor": "#FFFF0000",
+      "borderWidth": 1.0,
+      "cornerRadius": 8.0,
+      "elevation": 0,
+      "padding": [
+        12,
+        0
+      ],
+      "labelPadding": [
+        8,
+        4
+      ],
+      "autofocus": false
+    }
+  },
+  "branch_segmented_button": {
+    "variables": {},
+    "multipleVariables": {},
+    "componentVersion": 1,
+    "componentSchema": {},
+    "id": "branch_segmented_button",
+    "name": "branch_segmented_button",
+    "visible": true,
+    "constraints": {},
+    "edgePins": {
+      "left": 0,
+      "top": 0
+    },
+    "positioningMode": "align",
+    "horizontalFit": "fixed",
+    "verticalFit": "fixed",
+    "flex": 1,
+    "aspectRatioLock": false,
+    "alignment": {},
+    "reactions": [],
+    "basicBoxLocal": [
+      0,
+      0,
+      300,
+      40
+    ],
+    "margin": 0,
+    "padding": 0,
+    "rotation": 0,
+    "enabled": true,
+    "type": "segmentedButton",
+    "properties": {
+      "segments": [
+        {
+          "value": "day",
+          "label": "Day",
+          "enabled": true
+        },
+        {
+          "value": "week",
+          "label": "Week",
+          "enabled": true
+        },
+        {
+          "value": "month",
+          "label": "Month",
+          "enabled": true
+        }
+      ],
+      "selectedSegments": [
+        "week"
+      ],
+      "multiSelectionEnabled": false,
+      "emptySelectionAllowed": false,
+      "borderWidth": 1,
+      "selectedColor": "#FFFF0000",
+      "cornerRadius": [
+        20,
+        false,
+        "circular"
+      ]
+    }
+  }
+}
