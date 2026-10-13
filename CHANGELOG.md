@@ -1,3 +1,62 @@
+## 5.0.0
+
+### Breaking changes
+
+- Require Dart 3.13.
+- Replace the forked `codelessly_json_annotation` and
+  `codelessly_json_serializable` with the standard `json_annotation` and
+  `json_serializable`. Custom nodes should import
+  `package:json_annotation/json_annotation.dart`. `DateTimeConverter` is
+  now exported by this package.
+- Upgrade to equatable 3, which removes `EquatableMixin`; models mix in
+  `Equatable` instead.
+- Remove the unused blend and `value` constructor parameters of
+  `LoadingIndicatorNode`, `ProgressBarNode` and `DividerNode`, which were
+  silently discarded.
+- Remove the unused `automaticChevron` parameter of
+  `ExpansionTileProperties.copyWith`.
+
+### JSON
+
+- Serialized JSON is unchanged: fields that equal their defaults are still
+  omitted, now by a small build step in `tool/json_defaults_builder`.
+  Golden tests pin the output against 4.4.0.
+- Cloud database query `whereFilters`/`orderByFilters` are omitted when
+  empty; they read back as empty lists.
+
+### Flutter parity
+
+- Mirror new Flutter values: `TextAlignHorizontalEnum.start`/`end`,
+  `ButtonTypeEnum.filled`/`filledTonal`, `FABLocation.endContained`,
+  `TextInputTypeEnum.webSearch`/`twitter`,
+  `AutovalidateModeC.onUnfocus`/`onUserInteractionIfError`,
+  `SliderTrackShapeEnum.gapped`, `SliderValueIndicatorShape.drop`/
+  `roundedRectangle` and `CShapeBorder.roundedSuperellipse`.
+- Add `InputDecorationModel.contentPadding`, the `MultiSourceIconModel`
+  variable-font axes (`fill`, `weight`, `grade`, `opticalSize`),
+  `AppBarProperties.foregroundColor`/`scrolledUnderElevation`, and
+  `TabBarProperties.tabAlignment`/`dividerHeight`.
+- Document the Flutter replacements for deprecated `cacheExtent`
+  (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
+- Defaults that predate Material 3 are kept, since stored designs rely on
+  them.
+
+### Fixes
+
+- `ListTileNode.empty`/`fromProperties` and `ExpansionTileNode.empty`
+  no longer leave late fields uninitialized.
+- `FloatingActionButtonNode.empty` and `EmbeddedVideoNode.empty` use their
+  own sizes.
+- `copyWith` keeps Divider `thickness`, Dropdown `enabled`/`dense`/
+  `expanded`/`autoFocus`/`enableFeedback`, FAB `location`, M2 navigation
+  bar notch settings and `InputDecorationModel.contentPadding`.
+- Equality includes previously ignored fields of ExpansionTile, grid
+  delegates, Dropdown, Divider, FAB, ListTile, TabBar, icons, web views,
+  submit actions, Vimeo videos, condition groups and visual density.
+- `TypedValue.toEdgeInsetsModel` converts numbers and lists again.
+- Add field access for `TextFieldProperties` and the navigation bar
+  properties.
+
 ## 4.4.0
 
 - Add CornerRadius typedValue.

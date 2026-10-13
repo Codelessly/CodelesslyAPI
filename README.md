@@ -35,7 +35,7 @@ This is how you can create a custom `BaseNode`:
 
 ```dart
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'custom_node.g.dart';
 
@@ -44,7 +44,7 @@ class CustomNode extends BaseNode {
   @override
   final String type = 'custom_node';
 
-  MyCoolNode({
+  CustomNode({
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -56,6 +56,9 @@ class CustomNode extends BaseNode {
   Map toJson() => _$CustomNodeToJson(this);
 }
 ```
+
+Generate the serialization code with `dart run build_runner build`, using
+[json_serializable](https://pub.dev/packages/json_serializable).
 
 All nodes must extend `BaseNode`. Please refer to the documentation inside `BaseNode` for more information.
 
