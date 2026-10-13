@@ -222,10 +222,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -260,6 +260,8 @@ const _$TextAlignHorizontalEnumEnumMap = {
   TextAlignHorizontalEnum.center: 'center',
   TextAlignHorizontalEnum.right: 'right',
   TextAlignHorizontalEnum.justified: 'justified',
+  TextAlignHorizontalEnum.start: 'start',
+  TextAlignHorizontalEnum.end: 'end',
 };
 
 const _$TextAlignVerticalEnumEnumMap = {

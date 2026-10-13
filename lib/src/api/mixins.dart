@@ -171,6 +171,14 @@ enum TextAlignHorizontalEnum {
   ///
   /// Lines that end with hard line breaks are aligned towards the [start] edge.
   justified,
+
+  /// Align the text on the leading edge of the container: left for
+  /// left-to-right text and right for right-to-left text.
+  start,
+
+  /// Align the text on the trailing edge of the container: right for
+  /// left-to-right text and left for right-to-left text.
+  end,
 }
 
 /// Defines the affinity of an icon with any other node/widget.
@@ -535,7 +543,11 @@ enum SliderTrackShapeEnum {
   rectangle,
 
   /// A rectangular track with rounded edges.
-  roundedRectangle;
+  roundedRectangle,
+
+  /// A rounded track with a gap around the thumb, as in the 2024 Material 3
+  /// slider design. Mirrors Flutter's `GappedSliderTrackShape`.
+  gapped;
 
   /// Display-able string representation of the enum.
   String get prettify {
@@ -544,6 +556,8 @@ enum SliderTrackShapeEnum {
         return 'Rectangle';
       case SliderTrackShapeEnum.roundedRectangle:
         return 'Rounded';
+      case SliderTrackShapeEnum.gapped:
+        return 'Gapped';
     }
   }
 }
@@ -561,7 +575,15 @@ enum SliderValueIndicatorShape {
   ///
   /// ![A slider widget, consisting of 5 divisions and showing the rectangular slider value indicator shape.]
   /// (https://flutter.github.io/assets-for-api-docs/assets/material/rectangular_slider_value_indicator_shape.png)
-  rectangle;
+  rectangle,
+
+  /// A drop-shaped value indicator, the Material 3 default. Mirrors Flutter's
+  /// `DropSliderValueIndicatorShape`.
+  drop,
+
+  /// A rounded rectangle value indicator, as in the 2024 Material 3 slider
+  /// design. Mirrors Flutter's `RoundedRectSliderValueIndicatorShape`.
+  roundedRectangle;
 
   /// Display-able string representation of the enum.
   String get prettify {
@@ -570,6 +592,10 @@ enum SliderValueIndicatorShape {
         return 'Rectangle';
       case SliderValueIndicatorShape.paddle:
         return 'Paddle';
+      case SliderValueIndicatorShape.drop:
+        return 'Drop';
+      case SliderValueIndicatorShape.roundedRectangle:
+        return 'Rounded Rectangle';
     }
   }
 }

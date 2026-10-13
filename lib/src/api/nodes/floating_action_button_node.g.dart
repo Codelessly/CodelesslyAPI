@@ -307,6 +307,7 @@ const _$FABLocationEnumMap = {
   FABLocation.miniCenterDocked: 'miniCenterDocked',
   FABLocation.endDocked: 'endDocked',
   FABLocation.miniEndDocked: 'miniEndDocked',
+  FABLocation.endContained: 'endContained',
 };
 
 const _$CShapeBorderEnumMap = {
@@ -316,4 +317,5 @@ const _$CShapeBorderEnumMap = {
   CShapeBorder.roundedRectangle: 'roundedRectangle',
   CShapeBorder.continuousRectangle: 'continuousRectangle',
   CShapeBorder.beveledRectangle: 'beveledRectangle',
+  CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
 };

@@ -366,6 +366,8 @@ const _$TextInputTypeEnumEnumMap = {
   TextInputTypeEnum.text: 'text',
   TextInputTypeEnum.url: 'url',
   TextInputTypeEnum.visiblePassword: 'visiblePassword',
+  TextInputTypeEnum.webSearch: 'webSearch',
+  TextInputTypeEnum.twitter: 'twitter',
 };
 
 const _$BoxHeightStyleEnumEnumMap = {
@@ -387,6 +389,8 @@ const _$TextAlignHorizontalEnumEnumMap = {
   TextAlignHorizontalEnum.center: 'center',
   TextAlignHorizontalEnum.right: 'right',
   TextAlignHorizontalEnum.justified: 'justified',
+  TextAlignHorizontalEnum.start: 'start',
+  TextAlignHorizontalEnum.end: 'end',
 };
 
 const _$TextAlignVerticalEnumEnumMap = {
@@ -399,6 +403,8 @@ const _$AutovalidateModeCEnumMap = {
   AutovalidateModeC.disabled: 'disabled',
   AutovalidateModeC.always: 'always',
   AutovalidateModeC.onUserInteraction: 'onUserInteraction',
+  AutovalidateModeC.onUnfocus: 'onUnfocus',
+  AutovalidateModeC.onUserInteractionIfError: 'onUserInteractionIfError',
 };
 
 const _$TextInputAutofillHintsEnumMap = {

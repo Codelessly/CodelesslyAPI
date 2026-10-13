@@ -324,9 +324,12 @@ Map<String, dynamic> _$SliderPropertiesToJson(SliderProperties instance) =>
 const _$SliderTrackShapeEnumEnumMap = {
   SliderTrackShapeEnum.rectangle: 'rectangle',
   SliderTrackShapeEnum.roundedRectangle: 'roundedRectangle',
+  SliderTrackShapeEnum.gapped: 'gapped',
 };
 
 const _$SliderValueIndicatorShapeEnumMap = {
   SliderValueIndicatorShape.paddle: 'paddle',
   SliderValueIndicatorShape.rectangle: 'rectangle',
+  SliderValueIndicatorShape.drop: 'drop',
+  SliderValueIndicatorShape.roundedRectangle: 'roundedRectangle',
 };

@@ -190,7 +190,15 @@ enum AutovalidateModeC {
 
   /// Used to auto-validate [Form] and [FormField] only after each user
   /// interaction.
-  onUserInteraction('On User Interaction');
+  onUserInteraction('On User Interaction'),
+
+  /// Used to auto-validate [Form] and [FormField] only after the field loses
+  /// focus.
+  onUnfocus('On Unfocus'),
+
+  /// Used to auto-validate [Form] and [FormField] after each user interaction
+  /// once the field has shown an error.
+  onUserInteractionIfError('On User Interaction If Error');
 
   const AutovalidateModeC(this.label);
 

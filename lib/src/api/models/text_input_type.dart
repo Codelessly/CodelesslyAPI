@@ -67,7 +67,19 @@ enum TextInputTypeEnum {
   /// Optimize for passwords that are visible to the user.
   ///
   /// Requests a keyboard with ready access to both letters and numbers.
-  visiblePassword;
+  visiblePassword,
+
+  /// Optimized for web searches.
+  ///
+  /// Requests a keyboard that includes keys useful for web searches as well
+  /// as URLs. On Android this is remapped to [url].
+  webSearch,
+
+  /// Optimized for social media.
+  ///
+  /// Requests a keyboard that includes keys useful for handles and tags. On
+  /// Android this is remapped to [emailAddress].
+  twitter;
 
   /// Displayable string representation of the enum value.
   String get prettify {
@@ -94,6 +106,10 @@ enum TextInputTypeEnum {
         return 'URL';
       case TextInputTypeEnum.visiblePassword:
         return 'Visible password';
+      case TextInputTypeEnum.webSearch:
+        return 'Web search';
+      case TextInputTypeEnum.twitter:
+        return 'Twitter';
     }
   }
 }

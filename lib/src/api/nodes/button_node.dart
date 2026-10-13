@@ -27,7 +27,15 @@ enum ButtonTypeEnum {
   outlined,
 
   /// A button made of only an icon, no label.
-  icon;
+  icon,
+
+  /// Filled buttons have the most visual impact after the FAB and are used
+  /// for important, final actions. Mirrors Flutter's `FilledButton`.
+  filled,
+
+  /// Filled tonal buttons are a middle ground between filled and outlined
+  /// buttons. Mirrors Flutter's `FilledButton.tonal`.
+  filledTonal;
 
   /// Whether this button type is icon.
   bool get isIconButton => this == ButtonTypeEnum.icon;
@@ -35,11 +43,15 @@ enum ButtonTypeEnum {
   /// Whether this button type is elevated.
   bool get isElevatedButton => this == ButtonTypeEnum.elevated;
 
-  /// Whether this button type is outlined.
+  /// Whether this button type is text.
   bool get isTextButton => this == ButtonTypeEnum.text;
 
   /// Whether this button type is outlined.
   bool get isOutlinedButton => this == ButtonTypeEnum.outlined;
+
+  /// Whether this button type is filled or filled tonal.
+  bool get isFilledButton =>
+      this == ButtonTypeEnum.filled || this == ButtonTypeEnum.filledTonal;
 
   /// Displayable string representation of this button type.
   String get prettify {
@@ -52,6 +64,10 @@ enum ButtonTypeEnum {
         return 'Outlined Button';
       case ButtonTypeEnum.icon:
         return 'Icon Button';
+      case ButtonTypeEnum.filled:
+        return 'Filled Button';
+      case ButtonTypeEnum.filledTonal:
+        return 'Filled Tonal Button';
     }
   }
 }

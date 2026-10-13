@@ -122,7 +122,12 @@ enum FABLocation {
   /// action button lines up with the top of the bottom navigation bar,
   /// optimized for mini floating action buttons.
   /// See Flutter docs for more info.
-  miniEndDocked('Mini End Docked');
+  miniEndDocked('Mini End Docked'),
+
+  /// End-aligned [FloatingActionButton], placed inside a Material 3
+  /// [BottomAppBar] that contains it.
+  /// See Flutter docs for more info.
+  endContained('End Contained');
 
   /// Displayable string representation of this enum.
   final String label;

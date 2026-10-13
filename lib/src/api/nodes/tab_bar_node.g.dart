@@ -384,6 +384,7 @@ const _$CShapeBorderEnumMap = {
   CShapeBorder.roundedRectangle: 'roundedRectangle',
   CShapeBorder.continuousRectangle: 'continuousRectangle',
   CShapeBorder.beveledRectangle: 'beveledRectangle',
+  CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
 };
 
 TabItem _$TabItemFromJson(Map json) => TabItem(

@@ -275,6 +275,8 @@ const _$ButtonTypeEnumEnumMap = {
   ButtonTypeEnum.text: 'text',
   ButtonTypeEnum.outlined: 'outlined',
   ButtonTypeEnum.icon: 'icon',
+  ButtonTypeEnum.filled: 'filled',
+  ButtonTypeEnum.filledTonal: 'filledTonal',
 };
 
 const _$TextAlignHorizontalEnumEnumMap = {
@@ -282,6 +284,8 @@ const _$TextAlignHorizontalEnumEnumMap = {
   TextAlignHorizontalEnum.center: 'center',
   TextAlignHorizontalEnum.right: 'right',
   TextAlignHorizontalEnum.justified: 'justified',
+  TextAlignHorizontalEnum.start: 'start',
+  TextAlignHorizontalEnum.end: 'end',
 };
 
 const _$IconPlacementEnumEnumMap = {
@@ -296,4 +300,5 @@ const _$CShapeBorderEnumMap = {
   CShapeBorder.roundedRectangle: 'roundedRectangle',
   CShapeBorder.continuousRectangle: 'continuousRectangle',
   CShapeBorder.beveledRectangle: 'beveledRectangle',
+  CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
 };
