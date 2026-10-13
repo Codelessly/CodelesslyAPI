@@ -1,3 +1,40 @@
+## 5.1.0
+
+### New nodes
+
+- `BadgeNode` (`'badge'`): Material 3 `Badge` as a dot, label or count
+  (`BadgeType`), optionally anchored to another node through `childID`.
+  `BadgeProperties` mirrors Flutter's `backgroundColor`, `textColor`,
+  `textStyle`, `smallSize`, `largeSize`, `padding`, `isLabelVisible` and
+  `Badge.count`'s `maxCount`, plus `BadgeAlignment` and an `offsetX`/
+  `offsetY` offset (Flutter's default `Offset(4, -4)`).
+- `ChipNode` (`'chip'`): Material 3 `Chip`, `ActionChip`, `ChoiceChip`,
+  `FilterChip` and `InputChip` (`ChipType`). `ChipProperties` covers the
+  label and its style, an icon or image avatar, the delete icon and its
+  color, selection with `showCheckmark`/`checkmarkColor`, colors, border,
+  corner radius, elevation, paddings (Material 3 defaults: 8 px padding,
+  8 px horizontal label padding), `tooltip` and `autofocus`. Choice and
+  filter chips expose a `selected` property variable.
+- `SegmentedButtonNode` (`'segmentedButton'`): Material 3
+  `SegmentedButton<String>` built from `ButtonSegmentModel`s, with
+  `selected`, `multiSelectionEnabled`, `emptySelectionAllowed`,
+  `showSelectedIcon`, `selectedIcon`, `direction`, border, foreground and
+  background colors for both states and a stadium-shaped default corner
+  radius. The selection is exposed as the `selected` property variable.
+- All three are registered with `NodeJsonConverter`.
+
+### JSON
+
+- These nodes first appeared on the unreleased `migrate-json-serializable`
+  branch. JSON written with it still loads: keys are unchanged where a
+  field was renamed to its Flutter name (`dotSize` holds
+  `BadgeProperties.smallSize`, `labelStyle` holds
+  `BadgeProperties.textStyle`, `selectedSegments` holds
+  `SegmentedButtonProperties.selected`, `selectedColor`/`unselectedColor`
+  hold `selectedBackgroundColor`/`backgroundColor`), and field access uses
+  the same keys.
+- As with every other node, fields that equal their defaults are omitted.
+
 ## 5.0.0
 
 ### Breaking changes
