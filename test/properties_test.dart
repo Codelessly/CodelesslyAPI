@@ -113,19 +113,6 @@ void main() {
   });
 
   group('new Flutter parameters round-trip and stay out of default JSON', () {
-    test('MultiSourceIconModel variable font axes', () {
-      expect(
-        const MultiSourceIconModel.icon().toJson(),
-        isNot(contains('fill')),
-      );
-      const icon = MultiSourceIconModel.icon(fill: 1, weight: 600, grade: 0);
-      final copy = MultiSourceIconModel.fromJson(icon.toJson());
-      expect(copy.fill, 1);
-      expect(copy.weight, 600);
-      expect(copy.grade, 0);
-      expect(copy, isNot(const MultiSourceIconModel.icon(fill: 0)));
-    });
-
     test('TabBarProperties', () {
       final props = TabBarProperties(
         tabAlignment: TabAlignmentC.center,

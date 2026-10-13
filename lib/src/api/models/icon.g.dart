@@ -58,10 +58,6 @@ MultiSourceIconModel _$MultiSourceIconModelFromJson(Map json) =>
       show: json['show'] as bool? ?? false,
       imageName: json['imageName'] as String?,
       scale: (json['scale'] as num?)?.toDouble() ?? 1,
-      fill: (json['fill'] as num?)?.toDouble(),
-      weight: (json['weight'] as num?)?.toDouble(),
-      grade: (json['grade'] as num?)?.toDouble(),
-      opticalSize: (json['opticalSize'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$MultiSourceIconModelToJson(
@@ -75,10 +71,6 @@ Map<String, dynamic> _$MultiSourceIconModelToJson(
   'show': instance.show,
   'imageName': ?instance.imageName,
   'scale': instance.scale,
-  'fill': ?instance.fill,
-  'weight': ?instance.weight,
-  'grade': ?instance.grade,
-  'opticalSize': ?instance.opticalSize,
 };
 
 const _$IconTypeEnumEnumMap = {

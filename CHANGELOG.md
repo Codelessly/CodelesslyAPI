@@ -32,9 +32,7 @@
   `AutovalidateModeC.onUnfocus`/`onUserInteractionIfError`,
   `SliderTrackShapeEnum.gapped`, `SliderValueIndicatorShape.drop`/
   `roundedRectangle` and `CShapeBorder.roundedSuperellipse`.
-- Add the `MultiSourceIconModel`
-  variable-font axes (`fill`, `weight`, `grade`, `opticalSize`),
-  `AppBarProperties.foregroundColor`/`scrolledUnderElevation`, and
+- Add `AppBarProperties.foregroundColor`/`scrolledUnderElevation` and
   `TabBarProperties.tabAlignment`/`dividerHeight`.
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
