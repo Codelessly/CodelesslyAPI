@@ -217,6 +217,9 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
 
   /// The number of pixels by which to allow pre-rendering of items outside
   /// the visible area.
+  ///
+  /// Render with `scrollCacheExtent: ScrollCacheExtent.pixels(cacheExtent)`;
+  /// the `cacheExtent` parameter of Flutter's scroll views is deprecated.
   double? cacheExtent;
 
   /// Properties of the grid delegate that controls the layout of the grid.

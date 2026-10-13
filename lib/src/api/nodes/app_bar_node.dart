@@ -168,6 +168,14 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
   /// Elevation shadow color of the app bar.
   late ColorRGBA shadowColor;
 
+  /// Default color of the app bar's icons and text. When null, Flutter uses
+  /// the theme's `onSurface` color. Mirrors `AppBar.foregroundColor`.
+  ColorRGBA? foregroundColor;
+
+  /// Elevation of the app bar while content scrolls underneath it. When null,
+  /// Flutter uses 3 in Material 3. Mirrors `AppBar.scrolledUnderElevation`.
+  double? scrolledUnderElevation;
+
   /// Creates a new [AppBarProperties] instance.
   AppBarProperties({
     required this.title,
@@ -180,6 +188,8 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
     this.automaticallyImplyLeading = true,
     this.titleSpacing = 16,
     this.shadowColor = ColorRGBA.black,
+    this.foregroundColor,
+    this.scrolledUnderElevation,
   }) : titleStyle = titleStyle ?? TextProp(fontSize: 20);
 
   /// Duplicate this [AppBarProperties] instance with the given data overrides.
@@ -194,6 +204,8 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
     String? title,
     double? titleSpacing,
     ColorRGBA? shadowColor,
+    ColorRGBA? foregroundColor,
+    double? scrolledUnderElevation,
   }) {
     return AppBarProperties(
       actions: actions ?? this.actions,
@@ -207,6 +219,9 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
       title: title ?? this.title,
       titleSpacing: titleSpacing ?? this.titleSpacing,
       shadowColor: shadowColor ?? this.shadowColor,
+      foregroundColor: foregroundColor ?? this.foregroundColor,
+      scrolledUnderElevation:
+          scrolledUnderElevation ?? this.scrolledUnderElevation,
     );
   }
 
@@ -268,6 +283,18 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
       (value) => shadowColor = value,
     ),
     // TODO: Actions
+    'foregroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Foreground Color',
+      'Default color of the app bar\'s icons and text.',
+      () => foregroundColor,
+      (value) => foregroundColor = value,
+    ),
+    'scrolledUnderElevation': NumFieldAccess<double?>(
+      'Scrolled Under Elevation',
+      'Elevation of the app bar while content scrolls underneath it.',
+      () => scrolledUnderElevation,
+      (value) => scrolledUnderElevation = value,
+    ),
   };
 
   @override
@@ -282,6 +309,8 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
     title,
     titleSpacing,
     shadowColor,
+    foregroundColor,
+    scrolledUnderElevation,
   ];
 
   /// Creates a new [AppBarProperties] instance from a JSON data.

@@ -85,6 +85,10 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// less vertical space.
   final bool isDense;
 
+  /// The padding for the input decoration's container. When null, Flutter
+  /// picks a default based on [isDense] and the border type.
+  final EdgeInsetsModel? contentPadding;
+
   /// Optional text prefix to place on the line before the input.
   final String? prefixText;
 
@@ -224,6 +228,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.semanticCounterText,
     this.alignLabelWithHint = true,
     this.constraints = const BoxConstraintsModel(),
+    this.contentPadding,
   }) : labelStyle = labelStyle ?? TextProp(fontSize: 14),
        floatingLabelStyle =
            floatingLabelStyle ??
@@ -314,6 +319,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     floatingLabelBehavior: floatingLabelBehavior ?? this.floatingLabelBehavior,
     isCollapsed: isCollapsed ?? this.isCollapsed,
     isDense: isDense ?? this.isDense,
+    contentPadding: contentPadding ?? this.contentPadding,
     prefixIcon: prefixIcon ?? this.prefixIcon,
     prefixIconConstraints: prefixIconConstraints ?? this.prefixIconConstraints,
     prefixText: prefixText ?? this.prefixText,
@@ -386,6 +392,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint,
     constraints,
     showCounter,
+    contentPadding,
   ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance

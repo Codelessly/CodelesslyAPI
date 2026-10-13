@@ -34,6 +34,10 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   String value = '';
 
   /// Currently selected option in the radio group.
+  ///
+  /// Radios that share a group value form a group. Render them under a
+  /// Flutter `RadioGroup` with this value; `Radio.groupValue` and
+  /// `Radio.onChanged` are deprecated.
   String? groupValue;
 
   /// Creates a mock radio preview.

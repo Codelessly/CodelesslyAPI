@@ -215,6 +215,10 @@ AppBarProperties _$AppBarPropertiesFromJson(Map json) => AppBarProperties(
   shadowColor: json['shadowColor'] == null
       ? ColorRGBA.black
       : ColorRGBA.fromJson(json['shadowColor']),
+  foregroundColor: json['foregroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['foregroundColor']),
+  scrolledUnderElevation: (json['scrolledUnderElevation'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$AppBarPropertiesToJson(AppBarProperties instance) =>
@@ -229,6 +233,8 @@ Map<String, dynamic> _$AppBarPropertiesToJson(AppBarProperties instance) =>
       'titleSpacing': instance.titleSpacing,
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'shadowColor': instance.shadowColor.toJson(),
+      'foregroundColor': ?instance.foregroundColor?.toJson(),
+      'scrolledUnderElevation': ?instance.scrolledUnderElevation,
     };
 
 IconAppBarActionItem _$IconAppBarActionItemFromJson(Map json) =>

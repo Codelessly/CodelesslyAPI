@@ -111,4 +111,63 @@ void main() {
       );
     });
   });
+
+  group('new Flutter parameters round-trip and stay out of default JSON', () {
+    test('InputDecorationModel.contentPadding', () {
+      expect(
+        InputDecorationModel().toJson(),
+        isNot(contains('contentPadding')),
+      );
+      final model = InputDecorationModel(
+        contentPadding: const EdgeInsetsModel.all(8),
+      );
+      final copy = InputDecorationModel.fromJson(model.toJson());
+      expect(copy.contentPadding, const EdgeInsetsModel.all(8));
+      expect(copy.copyWith(isDense: false).contentPadding, copy.contentPadding);
+    });
+
+    test('MultiSourceIconModel variable font axes', () {
+      expect(
+        const MultiSourceIconModel.icon().toJson(),
+        isNot(contains('fill')),
+      );
+      const icon = MultiSourceIconModel.icon(fill: 1, weight: 600, grade: 0);
+      final copy = MultiSourceIconModel.fromJson(icon.toJson());
+      expect(copy.fill, 1);
+      expect(copy.weight, 600);
+      expect(copy.grade, 0);
+      expect(copy, isNot(const MultiSourceIconModel.icon(fill: 0)));
+    });
+
+    test('TabBarProperties', () {
+      final props = TabBarProperties(
+        tabAlignment: TabAlignmentC.center,
+        dividerHeight: 2,
+      );
+      final copy = TabBarProperties.fromJson(props.toJson());
+      expect(copy.tabAlignment, TabAlignmentC.center);
+      expect(copy.dividerHeight, 2);
+      expect(TabBarProperties().toJson(), isNot(contains('tabAlignment')));
+    });
+
+    test('AppBarProperties', () {
+      final props = AppBarProperties(
+        title: 'Title',
+        backgroundColor: ColorRGBA.white,
+        leading: IconAppBarActionItem(
+          id: 'leading',
+          icon: const MultiSourceIconModel.icon(),
+        ),
+        foregroundColor: ColorRGBA.black,
+        scrolledUnderElevation: 3,
+      );
+      final copy = AppBarProperties.fromJson(props.toJson());
+      expect(copy.foregroundColor, ColorRGBA.black);
+      expect(copy.scrolledUnderElevation, 3);
+    });
+
+    test('TextAlignHorizontalEnum.start', () {
+      expect(TextAlignHorizontalEnum.values.byName('start').name, 'start');
+    });
+  });
 }

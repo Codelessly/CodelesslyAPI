@@ -110,6 +110,25 @@ enum TabBarIndicatorSizeEnum {
   label,
 }
 
+/// How tabs are aligned horizontally in a tab bar. Mirrors Flutter's
+/// `TabAlignment`.
+enum TabAlignmentC {
+  /// Tabs are aligned to the start of the bar. Only valid when the tab bar is
+  /// scrollable.
+  start,
+
+  /// Tabs are aligned to the start of the bar with an offset of 52 pixels.
+  /// Only valid when the tab bar is scrollable.
+  startOffset,
+
+  /// Tabs fill the width of the bar. Only valid when the tab bar is not
+  /// scrollable.
+  fill,
+
+  /// Tabs are centered in the bar.
+  center,
+}
+
 /// Represents a tab item content: text, icon, or both.
 enum TabBarContentType {
   /// Show only the text.
@@ -213,6 +232,15 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
   /// The corner radius of the tab indicator.
   CornerRadius indicatorCornerRadius;
 
+  /// How the tabs are aligned. When null, Flutter uses [TabAlignmentC.start]
+  /// for scrollable tab bars (see [TabBarNode.isScrollable]) and [TabAlignmentC.fill] otherwise. Mirrors
+  /// `TabBar.tabAlignment`.
+  TabAlignmentC? tabAlignment;
+
+  /// Thickness of the divider under the tabs. When null, Flutter uses 1.
+  /// Mirrors `TabBar.dividerHeight`.
+  double? dividerHeight;
+
   /// Creates a new [TabBarProperties] instance.
   TabBarProperties({
     List<TabItem> tabs = const [],
@@ -234,6 +262,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     this.indicatorStyle = TabIndicatorStyle.underline,
     this.indicatorShape = CShapeBorder.roundedRectangle,
     this.indicatorCornerRadius = CornerRadius.zero,
+    this.tabAlignment,
+    this.dividerHeight,
   }) : tabs = [...tabs],
        labelStyle = labelStyle ?? TextProp(),
        unselectedLabelStyle = unselectedLabelStyle ?? TextProp();
@@ -260,6 +290,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     TabIndicatorStyle? indicatorStyle,
     CShapeBorder? indicatorShape,
     CornerRadius? indicatorCornerRadius,
+    TabAlignmentC? tabAlignment,
+    double? dividerHeight,
   }) {
     return TabBarProperties(
       tabs: tabs ?? this.tabs,
@@ -282,6 +314,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
       indicatorShape: indicatorShape ?? this.indicatorShape,
       indicatorCornerRadius:
           indicatorCornerRadius ?? this.indicatorCornerRadius,
+      tabAlignment: tabAlignment ?? this.tabAlignment,
+      dividerHeight: dividerHeight ?? this.dividerHeight,
     );
   }
 
@@ -413,6 +447,21 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
       () => indicatorCornerRadius,
       (value) => indicatorCornerRadius = value,
     ),
+    'tabAlignment': EnumFieldAccess<TabAlignmentC?>(
+      'Tab Alignment',
+      'How the tabs are aligned.',
+      () => tabAlignment,
+      (value) => tabAlignment = value,
+      defaultValue: () => null,
+      options: () => TabAlignmentC.values,
+      requiresLayout: true,
+    ),
+    'dividerHeight': NumFieldAccess<double?>(
+      'Divider Height',
+      'Thickness of the divider under the tabs.',
+      () => dividerHeight,
+      (value) => dividerHeight = value,
+    ),
   };
 
   @override
@@ -444,6 +493,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     indicatorStyle,
     indicatorShape,
     indicatorCornerRadius,
+    tabAlignment,
+    dividerHeight,
   ];
 }
 

@@ -333,6 +333,11 @@ TabBarProperties _$TabBarPropertiesFromJson(Map json) => TabBarProperties(
   indicatorCornerRadius: json['indicatorCornerRadius'] == null
       ? CornerRadius.zero
       : CornerRadius.fromJson(json['indicatorCornerRadius']),
+  tabAlignment: $enumDecodeNullable(
+    _$TabAlignmentCEnumMap,
+    json['tabAlignment'],
+  ),
+  dividerHeight: (json['dividerHeight'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$TabBarPropertiesToJson(
@@ -357,6 +362,8 @@ Map<String, dynamic> _$TabBarPropertiesToJson(
   'indicatorStyle': _$TabIndicatorStyleEnumMap[instance.indicatorStyle]!,
   'indicatorShape': _$CShapeBorderEnumMap[instance.indicatorShape]!,
   'indicatorCornerRadius': instance.indicatorCornerRadius.toJson(),
+  'tabAlignment': ?_$TabAlignmentCEnumMap[instance.tabAlignment],
+  'dividerHeight': ?instance.dividerHeight,
 };
 
 const _$TabBarIndicatorSizeEnumEnumMap = {
@@ -385,6 +392,13 @@ const _$CShapeBorderEnumMap = {
   CShapeBorder.continuousRectangle: 'continuousRectangle',
   CShapeBorder.beveledRectangle: 'beveledRectangle',
   CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
+};
+
+const _$TabAlignmentCEnumMap = {
+  TabAlignmentC.start: 'start',
+  TabAlignmentC.startOffset: 'startOffset',
+  TabAlignmentC.fill: 'fill',
+  TabAlignmentC.center: 'center',
 };
 
 TabItem _$TabItemFromJson(Map json) => TabItem(

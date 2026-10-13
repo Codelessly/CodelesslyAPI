@@ -163,6 +163,9 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
 
   /// The number of pixels by which to allow pre-rendering of items outside
   /// the visible area.
+  ///
+  /// Render with `scrollCacheExtent: ScrollCacheExtent.pixels(cacheExtent)`;
+  /// the `cacheExtent` parameter of Flutter's scroll views is deprecated.
   double? cacheExtent;
 
   /// The amount of pixels the spacing separator should have, if enabled.
