@@ -88,6 +88,25 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
   /// Scale of the image icon.
   final double scale;
 
+  /// Fill for variable icon fonts such as Material Symbols, from 0 (outlined)
+  /// to 1 (filled). Mirrors Flutter's `Icon.fill`.
+  ///
+  /// Renderers that draw Material Symbols from Google's prebuilt SVGs snap
+  /// the axes to the variants those provide.
+  final double? fill;
+
+  /// Stroke weight for variable icon fonts, from 100 to 700. Mirrors
+  /// Flutter's `Icon.weight`.
+  final double? weight;
+
+  /// Grade for variable icon fonts, from -25 to 200. Mirrors Flutter's
+  /// `Icon.grade`.
+  final double? grade;
+
+  /// Optical size for variable icon fonts, from 20 to 48. Mirrors
+  /// Flutter's `Icon.opticalSize`.
+  final double? opticalSize;
+
   /// Whether the type of this icon is image.
   bool get isImageIcon => type == IconTypeEnum.image;
 
@@ -103,6 +122,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     this.size = 24,
     this.color = ColorRGBA.black,
     this.show = true,
+    this.fill,
+    this.weight,
+    this.grade,
+    this.opticalSize,
   }) : type = IconTypeEnum.icon,
        iconImage = null,
        scale = 1,
@@ -117,7 +140,11 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     this.imageName,
     this.scale = 1,
   }) : type = IconTypeEnum.image,
-       icon = null;
+       icon = null,
+       fill = null,
+       weight = null,
+       grade = null,
+       opticalSize = null;
 
   /// Default constructor of this class.
   const MultiSourceIconModel({
@@ -129,6 +156,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     this.show = false,
     this.imageName,
     this.scale = 1,
+    this.fill,
+    this.weight,
+    this.grade,
+    this.opticalSize,
   });
 
   @override
@@ -141,6 +172,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     show,
     imageName,
     scale,
+    fill,
+    weight,
+    grade,
+    opticalSize,
   ];
 
   /// Duplicates [MultiSourceIconModel] with the given properties overrides.
@@ -159,6 +194,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     bool forceSize = false,
     bool forceIconImage = false,
     bool forceImageName = false,
+    double? fill,
+    double? weight,
+    double? grade,
+    double? opticalSize,
   }) {
     return MultiSourceIconModel(
       iconImage: forceIconImage ? iconImage : (iconImage ?? this.iconImage),
@@ -169,6 +208,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
       show: show ?? this.show,
       scale: scale ?? this.scale,
       imageName: forceImageName ? imageName : (imageName ?? this.imageName),
+      fill: fill ?? this.fill,
+      weight: weight ?? this.weight,
+      grade: grade ?? this.grade,
+      opticalSize: opticalSize ?? this.opticalSize,
     );
   }
 

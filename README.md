@@ -127,7 +127,6 @@ elsewhere:
 | Size and padding parameters such as `ButtonStyle.minimumSize`/`fixedSize`, `InputDecoration.contentPadding` and `TabBar.padding` | The node's own box and `padding` |
 | `ScrollView.clipBehavior` and similar clip parameters | `ClipMixin.clipsContent` |
 | Callbacks and widgets, such as `itemExtentBuilder` and `prototypeItem` | Not representable as JSON; use `itemExtent` |
-| `Icon.fill`/`weight`/`grade`/`opticalSize` | Pending Material Symbols support in the SDK, which renders icons as SVGs |
 
 Defaults follow Material 3. Where a default changed from an earlier
 version, the old value still applies to JSON that omits the key (see

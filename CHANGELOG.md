@@ -44,6 +44,8 @@
   - `ExpansionTileProperties.showTrailingIcon`, `shape`, `collapsedShape`,
     `cornerRadius`
   - `TextMixin.softWrap`, `textScaleFactor`
+  - `MultiSourceIconModel.fill`, `weight`, `grade`, `opticalSize` (the
+    Material Symbols variable-font axes)
   - `PageViewProperties.allowImplicitScrolling`
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
