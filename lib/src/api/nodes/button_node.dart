@@ -194,6 +194,9 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
 }
 
 /// Holds configurable properties of a [ButtonNode].
+///
+/// Flutter's `ButtonStyle.minimumSize` and `fixedSize` are not repeated here:
+/// the node's box is the button's size.
 @JsonSerializable()
 class ButtonProperties extends CustomProperties
     with ShapeBorderMixin, FieldsHolder {

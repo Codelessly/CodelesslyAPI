@@ -207,6 +207,23 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Whether to retrieve the overlay color from slider's thumb.
   bool deriveOverlayColorFromThumb;
 
+  /// When to show the value indicator. When null, [showLabel] decides between
+  /// [ShowValueIndicatorC.onDrag] and [ShowValueIndicatorC.never]. Mirrors
+  /// `SliderThemeData.showValueIndicator`.
+  ShowValueIndicatorC? showValueIndicator;
+
+  /// Secondary progress shown between the thumb and the end of the track,
+  /// such as a buffered amount. Mirrors `Slider.secondaryTrackValue`.
+  double? secondaryTrackValue;
+
+  /// Color of the track up to [secondaryTrackValue]. Mirrors
+  /// `Slider.secondaryActiveColor`.
+  ColorRGBA? secondaryActiveTrackColor;
+
+  /// Padding around the slider's track and thumb. When null, Flutter reserves
+  /// room for the thumb's overlay. Mirrors `Slider.padding`.
+  EdgeInsetsModel? padding;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -234,6 +251,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.valueIndicatorShape = SliderValueIndicatorShape.rectangle,
     this.overlayRadius = kSliderDefaultOverlayRadius,
     this.deriveOverlayColorFromThumb = true,
+    this.showValueIndicator,
+    this.secondaryTrackValue,
+    this.secondaryActiveTrackColor,
+    this.padding,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -264,6 +285,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     SliderValueIndicatorShape? valueIndicatorShape,
     double? overlayRadius,
     bool? deriveOverlayColorFromThumb,
+    ShowValueIndicatorC? showValueIndicator,
+    double? secondaryTrackValue,
+    ColorRGBA? secondaryActiveTrackColor,
+    EdgeInsetsModel? padding,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -296,6 +321,11 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       overlayRadius: overlayRadius ?? this.overlayRadius,
       deriveOverlayColorFromThumb:
           deriveOverlayColorFromThumb ?? this.deriveOverlayColorFromThumb,
+      showValueIndicator: showValueIndicator ?? this.showValueIndicator,
+      secondaryTrackValue: secondaryTrackValue ?? this.secondaryTrackValue,
+      secondaryActiveTrackColor:
+          secondaryActiveTrackColor ?? this.secondaryActiveTrackColor,
+      padding: padding ?? this.padding,
     );
   }
 
@@ -478,6 +508,26 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       () => deriveOverlayColorFromThumb,
       (bool value) => deriveOverlayColorFromThumb = value,
     ),
+    'showValueIndicator': EnumFieldAccess<ShowValueIndicatorC?>(
+      'Show Value Indicator',
+      'When to show the value indicator.',
+      () => showValueIndicator,
+      (value) => showValueIndicator = value,
+      defaultValue: () => null,
+      options: () => ShowValueIndicatorC.values,
+    ),
+    'secondaryTrackValue': NumFieldAccess<double?>(
+      'Secondary Track Value',
+      'Secondary progress shown on the track, such as a buffered amount.',
+      () => secondaryTrackValue,
+      (value) => secondaryTrackValue = value,
+    ),
+    'secondaryActiveTrackColor': ColorFieldAccess<ColorRGBA?>(
+      'Secondary Active Track Color',
+      'Color of the track up to the secondary track value.',
+      () => secondaryActiveTrackColor,
+      (value) => secondaryActiveTrackColor = value,
+    ),
   };
 
   @override
@@ -507,6 +557,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     valueIndicatorShape,
     overlayRadius,
     deriveOverlayColorFromThumb,
+    showValueIndicator,
+    secondaryTrackValue,
+    secondaryActiveTrackColor,
+    padding,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.

@@ -111,6 +111,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TextAlignVerticalEnum textAlignVertical = TextAlignVerticalEnum.top,
     int? maxLines,
     TextOverflowC overflow = TextOverflowC.clip,
+    bool softWrap = true,
     // [BlendMixin] properties.
     double opacity = 1.0,
     bool isMask = false,
@@ -129,6 +130,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
       paragraphSpacing: paragraphSpacing,
       maxLines: maxLines,
       overflow: overflow,
+      softWrap: softWrap,
     );
 
     setBlendMixin(
@@ -190,6 +192,10 @@ mixin TextMixin {
   /// Defines how the text would clip when it overflows the available space.
   late TextOverflowC overflow;
 
+  /// Whether the text breaks at soft line breaks. When false, it is laid out
+  /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
+  late bool softWrap;
+
   /// Set text properties.
   void setTextMixin({
     required String characters,
@@ -200,6 +206,7 @@ mixin TextMixin {
     required double paragraphSpacing,
     required TextOverflowC overflow,
     int? maxLines,
+    bool softWrap = true,
   }) {
     this.characters = characters;
     this.textMixedProps = textMixedProps;
@@ -209,6 +216,7 @@ mixin TextMixin {
     this.paragraphSpacing = paragraphSpacing;
     this.maxLines = maxLines;
     this.overflow = overflow;
+    this.softWrap = softWrap;
   }
 }
 

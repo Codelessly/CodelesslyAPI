@@ -226,6 +226,10 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// Whether to show a divider between header and body.
   bool showDividers;
 
+  /// Whether to show the expansion arrow. Mirrors
+  /// `ExpansionTile.showTrailingIcon`.
+  bool showTrailingIcon;
+
   /// Platform or null affinity defaults to trailing.
   ListTileControlAffinityC effectiveAffinity(
     ListTileControlAffinityC? affinity,
@@ -256,6 +260,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     this.controlAffinity,
     this.visualDensity = VisualDensityModel.standard,
     this.showDividers = true,
+    this.showTrailingIcon = true,
   });
 
   /// Duplicates this [ExpansionTileProperties] instance with given data
@@ -276,6 +281,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     ListTileControlAffinityC? controlAffinity,
     VisualDensityModel? visualDensity,
     bool? showDividers,
+    bool? showTrailingIcon,
   }) {
     return ExpansionTileProperties(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -295,6 +301,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
       controlAffinity: controlAffinity ?? this.controlAffinity,
       visualDensity: visualDensity ?? this.visualDensity,
       showDividers: showDividers ?? this.showDividers,
+      showTrailingIcon: showTrailingIcon ?? this.showTrailingIcon,
     );
   }
 
@@ -393,6 +400,12 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
       (value) => showDividers = value,
       requiresLayout: true,
     ),
+    'showTrailingIcon': BoolFieldAccess(
+      'Show Trailing Icon',
+      'Whether to show the expansion arrow.',
+      () => showTrailingIcon,
+      (value) => showTrailingIcon = value,
+    ),
   };
 
   @override
@@ -412,6 +425,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     controlAffinity,
     visualDensity,
     showDividers,
+    showTrailingIcon,
   ];
 
   @override

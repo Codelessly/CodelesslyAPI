@@ -208,6 +208,8 @@ MaterialLoadingIndicatorProperties _$MaterialLoadingIndicatorPropertiesFromJson(
   strokeCap:
       $enumDecodeNullable(_$StrokeCapEnumEnumMap, json['strokeCap']) ??
       StrokeCapEnum.square,
+  strokeAlign: (json['strokeAlign'] as num?)?.toDouble(),
+  trackGap: (json['trackGap'] as num?)?.toDouble(),
 )..type = json['type'] as String;
 
 Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
@@ -219,6 +221,8 @@ Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
   'strokeWidth': instance.strokeWidth,
   'value': ?instance.value,
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
+  'strokeAlign': ?instance.strokeAlign,
+  'trackGap': ?instance.trackGap,
 };
 
 const _$StrokeCapEnumEnumMap = {

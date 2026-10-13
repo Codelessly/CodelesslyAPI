@@ -82,6 +82,8 @@ Map<String, dynamic> _$ExpansionTilePropertiesOmitDefaults(
   if (isJsonDefault(instance.visualDensity, VisualDensityModel.standard))
     json.remove('visualDensity');
   if (isJsonDefault(instance.showDividers, true)) json.remove('showDividers');
+  if (isJsonDefault(instance.showTrailingIcon, true))
+    json.remove('showTrailingIcon');
   return json;
 }
 
@@ -314,6 +316,7 @@ ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
               Map<String, dynamic>.from(json['visualDensity'] as Map),
             ),
       showDividers: json['showDividers'] as bool? ?? true,
+      showTrailingIcon: json['showTrailingIcon'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$ExpansionTilePropertiesToJson(
@@ -336,6 +339,7 @@ Map<String, dynamic> _$ExpansionTilePropertiesToJson(
       ?_$ListTileControlAffinityCEnumMap[instance.controlAffinity],
   'visualDensity': instance.visualDensity.toJson(),
   'showDividers': instance.showDividers,
+  'showTrailingIcon': instance.showTrailingIcon,
 };
 
 const _$ListTileControlAffinityCEnumMap = {

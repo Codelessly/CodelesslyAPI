@@ -164,4 +164,97 @@ void main() {
       expect(m2.fields.keys, containsAll(['navigationBarType', 'elevation']));
     });
   });
+
+  group('Flutter parameters added in 5.0.0 round-trip', () {
+    test('RadioProperties', () {
+      final props = RadioProperties(
+        side: const BorderSideModel(width: 2),
+        innerRadius: 5,
+        backgroundColor: ColorRGBA.white,
+      );
+      final copy = RadioProperties.fromJson(props.toJson());
+      expect(copy.side, const BorderSideModel(width: 2));
+      expect(copy.innerRadius, 5);
+      expect(copy.backgroundColor, ColorRGBA.white);
+      expect(RadioProperties().toJson(), isNot(contains('innerRadius')));
+    });
+
+    test('SliderProperties', () {
+      final props = SliderProperties(
+        showValueIndicator: ShowValueIndicatorC.alwaysVisible,
+        secondaryTrackValue: 40,
+        secondaryActiveTrackColor: ColorRGBA.white,
+        padding: const EdgeInsetsModel.all(4),
+      );
+      final copy = SliderProperties.fromJson(props.toJson());
+      expect(copy.showValueIndicator, ShowValueIndicatorC.alwaysVisible);
+      expect(copy.secondaryTrackValue, 40);
+      expect(copy.secondaryActiveTrackColor, ColorRGBA.white);
+      expect(copy.padding, const EdgeInsetsModel.all(4));
+      expect(copy, props);
+    });
+
+    test('ListTileProperties', () {
+      final props = ListTileProperties(
+        minTileHeight: 72,
+        titleAlignment: ListTileTitleAlignmentC.center,
+      );
+      final copy = ListTileProperties.fromJson(props.toJson());
+      expect(copy.minTileHeight, 72);
+      expect(copy.titleAlignment, ListTileTitleAlignmentC.center);
+    });
+
+    test('MaterialLoadingIndicatorProperties', () {
+      final props = MaterialLoadingIndicatorProperties(
+        color: ColorRGBA.black,
+        strokeAlign: -1,
+        trackGap: 4,
+      );
+      final copy = LoadingIndicatorProperties.fromJson(
+        props.toJson(),
+      ) as MaterialLoadingIndicatorProperties;
+      expect(copy.strokeAlign, -1);
+      expect(copy.trackGap, 4);
+    });
+
+    test('ExpansionTileProperties.showTrailingIcon', () {
+      expect(
+        ExpansionTileProperties().toJson(),
+        isNot(contains('showTrailingIcon')),
+      );
+      final copy = ExpansionTileProperties.fromJson(
+        ExpansionTileProperties(showTrailingIcon: false).toJson(),
+      );
+      expect(copy.showTrailingIcon, isFalse);
+    });
+
+    test('TextNode.softWrap', () {
+      TextNode text(bool softWrap) => TextNode(
+        id: 'text',
+        name: 'Text',
+        basicBoxLocal: NodeBox(0, 0, 100, 20),
+        characters: 'Hello',
+        softWrap: softWrap,
+      );
+      expect(text(true).toJson(), isNot(contains('softWrap')));
+      expect(TextNode.fromJson(text(false).toJson()).softWrap, isFalse);
+    });
+
+    test('4.4.0 nodes keep their Material 2 look', () {
+      final fab = FloatingActionButtonProperties.fromJson({});
+      expect(fab.shape, CShapeBorder.circle);
+      expect(fab.cornerRadius, CornerRadius.zero);
+      expect(fab.elevation, 0);
+      expect(
+        FloatingActionButtonProperties().shape,
+        CShapeBorder.roundedRectangle,
+      );
+      expect(
+        ListTileProperties.fromJson({}).contentPadding,
+        const EdgeInsetsModel.symmetric(horizontal: 16),
+      );
+      expect(SwitchProperties.fromJson({}).useMaterial3, isFalse);
+      expect(SwitchProperties().useMaterial3, isTrue);
+    });
+  });
 }

@@ -133,6 +133,17 @@ class RadioProperties extends CustomProperties with FieldsHolder {
   /// Whether the button's value can be toggled on tap.
   late bool toggleable;
 
+  /// Outline of the radio's circle. When null, Flutter draws it in the fill
+  /// color. Mirrors `Radio.side`.
+  BorderSideModel? side;
+
+  /// Radius of the dot shown when selected. When null, Flutter uses 4.5.
+  /// Mirrors `Radio.innerRadius`.
+  double? innerRadius;
+
+  /// Color inside the radio's circle. Mirrors `Radio.backgroundColor`.
+  ColorRGBA? backgroundColor;
+
   /// Creates a [RadioProperties] instance with the given data.
   RadioProperties({
     this.activeColor = ColorRGBA.black,
@@ -142,6 +153,9 @@ class RadioProperties extends CustomProperties with FieldsHolder {
     this.splashRadius = kRadialReactionRadius,
     this.autofocus = false,
     this.toggleable = false,
+    this.side,
+    this.innerRadius,
+    this.backgroundColor,
   });
 
   /// Duplicates this [RadioProperties] instance with the given data overrides.
@@ -153,6 +167,9 @@ class RadioProperties extends CustomProperties with FieldsHolder {
     double? splashRadius,
     bool? autofocus,
     bool? toggleable,
+    BorderSideModel? side,
+    double? innerRadius,
+    ColorRGBA? backgroundColor,
   }) {
     return RadioProperties(
       activeColor: activeColor ?? this.activeColor,
@@ -162,6 +179,9 @@ class RadioProperties extends CustomProperties with FieldsHolder {
       splashRadius: splashRadius ?? this.splashRadius,
       autofocus: autofocus ?? this.autofocus,
       toggleable: toggleable ?? this.toggleable,
+      side: side ?? this.side,
+      innerRadius: innerRadius ?? this.innerRadius,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
     );
   }
 
@@ -222,6 +242,18 @@ class RadioProperties extends CustomProperties with FieldsHolder {
         if (value != null) toggleable = value;
       },
     ),
+    'innerRadius': NumFieldAccess<double?>(
+      'Inner Radius',
+      'Radius of the dot shown when selected.',
+      () => innerRadius,
+      (value) => innerRadius = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color inside the radio\'s circle.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
   };
 
   @override
@@ -233,6 +265,9 @@ class RadioProperties extends CustomProperties with FieldsHolder {
     splashRadius,
     autofocus,
     toggleable,
+    side,
+    innerRadius,
+    backgroundColor,
   ];
 
   /// Creates a [RadioProperties] instance from a JSON object.

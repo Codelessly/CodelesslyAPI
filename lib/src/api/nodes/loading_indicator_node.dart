@@ -163,6 +163,14 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
   /// Stroke cap of the loading indicator.
   StrokeCapEnum strokeCap;
 
+  /// Where the stroke sits relative to the indicator's bounds, from -1
+  /// (inside) to 1 (outside). Mirrors `CircularProgressIndicator.strokeAlign`.
+  double? strokeAlign;
+
+  /// Gap between the indicator and its track in determinate mode. Mirrors
+  /// `CircularProgressIndicator.trackGap`.
+  double? trackGap;
+
   /// Creates a new [MaterialLoadingIndicatorProperties].
   MaterialLoadingIndicatorProperties({
     required this.color,
@@ -170,6 +178,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     this.strokeWidth = 4,
     this.value,
     this.strokeCap = StrokeCapEnum.square,
+    this.strokeAlign,
+    this.trackGap,
   });
 
   /// Duplicates this [MaterialLoadingIndicatorProperties] with given data
@@ -180,6 +190,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     double? strokeWidth,
     double? value,
     StrokeCapEnum? strokeCap,
+    double? strokeAlign,
+    double? trackGap,
   }) {
     return MaterialLoadingIndicatorProperties(
       color: color ?? this.color,
@@ -187,6 +199,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
       value: value ?? this.value,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       strokeCap: strokeCap ?? this.strokeCap,
+      strokeAlign: strokeAlign ?? this.strokeAlign,
+      trackGap: trackGap ?? this.trackGap,
     );
   }
 
@@ -219,6 +233,18 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
       defaultValue: () => StrokeCapEnum.square,
       options: () => StrokeCapEnum.values,
     ),
+    'strokeAlign': NumFieldAccess<double?>(
+      'Stroke Align',
+      'Where the stroke sits relative to the bounds, from -1 (inside) to 1 (outside).',
+      () => strokeAlign,
+      (value) => strokeAlign = value,
+    ),
+    'trackGap': NumFieldAccess<double?>(
+      'Track Gap',
+      'Gap between the indicator and its track.',
+      () => trackGap,
+      (value) => trackGap = value,
+    ),
   };
 
   @override
@@ -229,6 +255,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     value,
     backgroundColor,
     strokeCap,
+    strokeAlign,
+    trackGap,
   ];
 
   @override

@@ -562,6 +562,25 @@ enum SliderTrackShapeEnum {
   }
 }
 
+/// When a slider shows its value indicator. Mirrors Flutter's
+/// `ShowValueIndicator`.
+enum ShowValueIndicatorC {
+  /// Only for discrete sliders, while dragging.
+  onlyForDiscrete,
+
+  /// Only for continuous sliders, while dragging.
+  onlyForContinuous,
+
+  /// For all sliders, while dragging.
+  onDrag,
+
+  /// Always, regardless of interaction.
+  alwaysVisible,
+
+  /// Never.
+  never,
+}
+
 /// Represents the shape of the value indicator showed above the thumb of a
 /// slider when interacted.
 enum SliderValueIndicatorShape {

@@ -289,37 +289,54 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       kSliderDefaultOverlayRadius,
   deriveOverlayColorFromThumb:
       json['deriveOverlayColorFromThumb'] as bool? ?? true,
+  showValueIndicator: $enumDecodeNullable(
+    _$ShowValueIndicatorCEnumMap,
+    json['showValueIndicator'],
+  ),
+  secondaryTrackValue: (json['secondaryTrackValue'] as num?)?.toDouble(),
+  secondaryActiveTrackColor: json['secondaryActiveTrackColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['secondaryActiveTrackColor']),
+  padding: json['padding'] == null
+      ? null
+      : EdgeInsetsModel.fromJson(json['padding']),
 );
 
-Map<String, dynamic> _$SliderPropertiesToJson(SliderProperties instance) =>
-    <String, dynamic>{
-      'activeTrackColor': instance.activeTrackColor.toJson(),
-      'inactiveTrackColor': instance.inactiveTrackColor.toJson(),
-      'overlayColor': instance.overlayColor.toJson(),
-      'thumbColor': instance.thumbColor.toJson(),
-      'autofocus': instance.autofocus,
-      'divisions': ?instance.divisions,
-      'min': instance.min,
-      'max': instance.max,
-      'trackHeight': instance.trackHeight,
-      'label': instance.label,
-      'isDiscrete': instance.isDiscrete,
-      'showLabel': instance.showLabel,
-      'activeTickMarkColor': instance.activeTickMarkColor.toJson(),
-      'inactiveTickMarkColor': instance.inactiveTickMarkColor.toJson(),
-      'valueIndicatorColor': instance.valueIndicatorColor.toJson(),
-      'valueIndicatorTextColor': instance.valueIndicatorTextColor.toJson(),
-      'valueIndicatorFontSize': instance.valueIndicatorFontSize,
-      'allowFractionalPoints': instance.allowFractionalPoints,
-      'thumbRadius': instance.thumbRadius,
-      'showThumb': instance.showThumb,
-      'trackShape': _$SliderTrackShapeEnumEnumMap[instance.trackShape]!,
-      'tickMarkRadius': instance.tickMarkRadius,
-      'valueIndicatorShape':
-          _$SliderValueIndicatorShapeEnumMap[instance.valueIndicatorShape]!,
-      'overlayRadius': instance.overlayRadius,
-      'deriveOverlayColorFromThumb': instance.deriveOverlayColorFromThumb,
-    };
+Map<String, dynamic> _$SliderPropertiesToJson(
+  SliderProperties instance,
+) => <String, dynamic>{
+  'activeTrackColor': instance.activeTrackColor.toJson(),
+  'inactiveTrackColor': instance.inactiveTrackColor.toJson(),
+  'overlayColor': instance.overlayColor.toJson(),
+  'thumbColor': instance.thumbColor.toJson(),
+  'autofocus': instance.autofocus,
+  'divisions': ?instance.divisions,
+  'min': instance.min,
+  'max': instance.max,
+  'trackHeight': instance.trackHeight,
+  'label': instance.label,
+  'isDiscrete': instance.isDiscrete,
+  'showLabel': instance.showLabel,
+  'activeTickMarkColor': instance.activeTickMarkColor.toJson(),
+  'inactiveTickMarkColor': instance.inactiveTickMarkColor.toJson(),
+  'valueIndicatorColor': instance.valueIndicatorColor.toJson(),
+  'valueIndicatorTextColor': instance.valueIndicatorTextColor.toJson(),
+  'valueIndicatorFontSize': instance.valueIndicatorFontSize,
+  'allowFractionalPoints': instance.allowFractionalPoints,
+  'thumbRadius': instance.thumbRadius,
+  'showThumb': instance.showThumb,
+  'trackShape': _$SliderTrackShapeEnumEnumMap[instance.trackShape]!,
+  'tickMarkRadius': instance.tickMarkRadius,
+  'valueIndicatorShape':
+      _$SliderValueIndicatorShapeEnumMap[instance.valueIndicatorShape]!,
+  'overlayRadius': instance.overlayRadius,
+  'deriveOverlayColorFromThumb': instance.deriveOverlayColorFromThumb,
+  'showValueIndicator':
+      ?_$ShowValueIndicatorCEnumMap[instance.showValueIndicator],
+  'secondaryTrackValue': ?instance.secondaryTrackValue,
+  'secondaryActiveTrackColor': ?instance.secondaryActiveTrackColor?.toJson(),
+  'padding': ?instance.padding?.toJson(),
+};
 
 const _$SliderTrackShapeEnumEnumMap = {
   SliderTrackShapeEnum.rectangle: 'rectangle',
@@ -332,4 +349,12 @@ const _$SliderValueIndicatorShapeEnumMap = {
   SliderValueIndicatorShape.rectangle: 'rectangle',
   SliderValueIndicatorShape.drop: 'drop',
   SliderValueIndicatorShape.roundedRectangle: 'roundedRectangle',
+};
+
+const _$ShowValueIndicatorCEnumMap = {
+  ShowValueIndicatorC.onlyForDiscrete: 'onlyForDiscrete',
+  ShowValueIndicatorC.onlyForContinuous: 'onlyForContinuous',
+  ShowValueIndicatorC.onDrag: 'onDrag',
+  ShowValueIndicatorC.alwaysVisible: 'alwaysVisible',
+  ShowValueIndicatorC.never: 'never',
 };

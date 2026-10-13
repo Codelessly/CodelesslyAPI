@@ -213,6 +213,13 @@ RadioProperties _$RadioPropertiesFromJson(Map json) => RadioProperties(
       (json['splashRadius'] as num?)?.toDouble() ?? kRadialReactionRadius,
   autofocus: json['autofocus'] as bool? ?? false,
   toggleable: json['toggleable'] as bool? ?? false,
+  side: json['side'] == null
+      ? null
+      : BorderSideModel.fromJson(json['side'] as Map),
+  innerRadius: (json['innerRadius'] as num?)?.toDouble(),
+  backgroundColor: json['backgroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['backgroundColor']),
 );
 
 Map<String, dynamic> _$RadioPropertiesToJson(RadioProperties instance) =>
@@ -224,4 +231,7 @@ Map<String, dynamic> _$RadioPropertiesToJson(RadioProperties instance) =>
       'splashRadius': instance.splashRadius,
       'autofocus': instance.autofocus,
       'toggleable': instance.toggleable,
+      'side': ?instance.side?.toJson(),
+      'innerRadius': ?instance.innerRadius,
+      'backgroundColor': ?instance.backgroundColor?.toJson(),
     };

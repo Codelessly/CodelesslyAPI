@@ -65,6 +65,7 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
     json.remove('paragraphSpacing');
   if (isJsonDefault(instance.overflow, TextOverflowC.clip))
     json.remove('overflow');
+  if (isJsonDefault(instance.softWrap, true)) json.remove('softWrap');
   return json;
 }
 
@@ -150,6 +151,7 @@ TextNode _$TextNodeFromJson(Map json) =>
         overflow:
             $enumDecodeNullable(_$TextOverflowCEnumMap, json['overflow']) ??
             TextOverflowC.clip,
+        softWrap: json['softWrap'] as bool? ?? true,
         opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
         isMask: json['isMask'] as bool? ?? false,
         effects:
@@ -227,6 +229,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'maxLines': ?instance.maxLines,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
+  'softWrap': instance.softWrap,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),

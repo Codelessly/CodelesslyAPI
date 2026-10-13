@@ -283,6 +283,15 @@ class ListTileProperties extends CustomProperties
   /// Whether to show the trailing widget.
   bool showTrailing;
 
+  /// Minimum height of the tile. When null, Flutter derives it from the number
+  /// of lines and [visualDensity]. Mirrors `ListTile.minTileHeight`.
+  double? minTileHeight;
+
+  /// How the leading and trailing widgets align with the title. When null,
+  /// Flutter uses [ListTileTitleAlignmentC.threeLine] in Material 3. Mirrors
+  /// `ListTile.titleAlignment`.
+  ListTileTitleAlignmentC? titleAlignment;
+
   /// Creates a new [ListTileProperties] with given data.
   ListTileProperties({
     this.showLeading = true,
@@ -311,6 +320,8 @@ class ListTileProperties extends CustomProperties
     this.minLeadingWidth,
     ColorRGBA? borderColor,
     double? borderWidth,
+    this.minTileHeight,
+    this.titleAlignment,
   }) {
     setShapeBorderMixin(
       shape: shape,
@@ -349,6 +360,8 @@ class ListTileProperties extends CustomProperties
     bool? showTitle,
     bool? showSubtitle,
     bool? showTrailing,
+    double? minTileHeight,
+    ListTileTitleAlignmentC? titleAlignment,
   }) {
     return ListTileProperties(
       isThreeLine: isThreeLine ?? this.isThreeLine,
@@ -377,6 +390,8 @@ class ListTileProperties extends CustomProperties
       showTitle: showTitle ?? this.showTitle,
       showSubtitle: showSubtitle ?? this.showSubtitle,
       showTrailing: showTrailing ?? this.showTrailing,
+      minTileHeight: minTileHeight ?? this.minTileHeight,
+      titleAlignment: titleAlignment ?? this.titleAlignment,
     );
   }
 
@@ -492,6 +507,22 @@ class ListTileProperties extends CustomProperties
       (value) => minLeadingWidth = value,
       requiresLayout: true,
     ),
+    'minTileHeight': NumFieldAccess<double?>(
+      'Min Tile Height',
+      'Minimum height of the tile.',
+      () => minTileHeight,
+      (value) => minTileHeight = value,
+      requiresLayout: true,
+    ),
+    'titleAlignment': EnumFieldAccess<ListTileTitleAlignmentC?>(
+      'Title Alignment',
+      'How the leading and trailing widgets align with the title.',
+      () => titleAlignment,
+      (value) => titleAlignment = value,
+      defaultValue: () => null,
+      options: () => ListTileTitleAlignmentC.values,
+      requiresLayout: true,
+    ),
   };
 
   @override
@@ -521,6 +552,8 @@ class ListTileProperties extends CustomProperties
     showTitle,
     showSubtitle,
     showTrailing,
+    minTileHeight,
+    titleAlignment,
   ];
 
   @override

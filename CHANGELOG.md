@@ -32,8 +32,17 @@
   `AutovalidateModeC.onUnfocus`/`onUserInteractionIfError`,
   `SliderTrackShapeEnum.gapped`, `SliderValueIndicatorShape.drop`/
   `roundedRectangle` and `CShapeBorder.roundedSuperellipse`.
-- Add `AppBarProperties.foregroundColor`/`scrolledUnderElevation` and
-  `TabBarProperties.tabAlignment`/`dividerHeight`.
+- Add Flutter parameters that were missing:
+  - `AppBarProperties.foregroundColor`, `scrolledUnderElevation`
+  - `TabBarProperties.tabAlignment` (new `TabAlignmentC`), `dividerHeight`
+  - `RadioProperties.side`, `innerRadius`, `backgroundColor`
+  - `SliderProperties.showValueIndicator` (new `ShowValueIndicatorC`),
+    `secondaryTrackValue`, `secondaryActiveTrackColor`, `padding`
+  - `ListTileProperties.minTileHeight`, `titleAlignment` (new
+    `ListTileTitleAlignmentC`)
+  - `MaterialLoadingIndicatorProperties.strokeAlign`, `trackGap`
+  - `ExpansionTileProperties.showTrailingIcon`
+  - `TextMixin.softWrap`
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
 - New nodes use Material 3 defaults: switches use Material 3, buttons are

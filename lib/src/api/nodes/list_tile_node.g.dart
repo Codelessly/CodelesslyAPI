@@ -272,37 +272,45 @@ ListTileProperties _$ListTilePropertiesFromJson(Map json) => ListTileProperties(
       ? null
       : ColorRGBA.fromJson(json['borderColor']),
   borderWidth: (json['borderWidth'] as num?)?.toDouble(),
+  minTileHeight: (json['minTileHeight'] as num?)?.toDouble(),
+  titleAlignment: $enumDecodeNullable(
+    _$ListTileTitleAlignmentCEnumMap,
+    json['titleAlignment'],
+  ),
 );
 
-Map<String, dynamic> _$ListTilePropertiesToJson(ListTileProperties instance) =>
-    <String, dynamic>{
-      'shape': _$CShapeBorderEnumMap[instance.shape]!,
-      'cornerRadius': instance.cornerRadius.toJson(),
-      'borderWidth': ?instance.borderWidth,
-      'borderColor': ?instance.borderColor?.toJson(),
-      'isThreeLine': instance.isThreeLine,
-      'dense': instance.dense,
-      'visualDensity': instance.visualDensity.toJson(),
-      'selectedColor': ?instance.selectedColor?.toJson(),
-      'iconColor': ?instance.iconColor?.toJson(),
-      'textColor': ?instance.textColor?.toJson(),
-      'contentPadding': instance.contentPadding.toJson(),
-      'enabled': instance.enabled,
-      'selected': instance.selected,
-      'focusColor': ?instance.focusColor?.toJson(),
-      'hoverColor': ?instance.hoverColor?.toJson(),
-      'autofocus': instance.autofocus,
-      'tileColor': ?instance.tileColor?.toJson(),
-      'selectedTileColor': ?instance.selectedTileColor?.toJson(),
-      'enableFeedback': instance.enableFeedback,
-      'horizontalTitleGap': ?instance.horizontalTitleGap,
-      'minVerticalPadding': ?instance.minVerticalPadding,
-      'minLeadingWidth': ?instance.minLeadingWidth,
-      'showLeading': instance.showLeading,
-      'showTitle': instance.showTitle,
-      'showSubtitle': instance.showSubtitle,
-      'showTrailing': instance.showTrailing,
-    };
+Map<String, dynamic> _$ListTilePropertiesToJson(
+  ListTileProperties instance,
+) => <String, dynamic>{
+  'shape': _$CShapeBorderEnumMap[instance.shape]!,
+  'cornerRadius': instance.cornerRadius.toJson(),
+  'borderWidth': ?instance.borderWidth,
+  'borderColor': ?instance.borderColor?.toJson(),
+  'isThreeLine': instance.isThreeLine,
+  'dense': instance.dense,
+  'visualDensity': instance.visualDensity.toJson(),
+  'selectedColor': ?instance.selectedColor?.toJson(),
+  'iconColor': ?instance.iconColor?.toJson(),
+  'textColor': ?instance.textColor?.toJson(),
+  'contentPadding': instance.contentPadding.toJson(),
+  'enabled': instance.enabled,
+  'selected': instance.selected,
+  'focusColor': ?instance.focusColor?.toJson(),
+  'hoverColor': ?instance.hoverColor?.toJson(),
+  'autofocus': instance.autofocus,
+  'tileColor': ?instance.tileColor?.toJson(),
+  'selectedTileColor': ?instance.selectedTileColor?.toJson(),
+  'enableFeedback': instance.enableFeedback,
+  'horizontalTitleGap': ?instance.horizontalTitleGap,
+  'minVerticalPadding': ?instance.minVerticalPadding,
+  'minLeadingWidth': ?instance.minLeadingWidth,
+  'showLeading': instance.showLeading,
+  'showTitle': instance.showTitle,
+  'showSubtitle': instance.showSubtitle,
+  'showTrailing': instance.showTrailing,
+  'minTileHeight': ?instance.minTileHeight,
+  'titleAlignment': ?_$ListTileTitleAlignmentCEnumMap[instance.titleAlignment],
+};
 
 const _$CShapeBorderEnumMap = {
   CShapeBorder.rectangle: 'rectangle',
@@ -312,4 +320,12 @@ const _$CShapeBorderEnumMap = {
   CShapeBorder.continuousRectangle: 'continuousRectangle',
   CShapeBorder.beveledRectangle: 'beveledRectangle',
   CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
+};
+
+const _$ListTileTitleAlignmentCEnumMap = {
+  ListTileTitleAlignmentC.threeLine: 'threeLine',
+  ListTileTitleAlignmentC.titleHeight: 'titleHeight',
+  ListTileTitleAlignmentC.top: 'top',
+  ListTileTitleAlignmentC.center: 'center',
+  ListTileTitleAlignmentC.bottom: 'bottom',
 };
