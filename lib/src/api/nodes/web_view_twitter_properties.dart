@@ -204,6 +204,7 @@ final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   List<Object?> get props => [
+    ...super.props,
     tweetURL,
     hideConversation,
     theme,
@@ -322,6 +323,7 @@ final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   List<Object?> get props => [
+    ...super.props,
     timelineURL,
     width,
     height,
@@ -449,6 +451,7 @@ final class FollowButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
+    ...super.props,
     handle,
     hideUsername,
     largeButton,
@@ -589,6 +592,7 @@ final class MentionButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
+    ...super.props,
     handle,
     largeButton,
     prefilledText,
@@ -746,6 +750,7 @@ final class HashtagButtonTwitterWebViewProperties
 
   @override
   List<Object?> get props => [
+    ...super.props,
     hashtag,
     largeButton,
     prefilledText,

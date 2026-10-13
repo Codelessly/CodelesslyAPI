@@ -71,7 +71,9 @@ class ListTileNode extends SceneNode
         id: 'list_tile',
         name: 'List Tile',
         basicBoxLocal: NodeBox(0, 0, 300, 65),
-      );
+      ) {
+    setChildrenMixin(children: []);
+  }
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.fromProperties(this.properties)
@@ -79,7 +81,9 @@ class ListTileNode extends SceneNode
         id: 'list_tile',
         name: 'List Tile',
         basicBoxLocal: NodeBox(0, 0, 300, 65),
-      );
+      ) {
+    setChildrenMixin(children: []);
+  }
 
   /// Creates a [ListTileNode] with the given data.
   ListTileNode({
@@ -503,6 +507,10 @@ class ListTileProperties extends CustomProperties
     minLeadingWidth,
     borderColor,
     borderWidth,
+    showLeading,
+    showTitle,
+    showSubtitle,
+    showTrailing,
   ];
 
   @override

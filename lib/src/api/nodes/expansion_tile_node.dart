@@ -32,10 +32,18 @@ class ExpansionTileNode extends SceneNode
   ExpansionTileNode.empty()
     : properties = ExpansionTileProperties(),
       super(
-        id: 'list_tile',
-        name: 'List Tile',
+        id: 'expansion_tile',
+        name: 'Expansion Tile',
         basicBoxLocal: NodeBox(0, 0, 300, 65),
-      );
+      ) {
+    setChildrenMixin(children: []);
+    setRowColumnMixin(
+      rowColumnType: RowColumnType.column,
+      mainAxisAlignment: MainAxisAlignmentC.start,
+      crossAxisAlignment: CrossAxisAlignmentC.center,
+    );
+    isExpanded = properties.initiallyExpanded;
+  }
 
   /// Creates a [ExpansionTileNode] with given data.
   ExpansionTileNode({
@@ -259,7 +267,6 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? collapsedTextColor,
     ListTileControlAffinityC? controlAffinity,
     VisualDensityModel? visualDensity,
-    bool? automaticChevron,
     bool? showDividers,
   }) {
     return ExpansionTileProperties(
@@ -381,7 +388,23 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   };
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [
+    backgroundColor,
+    collapsedBackgroundColor,
+    initiallyExpanded,
+    maintainState,
+    tilePadding,
+    expandedAlignment,
+    expandedCrossAxisAlignment,
+    childrenPadding,
+    iconColor,
+    collapsedIconColor,
+    textColor,
+    collapsedTextColor,
+    controlAffinity,
+    visualDensity,
+    showDividers,
+  ];
 
   @override
   Map<String, dynamic> toJson() => _$ExpansionTilePropertiesOmitDefaults(

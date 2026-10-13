@@ -331,7 +331,19 @@ abstract class WebViewProperties extends CustomProperties with FieldsHolder {
   };
 
   @override
-  List<Object?> get props => [src];
+  List<Object?> get props => [
+    webviewType,
+    src,
+    controlVerticalScrollGesture,
+    controlHorizontalScrollGesture,
+    controlScaleGesture,
+    controlTapGesture,
+    controlLongPressGesture,
+    controlForcePressGesture,
+    allowsInlineMediaPlayback,
+    mediaAutoPlaybackPolicy,
+    backgroundColor,
+  ];
 }
 
 /// A [WebViewProperties] implementation that is used to display a webpage
@@ -414,5 +426,5 @@ class WebPageWebViewProperties extends WebViewProperties {
       _$WebPageWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [pageSourceType, src];
+  List<Object?> get props => [...super.props, pageSourceType];
 }

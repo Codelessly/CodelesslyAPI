@@ -62,7 +62,6 @@ class ProgressBarNode extends SceneNode
 
   /// Creates a [ProgressBarNode] instance with the given data.
   ProgressBarNode({
-    bool? value,
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -83,11 +82,6 @@ class ProgressBarNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // [BlendMixin] properties.
-    double opacity = 1,
-    bool isMask = false,
-    List<Effect> effects = const [],
-    BlendModeC blendMode = BlendModeC.srcOver,
     // Custom properties.
     this.currentValue = 0,
     required this.properties,

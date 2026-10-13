@@ -47,8 +47,8 @@
     "basicBoxLocal": [
       0,
       0,
-      300,
-      48
+      320,
+      180
     ],
     "type": "embeddedVideo",
     "properties": {
@@ -61,8 +61,8 @@
     "basicBoxLocal": [
       0,
       0,
-      59,
-      40
+      56,
+      56
     ],
     "type": "floatingActionButton",
     "properties": {

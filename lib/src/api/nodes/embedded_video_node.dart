@@ -42,7 +42,7 @@ class EmbeddedVideoNode extends SceneNode
       super(
         id: 'EmbeddedVideo',
         name: 'Embedded Video',
-        basicBoxLocal: NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
+        basicBoxLocal: NodeBox(0, 0, 320, 180),
       );
 
   /// Creates a [EmbeddedVideoNode] instance with the given data.
@@ -338,7 +338,14 @@ class EmbeddedVimeoVideoProperties extends EmbeddedVideoProperties {
   };
 
   @override
-  List<Object?> get props => [url, mute, autoPlay, loop, showFullscreenButton];
+  List<Object?> get props => [
+    url,
+    mute,
+    autoPlay,
+    loop,
+    showFullscreenButton,
+    metadata,
+  ];
 
   /// Creates a [EmbeddedVimeoVideoProperties] instance from a JSON object.
   factory EmbeddedVimeoVideoProperties.fromJson(Map json) =>

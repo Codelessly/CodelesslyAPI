@@ -235,6 +235,11 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     bool? underline,
     bool? useDataSource,
     String? itemLabel,
+    bool? enabled,
+    bool? dense,
+    bool? expanded,
+    bool? autoFocus,
+    bool? enableFeedback,
   }) {
     return DropdownProperties(
       items: items ?? this.items,
@@ -259,6 +264,11 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       underline: underline ?? this.underline,
       useDataSource: useDataSource ?? this.useDataSource,
       itemLabel: itemLabel ?? this.itemLabel,
+      enabled: enabled ?? this.enabled,
+      dense: dense ?? this.dense,
+      expanded: expanded ?? this.expanded,
+      autoFocus: autoFocus ?? this.autoFocus,
+      enableFeedback: enableFeedback ?? this.enableFeedback,
     );
   }
 
@@ -445,6 +455,11 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     underline,
     useDataSource,
     itemLabel,
+    enabled,
+    dense,
+    expanded,
+    autoFocus,
+    enableFeedback,
   ];
 
   /// Creates a [DropdownProperties] instance from a JSON object.

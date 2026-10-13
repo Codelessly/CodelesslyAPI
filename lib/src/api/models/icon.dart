@@ -140,6 +140,7 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     color,
     show,
     imageName,
+    scale,
   ];
 
   /// Duplicates [MultiSourceIconModel] with the given properties overrides.

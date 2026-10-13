@@ -44,7 +44,7 @@ class SubmitAction extends ActionModel with Equatable, SerializableMixin {
   }) : super(type: ActionType.submit);
 
   @override
-  List<Object?> get props => [primaryTextField, apiKey];
+  List<Object?> get props => [service, primaryTextField, apiKey];
 
   /// Creates a new [SubmitAction] instance from a JSON data.
   factory SubmitAction.fromJson(Map json) {
@@ -96,7 +96,13 @@ class MailchimpSubmitAction extends SubmitAction {
   }) : super(service: SubmitActionService.mailchimp);
 
   @override
-  List<Object?> get props => [...super.props, dataCenter, listID];
+  List<Object?> get props => [
+    ...super.props,
+    dataCenter,
+    listID,
+    firstNameField,
+    lastNameField,
+  ];
 
   /// Duplicate this [MailchimpSubmitAction] with given data overrides.
   MailchimpSubmitAction copyWith({

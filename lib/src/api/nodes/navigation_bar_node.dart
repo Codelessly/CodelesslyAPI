@@ -472,6 +472,8 @@ class M2NavigationBarProperties
       unselectedIconSize: unselectedIconSize ?? this.unselectedIconSize,
       selectedIconSize: selectedIconSize ?? this.selectedIconSize,
       labelBehavior: labelBehavior ?? this.labelBehavior,
+      makeNotched: makeNotched ?? this.makeNotched,
+      notchMargin: notchMargin ?? this.notchMargin,
     );
   }
 

@@ -322,7 +322,13 @@ sealed class GridDelegateProperties
   }
 
   @override
-  List<Object?> get props => [type];
+  List<Object?> get props => [
+    type,
+    mainAxisSpacing,
+    crossAxisSpacing,
+    childAspectRatio,
+    mainAxisExtent,
+  ];
 
   @override
   FieldsMap generateFields() => {

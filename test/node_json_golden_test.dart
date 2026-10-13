@@ -18,7 +18,7 @@ List<BaseNode> goldenNodes() {
     EmbeddedVideoNode.empty(),
     FloatingActionButtonNode.empty(),
     IconNode.empty(),
-    ListTileNode.empty()..setChildrenMixin(children: []),
+    ListTileNode.empty(),
     ProgressBarNode.empty(),
     RadioNode.empty(),
     SliderNode.empty(),

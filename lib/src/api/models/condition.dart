@@ -610,7 +610,12 @@ class ConditionGroup extends BaseCondition {
       _$ConditionGroupFromJson(json);
 
   @override
-  List<Object?> get props => [ifCondition, elseIfConditions, elseCondition];
+  List<Object?> get props => [
+    name,
+    ifCondition,
+    elseIfConditions,
+    elseCondition,
+  ];
 
   @override
   Map toJson() =>

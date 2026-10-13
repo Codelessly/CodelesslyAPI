@@ -442,6 +442,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     contentType,
     showDivider,
     indicatorStyle,
+    indicatorShape,
+    indicatorCornerRadius,
   ];
 }
 

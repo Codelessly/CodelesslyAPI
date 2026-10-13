@@ -57,7 +57,6 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Creates a [DividerNode] with the given data.
   DividerNode({
-    bool? value,
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -78,11 +77,6 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // [BlendMixin] properties.
-    double opacity = 1,
-    bool isMask = false,
-    List<Effect> effects = const [],
-    BlendModeC blendMode = BlendModeC.srcOver,
     // Custom properties.
     required this.properties,
   });
@@ -184,12 +178,14 @@ class DividerProperties extends CustomProperties with FieldsHolder {
     double? indent,
     double? endIndent,
     bool? isVertical,
+    double? thickness,
   }) {
     return DividerProperties(
       color: color ?? this.color,
       indent: indent ?? this.indent,
       endIndent: endIndent ?? this.endIndent,
       isVertical: isVertical ?? this.isVertical,
+      thickness: thickness ?? this.thickness,
     );
   }
 
@@ -230,7 +226,7 @@ class DividerProperties extends CustomProperties with FieldsHolder {
   };
 
   @override
-  List<Object?> get props => [color, indent, endIndent, isVertical];
+  List<Object?> get props => [color, indent, endIndent, isVertical, thickness];
 
   /// Creates a [DividerProperties] from a JSON data.
   factory DividerProperties.fromJson(Map json) =>

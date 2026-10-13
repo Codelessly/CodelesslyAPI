@@ -34,7 +34,6 @@ class LoadingIndicatorNode extends SceneNode
 
   /// Creates a [LoadingIndicatorNode] with given data.
   LoadingIndicatorNode({
-    bool? value,
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -55,11 +54,6 @@ class LoadingIndicatorNode extends SceneNode
     super.positioningMode,
     super.parentID,
     super.reactions,
-    // [BlendMixin] properties.
-    double opacity = 1,
-    bool isMask = false,
-    List<Effect> effects = const [],
-    BlendModeC blendMode = BlendModeC.srcOver,
     // Custom properties.
     required this.properties,
   });

@@ -29,7 +29,12 @@ class FloatingActionButtonNode extends SceneNode
       super(
         id: 'fab',
         name: 'FAB',
-        basicBoxLocal: NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          FloatingActionButtonType.regular.size,
+          FloatingActionButtonType.regular.size,
+        ),
       );
 
   /// Strictly used for previews. e.g in components panel.
@@ -205,6 +210,7 @@ class FloatingActionButtonProperties extends CustomProperties
     ColorRGBA? borderColor,
     double? borderWidth,
     double? extendedIconLabelSpacing,
+    FABLocation? location,
   }) => FloatingActionButtonProperties(
     backgroundColor: backgroundColor ?? this.backgroundColor,
     foregroundColor: foregroundColor ?? this.foregroundColor,
@@ -225,6 +231,7 @@ class FloatingActionButtonProperties extends CustomProperties
     borderWidth: borderWidth ?? this.borderWidth,
     extendedIconLabelSpacing:
         extendedIconLabelSpacing ?? this.extendedIconLabelSpacing,
+    location: location ?? this.location,
   );
 
   @override
@@ -353,6 +360,7 @@ class FloatingActionButtonProperties extends CustomProperties
     borderColor,
     borderWidth,
     extendedIconLabelSpacing,
+    location,
   ];
 
   /// Creates a [FloatingActionButtonProperties] from a JSON data.

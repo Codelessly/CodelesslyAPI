@@ -273,7 +273,15 @@ final class PlacesGoogleMapsWebViewProperties
       _$PlacesGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [apiKey, query, zoom, mapType, language, region];
+  List<Object?> get props => [
+    ...super.props,
+    apiKey,
+    query,
+    zoom,
+    mapType,
+    language,
+    region,
+  ];
 }
 
 /// Implements the Google Cloud Platform View API.
@@ -368,7 +376,15 @@ final class ViewGoogleMapsWebViewProperties
       _$ViewGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [apiKey, center, zoom, mapType, language, region];
+  List<Object?> get props => [
+    ...super.props,
+    apiKey,
+    center,
+    zoom,
+    mapType,
+    language,
+    region,
+  ];
 }
 
 /// Implements the Google Cloud Platform Directions View API.
@@ -570,6 +586,7 @@ final class DirectionsGoogleMapsWebViewProperties
 
   @override
   List<Object?> get props => [
+    ...super.props,
     apiKey,
     origin,
     destination,
@@ -782,6 +799,7 @@ final class StreetViewGoogleMapsWebViewProperties
 
   @override
   List<Object?> get props => [
+    ...super.props,
     apiKey,
     location,
     heading,
@@ -881,5 +899,13 @@ final class SearchGoogleMapsWebViewProperties
       _$SearchGoogleMapsWebViewPropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [apiKey, query, zoom, mapType, language, region];
+  List<Object?> get props => [
+    ...super.props,
+    apiKey,
+    query,
+    zoom,
+    mapType,
+    language,
+    region,
+  ];
 }

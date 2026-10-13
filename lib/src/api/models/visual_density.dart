@@ -129,7 +129,7 @@ class VisualDensityModel with Equatable, SerializableMixin {
   }
 
   @override
-  List<Object?> get props => [horizontal, vertical];
+  List<Object?> get props => [type, horizontal, vertical];
 
   /// Factory constructor for creating a new [VisualDensityModel] instance
   /// from JSON data.
