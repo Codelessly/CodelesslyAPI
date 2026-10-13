@@ -185,6 +185,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
   double indicatorWeight;
 
   /// The size of the tab indicator.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: TabBarIndicatorSizeEnum.tab)
   TabBarIndicatorSizeEnum indicatorSize;
 
   /// The color of the tab label.
@@ -246,7 +248,7 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     List<TabItem> tabs = const [],
     this.indicatorColor = ColorRGBA.black,
     this.indicatorWeight = 2.0,
-    this.indicatorSize = TabBarIndicatorSizeEnum.tab,
+    this.indicatorSize = TabBarIndicatorSizeEnum.label,
     this.labelColor = ColorRGBA.black,
     this.unselectedLabelColor = ColorRGBA.black,
     TextProp? labelStyle,

@@ -7,6 +7,11 @@ import 'nodes.dart';
 
 part 'expansion_tile_node.g.dart';
 
+/// Reads a missing padding as the Material 2 default stored designs used
+/// before 5.0.0.
+Object? _readLegacyTilePadding(Map json, String key) =>
+    json[key] ?? const EdgeInsetsModel.symmetric(horizontal: 16).toJson();
+
 /// A single-line [ListTile] with an expansion arrow icon that expands or
 /// collapses the tile to reveal or hide the body.
 ///
@@ -150,6 +155,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// Analogous to [ListTile.contentPadding], this property defines the insets
   /// for the [leading], [title], [subtitle] and [trailing] widgets. It does not
   /// inset the expanded [children] widgets.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonLegacyDefault(EdgeInsetsModel.symmetric(horizontal: 16))
+  @JsonKey(readValue: _readLegacyTilePadding)
   EdgeInsetsModel? tilePadding;
 
   /// Specifies the alignment of [children], which are arranged in a column when

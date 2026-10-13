@@ -7,6 +7,11 @@ import 'nodes.dart';
 
 part 'floating_action_button_node.g.dart';
 
+/// Reads a missing corner radius as the Material 2 default stored designs
+/// used before 5.0.0.
+Object? _readLegacyCornerRadius(Map json, String key) =>
+    json[key] ?? CornerRadius.zero.toJson();
+
 /// A floating action button (FAB) performs the primary, or most common, action
 /// on a screen. It appears in front of all screen content, typically as a
 /// circular shape with an icon in its center.
@@ -107,6 +112,19 @@ class FloatingActionButtonNode extends SceneNode
 @JsonSerializable()
 class FloatingActionButtonProperties extends CustomProperties
     with ShapeBorderMixin, ReactionMixin, FieldsHolder {
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @override
+  @JsonKey(defaultValue: CShapeBorder.circle)
+  // ignore: overridden_fields
+  late CShapeBorder shape;
+
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @override
+  @JsonLegacyDefault(CornerRadius.zero)
+  @JsonKey(readValue: _readLegacyCornerRadius)
+  // ignore: overridden_fields
+  late CornerRadius cornerRadius;
+
   /// Background color of the FAB.
   ColorRGBA backgroundColor;
 
@@ -114,15 +132,23 @@ class FloatingActionButtonProperties extends CustomProperties
   ColorRGBA foregroundColor;
 
   /// Elevation of the FAB.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double elevation;
 
   /// Elevation of the FAB when it is focuses.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double focusElevation;
 
   /// Elevation of the FAB when it is hovered.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double hoverElevation;
 
   /// Elevation of the FAB when it is highlighted.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double highlightElevation;
 
   /// Type of the FAB. Mainly refers to its sizes. Extended type includes a
@@ -151,6 +177,8 @@ class FloatingActionButtonProperties extends CustomProperties
   ColorRGBA? splashColor;
 
   /// Space between the icon and label for [FloatingActionButtonType.extended].
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double extendedIconLabelSpacing;
 
   @override
@@ -160,11 +188,11 @@ class FloatingActionButtonProperties extends CustomProperties
   FloatingActionButtonProperties({
     this.backgroundColor = ColorRGBA.black,
     this.foregroundColor = ColorRGBA.white,
-    this.elevation = 0,
-    this.focusElevation = 0,
-    this.hoverElevation = 0,
-    this.highlightElevation = 0,
-    this.extendedIconLabelSpacing = 0,
+    this.elevation = 6,
+    this.focusElevation = 6,
+    this.hoverElevation = 8,
+    this.highlightElevation = 6,
+    this.extendedIconLabelSpacing = 8,
     this.icon = const MultiSourceIconModel(),
     this.type = FloatingActionButtonType.regular,
     this.location = FABLocation.endFloat,
@@ -173,8 +201,10 @@ class FloatingActionButtonProperties extends CustomProperties
     this.focusColor,
     this.hoverColor,
     this.splashColor,
-    CShapeBorder shape = CShapeBorder.circle,
-    CornerRadius cornerRadius = CornerRadius.zero,
+    CShapeBorder shape = CShapeBorder.roundedRectangle,
+    CornerRadius cornerRadius = const CornerRadius.all(
+      RadiusModel.circular(16),
+    ),
     ColorRGBA? borderColor,
     double? borderWidth,
     List<Reaction>? reactions,

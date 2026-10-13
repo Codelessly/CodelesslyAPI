@@ -10,7 +10,7 @@ enum FloatingActionButtonType {
   large(96),
 
   /// A FAB with icon and text.
-  extended(48);
+  extended(56);
 
   /// Size value for this FAB.
   final double size;

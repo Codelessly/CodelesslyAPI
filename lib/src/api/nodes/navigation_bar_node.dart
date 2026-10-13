@@ -301,6 +301,8 @@ class M3NavigationBarProperties
   @override
   double selectedIconSize;
   @override
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double elevation;
   @override
   ColorRGBA? backgroundColor;
@@ -313,7 +315,7 @@ class M3NavigationBarProperties
     super.makeNotched,
     super.notchMargin,
     this.backgroundColor,
-    this.elevation = 0,
+    this.elevation = 3,
     TextProp? selectedLabelStyle,
     TextProp? unselectedLabelStyle,
     this.unselectedIconColor,
@@ -486,6 +488,8 @@ class M2NavigationBarProperties
   @override
   double selectedIconSize;
   @override
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double elevation;
   @override
   ColorRGBA? backgroundColor;
@@ -498,7 +502,7 @@ class M2NavigationBarProperties
     super.makeNotched,
     super.notchMargin,
     this.backgroundColor,
-    this.elevation = 0,
+    this.elevation = 8,
     this.navigationBarType = M2NavigationBarType.fixed,
     this.landscapeLayout = M2NavigationBarLandscapeLayout.spread,
     TextProp? selectedLabelStyle,

@@ -53,7 +53,10 @@ Map<String, dynamic> _$ListTilePropertiesOmitDefaults(
   if (isJsonDefault(instance.dense, false)) json.remove('dense');
   if (isJsonDefault(instance.visualDensity, VisualDensityModel.standard))
     json.remove('visualDensity');
-  if (isJsonDefault(instance.contentPadding, kDefaultListTileContentPadding))
+  if (isJsonDefault(
+    instance.contentPadding,
+    EdgeInsetsModel.symmetric(horizontal: 16),
+  ))
     json.remove('contentPadding');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.selected, false)) json.remove('selected');
@@ -238,9 +241,11 @@ ListTileProperties _$ListTilePropertiesFromJson(Map json) => ListTileProperties(
   textColor: json['textColor'] == null
       ? null
       : ColorRGBA.fromJson(json['textColor']),
-  contentPadding: json['contentPadding'] == null
+  contentPadding: _readLegacyTilePadding(json, 'contentPadding') == null
       ? kDefaultListTileContentPadding
-      : EdgeInsetsModel.fromJson(json['contentPadding']),
+      : EdgeInsetsModel.fromJson(
+          _readLegacyTilePadding(json, 'contentPadding'),
+        ),
   enabled: json['enabled'] as bool? ?? true,
   selected: json['selected'] as bool? ?? false,
   focusColor: json['focusColor'] == null

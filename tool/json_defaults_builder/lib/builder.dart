@@ -6,10 +6,11 @@
 /// json_serializable's `fromJson` restores for a missing key. A field's
 /// default is, in order of precedence:
 ///
-/// 1. `@JsonKey(defaultValue: ...)` on the field.
-/// 2. The default of the matching parameter of the constructor used by
+/// 1. `@JsonLegacyDefault(...)` on the field.
+/// 2. `@JsonKey(defaultValue: ...)` on the field.
+/// 3. The default of the matching parameter of the constructor used by
 ///    json_serializable (including inherited `super.` parameter defaults).
-/// 3. The field's own initializer, if the field is set through that
+/// 4. The field's own initializer, if the field is set through that
 ///    constructor or is mutable, and the initializer is a constant-like
 ///    expression. A final field without a constructor parameter (such as a
 ///    node's `type`) is always written.
@@ -93,6 +94,7 @@ class JsonDefaultsGenerator extends GeneratorForAnnotation<JsonSerializable> {
 
       final declaration = await _declaration(field, buildStep);
       final defaultCode =
+          _annotationArgument(declaration, 'JsonLegacyDefault') ??
           _jsonKeyDefaultValue(declaration) ??
           paramDefaults[name] ??
           (paramNames.contains(name) || !field.isFinal
@@ -167,6 +169,20 @@ ${checks.join('\n')}
           return argument.argumentExpression.toSource();
         }
       }
+    }
+    return null;
+  }
+
+  /// The source of the first positional argument of a `@[name](...)`
+  /// annotation on [declaration].
+  String? _annotationArgument(VariableDeclaration? declaration, String name) {
+    final fieldDeclaration = declaration?.parent?.parent;
+    if (fieldDeclaration is! FieldDeclaration) return null;
+    for (final annotation in fieldDeclaration.metadata) {
+      if (annotation.name.name != name) continue;
+      final arguments = annotation.arguments?.arguments;
+      if (arguments == null || arguments.isEmpty) return null;
+      return arguments.first.toSource();
     }
     return null;
   }

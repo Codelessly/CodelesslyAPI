@@ -36,8 +36,15 @@
   `TabBarProperties.tabAlignment`/`dividerHeight`.
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
-- Defaults that predate Material 3 are kept, since stored designs rely on
-  them.
+- New nodes use Material 3 defaults: switches use Material 3, buttons are
+  stadium-shaped with 24 px horizontal padding, FABs are rounded rectangles
+  (radius 16) with Material 3 elevations, a 56 px extended height and 8 px
+  icon spacing, list and expansion tiles use 16/24 px content padding, tab
+  indicators size to the label, and navigation bars use elevation 3 (M3)
+  and 8 (M2).
+- Designs saved before 5.0.0 keep their look: a missing key still reads as
+  the old default, and re-saving them writes the same JSON. The new
+  `JsonLegacyDefault` annotation supports this for non-literal defaults.
 
 ### Fixes
 

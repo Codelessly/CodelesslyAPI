@@ -53,7 +53,7 @@ Map<String, dynamic> _$M3NavigationBarPropertiesOmitDefaults(
     json.remove('unselectedIconSize');
   if (isJsonDefault(instance.selectedIconSize, 24))
     json.remove('selectedIconSize');
-  if (isJsonDefault(instance.elevation, 0)) json.remove('elevation');
+  if (isJsonDefault(instance.elevation, 0.0)) json.remove('elevation');
   if (isJsonDefault(
     instance.labelBehavior,
     MaterialNavigationBarLabelBehavior.alwaysShow,
@@ -79,7 +79,7 @@ Map<String, dynamic> _$M2NavigationBarPropertiesOmitDefaults(
     json.remove('unselectedIconSize');
   if (isJsonDefault(instance.selectedIconSize, 24))
     json.remove('selectedIconSize');
-  if (isJsonDefault(instance.elevation, 0)) json.remove('elevation');
+  if (isJsonDefault(instance.elevation, 0.0)) json.remove('elevation');
   if (isJsonDefault(
     instance.labelBehavior,
     MaterialNavigationBarLabelBehavior.alwaysShow,
@@ -231,7 +231,7 @@ M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>
         backgroundColor: json['backgroundColor'] == null
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
-        elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
+        elevation: (json['elevation'] as num?)?.toDouble() ?? 0.0,
         selectedLabelStyle: json['selectedLabelStyle'] == null
             ? null
             : TextProp.fromJson(json['selectedLabelStyle'] as Map),
@@ -304,7 +304,7 @@ M2NavigationBarProperties _$M2NavigationBarPropertiesFromJson(Map json) =>
         backgroundColor: json['backgroundColor'] == null
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
-        elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
+        elevation: (json['elevation'] as num?)?.toDouble() ?? 0.0,
         navigationBarType:
             $enumDecodeNullable(
               _$M2NavigationBarTypeEnumMap,

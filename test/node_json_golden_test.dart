@@ -4,12 +4,10 @@ import 'dart:io';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-/// Nodes whose toJson output is pinned by test/fixtures/node_json_golden.json.
+/// Nodes whose JSON is pinned by the fixtures in test/fixtures.
 ///
-/// The fixture was produced by codelessly_api 4.4.0, which used the forked
-/// json_serializable with `serialize_default_values: false`. These tests keep
-/// the stored JSON format identical after moving to json_serializable plus
-/// tool/json_defaults_builder.
+/// node_json_golden.json was produced by codelessly_api 4.4.0, which used the
+/// forked json_serializable with `serialize_default_values: false`.
 List<BaseNode> goldenNodes() {
   final nodes = <BaseNode>[
     ButtonNode.empty(),
@@ -72,28 +70,36 @@ Object? withoutPaintIds(Object? json, {bool topLevel = true}) => switch (json) {
 Object? encodeDecode(Object? json) => jsonDecode(jsonEncode(json));
 
 void main() {
-  final golden = jsonDecode(
-    File('test/fixtures/node_json_golden.json').readAsStringSync(),
-  ) as Map<String, dynamic>;
+  Map<String, dynamic> fixture(String name) =>
+      jsonDecode(File('test/fixtures/$name').readAsStringSync())
+          as Map<String, dynamic>;
+
+  // JSON written by codelessly_api 4.4.0.
+  final legacy = fixture('node_json_golden.json');
+  // JSON written for freshly created nodes by this version, which uses
+  // Material 3 defaults where 4.4.0 used Material 2 ones.
+  final current = fixture('node_json_current.json');
 
   for (final node in goldenNodes()) {
-    test('${node.type} "${node.id}" serializes like 4.4.0', () {
+    test('${node.type} "${node.id}" serializes as pinned', () {
       expect(
         withoutPaintIds(encodeDecode(node.toJson())),
-        withoutPaintIds(golden[node.id]),
+        withoutPaintIds(current[node.id]),
       );
     });
 
-    test('${node.type} "${node.id}" reads its 4.4.0 JSON back stably', () {
-      // fromJson may normalize once (e.g. a non-tristate checkbox's null
-      // value becomes false); after that, toJson/fromJson must be stable.
-      final once = encodeDecode(
-        NodeJsonConverter.instance.fromJson(golden[node.id])!.toJson(),
+    test('${node.type} "${node.id}" keeps its 4.4.0 JSON', () {
+      // Designs saved by 4.4.0 must not change when read and saved again,
+      // even where a default changed since.
+      final reserialized = encodeDecode(
+        NodeJsonConverter.instance.fromJson(legacy[node.id])!.toJson(),
       );
-      final twice = encodeDecode(
-        NodeJsonConverter.instance.fromJson(once as Map)!.toJson(),
-      );
-      expect(twice, once);
+      final expected = encodeDecode(legacy[node.id]) as Map;
+      // The one normalization: a non-tristate checkbox reads null as false.
+      if (expected['type'] == 'checkbox' && expected['value'] == null) {
+        expected['value'] = false;
+      }
+      expect(reserialized, expected);
     });
   }
 }

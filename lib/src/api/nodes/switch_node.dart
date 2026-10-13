@@ -148,6 +148,8 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   late double trackOutlineWidth;
 
   /// Whether to use material 3 style.
+  // Designs saved before 5.0.0 omit this key and used Material 2.
+  @JsonKey(defaultValue: false)
   late bool useMaterial3;
 
   /// Creates a [SwitchProperties] instance with the given data.
@@ -163,7 +165,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.activeTrackBorderColor = ColorRGBA.transparent,
     this.inactiveTrackBorderColor = ColorRGBA.transparent,
     this.trackOutlineWidth = 2,
-    this.useMaterial3 = false,
+    this.useMaterial3 = true,
   });
 
   /// Duplicates this [SwitchProperties] instance with the given data

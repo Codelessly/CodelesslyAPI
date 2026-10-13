@@ -10,8 +10,8 @@ part 'button_node.g.dart';
 
 /// The default button padding used to convert nodes into Flutter buttons.
 const EdgeInsetsModel defaultButtonPadding = EdgeInsetsModel.symmetric(
-  horizontal: 16,
-  vertical: 8,
+  horizontal: 24,
+  vertical: 10,
 );
 
 /// Type of the material button.
@@ -197,6 +197,12 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
 @JsonSerializable()
 class ButtonProperties extends CustomProperties
     with ShapeBorderMixin, FieldsHolder {
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @override
+  @JsonKey(defaultValue: CShapeBorder.roundedRectangle)
+  // ignore: overridden_fields
+  late CShapeBorder shape;
+
   // Button properties.
 
   /// Type of the button.
@@ -251,7 +257,7 @@ class ButtonProperties extends CustomProperties
     this.icon = const MultiSourceIconModel(size: 20, color: null),
     CornerRadius cornerRadius = const CornerRadius.all(RadiusModel.circular(4)),
     ColorRGBA? borderColor,
-    CShapeBorder shape = CShapeBorder.roundedRectangle,
+    CShapeBorder shape = CShapeBorder.stadium,
     double? borderWidth,
   }) : labelStyle =
            labelStyle ?? TextProp.general(fills: List.empty(growable: true)) {

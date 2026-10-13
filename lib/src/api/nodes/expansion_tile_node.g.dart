@@ -57,7 +57,10 @@ Map<String, dynamic> _$ExpansionTilePropertiesOmitDefaults(
     json.remove('initiallyExpanded');
   if (isJsonDefault(instance.maintainState, false))
     json.remove('maintainState');
-  if (isJsonDefault(instance.tilePadding, kDefaultListTileContentPadding))
+  if (isJsonDefault(
+    instance.tilePadding,
+    EdgeInsetsModel.symmetric(horizontal: 16),
+  ))
     json.remove('tilePadding');
   if (isJsonDefault(instance.expandedAlignment, AlignmentModel.center))
     json.remove('expandedAlignment');
@@ -272,9 +275,11 @@ ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
           : ColorRGBA.fromJson(json['collapsedBackgroundColor']),
       initiallyExpanded: json['initiallyExpanded'] as bool? ?? false,
       maintainState: json['maintainState'] as bool? ?? false,
-      tilePadding: json['tilePadding'] == null
+      tilePadding: _readLegacyTilePadding(json, 'tilePadding') == null
           ? kDefaultListTileContentPadding
-          : EdgeInsetsModel.fromJson(json['tilePadding']),
+          : EdgeInsetsModel.fromJson(
+              _readLegacyTilePadding(json, 'tilePadding'),
+            ),
       expandedAlignment: json['expandedAlignment'] == null
           ? AlignmentModel.center
           : AlignmentModel.fromJson(json['expandedAlignment'] as Map),

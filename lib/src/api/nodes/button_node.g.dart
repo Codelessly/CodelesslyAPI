@@ -48,6 +48,8 @@ Map<String, dynamic> _$ButtonPropertiesOmitDefaults(
   ButtonProperties instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.shape, CShapeBorder.roundedRectangle))
+    json.remove('shape');
   if (isJsonDefault(instance.buttonType, ButtonTypeEnum.elevated))
     json.remove('buttonType');
   if (isJsonDefault(instance.buttonColor, ColorRGBA.black))
@@ -70,8 +72,6 @@ Map<String, dynamic> _$ButtonPropertiesOmitDefaults(
     const MultiSourceIconModel(size: 20, color: null),
   ))
     json.remove('icon');
-  if (isJsonDefault(instance.shape, CShapeBorder.roundedRectangle))
-    json.remove('shape');
   if (isJsonDefault(
     instance.cornerRadius,
     const CornerRadius.all(RadiusModel.circular(4)),
@@ -253,10 +253,10 @@ ButtonProperties _$ButtonPropertiesFromJson(Map json) => ButtonProperties(
 Map<String, dynamic> _$ButtonPropertiesToJson(
   ButtonProperties instance,
 ) => <String, dynamic>{
-  'shape': _$CShapeBorderEnumMap[instance.shape]!,
   'cornerRadius': instance.cornerRadius.toJson(),
   'borderWidth': ?instance.borderWidth,
   'borderColor': ?instance.borderColor?.toJson(),
+  'shape': _$CShapeBorderEnumMap[instance.shape]!,
   'buttonType': _$ButtonTypeEnumEnumMap[instance.buttonType]!,
   'buttonColor': instance.buttonColor.toJson(),
   'shadowColor': instance.shadowColor.toJson(),

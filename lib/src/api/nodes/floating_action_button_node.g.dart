@@ -48,14 +48,19 @@ Map<String, dynamic> _$FloatingActionButtonPropertiesOmitDefaults(
   FloatingActionButtonProperties instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.shape, CShapeBorder.circle)) json.remove('shape');
+  if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
+    json.remove('cornerRadius');
   if (isJsonDefault(instance.backgroundColor, ColorRGBA.black))
     json.remove('backgroundColor');
   if (isJsonDefault(instance.foregroundColor, ColorRGBA.white))
     json.remove('foregroundColor');
-  if (isJsonDefault(instance.elevation, 0)) json.remove('elevation');
-  if (isJsonDefault(instance.focusElevation, 0)) json.remove('focusElevation');
-  if (isJsonDefault(instance.hoverElevation, 0)) json.remove('hoverElevation');
-  if (isJsonDefault(instance.highlightElevation, 0))
+  if (isJsonDefault(instance.elevation, 0.0)) json.remove('elevation');
+  if (isJsonDefault(instance.focusElevation, 0.0))
+    json.remove('focusElevation');
+  if (isJsonDefault(instance.hoverElevation, 0.0))
+    json.remove('hoverElevation');
+  if (isJsonDefault(instance.highlightElevation, 0.0))
     json.remove('highlightElevation');
   if (isJsonDefault(instance.type, FloatingActionButtonType.regular))
     json.remove('type');
@@ -64,11 +69,8 @@ Map<String, dynamic> _$FloatingActionButtonPropertiesOmitDefaults(
   if (isJsonDefault(instance.icon, const MultiSourceIconModel()))
     json.remove('icon');
   if (isJsonDefault(instance.label, '')) json.remove('label');
-  if (isJsonDefault(instance.extendedIconLabelSpacing, 0))
+  if (isJsonDefault(instance.extendedIconLabelSpacing, 0.0))
     json.remove('extendedIconLabelSpacing');
-  if (isJsonDefault(instance.shape, CShapeBorder.circle)) json.remove('shape');
-  if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
-    json.remove('cornerRadius');
   return json;
 }
 
@@ -213,12 +215,12 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
   foregroundColor: json['foregroundColor'] == null
       ? ColorRGBA.white
       : ColorRGBA.fromJson(json['foregroundColor']),
-  elevation: (json['elevation'] as num?)?.toDouble() ?? 0,
-  focusElevation: (json['focusElevation'] as num?)?.toDouble() ?? 0,
-  hoverElevation: (json['hoverElevation'] as num?)?.toDouble() ?? 0,
-  highlightElevation: (json['highlightElevation'] as num?)?.toDouble() ?? 0,
+  elevation: (json['elevation'] as num?)?.toDouble() ?? 0.0,
+  focusElevation: (json['focusElevation'] as num?)?.toDouble() ?? 0.0,
+  hoverElevation: (json['hoverElevation'] as num?)?.toDouble() ?? 0.0,
+  highlightElevation: (json['highlightElevation'] as num?)?.toDouble() ?? 0.0,
   extendedIconLabelSpacing:
-      (json['extendedIconLabelSpacing'] as num?)?.toDouble() ?? 0,
+      (json['extendedIconLabelSpacing'] as num?)?.toDouble() ?? 0.0,
   icon: json['icon'] == null
       ? const MultiSourceIconModel()
       : MultiSourceIconModel.fromJson(json['icon'] as Map),
@@ -244,9 +246,9 @@ FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(
   shape:
       $enumDecodeNullable(_$CShapeBorderEnumMap, json['shape']) ??
       CShapeBorder.circle,
-  cornerRadius: json['cornerRadius'] == null
-      ? CornerRadius.zero
-      : CornerRadius.fromJson(json['cornerRadius']),
+  cornerRadius: _readLegacyCornerRadius(json, 'cornerRadius') == null
+      ? const CornerRadius.all(RadiusModel.circular(16))
+      : CornerRadius.fromJson(_readLegacyCornerRadius(json, 'cornerRadius')),
   borderColor: json['borderColor'] == null
       ? null
       : ColorRGBA.fromJson(json['borderColor']),
@@ -260,10 +262,10 @@ Map<String, dynamic> _$FloatingActionButtonPropertiesToJson(
   FloatingActionButtonProperties instance,
 ) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'shape': _$CShapeBorderEnumMap[instance.shape]!,
-  'cornerRadius': instance.cornerRadius.toJson(),
   'borderWidth': ?instance.borderWidth,
   'borderColor': ?instance.borderColor?.toJson(),
+  'shape': _$CShapeBorderEnumMap[instance.shape]!,
+  'cornerRadius': instance.cornerRadius.toJson(),
   'backgroundColor': instance.backgroundColor.toJson(),
   'foregroundColor': instance.foregroundColor.toJson(),
   'elevation': instance.elevation,

@@ -7,6 +7,11 @@ import 'nodes.dart';
 
 part 'list_tile_node.g.dart';
 
+/// Reads a missing padding as the Material 2 default stored designs used
+/// before 5.0.0.
+Object? _readLegacyTilePadding(Map json, String key) =>
+    json[key] ?? const EdgeInsetsModel.symmetric(horizontal: 16).toJson();
+
 /// Default width for the [ListTileNode].
 const double kDefaultListTileWidth = 300;
 
@@ -23,8 +28,10 @@ const double kDefaultListTileMinVerticalPadding = 4;
 const double kDefaultListTileMinLeadingWidth = 40;
 
 /// Default value for [contentPadding] in [ListTile].
-const EdgeInsetsModel kDefaultListTileContentPadding =
-    EdgeInsetsModel.symmetric(horizontal: 16);
+const EdgeInsetsModel kDefaultListTileContentPadding = EdgeInsetsModel.only(
+  left: 16,
+  right: 24,
+);
 
 /// A single fixed-height row that typically contains some text as well as a
 /// leading or trailing icon.
@@ -203,6 +210,9 @@ class ListTileProperties extends CustomProperties
   ///
   /// Insets a [ListTile]'s contents: its [leading], [title], [subtitle], and
   /// [trailing] widgets.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonLegacyDefault(EdgeInsetsModel.symmetric(horizontal: 16))
+  @JsonKey(readValue: _readLegacyTilePadding)
   EdgeInsetsModel contentPadding;
 
   /// Whether this list tile is interactive.
