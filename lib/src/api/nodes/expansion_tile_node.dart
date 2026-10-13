@@ -230,6 +230,17 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// `ExpansionTile.showTrailingIcon`.
   bool showTrailingIcon;
 
+  /// Border shape of the tile when expanded. When set, it replaces the
+  /// dividers drawn by [showDividers]. Mirrors `ExpansionTile.shape`.
+  CShapeBorder? shape;
+
+  /// Border shape of the tile when collapsed. When set, it replaces the
+  /// dividers drawn by [showDividers]. Mirrors `ExpansionTile.collapsedShape`.
+  CShapeBorder? collapsedShape;
+
+  /// Corner radius applied to [shape] and [collapsedShape].
+  CornerRadius cornerRadius;
+
   /// Platform or null affinity defaults to trailing.
   ListTileControlAffinityC effectiveAffinity(
     ListTileControlAffinityC? affinity,
@@ -261,6 +272,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     this.visualDensity = VisualDensityModel.standard,
     this.showDividers = true,
     this.showTrailingIcon = true,
+    this.shape,
+    this.collapsedShape,
+    this.cornerRadius = CornerRadius.zero,
   });
 
   /// Duplicates this [ExpansionTileProperties] instance with given data
@@ -282,6 +296,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     VisualDensityModel? visualDensity,
     bool? showDividers,
     bool? showTrailingIcon,
+    CShapeBorder? shape,
+    CShapeBorder? collapsedShape,
+    CornerRadius? cornerRadius,
   }) {
     return ExpansionTileProperties(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -302,6 +319,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
       visualDensity: visualDensity ?? this.visualDensity,
       showDividers: showDividers ?? this.showDividers,
       showTrailingIcon: showTrailingIcon ?? this.showTrailingIcon,
+      shape: shape ?? this.shape,
+      collapsedShape: collapsedShape ?? this.collapsedShape,
+      cornerRadius: cornerRadius ?? this.cornerRadius,
     );
   }
 
@@ -406,6 +426,28 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
       () => showTrailingIcon,
       (value) => showTrailingIcon = value,
     ),
+    'shape': EnumFieldAccess<CShapeBorder?>(
+      'Shape',
+      'Border shape of the tile when expanded.',
+      () => shape,
+      (value) => shape = value,
+      defaultValue: () => null,
+      options: () => CShapeBorder.values,
+    ),
+    'collapsedShape': EnumFieldAccess<CShapeBorder?>(
+      'Collapsed Shape',
+      'Border shape of the tile when collapsed.',
+      () => collapsedShape,
+      (value) => collapsedShape = value,
+      defaultValue: () => null,
+      options: () => CShapeBorder.values,
+    ),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Corner radius applied to the shapes.',
+      () => cornerRadius,
+      (value) => cornerRadius = value,
+    ),
   };
 
   @override
@@ -426,6 +468,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     visualDensity,
     showDividers,
     showTrailingIcon,
+    shape,
+    collapsedShape,
+    cornerRadius,
   ];
 
   @override

@@ -41,7 +41,8 @@
   - `ListTileProperties.minTileHeight`, `titleAlignment` (new
     `ListTileTitleAlignmentC`)
   - `MaterialLoadingIndicatorProperties.strokeAlign`, `trackGap`
-  - `ExpansionTileProperties.showTrailingIcon`
+  - `ExpansionTileProperties.showTrailingIcon`, `shape`, `collapsedShape`,
+    `cornerRadius`
   - `TextMixin.softWrap`
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).

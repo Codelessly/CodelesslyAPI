@@ -84,6 +84,8 @@ Map<String, dynamic> _$ExpansionTilePropertiesOmitDefaults(
   if (isJsonDefault(instance.showDividers, true)) json.remove('showDividers');
   if (isJsonDefault(instance.showTrailingIcon, true))
     json.remove('showTrailingIcon');
+  if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
+    json.remove('cornerRadius');
   return json;
 }
 
@@ -317,6 +319,14 @@ ExpansionTileProperties _$ExpansionTilePropertiesFromJson(Map json) =>
             ),
       showDividers: json['showDividers'] as bool? ?? true,
       showTrailingIcon: json['showTrailingIcon'] as bool? ?? true,
+      shape: $enumDecodeNullable(_$CShapeBorderEnumMap, json['shape']),
+      collapsedShape: $enumDecodeNullable(
+        _$CShapeBorderEnumMap,
+        json['collapsedShape'],
+      ),
+      cornerRadius: json['cornerRadius'] == null
+          ? CornerRadius.zero
+          : CornerRadius.fromJson(json['cornerRadius']),
     );
 
 Map<String, dynamic> _$ExpansionTilePropertiesToJson(
@@ -340,10 +350,23 @@ Map<String, dynamic> _$ExpansionTilePropertiesToJson(
   'visualDensity': instance.visualDensity.toJson(),
   'showDividers': instance.showDividers,
   'showTrailingIcon': instance.showTrailingIcon,
+  'shape': ?_$CShapeBorderEnumMap[instance.shape],
+  'collapsedShape': ?_$CShapeBorderEnumMap[instance.collapsedShape],
+  'cornerRadius': instance.cornerRadius.toJson(),
 };
 
 const _$ListTileControlAffinityCEnumMap = {
   ListTileControlAffinityC.leading: 'leading',
   ListTileControlAffinityC.trailing: 'trailing',
   ListTileControlAffinityC.platform: 'platform',
+};
+
+const _$CShapeBorderEnumMap = {
+  CShapeBorder.rectangle: 'rectangle',
+  CShapeBorder.circle: 'circle',
+  CShapeBorder.stadium: 'stadium',
+  CShapeBorder.roundedRectangle: 'roundedRectangle',
+  CShapeBorder.continuousRectangle: 'continuousRectangle',
+  CShapeBorder.beveledRectangle: 'beveledRectangle',
+  CShapeBorder.roundedSuperellipse: 'roundedSuperellipse',
 };

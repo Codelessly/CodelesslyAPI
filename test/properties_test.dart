@@ -226,6 +226,14 @@ void main() {
         ExpansionTileProperties(showTrailingIcon: false).toJson(),
       );
       expect(copy.showTrailingIcon, isFalse);
+      final shaped = ExpansionTileProperties.fromJson(
+        ExpansionTileProperties(
+          shape: CShapeBorder.roundedRectangle,
+          cornerRadius: CornerRadius.zero,
+        ).toJson(),
+      );
+      expect(shaped.shape, CShapeBorder.roundedRectangle);
+      expect(shaped.collapsedShape, isNull);
     });
 
     test('TextNode.softWrap', () {
