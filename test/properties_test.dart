@@ -170,4 +170,24 @@ void main() {
       expect(TextAlignHorizontalEnum.values.byName('start').name, 'start');
     });
   });
+
+  group('field access', () {
+    test('TextFieldProperties exposes its settings', () {
+      final props = TextFieldProperties();
+      expect(
+        props.fields.keys,
+        containsAll(['keyboardType', 'obscureText', 'maxLines', 'textAlign']),
+      );
+      props.fields['obscureText']!.setValue(true);
+      expect(props.obscureText, isTrue);
+      expect(props.fieldSchema, isA<Map>());
+    });
+
+    test('Navigation bar properties expose their own settings', () {
+      final m3 = M3NavigationBarProperties(items: const []);
+      expect(m3.fields.keys, containsAll(['indicatorColor', 'labelBehavior']));
+      final m2 = M2NavigationBarProperties(items: const []);
+      expect(m2.fields.keys, containsAll(['navigationBarType', 'elevation']));
+    });
+  });
 }

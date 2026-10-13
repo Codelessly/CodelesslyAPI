@@ -360,6 +360,78 @@ class M3NavigationBarProperties
   }
 
   @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'indicatorColor': ColorFieldAccess<ColorRGBA?>(
+      'Indicator Color',
+      'Color of navigation bar\'s selection indicator.',
+      () => indicatorColor,
+      (value) => indicatorColor = value,
+    ),
+    'selectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Selected Label Style',
+      'Text style applied to selected item\'s label.',
+      () => selectedLabelStyle,
+      (value) => selectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Unselected Label Style',
+      'Text style applied to unselected item\'s label.',
+      () => unselectedLabelStyle,
+      (value) => unselectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Unselected Icon Color',
+      'Color of unselected item\'s icon.',
+      () => unselectedIconColor,
+      (value) => unselectedIconColor = value,
+    ),
+    'selectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Icon Color',
+      'Color of selected item\'s icon.',
+      () => selectedIconColor,
+      (value) => selectedIconColor = value,
+    ),
+    'unselectedIconSize': NumFieldAccess<double>(
+      'Unselected Icon Size',
+      'Size of unselected item\'s icon.',
+      () => unselectedIconSize,
+      (value) => unselectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'selectedIconSize': NumFieldAccess<double>(
+      'Selected Icon Size',
+      'Size of selected item\'s icon.',
+      () => selectedIconSize,
+      (value) => selectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'elevation': NumFieldAccess<double>(
+      'Elevation',
+      'Navigation bar\'s position in z-coordinate.',
+      () => elevation,
+      (value) => elevation = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of navigation bar\'s background.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'labelBehavior': EnumFieldAccess<MaterialNavigationBarLabelBehavior>(
+      'Label Behavior',
+      'Defines how navigation bar label\'s visibility behaves.',
+      () => labelBehavior,
+      (value) => labelBehavior = value,
+      defaultValue: () => MaterialNavigationBarLabelBehavior.alwaysShow,
+      options: () => MaterialNavigationBarLabelBehavior.values,
+      requiresLayout: true,
+    ),
+  };
+
+  @override
   List<Object?> get props => [
     items,
     backgroundColor,
@@ -476,6 +548,90 @@ class M2NavigationBarProperties
       notchMargin: notchMargin ?? this.notchMargin,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'navigationBarType': EnumFieldAccess<M2NavigationBarType>(
+      'Navigation Bar Type',
+      'Navigation bar type.',
+      () => navigationBarType,
+      (value) => navigationBarType = value,
+      defaultValue: () => M2NavigationBarType.fixed,
+      options: () => M2NavigationBarType.values,
+      requiresLayout: true,
+    ),
+    'landscapeLayout': EnumFieldAccess<M2NavigationBarLandscapeLayout>(
+      'Landscape Layout',
+      'Navigation bar\'s layout in landscape orientation.',
+      () => landscapeLayout,
+      (value) => landscapeLayout = value,
+      defaultValue: () => M2NavigationBarLandscapeLayout.spread,
+      options: () => M2NavigationBarLandscapeLayout.values,
+      requiresLayout: true,
+    ),
+    'selectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Selected Label Style',
+      'Text style applied to selected item\'s label.',
+      () => selectedLabelStyle,
+      (value) => selectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Unselected Label Style',
+      'Text style applied to unselected item\'s label.',
+      () => unselectedLabelStyle,
+      (value) => unselectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Unselected Icon Color',
+      'Color of unselected item\'s icon.',
+      () => unselectedIconColor,
+      (value) => unselectedIconColor = value,
+    ),
+    'selectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Icon Color',
+      'Color of selected item\'s icon.',
+      () => selectedIconColor,
+      (value) => selectedIconColor = value,
+    ),
+    'unselectedIconSize': NumFieldAccess<double>(
+      'Unselected Icon Size',
+      'Size of unselected item\'s icon.',
+      () => unselectedIconSize,
+      (value) => unselectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'selectedIconSize': NumFieldAccess<double>(
+      'Selected Icon Size',
+      'Size of selected item\'s icon.',
+      () => selectedIconSize,
+      (value) => selectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'elevation': NumFieldAccess<double>(
+      'Elevation',
+      'Navigation bar\'s position in z-coordinate.',
+      () => elevation,
+      (value) => elevation = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of navigation bar\'s background.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'labelBehavior': EnumFieldAccess<MaterialNavigationBarLabelBehavior>(
+      'Label Behavior',
+      'Defines how navigation bar label\'s visibility behaves.',
+      () => labelBehavior,
+      (value) => labelBehavior = value,
+      defaultValue: () => MaterialNavigationBarLabelBehavior.alwaysShow,
+      options: () => MaterialNavigationBarLabelBehavior.values,
+      requiresLayout: true,
+    ),
+  };
 
   @override
   List<Object?> get props => [
