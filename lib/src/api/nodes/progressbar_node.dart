@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -119,7 +119,7 @@ class ProgressBarNode extends SceneNode
   factory ProgressBarNode.fromJson(Map json) => _$ProgressBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$ProgressBarNodeToJson(this);
+  Map toJson() => _$ProgressBarNodeOmitDefaults(this, _$ProgressBarNodeToJson(this));
 }
 
 /// Holds configurable properties of the progress bar.
@@ -248,5 +248,5 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
       _$ProgressBarPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$ProgressBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ProgressBarPropertiesOmitDefaults(this, _$ProgressBarPropertiesToJson(this));
 }

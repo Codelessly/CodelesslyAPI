@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../models/models.dart';
@@ -255,7 +255,7 @@ final class PlacesGoogleMapsWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$PlacesGoogleMapsWebViewPropertiesToJson(this);
+      _$PlacesGoogleMapsWebViewPropertiesOmitDefaults(this, _$PlacesGoogleMapsWebViewPropertiesToJson(this));
 
   /// Creates a new [PlacesGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -354,7 +354,7 @@ final class ViewGoogleMapsWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$ViewGoogleMapsWebViewPropertiesToJson(this);
+      _$ViewGoogleMapsWebViewPropertiesOmitDefaults(this, _$ViewGoogleMapsWebViewPropertiesToJson(this));
 
   /// Creates a new [ViewGoogleMapsWebViewProperties] instance from a JSON map.
   factory ViewGoogleMapsWebViewProperties.fromJson(Map json) =>
@@ -557,7 +557,7 @@ final class DirectionsGoogleMapsWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$DirectionsGoogleMapsWebViewPropertiesToJson(this);
+      _$DirectionsGoogleMapsWebViewPropertiesOmitDefaults(this, _$DirectionsGoogleMapsWebViewPropertiesToJson(this));
 
   /// Creates a new [DirectionsGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -767,7 +767,7 @@ final class StreetViewGoogleMapsWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$StreetViewGoogleMapsWebViewPropertiesToJson(this);
+      _$StreetViewGoogleMapsWebViewPropertiesOmitDefaults(this, _$StreetViewGoogleMapsWebViewPropertiesToJson(this));
 
   /// Creates a new [StreetViewGoogleMapsWebViewProperties] instance from a JSON
   /// map.
@@ -863,7 +863,7 @@ final class SearchGoogleMapsWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$SearchGoogleMapsWebViewPropertiesToJson(this);
+      _$SearchGoogleMapsWebViewPropertiesOmitDefaults(this, _$SearchGoogleMapsWebViewPropertiesToJson(this));
 
   /// Creates a new [SearchGoogleMapsWebViewProperties] instance from a JSON
   /// map.

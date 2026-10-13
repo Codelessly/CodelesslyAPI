@@ -1,11 +1,11 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
 part 'color_rgba.g.dart';
 
 /// A color model capable of having variable opacity/alpha.
-@JsonSerializable(useDynamics: true, createToJson: false)
+@JsonSerializable(createToJson: false)
 final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
   /// Alpha channel value, between 0 and 1
   final double a;

@@ -3,102 +3,194 @@
 part of 'text_node.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$WidthRangeOmitDefaults(
+  WidthRange instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+Map<String, dynamic> _$TextNodeOmitDefaults(
+  TextNode instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.visible, true)) json.remove('visible');
+  if (excludeConstraintsIf(instance)) json.remove('constraints');
+  if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
+    json.remove('constraints');
+  if (isJsonDefault(instance.edgePins, EdgePinsModel.standard))
+    json.remove('edgePins');
+  if (isJsonDefault(instance.positioningMode, PositioningMode.align))
+    json.remove('positioningMode');
+  if (isJsonDefault(instance.horizontalFit, SizeFit.fixed))
+    json.remove('horizontalFit');
+  if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
+    json.remove('verticalFit');
+  if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.aspectRatioLock, false))
+    json.remove('aspectRatioLock');
+  if (isJsonDefault(instance.alignment, AlignmentModel.none))
+    json.remove('alignment');
+  if (isJsonDefault(instance.margin, EdgeInsetsModel.zero))
+    json.remove('margin');
+  if (isJsonDefault(instance.padding, EdgeInsetsModel.zero))
+    json.remove('padding');
+  if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
+  if (isJsonDefault(instance.multipleVariables, {}))
+    json.remove('multipleVariables');
+  if (isJsonDefault(instance.componentVersion, 1))
+    json.remove('componentVersion');
+  if (isJsonDefault(instance.componentSchema, {}))
+    json.remove('componentSchema');
+  if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
+  if (isJsonDefault(instance.opacity, 1.0)) json.remove('opacity');
+  if (isJsonDefault(instance.blendMode, BlendModeC.srcOver))
+    json.remove('blendMode');
+  if (isJsonDefault(instance.isMask, false)) json.remove('isMask');
+  if (isJsonDefault(instance.effects, const [])) json.remove('effects');
+  if (isJsonDefault(instance.textMixedProps, const []))
+    json.remove('textMixedProps');
+  if (isJsonDefault(instance.textAlignHorizontal, TextAlignHorizontalEnum.left))
+    json.remove('textAlignHorizontal');
+  if (isJsonDefault(instance.textAlignVertical, TextAlignVerticalEnum.top))
+    json.remove('textAlignVertical');
+  if (isJsonDefault(instance.paragraphIndent, 0))
+    json.remove('paragraphIndent');
+  if (isJsonDefault(instance.paragraphSpacing, 0))
+    json.remove('paragraphSpacing');
+  if (isJsonDefault(instance.overflow, TextOverflowC.clip))
+    json.remove('overflow');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 WidthRange _$WidthRangeFromJson(Map json) => WidthRange(
-      from: (json['from'] as num).toInt(),
-      to: (json['to'] as num).toInt(),
-    );
+  from: (json['from'] as num).toInt(),
+  to: (json['to'] as num).toInt(),
+);
 
 Map<String, dynamic> _$WidthRangeToJson(WidthRange instance) =>
-    <String, dynamic>{
-      'from': instance.from,
-      'to': instance.to,
-    };
+    <String, dynamic>{'from': instance.from, 'to': instance.to};
 
-TextNode _$TextNodeFromJson(Map json) => TextNode(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
-      visible: json['visible'] as bool? ?? true,
-      enabled: json['enabled'] as bool? ?? true,
-      rotationDegrees:
-          json['rotation'] == null ? 0 : castRotation(json['rotation']),
-      alignment: json['alignment'] == null
-          ? AlignmentModel.none
-          : AlignmentModel.fromJson(json['alignment'] as Map),
-      margin: json['margin'] == null
-          ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin']),
-      padding: json['padding'] == null
-          ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding']),
-      horizontalFit:
-          $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
-              SizeFit.fixed,
-      verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
-          SizeFit.fixed,
-      flex: (json['flex'] as num?)?.toInt() ?? 1,
-      constraints: json['constraints'] == null
-          ? const BoxConstraintsModel()
-          : BoxConstraintsModel.fromJson(json['constraints'] as Map),
-      edgePins: json['edgePins'] == null
-          ? EdgePinsModel.standard
-          : EdgePinsModel.fromJson(
-              Map<String, dynamic>.from(json['edgePins'] as Map)),
-      aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
-      positioningMode: $enumDecodeNullable(
-              _$PositioningModeEnumMap, json['positioningMode']) ??
-          PositioningMode.align,
-      reactions: (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e as Map))
-              .toList() ??
-          [],
-      characters: json['characters'] as String,
-      textMixedProps: (json['textMixedProps'] as List<dynamic>?)
-              ?.map((e) => StartEndProp.fromJson(e as Map))
-              .toList() ??
-          [],
-      paragraphIndent: (json['paragraphIndent'] as num?)?.toDouble() ?? 0,
-      paragraphSpacing: (json['paragraphSpacing'] as num?)?.toDouble() ?? 0,
-      textAlignHorizontal: $enumDecodeNullable(
-              _$TextAlignHorizontalEnumEnumMap, json['textAlignHorizontal']) ??
-          TextAlignHorizontalEnum.left,
-      textAlignVertical: $enumDecodeNullable(
-              _$TextAlignVerticalEnumEnumMap, json['textAlignVertical']) ??
-          TextAlignVerticalEnum.top,
-      maxLines: (json['maxLines'] as num?)?.toInt(),
-      overflow: $enumDecodeNullable(_$TextOverflowCEnumMap, json['overflow']) ??
-          TextOverflowC.clip,
-      opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
-      isMask: json['isMask'] as bool? ?? false,
-      effects: (json['effects'] as List<dynamic>?)
-              ?.map((e) => Effect.fromJson(e as Map))
-              .toList() ??
-          [],
-      blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
-              unknownValue: BlendModeC.srcOver) ??
-          BlendModeC.srcOver,
-      variables: (json['variables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String, e as String),
-          ) ??
-          {},
-      multipleVariables: (json['multipleVariables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String,
-                (e as List<dynamic>).map((e) => e as String).toList()),
-          ) ??
-          {},
-      inkWell: json['inkWell'] == null
-          ? null
-          : InkWellModel.fromJson(
-              Map<String, dynamic>.from(json['inkWell'] as Map)),
-    )
+TextNode _$TextNodeFromJson(Map json) =>
+    TextNode(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+        visible: json['visible'] as bool? ?? true,
+        enabled: json['enabled'] as bool? ?? true,
+        rotationDegrees: json['rotation'] == null
+            ? 0
+            : castRotation(json['rotation']),
+        alignment: json['alignment'] == null
+            ? AlignmentModel.none
+            : AlignmentModel.fromJson(json['alignment'] as Map),
+        margin: json['margin'] == null
+            ? EdgeInsetsModel.zero
+            : EdgeInsetsModel.fromJson(json['margin']),
+        padding: json['padding'] == null
+            ? EdgeInsetsModel.zero
+            : EdgeInsetsModel.fromJson(json['padding']),
+        horizontalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
+            SizeFit.fixed,
+        verticalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
+            SizeFit.fixed,
+        flex: (json['flex'] as num?)?.toInt() ?? 1,
+        constraints: json['constraints'] == null
+            ? const BoxConstraintsModel()
+            : BoxConstraintsModel.fromJson(json['constraints'] as Map),
+        edgePins: json['edgePins'] == null
+            ? EdgePinsModel.standard
+            : EdgePinsModel.fromJson(
+                Map<String, dynamic>.from(json['edgePins'] as Map),
+              ),
+        aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
+        positioningMode:
+            $enumDecodeNullable(
+              _$PositioningModeEnumMap,
+              json['positioningMode'],
+            ) ??
+            PositioningMode.align,
+        reactions:
+            (json['reactions'] as List<dynamic>?)
+                ?.map((e) => Reaction.fromJson(e as Map))
+                .toList() ??
+            const [],
+        characters: json['characters'] as String,
+        textMixedProps:
+            (json['textMixedProps'] as List<dynamic>?)
+                ?.map((e) => StartEndProp.fromJson(e as Map))
+                .toList() ??
+            const [],
+        paragraphIndent: (json['paragraphIndent'] as num?)?.toDouble() ?? 0,
+        paragraphSpacing: (json['paragraphSpacing'] as num?)?.toDouble() ?? 0,
+        textAlignHorizontal:
+            $enumDecodeNullable(
+              _$TextAlignHorizontalEnumEnumMap,
+              json['textAlignHorizontal'],
+            ) ??
+            TextAlignHorizontalEnum.left,
+        textAlignVertical:
+            $enumDecodeNullable(
+              _$TextAlignVerticalEnumEnumMap,
+              json['textAlignVertical'],
+            ) ??
+            TextAlignVerticalEnum.top,
+        maxLines: (json['maxLines'] as num?)?.toInt(),
+        overflow:
+            $enumDecodeNullable(_$TextOverflowCEnumMap, json['overflow']) ??
+            TextOverflowC.clip,
+        opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
+        isMask: json['isMask'] as bool? ?? false,
+        effects:
+            (json['effects'] as List<dynamic>?)
+                ?.map((e) => Effect.fromJson(e as Map))
+                .toList() ??
+            const [],
+        blendMode:
+            $enumDecodeNullable(
+              _$BlendModeCEnumMap,
+              json['blendMode'],
+              unknownValue: BlendModeC.srcOver,
+            ) ??
+            BlendModeC.srcOver,
+        variables:
+            (json['variables'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e as String),
+            ) ??
+            {},
+        multipleVariables:
+            (json['multipleVariables'] as Map?)?.map(
+              (k, e) => MapEntry(
+                k as String,
+                (e as List<dynamic>).map((e) => e as String).toList(),
+              ),
+            ) ??
+            {},
+        inkWell: json['inkWell'] == null
+            ? null
+            : InkWellModel.fromJson(
+                Map<String, dynamic>.from(json['inkWell'] as Map),
+              ),
+      )
       ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..markerType = $enumDecodeNullable(
+        _$ComponentMarkerTypeEnumMap,
+        json['markerType'],
+      )
       ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
-      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+      ..componentSchema =
+          (json['componentSchema'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
@@ -106,96 +198,49 @@ TextNode _$TextNodeFromJson(Map json) => TextNode(
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$TextNodeToJson(TextNode instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  if (!excludeConstraintsIf(instance)) {
-    writeNotNull('constraints', instance.constraints,
-        instance.constraints.toJson(), const BoxConstraintsModel());
-  }
-  val['characters'] = instance.characters;
-  writeNotNull('textMixedProps', instance.textMixedProps,
-      instance.textMixedProps.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
-  writeNotNull('componentVersion', instance.componentVersion,
-      instance.componentVersion, 1);
-  writeNotNull('componentSchema', instance.componentSchema,
-      instance.componentSchema, {});
-  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-      EdgePinsModel.standard);
-  writeNotNull(
-      'positioningMode',
-      instance.positioningMode,
-      _$PositioningModeEnumMap[instance.positioningMode]!,
-      PositioningMode.align);
-  writeNotNull('horizontalFit', instance.horizontalFit,
-      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
-  writeNotNull('verticalFit', instance.verticalFit,
-      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
-  writeNotNull('flex', instance.flex, instance.flex, 1);
-  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
-      instance.aspectRatioLock, false);
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
-  writeNotNull(
-      'textAlignHorizontal',
-      instance.textAlignHorizontal,
+Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
+  'id': instance.id,
+  'name': instance.name,
+  'visible': instance.visible,
+  'constraints': instance.constraints.toJson(),
+  'edgePins': instance.edgePins.toJson(),
+  'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+  'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+  'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+  'flex': instance.flex,
+  'aspectRatioLock': instance.aspectRatioLock,
+  'characters': instance.characters,
+  'alignment': instance.alignment.toJson(),
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-      TextAlignHorizontalEnum.left);
-  writeNotNull(
-      'textAlignVertical',
-      instance.textAlignVertical,
+  'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-      TextAlignVerticalEnum.top);
-  writeNotNull(
-      'paragraphIndent', instance.paragraphIndent, instance.paragraphIndent, 0);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('paragraphSpacing', instance.paragraphSpacing,
-      instance.paragraphSpacing, 0);
-  writeNotNull('maxLines', instance.maxLines, instance.maxLines, null);
-  writeNotNull('overflow', instance.overflow,
-      _$TextOverflowCEnumMap[instance.overflow]!, TextOverflowC.clip);
-  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
-  writeNotNull('margin', instance.margin, instance.margin.toJson(),
-      EdgeInsetsModel.zero);
-  writeNotNull('padding', instance.padding, instance.padding.toJson(),
-      EdgeInsetsModel.zero);
-  writeNotNull(
-      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
-  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
-  writeNotNull(
-      'heightFactor', instance.heightFactor, instance.heightFactor, null);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('opacity', instance.opacity, instance.opacity, 1.0);
-  writeNotNull('blendMode', instance.blendMode,
-      _$BlendModeCEnumMap[instance.blendMode]!, BlendModeC.srcOver);
-  writeNotNull('isMask', instance.isMask, instance.isMask, false);
-  writeNotNull('effects', instance.effects,
-      instance.effects.map((e) => e.toJson()).toList(), const []);
-  writeNotNull('inkWell', instance.inkWell, instance.inkWell?.toJson(), null);
-  val['type'] = instance.type;
-  return val;
-}
+  'paragraphIndent': instance.paragraphIndent,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
+  'widthFactor': ?instance.widthFactor,
+  'heightFactor': ?instance.heightFactor,
+  'enabled': instance.enabled,
+  'opacity': instance.opacity,
+  'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
+  'isMask': instance.isMask,
+  'effects': instance.effects.map((e) => e.toJson()).toList(),
+  'inkWell': ?instance.inkWell?.toJson(),
+  'type': instance.type,
+};
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',

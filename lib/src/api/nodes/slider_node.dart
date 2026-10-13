@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -124,7 +124,7 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   factory SliderNode.fromJson(Map json) => _$SliderNodeFromJson(json);
 
   @override
-  Map toJson() => _$SliderNodeToJson(this);
+  Map toJson() => _$SliderNodeOmitDefaults(this, _$SliderNodeToJson(this));
 }
 
 /// Holds configurable properties of the slider.
@@ -512,5 +512,5 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       _$SliderPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SliderPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$SliderPropertiesOmitDefaults(this, _$SliderPropertiesToJson(this));
 }

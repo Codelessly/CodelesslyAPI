@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -89,7 +89,7 @@ class FloatingActionButtonNode extends SceneNode
       _$FloatingActionButtonNodeFromJson(json);
 
   @override
-  Map toJson() => _$FloatingActionButtonNodeToJson(this);
+  Map toJson() => _$FloatingActionButtonNodeOmitDefaults(this, _$FloatingActionButtonNodeToJson(this));
 }
 
 /// Holds configurable properties for the [FloatingActionButtonNode].
@@ -355,5 +355,5 @@ class FloatingActionButtonProperties extends CustomProperties
       _$FloatingActionButtonPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$FloatingActionButtonPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$FloatingActionButtonPropertiesOmitDefaults(this, _$FloatingActionButtonPropertiesToJson(this));
 }

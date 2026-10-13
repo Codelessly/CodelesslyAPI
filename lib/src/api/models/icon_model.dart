@@ -1,12 +1,13 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'icon_model.g.dart';
 
 /// Base class for holding data of a font based icon.
-abstract class IconModel with EquatableMixin, SerializableMixin {
+abstract class IconModel with Equatable, SerializableMixin {
   /// Represents the icon in the fonts.
   final int codepoint;
 
@@ -145,7 +146,7 @@ class MaterialIcon extends IconModel {
       ];
 
   @override
-  Map toJson() => _$MaterialIconToJson(this)..['type'] = type;
+  Map toJson() => _$MaterialIconOmitDefaults(this, _$MaterialIconToJson(this))..['type'] = type;
 }
 
 /// An icon model that represents a material symbol.
@@ -192,7 +193,7 @@ class MaterialSymbol extends IconModel {
   List<Object?> get props => [codepoint, fontFamily, name, style];
 
   @override
-  Map toJson() => _$MaterialSymbolToJson(this)..['type'] = type;
+  Map toJson() => _$MaterialSymbolOmitDefaults(this, _$MaterialSymbolToJson(this))..['type'] = type;
 }
 
 /// An icon model that represents a cupertino icon.
@@ -232,5 +233,5 @@ class CupertinoIcon extends IconModel {
       _$CupertinoIconFromJson(json);
 
   @override
-  Map toJson() => _$CupertinoIconToJson(this)..['type'] = type;
+  Map toJson() => _$CupertinoIconOmitDefaults(this, _$CupertinoIconToJson(this))..['type'] = type;
 }

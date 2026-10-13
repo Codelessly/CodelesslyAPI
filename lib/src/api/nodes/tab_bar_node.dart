@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -93,7 +93,7 @@ class TabBarNode extends SceneNode
   factory TabBarNode.fromJson(Map json) => _$TabBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$TabBarNodeToJson(this);
+  Map toJson() => _$TabBarNodeOmitDefaults(this, _$TabBarNodeToJson(this));
 }
 
 /// Represents the size of the tab indicator.
@@ -416,7 +416,7 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$TabBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TabBarPropertiesOmitDefaults(this, _$TabBarPropertiesToJson(this));
 
   /// Creates a [TabBarProperties] from a JSON object.
   factory TabBarProperties.fromJson(Map json) =>
@@ -447,7 +447,7 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
 /// Represents a tab in a [TabBarNode].
 @JsonSerializable()
 class TabItem
-    with EquatableMixin, SerializableMixin, ReactionMixin, FieldsHolder {
+    with Equatable, SerializableMixin, ReactionMixin, FieldsHolder {
   /// ID of the tab.
   final String id;
 
@@ -508,7 +508,7 @@ class TabItem
   factory TabItem.fromJson(Map json) => _$TabItemFromJson(json);
 
   @override
-  Map toJson() => _$TabItemToJson(this);
+  Map toJson() => _$TabItemOmitDefaults(this, _$TabItemToJson(this));
 
   @override
   List<Object?> get props => [id, label, icon];

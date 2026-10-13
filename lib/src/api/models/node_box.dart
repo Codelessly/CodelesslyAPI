@@ -24,7 +24,7 @@ import 'models.dart';
 /// Additionally, the class provides several methods such as copyWith, fromJson,
 /// and toJson which allow for easy manipulation and serialization of the
 /// rectangle.
-class NodeBox with EquatableMixin, DynamicSerializableMixin {
+class NodeBox with Equatable, DynamicSerializableMixin {
   /// The arbitrary x-coordinate of the rectangle's left corner.
   /// The position in space depends on the creator of this class.
   ///

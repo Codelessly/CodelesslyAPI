@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -109,5 +109,5 @@ class FrameNode extends DefaultShapeNode
   factory FrameNode.fromJson(Map json) => _$FrameNodeFromJson(json);
 
   @override
-  Map toJson() => _$FrameNodeToJson(this);
+  Map toJson() => _$FrameNodeOmitDefaults(this, _$FrameNodeToJson(this));
 }

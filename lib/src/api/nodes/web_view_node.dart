@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -75,7 +75,7 @@ class WebViewNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   factory WebViewNode.fromJson(Map json) => _$WebViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$WebViewNodeToJson(this);
+  Map toJson() => _$WebViewNodeOmitDefaults(this, _$WebViewNodeToJson(this));
 }
 
 /// A custom serializer and deserializer for the [WebViewProperties.src] field
@@ -405,7 +405,7 @@ class WebPageWebViewProperties extends WebViewProperties {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$WebPageWebViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$WebPageWebViewPropertiesOmitDefaults(this, _$WebPageWebViewPropertiesToJson(this));
 
   /// Creates a new [WebPageWebViewProperties] instance from a JSON map.
   factory WebPageWebViewProperties.fromJson(Map json) =>

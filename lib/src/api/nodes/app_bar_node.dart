@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../extensions.dart';
@@ -96,7 +96,7 @@ class AppBarNode extends SceneNode
   factory AppBarNode.fromJson(Map json) => _$AppBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$AppBarNodeToJson(this);
+  Map toJson() => _$AppBarNodeOmitDefaults(this, _$AppBarNodeToJson(this));
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -286,12 +286,12 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
       _$AppBarPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$AppBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$AppBarPropertiesOmitDefaults(this, _$AppBarPropertiesToJson(this));
 }
 
 /// An app bar action item.
 abstract class AppBarActionItem
-    with ReactionMixin, SerializableMixin, EquatableMixin {
+    with ReactionMixin, SerializableMixin, Equatable {
   /// ID of the action item.
   final String id;
 
@@ -381,5 +381,5 @@ class IconAppBarActionItem extends AppBarActionItem with FieldsHolder {
       _$IconAppBarActionItemFromJson(json);
 
   @override
-  Map toJson() => _$IconAppBarActionItemToJson(this);
+  Map toJson() => _$IconAppBarActionItemOmitDefaults(this, _$IconAppBarActionItemToJson(this));
 }

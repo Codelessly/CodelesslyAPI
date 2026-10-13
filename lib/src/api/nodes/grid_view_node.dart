@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -205,7 +205,7 @@ class GridViewNode extends SinglePlaceholderNode
   factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$GridViewNodeToJson(this);
+  Map toJson() => _$GridViewNodeOmitDefaults(this, _$GridViewNodeToJson(this));
 }
 
 /// The properties of a [GridViewNode].
@@ -260,7 +260,7 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$GridViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$GridViewPropertiesOmitDefaults(this, _$GridViewPropertiesToJson(this));
 
   /// Creates a [GridViewProperties] from a JSON object.
   factory GridViewProperties.fromJson(Map json) =>
@@ -277,7 +277,7 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
 /// The properties of a grid delegate that controls the layout of a
 /// [GridViewNode].
 sealed class GridDelegateProperties
-    with EquatableMixin, SerializableMixin, FieldsHolder {
+    with Equatable, SerializableMixin, FieldsHolder {
   /// Represents the type of grid delegate.
   final GridDelegateType type;
 
@@ -378,7 +378,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   }) : super(GridDelegateType.fixedCrossAxisCount);
 
   @override
-  Map toJson() => _$FixedCrossAxisCountGridDelegatePropertiesToJson(this)
+  Map toJson() => _$FixedCrossAxisCountGridDelegatePropertiesOmitDefaults(this, _$FixedCrossAxisCountGridDelegatePropertiesToJson(this))
     ..['type'] = type.name;
 
   /// Creates a [FixedCrossAxisCountGridDelegateProperties] from a JSON object.
@@ -443,7 +443,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   }) : super(GridDelegateType.maxCrossAxisExtent);
 
   @override
-  Map toJson() => _$MaxCrossAxisExtentGridDelegatePropertiesToJson(this)
+  Map toJson() => _$MaxCrossAxisExtentGridDelegatePropertiesOmitDefaults(this, _$MaxCrossAxisExtentGridDelegatePropertiesToJson(this))
     ..['type'] = type.name;
 
   /// Creates a [MaxCrossAxisExtentGridDelegateProperties] from a JSON object.

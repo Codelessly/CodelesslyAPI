@@ -1,9 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart' hide required;
 
 import '../extensions.dart';
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'text_input_validator_model.g.dart';
 
@@ -236,7 +237,7 @@ class _CallableValidator implements CallableValidator {
 
 /// Represents a text input validator.
 sealed class TextInputValidatorModel
-    with EquatableMixin, SerializableMixin
+    with Equatable, SerializableMixin
     implements CallableValidator {
   /// The name of the validator. This is used to identify the validator.
   final String name;
@@ -314,7 +315,7 @@ class NoneTextInputValidatorModel extends TextInputValidatorModel {
       _$NoneTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$NoneTextInputValidatorModelToJson(this);
+  Map toJson() => _$NoneTextInputValidatorModelOmitDefaults(this, _$NoneTextInputValidatorModelToJson(this));
 }
 
 /// Represents a configurable text input validator with common properties like
@@ -381,7 +382,7 @@ class RequiredTextInputValidatorModel
       _$RequiredTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$RequiredTextInputValidatorModelToJson(this);
+  Map toJson() => _$RequiredTextInputValidatorModelOmitDefaults(this, _$RequiredTextInputValidatorModelToJson(this));
 }
 
 /// Represents a regular expression based text input validator.
@@ -542,7 +543,7 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       _$RegexTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$RegexTextInputValidatorModelToJson(this);
+  Map toJson() => _$RegexTextInputValidatorModelOmitDefaults(this, _$RegexTextInputValidatorModelToJson(this));
 
   @override
   List<Object?> get props => [
@@ -595,5 +596,5 @@ class UrlTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       _$UrlTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$UrlTextInputValidatorModelToJson(this);
+  Map toJson() => _$UrlTextInputValidatorModelOmitDefaults(this, _$UrlTextInputValidatorModelToJson(this));
 }

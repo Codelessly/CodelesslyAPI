@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -119,7 +119,7 @@ class ListViewNode extends SinglePlaceholderNode
   factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$ListViewNodeToJson(this);
+  Map toJson() => _$ListViewNodeOmitDefaults(this, _$ListViewNodeToJson(this));
 
   /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
@@ -256,7 +256,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$ListViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ListViewPropertiesOmitDefaults(this, _$ListViewPropertiesToJson(this));
 
   /// Creates a [ListViewProperties] from a JSON object.
   factory ListViewProperties.fromJson(Map json) =>

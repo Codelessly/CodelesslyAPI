@@ -3,14 +3,34 @@
 part of 'query_filter.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$WhereQueryFilterOmitDefaults(
+  WhereQueryFilter instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+Map<String, dynamic> _$OrderByQueryFilterOmitDefaults(
+  OrderByQueryFilter instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.sortOrder, OrderByQuerySortOrder.ascending))
+    json.remove('sortOrder');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 WhereQueryFilter _$WhereQueryFilterFromJson(Map json) => WhereQueryFilter(
-      field: json['field'] as String,
-      operator: $enumDecode(_$WhereQueryOperatorEnumMap, json['operator']),
-      value: json['value'] as String,
-    );
+  field: json['field'] as String,
+  operator: $enumDecode(_$WhereQueryOperatorEnumMap, json['operator']),
+  value: json['value'] as String,
+);
 
 Map<String, dynamic> _$WhereQueryFilterToJson(WhereQueryFilter instance) =>
     <String, dynamic>{
@@ -33,34 +53,17 @@ const _$WhereQueryOperatorEnumMap = {
 };
 
 OrderByQueryFilter _$OrderByQueryFilterFromJson(Map json) => OrderByQueryFilter(
-      field: json['field'] as String,
-      sortOrder: $enumDecodeNullable(
-              _$OrderByQuerySortOrderEnumMap, json['sortOrder']) ??
-          OrderByQuerySortOrder.ascending,
-    );
+  field: json['field'] as String,
+  sortOrder:
+      $enumDecodeNullable(_$OrderByQuerySortOrderEnumMap, json['sortOrder']) ??
+      OrderByQuerySortOrder.ascending,
+);
 
-Map<String, dynamic> _$OrderByQueryFilterToJson(OrderByQueryFilter instance) {
-  final val = <String, dynamic>{
-    'field': instance.field,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'sortOrder',
-      instance.sortOrder,
-      _$OrderByQuerySortOrderEnumMap[instance.sortOrder]!,
-      OrderByQuerySortOrder.ascending);
-  return val;
-}
+Map<String, dynamic> _$OrderByQueryFilterToJson(OrderByQueryFilter instance) =>
+    <String, dynamic>{
+      'field': instance.field,
+      'sortOrder': _$OrderByQuerySortOrderEnumMap[instance.sortOrder]!,
+    };
 
 const _$OrderByQuerySortOrderEnumMap = {
   OrderByQuerySortOrder.ascending: 'ascending',

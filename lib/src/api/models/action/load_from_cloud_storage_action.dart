@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -10,7 +10,7 @@ part 'load_from_cloud_storage_action.g.dart';
 /// load data from Firestore on canvas load.
 @JsonSerializable()
 class LoadFromCloudStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin, QueryableMixin {
+    with Equatable, SerializableMixin, QueryableMixin {
   /// Path to the collection to load data from.
   ///
   /// A string that represents the path to the document excluding the document
@@ -92,7 +92,7 @@ class LoadFromCloudStorageAction extends ActionModel
       _$LoadFromCloudStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$LoadFromCloudStorageActionToJson(this);
+  Map toJson() => _$LoadFromCloudStorageActionOmitDefaults(this, _$LoadFromCloudStorageActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

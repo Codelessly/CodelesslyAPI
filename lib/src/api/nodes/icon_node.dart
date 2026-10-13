@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -135,7 +135,7 @@ class IconNode extends SceneNode
   }
 
   @override
-  Map toJson() => _$IconNodeToJson(this);
+  Map toJson() => _$IconNodeOmitDefaults(this, _$IconNodeToJson(this));
 }
 
 /// Properties for an [IconNode].
@@ -150,7 +150,7 @@ class IconProperties extends CustomProperties with FieldsHolder {
   });
 
   @override
-  Map<String, dynamic> toJson() => _$IconPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$IconPropertiesOmitDefaults(this, _$IconPropertiesToJson(this));
 
   /// Creates an [IconProperties] from a JSON data.
   factory IconProperties.fromJson(Map json) => _$IconPropertiesFromJson(json);

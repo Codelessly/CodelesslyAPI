@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -117,7 +117,7 @@ class TextFieldNode extends SceneNode
   factory TextFieldNode.fromJson(Map json) => _$TextFieldNodeFromJson(json);
 
   @override
-  Map toJson() => _$TextFieldNodeToJson(this);
+  Map toJson() => _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
 /// Holds configurable properties of the text field.
@@ -332,7 +332,7 @@ class TextFieldProperties extends CustomProperties {
       _$TextFieldPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$TextFieldPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TextFieldPropertiesOmitDefaults(this, _$TextFieldPropertiesToJson(this));
 
   @override
   List<Object?> get props => [

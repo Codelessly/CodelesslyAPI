@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -134,7 +134,7 @@ final class StartEndProp extends TextProp {
   factory StartEndProp.fromJson(Map json) => _$StartEndPropFromJson(json);
 
   @override
-  Map toJson() => _$StartEndPropToJson(this);
+  Map toJson() => _$StartEndPropOmitDefaults(this, _$StartEndPropToJson(this));
 }
 
 /// Represents text styling for whole text. All the values/properties are
@@ -246,5 +246,5 @@ class TextProp extends Equatable with SerializableMixin {
   factory TextProp.fromJson(Map json) => _$TextPropFromJson(json);
 
   @override
-  Map toJson() => _$TextPropToJson(this);
+  Map toJson() => _$TextPropOmitDefaults(this, _$TextPropToJson(this));
 }

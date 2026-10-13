@@ -1,7 +1,8 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'breakpoint.g.dart';
 
@@ -41,7 +42,7 @@ enum ScaleMode {
 
 /// Represents a breakpoint for responsiveness.
 @JsonSerializable()
-class Breakpoint with EquatableMixin, SerializableMixin {
+class Breakpoint with Equatable, SerializableMixin {
   /// ID of the node which this breakpoint belongs to.
   final String nodeId;
 
@@ -79,5 +80,5 @@ class Breakpoint with EquatableMixin, SerializableMixin {
   factory Breakpoint.fromJson(Map json) => _$BreakpointFromJson(json);
 
   @override
-  Map toJson() => _$BreakpointToJson(this);
+  Map toJson() => _$BreakpointOmitDefaults(this, _$BreakpointToJson(this));
 }

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -70,5 +70,5 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
       [TriggerType.click, TriggerType.longPress];
 
   @override
-  Map toJson() => _$RectangleNodeToJson(this);
+  Map toJson() => _$RectangleNodeOmitDefaults(this, _$RectangleNodeToJson(this));
 }

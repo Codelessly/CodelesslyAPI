@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -98,7 +98,7 @@ class PageViewNode extends SinglePlaceholderNode
   factory PageViewNode.fromJson(Map json) => _$PageViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$PageViewNodeToJson(this);
+  Map toJson() => _$PageViewNodeOmitDefaults(this, _$PageViewNodeToJson(this));
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -208,7 +208,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       ];
 
   @override
-  Map<String, dynamic> toJson() => _$PageViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$PageViewPropertiesOmitDefaults(this, _$PageViewPropertiesToJson(this));
 
   /// Creates a [PageViewProperties] from a JSON object.
   factory PageViewProperties.fromJson(Map json) =>

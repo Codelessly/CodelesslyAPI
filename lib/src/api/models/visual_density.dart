@@ -1,8 +1,9 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import 'vec.dart';
+import '../json_defaults.dart';
 
 part 'visual_density.g.dart';
 
@@ -61,7 +62,7 @@ enum VisualDensityType {
 
 /// Holds visual density data.
 @JsonSerializable()
-class VisualDensityModel with EquatableMixin, SerializableMixin {
+class VisualDensityModel with Equatable, SerializableMixin {
   /// Density value for horizontal axis.
   final double horizontal;
 
@@ -135,5 +136,5 @@ class VisualDensityModel with EquatableMixin, SerializableMixin {
       _$VisualDensityModelFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$VisualDensityModelToJson(this);
+  Map<String, dynamic> toJson() => _$VisualDensityModelOmitDefaults(this, _$VisualDensityModelToJson(this));
 }

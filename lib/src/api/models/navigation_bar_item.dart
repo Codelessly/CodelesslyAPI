@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -9,7 +9,7 @@ part 'navigation_bar_item.g.dart';
 
 /// A base class that represents a navigation bar item.
 abstract class NavigationBarItem
-    with SerializableMixin, EquatableMixin, ReactionMixin, FieldsHolder {
+    with SerializableMixin, Equatable, ReactionMixin, FieldsHolder {
   /// Unique ID of this item.
   final String id;
 
@@ -123,7 +123,7 @@ class M2NavigationBarItem extends NavigationBarItem {
       _$M2NavigationBarItemFromJson(json);
 
   @override
-  Map toJson() => _$M2NavigationBarItemToJson(this);
+  Map toJson() => _$M2NavigationBarItemOmitDefaults(this, _$M2NavigationBarItemToJson(this));
 }
 
 /// A navigation bar item that adheres to material 3.0 design specs.
@@ -145,5 +145,5 @@ class M3NavigationBarItem extends NavigationBarItem {
       _$M3NavigationBarItemFromJson(json);
 
   @override
-  Map toJson() => _$M3NavigationBarItemToJson(this);
+  Map toJson() => _$M3NavigationBarItemOmitDefaults(this, _$M3NavigationBarItemToJson(this));
 }

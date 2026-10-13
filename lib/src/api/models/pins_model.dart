@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -68,7 +68,7 @@ enum EdgePin {
 ///
 /// [EdgePinsModel] replicates the behavior of Flutter's [Positioned] widget.
 @JsonSerializable()
-class EdgePinsModel with EquatableMixin, SerializableMixin {
+class EdgePinsModel with Equatable, SerializableMixin {
   /// Distance between node's left edge and its parent's left edge. Setting a
   /// non-null value pins the node to the left edge of its parent.
   final double? left;

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -77,7 +77,7 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   factory DropdownNode.fromJson(Map json) => _$DropdownNodeFromJson(json);
 
   @override
-  Map toJson() => _$DropdownNodeToJson(this);
+  Map toJson() => _$DropdownNodeOmitDefaults(this, _$DropdownNodeToJson(this));
 }
 
 /// Holds configurable properties of the dropdown.
@@ -447,5 +447,5 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       _$DropdownPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$DropdownPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$DropdownPropertiesOmitDefaults(this, _$DropdownPropertiesToJson(this));
 }

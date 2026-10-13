@@ -1,7 +1,8 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'line_height.g.dart';
 
@@ -51,7 +52,7 @@ class LineHeight extends Equatable with SerializableMixin {
   factory LineHeight.fromJson(Map json) => _$LineHeightFromJson(json);
 
   @override
-  Map toJson() => _$LineHeightToJson(this);
+  Map toJson() => _$LineHeightOmitDefaults(this, _$LineHeightToJson(this));
 
   /// Duplicates this instance of [LineHeight] with given data overrides.
   LineHeight copyWith({double? value, LineHeightUnitEnum? unit}) =>

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -112,7 +112,7 @@ class ExpansionTileNode extends SceneNode
       _$ExpansionTileNodeFromJson(json);
 
   @override
-  Map toJson() => _$ExpansionTileNodeToJson(this);
+  Map toJson() => _$ExpansionTileNodeOmitDefaults(this, _$ExpansionTileNodeToJson(this));
 }
 
 /// Holds configurable properties of an [ExpansionTileNode].
@@ -382,7 +382,7 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   List<Object?> get props => [];
 
   @override
-  Map<String, dynamic> toJson() => _$ExpansionTilePropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ExpansionTilePropertiesOmitDefaults(this, _$ExpansionTilePropertiesToJson(this));
 
   /// Creates a new [ExpansionTileProperties] from a JSON data.
   factory ExpansionTileProperties.fromJson(Map<String, dynamic> json) =>

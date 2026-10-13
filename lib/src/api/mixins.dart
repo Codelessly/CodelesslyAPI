@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
@@ -872,7 +872,7 @@ mixin CustomPropertiesMixin on BaseNode {
 }
 
 /// A mixin that allows a node to have a custom properties object.
-abstract class CustomProperties with EquatableMixin {
+abstract class CustomProperties with Equatable {
   /// Default constructor for this class.
   const CustomProperties();
 

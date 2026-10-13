@@ -1,11 +1,11 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 part 'safe_area.g.dart';
 
 /// Represents a safe area.
-@JsonSerializable(useDynamics: true, createToJson: false)
-class SafeAreaModel with EquatableMixin {
+@JsonSerializable(createToJson: false)
+class SafeAreaModel with Equatable {
   /// Whether to apply safe area to the top side of the widget.
   final bool top;
 

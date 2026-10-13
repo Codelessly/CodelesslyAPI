@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -9,7 +9,7 @@ part 'icon.g.dart';
 /// An icon model that can hold a [MultiSourceIconModel] and a list of
 /// [Reaction]s to that icon making it reactive.
 @JsonSerializable()
-class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
+class ReactiveIconModel with ReactionMixin, SerializableMixin, Equatable {
   /// The icon model.
   final MultiSourceIconModel icon;
 
@@ -36,7 +36,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
   }
 
   @override
-  Map toJson() => _$ReactiveIconModelToJson(this);
+  Map toJson() => _$ReactiveIconModelOmitDefaults(this, _$ReactiveIconModelToJson(this));
 
   /// Factory constructor for creating a new [ReactiveIconModel] instance
   /// from JSON data.
@@ -60,7 +60,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
 /// This model is designed to hold the properties of both a font based icon and
 /// an image icon.
 @JsonSerializable()
-class MultiSourceIconModel with EquatableMixin, SerializableMixin {
+class MultiSourceIconModel with Equatable, SerializableMixin {
   /// Despite having [iconType] to differentiate between icon types, [iconData]
   /// and [iconImage] allows for retention of user selection for both cases. So,
   /// when the user toggles the type, previous selection is preserved.
@@ -193,5 +193,5 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$MultiSourceIconModelToJson(this);
+  Map toJson() => _$MultiSourceIconModelOmitDefaults(this, _$MultiSourceIconModelToJson(this));
 }

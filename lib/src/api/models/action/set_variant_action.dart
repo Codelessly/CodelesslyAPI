@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../codelessly_api.dart';
@@ -8,7 +8,7 @@ part 'set_variant_action.g.dart';
 /// An action that sets the variant of a node.
 @JsonSerializable()
 class SetVariantAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// ID of the variance node whose variant is to be set.
   final String nodeID;
 
@@ -41,7 +41,7 @@ class SetVariantAction extends ActionModel
       _$SetVariantActionFromJson(json);
 
   @override
-  Map toJson() => _$SetVariantActionToJson(this);
+  Map toJson() => _$SetVariantActionOmitDefaults(this, _$SetVariantActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetVariantAction(this);

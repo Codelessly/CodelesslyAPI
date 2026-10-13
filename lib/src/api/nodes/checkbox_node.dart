@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -119,7 +119,7 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   factory CheckboxNode.fromJson(Map json) => _$CheckboxNodeFromJson(json);
 
   @override
-  Map toJson() => _$CheckboxNodeToJson(this)..['value'] = value;
+  Map toJson() => _$CheckboxNodeOmitDefaults(this, _$CheckboxNodeToJson(this))..['value'] = value;
 
   @override
   double get scale => basicBoxLocal.width / kCheckboxDefaultSize;
@@ -292,5 +292,5 @@ class CheckboxProperties extends CustomProperties with FieldsHolder {
       _$CheckboxPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CheckboxPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$CheckboxPropertiesOmitDefaults(this, _$CheckboxPropertiesToJson(this));
 }

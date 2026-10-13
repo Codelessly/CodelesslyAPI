@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../extensions.dart';
 import '../field_access.dart';
@@ -163,7 +163,7 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   factory ButtonNode.fromJson(Map json) => _$ButtonNodeFromJson(json);
 
   @override
-  Map toJson() => _$ButtonNodeToJson(this);
+  Map toJson() => _$ButtonNodeOmitDefaults(this, _$ButtonNodeToJson(this));
 
   @override
   void updateVariableName({required String oldName, required String newName}) {
@@ -413,7 +413,7 @@ class ButtonProperties extends CustomProperties
       _$ButtonPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$ButtonPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ButtonPropertiesOmitDefaults(this, _$ButtonPropertiesToJson(this));
 
   @override
   List<Object?> get props => [

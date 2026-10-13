@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -31,5 +31,5 @@ class ColorStop extends Equatable with SerializableMixin {
   factory ColorStop.fromJson(Map json) => _$ColorStopFromJson(json);
 
   @override
-  Map toJson() => _$ColorStopToJson(this);
+  Map toJson() => _$ColorStopOmitDefaults(this, _$ColorStopToJson(this));
 }

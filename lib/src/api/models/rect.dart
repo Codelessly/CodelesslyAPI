@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -12,7 +12,7 @@ part 'rect.g.dart';
 /// An immutable, 2D, axis-aligned, floating-point rectangle whose coordinates
 /// are relative to a given origin.
 @JsonSerializable()
-class RectC with SerializableMixin, EquatableMixin {
+class RectC with SerializableMixin, Equatable {
   /// The offset of the left edge of this rectangle from the x-axis.
   final double left;
 
@@ -225,7 +225,7 @@ class RectC with SerializableMixin, EquatableMixin {
   factory RectC.fromJson(Map json) => _$RectCFromJson(json);
 
   @override
-  Map toJson() => _$RectCToJson(this);
+  Map toJson() => _$RectCOmitDefaults(this, _$RectCToJson(this));
 
   @override
   String toString() {

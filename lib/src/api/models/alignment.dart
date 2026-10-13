@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -8,7 +8,7 @@ part 'alignment.g.dart';
 /// [AlignmentModel] wraps [AlignmentData] and provides standard alignment
 /// values such as [topRight] and [bottomCenter] for ease of use.
 @JsonSerializable()
-class AlignmentModel with EquatableMixin, SerializableMixin {
+class AlignmentModel with Equatable, SerializableMixin {
   /// Holds the actual x and y percentage information.
   final AlignmentData? data;
 
@@ -174,7 +174,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   factory AlignmentModel.fromJson(Map json) => _$AlignmentModelFromJson(json);
 
   @override
-  Map toJson() => _$AlignmentModelToJson(this);
+  Map toJson() => _$AlignmentModelOmitDefaults(this, _$AlignmentModelToJson(this));
 
   /// Displayable string representation of the object.
   String get prettify {
@@ -215,7 +215,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
 }
 
 /// A data class that holds the x and y values of the alignment.
-@JsonSerializable(useDynamics: true, createToJson: false)
+@JsonSerializable(createToJson: false)
 class AlignmentData extends Equatable with DynamicSerializableMixin {
   /// The x value of the alignment that represents how far it is from
   /// the left edge of the rect. -1 means left edge, 0 means center and

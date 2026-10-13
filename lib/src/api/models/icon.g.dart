@@ -3,39 +3,51 @@
 part of 'icon.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$ReactiveIconModelOmitDefaults(
+  ReactiveIconModel instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
+  return json;
+}
+
+Map<String, dynamic> _$MultiSourceIconModelOmitDefaults(
+  MultiSourceIconModel instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.type, IconTypeEnum.icon)) json.remove('type');
+  if (isJsonDefault(instance.size, 24)) json.remove('size');
+  if (isJsonDefault(instance.show, false)) json.remove('show');
+  if (isJsonDefault(instance.scale, 1)) json.remove('scale');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 ReactiveIconModel _$ReactiveIconModelFromJson(Map json) => ReactiveIconModel(
-      icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
-      reactions: (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e as Map))
-              .toList() ??
-          [],
-    );
+  icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
+  reactions:
+      (json['reactions'] as List<dynamic>?)
+          ?.map((e) => Reaction.fromJson(e as Map))
+          .toList() ??
+      const [],
+);
 
-Map<String, dynamic> _$ReactiveIconModelToJson(ReactiveIconModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  val['icon'] = instance.icon.toJson();
-  return val;
-}
+Map<String, dynamic> _$ReactiveIconModelToJson(ReactiveIconModel instance) =>
+    <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'icon': instance.icon.toJson(),
+    };
 
 MultiSourceIconModel _$MultiSourceIconModelFromJson(Map json) =>
     MultiSourceIconModel(
-      type: $enumDecodeNullable(_$IconTypeEnumEnumMap, json['type']) ??
+      type:
+          $enumDecodeNullable(_$IconTypeEnumEnumMap, json['type']) ??
           IconTypeEnum.icon,
       icon: json['icon'] == null
           ? null
@@ -49,30 +61,17 @@ MultiSourceIconModel _$MultiSourceIconModelFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$MultiSourceIconModelToJson(
-    MultiSourceIconModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('iconImage', instance.iconImage, instance.iconImage, null);
-  writeNotNull('icon', instance.icon, instance.icon?.toJson(), null);
-  writeNotNull('color', instance.color, instance.color?.toJson(), null);
-  writeNotNull('type', instance.type, _$IconTypeEnumEnumMap[instance.type]!,
-      IconTypeEnum.icon);
-  writeNotNull('size', instance.size, instance.size, 24);
-  writeNotNull('show', instance.show, instance.show, false);
-  writeNotNull('imageName', instance.imageName, instance.imageName, null);
-  writeNotNull('scale', instance.scale, instance.scale, 1);
-  return val;
-}
+  MultiSourceIconModel instance,
+) => <String, dynamic>{
+  'iconImage': ?instance.iconImage,
+  'icon': ?instance.icon?.toJson(),
+  'color': ?instance.color?.toJson(),
+  'type': _$IconTypeEnumEnumMap[instance.type]!,
+  'size': ?instance.size,
+  'show': instance.show,
+  'imageName': ?instance.imageName,
+  'scale': instance.scale,
+};
 
 const _$IconTypeEnumEnumMap = {
   IconTypeEnum.icon: 'icon',

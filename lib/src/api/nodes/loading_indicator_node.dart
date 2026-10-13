@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -80,7 +80,7 @@ class LoadingIndicatorNode extends SceneNode
       _$LoadingIndicatorNodeFromJson(json);
 
   @override
-  Map toJson() => _$LoadingIndicatorNodeToJson(this);
+  Map toJson() => _$LoadingIndicatorNodeOmitDefaults(this, _$LoadingIndicatorNodeToJson(this));
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -228,7 +228,7 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$MaterialLoadingIndicatorPropertiesToJson(this);
+      _$MaterialLoadingIndicatorPropertiesOmitDefaults(this, _$MaterialLoadingIndicatorPropertiesToJson(this));
 
   /// Creates a [MaterialLoadingIndicatorProperties] from a JSON data.
   factory MaterialLoadingIndicatorProperties.fromJson(Map json) =>
@@ -290,7 +290,7 @@ class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$CupertinoLoadingIndicatorPropertiesToJson(this);
+      _$CupertinoLoadingIndicatorPropertiesOmitDefaults(this, _$CupertinoLoadingIndicatorPropertiesToJson(this));
 
   /// Creates a [CupertinoLoadingIndicatorProperties] from a JSON data.
   factory CupertinoLoadingIndicatorProperties.fromJson(Map json) =>

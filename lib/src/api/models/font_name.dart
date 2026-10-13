@@ -1,7 +1,8 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'font_name.g.dart';
 
@@ -139,5 +140,5 @@ class FontName extends Equatable with SerializableMixin {
   factory FontName.fromJson(Map json) => _$FontNameFromJson(json);
 
   @override
-  Map toJson() => _$FontNameToJson(this);
+  Map toJson() => _$FontNameOmitDefaults(this, _$FontNameToJson(this));
 }

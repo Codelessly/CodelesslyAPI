@@ -1,6 +1,7 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import 'models.dart';
 
@@ -208,7 +209,7 @@ enum ConditionMode {
 }
 
 /// Represents an expression in a condition.
-sealed class BaseExpression with EquatableMixin, SerializableMixin {
+sealed class BaseExpression with Equatable, SerializableMixin {
   /// Creates a base expression.
   const BaseExpression();
 
@@ -231,7 +232,7 @@ sealed class BaseExpression with EquatableMixin, SerializableMixin {
 
 /// Represents an expression part in an expression. e.g. `a == b` has two
 /// expression parts: `a` and `b`.
-sealed class ExpressionPart with EquatableMixin, SerializableMixin {
+sealed class ExpressionPart with Equatable, SerializableMixin {
   /// Creates an expression part.
   const ExpressionPart();
 
@@ -269,7 +270,7 @@ class RawValuePart extends ExpressionPart {
   List<Object?> get props => [value];
 
   @override
-  Map toJson() => _$RawValuePartToJson(this)..['type'] = 'RawValue';
+  Map toJson() => _$RawValuePartOmitDefaults(this, _$RawValuePartToJson(this))..['type'] = 'RawValue';
 
   @override
   R? accept<R>(ExpressionPartVisitor<R> visitor) =>
@@ -308,7 +309,7 @@ class VariablePart extends ExpressionPart {
   List<Object?> get props => [valueString];
 
   @override
-  Map toJson() => _$VariablePartToJson(this)..['type'] = 'Variable';
+  Map toJson() => _$VariablePartOmitDefaults(this, _$VariablePartToJson(this))..['type'] = 'Variable';
 
   @override
   R? accept<R>(ExpressionPartVisitor<R> visitor) =>
@@ -358,7 +359,7 @@ class Expression extends BaseExpression {
   List<Object?> get props => [leftPart, rightPart, operator];
 
   @override
-  Map toJson() => _$ExpressionToJson(this)..['type'] = 'Expression';
+  Map toJson() => _$ExpressionOmitDefaults(this, _$ExpressionToJson(this))..['type'] = 'Expression';
 
   @override
   R? accept<R>(ExpressionVisitor<R> visitor) => visitor.visitExpression(this);
@@ -408,7 +409,7 @@ class ExpressionGroup extends BaseExpression {
   List<Object?> get props => [leftExpression, join, rightExpression];
 
   @override
-  Map toJson() => _$ExpressionGroupToJson(this)..['type'] = 'ExpressionGroup';
+  Map toJson() => _$ExpressionGroupOmitDefaults(this, _$ExpressionGroupToJson(this))..['type'] = 'ExpressionGroup';
 
   @override
   R? accept<R>(ExpressionVisitor<R> visitor) =>
@@ -416,7 +417,7 @@ class ExpressionGroup extends BaseExpression {
 }
 
 /// Base class for conditions
-sealed class BaseCondition with EquatableMixin, SerializableMixin {
+sealed class BaseCondition with Equatable, SerializableMixin {
   /// id of the condition
   final String id;
 
@@ -491,7 +492,7 @@ class ElseCondition extends BaseCondition {
   List<Object?> get props => [mode, actions];
 
   @override
-  Map toJson() => _$ElseConditionToJson(this)..['type'] = 'ElseCondition';
+  Map toJson() => _$ElseConditionOmitDefaults(this, _$ElseConditionToJson(this))..['type'] = 'ElseCondition';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitElseCondition(this);
@@ -546,7 +547,7 @@ class Condition extends BaseCondition {
   List<Object?> get props => [mode, expression, actions];
 
   @override
-  Map toJson() => _$ConditionToJson(this)..['type'] = 'Condition';
+  Map toJson() => _$ConditionOmitDefaults(this, _$ConditionToJson(this))..['type'] = 'Condition';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitCondition(this);
@@ -608,7 +609,7 @@ class ConditionGroup extends BaseCondition {
   List<Object?> get props => [ifCondition, elseIfConditions, elseCondition];
 
   @override
-  Map toJson() => _$ConditionGroupToJson(this)..['type'] = 'ConditionGroup';
+  Map toJson() => _$ConditionGroupOmitDefaults(this, _$ConditionGroupToJson(this))..['type'] = 'ConditionGroup';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) =>
@@ -617,7 +618,7 @@ class ConditionGroup extends BaseCondition {
 
 /// Contains all the variables associated with a canvas inside a page.
 @JsonSerializable()
-class CanvasConditions with EquatableMixin {
+class CanvasConditions with Equatable {
   /// Unique ID of the canvas.
   final String id;
 
@@ -667,7 +668,7 @@ class CanvasConditions with EquatableMixin {
       _$CanvasConditionsFromJson(json);
 
   /// Converts this [CanvasConditions] into a JSON map.
-  Map<String, dynamic> toJson() => _$CanvasConditionsToJson(this)..remove('id');
+  Map<String, dynamic> toJson() => _$CanvasConditionsOmitDefaults(this, _$CanvasConditionsToJson(this))..remove('id');
 
   /// Allows to access canvas variables by variable id.
   BaseCondition? operator [](String conditionId) {

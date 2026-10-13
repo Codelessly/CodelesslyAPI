@@ -1,7 +1,8 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'letter_spacing.g.dart';
 
@@ -50,7 +51,7 @@ class LetterSpacing extends Equatable with SerializableMixin {
   factory LetterSpacing.fromJson(Map json) => _$LetterSpacingFromJson(json);
 
   @override
-  Map toJson() => _$LetterSpacingToJson(this);
+  Map toJson() => _$LetterSpacingOmitDefaults(this, _$LetterSpacingToJson(this));
 
   /// Duplicates this instance with given data overrides.
   LetterSpacing copyWith({

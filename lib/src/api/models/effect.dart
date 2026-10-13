@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -44,7 +44,7 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 
 /// A visual effect such as a shadow or blur.
 @JsonSerializable()
-class Effect with EquatableMixin, SerializableMixin, FieldsHolder {
+class Effect with Equatable, SerializableMixin, FieldsHolder {
   @JsonKey(readValue: _readId)
 
   /// Unique identifier of the effect.
@@ -231,5 +231,5 @@ class Effect with EquatableMixin, SerializableMixin, FieldsHolder {
       });
 
   @override
-  Map toJson() => _$EffectToJson(this);
+  Map toJson() => _$EffectOmitDefaults(this, _$EffectToJson(this));
 }

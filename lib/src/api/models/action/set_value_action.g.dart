@@ -3,38 +3,101 @@
 part of 'set_value_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$SetValueActionOmitDefaults(
+  SetValueAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+Map<String, dynamic> _$BoolValueOmitDefaults(
+  BoolValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nullable, false)) json.remove('nullable');
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  if (isJsonDefault(instance.value, false)) json.remove('value');
+  return json;
+}
+
+Map<String, dynamic> _$IntValueOmitDefaults(
+  IntValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  if (isJsonDefault(instance.value, 0)) json.remove('value');
+  return json;
+}
+
+Map<String, dynamic> _$DoubleValueOmitDefaults(
+  DoubleValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  if (isJsonDefault(instance.value, 0)) json.remove('value');
+  return json;
+}
+
+Map<String, dynamic> _$StringValueOmitDefaults(
+  StringValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  if (isJsonDefault(instance.value, '')) json.remove('value');
+  return json;
+}
+
+Map<String, dynamic> _$ObjectValueOmitDefaults(
+  ObjectValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mode, SetValueMode.syncValue)) json.remove('mode');
+  if (isJsonDefault(instance.value, '')) json.remove('value');
+  return json;
+}
+
+Map<String, dynamic> _$ColorValueOmitDefaults(
+  ColorValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nullable, false)) json.remove('nullable');
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  return json;
+}
+
+Map<String, dynamic> _$PaintValueOmitDefaults(
+  PaintValue instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nullable, false)) json.remove('nullable');
+  if (isJsonDefault(instance.mode, SetValueMode.discrete)) json.remove('mode');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 SetValueAction _$SetValueActionFromJson(Map json) => SetValueAction(
-      nodeID: json['nodeID'] as String,
-      values: valuesFromJson(json['values'] as List),
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  nodeID: json['nodeID'] as String,
+  values: valuesFromJson(json['values'] as List),
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['nodeID'] = instance.nodeID;
-  val['values'] = instance.values.map((e) => e.toJson()).toList();
-  return val;
-}
+Map<String, dynamic> _$SetValueActionToJson(SetValueAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'nodeID': instance.nodeID,
+      'values': instance.values.map((e) => e.toJson()).toList(),
+    };
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
@@ -52,35 +115,21 @@ const _$ActionTypeEnumMap = {
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: json['value'] as bool? ?? false,
-      nullable: json['nullable'] as bool? ?? false,
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: json['value'] as bool? ?? false,
+  nullable: json['nullable'] as bool? ?? false,
+);
 
-Map<String, dynamic> _$BoolValueToJson(BoolValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value, false);
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  writeNotNull('nullable', instance.nullable, instance.nullable, false);
-  return val;
-}
+Map<String, dynamic> _$BoolValueToJson(BoolValue instance) => <String, dynamic>{
+  'name': instance.name,
+  'mode': _$SetValueModeEnumMap[instance.mode]!,
+  'value': ?instance.value,
+  'type': _$ValueTypeEnumMap[instance.type]!,
+  'nullable': instance.nullable,
+};
 
 const _$SetValueModeEnumMap = {
   SetValueMode.discrete: 'discrete',
@@ -99,181 +148,102 @@ const _$ValueTypeEnumMap = {
 };
 
 IntValue _$IntValueFromJson(Map json) => IntValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: (json['value'] as num?)?.toInt() ?? 0,
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: (json['value'] as num?)?.toInt() ?? 0,
+);
 
-Map<String, dynamic> _$IntValueToJson(IntValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value, 0);
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  return val;
-}
+Map<String, dynamic> _$IntValueToJson(IntValue instance) => <String, dynamic>{
+  'name': instance.name,
+  'mode': _$SetValueModeEnumMap[instance.mode]!,
+  'value': instance.value,
+  'type': _$ValueTypeEnumMap[instance.type]!,
+};
 
 DoubleValue _$DoubleValueFromJson(Map json) => DoubleValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: (json['value'] as num?)?.toDouble() ?? 0,
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: (json['value'] as num?)?.toDouble() ?? 0,
+);
 
-Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value, 0);
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  return val;
-}
+Map<String, dynamic> _$DoubleValueToJson(DoubleValue instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'mode': _$SetValueModeEnumMap[instance.mode]!,
+      'value': instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
+    };
 
 StringValue _$StringValueFromJson(Map json) => StringValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: json['value'] as String? ?? '',
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: json['value'] as String? ?? '',
+);
 
-Map<String, dynamic> _$StringValueToJson(StringValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value, '');
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  return val;
-}
+Map<String, dynamic> _$StringValueToJson(StringValue instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'mode': _$SetValueModeEnumMap[instance.mode]!,
+      'value': instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
+    };
 
 ObjectValue _$ObjectValueFromJson(Map json) => ObjectValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.syncValue,
-      value: json['value'] ?? '',
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.syncValue,
+  value: json['value'] ?? '',
+);
 
-Map<String, dynamic> _$ObjectValueToJson(ObjectValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.syncValue);
-  writeNotNull('value', instance.value, instance.value, '');
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  return val;
-}
+Map<String, dynamic> _$ObjectValueToJson(ObjectValue instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'mode': _$SetValueModeEnumMap[instance.mode]!,
+      'value': ?instance.value,
+      'type': _$ValueTypeEnumMap[instance.type]!,
+    };
 
 ColorValue _$ColorValueFromJson(Map json) => ColorValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: json['value'] == null ? null : ColorRGBA.fromJson(json['value']),
-      nullable: json['nullable'] as bool? ?? false,
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: json['value'] == null ? null : ColorRGBA.fromJson(json['value']),
+  nullable: json['nullable'] as bool? ?? false,
+);
 
-Map<String, dynamic> _$ColorValueToJson(ColorValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value?.toJson(), null);
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  writeNotNull('nullable', instance.nullable, instance.nullable, false);
-  return val;
-}
+Map<String, dynamic> _$ColorValueToJson(ColorValue instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'mode': _$SetValueModeEnumMap[instance.mode]!,
+      'value': ?instance.value?.toJson(),
+      'type': _$ValueTypeEnumMap[instance.type]!,
+      'nullable': instance.nullable,
+    };
 
 PaintValue _$PaintValueFromJson(Map json) => PaintValue(
-      name: json['name'] as String,
-      mode: $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
-          SetValueMode.discrete,
-      value: json['value'] == null
-          ? null
-          : PaintModel.fromJson(json['value'] as Map),
-      nullable: json['nullable'] as bool? ?? false,
-    );
+  name: json['name'] as String,
+  mode:
+      $enumDecodeNullable(_$SetValueModeEnumMap, json['mode']) ??
+      SetValueMode.discrete,
+  value: json['value'] == null
+      ? null
+      : PaintModel.fromJson(json['value'] as Map),
+  nullable: json['nullable'] as bool? ?? false,
+);
 
-Map<String, dynamic> _$PaintValueToJson(PaintValue instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('mode', instance.mode, _$SetValueModeEnumMap[instance.mode]!,
-      SetValueMode.discrete);
-  writeNotNull('value', instance.value, instance.value?.toJson(), null);
-  val['type'] = _$ValueTypeEnumMap[instance.type]!;
-  writeNotNull('nullable', instance.nullable, instance.nullable, false);
-  return val;
-}
+Map<String, dynamic> _$PaintValueToJson(PaintValue instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'mode': _$SetValueModeEnumMap[instance.mode]!,
+      'value': ?instance.value?.toJson(),
+      'type': _$ValueTypeEnumMap[instance.type]!,
+      'nullable': instance.nullable,
+    };

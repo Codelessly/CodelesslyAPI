@@ -1,5 +1,5 @@
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -178,7 +178,7 @@ class NavigationBarNode extends SceneNode
       _$NavigationBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$NavigationBarNodeToJson(this);
+  Map toJson() => _$NavigationBarNodeOmitDefaults(this, _$NavigationBarNodeToJson(this));
 
   @override
   FieldsMap generateFields() => {
@@ -375,7 +375,7 @@ class M3NavigationBarProperties
       ];
 
   @override
-  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesOmitDefaults(this, _$M3NavigationBarPropertiesToJson(this));
 
   /// Creates a [M3NavigationBarProperties] instance from a JSON object.
   static M3NavigationBarProperties fromJson(Map json) =>
@@ -489,7 +489,7 @@ class M2NavigationBarProperties
       ];
 
   @override
-  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesOmitDefaults(this, _$M2NavigationBarPropertiesToJson(this));
 
   /// Creates a [M2NavigationBarProperties] instance from a JSON object.
   factory M2NavigationBarProperties.fromJson(Map json) =>

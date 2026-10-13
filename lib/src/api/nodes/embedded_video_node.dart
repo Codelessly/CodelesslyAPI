@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -89,7 +89,7 @@ class EmbeddedVideoNode extends SceneNode
       _$EmbeddedVideoNodeFromJson(json);
 
   @override
-  Map toJson() => _$EmbeddedVideoNodeToJson(this);
+  Map toJson() => _$EmbeddedVideoNodeOmitDefaults(this, _$EmbeddedVideoNodeToJson(this));
 }
 
 /// Holds configurable properties of the embedded video.
@@ -281,7 +281,7 @@ class EmbeddedYoutubeVideoProperties extends EmbeddedVideoProperties {
       _$EmbeddedYoutubeVideoPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$EmbeddedYoutubeVideoPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$EmbeddedYoutubeVideoPropertiesOmitDefaults(this, _$EmbeddedYoutubeVideoPropertiesToJson(this));
 }
 
 /// Holds configurable properties of the embedded vimeo video.
@@ -342,12 +342,12 @@ class EmbeddedVimeoVideoProperties extends EmbeddedVideoProperties {
       _$EmbeddedVimeoVideoPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$EmbeddedVimeoVideoPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$EmbeddedVimeoVideoPropertiesOmitDefaults(this, _$EmbeddedVimeoVideoPropertiesToJson(this));
 }
 
 /// Holds metadata of the youtube video.
 @JsonSerializable()
-class YoutubeVideoMetadata with SerializableMixin, EquatableMixin {
+class YoutubeVideoMetadata with SerializableMixin, Equatable {
   /// Video's source URL.
   final String url;
 
@@ -474,12 +474,12 @@ class YoutubeVideoMetadata with SerializableMixin, EquatableMixin {
       _$YoutubeVideoMetadataFromJson(json);
 
   @override
-  Map toJson() => _$YoutubeVideoMetadataToJson(this);
+  Map toJson() => _$YoutubeVideoMetadataOmitDefaults(this, _$YoutubeVideoMetadataToJson(this));
 }
 
 /// Holds metadata of the vimeo video.
 @JsonSerializable()
-class VimeoVideoMetadata with SerializableMixin, EquatableMixin {
+class VimeoVideoMetadata with SerializableMixin, Equatable {
   /// Video's source URL.
   final String url;
 
@@ -649,7 +649,7 @@ class VimeoVideoMetadata with SerializableMixin, EquatableMixin {
       _$VimeoVideoMetadataFromJson(json);
 
   @override
-  Map toJson() => _$VimeoVideoMetadataToJson(this);
+  Map toJson() => _$VimeoVideoMetadataOmitDefaults(this, _$VimeoVideoMetadataToJson(this));
 }
 
 /// Helper method that returns Duration in seconds from the provided [value].

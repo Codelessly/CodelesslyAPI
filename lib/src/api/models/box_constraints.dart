@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -10,7 +10,7 @@ part 'box_constraints.g.dart';
 
 /// Holds sizing constraints for a node.
 @JsonSerializable()
-class BoxConstraintsModel with EquatableMixin, SerializableMixin {
+class BoxConstraintsModel with Equatable, SerializableMixin {
   /// Represents the minimum width a node can have. Must not be less than zero.
   final double? minWidth;
 
@@ -254,5 +254,5 @@ class BoxConstraintsModel with EquatableMixin, SerializableMixin {
       _$BoxConstraintsModelFromJson(json);
 
   @override
-  Map toJson() => _$BoxConstraintsModelToJson(this);
+  Map toJson() => _$BoxConstraintsModelOmitDefaults(this, _$BoxConstraintsModelToJson(this));
 }

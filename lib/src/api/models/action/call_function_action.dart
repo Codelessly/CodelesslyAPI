@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../../codelessly_api.dart';
@@ -8,7 +8,7 @@ part 'call_function_action.g.dart';
 /// An action that calls a custom function.
 @JsonSerializable()
 class CallFunctionAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// Name of the custom function to be called.
   final String name;
 
@@ -42,7 +42,7 @@ class CallFunctionAction extends ActionModel
       _$CallFunctionActionFromJson(json);
 
   @override
-  Map toJson() => _$CallFunctionActionToJson(this);
+  Map toJson() => _$CallFunctionActionOmitDefaults(this, _$CallFunctionActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

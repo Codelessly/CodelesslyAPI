@@ -1,9 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
+import '../../json_defaults.dart';
 
 part 'submit_action.g.dart';
 
@@ -23,7 +24,7 @@ enum SubmitActionService {
 
 /// An action that submits a form.
 @JsonSerializable()
-class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
+class SubmitAction extends ActionModel with Equatable, SerializableMixin {
   /// Service used to submit the form.
   SubmitActionService service;
 
@@ -58,7 +59,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$SubmitActionToJson(this);
+  Map toJson() => _$SubmitActionOmitDefaults(this, _$SubmitActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSubmitAction(this);
@@ -120,5 +121,5 @@ class MailchimpSubmitAction extends SubmitAction {
       _$MailchimpSubmitActionFromJson(json);
 
   @override
-  Map toJson() => _$MailchimpSubmitActionToJson(this);
+  Map toJson() => _$MailchimpSubmitActionOmitDefaults(this, _$MailchimpSubmitActionToJson(this));
 }

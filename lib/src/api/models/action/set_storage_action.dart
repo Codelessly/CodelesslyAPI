@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -37,7 +37,7 @@ enum StorageOperation {
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin
+    with Equatable, SerializableMixin
     implements DataOperationInterface {
   /// Key of the data in storage.
   final String key;
@@ -143,7 +143,7 @@ class SetStorageAction extends ActionModel
       _$SetStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetStorageActionToJson(this);
+  Map toJson() => _$SetStorageActionOmitDefaults(this, _$SetStorageActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetStorageAction(this);

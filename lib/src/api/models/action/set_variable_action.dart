@@ -1,17 +1,18 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../condition.dart';
 import '../variables_model.dart';
 import 'action.dart';
+import '../../json_defaults.dart';
 
 part 'set_variable_action.g.dart';
 
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetVariableAction extends ActionModel
-    with EquatableMixin, SerializableMixin
+    with Equatable, SerializableMixin
     implements DataOperationInterface {
   /// Variable whose value is to be set.
   final VariableData variable;
@@ -90,7 +91,7 @@ class SetVariableAction extends ActionModel
       _$SetVariableActionFromJson(json);
 
   @override
-  Map toJson() => _$SetVariableActionToJson(this);
+  Map toJson() => _$SetVariableActionOmitDefaults(this, _$SetVariableActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

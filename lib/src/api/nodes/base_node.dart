@@ -2,7 +2,7 @@
 
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,6 +10,7 @@ import '../constants.dart';
 import '../field_access.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
+import '../json_defaults.dart';
 import '../models/models.dart';
 import '../utils.dart';
 
@@ -30,7 +31,7 @@ bool kIsTestLayout = false;
 abstract class BaseNode
     with
         SerializableMixin,
-        EquatableMixin,
+        Equatable,
         VariablePropertiesMixin,
         ComponentMixin,
         FieldsHolder {
@@ -63,7 +64,7 @@ abstract class BaseNode
   /// Constraints apply to the [middleBoxLocal].
   ///
   /// See [BoxConstraintsModel] for more information about constraints.
-  @JsonKey(excludeIf: excludeConstraintsIf)
+  @JsonOmitIf(excludeConstraintsIf)
   BoxConstraintsModel get constraints => _constraints;
 
   late BoxConstraintsModel _resolvedConstraints;
@@ -81,7 +82,6 @@ abstract class BaseNode
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
-  // @JsonKey(excludeIf: excludeEdgePinsIf)
   EdgePinsModel edgePins;
 
   /// [PositioningMode] defines if the node positions itself using [alignment]

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../extensions.dart';
@@ -32,8 +32,8 @@ enum EdgeInsetsDirection {
 }
 
 /// Holds edge insets data for margin/padding.
-@JsonSerializable(useDynamics: true)
-class EdgeInsetsModel with EquatableMixin, DynamicSerializableMixin {
+@JsonSerializable()
+class EdgeInsetsModel with Equatable, DynamicSerializableMixin {
   /// Left spacing.
   final double l;
 

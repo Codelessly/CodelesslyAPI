@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -36,7 +36,7 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 /// A solid color, gradient, or image texture that can be applied as fill or
 /// stroke.
 @JsonSerializable()
-class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
+class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// identifier of this paint.
   @JsonKey(readValue: _readId)
   final String id;
@@ -571,12 +571,12 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
   factory PaintModel.fromJson(Map json) => _$PaintModelFromJson(json);
 
   @override
-  Map toJson() => _$PaintModelToJson(this);
+  Map toJson() => _$PaintModelOmitDefaults(this, _$PaintModelToJson(this));
 }
 
 /// Holds the information required to crop an image.
 @JsonSerializable()
-class CropData with EquatableMixin, SerializableMixin {
+class CropData with Equatable, SerializableMixin {
   /// The x coordinate of the top left corner of the crop rectangle.
   final double x;
 
@@ -618,5 +618,5 @@ class CropData with EquatableMixin, SerializableMixin {
   factory CropData.fromJson(Map json) => _$CropDataFromJson(json);
 
   @override
-  Map toJson() => _$CropDataToJson(this);
+  Map toJson() => _$CropDataOmitDefaults(this, _$CropDataToJson(this));
 }

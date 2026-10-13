@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -96,5 +96,5 @@ class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
 
   @override
-  Map toJson() => _$RowColumnNodeToJson(this);
+  Map toJson() => _$RowColumnNodeOmitDefaults(this, _$RowColumnNodeToJson(this));
 }

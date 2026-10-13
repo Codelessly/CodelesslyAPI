@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -31,7 +31,7 @@ enum FloatingLabelBehaviorEnum {
 
 /// Input decoration for text field.
 @JsonSerializable()
-class InputDecorationModel with EquatableMixin, SerializableMixin {
+class InputDecorationModel with Equatable, SerializableMixin {
   /// An icon to show before the input field and outside of the decoration's
   /// container.
   final MultiSourceIconModel icon;
@@ -397,5 +397,5 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
       _$InputDecorationModelFromJson(json);
 
   @override
-  Map toJson() => _$InputDecorationModelToJson(this);
+  Map toJson() => _$InputDecorationModelOmitDefaults(this, _$InputDecorationModelToJson(this));
 }

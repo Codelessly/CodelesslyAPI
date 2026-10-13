@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -9,7 +9,7 @@ part 'show_dialog_action.g.dart';
 /// An action that navigates to a new page.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
   final String destinationId;
 
@@ -67,7 +67,7 @@ class ShowDialogAction extends ActionModel
       _$ShowDialogActionFromJson(json);
 
   @override
-  Map toJson() => _$ShowDialogActionToJson(this);
+  Map toJson() => _$ShowDialogActionOmitDefaults(this, _$ShowDialogActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowDialogAction(this);

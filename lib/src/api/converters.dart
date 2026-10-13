@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'node_json_converter.dart';
 import 'nodes/base_node.dart';
@@ -88,4 +88,28 @@ class DateTimeMapConverter
         for (final MapEntry(key: key, value: value) in dates.entries)
           key: value.toUtc().millisecondsSinceEpoch,
       };
+}
+
+/// Converts a [DateTime] to and from milliseconds since epoch.
+///
+/// Times are written in UTC and read back as local time. A missing value
+/// reads as [DateTime.now].
+class DateTimeConverter extends JsonConverter<DateTime, int?> {
+  /// Creates a new instance of [DateTimeConverter].
+  const DateTimeConverter();
+
+  @override
+  DateTime fromJson(int? json) => deserialize(json);
+
+  @override
+  int? toJson(DateTime object) => serialize(object);
+
+  /// Serializes [DateTime] to milliseconds since epoch.
+  static int? serialize(DateTime object) =>
+      object.toUtc().millisecondsSinceEpoch;
+
+  /// Deserializes milliseconds since epoch to [DateTime].
+  static DateTime deserialize(int? json) => json != null
+      ? DateTime.fromMillisecondsSinceEpoch(json).toLocal()
+      : DateTime.now();
 }

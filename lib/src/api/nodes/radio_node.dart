@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -99,7 +99,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   factory RadioNode.fromJson(Map json) => _$RadioNodeFromJson(json);
 
   @override
-  Map toJson() => _$RadioNodeToJson(this);
+  Map toJson() => _$RadioNodeOmitDefaults(this, _$RadioNodeToJson(this));
 
   @override
   double get scale => basicBoxLocal.width / kRadioDefaultSize;
@@ -235,5 +235,5 @@ class RadioProperties extends CustomProperties with FieldsHolder {
   factory RadioProperties.fromJson(Map json) => _$RadioPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$RadioPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$RadioPropertiesOmitDefaults(this, _$RadioPropertiesToJson(this));
 }

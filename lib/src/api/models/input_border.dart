@@ -1,9 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import 'border_side.dart';
 import 'corner_radius.dart';
+import '../json_defaults.dart';
 
 part 'input_border.g.dart';
 
@@ -30,7 +31,7 @@ enum BorderTypeEnum {
 
 /// Represents decoration for an input border.
 @JsonSerializable()
-class InputBorderModel with EquatableMixin, SerializableMixin {
+class InputBorderModel with Equatable, SerializableMixin {
   /// The type of input border.
   final BorderTypeEnum borderType;
 
@@ -119,5 +120,5 @@ class InputBorderModel with EquatableMixin, SerializableMixin {
       _$InputBorderModelFromJson(json);
 
   @override
-  Map toJson() => _$InputBorderModelToJson(this);
+  Map toJson() => _$InputBorderModelOmitDefaults(this, _$InputBorderModelToJson(this));
 }

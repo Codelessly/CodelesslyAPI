@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 

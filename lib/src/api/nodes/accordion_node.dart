@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -75,7 +75,7 @@ class AccordionNode extends SceneNode
   factory AccordionNode.fromJson(Map json) => _$AccordionNodeFromJson(json);
 
   @override
-  Map toJson() => _$AccordionNodeToJson(this);
+  Map toJson() => _$AccordionNodeOmitDefaults(this, _$AccordionNodeToJson(this));
 }
 
 /// Custom properties for an [AccordionNode].
@@ -101,7 +101,7 @@ class AccordionProperties extends CustomProperties with FieldsHolder {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$AccordionPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$AccordionPropertiesOmitDefaults(this, _$AccordionPropertiesToJson(this));
 
   /// Creates a [AccordionProperties] from a JSON data.
 

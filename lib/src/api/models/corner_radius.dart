@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -33,7 +33,7 @@ enum RadiusType {
 }
 
 /// Holds corner radius values for a rect. Similar to Flutter's [BorderRadius].
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class CornerRadius extends Equatable with DynamicSerializableMixin {
   /// Radius for the top-left corner.
   final RadiusModel tl;
@@ -190,7 +190,7 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
 }
 
 /// A radius for either circular or elliptical shapes.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 class RadiusModel extends Equatable with DynamicSerializableMixin {
   /// The radius value on the horizontal axis.
   final double x;

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../models/models.dart';
@@ -192,7 +192,7 @@ final class TweetTwitterWebViewProperties extends TwitterWebViewProperties {
       };
 
   @override
-  Map<String, dynamic> toJson() => _$TweetTwitterWebViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TweetTwitterWebViewPropertiesOmitDefaults(this, _$TweetTwitterWebViewPropertiesToJson(this));
 
   /// Creates a new [TweetTwitterWebViewProperties] instance from a JSON map.
   factory TweetTwitterWebViewProperties.fromJson(Map json) =>
@@ -301,7 +301,7 @@ final class TimelineTwitterWebViewProperties extends TwitterWebViewProperties {
 
   @override
   Map<String, dynamic> toJson() =>
-      _$TimelineTwitterWebViewPropertiesToJson(this);
+      _$TimelineTwitterWebViewPropertiesOmitDefaults(this, _$TimelineTwitterWebViewPropertiesToJson(this));
 
   /// Creates a new [TimelineTwitterWebViewProperties] instance from a JSON map.
   factory TimelineTwitterWebViewProperties.fromJson(Map json) =>
@@ -417,7 +417,7 @@ final class FollowButtonTwitterWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$FollowButtonTwitterWebViewPropertiesToJson(this);
+      _$FollowButtonTwitterWebViewPropertiesOmitDefaults(this, _$FollowButtonTwitterWebViewPropertiesToJson(this));
 
   /// Creates a new [FollowButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -553,7 +553,7 @@ final class MentionButtonTwitterWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$MentionButtonTwitterWebViewPropertiesToJson(this);
+      _$MentionButtonTwitterWebViewPropertiesOmitDefaults(this, _$MentionButtonTwitterWebViewPropertiesToJson(this));
 
   /// Creates a new [MentionButtonTwitterWebViewProperties] instance from a JSON
   /// map.
@@ -706,7 +706,7 @@ final class HashtagButtonTwitterWebViewProperties
 
   @override
   Map<String, dynamic> toJson() =>
-      _$HashtagButtonTwitterWebViewPropertiesToJson(this);
+      _$HashtagButtonTwitterWebViewPropertiesOmitDefaults(this, _$HashtagButtonTwitterWebViewPropertiesToJson(this));
 
   /// Creates a new [HashtagButtonTwitterWebViewProperties] instance from a JSON
   /// map.

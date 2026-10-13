@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -100,7 +100,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   factory DividerNode.fromJson(Map json) => _$DividerNodeFromJson(json);
 
   @override
-  Map toJson() => _$DividerNodeToJson(this);
+  Map toJson() => _$DividerNodeOmitDefaults(this, _$DividerNodeToJson(this));
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -242,5 +242,5 @@ class DividerProperties extends CustomProperties with FieldsHolder {
       _$DividerPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$DividerPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$DividerPropertiesOmitDefaults(this, _$DividerPropertiesToJson(this));
 }

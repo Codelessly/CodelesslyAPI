@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -16,7 +16,7 @@ enum TextInputFormatterType {
 
 /// Text formatters that can be applied to the text field input to restrict the
 /// input to a specific format.
-sealed class TextInputFormatterModel with EquatableMixin, SerializableMixin {
+sealed class TextInputFormatterModel with Equatable, SerializableMixin {
   /// The name of the formatter.
   final String name;
 
@@ -65,7 +65,7 @@ class NoneTextInputFormatterModel extends TextInputFormatterModel {
       _$NoneTextInputFormatterModelFromJson(json);
 
   @override
-  Map toJson() => _$NoneTextInputFormatterModelToJson(this);
+  Map toJson() => _$NoneTextInputFormatterModelOmitDefaults(this, _$NoneTextInputFormatterModelToJson(this));
 }
 
 /// Text formatters that can be applied to the text field input to restrict the
@@ -179,7 +179,7 @@ class RegexTextInputFormatterModel extends TextInputFormatterModel {
       _$RegexTextInputFormatterModelFromJson(json);
 
   @override
-  Map toJson() => _$RegexTextInputFormatterModelToJson(this);
+  Map toJson() => _$RegexTextInputFormatterModelOmitDefaults(this, _$RegexTextInputFormatterModelToJson(this));
 
   @override
   List<Object?> get props => [

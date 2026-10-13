@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -8,7 +8,7 @@ import '../../../codelessly_api.dart';
 part 'color_rgb.g.dart';
 
 /// An opaque color with no controllable opacity/alpha.
-@JsonSerializable(useDynamics: true)
+@JsonSerializable()
 base class ColorRGB extends Equatable with DynamicSerializableMixin {
   /// Red channel value, between 0 and 1.
   final double r;

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -37,7 +37,7 @@ enum SetCloudStorageOperation {
 /// An action that changes data in cloud storage.
 @JsonSerializable()
 class SetCloudStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// The sub action to perform. This can be one of [AddDocumentSubAction],
   /// [UpdateDocumentSubAction] or [RemoveDocumentSubAction].
   final SetCloudStorageSubAction subAction;
@@ -65,7 +65,7 @@ class SetCloudStorageAction extends ActionModel
       _$SetCloudStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetCloudStorageActionToJson(this);
+  Map toJson() => _$SetCloudStorageActionOmitDefaults(this, _$SetCloudStorageActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>
@@ -73,7 +73,7 @@ class SetCloudStorageAction extends ActionModel
 }
 
 /// Represents a sub action to perform on a data in cloud storage.
-sealed class SetCloudStorageSubAction with EquatableMixin, SerializableMixin {
+sealed class SetCloudStorageSubAction with Equatable, SerializableMixin {
   /// The operation to perform. Represents the type of the sub action.
   final SetCloudStorageOperation operation;
 
@@ -176,7 +176,7 @@ class AddDocumentSubAction extends SetCloudStorageSubAction {
 
   @override
   Map toJson() =>
-      _$AddDocumentSubActionToJson(this)..['operation'] = operation.name;
+      _$AddDocumentSubActionOmitDefaults(this, _$AddDocumentSubActionToJson(this))..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
@@ -234,7 +234,7 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
 
   @override
   Map toJson() =>
-      _$RemoveDocumentSubActionToJson(this)..['operation'] = operation.name;
+      _$RemoveDocumentSubActionOmitDefaults(this, _$RemoveDocumentSubActionToJson(this))..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [path, documentId];
@@ -357,7 +357,7 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
 
   @override
   Map toJson() =>
-      _$UpdateDocumentSubActionToJson(this)..['operation'] = operation.name;
+      _$UpdateDocumentSubActionOmitDefaults(this, _$UpdateDocumentSubActionToJson(this))..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [

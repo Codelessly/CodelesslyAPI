@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -7,7 +7,7 @@ part 'ink_well.g.dart';
 
 /// Represents properties that relate to the [InkWell] widget in Flutter.
 @JsonSerializable()
-class InkWellModel with EquatableMixin, SerializableMixin {
+class InkWellModel with Equatable, SerializableMixin {
   /// The overlay color. This is the dominant color field. If this is null, then
   /// the individual [highlightColor], [splashColor], [hoverColor], and
   /// [focusColor] values are used instead.
@@ -84,7 +84,7 @@ class InkWellModel with EquatableMixin, SerializableMixin {
       _$InkWellModelFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$InkWellModelToJson(this);
+  Map<String, dynamic> toJson() => _$InkWellModelOmitDefaults(this, _$InkWellModelToJson(this));
 
   @override
   List<Object?> get props => [

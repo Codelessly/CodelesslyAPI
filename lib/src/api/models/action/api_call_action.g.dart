@@ -3,40 +3,39 @@
 part of 'api_call_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$ApiCallActionOmitDefaults(
+  ApiCallAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 ApiCallAction _$ApiCallActionFromJson(Map json) => ApiCallAction(
-      apiId: json['apiId'] as String?,
-      parameters: (json['parameters'] as Map?)?.map(
-        (k, e) => MapEntry(k as String, e as String),
-      ),
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  apiId: json['apiId'] as String?,
+  parameters: (json['parameters'] as Map?)?.map(
+    (k, e) => MapEntry(k as String, e as String),
+  ),
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$ApiCallActionToJson(ApiCallAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('apiId', instance.apiId, instance.apiId, null);
-  val['parameters'] = instance.parameters;
-  return val;
-}
+Map<String, dynamic> _$ApiCallActionToJson(ApiCallAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'apiId': ?instance.apiId,
+      'parameters': instance.parameters,
+    };
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

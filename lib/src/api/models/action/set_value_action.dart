@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -9,7 +9,7 @@ part 'set_value_action.g.dart';
 /// An action that sets value of a property of the node.
 @JsonSerializable()
 class SetValueAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// ID of the node whose values are to be set.
   final String nodeID;
 
@@ -42,7 +42,7 @@ class SetValueAction extends ActionModel
   factory SetValueAction.fromJson(Map json) => _$SetValueActionFromJson(json);
 
   @override
-  Map toJson() => _$SetValueActionToJson(this);
+  Map toJson() => _$SetValueActionOmitDefaults(this, _$SetValueActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetValueAction(this);
@@ -204,7 +204,7 @@ class BoolValue extends ValueModel<bool?> with SerializableMixin {
   factory BoolValue.fromJson(Map json) => _$BoolValueFromJson(json);
 
   @override
-  Map toJson() => _$BoolValueToJson(this);
+  Map toJson() => _$BoolValueOmitDefaults(this, _$BoolValueToJson(this));
 }
 
 /// Value of integer type.
@@ -242,7 +242,7 @@ class IntValue extends ValueModel<int> with SerializableMixin {
   factory IntValue.fromJson(Map json) => _$IntValueFromJson(json);
 
   @override
-  Map toJson() => _$IntValueToJson(this);
+  Map toJson() => _$IntValueOmitDefaults(this, _$IntValueToJson(this));
 }
 
 /// Value of double type.
@@ -280,7 +280,7 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
   factory DoubleValue.fromJson(Map json) => _$DoubleValueFromJson(json);
 
   @override
-  Map toJson() => _$DoubleValueToJson(this);
+  Map toJson() => _$DoubleValueOmitDefaults(this, _$DoubleValueToJson(this));
 }
 
 /// Value of string type.
@@ -310,7 +310,7 @@ class StringValue extends ValueModel<String> with SerializableMixin {
   factory StringValue.fromJson(Map json) => _$StringValueFromJson(json);
 
   @override
-  Map toJson() => _$StringValueToJson(this);
+  Map toJson() => _$StringValueOmitDefaults(this, _$StringValueToJson(this));
 }
 
 /// Value of string type.
@@ -341,7 +341,7 @@ class ObjectValue extends ValueModel<Object?> with SerializableMixin {
   factory ObjectValue.fromJson(Map json) => _$ObjectValueFromJson(json);
 
   @override
-  Map toJson() => _$ObjectValueToJson(this);
+  Map toJson() => _$ObjectValueOmitDefaults(this, _$ObjectValueToJson(this));
 }
 
 /// Value of boolean type.
@@ -376,7 +376,7 @@ class ColorValue extends ValueModel<ColorRGBA?> with SerializableMixin {
   factory ColorValue.fromJson(Map json) => _$ColorValueFromJson(json);
 
   @override
-  Map toJson() => _$ColorValueToJson(this);
+  Map toJson() => _$ColorValueOmitDefaults(this, _$ColorValueToJson(this));
 }
 
 /// Value of boolean type.
@@ -411,5 +411,5 @@ class PaintValue extends ValueModel<PaintModel?> with SerializableMixin {
   factory PaintValue.fromJson(Map json) => _$PaintValueFromJson(json);
 
   @override
-  Map toJson() => _$PaintValueToJson(this);
+  Map toJson() => _$PaintValueOmitDefaults(this, _$PaintValueToJson(this));
 }

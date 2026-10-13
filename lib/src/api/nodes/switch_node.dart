@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -107,7 +107,7 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   factory SwitchNode.fromJson(Map json) => _$SwitchNodeFromJson(json);
 
   @override
-  Map toJson() => _$SwitchNodeToJson(this);
+  Map toJson() => _$SwitchNodeOmitDefaults(this, _$SwitchNodeToJson(this));
 
   @override
   double get scale => basicBoxLocal.width / kSwitchDefaultWidth;
@@ -325,5 +325,5 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
       _$SwitchPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SwitchPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$SwitchPropertiesOmitDefaults(this, _$SwitchPropertiesToJson(this));
 }

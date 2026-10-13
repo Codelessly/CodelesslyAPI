@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -17,7 +17,7 @@ enum BorderStyleEnum {
 
 /// Holds data needed to decorate the border side.
 @JsonSerializable()
-class BorderSideModel with EquatableMixin, SerializableMixin {
+class BorderSideModel with Equatable, SerializableMixin {
   /// Color of the border side.
   final ColorRGBA color;
 
@@ -54,5 +54,5 @@ class BorderSideModel with EquatableMixin, SerializableMixin {
   factory BorderSideModel.fromJson(Map json) => _$BorderSideModelFromJson(json);
 
   @override
-  Map toJson() => _$BorderSideModelToJson(this);
+  Map toJson() => _$BorderSideModelOmitDefaults(this, _$BorderSideModelToJson(this));
 }
