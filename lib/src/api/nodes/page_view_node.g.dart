@@ -70,6 +70,8 @@ Map<String, dynamic> _$PageViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.initialPage, 0)) json.remove('initialPage');
   if (isJsonDefault(instance.viewportFraction, 1))
     json.remove('viewportFraction');
+  if (isJsonDefault(instance.allowImplicitScrolling, false))
+    json.remove('allowImplicitScrolling');
   return json;
 }
 
@@ -280,6 +282,7 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   keepPage: json['keepPage'] as bool? ?? true,
   initialPage: (json['initialPage'] as num?)?.toInt() ?? 0,
   viewportFraction: (json['viewportFraction'] as num?)?.toDouble() ?? 1,
+  allowImplicitScrolling: json['allowImplicitScrolling'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -290,4 +293,5 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'keepPage': instance.keepPage,
       'initialPage': instance.initialPage,
       'viewportFraction': instance.viewportFraction,
+      'allowImplicitScrolling': instance.allowImplicitScrolling,
     };

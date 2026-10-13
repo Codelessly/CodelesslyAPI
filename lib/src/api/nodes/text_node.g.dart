@@ -152,6 +152,7 @@ TextNode _$TextNodeFromJson(Map json) =>
             $enumDecodeNullable(_$TextOverflowCEnumMap, json['overflow']) ??
             TextOverflowC.clip,
         softWrap: json['softWrap'] as bool? ?? true,
+        textScaleFactor: (json['textScaleFactor'] as num?)?.toDouble(),
         opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
         isMask: json['isMask'] as bool? ?? false,
         effects:
@@ -226,10 +227,11 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
+  'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),

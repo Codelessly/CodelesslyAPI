@@ -116,6 +116,23 @@ or image texture.
   opacity (`opacity`), among others. Depending on the type of paint, it might have properties like color (`color`),
   gradient transform (`gradientTransform`), gradient stops (`gradientStops`), or image transform (`imageTransform`).
 
+### Flutter parity
+
+Models track the Flutter release this version supports (3.47). A Flutter
+parameter is left out when it cannot be data or is already expressed
+elsewhere:
+
+| Flutter parameter | Represented by |
+|---|---|
+| Size and padding parameters such as `ButtonStyle.minimumSize`/`fixedSize`, `InputDecoration.contentPadding` and `TabBar.padding` | The node's own box and `padding` |
+| `ScrollView.clipBehavior` and similar clip parameters | `ClipMixin.clipsContent` |
+| Callbacks and widgets, such as `itemExtentBuilder` and `prototypeItem` | Not representable as JSON; use `itemExtent` |
+| `Icon.fill`/`weight`/`grade`/`opticalSize` | Pending Material Symbols support in the SDK, which renders icons as SVGs |
+
+Defaults follow Material 3. Where a default changed from an earlier
+version, the old value still applies to JSON that omits the key (see
+`JsonLegacyDefault`), so saved designs keep their look.
+
 ## Contributing
 
 Contributions are welcome! Please open an issue to start a discussion.

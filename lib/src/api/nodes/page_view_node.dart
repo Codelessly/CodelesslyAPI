@@ -137,6 +137,10 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   /// The fraction of the viewport that each page should occupy.
   double viewportFraction;
 
+  /// Whether to lay out the pages next to the visible one, so accessibility
+  /// focus can move to them. Mirrors `PageView.allowImplicitScrolling`.
+  bool allowImplicitScrolling;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -145,6 +149,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.keepPage = true,
     this.initialPage = 0,
     this.viewportFraction = 1,
+    this.allowImplicitScrolling = false,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -155,6 +160,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     bool? keepPage,
     int? initialPage,
     double? viewportFraction,
+    bool? allowImplicitScrolling,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -163,6 +169,8 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       keepPage: keepPage ?? this.keepPage,
       initialPage: initialPage ?? this.initialPage,
       viewportFraction: viewportFraction ?? this.viewportFraction,
+      allowImplicitScrolling:
+          allowImplicitScrolling ?? this.allowImplicitScrolling,
     );
   }
 
@@ -195,6 +203,12 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       (value) => viewportFraction = value,
       requiresLayout: true,
     ),
+    'allowImplicitScrolling': BoolFieldAccess(
+      'Allow Implicit Scrolling',
+      'Whether to lay out the pages next to the visible one.',
+      () => allowImplicitScrolling,
+      (value) => allowImplicitScrolling = value,
+    ),
   };
 
   @override
@@ -205,6 +219,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     keepPage,
     initialPage,
     viewportFraction,
+    allowImplicitScrolling,
   ];
 
   @override

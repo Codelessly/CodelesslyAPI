@@ -248,6 +248,17 @@ void main() {
       expect(TextNode.fromJson(text(false).toJson()).softWrap, isFalse);
     });
 
+    test('PageViewProperties.allowImplicitScrolling', () {
+      expect(
+        PageViewProperties().toJson(),
+        isNot(contains('allowImplicitScrolling')),
+      );
+      final copy = PageViewProperties.fromJson(
+        PageViewProperties(allowImplicitScrolling: true).toJson(),
+      );
+      expect(copy.allowImplicitScrolling, isTrue);
+    });
+
     test('4.4.0 nodes keep their Material 2 look', () {
       final fab = FloatingActionButtonProperties.fromJson({});
       expect(fab.shape, CShapeBorder.circle);

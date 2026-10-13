@@ -43,7 +43,8 @@
   - `MaterialLoadingIndicatorProperties.strokeAlign`, `trackGap`
   - `ExpansionTileProperties.showTrailingIcon`, `shape`, `collapsedShape`,
     `cornerRadius`
-  - `TextMixin.softWrap`
+  - `TextMixin.softWrap`, `textScaleFactor`
+  - `PageViewProperties.allowImplicitScrolling`
 - Document the Flutter replacements for deprecated `cacheExtent`
   (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
 - New nodes use Material 3 defaults: switches use Material 3, buttons are

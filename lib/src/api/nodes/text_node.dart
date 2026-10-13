@@ -112,6 +112,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     int? maxLines,
     TextOverflowC overflow = TextOverflowC.clip,
     bool softWrap = true,
+    double? textScaleFactor,
     // [BlendMixin] properties.
     double opacity = 1.0,
     bool isMask = false,
@@ -131,6 +132,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
       maxLines: maxLines,
       overflow: overflow,
       softWrap: softWrap,
+      textScaleFactor: textScaleFactor,
     );
 
     setBlendMixin(
@@ -196,6 +198,10 @@ mixin TextMixin {
   /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
   late bool softWrap;
 
+  /// Factor by which to scale the font size, on top of the platform's text
+  /// scaling. Mirrors `Text.textScaler` as `TextScaler.linear`.
+  late double? textScaleFactor;
+
   /// Set text properties.
   void setTextMixin({
     required String characters,
@@ -207,6 +213,7 @@ mixin TextMixin {
     required TextOverflowC overflow,
     int? maxLines,
     bool softWrap = true,
+    double? textScaleFactor,
   }) {
     this.characters = characters;
     this.textMixedProps = textMixedProps;
@@ -217,6 +224,7 @@ mixin TextMixin {
     this.maxLines = maxLines;
     this.overflow = overflow;
     this.softWrap = softWrap;
+    this.textScaleFactor = textScaleFactor;
   }
 }
 
