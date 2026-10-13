@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 3.13.5
+      - run: dart pub get
+      - run: dart pub get --directory tool/json_defaults_builder
+      - name: Generated code is up to date
+        run: |
+          dart run build_runner build -d
+          git diff --exit-code -- '*.g.dart'
+      - run: dart format --set-exit-if-changed --output=none lib test tool
+      - run: dart analyze --fatal-infos
+      - run: dart test
+      - run: dart pub publish --dry-run
