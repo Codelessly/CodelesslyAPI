@@ -30,6 +30,9 @@ enum FloatingLabelBehaviorEnum {
 }
 
 /// Input decoration for text field.
+///
+/// Flutter's `InputDecoration.contentPadding` is the text field node's own
+/// [BaseNode.padding], so it is not repeated here.
 @JsonSerializable()
 class InputDecorationModel with Equatable, SerializableMixin {
   /// An icon to show before the input field and outside of the decoration's
@@ -84,10 +87,6 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// Whether the [InputDecorator.child] is part of a dense form, i.e., uses
   /// less vertical space.
   final bool isDense;
-
-  /// The padding for the input decoration's container. When null, Flutter
-  /// picks a default based on [isDense] and the border type.
-  final EdgeInsetsModel? contentPadding;
 
   /// Optional text prefix to place on the line before the input.
   final String? prefixText;
@@ -228,7 +227,6 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.semanticCounterText,
     this.alignLabelWithHint = true,
     this.constraints = const BoxConstraintsModel(),
-    this.contentPadding,
   }) : labelStyle = labelStyle ?? TextProp(fontSize: 14),
        floatingLabelStyle =
            floatingLabelStyle ??
@@ -275,7 +273,6 @@ class InputDecorationModel with Equatable, SerializableMixin {
     FloatingLabelBehaviorEnum? floatingLabelBehavior,
     bool? isCollapsed,
     bool? isDense,
-    EdgeInsetsModel? contentPadding,
     ReactiveIconModel? prefixIcon,
     BoxConstraintsModel? prefixIconConstraints,
     String? prefixText,
@@ -319,7 +316,6 @@ class InputDecorationModel with Equatable, SerializableMixin {
     floatingLabelBehavior: floatingLabelBehavior ?? this.floatingLabelBehavior,
     isCollapsed: isCollapsed ?? this.isCollapsed,
     isDense: isDense ?? this.isDense,
-    contentPadding: contentPadding ?? this.contentPadding,
     prefixIcon: prefixIcon ?? this.prefixIcon,
     prefixIconConstraints: prefixIconConstraints ?? this.prefixIconConstraints,
     prefixText: prefixText ?? this.prefixText,
@@ -392,7 +388,6 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint,
     constraints,
     showCounter,
-    contentPadding,
   ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance

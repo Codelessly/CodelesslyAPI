@@ -32,7 +32,7 @@
   `AutovalidateModeC.onUnfocus`/`onUserInteractionIfError`,
   `SliderTrackShapeEnum.gapped`, `SliderValueIndicatorShape.drop`/
   `roundedRectangle` and `CShapeBorder.roundedSuperellipse`.
-- Add `InputDecorationModel.contentPadding`, the `MultiSourceIconModel`
+- Add the `MultiSourceIconModel`
   variable-font axes (`fill`, `weight`, `grade`, `opticalSize`),
   `AppBarProperties.foregroundColor`/`scrolledUnderElevation`, and
   `TabBarProperties.tabAlignment`/`dividerHeight`.
@@ -49,7 +49,9 @@
   own sizes.
 - `copyWith` keeps Divider `thickness`, Dropdown `enabled`/`dense`/
   `expanded`/`autoFocus`/`enableFeedback`, FAB `location`, M2 navigation
-  bar notch settings and `InputDecorationModel.contentPadding`.
+  bar notch settings.
+- Remove the `contentPadding` parameter of `InputDecorationModel.copyWith`,
+  which was ignored; a text field's content padding is its node padding.
 - Equality includes previously ignored fields of ExpansionTile, grid
   delegates, Dropdown, Divider, FAB, ListTile, TabBar, icons, web views,
   submit actions, Vimeo videos, condition groups and visual density.

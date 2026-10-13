@@ -113,19 +113,6 @@ void main() {
   });
 
   group('new Flutter parameters round-trip and stay out of default JSON', () {
-    test('InputDecorationModel.contentPadding', () {
-      expect(
-        InputDecorationModel().toJson(),
-        isNot(contains('contentPadding')),
-      );
-      final model = InputDecorationModel(
-        contentPadding: const EdgeInsetsModel.all(8),
-      );
-      final copy = InputDecorationModel.fromJson(model.toJson());
-      expect(copy.contentPadding, const EdgeInsetsModel.all(8));
-      expect(copy.copyWith(isDense: false).contentPadding, copy.contentPadding);
-    });
-
     test('MultiSourceIconModel variable font axes', () {
       expect(
         const MultiSourceIconModel.icon().toJson(),

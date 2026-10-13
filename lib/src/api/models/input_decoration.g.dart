@@ -185,9 +185,6 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
-      contentPadding: json['contentPadding'] == null
-          ? null
-          : EdgeInsetsModel.fromJson(json['contentPadding']),
     );
 
 Map<String, dynamic> _$InputDecorationModelToJson(
@@ -210,7 +207,6 @@ Map<String, dynamic> _$InputDecorationModelToJson(
       _$FloatingLabelBehaviorEnumEnumMap[instance.floatingLabelBehavior]!,
   'isCollapsed': instance.isCollapsed,
   'isDense': instance.isDense,
-  'contentPadding': ?instance.contentPadding?.toJson(),
   'prefixText': ?instance.prefixText,
   'prefixStyle': instance.prefixStyle.toJson(),
   'prefixIcon': instance.prefixIcon.toJson(),
