@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -80,20 +80,20 @@ class TabBarNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<TabBarProperties>(
-          'Properties',
-          'Properties of the TabBar',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<TabBarProperties>(
+      'Properties',
+      'Properties of the TabBar',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [TabBarNode] from a JSON object.
   factory TabBarNode.fromJson(Map json) => _$TabBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$TabBarNodeToJson(this);
+  Map toJson() => _$TabBarNodeOmitDefaults(this, _$TabBarNodeToJson(this));
 }
 
 /// Represents the size of the tab indicator.
@@ -108,6 +108,25 @@ enum TabBarIndicatorSizeEnum {
   /// This value is used to align the tab's label, typically a [Tab]
   /// widget's text or icon, with the selected tab indicator.
   label,
+}
+
+/// How tabs are aligned horizontally in a tab bar. Mirrors Flutter's
+/// `TabAlignment`.
+enum TabAlignmentC {
+  /// Tabs are aligned to the start of the bar. Only valid when the tab bar is
+  /// scrollable.
+  start,
+
+  /// Tabs are aligned to the start of the bar with an offset of 52 pixels.
+  /// Only valid when the tab bar is scrollable.
+  startOffset,
+
+  /// Tabs fill the width of the bar. Only valid when the tab bar is not
+  /// scrollable.
+  fill,
+
+  /// Tabs are centered in the bar.
+  center,
 }
 
 /// Represents a tab item content: text, icon, or both.
@@ -150,7 +169,7 @@ enum TabIndicatorStyle {
   filled,
 
   /// A border around the tab.
-  border;
+  border,
 }
 
 /// The properties of a [TabBarNode].
@@ -166,6 +185,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
   double indicatorWeight;
 
   /// The size of the tab indicator.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: TabBarIndicatorSizeEnum.tab)
   TabBarIndicatorSizeEnum indicatorSize;
 
   /// The color of the tab label.
@@ -213,12 +234,21 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
   /// The corner radius of the tab indicator.
   CornerRadius indicatorCornerRadius;
 
+  /// How the tabs are aligned. When null, Flutter uses [TabAlignmentC.start]
+  /// for scrollable tab bars (see [TabBarNode.isScrollable]) and [TabAlignmentC.fill] otherwise. Mirrors
+  /// `TabBar.tabAlignment`.
+  TabAlignmentC? tabAlignment;
+
+  /// Thickness of the divider under the tabs. When null, Flutter uses 1.
+  /// Mirrors `TabBar.dividerHeight`.
+  double? dividerHeight;
+
   /// Creates a new [TabBarProperties] instance.
   TabBarProperties({
     List<TabItem> tabs = const [],
     this.indicatorColor = ColorRGBA.black,
     this.indicatorWeight = 2.0,
-    this.indicatorSize = TabBarIndicatorSizeEnum.tab,
+    this.indicatorSize = TabBarIndicatorSizeEnum.label,
     this.labelColor = ColorRGBA.black,
     this.unselectedLabelColor = ColorRGBA.black,
     TextProp? labelStyle,
@@ -234,9 +264,11 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     this.indicatorStyle = TabIndicatorStyle.underline,
     this.indicatorShape = CShapeBorder.roundedRectangle,
     this.indicatorCornerRadius = CornerRadius.zero,
-  })  : tabs = [...tabs],
-        labelStyle = labelStyle ?? TextProp(),
-        unselectedLabelStyle = unselectedLabelStyle ?? TextProp();
+    this.tabAlignment,
+    this.dividerHeight,
+  }) : tabs = [...tabs],
+       labelStyle = labelStyle ?? TextProp(),
+       unselectedLabelStyle = unselectedLabelStyle ?? TextProp();
 
   /// Creates a copy of this [LTabBarProperties] instance with the given value
   /// overrides.
@@ -260,6 +292,8 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
     TabIndicatorStyle? indicatorStyle,
     CShapeBorder? indicatorShape,
     CornerRadius? indicatorCornerRadius,
+    TabAlignmentC? tabAlignment,
+    double? dividerHeight,
   }) {
     return TabBarProperties(
       tabs: tabs ?? this.tabs,
@@ -282,141 +316,159 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
       indicatorShape: indicatorShape ?? this.indicatorShape,
       indicatorCornerRadius:
           indicatorCornerRadius ?? this.indicatorCornerRadius,
+      tabAlignment: tabAlignment ?? this.tabAlignment,
+      dividerHeight: dividerHeight ?? this.dividerHeight,
     );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'tabs': IterableFieldAccess<TabItem>(
-          'Tabs',
-          'The tabs of the TabBar',
-          () => tabs,
-          (value) => tabs = value,
-          (item) => item.label,
-        ),
-        'indicatorColor': ColorFieldAccess<ColorRGBA>(
-          'Indicator Color',
-          'The color of the tab indicator',
-          () => indicatorColor,
-          (value) => indicatorColor = value,
-        ),
-        'indicatorWeight': NumFieldAccess<double>(
-          'Indicator Weight',
-          'The thickness of the tab indicator',
-          () => indicatorWeight,
-          (value) => indicatorWeight = value,
-        ),
-        'indicatorSize': EnumFieldAccess<TabBarIndicatorSizeEnum>(
-          'Indicator Size',
-          'The size of the tab indicator',
-          () => indicatorSize,
-          (value) => indicatorSize = value,
-          defaultValue: () => TabBarIndicatorSizeEnum.tab,
-          options: () => TabBarIndicatorSizeEnum.values,
-        ),
-        'labelColor': ColorFieldAccess<ColorRGBA?>(
-          'Label Color',
-          'The color of the tab label',
-          () => labelColor,
-          (value) => labelColor = value,
-        ),
-        'labelStyle': TextStyleFieldAccess<TextProp>(
-          'Label Style',
-          'The style of the tab label',
-          () => labelStyle,
-          (value) => labelStyle = value,
-        ),
-        'unselectedLabelColor': ColorFieldAccess<ColorRGBA?>(
-          'Unselected Label Color',
-          'The color of the unselected tab label',
-          () => unselectedLabelColor,
-          (value) => unselectedLabelColor = value,
-        ),
-        'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
-          'Unselected Label Style',
-          'The style of the unselected tab label',
-          () => unselectedLabelStyle,
-          (value) => unselectedLabelStyle = value,
-        ),
-        'overlayColor': ColorFieldAccess<ColorRGBA?>(
-          'Overlay Color',
-          'The color of the tab overlay',
-          () => overlayColor,
-          (value) => overlayColor = value,
-        ),
-        'indicatorPadding': SpacingFieldAccess.padding(
-          'Indicator Padding',
-          'The padding of the tab indicator',
-          () => indicatorPadding,
-          (value) => indicatorPadding = value,
-        ),
-        'labelPadding': SpacingFieldAccess.margin(
-          'Label Padding',
-          'The padding of the tab label',
-          () => labelPadding,
-          (value) => labelPadding = value,
-        ),
-        'dividerColor': ColorFieldAccess<ColorRGBA?>(
-          'Divider Color',
-          'The color of the tab divider',
-          () => dividerColor,
-          (value) => dividerColor = value,
-        ),
-        'tabItemDirection': EnumFieldAccess<AxisC>(
-          'Tab Item Direction',
-          'Determines the direction of label and icon in a tab',
-          () => tabItemDirection,
-          (value) => tabItemDirection = value,
-          defaultValue: () => AxisC.horizontal,
-          options: () => AxisC.values,
-        ),
-        'gap': NumFieldAccess<double>(
-          'Gap',
-          'Spacing between icon and text of a tab',
-          () => gap,
-          (value) => gap = value,
-        ),
-        'contentType': EnumFieldAccess<TabBarContentType>(
-          'Content Type',
-          'Determines what to show for a tab: text, icon or both',
-          () => contentType,
-          (value) => contentType = value,
-          defaultValue: () => TabBarContentType.labelAndIcon,
-          options: () => TabBarContentType.values,
-        ),
-        'showDivider': BoolFieldAccess(
-          'Show Divider',
-          'Whether to show the divider',
-          () => showDivider,
-          (value) => showDivider = value,
-        ),
-        'indicatorStyle': EnumFieldAccess<TabIndicatorStyle>(
-          'Indicator Style',
-          'The style of the tab indicator',
-          () => indicatorStyle,
-          (value) => indicatorStyle = value,
-          defaultValue: () => TabIndicatorStyle.underline,
-          options: () => TabIndicatorStyle.values,
-        ),
-        'indicatorShape': EnumFieldAccess<CShapeBorder>(
-          'Indicator Shape',
-          'The shape of the tab indicator',
-          () => indicatorShape,
-          (value) => indicatorShape = value,
-          defaultValue: () => CShapeBorder.roundedRectangle,
-          options: () => CShapeBorder.values,
-        ),
-        'indicatorCornerRadius': RadiusFieldAccess(
-          'Indicator Corner Radius',
-          'The corner radius of the tab indicator',
-          () => indicatorCornerRadius,
-          (value) => indicatorCornerRadius = value,
-        ),
-      };
+    ...super.generateFields(),
+    'tabs': IterableFieldAccess<TabItem>(
+      'Tabs',
+      'The tabs of the TabBar',
+      () => tabs,
+      (value) => tabs = value,
+      (item) => item.label,
+    ),
+    'indicatorColor': ColorFieldAccess<ColorRGBA>(
+      'Indicator Color',
+      'The color of the tab indicator',
+      () => indicatorColor,
+      (value) => indicatorColor = value,
+    ),
+    'indicatorWeight': NumFieldAccess<double>(
+      'Indicator Weight',
+      'The thickness of the tab indicator',
+      () => indicatorWeight,
+      (value) => indicatorWeight = value,
+    ),
+    'indicatorSize': EnumFieldAccess<TabBarIndicatorSizeEnum>(
+      'Indicator Size',
+      'The size of the tab indicator',
+      () => indicatorSize,
+      (value) => indicatorSize = value,
+      defaultValue: () => TabBarIndicatorSizeEnum.tab,
+      options: () => TabBarIndicatorSizeEnum.values,
+    ),
+    'labelColor': ColorFieldAccess<ColorRGBA?>(
+      'Label Color',
+      'The color of the tab label',
+      () => labelColor,
+      (value) => labelColor = value,
+    ),
+    'labelStyle': TextStyleFieldAccess<TextProp>(
+      'Label Style',
+      'The style of the tab label',
+      () => labelStyle,
+      (value) => labelStyle = value,
+    ),
+    'unselectedLabelColor': ColorFieldAccess<ColorRGBA?>(
+      'Unselected Label Color',
+      'The color of the unselected tab label',
+      () => unselectedLabelColor,
+      (value) => unselectedLabelColor = value,
+    ),
+    'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Unselected Label Style',
+      'The style of the unselected tab label',
+      () => unselectedLabelStyle,
+      (value) => unselectedLabelStyle = value,
+    ),
+    'overlayColor': ColorFieldAccess<ColorRGBA?>(
+      'Overlay Color',
+      'The color of the tab overlay',
+      () => overlayColor,
+      (value) => overlayColor = value,
+    ),
+    'indicatorPadding': SpacingFieldAccess.padding(
+      'Indicator Padding',
+      'The padding of the tab indicator',
+      () => indicatorPadding,
+      (value) => indicatorPadding = value,
+    ),
+    'labelPadding': SpacingFieldAccess.margin(
+      'Label Padding',
+      'The padding of the tab label',
+      () => labelPadding,
+      (value) => labelPadding = value,
+    ),
+    'dividerColor': ColorFieldAccess<ColorRGBA?>(
+      'Divider Color',
+      'The color of the tab divider',
+      () => dividerColor,
+      (value) => dividerColor = value,
+    ),
+    'tabItemDirection': EnumFieldAccess<AxisC>(
+      'Tab Item Direction',
+      'Determines the direction of label and icon in a tab',
+      () => tabItemDirection,
+      (value) => tabItemDirection = value,
+      defaultValue: () => AxisC.horizontal,
+      options: () => AxisC.values,
+    ),
+    'gap': NumFieldAccess<double>(
+      'Gap',
+      'Spacing between icon and text of a tab',
+      () => gap,
+      (value) => gap = value,
+    ),
+    'contentType': EnumFieldAccess<TabBarContentType>(
+      'Content Type',
+      'Determines what to show for a tab: text, icon or both',
+      () => contentType,
+      (value) => contentType = value,
+      defaultValue: () => TabBarContentType.labelAndIcon,
+      options: () => TabBarContentType.values,
+    ),
+    'showDivider': BoolFieldAccess(
+      'Show Divider',
+      'Whether to show the divider',
+      () => showDivider,
+      (value) => showDivider = value,
+    ),
+    'indicatorStyle': EnumFieldAccess<TabIndicatorStyle>(
+      'Indicator Style',
+      'The style of the tab indicator',
+      () => indicatorStyle,
+      (value) => indicatorStyle = value,
+      defaultValue: () => TabIndicatorStyle.underline,
+      options: () => TabIndicatorStyle.values,
+    ),
+    'indicatorShape': EnumFieldAccess<CShapeBorder>(
+      'Indicator Shape',
+      'The shape of the tab indicator',
+      () => indicatorShape,
+      (value) => indicatorShape = value,
+      defaultValue: () => CShapeBorder.roundedRectangle,
+      options: () => CShapeBorder.values,
+    ),
+    'indicatorCornerRadius': RadiusFieldAccess(
+      'Indicator Corner Radius',
+      'The corner radius of the tab indicator',
+      () => indicatorCornerRadius,
+      (value) => indicatorCornerRadius = value,
+    ),
+    'tabAlignment': EnumFieldAccess<TabAlignmentC?>(
+      'Tab Alignment',
+      'How the tabs are aligned.',
+      () => tabAlignment,
+      (value) => tabAlignment = value,
+      defaultValue: () => null,
+      options: () => TabAlignmentC.values,
+      requiresLayout: true,
+    ),
+    'dividerHeight': NumFieldAccess<double?>(
+      'Divider Height',
+      'Thickness of the divider under the tabs.',
+      () => dividerHeight,
+      (value) => dividerHeight = value,
+    ),
+  };
 
   @override
-  Map<String, dynamic> toJson() => _$TabBarPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$TabBarPropertiesOmitDefaults(this, _$TabBarPropertiesToJson(this));
 
   /// Creates a [TabBarProperties] from a JSON object.
   factory TabBarProperties.fromJson(Map json) =>
@@ -424,30 +476,33 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
 
   @override
   List<Object?> get props => [
-        tabs,
-        indicatorColor,
-        indicatorWeight,
-        indicatorSize,
-        labelColor,
-        labelStyle,
-        unselectedLabelColor,
-        unselectedLabelStyle,
-        overlayColor,
-        indicatorPadding,
-        labelPadding,
-        dividerColor,
-        tabItemDirection,
-        gap,
-        contentType,
-        showDivider,
-        indicatorStyle,
-      ];
+    tabs,
+    indicatorColor,
+    indicatorWeight,
+    indicatorSize,
+    labelColor,
+    labelStyle,
+    unselectedLabelColor,
+    unselectedLabelStyle,
+    overlayColor,
+    indicatorPadding,
+    labelPadding,
+    dividerColor,
+    tabItemDirection,
+    gap,
+    contentType,
+    showDivider,
+    indicatorStyle,
+    indicatorShape,
+    indicatorCornerRadius,
+    tabAlignment,
+    dividerHeight,
+  ];
 }
 
 /// Represents a tab in a [TabBarNode].
 @JsonSerializable()
-class TabItem
-    with EquatableMixin, SerializableMixin, ReactionMixin, FieldsHolder {
+class TabItem with Equatable, SerializableMixin, ReactionMixin, FieldsHolder {
   /// ID of the tab.
   final String id;
 
@@ -489,26 +544,26 @@ class TabItem
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'label': StringFieldAccess(
-          'Label',
-          'Label of the tab',
-          () => label,
-          (value) => label = value,
-        ),
-        'icon': IconFieldAccess<MultiSourceIconModel>(
-          'Icon',
-          'Icon to display in the button',
-          () => icon,
-          (value) => icon = value,
-        ),
-      };
+    ...super.generateFields(),
+    'label': StringFieldAccess(
+      'Label',
+      'Label of the tab',
+      () => label,
+      (value) => label = value,
+    ),
+    'icon': IconFieldAccess<MultiSourceIconModel>(
+      'Icon',
+      'Icon to display in the button',
+      () => icon,
+      (value) => icon = value,
+    ),
+  };
 
   /// Creates a [TabItem] from a JSON object.
   factory TabItem.fromJson(Map json) => _$TabItemFromJson(json);
 
   @override
-  Map toJson() => _$TabItemToJson(this);
+  Map toJson() => _$TabItemOmitDefaults(this, _$TabItemToJson(this));
 
   @override
   List<Object?> get props => [id, label, icon];

@@ -1,11 +1,15 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'node_json_converter.dart';
 import 'nodes/base_node.dart';
 
 /// Top level converter for serializing Nodes map to and from JSON.
-class CanvasesMapConverter extends JsonConverter<
-    Map<String, Map<String, BaseNode>>, Map<String, dynamic>> {
+class CanvasesMapConverter
+    extends
+        JsonConverter<
+          Map<String, Map<String, BaseNode>>,
+          Map<String, dynamic>
+        > {
   /// Creates a new instance of [CanvasesMapConverter].
   const CanvasesMapConverter();
 
@@ -19,19 +23,19 @@ class CanvasesMapConverter extends JsonConverter<
 
   /// Top level function to deserialize a JSON Map into a map of node ID to node.
   static Map<String, Map<String, BaseNode>> deserialize(
-          Map<String, dynamic> value) =>
-      {
-        for (final MapEntry(key: key, value: value) in value.entries)
-          key: NodesMapConverter.deserialize(value),
-      };
+    Map<String, dynamic> value,
+  ) => {
+    for (final MapEntry(key: key, value: value) in value.entries)
+      key: NodesMapConverter.deserialize(value),
+  };
 
   /// Top level function to serialize a map of node ID to node into a JSON map.
   static Map<String, dynamic> serialize(
-          Map<String, Map<String, BaseNode>> canvases) =>
-      {
-        for (final MapEntry(key: key, value: value) in canvases.entries)
-          key: NodesMapConverter.serialize(value),
-      };
+    Map<String, Map<String, BaseNode>> canvases,
+  ) => {
+    for (final MapEntry(key: key, value: value) in canvases.entries)
+      key: NodesMapConverter.serialize(value),
+  };
 }
 
 /// Top level converter for serializing Nodes map to and from JSON.
@@ -50,15 +54,15 @@ class NodesMapConverter
 
   /// Top level function to deserialize a JSON Map into a map of node ID to node.
   static Map<String, BaseNode> deserialize(Map<String, dynamic> value) => {
-        for (final MapEntry(key: key, value: value) in value.entries)
-          key: NodeJsonConverter.instance.fromJson(value)!,
-      };
+    for (final MapEntry(key: key, value: value) in value.entries)
+      key: NodeJsonConverter.instance.fromJson(value)!,
+  };
 
   /// Top level function to serialize a map of node ID to node into a JSON map.
   static Map<String, dynamic> serialize(Map<String, BaseNode> nodes) => {
-        for (final MapEntry(key: key, value: value) in nodes.entries)
-          key: NodeJsonConverter.instance.toJson(value),
-      };
+    for (final MapEntry(key: key, value: value) in nodes.entries)
+      key: NodeJsonConverter.instance.toJson(value),
+  };
 }
 
 /// Top level converter for serializing map of DateTime.
@@ -78,14 +82,38 @@ class DateTimeMapConverter
   /// Top level function for deserializing the millis from JSON as the values of
   /// a map to [DateTime].
   static Map<String, DateTime> deserialize(Map<String, dynamic> value) => {
-        for (final MapEntry(key: key, value: value) in value.entries)
-          key: DateTime.fromMillisecondsSinceEpoch(value).toLocal(),
-      };
+    for (final MapEntry(key: key, value: value) in value.entries)
+      key: DateTime.fromMillisecondsSinceEpoch(value).toLocal(),
+  };
 
   /// Top level function for serializing a map of with [DateTime] as the values
   /// to [millisecondsSinceEpoch].
   static Map<String, int> serialize(Map<String, DateTime> dates) => {
-        for (final MapEntry(key: key, value: value) in dates.entries)
-          key: value.toUtc().millisecondsSinceEpoch,
-      };
+    for (final MapEntry(key: key, value: value) in dates.entries)
+      key: value.toUtc().millisecondsSinceEpoch,
+  };
+}
+
+/// Converts a [DateTime] to and from milliseconds since epoch.
+///
+/// Times are written in UTC and read back as local time. A missing value
+/// reads as [DateTime.now].
+class DateTimeConverter extends JsonConverter<DateTime, int?> {
+  /// Creates a new instance of [DateTimeConverter].
+  const DateTimeConverter();
+
+  @override
+  DateTime fromJson(int? json) => deserialize(json);
+
+  @override
+  int? toJson(DateTime object) => serialize(object);
+
+  /// Serializes [DateTime] to milliseconds since epoch.
+  static int? serialize(DateTime object) =>
+      object.toUtc().millisecondsSinceEpoch;
+
+  /// Deserializes milliseconds since epoch to [DateTime].
+  static DateTime deserialize(int? json) => json != null
+      ? DateTime.fromMillisecondsSinceEpoch(json).toLocal()
+      : DateTime.now();
 }

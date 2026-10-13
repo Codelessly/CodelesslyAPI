@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -7,7 +7,7 @@ part 'ink_well.g.dart';
 
 /// Represents properties that relate to the [InkWell] widget in Flutter.
 @JsonSerializable()
-class InkWellModel with EquatableMixin, SerializableMixin {
+class InkWellModel with Equatable, SerializableMixin {
   /// The overlay color. This is the dominant color field. If this is null, then
   /// the individual [highlightColor], [splashColor], [hoverColor], and
   /// [focusColor] values are used instead.
@@ -36,47 +36,47 @@ class InkWellModel with EquatableMixin, SerializableMixin {
 
   /// Duplicates this instance of [InkWellModel] with given overlay color.
   InkWellModel copyWithOverlayColor(ColorRGBA? color) => InkWellModel(
-        overlayColor: color,
-        highlightColor: highlightColor,
-        splashColor: splashColor,
-        hoverColor: hoverColor,
-        focusColor: focusColor,
-      );
+    overlayColor: color,
+    highlightColor: highlightColor,
+    splashColor: splashColor,
+    hoverColor: hoverColor,
+    focusColor: focusColor,
+  );
 
   /// Duplicates this instance of [InkWellModel] with given highlight color.
   InkWellModel copyWithHighlightColor(ColorRGBA? color) => InkWellModel(
-        highlightColor: color,
-        splashColor: splashColor,
-        hoverColor: hoverColor,
-        focusColor: focusColor,
-      );
+    highlightColor: color,
+    splashColor: splashColor,
+    hoverColor: hoverColor,
+    focusColor: focusColor,
+  );
 
   /// Duplicates this instance of [InkWellModel] with given splash color.
   InkWellModel copyWithSplashColor(ColorRGBA? color) => InkWellModel(
-        overlayColor: overlayColor,
-        highlightColor: highlightColor,
-        splashColor: color,
-        hoverColor: hoverColor,
-        focusColor: focusColor,
-      );
+    overlayColor: overlayColor,
+    highlightColor: highlightColor,
+    splashColor: color,
+    hoverColor: hoverColor,
+    focusColor: focusColor,
+  );
 
   /// Duplicates this instance of [InkWellModel] with given hover color.
   InkWellModel copyWithHoverColor(ColorRGBA? color) => InkWellModel(
-        overlayColor: overlayColor,
-        highlightColor: highlightColor,
-        splashColor: splashColor,
-        hoverColor: color,
-        focusColor: focusColor,
-      );
+    overlayColor: overlayColor,
+    highlightColor: highlightColor,
+    splashColor: splashColor,
+    hoverColor: color,
+    focusColor: focusColor,
+  );
 
   /// Duplicates this instance of [InkWellModel] with given focus color.
   InkWellModel copyWithFocusColor(ColorRGBA? color) => InkWellModel(
-        overlayColor: overlayColor,
-        highlightColor: highlightColor,
-        splashColor: splashColor,
-        hoverColor: hoverColor,
-        focusColor: color,
-      );
+    overlayColor: overlayColor,
+    highlightColor: highlightColor,
+    splashColor: splashColor,
+    hoverColor: hoverColor,
+    focusColor: color,
+  );
 
   /// Factory constructor for creating a new [InkWellModel] instance
   /// from JSON data.
@@ -84,14 +84,15 @@ class InkWellModel with EquatableMixin, SerializableMixin {
       _$InkWellModelFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$InkWellModelToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$InkWellModelOmitDefaults(this, _$InkWellModelToJson(this));
 
   @override
   List<Object?> get props => [
-        overlayColor,
-        highlightColor,
-        splashColor,
-        hoverColor,
-        focusColor,
-      ];
+    overlayColor,
+    highlightColor,
+    splashColor,
+    hoverColor,
+    focusColor,
+  ];
 }

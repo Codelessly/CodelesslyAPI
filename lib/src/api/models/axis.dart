@@ -18,11 +18,13 @@ enum AxisC {
 
   /// String representation of this axis as an adjective.
   String get adjective => switch (this) {
-        AxisC.horizontal => 'horizontally',
-        AxisC.vertical => 'vertically'
-      };
+    AxisC.horizontal => 'horizontally',
+    AxisC.vertical => 'vertically',
+  };
 
   /// String representation of this axis's dimension.
-  String get dimension =>
-      switch (this) { AxisC.horizontal => 'width', AxisC.vertical => 'height' };
+  String get dimension => switch (this) {
+    AxisC.horizontal => 'width',
+    AxisC.vertical => 'height',
+  };
 }

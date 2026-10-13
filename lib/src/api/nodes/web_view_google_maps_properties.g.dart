@@ -3,97 +3,158 @@
 part of 'web_view_google_maps_properties.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$PlacesGoogleMapsWebViewPropertiesOmitDefaults(
+  PlacesGoogleMapsWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.places))
+    json.remove('mapMode');
+  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$ViewGoogleMapsWebViewPropertiesOmitDefaults(
+  ViewGoogleMapsWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.view))
+    json.remove('mapMode');
+  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$DirectionsGoogleMapsWebViewPropertiesOmitDefaults(
+  DirectionsGoogleMapsWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.directions))
+    json.remove('mapMode');
+  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$StreetViewGoogleMapsWebViewPropertiesOmitDefaults(
+  StreetViewGoogleMapsWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.streetView))
+    json.remove('mapMode');
+  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$SearchGoogleMapsWebViewPropertiesOmitDefaults(
+  SearchGoogleMapsWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.search))
+    json.remove('mapMode');
+  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 PlacesGoogleMapsWebViewProperties _$PlacesGoogleMapsWebViewPropertiesFromJson(
-        Map json) =>
+  Map json,
+) =>
     PlacesGoogleMapsWebViewProperties(
-      apiKey: json['apiKey'] as String?,
-      query: json['query'] as String,
-      zoom: (json['zoom'] as num?)?.toInt(),
-      mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
-      language: json['language'] as String?,
-      region: json['region'] as String?,
-      controlVerticalScrollGesture:
-          json['controlVerticalScrollGesture'] as bool?,
-      controlHorizontalScrollGesture:
-          json['controlHorizontalScrollGesture'] as bool?,
-      controlScaleGesture: json['controlScaleGesture'] as bool?,
-      controlTapGesture: json['controlTapGesture'] as bool?,
-      controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-      controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-      allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-      mediaAutoPlaybackPolicy: $enumDecodeNullable(
+        apiKey: json['apiKey'] as String?,
+        query: json['query'] as String,
+        zoom: (json['zoom'] as num?)?.toInt(),
+        mapType: $enumDecodeNullable(
+          _$GoogleMapsMapTypeEnumMap,
+          json['mapType'],
+        ),
+        language: json['language'] as String?,
+        region: json['region'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
               _$WebViewMediaAutoPlaybackPolicyEnumMap,
-              json['mediaAutoPlaybackPolicy']) ??
-          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-      backgroundColor: json['backgroundColor'] == null
-          ? null
-          : ColorRGBA.fromJson(json['backgroundColor']),
-    )
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
       ..src = _$JsonConverterFromJson<String, String?>(
-          json['src'], const Base64JsonConverter().fromJson)
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
       ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..url = json['url'] as String
       ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
 
 Map<String, dynamic> _$PlacesGoogleMapsWebViewPropertiesToJson(
-    PlacesGoogleMapsWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
-  writeNotNull('zoom', instance.zoom, instance.zoom, null);
-  writeNotNull('mapType', instance.mapType,
-      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
-  writeNotNull('language', instance.language, instance.language, null);
-  writeNotNull('region', instance.region, instance.region, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['url'] = instance.url;
-  val['query'] = instance.query;
-  val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
-  return val;
-}
+  PlacesGoogleMapsWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'apiKey': ?instance.apiKey,
+  'zoom': ?instance.zoom,
+  'mapType': ?_$GoogleMapsMapTypeEnumMap[instance.mapType],
+  'language': ?instance.language,
+  'region': ?instance.region,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'url': instance.url,
+  'query': instance.query,
+  'mapMode': _$GoogleMapsMapModeEnumMap[instance.mapMode]!,
+};
 
 const _$GoogleMapsMapTypeEnumMap = {
   GoogleMapsMapType.roadmap: 'roadmap',
@@ -109,8 +170,7 @@ const _$WebViewMediaAutoPlaybackPolicyEnumMap = {
 Value? _$JsonConverterFromJson<Json, Value>(
   Object? json,
   Value? Function(Json json) fromJson,
-) =>
-    json == null ? null : fromJson(json as Json);
+) => json == null ? null : fromJson(json as Json);
 
 const _$WebViewTypeEnumMap = {
   WebViewType.webpage: 'webpage',
@@ -127,204 +187,156 @@ const _$GoogleMapsMapModeEnumMap = {
 };
 
 ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
-        Map json) =>
+  Map json,
+) =>
     ViewGoogleMapsWebViewProperties(
-      apiKey: json['apiKey'] as String?,
-      center: Vec.fromJson(json['center']),
-      zoom: (json['zoom'] as num?)?.toInt(),
-      mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
-      language: json['language'] as String?,
-      region: json['region'] as String?,
-      controlVerticalScrollGesture:
-          json['controlVerticalScrollGesture'] as bool?,
-      controlHorizontalScrollGesture:
-          json['controlHorizontalScrollGesture'] as bool?,
-      controlScaleGesture: json['controlScaleGesture'] as bool?,
-      controlTapGesture: json['controlTapGesture'] as bool?,
-      controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-      controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-      allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-      mediaAutoPlaybackPolicy: $enumDecodeNullable(
+        apiKey: json['apiKey'] as String?,
+        center: Vec.fromJson(json['center']),
+        zoom: (json['zoom'] as num?)?.toInt(),
+        mapType: $enumDecodeNullable(
+          _$GoogleMapsMapTypeEnumMap,
+          json['mapType'],
+        ),
+        language: json['language'] as String?,
+        region: json['region'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
               _$WebViewMediaAutoPlaybackPolicyEnumMap,
-              json['mediaAutoPlaybackPolicy']) ??
-          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-      backgroundColor: json['backgroundColor'] == null
-          ? null
-          : ColorRGBA.fromJson(json['backgroundColor']),
-    )
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
       ..src = _$JsonConverterFromJson<String, String?>(
-          json['src'], const Base64JsonConverter().fromJson)
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
       ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..url = json['url'] as String
       ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
 
 Map<String, dynamic> _$ViewGoogleMapsWebViewPropertiesToJson(
-    ViewGoogleMapsWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
-  writeNotNull('zoom', instance.zoom, instance.zoom, null);
-  writeNotNull('mapType', instance.mapType,
-      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
-  writeNotNull('language', instance.language, instance.language, null);
-  writeNotNull('region', instance.region, instance.region, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['url'] = instance.url;
-  val['center'] = instance.center.toJson();
-  val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
-  return val;
-}
+  ViewGoogleMapsWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'apiKey': ?instance.apiKey,
+  'zoom': ?instance.zoom,
+  'mapType': ?_$GoogleMapsMapTypeEnumMap[instance.mapType],
+  'language': ?instance.language,
+  'region': ?instance.region,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'url': instance.url,
+  'center': instance.center.toJson(),
+  'mapMode': _$GoogleMapsMapModeEnumMap[instance.mapMode]!,
+};
 
 DirectionsGoogleMapsWebViewProperties
-    _$DirectionsGoogleMapsWebViewPropertiesFromJson(Map json) =>
-        DirectionsGoogleMapsWebViewProperties(
-          apiKey: json['apiKey'] as String?,
-          origin: json['origin'] as String,
-          destination: json['destination'] as String,
-          waypoints: (json['waypoints'] as List<dynamic>)
-              .map((e) => e as String)
-              .toList(),
-          avoid: (json['avoid'] as List<dynamic>)
-              .map((e) => $enumDecode(_$GoogleMapsDirectionsAvoidEnumMap, e))
-              .toSet(),
-          mode: $enumDecodeNullable(
-              _$GoogleMapsDirectionsModeEnumMap, json['mode']),
-          units: $enumDecodeNullable(_$UnitSystemEnumMap, json['units']),
-          center: json['center'] == null ? null : Vec.fromJson(json['center']),
-          zoom: (json['zoom'] as num?)?.toInt(),
-          mapType:
-              $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
-          language: json['language'] as String?,
-          region: json['region'] as String?,
-          controlVerticalScrollGesture:
-              json['controlVerticalScrollGesture'] as bool?,
-          controlHorizontalScrollGesture:
-              json['controlHorizontalScrollGesture'] as bool?,
-          controlScaleGesture: json['controlScaleGesture'] as bool?,
-          controlTapGesture: json['controlTapGesture'] as bool?,
-          controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-          controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-          allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-          mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
-                  json['mediaAutoPlaybackPolicy']) ??
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          backgroundColor: json['backgroundColor'] == null
-              ? null
-              : ColorRGBA.fromJson(json['backgroundColor']),
-        )
-          ..src = _$JsonConverterFromJson<String, String?>(
-              json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
-          ..url = json['url'] as String
-          ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
+_$DirectionsGoogleMapsWebViewPropertiesFromJson(Map json) =>
+    DirectionsGoogleMapsWebViewProperties(
+        apiKey: json['apiKey'] as String?,
+        origin: json['origin'] as String,
+        destination: json['destination'] as String,
+        waypoints: (json['waypoints'] as List<dynamic>)
+            .map((e) => e as String)
+            .toList(),
+        avoid: (json['avoid'] as List<dynamic>)
+            .map((e) => $enumDecode(_$GoogleMapsDirectionsAvoidEnumMap, e))
+            .toSet(),
+        mode: $enumDecodeNullable(
+          _$GoogleMapsDirectionsModeEnumMap,
+          json['mode'],
+        ),
+        units: $enumDecodeNullable(_$UnitSystemEnumMap, json['units']),
+        center: json['center'] == null ? null : Vec.fromJson(json['center']),
+        zoom: (json['zoom'] as num?)?.toInt(),
+        mapType: $enumDecodeNullable(
+          _$GoogleMapsMapTypeEnumMap,
+          json['mapType'],
+        ),
+        language: json['language'] as String?,
+        region: json['region'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
+      ..src = _$JsonConverterFromJson<String, String?>(
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
+      ..url = json['url'] as String
+      ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
 
 Map<String, dynamic> _$DirectionsGoogleMapsWebViewPropertiesToJson(
-    DirectionsGoogleMapsWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
-  writeNotNull('zoom', instance.zoom, instance.zoom, null);
-  writeNotNull('mapType', instance.mapType,
-      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
-  writeNotNull('language', instance.language, instance.language, null);
-  writeNotNull('region', instance.region, instance.region, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['url'] = instance.url;
-  val['origin'] = instance.origin;
-  val['destination'] = instance.destination;
-  val['waypoints'] = instance.waypoints;
-  writeNotNull('mode', instance.mode,
-      _$GoogleMapsDirectionsModeEnumMap[instance.mode], null);
-  val['avoid'] = instance.avoid
+  DirectionsGoogleMapsWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'apiKey': ?instance.apiKey,
+  'zoom': ?instance.zoom,
+  'mapType': ?_$GoogleMapsMapTypeEnumMap[instance.mapType],
+  'language': ?instance.language,
+  'region': ?instance.region,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'url': instance.url,
+  'origin': instance.origin,
+  'destination': instance.destination,
+  'waypoints': instance.waypoints,
+  'mode': ?_$GoogleMapsDirectionsModeEnumMap[instance.mode],
+  'avoid': instance.avoid
       .map((e) => _$GoogleMapsDirectionsAvoidEnumMap[e]!)
-      .toList();
-  writeNotNull(
-      'units', instance.units, _$UnitSystemEnumMap[instance.units], null);
-  writeNotNull('center', instance.center, instance.center?.toJson(), null);
-  val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
-  return val;
-}
+      .toList(),
+  'units': ?_$UnitSystemEnumMap[instance.units],
+  'center': ?instance.center?.toJson(),
+  'mapMode': _$GoogleMapsMapModeEnumMap[instance.mapMode]!,
+};
 
 const _$GoogleMapsDirectionsAvoidEnumMap = {
   GoogleMapsDirectionsAvoid.tolls: 'tolls',
@@ -346,192 +358,144 @@ const _$UnitSystemEnumMap = {
 };
 
 StreetViewGoogleMapsWebViewProperties
-    _$StreetViewGoogleMapsWebViewPropertiesFromJson(Map json) =>
-        StreetViewGoogleMapsWebViewProperties(
-          apiKey: json['apiKey'] as String?,
-          location:
-              json['location'] == null ? null : Vec.fromJson(json['location']),
-          pano: json['pano'] as String?,
-          heading: (json['heading'] as num?)?.toInt(),
-          pitch: (json['pitch'] as num?)?.toInt(),
-          fov: (json['fov'] as num?)?.toInt(),
-          zoom: (json['zoom'] as num?)?.toInt(),
-          mapType:
-              $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
-          language: json['language'] as String?,
-          region: json['region'] as String?,
-          center: json['center'] == null ? null : Vec.fromJson(json['center']),
-          controlVerticalScrollGesture:
-              json['controlVerticalScrollGesture'] as bool?,
-          controlHorizontalScrollGesture:
-              json['controlHorizontalScrollGesture'] as bool?,
-          controlScaleGesture: json['controlScaleGesture'] as bool?,
-          controlTapGesture: json['controlTapGesture'] as bool?,
-          controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-          controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-          allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-          mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
-                  json['mediaAutoPlaybackPolicy']) ??
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          backgroundColor: json['backgroundColor'] == null
-              ? null
-              : ColorRGBA.fromJson(json['backgroundColor']),
-        )
-          ..src = _$JsonConverterFromJson<String, String?>(
-              json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
-          ..url = json['url'] as String
-          ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
+_$StreetViewGoogleMapsWebViewPropertiesFromJson(Map json) =>
+    StreetViewGoogleMapsWebViewProperties(
+        apiKey: json['apiKey'] as String?,
+        location: json['location'] == null
+            ? null
+            : Vec.fromJson(json['location']),
+        pano: json['pano'] as String?,
+        heading: (json['heading'] as num?)?.toInt(),
+        pitch: (json['pitch'] as num?)?.toInt(),
+        fov: (json['fov'] as num?)?.toInt(),
+        zoom: (json['zoom'] as num?)?.toInt(),
+        mapType: $enumDecodeNullable(
+          _$GoogleMapsMapTypeEnumMap,
+          json['mapType'],
+        ),
+        language: json['language'] as String?,
+        region: json['region'] as String?,
+        center: json['center'] == null ? null : Vec.fromJson(json['center']),
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
+      ..src = _$JsonConverterFromJson<String, String?>(
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
+      ..url = json['url'] as String
+      ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
 
 Map<String, dynamic> _$StreetViewGoogleMapsWebViewPropertiesToJson(
-    StreetViewGoogleMapsWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
-  writeNotNull('zoom', instance.zoom, instance.zoom, null);
-  writeNotNull('mapType', instance.mapType,
-      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
-  writeNotNull('language', instance.language, instance.language, null);
-  writeNotNull('region', instance.region, instance.region, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['url'] = instance.url;
-  writeNotNull(
-      'location', instance.location, instance.location?.toJson(), null);
-  writeNotNull('pano', instance.pano, instance.pano, null);
-  writeNotNull('heading', instance.heading, instance.heading, null);
-  writeNotNull('pitch', instance.pitch, instance.pitch, null);
-  writeNotNull('fov', instance.fov, instance.fov, null);
-  writeNotNull('center', instance.center, instance.center?.toJson(), null);
-  val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
-  return val;
-}
+  StreetViewGoogleMapsWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'apiKey': ?instance.apiKey,
+  'zoom': ?instance.zoom,
+  'mapType': ?_$GoogleMapsMapTypeEnumMap[instance.mapType],
+  'language': ?instance.language,
+  'region': ?instance.region,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'url': instance.url,
+  'location': ?instance.location?.toJson(),
+  'pano': ?instance.pano,
+  'heading': ?instance.heading,
+  'pitch': ?instance.pitch,
+  'fov': ?instance.fov,
+  'center': ?instance.center?.toJson(),
+  'mapMode': _$GoogleMapsMapModeEnumMap[instance.mapMode]!,
+};
 
 SearchGoogleMapsWebViewProperties _$SearchGoogleMapsWebViewPropertiesFromJson(
-        Map json) =>
+  Map json,
+) =>
     SearchGoogleMapsWebViewProperties(
-      apiKey: json['apiKey'] as String?,
-      query: json['query'] as String,
-      zoom: (json['zoom'] as num?)?.toInt(),
-      mapType: $enumDecodeNullable(_$GoogleMapsMapTypeEnumMap, json['mapType']),
-      language: json['language'] as String?,
-      region: json['region'] as String?,
-      controlVerticalScrollGesture:
-          json['controlVerticalScrollGesture'] as bool?,
-      controlHorizontalScrollGesture:
-          json['controlHorizontalScrollGesture'] as bool?,
-      controlScaleGesture: json['controlScaleGesture'] as bool?,
-      controlTapGesture: json['controlTapGesture'] as bool?,
-      controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-      controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-      allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-      mediaAutoPlaybackPolicy: $enumDecodeNullable(
+        apiKey: json['apiKey'] as String?,
+        query: json['query'] as String,
+        zoom: (json['zoom'] as num?)?.toInt(),
+        mapType: $enumDecodeNullable(
+          _$GoogleMapsMapTypeEnumMap,
+          json['mapType'],
+        ),
+        language: json['language'] as String?,
+        region: json['region'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
               _$WebViewMediaAutoPlaybackPolicyEnumMap,
-              json['mediaAutoPlaybackPolicy']) ??
-          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-      backgroundColor: json['backgroundColor'] == null
-          ? null
-          : ColorRGBA.fromJson(json['backgroundColor']),
-    )
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
       ..src = _$JsonConverterFromJson<String, String?>(
-          json['src'], const Base64JsonConverter().fromJson)
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
       ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..url = json['url'] as String
       ..mapMode = $enumDecode(_$GoogleMapsMapModeEnumMap, json['mapMode']);
 
 Map<String, dynamic> _$SearchGoogleMapsWebViewPropertiesToJson(
-    SearchGoogleMapsWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('apiKey', instance.apiKey, instance.apiKey, null);
-  writeNotNull('zoom', instance.zoom, instance.zoom, null);
-  writeNotNull('mapType', instance.mapType,
-      _$GoogleMapsMapTypeEnumMap[instance.mapType], null);
-  writeNotNull('language', instance.language, instance.language, null);
-  writeNotNull('region', instance.region, instance.region, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['url'] = instance.url;
-  val['query'] = instance.query;
-  val['mapMode'] = _$GoogleMapsMapModeEnumMap[instance.mapMode]!;
-  return val;
-}
+  SearchGoogleMapsWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'apiKey': ?instance.apiKey,
+  'zoom': ?instance.zoom,
+  'mapType': ?_$GoogleMapsMapTypeEnumMap[instance.mapType],
+  'language': ?instance.language,
+  'region': ?instance.region,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'url': instance.url,
+  'query': instance.query,
+  'mapMode': _$GoogleMapsMapModeEnumMap[instance.mapMode]!,
+};

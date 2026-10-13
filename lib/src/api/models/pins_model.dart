@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -21,27 +21,27 @@ enum EdgePin {
 
   /// Returns opposite side edge pin of this edge pin.
   EdgePin get opposite => switch (this) {
-        EdgePin.left => EdgePin.right,
-        EdgePin.top => EdgePin.bottom,
-        EdgePin.right => EdgePin.left,
-        EdgePin.bottom => EdgePin.top
-      };
+    EdgePin.left => EdgePin.right,
+    EdgePin.top => EdgePin.bottom,
+    EdgePin.right => EdgePin.left,
+    EdgePin.bottom => EdgePin.top,
+  };
 
   /// Converts edge pin to [AxisC].
   AxisC get axis => switch (this) {
-        EdgePin.left => AxisC.horizontal,
-        EdgePin.right => AxisC.horizontal,
-        EdgePin.top => AxisC.vertical,
-        EdgePin.bottom => AxisC.vertical,
-      };
+    EdgePin.left => AxisC.horizontal,
+    EdgePin.right => AxisC.horizontal,
+    EdgePin.top => AxisC.vertical,
+    EdgePin.bottom => AxisC.vertical,
+  };
 
   /// Converts edge pin to [AlignmentModel].
   AlignmentModel get alignment => switch (this) {
-        EdgePin.left => AlignmentModel.centerLeft,
-        EdgePin.top => AlignmentModel.topCenter,
-        EdgePin.right => AlignmentModel.centerRight,
-        EdgePin.bottom => AlignmentModel.bottomCenter,
-      };
+    EdgePin.left => AlignmentModel.centerLeft,
+    EdgePin.top => AlignmentModel.topCenter,
+    EdgePin.right => AlignmentModel.centerRight,
+    EdgePin.bottom => AlignmentModel.bottomCenter,
+  };
 }
 
 /// Edge pins are the edges of a node that are pinned to its parent. Edges refer
@@ -68,7 +68,7 @@ enum EdgePin {
 ///
 /// [EdgePinsModel] replicates the behavior of Flutter's [Positioned] widget.
 @JsonSerializable()
-class EdgePinsModel with EquatableMixin, SerializableMixin {
+class EdgePinsModel with Equatable, SerializableMixin {
   /// Distance between node's left edge and its parent's left edge. Setting a
   /// non-null value pins the node to the left edge of its parent.
   final double? left;
@@ -96,21 +96,33 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
 
   /// Create a new [EdgePinsModel] from a [Vec] object.
   EdgePinsModel.fromVec(Vec vec)
-      : this(left: vec.x, top: vec.y, right: null, bottom: null);
+    : this(left: vec.x, top: vec.y, right: null, bottom: null);
 
   /// Creates a standard [EdgePinsModel] that pins the node to the parent's
   /// top-left corner.
-  static const EdgePinsModel standard =
-      EdgePinsModel(left: 0, top: 0, right: null, bottom: null);
+  static const EdgePinsModel standard = EdgePinsModel(
+    left: 0,
+    top: 0,
+    right: null,
+    bottom: null,
+  );
 
   /// Creates an invalid [EdgePinsModel] that has no non-null pins.
   /// An invalid pins model is one which has no pin on a given axis.
-  static const EdgePinsModel invalid =
-      EdgePinsModel(left: null, top: null, right: null, bottom: null);
+  static const EdgePinsModel invalid = EdgePinsModel(
+    left: null,
+    top: null,
+    right: null,
+    bottom: null,
+  );
 
   /// Creates an [EdgePinsModel] that fills the parent's entire space.
-  static const EdgePinsModel fill =
-      EdgePinsModel(left: 0, top: 0, right: 0, bottom: 0);
+  static const EdgePinsModel fill = EdgePinsModel(
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+  );
 
   /// Whether this [EdgePinsModel] follows the standard convention of pinning
   /// the node to parent's top-left corner.
@@ -165,9 +177,9 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
 
   /// Returns the sum of the pins on the given [axis].
   double sumPinsOnAxis(AxisC axis) => switch (axis) {
-        AxisC.horizontal => sumHorizontalPins(),
-        AxisC.vertical => sumVerticalPins(),
-      };
+    AxisC.horizontal => sumHorizontalPins(),
+    AxisC.vertical => sumVerticalPins(),
+  };
 
   /// Due to the null-pattern of the pins, default copyWith method does not
   /// work. So, there's a separate copyWith method for each pin.
@@ -209,11 +221,11 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   ///
   /// Takes a [pin] and a [value] and returns the new [EdgePinesModel].
   EdgePinsModel copyWithPin(EdgePin pin, double? value) => switch (pin) {
-        EdgePin.left => copyWithLeft(value),
-        EdgePin.top => copyWithTop(value),
-        EdgePin.right => copyWithRight(value),
-        EdgePin.bottom => copyWithBottom(value)
-      };
+    EdgePin.left => copyWithLeft(value),
+    EdgePin.top => copyWithTop(value),
+    EdgePin.right => copyWithRight(value),
+    EdgePin.bottom => copyWithBottom(value),
+  };
 
   /// Returns a new [EdgePinsModel] with all negative pins clamped to zero.
   EdgePinsModel copyWithNoNegativePins() {
@@ -247,19 +259,19 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   ///
   /// This is useful for abstraction and polymorphic behavior.
   double? getPin(EdgePin pin) => switch (pin) {
-        EdgePin.left => left,
-        EdgePin.top => top,
-        EdgePin.right => right,
-        EdgePin.bottom => bottom
-      };
+    EdgePin.left => left,
+    EdgePin.top => top,
+    EdgePin.right => right,
+    EdgePin.bottom => bottom,
+  };
 
   /// Whether the given [pin] is null or not.
   bool containsPin(EdgePin pin) => switch (pin) {
-        EdgePin.left => left != null,
-        EdgePin.top => top != null,
-        EdgePin.right => right != null,
-        EdgePin.bottom => bottom != null
-      };
+    EdgePin.left => left != null,
+    EdgePin.top => top != null,
+    EdgePin.right => right != null,
+    EdgePin.bottom => bottom != null,
+  };
 
   /// Whether this [EdgePinsModel] contains any of the given [pins].
   bool containsAnyPin(Iterable<EdgePin> pins) => pins.any(containsPin);
@@ -271,32 +283,31 @@ class EdgePinsModel with EquatableMixin, SerializableMixin {
   /// chains on the given [axis]. IE: If both pins on the given [axis] are
   /// set to non-null values.
   bool expandedOnAxis(AxisC axis) => switch (axis) {
-        AxisC.horizontal => isHorizontallyExpanded,
-        AxisC.vertical => isVerticallyExpanded
-      };
+    AxisC.horizontal => isHorizontallyExpanded,
+    AxisC.vertical => isVerticallyExpanded,
+  };
 
   /// [returns] a set of pins that are enabled on this instance of
   /// [EdgePinsModel]. An enabled pin is one that has a non-null value.
   Set<EdgePin> get enabledPins => {
-        if (left != null) EdgePin.left,
-        if (top != null) EdgePin.top,
-        if (right != null) EdgePin.right,
-        if (bottom != null) EdgePin.bottom,
-      };
+    if (left != null) EdgePin.left,
+    if (top != null) EdgePin.top,
+    if (right != null) EdgePin.right,
+    if (bottom != null) EdgePin.bottom,
+  };
 
   @override
   List<Object?> get props => [left, top, right, bottom];
 
   @override
   Map toJson() => {
-        if (left != null) 'left': left?.toPrettyPrecision(3),
-        if (top != null) 'top': top?.toPrettyPrecision(3),
-        if (right != null) 'right': right?.toPrettyPrecision(3),
-        if (bottom != null) 'bottom': bottom?.toPrettyPrecision(3),
-      };
+    if (left != null) 'left': left?.toPrettyPrecision(3),
+    if (top != null) 'top': top?.toPrettyPrecision(3),
+    if (right != null) 'right': right?.toPrettyPrecision(3),
+    if (bottom != null) 'bottom': bottom?.toPrettyPrecision(3),
+  };
 
   /// Creates a new instance of [EdgePinsModel] from a JSON map.
-  @override
   factory EdgePinsModel.fromJson(Map<String, dynamic> json) =>
       _$EdgePinsModelFromJson(json);
 }

@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -25,11 +26,11 @@ class TextFieldNode extends SceneNode
 
   /// Creates a text field from the given properties.
   TextFieldNode.fromProperties(this.properties)
-      : super(
-          id: 'textField',
-          name: 'TextField',
-          basicBoxLocal: NodeBox(0, 0, 250, 48),
-        );
+    : super(
+        id: 'textField',
+        name: 'TextField',
+        basicBoxLocal: NodeBox(0, 0, 250, 48),
+      );
 
   @override
   bool get supportsPadding => true;
@@ -63,8 +64,10 @@ class TextFieldNode extends SceneNode
     String obscuringCharacter = '•',
     super.visible,
     super.alignment,
-    super.padding =
-        const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
+    super.padding = const EdgeInsetsModel.symmetric(
+      horizontal: 12,
+      vertical: 16,
+    ),
     super.margin,
     super.rotationDegrees,
     super.reactions,
@@ -82,10 +85,10 @@ class TextFieldNode extends SceneNode
 
   @override
   List<TriggerType> get triggerTypes => [
-        TriggerType.changed,
-        // TriggerType.editingComplete,
-        TriggerType.submitted,
-      ];
+    TriggerType.changed,
+    // TriggerType.editingComplete,
+    TriggerType.submitted,
+  ];
 
   @override
   List<ReactionMixin> get reactiveChildren {
@@ -109,20 +112,34 @@ class TextFieldNode extends SceneNode
     BoolValue(name: 'isCollapsed', value: properties.decoration.isCollapsed),
     BoolValue(name: 'isDense', value: properties.decoration.isDense),
     StringValue(
-        name: 'labelText', value: properties.decoration.labelText ?? ''),
+      name: 'labelText',
+      value: properties.decoration.labelText ?? '',
+    ),
     StringValue(name: 'hintText', value: properties.decoration.hintText ?? ''),
   ];
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<TextFieldProperties>(
+      'Properties',
+      'Properties of the text field.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [TextFieldNode] instance from a JSON object.
   factory TextFieldNode.fromJson(Map json) => _$TextFieldNodeFromJson(json);
 
   @override
-  Map toJson() => _$TextFieldNodeToJson(this);
+  Map toJson() =>
+      _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
 /// Holds configurable properties of the text field.
 @JsonSerializable()
-class TextFieldProperties extends CustomProperties {
+class TextFieldProperties extends CustomProperties with FieldsHolder {
   /// Whether to enable automatically correct the input text.
   bool autoCorrect;
 
@@ -254,9 +271,10 @@ class TextFieldProperties extends CustomProperties {
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
-  })  : inputStyle = inputStyle ??
-            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        decoration = decoration ?? InputDecorationModel();
+  }) : inputStyle =
+           inputStyle ??
+           TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+       decoration = decoration ?? InputDecorationModel();
 
   /// Duplicates this [TextFieldProperties] instance with the given data
   /// overrides.
@@ -332,39 +350,224 @@ class TextFieldProperties extends CustomProperties {
       _$TextFieldPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$TextFieldPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$TextFieldPropertiesOmitDefaults(
+    this,
+    _$TextFieldPropertiesToJson(this),
+  );
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'autoCorrect': BoolFieldAccess(
+      'Auto Correct',
+      'Whether to enable automatically correct the input text.',
+      () => autoCorrect,
+      (value) => autoCorrect = value,
+    ),
+    'autoFocus': BoolFieldAccess(
+      'Auto Focus',
+      'Whether to focus on text field automatically.',
+      () => autoFocus,
+      (value) => autoFocus = value,
+    ),
+    'enableInteractiveSelection': BoolFieldAccess(
+      'Enable Interactive Selection',
+      'Whether to enable text selection via mouse drag.',
+      () => enableInteractiveSelection,
+      (value) => enableInteractiveSelection = value,
+    ),
+    'enabled': BoolFieldAccess(
+      'Enabled',
+      'Whether the field is enabled.',
+      () => enabled,
+      (value) => enabled = value,
+    ),
+    'obscureText': BoolFieldAccess(
+      'Obscure Text',
+      'Whether to obscure the input text. Used for password fields.',
+      () => obscureText,
+      (value) => obscureText = value,
+    ),
+    'readOnly': BoolFieldAccess(
+      'Read Only',
+      'Whether the field is read-only.',
+      () => readOnly,
+      (value) => readOnly = value,
+    ),
+    'showCursor': BoolFieldAccess(
+      'Show Cursor',
+      'Whether to show the cursor in the field.',
+      () => showCursor,
+      (value) => showCursor = value,
+    ),
+    'showDecimalKey': BoolFieldAccess(
+      'Show Decimal Key',
+      'Whether to show the decimal key in the soft input keyboard.',
+      () => showDecimalKey,
+      (value) => showDecimalKey = value,
+    ),
+    'showSignKey': BoolFieldAccess(
+      'Show Sign Key',
+      'Whether to show the sign key in the soft input keyboard.',
+      () => showSignKey,
+      (value) => showSignKey = value,
+    ),
+    'keyboardType': EnumFieldAccess<TextInputTypeEnum>(
+      'Keyboard Type',
+      'The type of keyboard that pops up when inputting text in the field. For example, if the field should only accept numbers, the keyboard type should be [TextInputTypeEnum.number].',
+      () => keyboardType,
+      (value) => keyboardType = value,
+      defaultValue: () => TextInputTypeEnum.text,
+      options: () => TextInputTypeEnum.values,
+    ),
+    'selectionHeightStyle': EnumFieldAccess<BoxHeightStyleEnum>(
+      'Selection Height Style',
+      'Defines how the selection highlighter box covers space vertically.',
+      () => selectionHeightStyle,
+      (value) => selectionHeightStyle = value,
+      defaultValue: () => BoxHeightStyleEnum.tight,
+      options: () => BoxHeightStyleEnum.values,
+    ),
+    'selectionWidthStyle': EnumFieldAccess<BoxWidthStyleEnum>(
+      'Selection Width Style',
+      'Defines how the selection highlighter box covers space horizontally.',
+      () => selectionWidthStyle,
+      (value) => selectionWidthStyle = value,
+      defaultValue: () => BoxWidthStyleEnum.tight,
+      options: () => BoxWidthStyleEnum.values,
+    ),
+    'textAlign': EnumFieldAccess<TextAlignHorizontalEnum>(
+      'Text Align',
+      'Defines how input text is aligned horizontally in the field.',
+      () => textAlign,
+      (value) => textAlign = value,
+      defaultValue: () => TextAlignHorizontalEnum.left,
+      options: () => TextAlignHorizontalEnum.values,
+      requiresLayout: true,
+    ),
+    'textAlignVertical': EnumFieldAccess<TextAlignVerticalEnum>(
+      'Text Align Vertical',
+      'Defines how input text is aligned vertically in the field.',
+      () => textAlignVertical,
+      (value) => textAlignVertical = value,
+      defaultValue: () => TextAlignVerticalEnum.center,
+      options: () => TextAlignVerticalEnum.values,
+      requiresLayout: true,
+    ),
+    'cursorColor': ColorFieldAccess<ColorRGB>(
+      'Cursor Color',
+      'Color of the field cursor.',
+      () => cursorColor,
+      (value) => cursorColor = value,
+    ),
+    'cursorHeight': NumFieldAccess<double>(
+      'Cursor Height',
+      'Height of the field cursor.',
+      () => cursorHeight,
+      (value) => cursorHeight = value,
+      requiresLayout: true,
+    ),
+    'cursorWidth': NumFieldAccess<double>(
+      'Cursor Width',
+      'Width of the field cursor.',
+      () => cursorWidth,
+      (value) => cursorWidth = value,
+    ),
+    'cursorRadius': NumFieldAccess<double>(
+      'Cursor Radius',
+      'Radius of the field cursor.',
+      () => cursorRadius,
+      (value) => cursorRadius = value,
+    ),
+    'maxLength': NumFieldAccess<int?>(
+      'Max Length',
+      'Maximum characters that can be inputted in the field.',
+      () => maxLength,
+      (value) => maxLength = value,
+    ),
+    'maxLines': NumFieldAccess<int?>(
+      'Max Lines',
+      'Maximum lines of text that appear at a time before the field becomes scrollable.',
+      () => maxLines,
+      (value) => maxLines = value,
+      requiresLayout: true,
+    ),
+    'minLines': NumFieldAccess<int?>(
+      'Min Lines',
+      'Maximum lines of text that appear at a time.',
+      () => minLines,
+      (value) => minLines = value,
+      requiresLayout: true,
+    ),
+    'obscuringCharacter': StringFieldAccess(
+      'Obscuring Character',
+      'Defines the character that is used to obscure the text in the field. Defaults to \'•\'.',
+      () => obscuringCharacter,
+      (value) => obscuringCharacter = value,
+    ),
+    'inputStyle': TextStyleFieldAccess<TextProp>(
+      'Input Style',
+      'Text style applied to the input text.',
+      () => inputStyle,
+      (value) => inputStyle = value,
+      requiresLayout: true,
+    ),
+    'expands': BoolFieldAccess(
+      'Expands',
+      'Whether the field expands vertically.',
+      () => expands,
+      (value) => expands = value,
+      requiresLayout: true,
+    ),
+    'autovalidateMode': EnumFieldAccess<AutovalidateModeC>(
+      'Autovalidate Mode',
+      'Represents when to autovalidate the field. Defaults to [AutovalidateModeC.onUserInteraction].',
+      () => autovalidateMode,
+      (value) => autovalidateMode = value,
+      defaultValue: () => AutovalidateModeC.onUserInteraction,
+      options: () => AutovalidateModeC.values,
+    ),
+    'textInputAction': EnumFieldAccess<TextInputActionC>(
+      'Text Input Action',
+      'The action the keyboard should take when the user presses the action button on the keyboard.',
+      () => textInputAction,
+      (value) => textInputAction = value,
+      defaultValue: () => TextInputActionC.none,
+      options: () => TextInputActionC.values,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        autoCorrect,
-        autoFocus,
-        enableInteractiveSelection,
-        enabled,
-        obscureText,
-        readOnly,
-        showCursor,
-        keyboardType,
-        selectionHeightStyle,
-        selectionWidthStyle,
-        textAlign,
-        textAlignVertical,
-        cursorColor,
-        cursorHeight,
-        cursorWidth,
-        cursorRadius,
-        maxLength,
-        maxLines,
-        minLines,
-        obscuringCharacter,
-        inputStyle,
-        decoration,
-        expands,
-        showDecimalKey,
-        showSignKey,
-        formatter,
-        validator,
-        autofillHints,
-        autovalidateMode,
-        textInputAction,
-      ];
+    autoCorrect,
+    autoFocus,
+    enableInteractiveSelection,
+    enabled,
+    obscureText,
+    readOnly,
+    showCursor,
+    keyboardType,
+    selectionHeightStyle,
+    selectionWidthStyle,
+    textAlign,
+    textAlignVertical,
+    cursorColor,
+    cursorHeight,
+    cursorWidth,
+    cursorRadius,
+    maxLength,
+    maxLines,
+    minLines,
+    obscuringCharacter,
+    inputStyle,
+    decoration,
+    expands,
+    showDecimalKey,
+    showSignKey,
+    formatter,
+    validator,
+    autofillHints,
+    autovalidateMode,
+    textInputAction,
+  ];
 }

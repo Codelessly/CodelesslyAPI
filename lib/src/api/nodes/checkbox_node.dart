@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -43,22 +43,30 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   /// Strictly used for previews. e.g in components panel.
   CheckboxNode.empty()
-      : properties = CheckboxProperties(),
-        super(
-          id: 'checkBox',
-          name: 'Checkbox',
-          basicBoxLocal:
-              NodeBox(0, 0, kCheckboxDefaultSize, kCheckboxDefaultSize),
-        );
+    : properties = CheckboxProperties(),
+      super(
+        id: 'checkBox',
+        name: 'Checkbox',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kCheckboxDefaultSize,
+          kCheckboxDefaultSize,
+        ),
+      );
 
   /// Strictly used for previews. e.g in components panel.
   CheckboxNode.fromProperties(this.properties)
-      : super(
-          id: 'checkBox',
-          name: 'Checkbox',
-          basicBoxLocal:
-              NodeBox(0, 0, kCheckboxDefaultSize, kCheckboxDefaultSize),
-        );
+    : super(
+        id: 'checkBox',
+        name: 'Checkbox',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kCheckboxDefaultSize,
+          kCheckboxDefaultSize,
+        ),
+      );
 
   /// Creates a [CheckboxNode] with the given data.
   CheckboxNode({
@@ -97,14 +105,14 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<CheckboxProperties>(
-          'Properties',
-          'Holds configurable properties of the checkbox.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<CheckboxProperties>(
+      'Properties',
+      'Holds configurable properties of the checkbox.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -119,7 +127,9 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   factory CheckboxNode.fromJson(Map json) => _$CheckboxNodeFromJson(json);
 
   @override
-  Map toJson() => _$CheckboxNodeToJson(this)..['value'] = value;
+  Map toJson() =>
+      _$CheckboxNodeOmitDefaults(this, _$CheckboxNodeToJson(this))
+        ..['value'] = value;
 
   @override
   double get scale => basicBoxLocal.width / kCheckboxDefaultSize;
@@ -208,89 +218,107 @@ class CheckboxProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'checkColor': ColorFieldAccess<ColorRGBA>(
-            'Check Color', 'Color of the tick mark.', () => checkColor,
-            (ColorRGBA? value) {
-          if (value != null) checkColor = value;
-        }),
-        'activeColor': ColorFieldAccess<ColorRGBA>(
-            'Active Color',
-            'Color of the tick/dash mark when active.',
-            () => activeColor, (ColorRGBA? value) {
-          if (value != null) activeColor = value;
-        }),
-        'borderColor': ColorFieldAccess<ColorRGBA>(
-            'Border Color',
-            'Border color of the checkbox when inactive.',
-            () => borderColor, (ColorRGBA? value) {
-          if (value != null) borderColor = value;
-        }),
-        'hoverColor': ColorFieldAccess<ColorRGBA>(
-            'Hover Color',
-            'Hover overlay color of the checkbox.',
-            () => hoverColor, (ColorRGBA? value) {
-          if (value != null) hoverColor = value;
-        }),
-        'focusColor': ColorFieldAccess<ColorRGBA>(
-            'Focus Color',
-            'Overlay color of the checkbox when focused.',
-            () => focusColor, (ColorRGBA? value) {
-          if (value != null) focusColor = value;
-        }),
-        'splashRadius': NumFieldAccess<double>(
-            'Splash Radius',
-            'Overlay radius.',
-            () => splashRadius,
-            (double value) => splashRadius = value),
-        'autofocus': BoolFieldAccess(
-            'Autofocus',
-            'Whether to automatically focus the checkbox.',
-            () => autofocus,
-            (bool value) => autofocus = value),
-        'tristate': BoolFieldAccess(
-            'Tristate',
-            'Whether the checkbox is tristate.',
-            () => tristate,
-            (bool value) => tristate = value),
-        'borderWidth': NumFieldAccess<double>(
-            'Border Width',
-            'Border width for the checkbox.',
-            () => borderWidth,
-            requiresLayout: true,
-            (double value) => borderWidth = value),
-        'cornerRadius': RadiusFieldAccess(
-            'Corner Radius',
-            'Radius of the corners of the checkbox.',
-            () => cornerRadius,
-            (CornerRadius value) => cornerRadius = value),
-        'compact': BoolFieldAccess(
-            'Compact',
-            'Whether the checkbox is compact.',
-            () => compact,
-            requiresLayout: true,
-            (bool value) => compact = value),
-      };
+    ...super.generateFields(),
+    'checkColor': ColorFieldAccess<ColorRGBA>(
+      'Check Color',
+      'Color of the tick mark.',
+      () => checkColor,
+      (ColorRGBA? value) {
+        if (value != null) checkColor = value;
+      },
+    ),
+    'activeColor': ColorFieldAccess<ColorRGBA>(
+      'Active Color',
+      'Color of the tick/dash mark when active.',
+      () => activeColor,
+      (ColorRGBA? value) {
+        if (value != null) activeColor = value;
+      },
+    ),
+    'borderColor': ColorFieldAccess<ColorRGBA>(
+      'Border Color',
+      'Border color of the checkbox when inactive.',
+      () => borderColor,
+      (ColorRGBA? value) {
+        if (value != null) borderColor = value;
+      },
+    ),
+    'hoverColor': ColorFieldAccess<ColorRGBA>(
+      'Hover Color',
+      'Hover overlay color of the checkbox.',
+      () => hoverColor,
+      (ColorRGBA? value) {
+        if (value != null) hoverColor = value;
+      },
+    ),
+    'focusColor': ColorFieldAccess<ColorRGBA>(
+      'Focus Color',
+      'Overlay color of the checkbox when focused.',
+      () => focusColor,
+      (ColorRGBA? value) {
+        if (value != null) focusColor = value;
+      },
+    ),
+    'splashRadius': NumFieldAccess<double>(
+      'Splash Radius',
+      'Overlay radius.',
+      () => splashRadius,
+      (double value) => splashRadius = value,
+    ),
+    'autofocus': BoolFieldAccess(
+      'Autofocus',
+      'Whether to automatically focus the checkbox.',
+      () => autofocus,
+      (bool value) => autofocus = value,
+    ),
+    'tristate': BoolFieldAccess(
+      'Tristate',
+      'Whether the checkbox is tristate.',
+      () => tristate,
+      (bool value) => tristate = value,
+    ),
+    'borderWidth': NumFieldAccess<double>(
+      'Border Width',
+      'Border width for the checkbox.',
+      () => borderWidth,
+      requiresLayout: true,
+      (double value) => borderWidth = value,
+    ),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Radius of the corners of the checkbox.',
+      () => cornerRadius,
+      (CornerRadius value) => cornerRadius = value,
+    ),
+    'compact': BoolFieldAccess(
+      'Compact',
+      'Whether the checkbox is compact.',
+      () => compact,
+      requiresLayout: true,
+      (bool value) => compact = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        checkColor,
-        activeColor,
-        tristate,
-        borderColor,
-        borderWidth,
-        cornerRadius,
-        hoverColor,
-        focusColor,
-        splashRadius,
-        autofocus,
-        compact,
-      ];
+    checkColor,
+    activeColor,
+    tristate,
+    borderColor,
+    borderWidth,
+    cornerRadius,
+    hoverColor,
+    focusColor,
+    splashRadius,
+    autofocus,
+    compact,
+  ];
 
   /// Creates a [CheckboxProperties] from a JSON object.
   factory CheckboxProperties.fromJson(Map json) =>
       _$CheckboxPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CheckboxPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$CheckboxPropertiesOmitDefaults(this, _$CheckboxPropertiesToJson(this));
 }

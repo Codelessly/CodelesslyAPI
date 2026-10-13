@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -13,7 +13,7 @@ part 'text_node.g.dart';
 /// height remains constant.
 /// Beyond this range, the height of text node changes.
 @JsonSerializable()
-class WidthRange with SerializableMixin implements EquatableMixin {
+class WidthRange with SerializableMixin implements Equatable {
   /// Minimum width for which the height remains constant.
   final int from;
 
@@ -34,7 +34,8 @@ class WidthRange with SerializableMixin implements EquatableMixin {
       _$WidthRangeFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$WidthRangeToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$WidthRangeOmitDefaults(this, _$WidthRangeToJson(this));
 }
 
 /// A run of text with a single style. The Text widget displays a string of text
@@ -110,6 +111,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TextAlignVerticalEnum textAlignVertical = TextAlignVerticalEnum.top,
     int? maxLines,
     TextOverflowC overflow = TextOverflowC.clip,
+    bool softWrap = true,
+    double? textScaleFactor,
     // [BlendMixin] properties.
     double opacity = 1.0,
     bool isMask = false,
@@ -128,6 +131,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
       paragraphSpacing: paragraphSpacing,
       maxLines: maxLines,
       overflow: overflow,
+      softWrap: softWrap,
+      textScaleFactor: textScaleFactor,
     );
 
     setBlendMixin(
@@ -140,8 +145,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   }
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [
@@ -156,7 +163,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   factory TextNode.fromJson(Map json) => _$TextNodeFromJson(json);
 
   @override
-  Map toJson() => _$TextNodeToJson(this);
+  Map toJson() => _$TextNodeOmitDefaults(this, _$TextNodeToJson(this));
 }
 
 /// [TextNode] specific properties.
@@ -187,6 +194,14 @@ mixin TextMixin {
   /// Defines how the text would clip when it overflows the available space.
   late TextOverflowC overflow;
 
+  /// Whether the text breaks at soft line breaks. When false, it is laid out
+  /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
+  late bool softWrap;
+
+  /// Factor by which to scale the font size, on top of the platform's text
+  /// scaling. Mirrors `Text.textScaler` as `TextScaler.linear`.
+  late double? textScaleFactor;
+
   /// Set text properties.
   void setTextMixin({
     required String characters,
@@ -197,6 +212,8 @@ mixin TextMixin {
     required double paragraphSpacing,
     required TextOverflowC overflow,
     int? maxLines,
+    bool softWrap = true,
+    double? textScaleFactor,
   }) {
     this.characters = characters;
     this.textMixedProps = textMixedProps;
@@ -206,6 +223,8 @@ mixin TextMixin {
     this.paragraphSpacing = paragraphSpacing;
     this.maxLines = maxLines;
     this.overflow = overflow;
+    this.softWrap = softWrap;
+    this.textScaleFactor = textScaleFactor;
   }
 }
 

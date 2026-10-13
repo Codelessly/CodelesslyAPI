@@ -13,11 +13,14 @@ extension StringExtensions on String {
   String replaceVariableName(String oldName, String newName) {
     if (isEmpty) return this;
 
-    return splitMapJoin(variableSyntaxIdentifierRegex, onMatch: (match) {
-      final String variablePath = match[0]!;
-      if (!variablePath.startsWith('\${$oldName')) return variablePath;
-      return variablePath.replaceFirst('\${$oldName', '\${$newName');
-    });
+    return splitMapJoin(
+      variableSyntaxIdentifierRegex,
+      onMatch: (match) {
+        final String variablePath = match[0]!;
+        if (!variablePath.startsWith('\${$oldName')) return variablePath;
+        return variablePath.replaceFirst('\${$oldName', '\${$newName');
+      },
+    );
   }
 
   /// Returns true if this string exactly matches the given [pattern].

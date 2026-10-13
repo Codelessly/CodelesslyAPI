@@ -3,36 +3,35 @@
 part of 'link_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$LinkActionOmitDefaults(
+  LinkAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 LinkAction _$LinkActionFromJson(Map json) => LinkAction(
-      url: json['url'] as String,
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  url: json['url'] as String,
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$LinkActionToJson(LinkAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['url'] = instance.url;
-  return val;
-}
+Map<String, dynamic> _$LinkActionToJson(LinkAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'url': instance.url,
+    };
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -19,10 +19,10 @@ enum StorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        StorageOperation.addOrUpdate => 'Add/Update',
-        StorageOperation.remove => 'Remove',
-        StorageOperation.clear => 'Clear',
-      };
+    StorageOperation.addOrUpdate => 'Add/Update',
+    StorageOperation.remove => 'Remove',
+    StorageOperation.clear => 'Clear',
+  };
 
   /// Whether the operation is [StorageOperation.remove].
   bool get isRemove => this == StorageOperation.remove;
@@ -37,7 +37,7 @@ enum StorageOperation {
 /// An action that sets value of a variable.
 @JsonSerializable()
 class SetStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin
+    with Equatable, SerializableMixin
     implements DataOperationInterface {
   /// Key of the data in storage.
   final String key;
@@ -125,25 +125,26 @@ class SetStorageAction extends ActionModel
 
   @override
   List<Object?> get props => [
-        key,
-        operation,
-        variableType,
-        newValue,
-        toggled,
-        listOperation,
-        index,
-        mapOperation,
-        mapKey,
-        numberOperation,
-        skipIfAlreadyExists,
-      ];
+    key,
+    operation,
+    variableType,
+    newValue,
+    toggled,
+    listOperation,
+    index,
+    mapOperation,
+    mapKey,
+    numberOperation,
+    skipIfAlreadyExists,
+  ];
 
   /// Creates a new [SetStorageAction] instance from a JSON data.
   factory SetStorageAction.fromJson(Map json) =>
       _$SetStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetStorageActionToJson(this);
+  Map toJson() =>
+      _$SetStorageActionOmitDefaults(this, _$SetStorageActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetStorageAction(this);

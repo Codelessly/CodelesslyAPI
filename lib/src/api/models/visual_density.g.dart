@@ -3,35 +3,38 @@
 part of 'visual_density.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$VisualDensityModelOmitDefaults(
+  VisualDensityModel instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.horizontal, 0.0)) json.remove('horizontal');
+  if (isJsonDefault(instance.vertical, 0.0)) json.remove('vertical');
+  if (isJsonDefault(instance.type, VisualDensityType.standard))
+    json.remove('type');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 VisualDensityModel _$VisualDensityModelFromJson(Map json) => VisualDensityModel(
-      horizontal: (json['horizontal'] as num?)?.toDouble() ?? 0.0,
-      vertical: (json['vertical'] as num?)?.toDouble() ?? 0.0,
-      type: $enumDecodeNullable(_$VisualDensityTypeEnumMap, json['type']) ??
-          VisualDensityType.standard,
-    );
+  horizontal: (json['horizontal'] as num?)?.toDouble() ?? 0.0,
+  vertical: (json['vertical'] as num?)?.toDouble() ?? 0.0,
+  type:
+      $enumDecodeNullable(_$VisualDensityTypeEnumMap, json['type']) ??
+      VisualDensityType.standard,
+);
 
-Map<String, dynamic> _$VisualDensityModelToJson(VisualDensityModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('horizontal', instance.horizontal, instance.horizontal, 0.0);
-  writeNotNull('vertical', instance.vertical, instance.vertical, 0.0);
-  writeNotNull('type', instance.type,
-      _$VisualDensityTypeEnumMap[instance.type]!, VisualDensityType.standard);
-  return val;
-}
+Map<String, dynamic> _$VisualDensityModelToJson(VisualDensityModel instance) =>
+    <String, dynamic>{
+      'horizontal': instance.horizontal,
+      'vertical': instance.vertical,
+      'type': _$VisualDensityTypeEnumMap[instance.type]!,
+    };
 
 const _$VisualDensityTypeEnumMap = {
   VisualDensityType.standard: 'standard',

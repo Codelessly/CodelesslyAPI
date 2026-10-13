@@ -3,92 +3,216 @@
 part of 'grid_view_node.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$GridViewNodeOmitDefaults(
+  GridViewNode instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.visible, true)) json.remove('visible');
+  if (excludeConstraintsIf(instance)) json.remove('constraints');
+  if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
+    json.remove('constraints');
+  if (isJsonDefault(instance.edgePins, EdgePinsModel.standard))
+    json.remove('edgePins');
+  if (isJsonDefault(instance.positioningMode, PositioningMode.align))
+    json.remove('positioningMode');
+  if (isJsonDefault(instance.horizontalFit, SizeFit.fixed))
+    json.remove('horizontalFit');
+  if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
+    json.remove('verticalFit');
+  if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.aspectRatioLock, false))
+    json.remove('aspectRatioLock');
+  if (isJsonDefault(instance.alignment, AlignmentModel.none))
+    json.remove('alignment');
+  if (isJsonDefault(instance.margin, EdgeInsetsModel.zero))
+    json.remove('margin');
+  if (isJsonDefault(instance.padding, EdgeInsetsModel.zero))
+    json.remove('padding');
+  if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
+  if (isJsonDefault(instance.multipleVariables, {}))
+    json.remove('multipleVariables');
+  if (isJsonDefault(instance.componentVersion, 1))
+    json.remove('componentVersion');
+  if (isJsonDefault(instance.componentSchema, {}))
+    json.remove('componentSchema');
+  if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
+  if (isJsonDefault(instance.children, [])) json.remove('children');
+  if (isJsonDefault(instance.scrollDirection, AxisC.vertical))
+    json.remove('scrollDirection');
+  if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
+  if (isJsonDefault(instance.primary, false)) json.remove('primary');
+  if (isJsonDefault(instance.physics, ScrollPhysicsC.platformDependent))
+    json.remove('physics');
+  if (isJsonDefault(
+    instance.keyboardDismissBehavior,
+    ScrollViewKeyboardDismissBehaviorC.manual,
+  ))
+    json.remove('keyboardDismissBehavior');
+  if (isJsonDefault(instance.shouldAlwaysScroll, true))
+    json.remove('shouldAlwaysScroll');
+  if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
+  if (isJsonDefault(instance.useCloudDatabase, false))
+    json.remove('useCloudDatabase');
+  if (isJsonDefault(instance.limit, 20)) json.remove('limit');
+  if (isJsonDefault(instance.whereFilters, [])) json.remove('whereFilters');
+  if (isJsonDefault(instance.orderByFilters, [])) json.remove('orderByFilters');
+  return json;
+}
+
+Map<String, dynamic> _$GridViewPropertiesOmitDefaults(
+  GridViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesOmitDefaults(
+  FixedCrossAxisCountGridDelegateProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mainAxisSpacing, 0))
+    json.remove('mainAxisSpacing');
+  if (isJsonDefault(instance.crossAxisSpacing, 0))
+    json.remove('crossAxisSpacing');
+  if (isJsonDefault(instance.childAspectRatio, 1))
+    json.remove('childAspectRatio');
+  return json;
+}
+
+Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesOmitDefaults(
+  MaxCrossAxisExtentGridDelegateProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.mainAxisSpacing, 0))
+    json.remove('mainAxisSpacing');
+  if (isJsonDefault(instance.crossAxisSpacing, 0))
+    json.remove('crossAxisSpacing');
+  if (isJsonDefault(instance.childAspectRatio, 1))
+    json.remove('childAspectRatio');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-GridViewNode _$GridViewNodeFromJson(Map json) => GridViewNode(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
-      visible: json['visible'] as bool? ?? true,
-      enabled: json['enabled'] as bool? ?? true,
-      rotationDegrees:
-          json['rotation'] == null ? 0 : castRotation(json['rotation']),
-      alignment: json['alignment'] == null
-          ? AlignmentModel.none
-          : AlignmentModel.fromJson(json['alignment'] as Map),
-      margin: json['margin'] == null
-          ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin']),
-      padding: json['padding'] == null
-          ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['padding']),
-      horizontalFit:
-          $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
-              SizeFit.fixed,
-      verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
-          SizeFit.fixed,
-      flex: (json['flex'] as num?)?.toInt() ?? 1,
-      constraints: json['constraints'] == null
-          ? const BoxConstraintsModel()
-          : BoxConstraintsModel.fromJson(json['constraints'] as Map),
-      edgePins: json['edgePins'] == null
-          ? EdgePinsModel.standard
-          : EdgePinsModel.fromJson(
-              Map<String, dynamic>.from(json['edgePins'] as Map)),
-      aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
-      positioningMode: $enumDecodeNullable(
-              _$PositioningModeEnumMap, json['positioningMode']) ??
-          PositioningMode.align,
-      reactions: (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e as Map))
-              .toList() ??
-          [],
-      properties: GridViewProperties.fromJson(json['properties'] as Map),
-      children: (json['children'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
-      variables: (json['variables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String, e as String),
-          ) ??
-          {},
-      multipleVariables: (json['multipleVariables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String,
-                (e as List<dynamic>).map((e) => e as String).toList()),
-          ) ??
-          {},
-      clipsContent: json['clipsContent'] as bool? ?? true,
-      useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
-      collectionPath: json['collectionPath'] as String?,
-      limit: (json['limit'] as num?)?.toInt() ?? 20,
-      whereFilters: (json['whereFilters'] as List<dynamic>?)
-          ?.map((e) =>
-              WhereQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList(),
-      orderByFilters: (json['orderByFilters'] as List<dynamic>?)
-          ?.map((e) =>
-              OrderByQueryFilter.fromJson(Map<String, dynamic>.from(e as Map)))
-          .toList(),
-      scrollDirection:
-          $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
-              AxisC.vertical,
-      reverse: json['reverse'] as bool? ?? false,
-      physics: $enumDecodeNullable(_$ScrollPhysicsCEnumMap, json['physics'],
-              unknownValue: ScrollPhysicsC.platformDependent) ??
-          ScrollPhysicsC.platformDependent,
-      primary: json['primary'] as bool? ?? false,
-      keyboardDismissBehavior: $enumDecodeNullable(
+GridViewNode _$GridViewNodeFromJson(Map json) =>
+    GridViewNode(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+        visible: json['visible'] as bool? ?? true,
+        enabled: json['enabled'] as bool? ?? true,
+        rotationDegrees: json['rotation'] == null
+            ? 0
+            : castRotation(json['rotation']),
+        alignment: json['alignment'] == null
+            ? AlignmentModel.none
+            : AlignmentModel.fromJson(json['alignment'] as Map),
+        margin: json['margin'] == null
+            ? EdgeInsetsModel.zero
+            : EdgeInsetsModel.fromJson(json['margin']),
+        padding: json['padding'] == null
+            ? EdgeInsetsModel.zero
+            : EdgeInsetsModel.fromJson(json['padding']),
+        horizontalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
+            SizeFit.fixed,
+        verticalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
+            SizeFit.fixed,
+        flex: (json['flex'] as num?)?.toInt() ?? 1,
+        constraints: json['constraints'] == null
+            ? const BoxConstraintsModel()
+            : BoxConstraintsModel.fromJson(json['constraints'] as Map),
+        edgePins: json['edgePins'] == null
+            ? EdgePinsModel.standard
+            : EdgePinsModel.fromJson(
+                Map<String, dynamic>.from(json['edgePins'] as Map),
+              ),
+        aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
+        positioningMode:
+            $enumDecodeNullable(
+              _$PositioningModeEnumMap,
+              json['positioningMode'],
+            ) ??
+            PositioningMode.align,
+        reactions:
+            (json['reactions'] as List<dynamic>?)
+                ?.map((e) => Reaction.fromJson(e as Map))
+                .toList() ??
+            const [],
+        properties: GridViewProperties.fromJson(json['properties'] as Map),
+        children:
+            (json['children'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        variables:
+            (json['variables'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e as String),
+            ) ??
+            {},
+        multipleVariables:
+            (json['multipleVariables'] as Map?)?.map(
+              (k, e) => MapEntry(
+                k as String,
+                (e as List<dynamic>).map((e) => e as String).toList(),
+              ),
+            ) ??
+            {},
+        clipsContent: json['clipsContent'] as bool? ?? true,
+        useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
+        collectionPath: json['collectionPath'] as String?,
+        limit: (json['limit'] as num?)?.toInt() ?? 20,
+        whereFilters: (json['whereFilters'] as List<dynamic>?)
+            ?.map(
+              (e) => WhereQueryFilter.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
+            .toList(),
+        orderByFilters: (json['orderByFilters'] as List<dynamic>?)
+            ?.map(
+              (e) => OrderByQueryFilter.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
+            .toList(),
+        scrollDirection:
+            $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
+            AxisC.vertical,
+        reverse: json['reverse'] as bool? ?? false,
+        physics:
+            $enumDecodeNullable(
+              _$ScrollPhysicsCEnumMap,
+              json['physics'],
+              unknownValue: ScrollPhysicsC.platformDependent,
+            ) ??
+            ScrollPhysicsC.platformDependent,
+        primary: json['primary'] as bool? ?? false,
+        keyboardDismissBehavior:
+            $enumDecodeNullable(
               _$ScrollViewKeyboardDismissBehaviorCEnumMap,
-              json['keyboardDismissBehavior']) ??
-          ScrollViewKeyboardDismissBehaviorC.manual,
-      shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
-    )
+              json['keyboardDismissBehavior'],
+            ) ??
+            ScrollViewKeyboardDismissBehaviorC.manual,
+        shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
+      )
       ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..markerType = $enumDecodeNullable(
+        _$ComponentMarkerTypeEnumMap,
+        json['markerType'],
+      )
       ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
-      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+      ..componentSchema =
+          (json['componentSchema'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
@@ -108,104 +232,57 @@ GridViewNode _$GridViewNodeFromJson(Map json) => GridViewNode(
       ..useFlutterListView = json['useFlutterListView'] as bool
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
-  writeNotNull('componentVersion', instance.componentVersion,
-      instance.componentVersion, 1);
-  writeNotNull('componentSchema', instance.componentSchema,
-      instance.componentSchema, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  if (!excludeConstraintsIf(instance)) {
-    writeNotNull('constraints', instance.constraints,
-        instance.constraints.toJson(), const BoxConstraintsModel());
-  }
-  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-      EdgePinsModel.standard);
-  writeNotNull(
-      'positioningMode',
-      instance.positioningMode,
-      _$PositioningModeEnumMap[instance.positioningMode]!,
-      PositioningMode.align);
-  writeNotNull('horizontalFit', instance.horizontalFit,
-      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
-  writeNotNull('verticalFit', instance.verticalFit,
-      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
-  writeNotNull('flex', instance.flex, instance.flex, 1);
-  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
-      instance.aspectRatioLock, false);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
-  writeNotNull('margin', instance.margin, instance.margin.toJson(),
-      EdgeInsetsModel.zero);
-  writeNotNull('padding', instance.padding, instance.padding.toJson(),
-      EdgeInsetsModel.zero);
-  writeNotNull(
-      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
-  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
-  writeNotNull(
-      'heightFactor', instance.heightFactor, instance.heightFactor, null);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull('children', instance.children, instance.children, []);
-  writeNotNull('ephemeral', instance.ephemeral, instance.ephemeral, false);
-  val['allowedTypes'] = instance.allowedTypes;
-  val['deniedTypes'] = instance.deniedTypes;
-  writeNotNull('maxAllowedSize', instance.maxAllowedSize,
-      instance.maxAllowedSize?.toJson(), null);
-  writeNotNull(
-      'clipsContent', instance.clipsContent, instance.clipsContent, true);
-  val['isScrollable'] = instance.isScrollable;
-  writeNotNull('scrollDirection', instance.scrollDirection,
-      _$AxisCEnumMap[instance.scrollDirection]!, AxisC.vertical);
-  writeNotNull('reverse', instance.reverse, instance.reverse, false);
-  writeNotNull('primary', instance.primary, instance.primary, false);
-  writeNotNull(
-      'physics',
-      instance.physics,
-      _$ScrollPhysicsCEnumMap[instance.physics]!,
-      ScrollPhysicsC.platformDependent);
-  writeNotNull(
-      'keyboardDismissBehavior',
-      instance.keyboardDismissBehavior,
-      _$ScrollViewKeyboardDismissBehaviorCEnumMap[
-          instance.keyboardDismissBehavior]!,
-      ScrollViewKeyboardDismissBehaviorC.manual);
-  val['useFlutterListView'] = instance.useFlutterListView;
-  writeNotNull('shouldAlwaysScroll', instance.shouldAlwaysScroll,
-      instance.shouldAlwaysScroll, true);
-  writeNotNull('useCloudDatabase', instance.useCloudDatabase,
-      instance.useCloudDatabase, false);
-  writeNotNull(
-      'collectionPath', instance.collectionPath, instance.collectionPath, null);
-  writeNotNull('limit', instance.limit, instance.limit, 20);
-  val['whereFilters'] = instance.whereFilters.map((e) => e.toJson()).toList();
-  val['orderByFilters'] =
-      instance.orderByFilters.map((e) => e.toJson()).toList();
-  val['type'] = instance.type;
-  val['properties'] = instance.properties.toJson();
-  return val;
-}
+Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
+    <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
+      'id': instance.id,
+      'name': instance.name,
+      'visible': instance.visible,
+      'constraints': instance.constraints.toJson(),
+      'edgePins': instance.edgePins.toJson(),
+      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+      'flex': instance.flex,
+      'aspectRatioLock': instance.aspectRatioLock,
+      'alignment': instance.alignment.toJson(),
+      'basicBoxLocal': instance.basicBoxLocal.toJson(),
+      'margin': instance.margin.toJson(),
+      'padding': instance.padding.toJson(),
+      'rotation': instance.rotationDegrees,
+      'widthFactor': ?instance.widthFactor,
+      'heightFactor': ?instance.heightFactor,
+      'enabled': instance.enabled,
+      'children': instance.children,
+      'ephemeral': instance.ephemeral,
+      'allowedTypes': instance.allowedTypes,
+      'deniedTypes': instance.deniedTypes,
+      'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
+      'clipsContent': instance.clipsContent,
+      'isScrollable': instance.isScrollable,
+      'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
+      'reverse': instance.reverse,
+      'primary': instance.primary,
+      'physics': _$ScrollPhysicsCEnumMap[instance.physics]!,
+      'keyboardDismissBehavior':
+          _$ScrollViewKeyboardDismissBehaviorCEnumMap[instance
+              .keyboardDismissBehavior]!,
+      'useFlutterListView': instance.useFlutterListView,
+      'shouldAlwaysScroll': instance.shouldAlwaysScroll,
+      'useCloudDatabase': instance.useCloudDatabase,
+      'collectionPath': ?instance.collectionPath,
+      'limit': ?instance.limit,
+      'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
+      'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
+      'type': instance.type,
+      'properties': instance.properties.toJson(),
+    };
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',
@@ -244,99 +321,54 @@ const _$ComponentMarkerTypeEnumMap = {
 };
 
 GridViewProperties _$GridViewPropertiesFromJson(Map json) => GridViewProperties(
-      itemCount: (json['itemCount'] as num?)?.toInt(),
-      cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
-      gridDelegate:
-          GridDelegateProperties.fromJson(json['gridDelegate'] as Map),
-    );
+  itemCount: (json['itemCount'] as num?)?.toInt(),
+  cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
+  gridDelegate: GridDelegateProperties.fromJson(json['gridDelegate'] as Map),
+);
 
-Map<String, dynamic> _$GridViewPropertiesToJson(GridViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('itemCount', instance.itemCount, instance.itemCount, null);
-  writeNotNull('cacheExtent', instance.cacheExtent, instance.cacheExtent, null);
-  val['gridDelegate'] = instance.gridDelegate.toJson();
-  return val;
-}
+Map<String, dynamic> _$GridViewPropertiesToJson(GridViewProperties instance) =>
+    <String, dynamic>{
+      'itemCount': ?instance.itemCount,
+      'cacheExtent': ?instance.cacheExtent,
+      'gridDelegate': instance.gridDelegate.toJson(),
+    };
 
 FixedCrossAxisCountGridDelegateProperties
-    _$FixedCrossAxisCountGridDelegatePropertiesFromJson(Map json) =>
-        FixedCrossAxisCountGridDelegateProperties(
-          crossAxisCount: (json['crossAxisCount'] as num).toInt(),
-          mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
-          crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
-          childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
-          mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
-        );
+_$FixedCrossAxisCountGridDelegatePropertiesFromJson(Map json) =>
+    FixedCrossAxisCountGridDelegateProperties(
+      crossAxisCount: (json['crossAxisCount'] as num).toInt(),
+      mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
+      crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
+      childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
+      mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
+    );
 
 Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
-    FixedCrossAxisCountGridDelegateProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'mainAxisSpacing', instance.mainAxisSpacing, instance.mainAxisSpacing, 0);
-  writeNotNull('crossAxisSpacing', instance.crossAxisSpacing,
-      instance.crossAxisSpacing, 0);
-  writeNotNull('childAspectRatio', instance.childAspectRatio,
-      instance.childAspectRatio, 1);
-  writeNotNull(
-      'mainAxisExtent', instance.mainAxisExtent, instance.mainAxisExtent, null);
-  val['crossAxisCount'] = instance.crossAxisCount;
-  return val;
-}
+  FixedCrossAxisCountGridDelegateProperties instance,
+) => <String, dynamic>{
+  'mainAxisSpacing': instance.mainAxisSpacing,
+  'crossAxisSpacing': instance.crossAxisSpacing,
+  'childAspectRatio': instance.childAspectRatio,
+  'mainAxisExtent': ?instance.mainAxisExtent,
+  'crossAxisCount': instance.crossAxisCount,
+};
 
 MaxCrossAxisExtentGridDelegateProperties
-    _$MaxCrossAxisExtentGridDelegatePropertiesFromJson(Map json) =>
-        MaxCrossAxisExtentGridDelegateProperties(
-          maxCrossAxisExtent: (json['maxCrossAxisExtent'] as num).toDouble(),
-          mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
-          crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
-          childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
-          mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
-        );
+_$MaxCrossAxisExtentGridDelegatePropertiesFromJson(Map json) =>
+    MaxCrossAxisExtentGridDelegateProperties(
+      maxCrossAxisExtent: (json['maxCrossAxisExtent'] as num).toDouble(),
+      mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
+      crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
+      childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
+      mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
+    );
 
 Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesToJson(
-    MaxCrossAxisExtentGridDelegateProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'mainAxisSpacing', instance.mainAxisSpacing, instance.mainAxisSpacing, 0);
-  writeNotNull('crossAxisSpacing', instance.crossAxisSpacing,
-      instance.crossAxisSpacing, 0);
-  writeNotNull('childAspectRatio', instance.childAspectRatio,
-      instance.childAspectRatio, 1);
-  writeNotNull(
-      'mainAxisExtent', instance.mainAxisExtent, instance.mainAxisExtent, null);
-  val['maxCrossAxisExtent'] = instance.maxCrossAxisExtent;
-  return val;
-}
+  MaxCrossAxisExtentGridDelegateProperties instance,
+) => <String, dynamic>{
+  'mainAxisSpacing': instance.mainAxisSpacing,
+  'crossAxisSpacing': instance.crossAxisSpacing,
+  'childAspectRatio': instance.childAspectRatio,
+  'mainAxisExtent': ?instance.mainAxisExtent,
+  'maxCrossAxisExtent': instance.maxCrossAxisExtent,
+};

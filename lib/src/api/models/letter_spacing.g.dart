@@ -3,37 +3,34 @@
 part of 'letter_spacing.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$LetterSpacingOmitDefaults(
+  LetterSpacing instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.unit, LetterSpacingUnitEnum.pixels))
+    json.remove('unit');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 LetterSpacing _$LetterSpacingFromJson(Map json) => LetterSpacing(
-      value: (json['value'] as num).toDouble(),
-      unit: $enumDecodeNullable(_$LetterSpacingUnitEnumEnumMap, json['unit']) ??
-          LetterSpacingUnitEnum.pixels,
-    );
+  value: (json['value'] as num).toDouble(),
+  unit:
+      $enumDecodeNullable(_$LetterSpacingUnitEnumEnumMap, json['unit']) ??
+      LetterSpacingUnitEnum.pixels,
+);
 
-Map<String, dynamic> _$LetterSpacingToJson(LetterSpacing instance) {
-  final val = <String, dynamic>{
-    'value': instance.value,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'unit',
-      instance.unit,
-      _$LetterSpacingUnitEnumEnumMap[instance.unit]!,
-      LetterSpacingUnitEnum.pixels);
-  return val;
-}
+Map<String, dynamic> _$LetterSpacingToJson(LetterSpacing instance) =>
+    <String, dynamic>{
+      'value': instance.value,
+      'unit': _$LetterSpacingUnitEnumEnumMap[instance.unit]!,
+    };
 
 const _$LetterSpacingUnitEnumEnumMap = {
   LetterSpacingUnitEnum.pixels: 'pixels',

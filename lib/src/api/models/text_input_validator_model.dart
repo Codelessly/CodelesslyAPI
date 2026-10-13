@@ -1,9 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart' hide required;
 
 import '../extensions.dart';
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'text_input_validator_model.g.dart';
 
@@ -189,7 +190,15 @@ enum AutovalidateModeC {
 
   /// Used to auto-validate [Form] and [FormField] only after each user
   /// interaction.
-  onUserInteraction('On User Interaction');
+  onUserInteraction('On User Interaction'),
+
+  /// Used to auto-validate [Form] and [FormField] only after the field loses
+  /// focus.
+  onUnfocus('On Unfocus'),
+
+  /// Used to auto-validate [Form] and [FormField] after each user interaction
+  /// once the field has shown an error.
+  onUserInteractionIfError('On User Interaction If Error');
 
   const AutovalidateModeC(this.label);
 
@@ -236,7 +245,7 @@ class _CallableValidator implements CallableValidator {
 
 /// Represents a text input validator.
 sealed class TextInputValidatorModel
-    with EquatableMixin, SerializableMixin
+    with Equatable, SerializableMixin
     implements CallableValidator {
   /// The name of the validator. This is used to identify the validator.
   final String name;
@@ -246,22 +255,21 @@ sealed class TextInputValidatorModel
   final TextInputValidatorType type;
 
   /// Creates a new [TextInputValidatorModel] instance.
-  const TextInputValidatorModel({
-    required this.name,
-    required this.type,
-  });
+  const TextInputValidatorModel({required this.name, required this.type});
 
   /// Creates a [TextInputValidatorModel] instance from a JSON object.
   factory TextInputValidatorModel.fromJson(Map<String, dynamic> json) {
-    final TextInputValidatorType type =
-        TextInputValidatorType.values.byName(json['type']);
+    final TextInputValidatorType type = TextInputValidatorType.values.byName(
+      json['type'],
+    );
     return switch (type) {
       TextInputValidatorType.none => NoneTextInputValidatorModel.fromJson(json),
       TextInputValidatorType.required =>
         RequiredTextInputValidatorModel.fromJson(json),
-      TextInputValidatorType.regex =>
-        RegexTextInputValidatorModel.fromJson(json),
-      TextInputValidatorType.url => UrlTextInputValidatorModel.fromJson(json)
+      TextInputValidatorType.regex => RegexTextInputValidatorModel.fromJson(
+        json,
+      ),
+      TextInputValidatorType.url => UrlTextInputValidatorModel.fromJson(json),
     };
   }
 
@@ -304,7 +312,7 @@ sealed class TextInputValidatorModel
 class NoneTextInputValidatorModel extends TextInputValidatorModel {
   /// Creates a new [NoneTextInputValidatorModel] instance.
   const NoneTextInputValidatorModel()
-      : super(name: 'None', type: TextInputValidatorType.none);
+    : super(name: 'None', type: TextInputValidatorType.none);
 
   @override
   String? validate(String? input) => null;
@@ -314,7 +322,10 @@ class NoneTextInputValidatorModel extends TextInputValidatorModel {
       _$NoneTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$NoneTextInputValidatorModelToJson(this);
+  Map toJson() => _$NoneTextInputValidatorModelOmitDefaults(
+    this,
+    _$NoneTextInputValidatorModelToJson(this),
+  );
 }
 
 /// Represents a configurable text input validator with common properties like
@@ -355,10 +366,10 @@ class RequiredTextInputValidatorModel
   const RequiredTextInputValidatorModel({
     super.errorMessage = 'This field is required.',
   }) : super(
-          name: 'Required',
-          type: TextInputValidatorType.required,
-          required: true,
-        );
+         name: 'Required',
+         type: TextInputValidatorType.required,
+         required: true,
+       );
 
   @override
   String? validate(String? input) {
@@ -381,7 +392,10 @@ class RequiredTextInputValidatorModel
       _$RequiredTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$RequiredTextInputValidatorModelToJson(this);
+  Map toJson() => _$RequiredTextInputValidatorModelOmitDefaults(
+    this,
+    _$RequiredTextInputValidatorModelToJson(this),
+  );
 }
 
 /// Represents a regular expression based text input validator.
@@ -416,42 +430,42 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
   /// Allow only digits in the text field.
   static const RegexTextInputValidatorModel digitsOnly =
       RegexTextInputValidatorModel(
-    name: 'Digits Only',
-    pattern: r'^[0-9]+$',
-    errorMessage: 'Only digits are allowed.',
-  );
+        name: 'Digits Only',
+        pattern: r'^[0-9]+$',
+        errorMessage: 'Only digits are allowed.',
+      );
 
   /// Allow only alphabets in the text field.
   static const RegexTextInputValidatorModel alphabetsOnly =
       RegexTextInputValidatorModel(
-    name: 'Alphabets Only',
-    pattern: r'^[a-zA-Z]+$',
-    errorMessage: 'Only alphabets are allowed.',
-  );
+        name: 'Alphabets Only',
+        pattern: r'^[a-zA-Z]+$',
+        errorMessage: 'Only alphabets are allowed.',
+      );
 
   /// Allow only alphabets and digits in the text field.
   static const RegexTextInputValidatorModel alphaNumeric =
       RegexTextInputValidatorModel(
-    name: 'Alphanumeric',
-    pattern: r'^[a-zA-Z0-9]+$',
-    errorMessage: 'Only alphabets and digits are allowed.',
-  );
+        name: 'Alphanumeric',
+        pattern: r'^[a-zA-Z0-9]+$',
+        errorMessage: 'Only alphabets and digits are allowed.',
+      );
 
   /// A validator for email addresses.
   static const RegexTextInputValidatorModel email =
       RegexTextInputValidatorModel(
-    name: 'Email',
-    pattern: r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$',
-    errorMessage: 'Invalid email address.',
-  );
+        name: 'Email',
+        pattern: r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$',
+        errorMessage: 'Invalid email address.',
+      );
 
   /// A validator for custom regex patterns.
   static const RegexTextInputValidatorModel custom =
       RegexTextInputValidatorModel(
-    name: 'Custom Regex',
-    pattern: '',
-    errorMessage: 'Invalid',
-  );
+        name: 'Custom Regex',
+        pattern: '',
+        errorMessage: 'Invalid',
+      );
 
   /// A list of built-in/default regex validators.
   static const List<RegexTextInputValidatorModel> defaultValidators = [
@@ -482,8 +496,9 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       return null;
     }
     try {
-      final bool isValid =
-          allow ? regex.hasExactMatch(input) : regex.hasMatch(input);
+      final bool isValid = allow
+          ? regex.hasExactMatch(input)
+          : regex.hasMatch(input);
 
       if (isValid) return null;
       return errorMessage;
@@ -542,18 +557,21 @@ class RegexTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       _$RegexTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$RegexTextInputValidatorModelToJson(this);
+  Map toJson() => _$RegexTextInputValidatorModelOmitDefaults(
+    this,
+    _$RegexTextInputValidatorModelToJson(this),
+  );
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        pattern,
-        caseSensitive,
-        dotAll,
-        multiLine,
-        unicode,
-        allow,
-      ];
+    ...super.props,
+    pattern,
+    caseSensitive,
+    dotAll,
+    multiLine,
+    unicode,
+    allow,
+  ];
 }
 
 /// A custom validator that takes a callback function.
@@ -595,5 +613,8 @@ class UrlTextInputValidatorModel extends ConfigurableTextInputValidatorModel {
       _$UrlTextInputValidatorModelFromJson(json);
 
   @override
-  Map toJson() => _$UrlTextInputValidatorModelToJson(this);
+  Map toJson() => _$UrlTextInputValidatorModelOmitDefaults(
+    this,
+    _$UrlTextInputValidatorModelToJson(this),
+  );
 }

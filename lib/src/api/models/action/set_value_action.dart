@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -8,8 +8,7 @@ part 'set_value_action.g.dart';
 
 /// An action that sets value of a property of the node.
 @JsonSerializable()
-class SetValueAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+class SetValueAction extends ActionModel with Equatable, SerializableMixin {
   /// ID of the node whose values are to be set.
   final String nodeID;
 
@@ -29,10 +28,7 @@ class SetValueAction extends ActionModel
   List<Object?> get props => [nodeID, values];
 
   /// Duplicates this [SetValueAction] with given data overrides.
-  SetValueAction copyWith({
-    String? nodeID,
-    List<ValueModel>? values,
-  }) =>
+  SetValueAction copyWith({String? nodeID, List<ValueModel>? values}) =>
       SetValueAction(
         nodeID: nodeID ?? this.nodeID,
         values: values ?? this.values,
@@ -42,7 +38,8 @@ class SetValueAction extends ActionModel
   factory SetValueAction.fromJson(Map json) => _$SetValueActionFromJson(json);
 
   @override
-  Map toJson() => _$SetValueActionToJson(this);
+  Map toJson() =>
+      _$SetValueActionOmitDefaults(this, _$SetValueActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetValueAction(this);
@@ -192,30 +189,26 @@ class BoolValue extends ValueModel<bool?> with SerializableMixin {
     bool? value,
     bool isNull = false,
     bool? nullable,
-  }) =>
-      BoolValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: isNull ? null : (value ?? this.value),
-        nullable: nullable ?? this.nullable,
-      );
+  }) => BoolValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: isNull ? null : (value ?? this.value),
+    nullable: nullable ?? this.nullable,
+  );
 
   /// Creates a new [BoolValue] instance from a JSON data.
   factory BoolValue.fromJson(Map json) => _$BoolValueFromJson(json);
 
   @override
-  Map toJson() => _$BoolValueToJson(this);
+  Map toJson() => _$BoolValueOmitDefaults(this, _$BoolValueToJson(this));
 }
 
 /// Value of integer type.
 @JsonSerializable()
 class IntValue extends ValueModel<int> with SerializableMixin {
   /// Creates a new [IntValue].
-  IntValue({
-    required super.name,
-    super.mode,
-    super.value = 0,
-  }) : super(type: ValueType.int) {
+  IntValue({required super.name, super.mode, super.value = 0})
+    : super(type: ValueType.int) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
@@ -228,32 +221,22 @@ class IntValue extends ValueModel<int> with SerializableMixin {
   }) : super(type: ValueType.int);
 
   @override
-  IntValue copyWith({
-    SetValueMode? mode,
-    int? value,
-  }) =>
-      IntValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: value ?? this.value,
-      );
+  IntValue copyWith({SetValueMode? mode, int? value}) =>
+      IntValue(name: name, mode: mode ?? this.mode, value: value ?? this.value);
 
   /// Creates a new [IntValue] instance from a JSON data.
   factory IntValue.fromJson(Map json) => _$IntValueFromJson(json);
 
   @override
-  Map toJson() => _$IntValueToJson(this);
+  Map toJson() => _$IntValueOmitDefaults(this, _$IntValueToJson(this));
 }
 
 /// Value of double type.
 @JsonSerializable()
 class DoubleValue extends ValueModel<double> with SerializableMixin {
   /// Creates a new [DoubleValue].
-  DoubleValue({
-    required super.name,
-    super.mode,
-    super.value = 0,
-  }) : super(type: ValueType.double) {
+  DoubleValue({required super.name, super.mode, super.value = 0})
+    : super(type: ValueType.double) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
@@ -266,51 +249,40 @@ class DoubleValue extends ValueModel<double> with SerializableMixin {
   }) : super(type: ValueType.double);
 
   @override
-  DoubleValue copyWith({
-    SetValueMode? mode,
-    double? value,
-  }) =>
-      DoubleValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: value ?? this.value,
-      );
+  DoubleValue copyWith({SetValueMode? mode, double? value}) => DoubleValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: value ?? this.value,
+  );
 
   /// Creates a new [DoubleValue] instance from a JSON data.
   factory DoubleValue.fromJson(Map json) => _$DoubleValueFromJson(json);
 
   @override
-  Map toJson() => _$DoubleValueToJson(this);
+  Map toJson() => _$DoubleValueOmitDefaults(this, _$DoubleValueToJson(this));
 }
 
 /// Value of string type.
 @JsonSerializable()
 class StringValue extends ValueModel<String> with SerializableMixin {
   /// Creates a new [StringValue].
-  StringValue({
-    required super.name,
-    super.mode,
-    super.value = '',
-  }) : super(type: ValueType.string) {
+  StringValue({required super.name, super.mode, super.value = ''})
+    : super(type: ValueType.string) {
     assert(mode != SetValueMode.toggle, '${mode.prettify} mode not supported.');
   }
 
   @override
-  StringValue copyWith({
-    SetValueMode? mode,
-    String? value,
-  }) =>
-      StringValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: value ?? this.value,
-      );
+  StringValue copyWith({SetValueMode? mode, String? value}) => StringValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: value ?? this.value,
+  );
 
   /// Creates a new [StringValue] instance from a JSON data.
   factory StringValue.fromJson(Map json) => _$StringValueFromJson(json);
 
   @override
-  Map toJson() => _$StringValueToJson(this);
+  Map toJson() => _$StringValueOmitDefaults(this, _$StringValueToJson(this));
 }
 
 /// Value of string type.
@@ -327,21 +299,17 @@ class ObjectValue extends ValueModel<Object?> with SerializableMixin {
   }
 
   @override
-  ObjectValue copyWith({
-    SetValueMode? mode,
-    Object? value,
-  }) =>
-      ObjectValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: value ?? this.value,
-      );
+  ObjectValue copyWith({SetValueMode? mode, Object? value}) => ObjectValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: value ?? this.value,
+  );
 
   /// Creates a new [StringValue] instance from a JSON data.
   factory ObjectValue.fromJson(Map json) => _$ObjectValueFromJson(json);
 
   @override
-  Map toJson() => _$ObjectValueToJson(this);
+  Map toJson() => _$ObjectValueOmitDefaults(this, _$ObjectValueToJson(this));
 }
 
 /// Value of boolean type.
@@ -364,19 +332,18 @@ class ColorValue extends ValueModel<ColorRGBA?> with SerializableMixin {
     ColorRGBA? value,
     bool isNull = false,
     bool? nullable,
-  }) =>
-      ColorValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: isNull ? null : (value ?? this.value),
-        nullable: nullable ?? this.nullable,
-      );
+  }) => ColorValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: isNull ? null : (value ?? this.value),
+    nullable: nullable ?? this.nullable,
+  );
 
   /// Creates a new [BoolValue] instance from a JSON data.
   factory ColorValue.fromJson(Map json) => _$ColorValueFromJson(json);
 
   @override
-  Map toJson() => _$ColorValueToJson(this);
+  Map toJson() => _$ColorValueOmitDefaults(this, _$ColorValueToJson(this));
 }
 
 /// Value of boolean type.
@@ -399,17 +366,16 @@ class PaintValue extends ValueModel<PaintModel?> with SerializableMixin {
     PaintModel? value,
     bool isNull = false,
     bool? nullable,
-  }) =>
-      PaintValue(
-        name: name,
-        mode: mode ?? this.mode,
-        value: isNull ? null : (value ?? this.value),
-        nullable: nullable ?? this.nullable,
-      );
+  }) => PaintValue(
+    name: name,
+    mode: mode ?? this.mode,
+    value: isNull ? null : (value ?? this.value),
+    nullable: nullable ?? this.nullable,
+  );
 
   /// Creates a new [BoolValue] instance from a JSON data.
   factory PaintValue.fromJson(Map json) => _$PaintValueFromJson(json);
 
   @override
-  Map toJson() => _$PaintValueToJson(this);
+  Map toJson() => _$PaintValueOmitDefaults(this, _$PaintValueToJson(this));
 }

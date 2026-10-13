@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import 'nodes/nodes.dart';
 
@@ -47,6 +47,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'singlePlaceholder': SinglePlaceholderNode.fromJson,
       'autoPlaceholder': AutoPlaceholderNode.fromJson,
       'freeformPlaceholder': FreeformPlaceholderNode.fromJson,
+      'placeholder': PlaceholderNode.fromJson,
       'button': ButtonNode.fromJson,
       'textField': TextFieldNode.fromJson,
       'checkbox': CheckboxNode.fromJson,

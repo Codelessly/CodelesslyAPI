@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -29,8 +29,12 @@ const double kSliderDefaultOverlayRadius = 24;
 const String kSliderDefaultLabel = r'${value}';
 
 /// Default color of slider's track when it is inactive.
-const ColorRGBA kSliderDefaultInactiveTrackColor =
-    ColorRGBA(r: 0.5, g: 0.5, b: 0.5, a: kSliderDefaultOverlayOpacity);
+const ColorRGBA kSliderDefaultInactiveTrackColor = ColorRGBA(
+  r: 0.5,
+  g: 0.5,
+  b: 0.5,
+  a: kSliderDefaultOverlayOpacity,
+);
 
 /// Default opacity of slider's overlay.
 const double kSliderDefaultOverlayOpacity = 0.12;
@@ -52,24 +56,22 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
 
   /// Creates a mock slider preview.
   SliderNode.empty()
-      : properties = SliderProperties(),
-        value = 0,
-        super(
-          id: 'slider',
-          name: 'Slider',
-          basicBoxLocal:
-              NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
-        );
+    : properties = SliderProperties(),
+      value = 0,
+      super(
+        id: 'slider',
+        name: 'Slider',
+        basicBoxLocal: NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
+      );
 
   /// Creates a slider from the given properties.
   SliderNode.fromProperties(this.properties)
-      : value = 0,
-        super(
-          id: 'slider',
-          name: 'Slider',
-          basicBoxLocal:
-              NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
-        );
+    : value = 0,
+      super(
+        id: 'slider',
+        name: 'Slider',
+        basicBoxLocal: NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
+      );
 
   /// Creates a [SliderNode] instance with the given data.
   SliderNode({
@@ -102,14 +104,14 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<SliderProperties>(
-          'Properties',
-          'Holds configurable properties of the slider.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<SliderProperties>(
+      'Properties',
+      'Holds configurable properties of the slider.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -124,7 +126,7 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   factory SliderNode.fromJson(Map json) => _$SliderNodeFromJson(json);
 
   @override
-  Map toJson() => _$SliderNodeToJson(this);
+  Map toJson() => _$SliderNodeOmitDefaults(this, _$SliderNodeToJson(this));
 }
 
 /// Holds configurable properties of the slider.
@@ -205,6 +207,23 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Whether to retrieve the overlay color from slider's thumb.
   bool deriveOverlayColorFromThumb;
 
+  /// When to show the value indicator. When null, [showLabel] decides between
+  /// [ShowValueIndicatorC.onDrag] and [ShowValueIndicatorC.never]. Mirrors
+  /// `SliderThemeData.showValueIndicator`.
+  ShowValueIndicatorC? showValueIndicator;
+
+  /// Secondary progress shown between the thumb and the end of the track,
+  /// such as a buffered amount. Mirrors `Slider.secondaryTrackValue`.
+  double? secondaryTrackValue;
+
+  /// Color of the track up to [secondaryTrackValue]. Mirrors
+  /// `Slider.secondaryActiveColor`.
+  ColorRGBA? secondaryActiveTrackColor;
+
+  /// Padding around the slider's track and thumb. When null, Flutter reserves
+  /// room for the thumb's overlay. Mirrors `Slider.padding`.
+  EdgeInsetsModel? padding;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -232,6 +251,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.valueIndicatorShape = SliderValueIndicatorShape.rectangle,
     this.overlayRadius = kSliderDefaultOverlayRadius,
     this.deriveOverlayColorFromThumb = true,
+    this.showValueIndicator,
+    this.secondaryTrackValue,
+    this.secondaryActiveTrackColor,
+    this.padding,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -262,6 +285,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     SliderValueIndicatorShape? valueIndicatorShape,
     double? overlayRadius,
     bool? deriveOverlayColorFromThumb,
+    ShowValueIndicatorC? showValueIndicator,
+    double? secondaryTrackValue,
+    ColorRGBA? secondaryActiveTrackColor,
+    EdgeInsetsModel? padding,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -294,223 +321,253 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       overlayRadius: overlayRadius ?? this.overlayRadius,
       deriveOverlayColorFromThumb:
           deriveOverlayColorFromThumb ?? this.deriveOverlayColorFromThumb,
+      showValueIndicator: showValueIndicator ?? this.showValueIndicator,
+      secondaryTrackValue: secondaryTrackValue ?? this.secondaryTrackValue,
+      secondaryActiveTrackColor:
+          secondaryActiveTrackColor ?? this.secondaryActiveTrackColor,
+      padding: padding ?? this.padding,
     );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'activeTrackColor': ColorFieldAccess<ColorRGBA>(
-          'Active Track Color',
-          'Color of slider\'s track when it\'s active.',
-          () => activeTrackColor,
-          (value) {
-            activeTrackColor = value;
-          },
-        ),
-        'inactiveTrackColor': ColorFieldAccess<ColorRGBA>(
-          'Inactive Track Color',
-          'Color of slider\'s track when it\'s inactive.',
-          () => inactiveTrackColor,
-          (value) {
-            inactiveTrackColor = value;
-          },
-        ),
-        'thumbColor': ColorFieldAccess<ColorRGBA>(
-          'Thumb Color',
-          'Color of slider\'s thumb.',
-          () => thumbColor,
-          (value) {
-            thumbColor = value;
-          },
-        ),
-        'overlayColor': ColorFieldAccess<ColorRGBA>(
-          'Overlay Color',
-          'Color of slider\'s overlay.',
-          () => overlayColor,
-          (ColorRGBA? value) {
-            if (value != null) overlayColor = value;
-          },
-        ),
-        'autofocus': BoolFieldAccess(
-          'Autofocus',
-          'Whether to focus on slider automatically.',
-          () => autofocus,
-          (bool value) {
-            autofocus = value;
-          },
-        ),
-        'divisions': NumFieldAccess<int?>(
-          'Divisions',
-          'Number of divisions in slider.',
-          () => divisions,
-          (int? value) => divisions = value,
-        ),
-        'min': NumFieldAccess<double>(
-          'Min',
-          'Minimum value of slider.',
-          () => min,
-          (double value) => min = value,
-        ),
-        'max': NumFieldAccess<double>(
-          'Max',
-          'Maximum value of slider.',
-          () => max,
-          (double value) => max = value,
-        ),
-        'trackHeight': NumFieldAccess<double>(
-          'Track Height',
-          'Height of slider\'s track.',
-          () => trackHeight,
-          (double value) => trackHeight = value,
-          requiresLayout: true,
-        ),
-        'label': StringFieldAccess(
-          'Label',
-          'Label shown above the slider.',
-          () => label,
-          (String value) => label = value,
-        ),
-        'isDiscrete': BoolFieldAccess(
-          'Is Discrete',
-          'Whether to add divisions to the slider.',
-          () => isDiscrete,
-          (bool value) => isDiscrete = value,
-        ),
-        'showLabel': BoolFieldAccess(
-          'Show Label',
-          'Whether to show label above the slider.',
-          () => showLabel,
-          (bool value) => showLabel = value,
-        ),
-        'activeTickMarkColor': ColorFieldAccess<ColorRGBA>(
-          'Active Tick Mark Color',
-          'Color of slider\'s tick mark when it\'s active.',
-          () => activeTickMarkColor,
-          (ColorRGBA? value) {
-            if (value != null) activeTickMarkColor = value;
-          },
-        ),
-        'inactiveTickMarkColor': ColorFieldAccess<ColorRGBA>(
-          'Inactive Tick Mark Color',
-          'Color of slider\'s tick mark when it\'s inactive.',
-          () => inactiveTickMarkColor,
-          (ColorRGBA? value) {
-            if (value != null) inactiveTickMarkColor = value;
-          },
-        ),
-        'valueIndicatorColor': ColorFieldAccess<ColorRGBA>(
-          'Value Indicator Color',
-          'Color of slider\'s value indicator.',
-          () => valueIndicatorColor,
-          (ColorRGBA? value) {
-            if (value != null) valueIndicatorColor = value;
-          },
-        ),
-        'valueIndicatorTextColor': ColorFieldAccess<ColorRGBA>(
-          'Value Indicator Text Color',
-          'Color of slider\'s value indicator\'s text.',
-          () => valueIndicatorTextColor,
-          (ColorRGBA? value) {
-            if (value != null) valueIndicatorTextColor = value;
-          },
-        ),
-        'valueIndicatorFontSize': NumFieldAccess<double>(
-          'Value Indicator Font Size',
-          'Font size of slider\'s value indicator\'s text.',
-          () => valueIndicatorFontSize,
-          (double value) => valueIndicatorFontSize = value,
-        ),
-        'allowFractionalPoints': BoolFieldAccess(
-          'Allow Fractional Points',
-          'Whether to allow non-whole numbers as min or max values of slider.',
-          () => allowFractionalPoints,
-          (bool value) => allowFractionalPoints = value,
-        ),
-        'thumbRadius': NumFieldAccess<double>(
-          'Thumb Radius',
-          'Radius of slider\'s thumb.',
-          () => thumbRadius,
-          (double value) => thumbRadius = value,
-          requiresLayout: true,
-        ),
-        'showThumb': BoolFieldAccess(
-          'Show Thumb',
-          'Whether to show slider\'s thumb.',
-          () => showThumb,
-          (bool value) => showThumb = value,
-          requiresLayout: true,
-        ),
-        'trackShape': EnumFieldAccess<SliderTrackShapeEnum>(
-          'Track Shape',
-          'Shape of slider\'s track.',
-          () => trackShape,
-          (SliderTrackShapeEnum value) => trackShape = value,
-          defaultValue: () => SliderTrackShapeEnum.roundedRectangle,
-          options: () => SliderTrackShapeEnum.values,
-        ),
-        'tickMarkRadius': NumFieldAccess<double>(
-          'Tick Mark Radius',
-          'Radius of slider\'s tick mark.',
-          () => tickMarkRadius,
-          requiresLayout: true,
-          (double value) => tickMarkRadius = value,
-        ),
-        'valueIndicatorShape': EnumFieldAccess<SliderValueIndicatorShape>(
-          'Value Indicator Shape',
-          'Shape of slider\'s value indicator.',
-          () => valueIndicatorShape,
-          (SliderValueIndicatorShape value) => valueIndicatorShape = value,
-          defaultValue: () => SliderValueIndicatorShape.rectangle,
-          options: () => SliderValueIndicatorShape.values,
-        ),
-        'overlayRadius': NumFieldAccess<double>(
-          'Overlay Radius',
-          'Radius of slider\'s overlay.',
-          () => overlayRadius,
-          (double value) => overlayRadius = value,
-        ),
-        'deriveOverlayColorFromThumb': BoolFieldAccess(
-          'Derive Overlay Color From Thumb',
-          'Whether to retrieve the overlay color from slider\'s thumb.',
-          () => deriveOverlayColorFromThumb,
-          (bool value) => deriveOverlayColorFromThumb = value,
-        ),
-      };
+    ...super.generateFields(),
+    'activeTrackColor': ColorFieldAccess<ColorRGBA>(
+      'Active Track Color',
+      'Color of slider\'s track when it\'s active.',
+      () => activeTrackColor,
+      (value) {
+        activeTrackColor = value;
+      },
+    ),
+    'inactiveTrackColor': ColorFieldAccess<ColorRGBA>(
+      'Inactive Track Color',
+      'Color of slider\'s track when it\'s inactive.',
+      () => inactiveTrackColor,
+      (value) {
+        inactiveTrackColor = value;
+      },
+    ),
+    'thumbColor': ColorFieldAccess<ColorRGBA>(
+      'Thumb Color',
+      'Color of slider\'s thumb.',
+      () => thumbColor,
+      (value) {
+        thumbColor = value;
+      },
+    ),
+    'overlayColor': ColorFieldAccess<ColorRGBA>(
+      'Overlay Color',
+      'Color of slider\'s overlay.',
+      () => overlayColor,
+      (ColorRGBA? value) {
+        if (value != null) overlayColor = value;
+      },
+    ),
+    'autofocus': BoolFieldAccess(
+      'Autofocus',
+      'Whether to focus on slider automatically.',
+      () => autofocus,
+      (bool value) {
+        autofocus = value;
+      },
+    ),
+    'divisions': NumFieldAccess<int?>(
+      'Divisions',
+      'Number of divisions in slider.',
+      () => divisions,
+      (int? value) => divisions = value,
+    ),
+    'min': NumFieldAccess<double>(
+      'Min',
+      'Minimum value of slider.',
+      () => min,
+      (double value) => min = value,
+    ),
+    'max': NumFieldAccess<double>(
+      'Max',
+      'Maximum value of slider.',
+      () => max,
+      (double value) => max = value,
+    ),
+    'trackHeight': NumFieldAccess<double>(
+      'Track Height',
+      'Height of slider\'s track.',
+      () => trackHeight,
+      (double value) => trackHeight = value,
+      requiresLayout: true,
+    ),
+    'label': StringFieldAccess(
+      'Label',
+      'Label shown above the slider.',
+      () => label,
+      (String value) => label = value,
+    ),
+    'isDiscrete': BoolFieldAccess(
+      'Is Discrete',
+      'Whether to add divisions to the slider.',
+      () => isDiscrete,
+      (bool value) => isDiscrete = value,
+    ),
+    'showLabel': BoolFieldAccess(
+      'Show Label',
+      'Whether to show label above the slider.',
+      () => showLabel,
+      (bool value) => showLabel = value,
+    ),
+    'activeTickMarkColor': ColorFieldAccess<ColorRGBA>(
+      'Active Tick Mark Color',
+      'Color of slider\'s tick mark when it\'s active.',
+      () => activeTickMarkColor,
+      (ColorRGBA? value) {
+        if (value != null) activeTickMarkColor = value;
+      },
+    ),
+    'inactiveTickMarkColor': ColorFieldAccess<ColorRGBA>(
+      'Inactive Tick Mark Color',
+      'Color of slider\'s tick mark when it\'s inactive.',
+      () => inactiveTickMarkColor,
+      (ColorRGBA? value) {
+        if (value != null) inactiveTickMarkColor = value;
+      },
+    ),
+    'valueIndicatorColor': ColorFieldAccess<ColorRGBA>(
+      'Value Indicator Color',
+      'Color of slider\'s value indicator.',
+      () => valueIndicatorColor,
+      (ColorRGBA? value) {
+        if (value != null) valueIndicatorColor = value;
+      },
+    ),
+    'valueIndicatorTextColor': ColorFieldAccess<ColorRGBA>(
+      'Value Indicator Text Color',
+      'Color of slider\'s value indicator\'s text.',
+      () => valueIndicatorTextColor,
+      (ColorRGBA? value) {
+        if (value != null) valueIndicatorTextColor = value;
+      },
+    ),
+    'valueIndicatorFontSize': NumFieldAccess<double>(
+      'Value Indicator Font Size',
+      'Font size of slider\'s value indicator\'s text.',
+      () => valueIndicatorFontSize,
+      (double value) => valueIndicatorFontSize = value,
+    ),
+    'allowFractionalPoints': BoolFieldAccess(
+      'Allow Fractional Points',
+      'Whether to allow non-whole numbers as min or max values of slider.',
+      () => allowFractionalPoints,
+      (bool value) => allowFractionalPoints = value,
+    ),
+    'thumbRadius': NumFieldAccess<double>(
+      'Thumb Radius',
+      'Radius of slider\'s thumb.',
+      () => thumbRadius,
+      (double value) => thumbRadius = value,
+      requiresLayout: true,
+    ),
+    'showThumb': BoolFieldAccess(
+      'Show Thumb',
+      'Whether to show slider\'s thumb.',
+      () => showThumb,
+      (bool value) => showThumb = value,
+      requiresLayout: true,
+    ),
+    'trackShape': EnumFieldAccess<SliderTrackShapeEnum>(
+      'Track Shape',
+      'Shape of slider\'s track.',
+      () => trackShape,
+      (SliderTrackShapeEnum value) => trackShape = value,
+      defaultValue: () => SliderTrackShapeEnum.roundedRectangle,
+      options: () => SliderTrackShapeEnum.values,
+    ),
+    'tickMarkRadius': NumFieldAccess<double>(
+      'Tick Mark Radius',
+      'Radius of slider\'s tick mark.',
+      () => tickMarkRadius,
+      requiresLayout: true,
+      (double value) => tickMarkRadius = value,
+    ),
+    'valueIndicatorShape': EnumFieldAccess<SliderValueIndicatorShape>(
+      'Value Indicator Shape',
+      'Shape of slider\'s value indicator.',
+      () => valueIndicatorShape,
+      (SliderValueIndicatorShape value) => valueIndicatorShape = value,
+      defaultValue: () => SliderValueIndicatorShape.rectangle,
+      options: () => SliderValueIndicatorShape.values,
+    ),
+    'overlayRadius': NumFieldAccess<double>(
+      'Overlay Radius',
+      'Radius of slider\'s overlay.',
+      () => overlayRadius,
+      (double value) => overlayRadius = value,
+    ),
+    'deriveOverlayColorFromThumb': BoolFieldAccess(
+      'Derive Overlay Color From Thumb',
+      'Whether to retrieve the overlay color from slider\'s thumb.',
+      () => deriveOverlayColorFromThumb,
+      (bool value) => deriveOverlayColorFromThumb = value,
+    ),
+    'showValueIndicator': EnumFieldAccess<ShowValueIndicatorC?>(
+      'Show Value Indicator',
+      'When to show the value indicator.',
+      () => showValueIndicator,
+      (value) => showValueIndicator = value,
+      defaultValue: () => null,
+      options: () => ShowValueIndicatorC.values,
+    ),
+    'secondaryTrackValue': NumFieldAccess<double?>(
+      'Secondary Track Value',
+      'Secondary progress shown on the track, such as a buffered amount.',
+      () => secondaryTrackValue,
+      (value) => secondaryTrackValue = value,
+    ),
+    'secondaryActiveTrackColor': ColorFieldAccess<ColorRGBA?>(
+      'Secondary Active Track Color',
+      'Color of the track up to the secondary track value.',
+      () => secondaryActiveTrackColor,
+      (value) => secondaryActiveTrackColor = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        activeTrackColor,
-        inactiveTrackColor,
-        thumbColor,
-        overlayColor,
-        autofocus,
-        divisions,
-        min,
-        max,
-        trackHeight,
-        label,
-        isDiscrete,
-        showLabel,
-        activeTickMarkColor,
-        inactiveTickMarkColor,
-        allowFractionalPoints,
-        valueIndicatorColor,
-        valueIndicatorTextColor,
-        valueIndicatorFontSize,
-        thumbRadius,
-        showThumb,
-        trackShape,
-        tickMarkRadius,
-        valueIndicatorShape,
-        overlayRadius,
-        deriveOverlayColorFromThumb,
-      ];
+    activeTrackColor,
+    inactiveTrackColor,
+    thumbColor,
+    overlayColor,
+    autofocus,
+    divisions,
+    min,
+    max,
+    trackHeight,
+    label,
+    isDiscrete,
+    showLabel,
+    activeTickMarkColor,
+    inactiveTickMarkColor,
+    allowFractionalPoints,
+    valueIndicatorColor,
+    valueIndicatorTextColor,
+    valueIndicatorFontSize,
+    thumbRadius,
+    showThumb,
+    trackShape,
+    tickMarkRadius,
+    valueIndicatorShape,
+    overlayRadius,
+    deriveOverlayColorFromThumb,
+    showValueIndicator,
+    secondaryTrackValue,
+    secondaryActiveTrackColor,
+    padding,
+  ];
 
   /// Creates a [SliderProperties] instance from a JSON object.
   factory SliderProperties.fromJson(Map json) =>
       _$SliderPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SliderPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$SliderPropertiesOmitDefaults(this, _$SliderPropertiesToJson(this));
 }

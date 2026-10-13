@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -62,11 +62,11 @@ class PageViewNode extends SinglePlaceholderNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool shouldAlwaysScroll = true,
   }) : super(
-          children: [],
-          allowedTypes: [],
-          deniedTypes: ['pageView'],
-          ephemeral: false,
-        ) {
+         children: [],
+         allowedTypes: [],
+         deniedTypes: ['pageView'],
+         ephemeral: false,
+       ) {
     setChildrenMixin(children: children);
     setClipMixin(clipsContent: clipsContent);
 
@@ -85,20 +85,20 @@ class PageViewNode extends SinglePlaceholderNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<PageViewProperties>(
-          'Properties',
-          'Properties of the Page View',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<PageViewProperties>(
+      'Properties',
+      'Properties of the Page View',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [ListViewNode] from a JSON object.
   factory PageViewNode.fromJson(Map json) => _$PageViewNodeFromJson(json);
 
   @override
-  Map toJson() => _$PageViewNodeToJson(this);
+  Map toJson() => _$PageViewNodeOmitDefaults(this, _$PageViewNodeToJson(this));
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -137,6 +137,10 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   /// The fraction of the viewport that each page should occupy.
   double viewportFraction;
 
+  /// Whether to lay out the pages next to the visible one, so accessibility
+  /// focus can move to them. Mirrors `PageView.allowImplicitScrolling`.
+  bool allowImplicitScrolling;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -145,6 +149,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.keepPage = true,
     this.initialPage = 0,
     this.viewportFraction = 1,
+    this.allowImplicitScrolling = false,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -155,6 +160,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     bool? keepPage,
     int? initialPage,
     double? viewportFraction,
+    bool? allowImplicitScrolling,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -163,52 +169,62 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       keepPage: keepPage ?? this.keepPage,
       initialPage: initialPage ?? this.initialPage,
       viewportFraction: viewportFraction ?? this.viewportFraction,
+      allowImplicitScrolling:
+          allowImplicitScrolling ?? this.allowImplicitScrolling,
     );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'pageSnapping': BoolFieldAccess(
-          'Page Snapping',
-          'Set to false to disable page snapping, useful for custom scroll behavior.',
-          () => pageSnapping,
-          (value) => pageSnapping = value,
-        ),
-        'padEnds': BoolFieldAccess(
-          'Pad Ends',
-          'Whether to add padding to both ends of the list.',
-          () => padEnds,
-          (value) => padEnds = value,
-          requiresLayout: true,
-        ),
-        'keepPage': BoolFieldAccess(
-          'Keep Page',
-          'Keep current page in memory and restore it when the page is recreated.',
-          () => keepPage,
-          (value) => keepPage = value,
-        ),
-        'viewportFraction': NumFieldAccess<double>(
-          'Viewport Fraction',
-          'The fraction of the viewport that each page should occupy.',
-          () => viewportFraction,
-          (value) => viewportFraction = value,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'pageSnapping': BoolFieldAccess(
+      'Page Snapping',
+      'Set to false to disable page snapping, useful for custom scroll behavior.',
+      () => pageSnapping,
+      (value) => pageSnapping = value,
+    ),
+    'padEnds': BoolFieldAccess(
+      'Pad Ends',
+      'Whether to add padding to both ends of the list.',
+      () => padEnds,
+      (value) => padEnds = value,
+      requiresLayout: true,
+    ),
+    'keepPage': BoolFieldAccess(
+      'Keep Page',
+      'Keep current page in memory and restore it when the page is recreated.',
+      () => keepPage,
+      (value) => keepPage = value,
+    ),
+    'viewportFraction': NumFieldAccess<double>(
+      'Viewport Fraction',
+      'The fraction of the viewport that each page should occupy.',
+      () => viewportFraction,
+      (value) => viewportFraction = value,
+      requiresLayout: true,
+    ),
+    'allowImplicitScrolling': BoolFieldAccess(
+      'Allow Implicit Scrolling',
+      'Whether to lay out the pages next to the visible one.',
+      () => allowImplicitScrolling,
+      (value) => allowImplicitScrolling = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        itemCount,
-        pageSnapping,
-        padEnds,
-        keepPage,
-        initialPage,
-        viewportFraction,
-      ];
+    itemCount,
+    pageSnapping,
+    padEnds,
+    keepPage,
+    initialPage,
+    viewportFraction,
+    allowImplicitScrolling,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$PageViewPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$PageViewPropertiesOmitDefaults(this, _$PageViewPropertiesToJson(this));
 
   /// Creates a [PageViewProperties] from a JSON object.
   factory PageViewProperties.fromJson(Map json) =>

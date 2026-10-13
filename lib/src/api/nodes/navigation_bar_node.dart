@@ -1,5 +1,4 @@
-
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -28,9 +27,9 @@ enum MaterialNavigationBarLabelBehavior {
       MaterialNavigationBarLabelBehavior.values;
 
   /// Returns values for Material 3 navigation bar.
-  static List<MaterialNavigationBarLabelBehavior> get valuesForMaterial3 => [
-        ...MaterialNavigationBarLabelBehavior.values
-      ]..remove(MaterialNavigationBarLabelBehavior.onlyShowUnselected);
+  static List<MaterialNavigationBarLabelBehavior> get valuesForMaterial3 =>
+      [...MaterialNavigationBarLabelBehavior.values]
+        ..remove(MaterialNavigationBarLabelBehavior.onlyShowUnselected);
 
   /// Returns values in readable form.
   String prettify() {
@@ -108,8 +107,9 @@ enum M2NavigationBarLandscapeLayout {
 
 /// Creates a [NavigationBarProperties] instance from a JSON object.
 NavigationBarProperties navigationBarPropertiesFromJson(Map json) {
-  final StyleDefinition styleDefinition =
-      StyleDefinition.values.byName(json['styleDefinition']);
+  final StyleDefinition styleDefinition = StyleDefinition.values.byName(
+    json['styleDefinition'],
+  );
 
   switch (styleDefinition) {
     case StyleDefinition.material_2:
@@ -178,23 +178,25 @@ class NavigationBarNode extends SceneNode
       _$NavigationBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$NavigationBarNodeToJson(this);
+  Map toJson() =>
+      _$NavigationBarNodeOmitDefaults(this, _$NavigationBarNodeToJson(this));
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<NavigationBarProperties>(
-          'Properties',
-          'Properties of the navigation bar.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<NavigationBarProperties>(
+      'Properties',
+      'Properties of the navigation bar.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 }
 
 /// Holds configurable properties of the navigation bar.
 abstract class NavigationBarProperties<T extends NavigationBarItem>
-    extends CustomProperties with FieldsHolder {
+    extends CustomProperties
+    with FieldsHolder {
   /// Defines the style of the navigation bar, i.e., Material 2 or Material 3.
   ///
   /// This has to be like this to force json serializable to serialize it.
@@ -220,29 +222,29 @@ abstract class NavigationBarProperties<T extends NavigationBarItem>
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'makeNotched': BoolFieldAccess(
-          'Make Notched',
-          'Whether to make the navigation bar notched.',
-          () => makeNotched,
-          (value) => makeNotched = value,
-          requiresLayout: true,
-        ),
-        'notchMargin': NumFieldAccess<double>(
-          'Notch Margin',
-          'The margin between the floating action button and the navigation bar\'s notch.',
-          () => notchMargin,
-          (value) => notchMargin = value,
-          requiresLayout: true,
-        ),
-        'items': IterableFieldAccess<T>(
-          'Items',
-          'Nav items of the navigation bar.',
-          () => items,
-          (value) => items = value,
-          (item) => item.label,
-        ),
-      };
+    ...super.generateFields(),
+    'makeNotched': BoolFieldAccess(
+      'Make Notched',
+      'Whether to make the navigation bar notched.',
+      () => makeNotched,
+      (value) => makeNotched = value,
+      requiresLayout: true,
+    ),
+    'notchMargin': NumFieldAccess<double>(
+      'Notch Margin',
+      'The margin between the floating action button and the navigation bar\'s notch.',
+      () => notchMargin,
+      (value) => notchMargin = value,
+      requiresLayout: true,
+    ),
+    'items': IterableFieldAccess<T>(
+      'Items',
+      'Nav items of the navigation bar.',
+      () => items,
+      (value) => items = value,
+      (item) => item.label,
+    ),
+  };
 }
 
 /// Holds configurable properties of the material navigation bar.
@@ -299,6 +301,8 @@ class M3NavigationBarProperties
   @override
   double selectedIconSize;
   @override
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double elevation;
   @override
   ColorRGBA? backgroundColor;
@@ -311,7 +315,7 @@ class M3NavigationBarProperties
     super.makeNotched,
     super.notchMargin,
     this.backgroundColor,
-    this.elevation = 0,
+    this.elevation = 3,
     TextProp? selectedLabelStyle,
     TextProp? unselectedLabelStyle,
     this.unselectedIconColor,
@@ -320,8 +324,8 @@ class M3NavigationBarProperties
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  })  : selectedLabelStyle = selectedLabelStyle ?? TextProp(fontSize: 14),
-        unselectedLabelStyle = unselectedLabelStyle ?? TextProp(fontSize: 12);
+  }) : selectedLabelStyle = selectedLabelStyle ?? TextProp(fontSize: 14),
+       unselectedLabelStyle = unselectedLabelStyle ?? TextProp(fontSize: 12);
 
   /// Duplicates this [M3NavigationBarProperties] instance with the given data
   /// overrides.
@@ -358,24 +362,99 @@ class M3NavigationBarProperties
   }
 
   @override
-  List<Object?> get props => [
-        items,
-        backgroundColor,
-        elevation,
-        selectedLabelStyle,
-        unselectedLabelStyle,
-        unselectedIconColor,
-        selectedIconColor,
-        indicatorColor,
-        unselectedIconSize,
-        selectedIconSize,
-        labelBehavior,
-        makeNotched,
-        notchMargin,
-      ];
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'indicatorColor': ColorFieldAccess<ColorRGBA?>(
+      'Indicator Color',
+      'Color of navigation bar\'s selection indicator.',
+      () => indicatorColor,
+      (value) => indicatorColor = value,
+    ),
+    'selectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Selected Label Style',
+      'Text style applied to selected item\'s label.',
+      () => selectedLabelStyle,
+      (value) => selectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Unselected Label Style',
+      'Text style applied to unselected item\'s label.',
+      () => unselectedLabelStyle,
+      (value) => unselectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Unselected Icon Color',
+      'Color of unselected item\'s icon.',
+      () => unselectedIconColor,
+      (value) => unselectedIconColor = value,
+    ),
+    'selectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Icon Color',
+      'Color of selected item\'s icon.',
+      () => selectedIconColor,
+      (value) => selectedIconColor = value,
+    ),
+    'unselectedIconSize': NumFieldAccess<double>(
+      'Unselected Icon Size',
+      'Size of unselected item\'s icon.',
+      () => unselectedIconSize,
+      (value) => unselectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'selectedIconSize': NumFieldAccess<double>(
+      'Selected Icon Size',
+      'Size of selected item\'s icon.',
+      () => selectedIconSize,
+      (value) => selectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'elevation': NumFieldAccess<double>(
+      'Elevation',
+      'Navigation bar\'s position in z-coordinate.',
+      () => elevation,
+      (value) => elevation = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of navigation bar\'s background.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'labelBehavior': EnumFieldAccess<MaterialNavigationBarLabelBehavior>(
+      'Label Behavior',
+      'Defines how navigation bar label\'s visibility behaves.',
+      () => labelBehavior,
+      (value) => labelBehavior = value,
+      defaultValue: () => MaterialNavigationBarLabelBehavior.alwaysShow,
+      options: () => MaterialNavigationBarLabelBehavior.values,
+      requiresLayout: true,
+    ),
+  };
 
   @override
-  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesToJson(this);
+  List<Object?> get props => [
+    items,
+    backgroundColor,
+    elevation,
+    selectedLabelStyle,
+    unselectedLabelStyle,
+    unselectedIconColor,
+    selectedIconColor,
+    indicatorColor,
+    unselectedIconSize,
+    selectedIconSize,
+    labelBehavior,
+    makeNotched,
+    notchMargin,
+  ];
+
+  @override
+  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesOmitDefaults(
+    this,
+    _$M3NavigationBarPropertiesToJson(this),
+  );
 
   /// Creates a [M3NavigationBarProperties] instance from a JSON object.
   static M3NavigationBarProperties fromJson(Map json) =>
@@ -409,6 +488,8 @@ class M2NavigationBarProperties
   @override
   double selectedIconSize;
   @override
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonKey(defaultValue: 0.0)
   double elevation;
   @override
   ColorRGBA? backgroundColor;
@@ -421,7 +502,7 @@ class M2NavigationBarProperties
     super.makeNotched,
     super.notchMargin,
     this.backgroundColor,
-    this.elevation = 0,
+    this.elevation = 8,
     this.navigationBarType = M2NavigationBarType.fixed,
     this.landscapeLayout = M2NavigationBarLandscapeLayout.spread,
     TextProp? selectedLabelStyle,
@@ -431,10 +512,10 @@ class M2NavigationBarProperties
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  })  : selectedLabelStyle =
-            selectedLabelStyle ?? TextProp.general(fontSize: 14),
-        unselectedLabelStyle =
-            unselectedLabelStyle ?? TextProp.general(fontSize: 12);
+  }) : selectedLabelStyle =
+           selectedLabelStyle ?? TextProp.general(fontSize: 14),
+       unselectedLabelStyle =
+           unselectedLabelStyle ?? TextProp.general(fontSize: 12);
 
   /// Duplicates this [M2NavigationBarProperties] instance with the given data
   /// overrides.
@@ -467,29 +548,118 @@ class M2NavigationBarProperties
       unselectedIconSize: unselectedIconSize ?? this.unselectedIconSize,
       selectedIconSize: selectedIconSize ?? this.selectedIconSize,
       labelBehavior: labelBehavior ?? this.labelBehavior,
+      makeNotched: makeNotched ?? this.makeNotched,
+      notchMargin: notchMargin ?? this.notchMargin,
     );
   }
 
   @override
-  List<Object?> get props => [
-        items,
-        backgroundColor,
-        elevation,
-        navigationBarType,
-        landscapeLayout,
-        selectedLabelStyle,
-        unselectedLabelStyle,
-        unselectedIconColor,
-        selectedIconColor,
-        unselectedIconSize,
-        selectedIconSize,
-        labelBehavior,
-        makeNotched,
-        notchMargin,
-      ];
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'navigationBarType': EnumFieldAccess<M2NavigationBarType>(
+      'Navigation Bar Type',
+      'Navigation bar type.',
+      () => navigationBarType,
+      (value) => navigationBarType = value,
+      defaultValue: () => M2NavigationBarType.fixed,
+      options: () => M2NavigationBarType.values,
+      requiresLayout: true,
+    ),
+    'landscapeLayout': EnumFieldAccess<M2NavigationBarLandscapeLayout>(
+      'Landscape Layout',
+      'Navigation bar\'s layout in landscape orientation.',
+      () => landscapeLayout,
+      (value) => landscapeLayout = value,
+      defaultValue: () => M2NavigationBarLandscapeLayout.spread,
+      options: () => M2NavigationBarLandscapeLayout.values,
+      requiresLayout: true,
+    ),
+    'selectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Selected Label Style',
+      'Text style applied to selected item\'s label.',
+      () => selectedLabelStyle,
+      (value) => selectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedLabelStyle': TextStyleFieldAccess<TextProp>(
+      'Unselected Label Style',
+      'Text style applied to unselected item\'s label.',
+      () => unselectedLabelStyle,
+      (value) => unselectedLabelStyle = value,
+      requiresLayout: true,
+    ),
+    'unselectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Unselected Icon Color',
+      'Color of unselected item\'s icon.',
+      () => unselectedIconColor,
+      (value) => unselectedIconColor = value,
+    ),
+    'selectedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Icon Color',
+      'Color of selected item\'s icon.',
+      () => selectedIconColor,
+      (value) => selectedIconColor = value,
+    ),
+    'unselectedIconSize': NumFieldAccess<double>(
+      'Unselected Icon Size',
+      'Size of unselected item\'s icon.',
+      () => unselectedIconSize,
+      (value) => unselectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'selectedIconSize': NumFieldAccess<double>(
+      'Selected Icon Size',
+      'Size of selected item\'s icon.',
+      () => selectedIconSize,
+      (value) => selectedIconSize = value,
+      requiresLayout: true,
+    ),
+    'elevation': NumFieldAccess<double>(
+      'Elevation',
+      'Navigation bar\'s position in z-coordinate.',
+      () => elevation,
+      (value) => elevation = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of navigation bar\'s background.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'labelBehavior': EnumFieldAccess<MaterialNavigationBarLabelBehavior>(
+      'Label Behavior',
+      'Defines how navigation bar label\'s visibility behaves.',
+      () => labelBehavior,
+      (value) => labelBehavior = value,
+      defaultValue: () => MaterialNavigationBarLabelBehavior.alwaysShow,
+      options: () => MaterialNavigationBarLabelBehavior.values,
+      requiresLayout: true,
+    ),
+  };
 
   @override
-  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesToJson(this);
+  List<Object?> get props => [
+    items,
+    backgroundColor,
+    elevation,
+    navigationBarType,
+    landscapeLayout,
+    selectedLabelStyle,
+    unselectedLabelStyle,
+    unselectedIconColor,
+    selectedIconColor,
+    unselectedIconSize,
+    selectedIconSize,
+    labelBehavior,
+    makeNotched,
+    notchMargin,
+  ];
+
+  @override
+  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesOmitDefaults(
+    this,
+    _$M2NavigationBarPropertiesToJson(this),
+  );
 
   /// Creates a [M2NavigationBarProperties] instance from a JSON object.
   factory M2NavigationBarProperties.fromJson(Map json) =>

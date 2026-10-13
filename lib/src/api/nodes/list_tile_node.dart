@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -6,6 +6,11 @@ import '../models/models.dart';
 import 'nodes.dart';
 
 part 'list_tile_node.g.dart';
+
+/// Reads a missing padding as the Material 2 default stored designs used
+/// before 5.0.0.
+Object? _readLegacyTilePadding(Map json, String key) =>
+    json[key] ?? const EdgeInsetsModel.symmetric(horizontal: 16).toJson();
 
 /// Default width for the [ListTileNode].
 const double kDefaultListTileWidth = 300;
@@ -23,8 +28,10 @@ const double kDefaultListTileMinVerticalPadding = 4;
 const double kDefaultListTileMinLeadingWidth = 40;
 
 /// Default value for [contentPadding] in [ListTile].
-const EdgeInsetsModel kDefaultListTileContentPadding =
-    EdgeInsetsModel.symmetric(horizontal: 16);
+const EdgeInsetsModel kDefaultListTileContentPadding = EdgeInsetsModel.only(
+  left: 16,
+  right: 24,
+);
 
 /// A single fixed-height row that typically contains some text as well as a
 /// leading or trailing icon.
@@ -66,20 +73,24 @@ class ListTileNode extends SceneNode
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.empty()
-      : properties = ListTileProperties(),
-        super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : properties = ListTileProperties(),
+      super(
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      ) {
+    setChildrenMixin(children: []);
+  }
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.fromProperties(this.properties)
-      : super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : super(
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      ) {
+    setChildrenMixin(children: []);
+  }
 
   /// Creates a [ListTileNode] with the given data.
   ListTileNode({
@@ -120,19 +131,21 @@ class ListTileNode extends SceneNode
   }
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<ListTileProperties>(
-          'Properties',
-          'Properties of the ListTile',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<ListTileProperties>(
+      'Properties',
+      'Properties of the ListTile',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   void onChildIDChanged(String oldID, String newID) {
@@ -157,7 +170,7 @@ class ListTileNode extends SceneNode
   factory ListTileNode.fromJson(Map json) => _$ListTileNodeFromJson(json);
 
   @override
-  Map toJson() => _$ListTileNodeToJson(this);
+  Map toJson() => _$ListTileNodeOmitDefaults(this, _$ListTileNodeToJson(this));
 }
 
 /// Holds configurable properties for the [ListTileNode].
@@ -197,6 +210,9 @@ class ListTileProperties extends CustomProperties
   ///
   /// Insets a [ListTile]'s contents: its [leading], [title], [subtitle], and
   /// [trailing] widgets.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonLegacyDefault(EdgeInsetsModel.symmetric(horizontal: 16))
+  @JsonKey(readValue: _readLegacyTilePadding)
   EdgeInsetsModel contentPadding;
 
   /// Whether this list tile is interactive.
@@ -267,6 +283,15 @@ class ListTileProperties extends CustomProperties
   /// Whether to show the trailing widget.
   bool showTrailing;
 
+  /// Minimum height of the tile. When null, Flutter derives it from the number
+  /// of lines and [visualDensity]. Mirrors `ListTile.minTileHeight`.
+  double? minTileHeight;
+
+  /// How the leading and trailing widgets align with the title. When null,
+  /// Flutter uses [ListTileTitleAlignmentC.threeLine] in Material 3. Mirrors
+  /// `ListTile.titleAlignment`.
+  ListTileTitleAlignmentC? titleAlignment;
+
   /// Creates a new [ListTileProperties] with given data.
   ListTileProperties({
     this.showLeading = true,
@@ -295,6 +320,8 @@ class ListTileProperties extends CustomProperties
     this.minLeadingWidth,
     ColorRGBA? borderColor,
     double? borderWidth,
+    this.minTileHeight,
+    this.titleAlignment,
   }) {
     setShapeBorderMixin(
       shape: shape,
@@ -333,6 +360,8 @@ class ListTileProperties extends CustomProperties
     bool? showTitle,
     bool? showSubtitle,
     bool? showTrailing,
+    double? minTileHeight,
+    ListTileTitleAlignmentC? titleAlignment,
   }) {
     return ListTileProperties(
       isThreeLine: isThreeLine ?? this.isThreeLine,
@@ -361,150 +390,175 @@ class ListTileProperties extends CustomProperties
       showTitle: showTitle ?? this.showTitle,
       showSubtitle: showSubtitle ?? this.showSubtitle,
       showTrailing: showTrailing ?? this.showTrailing,
+      minTileHeight: minTileHeight ?? this.minTileHeight,
+      titleAlignment: titleAlignment ?? this.titleAlignment,
     );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'isThreeLine': BoolFieldAccess(
-          'Is Three Line',
-          'Whether this list tile is intended to display three lines of text.',
-          () => isThreeLine,
-          (value) => isThreeLine = value,
-          requiresLayout: true,
-        ),
-        'dense': BoolFieldAccess(
-          'Dense',
-          'Whether the list tile layout is densely cramped together.',
-          () => dense,
-          (value) => dense = value,
-          requiresLayout: true,
-        ),
-        'selectedColor': ColorFieldAccess<ColorRGBA?>(
-          'Selected Color',
-          'Defines the color used for icons and text when the list tile is selected.',
-          () => selectedColor,
-          (value) => selectedColor = value,
-        ),
-        'iconColor': ColorFieldAccess<ColorRGBA?>(
-          'Icon Color',
-          'Defines the default color for leading and trailing icons.',
-          () => iconColor,
-          (value) => iconColor = value,
-        ),
-        'textColor': ColorFieldAccess<ColorRGBA?>(
-          'Text Color',
-          'Defines the default color for the title and subtitle.',
-          () => textColor,
-          (value) => textColor = value,
-        ),
-        'contentPadding': SpacingFieldAccess.padding(
-          'Content Padding',
-          'The tile\'s internal padding.',
-          () => contentPadding,
-          (value) => contentPadding = value,
-          requiresLayout: true,
-        ),
-        'enabled': BoolFieldAccess(
-          'Enabled',
-          'Whether this list tile is interactive.',
-          () => enabled,
-          (value) => enabled = value,
-        ),
-        'selected': BoolFieldAccess(
-          'Selected',
-          'Whether this list tile is selected.',
-          () => selected,
-          (value) => selected = value,
-          requiresLayout: true,
-        ),
-        'focusColor': ColorFieldAccess<ColorRGBA?>(
-          'Focus Color',
-          'The color for the tile\'s Material when it has the input focus.',
-          () => focusColor,
-          (value) => focusColor = value,
-        ),
-        'hoverColor': ColorFieldAccess<ColorRGBA?>(
-          'Hover Color',
-          'The color for the tile\'s Material when a pointer is hovering over it.',
-          () => hoverColor,
-          (value) => hoverColor = value,
-        ),
-        'autofocus': BoolFieldAccess(
-          'Autofocus',
-          'Whether to automatically focus the tile.',
-          () => autofocus,
-          (value) => autofocus = value,
-        ),
-        'tileColor': ColorFieldAccess<ColorRGBA?>(
-          'Tile Color',
-          'Defines the background color of ListTile when selected is false.',
-          () => tileColor,
-          (value) => tileColor = value,
-        ),
-        'selectedTileColor': ColorFieldAccess<ColorRGBA?>(
-          'Selected Tile Color',
-          'Defines the background color of ListTile when selected is true.',
-          () => selectedTileColor,
-          (value) => selectedTileColor = value,
-        ),
-        'enableFeedback': BoolFieldAccess(
-          'Enable Feedback',
-          'Whether detected gestures should provide acoustic and/or haptic feedback.',
-          () => enableFeedback,
-          (value) => enableFeedback = value,
-        ),
-        'horizontalTitleGap': NumFieldAccess<double?>(
-          'Horizontal Title Gap',
-          'The horizontal gap between the titles and the leading/trailing widgets.',
-          () => horizontalTitleGap,
-          (value) => horizontalTitleGap = value,
-          requiresLayout: true,
-        ),
-        'minVerticalPadding': NumFieldAccess<double?>(
-          'Min Vertical Padding',
-          'The minimum padding on the top and bottom of the title and subtitle widgets.',
-          () => minVerticalPadding,
-          (value) => minVerticalPadding = value,
-          requiresLayout: true,
-        ),
-        'minLeadingWidth': NumFieldAccess<double?>(
-          'Min Leading Width',
-          'The minimum width allocated for the ListTile.leading widget.',
-          () => minLeadingWidth,
-          (value) => minLeadingWidth = value,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'isThreeLine': BoolFieldAccess(
+      'Is Three Line',
+      'Whether this list tile is intended to display three lines of text.',
+      () => isThreeLine,
+      (value) => isThreeLine = value,
+      requiresLayout: true,
+    ),
+    'dense': BoolFieldAccess(
+      'Dense',
+      'Whether the list tile layout is densely cramped together.',
+      () => dense,
+      (value) => dense = value,
+      requiresLayout: true,
+    ),
+    'selectedColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Color',
+      'Defines the color used for icons and text when the list tile is selected.',
+      () => selectedColor,
+      (value) => selectedColor = value,
+    ),
+    'iconColor': ColorFieldAccess<ColorRGBA?>(
+      'Icon Color',
+      'Defines the default color for leading and trailing icons.',
+      () => iconColor,
+      (value) => iconColor = value,
+    ),
+    'textColor': ColorFieldAccess<ColorRGBA?>(
+      'Text Color',
+      'Defines the default color for the title and subtitle.',
+      () => textColor,
+      (value) => textColor = value,
+    ),
+    'contentPadding': SpacingFieldAccess.padding(
+      'Content Padding',
+      'The tile\'s internal padding.',
+      () => contentPadding,
+      (value) => contentPadding = value,
+      requiresLayout: true,
+    ),
+    'enabled': BoolFieldAccess(
+      'Enabled',
+      'Whether this list tile is interactive.',
+      () => enabled,
+      (value) => enabled = value,
+    ),
+    'selected': BoolFieldAccess(
+      'Selected',
+      'Whether this list tile is selected.',
+      () => selected,
+      (value) => selected = value,
+      requiresLayout: true,
+    ),
+    'focusColor': ColorFieldAccess<ColorRGBA?>(
+      'Focus Color',
+      'The color for the tile\'s Material when it has the input focus.',
+      () => focusColor,
+      (value) => focusColor = value,
+    ),
+    'hoverColor': ColorFieldAccess<ColorRGBA?>(
+      'Hover Color',
+      'The color for the tile\'s Material when a pointer is hovering over it.',
+      () => hoverColor,
+      (value) => hoverColor = value,
+    ),
+    'autofocus': BoolFieldAccess(
+      'Autofocus',
+      'Whether to automatically focus the tile.',
+      () => autofocus,
+      (value) => autofocus = value,
+    ),
+    'tileColor': ColorFieldAccess<ColorRGBA?>(
+      'Tile Color',
+      'Defines the background color of ListTile when selected is false.',
+      () => tileColor,
+      (value) => tileColor = value,
+    ),
+    'selectedTileColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Tile Color',
+      'Defines the background color of ListTile when selected is true.',
+      () => selectedTileColor,
+      (value) => selectedTileColor = value,
+    ),
+    'enableFeedback': BoolFieldAccess(
+      'Enable Feedback',
+      'Whether detected gestures should provide acoustic and/or haptic feedback.',
+      () => enableFeedback,
+      (value) => enableFeedback = value,
+    ),
+    'horizontalTitleGap': NumFieldAccess<double?>(
+      'Horizontal Title Gap',
+      'The horizontal gap between the titles and the leading/trailing widgets.',
+      () => horizontalTitleGap,
+      (value) => horizontalTitleGap = value,
+      requiresLayout: true,
+    ),
+    'minVerticalPadding': NumFieldAccess<double?>(
+      'Min Vertical Padding',
+      'The minimum padding on the top and bottom of the title and subtitle widgets.',
+      () => minVerticalPadding,
+      (value) => minVerticalPadding = value,
+      requiresLayout: true,
+    ),
+    'minLeadingWidth': NumFieldAccess<double?>(
+      'Min Leading Width',
+      'The minimum width allocated for the ListTile.leading widget.',
+      () => minLeadingWidth,
+      (value) => minLeadingWidth = value,
+      requiresLayout: true,
+    ),
+    'minTileHeight': NumFieldAccess<double?>(
+      'Min Tile Height',
+      'Minimum height of the tile.',
+      () => minTileHeight,
+      (value) => minTileHeight = value,
+      requiresLayout: true,
+    ),
+    'titleAlignment': EnumFieldAccess<ListTileTitleAlignmentC?>(
+      'Title Alignment',
+      'How the leading and trailing widgets align with the title.',
+      () => titleAlignment,
+      (value) => titleAlignment = value,
+      defaultValue: () => null,
+      options: () => ListTileTitleAlignmentC.values,
+      requiresLayout: true,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        isThreeLine,
-        dense,
-        visualDensity,
-        shape,
-        selectedColor,
-        iconColor,
-        textColor,
-        contentPadding,
-        enabled,
-        selected,
-        focusColor,
-        hoverColor,
-        autofocus,
-        tileColor,
-        selectedTileColor,
-        enableFeedback,
-        horizontalTitleGap,
-        minVerticalPadding,
-        minLeadingWidth,
-        borderColor,
-        borderWidth,
-      ];
+    isThreeLine,
+    dense,
+    visualDensity,
+    shape,
+    selectedColor,
+    iconColor,
+    textColor,
+    contentPadding,
+    enabled,
+    selected,
+    focusColor,
+    hoverColor,
+    autofocus,
+    tileColor,
+    selectedTileColor,
+    enableFeedback,
+    horizontalTitleGap,
+    minVerticalPadding,
+    minLeadingWidth,
+    borderColor,
+    borderWidth,
+    showLeading,
+    showTitle,
+    showSubtitle,
+    showTrailing,
+    minTileHeight,
+    titleAlignment,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$ListTilePropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$ListTilePropertiesOmitDefaults(this, _$ListTilePropertiesToJson(this));
 
   /// Creates a new [ListTileProperties] from a JSON data.
   factory ListTileProperties.fromJson(Map json) =>

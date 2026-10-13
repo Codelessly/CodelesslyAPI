@@ -3,32 +3,32 @@
 part of 'breakpoint.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$BreakpointOmitDefaults(
+  Breakpoint instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.lowerBound, 0)) json.remove('lowerBound');
+  if (isJsonDefault(instance.upperBound, double.infinity))
+    json.remove('upperBound');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 Breakpoint _$BreakpointFromJson(Map json) => Breakpoint(
-      nodeId: json['nodeId'] as String,
-      lowerBound: json['lowerBound'] as num? ?? 0,
-      upperBound: json['upperBound'] as num? ?? double.infinity,
-    );
+  nodeId: json['nodeId'] as String,
+  lowerBound: json['lowerBound'] as num? ?? 0,
+  upperBound: json['upperBound'] as num? ?? double.infinity,
+);
 
-Map<String, dynamic> _$BreakpointToJson(Breakpoint instance) {
-  final val = <String, dynamic>{
-    'nodeId': instance.nodeId,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('lowerBound', instance.lowerBound, instance.lowerBound, 0);
-  writeNotNull(
-      'upperBound', instance.upperBound, instance.upperBound, double.infinity);
-  return val;
-}
+Map<String, dynamic> _$BreakpointToJson(Breakpoint instance) =>
+    <String, dynamic>{
+      'nodeId': instance.nodeId,
+      'lowerBound': instance.lowerBound,
+      'upperBound': instance.upperBound,
+    };

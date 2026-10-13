@@ -3,6 +3,17 @@
 part of 'box_constraints.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$BoxConstraintsModelOmitDefaults(
+  BoxConstraintsModel instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -14,22 +25,11 @@ BoxConstraintsModel _$BoxConstraintsModelFromJson(Map json) =>
       maxHeight: (json['maxHeight'] as num?)?.toDouble(),
     );
 
-Map<String, dynamic> _$BoxConstraintsModelToJson(BoxConstraintsModel instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('minWidth', instance.minWidth, instance.minWidth, null);
-  writeNotNull('maxWidth', instance.maxWidth, instance.maxWidth, null);
-  writeNotNull('minHeight', instance.minHeight, instance.minHeight, null);
-  writeNotNull('maxHeight', instance.maxHeight, instance.maxHeight, null);
-  return val;
-}
+Map<String, dynamic> _$BoxConstraintsModelToJson(
+  BoxConstraintsModel instance,
+) => <String, dynamic>{
+  'minWidth': ?instance.minWidth,
+  'maxWidth': ?instance.maxWidth,
+  'minHeight': ?instance.minHeight,
+  'maxHeight': ?instance.maxHeight,
+};

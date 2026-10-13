@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -47,5 +47,5 @@ class SpacerNode extends SceneNode {
   factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson(json);
 
   @override
-  Map toJson() => _$SpacerNodeToJson(this);
+  Map toJson() => _$SpacerNodeOmitDefaults(this, _$SpacerNodeToJson(this));
 }

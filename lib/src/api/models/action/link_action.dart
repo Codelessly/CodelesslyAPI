@@ -1,24 +1,22 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
+import '../../json_defaults.dart';
 
 part 'link_action.g.dart';
 
 /// An action that opens up a link.
 @JsonSerializable()
-class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
+class LinkAction extends ActionModel with Equatable, SerializableMixin {
   /// The link to open.
   final String url;
 
   /// Creates a new [LinkAction] with the given data.
-  LinkAction({
-    required this.url,
-    super.nonBlocking,
-    super.enabled,
-  }) : super(type: ActionType.link);
+  LinkAction({required this.url, super.nonBlocking, super.enabled})
+    : super(type: ActionType.link);
 
   @override
   List<Object?> get props => [url];
@@ -31,7 +29,7 @@ class LinkAction extends ActionModel with EquatableMixin, SerializableMixin {
   factory LinkAction.fromJson(Map json) => _$LinkActionFromJson(json);
 
   @override
-  Map toJson() => _$LinkActionToJson(this);
+  Map toJson() => _$LinkActionOmitDefaults(this, _$LinkActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitLinkAction(this);

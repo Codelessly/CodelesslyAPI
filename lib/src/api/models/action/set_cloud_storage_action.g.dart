@@ -3,6 +3,68 @@
 part of 'set_cloud_storage_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$SetCloudStorageActionOmitDefaults(
+  SetCloudStorageAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+Map<String, dynamic> _$AddDocumentSubActionOmitDefaults(
+  AddDocumentSubAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.path, '')) json.remove('path');
+  if (isJsonDefault(instance.documentId, '')) json.remove('documentId');
+  if (isJsonDefault(instance.autoGenerateId, false))
+    json.remove('autoGenerateId');
+  if (isJsonDefault(instance.skipCreationIfDocumentExists, true))
+    json.remove('skipCreationIfDocumentExists');
+  if (isJsonDefault(instance.rawValue, '')) json.remove('rawValue');
+  if (isJsonDefault(instance.newValue, '')) json.remove('newValue');
+  if (isJsonDefault(instance.useRawValue, false)) json.remove('useRawValue');
+  return json;
+}
+
+Map<String, dynamic> _$RemoveDocumentSubActionOmitDefaults(
+  RemoveDocumentSubAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.path, '')) json.remove('path');
+  if (isJsonDefault(instance.documentId, '')) json.remove('documentId');
+  return json;
+}
+
+Map<String, dynamic> _$UpdateDocumentSubActionOmitDefaults(
+  UpdateDocumentSubAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.path, '')) json.remove('path');
+  if (isJsonDefault(instance.documentId, '')) json.remove('documentId');
+  if (isJsonDefault(instance.rawValue, '')) json.remove('rawValue');
+  if (isJsonDefault(instance.key, '')) json.remove('key');
+  if (isJsonDefault(instance.variableType, VariableType.text))
+    json.remove('variableType');
+  if (isJsonDefault(instance.useRawValue, false)) json.remove('useRawValue');
+  if (isJsonDefault(instance.index, '0')) json.remove('index');
+  if (isJsonDefault(instance.listOperation, ListOperation.replace))
+    json.remove('listOperation');
+  if (isJsonDefault(instance.mapKey, 'key')) json.remove('mapKey');
+  if (isJsonDefault(instance.mapOperation, MapOperation.replace))
+    json.remove('mapOperation');
+  if (isJsonDefault(instance.newValue, '')) json.remove('newValue');
+  if (isJsonDefault(instance.toggled, false)) json.remove('toggled');
+  if (isJsonDefault(instance.numberOperation, NumberOperation.set))
+    json.remove('numberOperation');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -14,27 +76,13 @@ SetCloudStorageAction _$SetCloudStorageActionFromJson(Map json) =>
     )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
 Map<String, dynamic> _$SetCloudStorageActionToJson(
-    SetCloudStorageAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['subAction'] = instance.subAction.toJson();
-  return val;
-}
+  SetCloudStorageAction instance,
+) => <String, dynamic>{
+  'type': _$ActionTypeEnumMap[instance.type]!,
+  'nonBlocking': instance.nonBlocking,
+  'enabled': instance.enabled,
+  'subAction': instance.subAction.toJson(),
+};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
@@ -64,34 +112,16 @@ AddDocumentSubAction _$AddDocumentSubActionFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$AddDocumentSubActionToJson(
-    AddDocumentSubAction instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('path', instance.path, instance.path, '');
-  writeNotNull('documentId', instance.documentId, instance.documentId, '');
-  writeNotNull('autoGenerateId', instance.autoGenerateId,
-      instance.autoGenerateId, false);
-  writeNotNull(
-      'skipCreationIfDocumentExists',
-      instance.skipCreationIfDocumentExists,
-      instance.skipCreationIfDocumentExists,
-      true);
-  writeNotNull('rawValue', instance.rawValue, instance.rawValue, '');
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull(
-      'useRawValue', instance.useRawValue, instance.useRawValue, false);
-  return val;
-}
+  AddDocumentSubAction instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'documentId': instance.documentId,
+  'autoGenerateId': instance.autoGenerateId,
+  'skipCreationIfDocumentExists': instance.skipCreationIfDocumentExists,
+  'rawValue': instance.rawValue,
+  'newValue': instance.newValue,
+  'useRawValue': instance.useRawValue,
+};
 
 RemoveDocumentSubAction _$RemoveDocumentSubActionFromJson(Map json) =>
     RemoveDocumentSubAction(
@@ -100,23 +130,11 @@ RemoveDocumentSubAction _$RemoveDocumentSubActionFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$RemoveDocumentSubActionToJson(
-    RemoveDocumentSubAction instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('path', instance.path, instance.path, '');
-  writeNotNull('documentId', instance.documentId, instance.documentId, '');
-  return val;
-}
+  RemoveDocumentSubAction instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'documentId': instance.documentId,
+};
 
 UpdateDocumentSubAction _$UpdateDocumentSubActionFromJson(Map json) =>
     UpdateDocumentSubAction(
@@ -126,57 +144,43 @@ UpdateDocumentSubAction _$UpdateDocumentSubActionFromJson(Map json) =>
       key: json['key'] as String? ?? '',
       variableType:
           $enumDecodeNullable(_$VariableTypeEnumMap, json['variableType']) ??
-              VariableType.text,
+          VariableType.text,
       index: json['index'] as String? ?? '0',
       listOperation:
           $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
-              ListOperation.replace,
+          ListOperation.replace,
       mapKey: json['mapKey'] as String? ?? 'key',
       mapOperation:
           $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
-              MapOperation.replace,
+          MapOperation.replace,
       newValue: json['newValue'] as String? ?? '',
       toggled: json['toggled'] as bool? ?? false,
       useRawValue: json['useRawValue'] as bool? ?? false,
-      numberOperation: $enumDecodeNullable(
-              _$NumberOperationEnumMap, json['numberOperation']) ??
+      numberOperation:
+          $enumDecodeNullable(
+            _$NumberOperationEnumMap,
+            json['numberOperation'],
+          ) ??
           NumberOperation.set,
     );
 
 Map<String, dynamic> _$UpdateDocumentSubActionToJson(
-    UpdateDocumentSubAction instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('path', instance.path, instance.path, '');
-  writeNotNull('documentId', instance.documentId, instance.documentId, '');
-  writeNotNull('rawValue', instance.rawValue, instance.rawValue, '');
-  writeNotNull('key', instance.key, instance.key, '');
-  writeNotNull('variableType', instance.variableType,
-      _$VariableTypeEnumMap[instance.variableType]!, VariableType.text);
-  writeNotNull(
-      'useRawValue', instance.useRawValue, instance.useRawValue, false);
-  writeNotNull('index', instance.index, instance.index, '0');
-  writeNotNull('listOperation', instance.listOperation,
-      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
-  writeNotNull('mapOperation', instance.mapOperation,
-      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
-  writeNotNull('numberOperation', instance.numberOperation,
-      _$NumberOperationEnumMap[instance.numberOperation]!, NumberOperation.set);
-  return val;
-}
+  UpdateDocumentSubAction instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'documentId': instance.documentId,
+  'rawValue': instance.rawValue,
+  'key': instance.key,
+  'variableType': _$VariableTypeEnumMap[instance.variableType]!,
+  'useRawValue': instance.useRawValue,
+  'index': instance.index,
+  'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
+  'mapKey': instance.mapKey,
+  'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
+  'newValue': instance.newValue,
+  'toggled': instance.toggled,
+  'numberOperation': _$NumberOperationEnumMap[instance.numberOperation]!,
+};
 
 const _$VariableTypeEnumMap = {
   VariableType.integer: 'integer',

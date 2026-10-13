@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -9,7 +9,7 @@ part 'icon.g.dart';
 /// An icon model that can hold a [MultiSourceIconModel] and a list of
 /// [Reaction]s to that icon making it reactive.
 @JsonSerializable()
-class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
+class ReactiveIconModel with ReactionMixin, SerializableMixin, Equatable {
   /// The icon model.
   final MultiSourceIconModel icon;
 
@@ -17,10 +17,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
   List<TriggerType> get triggerTypes => [TriggerType.click];
 
   /// Creates [ReactiveIconModel].
-  ReactiveIconModel({
-    required this.icon,
-    List<Reaction> reactions = const [],
-  }) {
+  ReactiveIconModel({required this.icon, List<Reaction> reactions = const []}) {
     setReactionMixin(reactions);
   }
 
@@ -36,7 +33,8 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
   }
 
   @override
-  Map toJson() => _$ReactiveIconModelToJson(this);
+  Map toJson() =>
+      _$ReactiveIconModelOmitDefaults(this, _$ReactiveIconModelToJson(this));
 
   /// Factory constructor for creating a new [ReactiveIconModel] instance
   /// from JSON data.
@@ -60,7 +58,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, EquatableMixin {
 /// This model is designed to hold the properties of both a font based icon and
 /// an image icon.
 @JsonSerializable()
-class MultiSourceIconModel with EquatableMixin, SerializableMixin {
+class MultiSourceIconModel with Equatable, SerializableMixin {
   /// Despite having [iconType] to differentiate between icon types, [iconData]
   /// and [iconImage] allows for retention of user selection for both cases. So,
   /// when the user toggles the type, previous selection is preserved.
@@ -90,6 +88,25 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   /// Scale of the image icon.
   final double scale;
 
+  /// Fill for variable icon fonts such as Material Symbols, from 0 (outlined)
+  /// to 1 (filled). Mirrors Flutter's `Icon.fill`.
+  ///
+  /// Renderers that draw Material Symbols from Google's prebuilt SVGs snap
+  /// the axes to the variants those provide.
+  final double? fill;
+
+  /// Stroke weight for variable icon fonts, from 100 to 700. Mirrors
+  /// Flutter's `Icon.weight`.
+  final double? weight;
+
+  /// Grade for variable icon fonts, from -25 to 200. Mirrors Flutter's
+  /// `Icon.grade`.
+  final double? grade;
+
+  /// Optical size for variable icon fonts, from 20 to 48. Mirrors
+  /// Flutter's `Icon.opticalSize`.
+  final double? opticalSize;
+
   /// Whether the type of this icon is image.
   bool get isImageIcon => type == IconTypeEnum.image;
 
@@ -105,10 +122,14 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     this.size = 24,
     this.color = ColorRGBA.black,
     this.show = true,
-  })  : type = IconTypeEnum.icon,
-        iconImage = null,
-        scale = 1,
-        imageName = null;
+    this.fill,
+    this.weight,
+    this.grade,
+    this.opticalSize,
+  }) : type = IconTypeEnum.icon,
+       iconImage = null,
+       scale = 1,
+       imageName = null;
 
   /// Creates an instance of this class with image icon.
   const MultiSourceIconModel.image({
@@ -118,8 +139,12 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     this.show = true,
     this.imageName,
     this.scale = 1,
-  })  : type = IconTypeEnum.image,
-        icon = null;
+  }) : type = IconTypeEnum.image,
+       icon = null,
+       fill = null,
+       weight = null,
+       grade = null,
+       opticalSize = null;
 
   /// Default constructor of this class.
   const MultiSourceIconModel({
@@ -131,11 +156,27 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     this.show = false,
     this.imageName,
     this.scale = 1,
+    this.fill,
+    this.weight,
+    this.grade,
+    this.opticalSize,
   });
 
   @override
-  List<Object?> get props =>
-      [type, icon, iconImage, size, color, show, imageName];
+  List<Object?> get props => [
+    type,
+    icon,
+    iconImage,
+    size,
+    color,
+    show,
+    imageName,
+    scale,
+    fill,
+    weight,
+    grade,
+    opticalSize,
+  ];
 
   /// Duplicates [MultiSourceIconModel] with the given properties overrides.
   MultiSourceIconModel copyWith({
@@ -153,6 +194,10 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
     bool forceSize = false,
     bool forceIconImage = false,
     bool forceImageName = false,
+    double? fill,
+    double? weight,
+    double? grade,
+    double? opticalSize,
   }) {
     return MultiSourceIconModel(
       iconImage: forceIconImage ? iconImage : (iconImage ?? this.iconImage),
@@ -163,6 +208,10 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
       show: show ?? this.show,
       scale: scale ?? this.scale,
       imageName: forceImageName ? imageName : (imageName ?? this.imageName),
+      fill: fill ?? this.fill,
+      weight: weight ?? this.weight,
+      grade: grade ?? this.grade,
+      opticalSize: opticalSize ?? this.opticalSize,
     );
   }
 
@@ -193,5 +242,8 @@ class MultiSourceIconModel with EquatableMixin, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$MultiSourceIconModelToJson(this);
+  Map toJson() => _$MultiSourceIconModelOmitDefaults(
+    this,
+    _$MultiSourceIconModelToJson(this),
+  );
 }

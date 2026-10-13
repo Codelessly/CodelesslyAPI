@@ -1,0 +1,220 @@
+{
+  "button": {
+    "id": "button",
+    "name": "Button",
+    "basicBoxLocal": [
+      0,
+      0,
+      100,
+      30
+    ],
+    "type": "button",
+    "properties": {
+      "labelStyle": {
+        "fills": [],
+        "fontSize": 12.0
+      }
+    }
+  },
+  "checkBox": {
+    "id": "checkBox",
+    "name": "Checkbox",
+    "basicBoxLocal": [
+      0,
+      0,
+      40,
+      40
+    ],
+    "type": "checkbox",
+    "properties": {},
+    "value": null
+  },
+  "divider": {
+    "id": "divider",
+    "name": "Divider",
+    "basicBoxLocal": [
+      0,
+      0,
+      150,
+      16
+    ],
+    "type": "divider",
+    "properties": {}
+  },
+  "EmbeddedVideo": {
+    "id": "EmbeddedVideo",
+    "name": "Embedded Video",
+    "basicBoxLocal": [
+      0,
+      0,
+      320,
+      180
+    ],
+    "type": "embeddedVideo",
+    "properties": {
+      "source": "youtube"
+    }
+  },
+  "fab": {
+    "id": "fab",
+    "name": "FAB",
+    "basicBoxLocal": [
+      0,
+      0,
+      56,
+      56
+    ],
+    "type": "floatingActionButton",
+    "properties": {
+      "reactions": [],
+      "labelStyle": {
+        "fills": [
+          {
+            "id": "0SeUWj8qi2u8f2iY_9la",
+            "type": "solid",
+            "color": "#FFFFFF"
+          }
+        ],
+        "fontSize": 14.0
+      }
+    }
+  },
+  "icon1": {
+    "id": "icon1",
+    "name": "Icon",
+    "basicBoxLocal": [
+      0,
+      0,
+      24,
+      24
+    ],
+    "properties": {
+      "icon": {
+        "icon": {
+          "codepoint": 57669,
+          "name": "add",
+          "style": "filled",
+          "type": "MATERIAL_ICON"
+        },
+        "show": true
+      }
+    },
+    "type": "icon"
+  },
+  "list_tile": {
+    "id": "list_tile",
+    "name": "List Tile",
+    "basicBoxLocal": [
+      0,
+      0,
+      300,
+      65
+    ],
+    "type": "listTile",
+    "properties": {}
+  },
+  "progressbar": {
+    "id": "progressbar",
+    "name": "ProgressBar",
+    "basicBoxLocal": [
+      0,
+      0,
+      150,
+      10
+    ],
+    "type": "progressBar",
+    "properties": {}
+  },
+  "radio": {
+    "id": "radio",
+    "name": "Radio",
+    "basicBoxLocal": [
+      0,
+      0,
+      32,
+      32
+    ],
+    "type": "radio",
+    "properties": {}
+  },
+  "slider": {
+    "id": "slider",
+    "name": "Slider",
+    "basicBoxLocal": [
+      0,
+      0,
+      300,
+      48
+    ],
+    "type": "slider",
+    "value": 0.0,
+    "properties": {}
+  },
+  "switch": {
+    "id": "switch",
+    "name": "Switch",
+    "basicBoxLocal": [
+      0,
+      0,
+      59,
+      40
+    ],
+    "type": "switch",
+    "properties": {}
+  },
+  "switch_custom": {
+    "id": "switch_custom",
+    "name": "Custom switch",
+    "visible": false,
+    "alignment": {
+      "data": [
+        0.0,
+        0.0
+      ]
+    },
+    "basicBoxLocal": [
+      10,
+      20,
+      80,
+      40
+    ],
+    "padding": 4,
+    "type": "switch",
+    "value": true,
+    "properties": {
+      "activeTrackColor": "#FFFFFFFF",
+      "splashRadius": 12.0,
+      "autofocus": true,
+      "useMaterial3": true
+    }
+  },
+  "row": {
+    "id": "row",
+    "name": "Row",
+    "basicBoxLocal": [
+      0,
+      0,
+      100,
+      40
+    ],
+    "children": [
+      "a",
+      "b"
+    ],
+    "rowColumnType": "row",
+    "mainAxisAlignment": "spaceBetween",
+    "type": "rowColumn"
+  },
+  "text": {
+    "id": "text",
+    "name": "Text",
+    "characters": "Hello",
+    "basicBoxLocal": [
+      0,
+      0,
+      100,
+      20
+    ],
+    "type": "text"
+  }
+}

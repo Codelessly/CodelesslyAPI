@@ -3,17 +3,25 @@
 part of 'trigger.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$TriggerModelOmitDefaults(
+  TriggerModel instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
-      type: $enumDecode(_$TriggerTypeEnumMap, json['type']),
-    );
+TriggerModel _$TriggerModelFromJson(Map json) =>
+    TriggerModel(type: $enumDecode(_$TriggerTypeEnumMap, json['type']));
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
-    <String, dynamic>{
-      'type': _$TriggerTypeEnumMap[instance.type]!,
-    };
+    <String, dynamic>{'type': _$TriggerTypeEnumMap[instance.type]!};
 
 const _$TriggerTypeEnumMap = {
   TriggerType.click: 'click',

@@ -19,7 +19,11 @@ enum CShapeBorder {
   continuousRectangle('Continuous'),
 
   /// A rectangular border with flattened or "beveled" corners.
-  beveledRectangle('Beveled');
+  beveledRectangle('Beveled'),
+
+  /// A rectangle with smooth, iOS-style continuous corners. Mirrors Flutter's
+  /// `RoundedSuperellipseBorder`.
+  roundedSuperellipse('Superellipse');
 
   /// Creates a [CShapeBorder] with given [label].
   const CShapeBorder(this.label);

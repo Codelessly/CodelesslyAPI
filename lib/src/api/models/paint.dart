@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -36,7 +36,7 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 /// A solid color, gradient, or image texture that can be applied as fill or
 /// stroke.
 @JsonSerializable()
-class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
+class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// identifier of this paint.
   @JsonKey(readValue: _readId)
   final String id;
@@ -174,70 +174,70 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'color': ColorFieldAccess(
-          'Color',
-          'The color of the paint.',
-          () => color,
-          (value) => color = value,
-        ),
-        'blendMode': EnumFieldAccess<BlendModeC>(
-          'Blend Mode',
-          'How this node blends with nodes behind it in the scene.',
-          () => blendMode,
-          (value) => blendMode = value,
-          options: () => BlendModeC.values,
-          defaultValue: () => BlendModeC.srcOver,
-        ),
-        'opacity': NumFieldAccess<double>(
-          'Opacity',
-          'The transparency of this layer.',
-          () => opacity,
-          (value) => opacity = value,
-        ),
-        'visible': BoolFieldAccess(
-          'Visible',
-          'Whether this layer is visible or not.',
-          () => visible,
-          (value) => visible = value,
-        ),
-      };
+    ...super.generateFields(),
+    'color': ColorFieldAccess(
+      'Color',
+      'The color of the paint.',
+      () => color,
+      (value) => color = value,
+    ),
+    'blendMode': EnumFieldAccess<BlendModeC>(
+      'Blend Mode',
+      'How this node blends with nodes behind it in the scene.',
+      () => blendMode,
+      (value) => blendMode = value,
+      options: () => BlendModeC.values,
+      defaultValue: () => BlendModeC.srcOver,
+    ),
+    'opacity': NumFieldAccess<double>(
+      'Opacity',
+      'The transparency of this layer.',
+      () => opacity,
+      (value) => opacity = value,
+    ),
+    'visible': BoolFieldAccess(
+      'Visible',
+      'Whether this layer is visible or not.',
+      () => visible,
+      (value) => visible = value,
+    ),
+  };
 
   /// Helper constructor for when a black paint is needed, like tests.
   static PaintModel get blackPaint => PaintModel.solid(
-        id: generateId(),
-        visible: true,
-        opacity: 1.0,
-        color: ColorRGB.black,
-      );
+    id: generateId(),
+    visible: true,
+    opacity: 1.0,
+    color: ColorRGB.black,
+  );
 
   /// Helper constructor for when a grey paint is needed, like tests.
   static PaintModel get greyPaint => PaintModel.solid(
-        id: generateId(),
-        visible: true,
-        opacity: 1.0,
-        color: ColorRGB.grey,
-      );
+    id: generateId(),
+    visible: true,
+    opacity: 1.0,
+    color: ColorRGB.grey,
+  );
 
   /// Helper constructor for when a white paint is needed, like tests.
   static PaintModel get whitePaint => PaintModel.solid(
-        id: generateId(),
-        visible: true,
-        opacity: 1.0,
-        color: ColorRGB.white,
-      );
+    id: generateId(),
+    visible: true,
+    opacity: 1.0,
+    color: ColorRGB.white,
+  );
 
   /// Helper constructor for when a gradient paint is needed, like tests.
   static PaintModel get linearPaint => PaintModel(
-        id: generateId(),
-        type: PaintType.gradientLinear,
-        visible: true,
-        opacity: 1.0,
-        gradientStops: const [
-          ColorStop(color: ColorRGBA.black, position: 0.0),
-          ColorStop(color: ColorRGBA.white, position: 1.0),
-        ],
-      );
+    id: generateId(),
+    type: PaintType.gradientLinear,
+    visible: true,
+    opacity: 1.0,
+    gradientStops: const [
+      ColorStop(color: ColorRGBA.black, position: 0.0),
+      ColorStop(color: ColorRGBA.white, position: 1.0),
+    ],
+  );
 
   /// Create a Solid Paint with only the required properties.
   PaintModel.solid({
@@ -246,24 +246,24 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     required this.color,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.solid,
-        hasImageBytes = false,
-        cropData = null,
-        croppedImageURL = null,
-        downloadUrl = null,
-        imageHash = null,
-        gradientTransform = null,
-        gradientStops = null,
-        imageTransform = null,
-        imageName = null,
-        fit = Fit.none,
-        alignment = AlignmentModel.none,
-        scaleX = 1,
-        scaleY = 1,
-        imageRepeat = ImageRepeatEnum.noRepeat,
-        sourceWidth = null,
-        sourceHeight = null,
-        assetID = null;
+  }) : type = PaintType.solid,
+       hasImageBytes = false,
+       cropData = null,
+       croppedImageURL = null,
+       downloadUrl = null,
+       imageHash = null,
+       gradientTransform = null,
+       gradientStops = null,
+       imageTransform = null,
+       imageName = null,
+       fit = Fit.none,
+       alignment = AlignmentModel.none,
+       scaleX = 1,
+       scaleY = 1,
+       imageRepeat = ImageRepeatEnum.noRepeat,
+       sourceWidth = null,
+       sourceHeight = null,
+       assetID = null;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -286,12 +286,14 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     required this.sourceWidth,
     required this.sourceHeight,
     this.assetID,
-  })  : assert(sourceWidth != null && sourceHeight != null,
-            'Images must always provide their original size.'),
-        type = PaintType.image,
-        gradientTransform = null,
-        gradientStops = null,
-        color = null;
+  }) : assert(
+         sourceWidth != null && sourceHeight != null,
+         'Images must always provide their original size.',
+       ),
+       type = PaintType.image,
+       gradientTransform = null,
+       gradientStops = null,
+       color = null;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -301,23 +303,23 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientLinear,
-        color = null,
-        imageTransform = null,
-        hasImageBytes = false,
-        downloadUrl = null,
-        imageHash = null,
-        fit = Fit.none,
-        imageName = null,
-        alignment = AlignmentModel.none,
-        scaleX = 1,
-        scaleY = 1,
-        cropData = null,
-        imageRepeat = ImageRepeatEnum.noRepeat,
-        croppedImageURL = null,
-        sourceWidth = null,
-        sourceHeight = null,
-        assetID = null;
+  }) : type = PaintType.gradientLinear,
+       color = null,
+       imageTransform = null,
+       hasImageBytes = false,
+       downloadUrl = null,
+       imageHash = null,
+       fit = Fit.none,
+       imageName = null,
+       alignment = AlignmentModel.none,
+       scaleX = 1,
+       scaleY = 1,
+       cropData = null,
+       imageRepeat = ImageRepeatEnum.noRepeat,
+       croppedImageURL = null,
+       sourceWidth = null,
+       sourceHeight = null,
+       assetID = null;
 
   /// Creates [PaintModel] with radial gradient.
   PaintModel.radialGradient({
@@ -327,23 +329,23 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientRadial,
-        color = null,
-        imageTransform = null,
-        hasImageBytes = false,
-        downloadUrl = null,
-        imageHash = null,
-        fit = Fit.none,
-        imageName = null,
-        alignment = AlignmentModel.none,
-        scaleX = 1,
-        scaleY = 1,
-        cropData = null,
-        croppedImageURL = null,
-        imageRepeat = ImageRepeatEnum.noRepeat,
-        sourceWidth = null,
-        sourceHeight = null,
-        assetID = null;
+  }) : type = PaintType.gradientRadial,
+       color = null,
+       imageTransform = null,
+       hasImageBytes = false,
+       downloadUrl = null,
+       imageHash = null,
+       fit = Fit.none,
+       imageName = null,
+       alignment = AlignmentModel.none,
+       scaleX = 1,
+       scaleY = 1,
+       cropData = null,
+       croppedImageURL = null,
+       imageRepeat = ImageRepeatEnum.noRepeat,
+       sourceWidth = null,
+       sourceHeight = null,
+       assetID = null;
 
   /// Creates [PaintModel] with angular gradient.
   PaintModel.angularGradient({
@@ -353,23 +355,23 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.blendMode = BlendModeC.srcOver,
-  })  : type = PaintType.gradientAngular,
-        color = null,
-        imageTransform = null,
-        hasImageBytes = false,
-        downloadUrl = null,
-        imageHash = null,
-        fit = Fit.none,
-        imageName = null,
-        imageRepeat = ImageRepeatEnum.noRepeat,
-        alignment = AlignmentModel.none,
-        scaleX = 1,
-        scaleY = 1,
-        cropData = null,
-        croppedImageURL = null,
-        sourceWidth = null,
-        sourceHeight = null,
-        assetID = null;
+  }) : type = PaintType.gradientAngular,
+       color = null,
+       imageTransform = null,
+       hasImageBytes = false,
+       downloadUrl = null,
+       imageHash = null,
+       fit = Fit.none,
+       imageName = null,
+       imageRepeat = ImageRepeatEnum.noRepeat,
+       alignment = AlignmentModel.none,
+       scaleX = 1,
+       scaleY = 1,
+       cropData = null,
+       croppedImageURL = null,
+       sourceWidth = null,
+       sourceHeight = null,
+       assetID = null;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -426,35 +428,37 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
     bool forceSourceSize = false,
-  }) =>
-      PaintModel(
-        id: id,
-        type: type ?? this.type,
-        visible: visible ?? this.visible,
-        opacity: opacity ?? this.opacity,
-        color: color ?? this.color,
-        blendMode: blendMode ?? this.blendMode,
-        gradientTransform: gradientTransform ?? this.gradientTransform,
-        gradientStops: gradientStops ?? this.gradientStops,
-        imageTransform: imageTransform ?? this.imageTransform,
-        hasImageBytes: hasImageBytes ?? this.hasImageBytes,
-        downloadUrl: downloadUrl ?? this.downloadUrl,
-        imageName: imageName ?? this.imageName,
-        imageHash: imageHash ?? this.imageHash,
-        fit: fit ?? this.fit,
-        alignment: alignment ?? this.alignment,
-        scaleX: scaleX ?? this.scaleX,
-        scaleY: scaleY ?? this.scaleY,
-        sourceWidth:
-            forceSourceSize ? sourceWidth : sourceWidth ?? this.sourceWidth,
-        sourceHeight:
-            forceSourceSize ? sourceHeight : sourceHeight ?? this.sourceHeight,
-        cropData: clearCropData ? null : cropData ?? this.cropData,
-        croppedImageURL:
-            clearCropData ? null : croppedImageURL ?? this.croppedImageURL,
-        assetID: assetID ?? this.assetID,
-        imageRepeat: imageRepeat ?? this.imageRepeat,
-      );
+  }) => PaintModel(
+    id: id,
+    type: type ?? this.type,
+    visible: visible ?? this.visible,
+    opacity: opacity ?? this.opacity,
+    color: color ?? this.color,
+    blendMode: blendMode ?? this.blendMode,
+    gradientTransform: gradientTransform ?? this.gradientTransform,
+    gradientStops: gradientStops ?? this.gradientStops,
+    imageTransform: imageTransform ?? this.imageTransform,
+    hasImageBytes: hasImageBytes ?? this.hasImageBytes,
+    downloadUrl: downloadUrl ?? this.downloadUrl,
+    imageName: imageName ?? this.imageName,
+    imageHash: imageHash ?? this.imageHash,
+    fit: fit ?? this.fit,
+    alignment: alignment ?? this.alignment,
+    scaleX: scaleX ?? this.scaleX,
+    scaleY: scaleY ?? this.scaleY,
+    sourceWidth: forceSourceSize
+        ? sourceWidth
+        : sourceWidth ?? this.sourceWidth,
+    sourceHeight: forceSourceSize
+        ? sourceHeight
+        : sourceHeight ?? this.sourceHeight,
+    cropData: clearCropData ? null : cropData ?? this.cropData,
+    croppedImageURL: clearCropData
+        ? null
+        : croppedImageURL ?? this.croppedImageURL,
+    assetID: assetID ?? this.assetID,
+    imageRepeat: imageRepeat ?? this.imageRepeat,
+  );
 
   /// [PaintModel] can store all types of paints at the same time to allow
   /// switching between different paint types. However, this is not the desired
@@ -542,41 +546,41 @@ class PaintModel with EquatableMixin, SerializableMixin, FieldsHolder {
 
   @override
   List<Object?> get props => [
-        id,
-        type,
-        visible,
-        opacity,
-        color,
-        blendMode,
-        gradientTransform,
-        gradientStops,
-        imageTransform,
-        hasImageBytes,
-        downloadUrl,
-        imageName,
-        imageHash,
-        fit,
-        alignment,
-        scaleX,
-        scaleY,
-        imageRepeat,
-        assetID,
-        sourceWidth,
-        sourceHeight,
-        cropData,
-        croppedImageURL,
-      ];
+    id,
+    type,
+    visible,
+    opacity,
+    color,
+    blendMode,
+    gradientTransform,
+    gradientStops,
+    imageTransform,
+    hasImageBytes,
+    downloadUrl,
+    imageName,
+    imageHash,
+    fit,
+    alignment,
+    scaleX,
+    scaleY,
+    imageRepeat,
+    assetID,
+    sourceWidth,
+    sourceHeight,
+    cropData,
+    croppedImageURL,
+  ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
   factory PaintModel.fromJson(Map json) => _$PaintModelFromJson(json);
 
   @override
-  Map toJson() => _$PaintModelToJson(this);
+  Map toJson() => _$PaintModelOmitDefaults(this, _$PaintModelToJson(this));
 }
 
 /// Holds the information required to crop an image.
 @JsonSerializable()
-class CropData with EquatableMixin, SerializableMixin {
+class CropData with Equatable, SerializableMixin {
   /// The x coordinate of the top left corner of the crop rectangle.
   final double x;
 
@@ -598,12 +602,7 @@ class CropData with EquatableMixin, SerializableMixin {
   });
 
   /// Duplicates this instance with given data overrides.
-  CropData copyWith({
-    double? x,
-    double? y,
-    double? width,
-    double? height,
-  }) =>
+  CropData copyWith({double? x, double? y, double? width, double? height}) =>
       CropData(
         x: x ?? this.x,
         y: y ?? this.y,
@@ -618,5 +617,5 @@ class CropData with EquatableMixin, SerializableMixin {
   factory CropData.fromJson(Map json) => _$CropDataFromJson(json);
 
   @override
-  Map toJson() => _$CropDataToJson(this);
+  Map toJson() => _$CropDataOmitDefaults(this, _$CropDataToJson(this));
 }

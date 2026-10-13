@@ -224,7 +224,6 @@ enum BlendModeC {
   ///  * [hardLight], which combines [modulate] and [screen] to favor the
   ///    source image.
   screen, // The last coeff mode.
-
   /// Multiply the components of the source and destination images after
   /// adjusting them to favor the destination.
   ///
@@ -359,7 +358,6 @@ enum BlendModeC {
   ///
   /// ![](https://flutter.github.io/assets-for-api-docs/assets/dart-ui/blend_mode_multiply.png)
   multiply, // The last separable mode.
-
   /// Take the hue of the source image, and the saturation and luminosity of the
   /// destination image.
   ///

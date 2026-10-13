@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -77,7 +77,7 @@ enum TriggerType {
 
 /// A model representing a trigger event data.
 @JsonSerializable()
-class TriggerModel with EquatableMixin, SerializableMixin {
+class TriggerModel with Equatable, SerializableMixin {
   /// The type of the trigger.
   final TriggerType type;
 
@@ -96,5 +96,5 @@ class TriggerModel with EquatableMixin, SerializableMixin {
   factory TriggerModel.fromJson(Map json) => _$TriggerModelFromJson(json);
 
   @override
-  Map toJson() => _$TriggerModelToJson(this);
+  Map toJson() => _$TriggerModelOmitDefaults(this, _$TriggerModelToJson(this));
 }

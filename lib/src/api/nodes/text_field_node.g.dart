@@ -3,64 +3,175 @@
 part of 'text_field_node.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$TextFieldNodeOmitDefaults(
+  TextFieldNode instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.initialText, '')) json.remove('initialText');
+  if (isJsonDefault(instance.visible, true)) json.remove('visible');
+  if (excludeConstraintsIf(instance)) json.remove('constraints');
+  if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
+    json.remove('constraints');
+  if (isJsonDefault(instance.edgePins, EdgePinsModel.standard))
+    json.remove('edgePins');
+  if (isJsonDefault(instance.positioningMode, PositioningMode.align))
+    json.remove('positioningMode');
+  if (isJsonDefault(instance.horizontalFit, SizeFit.fixed))
+    json.remove('horizontalFit');
+  if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
+    json.remove('verticalFit');
+  if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.aspectRatioLock, false))
+    json.remove('aspectRatioLock');
+  if (isJsonDefault(instance.alignment, AlignmentModel.none))
+    json.remove('alignment');
+  if (isJsonDefault(instance.margin, EdgeInsetsModel.zero))
+    json.remove('margin');
+  if (isJsonDefault(
+    instance.padding,
+    const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
+  ))
+    json.remove('padding');
+  if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
+  if (isJsonDefault(instance.multipleVariables, {}))
+    json.remove('multipleVariables');
+  if (isJsonDefault(instance.componentVersion, 1))
+    json.remove('componentVersion');
+  if (isJsonDefault(instance.componentSchema, {}))
+    json.remove('componentSchema');
+  if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
+  return json;
+}
+
+Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
+  TextFieldProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.autoCorrect, true)) json.remove('autoCorrect');
+  if (isJsonDefault(instance.autoFocus, false)) json.remove('autoFocus');
+  if (isJsonDefault(instance.enableInteractiveSelection, true))
+    json.remove('enableInteractiveSelection');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
+  if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
+  if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
+  if (isJsonDefault(instance.showDecimalKey, false))
+    json.remove('showDecimalKey');
+  if (isJsonDefault(instance.showSignKey, false)) json.remove('showSignKey');
+  if (isJsonDefault(instance.keyboardType, TextInputTypeEnum.text))
+    json.remove('keyboardType');
+  if (isJsonDefault(instance.selectionHeightStyle, BoxHeightStyleEnum.tight))
+    json.remove('selectionHeightStyle');
+  if (isJsonDefault(instance.selectionWidthStyle, BoxWidthStyleEnum.tight))
+    json.remove('selectionWidthStyle');
+  if (isJsonDefault(instance.textAlign, TextAlignHorizontalEnum.left))
+    json.remove('textAlign');
+  if (isJsonDefault(instance.textAlignVertical, TextAlignVerticalEnum.center))
+    json.remove('textAlignVertical');
+  if (isJsonDefault(instance.cursorColor, ColorRGB.black))
+    json.remove('cursorColor');
+  if (isJsonDefault(instance.cursorHeight, 14)) json.remove('cursorHeight');
+  if (isJsonDefault(instance.cursorWidth, 2.0)) json.remove('cursorWidth');
+  if (isJsonDefault(instance.cursorRadius, 2.0)) json.remove('cursorRadius');
+  if (isJsonDefault(instance.maxLines, 1)) json.remove('maxLines');
+  if (isJsonDefault(instance.obscuringCharacter, '•'))
+    json.remove('obscuringCharacter');
+  if (isJsonDefault(instance.expands, false)) json.remove('expands');
+  if (isJsonDefault(instance.formatter, const NoneTextInputFormatterModel()))
+    json.remove('formatter');
+  if (isJsonDefault(instance.validator, const NoneTextInputValidatorModel()))
+    json.remove('validator');
+  if (isJsonDefault(
+    instance.autovalidateMode,
+    AutovalidateModeC.onUserInteraction,
+  ))
+    json.remove('autovalidateMode');
+  if (isJsonDefault(instance.autofillHints, const {}))
+    json.remove('autofillHints');
+  if (isJsonDefault(instance.textInputAction, TextInputActionC.none))
+    json.remove('textInputAction');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
-      enabled: json['enabled'] as bool? ?? true,
-      visible: json['visible'] as bool? ?? true,
-      alignment: json['alignment'] == null
-          ? AlignmentModel.none
-          : AlignmentModel.fromJson(json['alignment'] as Map),
-      padding: json['padding'] == null
-          ? const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16)
-          : EdgeInsetsModel.fromJson(json['padding']),
-      margin: json['margin'] == null
-          ? EdgeInsetsModel.zero
-          : EdgeInsetsModel.fromJson(json['margin']),
-      rotationDegrees:
-          json['rotation'] == null ? 0 : castRotation(json['rotation']),
-      reactions: (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e as Map))
-              .toList() ??
-          [],
-      horizontalFit:
-          $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
-              SizeFit.fixed,
-      verticalFit: $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
-          SizeFit.fixed,
-      flex: (json['flex'] as num?)?.toInt() ?? 1,
-      constraints: json['constraints'] == null
-          ? const BoxConstraintsModel()
-          : BoxConstraintsModel.fromJson(json['constraints'] as Map),
-      edgePins: json['edgePins'] == null
-          ? EdgePinsModel.standard
-          : EdgePinsModel.fromJson(
-              Map<String, dynamic>.from(json['edgePins'] as Map)),
-      aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
-      positioningMode: $enumDecodeNullable(
-              _$PositioningModeEnumMap, json['positioningMode']) ??
-          PositioningMode.align,
-      properties: TextFieldProperties.fromJson(json['properties'] as Map),
-      initialText: json['initialText'] as String? ?? '',
-    )
-      ..variables = (json['variables'] as Map?)?.map(
+TextFieldNode _$TextFieldNodeFromJson(Map json) =>
+    TextFieldNode(
+        id: json['id'] as String,
+        name: json['name'] as String,
+        basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+        enabled: json['enabled'] as bool? ?? true,
+        visible: json['visible'] as bool? ?? true,
+        alignment: json['alignment'] == null
+            ? AlignmentModel.none
+            : AlignmentModel.fromJson(json['alignment'] as Map),
+        padding: json['padding'] == null
+            ? const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16)
+            : EdgeInsetsModel.fromJson(json['padding']),
+        margin: json['margin'] == null
+            ? EdgeInsetsModel.zero
+            : EdgeInsetsModel.fromJson(json['margin']),
+        rotationDegrees: json['rotation'] == null
+            ? 0
+            : castRotation(json['rotation']),
+        reactions:
+            (json['reactions'] as List<dynamic>?)
+                ?.map((e) => Reaction.fromJson(e as Map))
+                .toList() ??
+            const [],
+        horizontalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
+            SizeFit.fixed,
+        verticalFit:
+            $enumDecodeNullable(_$SizeFitEnumMap, json['verticalFit']) ??
+            SizeFit.fixed,
+        flex: (json['flex'] as num?)?.toInt() ?? 1,
+        constraints: json['constraints'] == null
+            ? const BoxConstraintsModel()
+            : BoxConstraintsModel.fromJson(json['constraints'] as Map),
+        edgePins: json['edgePins'] == null
+            ? EdgePinsModel.standard
+            : EdgePinsModel.fromJson(
+                Map<String, dynamic>.from(json['edgePins'] as Map),
+              ),
+        aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
+        positioningMode:
+            $enumDecodeNullable(
+              _$PositioningModeEnumMap,
+              json['positioningMode'],
+            ) ??
+            PositioningMode.align,
+        properties: TextFieldProperties.fromJson(json['properties'] as Map),
+        initialText: json['initialText'] as String? ?? '',
+      )
+      ..variables =
+          (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
           ) ??
           {}
-      ..multipleVariables = (json['multipleVariables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String,
-                (e as List<dynamic>).map((e) => e as String).toList()),
+      ..multipleVariables =
+          (json['multipleVariables'] as Map?)?.map(
+            (k, e) => MapEntry(
+              k as String,
+              (e as List<dynamic>).map((e) => e as String).toList(),
+            ),
           ) ??
           {}
       ..componentId = json['componentId'] as String?
-      ..markerType =
-          $enumDecodeNullable(_$ComponentMarkerTypeEnumMap, json['markerType'])
+      ..markerType = $enumDecodeNullable(
+        _$ComponentMarkerTypeEnumMap,
+        json['markerType'],
+      )
       ..componentVersion = (json['componentVersion'] as num?)?.toInt() ?? 1
-      ..componentSchema = (json['componentSchema'] as Map?)?.map(
+      ..componentSchema =
+          (json['componentSchema'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
@@ -68,70 +179,37 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) => TextFieldNode(
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('variables', instance.variables, instance.variables, {});
-  writeNotNull('multipleVariables', instance.multipleVariables,
-      instance.multipleVariables, {});
-  writeNotNull('componentId', instance.componentId, instance.componentId, null);
-  writeNotNull('markerType', instance.markerType,
-      _$ComponentMarkerTypeEnumMap[instance.markerType], null);
-  writeNotNull('componentVersion', instance.componentVersion,
-      instance.componentVersion, 1);
-  writeNotNull('componentSchema', instance.componentSchema,
-      instance.componentSchema, {});
-  val['id'] = instance.id;
-  val['name'] = instance.name;
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  if (!excludeConstraintsIf(instance)) {
-    writeNotNull('constraints', instance.constraints,
-        instance.constraints.toJson(), const BoxConstraintsModel());
-  }
-  writeNotNull('edgePins', instance.edgePins, instance.edgePins.toJson(),
-      EdgePinsModel.standard);
-  writeNotNull(
-      'positioningMode',
-      instance.positioningMode,
-      _$PositioningModeEnumMap[instance.positioningMode]!,
-      PositioningMode.align);
-  writeNotNull('horizontalFit', instance.horizontalFit,
-      _$SizeFitEnumMap[instance.horizontalFit]!, SizeFit.fixed);
-  writeNotNull('verticalFit', instance.verticalFit,
-      _$SizeFitEnumMap[instance.verticalFit]!, SizeFit.fixed);
-  writeNotNull('flex', instance.flex, instance.flex, 1);
-  writeNotNull('aspectRatioLock', instance.aspectRatioLock,
-      instance.aspectRatioLock, false);
-  writeNotNull('alignment', instance.alignment, instance.alignment.toJson(),
-      AlignmentModel.none);
-  writeNotNull('reactions', instance.reactions,
-      instance.reactions.map((e) => e.toJson()).toList(), const []);
-  val['basicBoxLocal'] = instance.basicBoxLocal.toJson();
-  writeNotNull('margin', instance.margin, instance.margin.toJson(),
-      EdgeInsetsModel.zero);
-  writeNotNull('padding', instance.padding, instance.padding.toJson(),
-      const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16));
-  writeNotNull(
-      'rotation', instance.rotationDegrees, instance.rotationDegrees, 0);
-  writeNotNull('widthFactor', instance.widthFactor, instance.widthFactor, null);
-  writeNotNull(
-      'heightFactor', instance.heightFactor, instance.heightFactor, null);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['type'] = instance.type;
-  val['properties'] = instance.properties.toJson();
-  writeNotNull('initialText', instance.initialText, instance.initialText, '');
-  return val;
-}
+Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) =>
+    <String, dynamic>{
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
+      'id': instance.id,
+      'name': instance.name,
+      'visible': instance.visible,
+      'constraints': instance.constraints.toJson(),
+      'edgePins': instance.edgePins.toJson(),
+      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+      'flex': instance.flex,
+      'aspectRatioLock': instance.aspectRatioLock,
+      'alignment': instance.alignment.toJson(),
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'basicBoxLocal': instance.basicBoxLocal.toJson(),
+      'margin': instance.margin.toJson(),
+      'padding': instance.padding.toJson(),
+      'rotation': instance.rotationDegrees,
+      'widthFactor': ?instance.widthFactor,
+      'heightFactor': ?instance.heightFactor,
+      'enabled': instance.enabled,
+      'type': instance.type,
+      'properties': instance.properties.toJson(),
+      'initialText': instance.initialText,
+    };
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',
@@ -151,164 +229,130 @@ const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.instance: 'instance',
 };
 
-TextFieldProperties _$TextFieldPropertiesFromJson(Map json) =>
-    TextFieldProperties(
-      autoCorrect: json['autoCorrect'] as bool? ?? true,
-      autoFocus: json['autoFocus'] as bool? ?? false,
-      enableInteractiveSelection:
-          json['enableInteractiveSelection'] as bool? ?? true,
-      enabled: json['enabled'] as bool? ?? true,
-      obscureText: json['obscureText'] as bool? ?? false,
-      readOnly: json['readOnly'] as bool? ?? false,
-      showCursor: json['showCursor'] as bool? ?? true,
-      keyboardType: $enumDecodeNullable(
-              _$TextInputTypeEnumEnumMap, json['keyboardType']) ??
-          TextInputTypeEnum.text,
-      selectionHeightStyle: $enumDecodeNullable(
-              _$BoxHeightStyleEnumEnumMap, json['selectionHeightStyle'],
-              unknownValue: BoxHeightStyleEnum.tight) ??
-          BoxHeightStyleEnum.tight,
-      selectionWidthStyle: $enumDecodeNullable(
-              _$BoxWidthStyleEnumEnumMap, json['selectionWidthStyle'],
-              unknownValue: BoxWidthStyleEnum.tight) ??
-          BoxWidthStyleEnum.tight,
-      textAlign: $enumDecodeNullable(
-              _$TextAlignHorizontalEnumEnumMap, json['textAlign']) ??
-          TextAlignHorizontalEnum.left,
-      textAlignVertical: $enumDecodeNullable(
-              _$TextAlignVerticalEnumEnumMap, json['textAlignVertical']) ??
-          TextAlignVerticalEnum.center,
-      cursorColor: json['cursorColor'] == null
-          ? ColorRGB.black
-          : ColorRGB.fromJson(json['cursorColor']),
-      cursorHeight: (json['cursorHeight'] as num?)?.toDouble() ?? 14,
-      cursorWidth: (json['cursorWidth'] as num?)?.toDouble() ?? 2.0,
-      cursorRadius: (json['cursorRadius'] as num?)?.toDouble() ?? 2.0,
-      maxLength: (json['maxLength'] as num?)?.toInt(),
-      maxLines: (json['maxLines'] as num?)?.toInt() ?? 1,
-      minLines: (json['minLines'] as num?)?.toInt(),
-      obscuringCharacter: json['obscuringCharacter'] as String? ?? '•',
-      inputStyle: json['inputStyle'] == null
-          ? null
-          : TextProp.fromJson(json['inputStyle'] as Map),
-      decoration: json['decoration'] == null
-          ? null
-          : InputDecorationModel.fromJson(json['decoration'] as Map),
-      expands: json['expands'] as bool? ?? false,
-      showDecimalKey: json['showDecimalKey'] as bool? ?? false,
-      showSignKey: json['showSignKey'] as bool? ?? false,
-      formatter: json['formatter'] == null
-          ? const NoneTextInputFormatterModel()
-          : TextInputFormatterModel.fromJson(
-              Map<String, dynamic>.from(json['formatter'] as Map)),
-      validator: json['validator'] == null
-          ? const NoneTextInputValidatorModel()
-          : TextInputValidatorModel.fromJson(
-              Map<String, dynamic>.from(json['validator'] as Map)),
-      autovalidateMode: $enumDecodeNullable(
-              _$AutovalidateModeCEnumMap, json['autovalidateMode']) ??
-          AutovalidateModeC.onUserInteraction,
-      autofillHints: (json['autofillHints'] as List<dynamic>?)
-              ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
-              .toSet() ??
-          {},
-      textInputAction: $enumDecodeNullable(
-              _$TextInputActionCEnumMap, json['textInputAction']) ??
-          TextInputActionC.none,
-    );
+TextFieldProperties _$TextFieldPropertiesFromJson(
+  Map json,
+) => TextFieldProperties(
+  autoCorrect: json['autoCorrect'] as bool? ?? true,
+  autoFocus: json['autoFocus'] as bool? ?? false,
+  enableInteractiveSelection:
+      json['enableInteractiveSelection'] as bool? ?? true,
+  enabled: json['enabled'] as bool? ?? true,
+  obscureText: json['obscureText'] as bool? ?? false,
+  readOnly: json['readOnly'] as bool? ?? false,
+  showCursor: json['showCursor'] as bool? ?? true,
+  keyboardType:
+      $enumDecodeNullable(_$TextInputTypeEnumEnumMap, json['keyboardType']) ??
+      TextInputTypeEnum.text,
+  selectionHeightStyle:
+      $enumDecodeNullable(
+        _$BoxHeightStyleEnumEnumMap,
+        json['selectionHeightStyle'],
+        unknownValue: BoxHeightStyleEnum.tight,
+      ) ??
+      BoxHeightStyleEnum.tight,
+  selectionWidthStyle:
+      $enumDecodeNullable(
+        _$BoxWidthStyleEnumEnumMap,
+        json['selectionWidthStyle'],
+        unknownValue: BoxWidthStyleEnum.tight,
+      ) ??
+      BoxWidthStyleEnum.tight,
+  textAlign:
+      $enumDecodeNullable(
+        _$TextAlignHorizontalEnumEnumMap,
+        json['textAlign'],
+      ) ??
+      TextAlignHorizontalEnum.left,
+  textAlignVertical:
+      $enumDecodeNullable(
+        _$TextAlignVerticalEnumEnumMap,
+        json['textAlignVertical'],
+      ) ??
+      TextAlignVerticalEnum.center,
+  cursorColor: json['cursorColor'] == null
+      ? ColorRGB.black
+      : ColorRGB.fromJson(json['cursorColor']),
+  cursorHeight: (json['cursorHeight'] as num?)?.toDouble() ?? 14,
+  cursorWidth: (json['cursorWidth'] as num?)?.toDouble() ?? 2.0,
+  cursorRadius: (json['cursorRadius'] as num?)?.toDouble() ?? 2.0,
+  maxLength: (json['maxLength'] as num?)?.toInt(),
+  maxLines: (json['maxLines'] as num?)?.toInt() ?? 1,
+  minLines: (json['minLines'] as num?)?.toInt(),
+  obscuringCharacter: json['obscuringCharacter'] as String? ?? '•',
+  inputStyle: json['inputStyle'] == null
+      ? null
+      : TextProp.fromJson(json['inputStyle'] as Map),
+  decoration: json['decoration'] == null
+      ? null
+      : InputDecorationModel.fromJson(json['decoration'] as Map),
+  expands: json['expands'] as bool? ?? false,
+  showDecimalKey: json['showDecimalKey'] as bool? ?? false,
+  showSignKey: json['showSignKey'] as bool? ?? false,
+  formatter: json['formatter'] == null
+      ? const NoneTextInputFormatterModel()
+      : TextInputFormatterModel.fromJson(
+          Map<String, dynamic>.from(json['formatter'] as Map),
+        ),
+  validator: json['validator'] == null
+      ? const NoneTextInputValidatorModel()
+      : TextInputValidatorModel.fromJson(
+          Map<String, dynamic>.from(json['validator'] as Map),
+        ),
+  autovalidateMode:
+      $enumDecodeNullable(
+        _$AutovalidateModeCEnumMap,
+        json['autovalidateMode'],
+      ) ??
+      AutovalidateModeC.onUserInteraction,
+  autofillHints:
+      (json['autofillHints'] as List<dynamic>?)
+          ?.map((e) => $enumDecode(_$TextInputAutofillHintsEnumMap, e))
+          .toSet() ??
+      const {},
+  textInputAction:
+      $enumDecodeNullable(_$TextInputActionCEnumMap, json['textInputAction']) ??
+      TextInputActionC.none,
+);
 
-Map<String, dynamic> _$TextFieldPropertiesToJson(TextFieldProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('autoCorrect', instance.autoCorrect, instance.autoCorrect, true);
-  writeNotNull('autoFocus', instance.autoFocus, instance.autoFocus, false);
-  writeNotNull(
-      'enableInteractiveSelection',
-      instance.enableInteractiveSelection,
-      instance.enableInteractiveSelection,
-      true);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  writeNotNull(
-      'obscureText', instance.obscureText, instance.obscureText, false);
-  writeNotNull('readOnly', instance.readOnly, instance.readOnly, false);
-  writeNotNull('showCursor', instance.showCursor, instance.showCursor, true);
-  writeNotNull('showDecimalKey', instance.showDecimalKey,
-      instance.showDecimalKey, false);
-  writeNotNull(
-      'showSignKey', instance.showSignKey, instance.showSignKey, false);
-  writeNotNull(
-      'keyboardType',
-      instance.keyboardType,
-      _$TextInputTypeEnumEnumMap[instance.keyboardType]!,
-      TextInputTypeEnum.text);
-  writeNotNull(
-      'selectionHeightStyle',
-      instance.selectionHeightStyle,
+Map<String, dynamic> _$TextFieldPropertiesToJson(
+  TextFieldProperties instance,
+) => <String, dynamic>{
+  'autoCorrect': instance.autoCorrect,
+  'autoFocus': instance.autoFocus,
+  'enableInteractiveSelection': instance.enableInteractiveSelection,
+  'enabled': instance.enabled,
+  'obscureText': instance.obscureText,
+  'readOnly': instance.readOnly,
+  'showCursor': instance.showCursor,
+  'showDecimalKey': instance.showDecimalKey,
+  'showSignKey': instance.showSignKey,
+  'keyboardType': _$TextInputTypeEnumEnumMap[instance.keyboardType]!,
+  'selectionHeightStyle':
       _$BoxHeightStyleEnumEnumMap[instance.selectionHeightStyle]!,
-      BoxHeightStyleEnum.tight);
-  writeNotNull(
-      'selectionWidthStyle',
-      instance.selectionWidthStyle,
+  'selectionWidthStyle':
       _$BoxWidthStyleEnumEnumMap[instance.selectionWidthStyle]!,
-      BoxWidthStyleEnum.tight);
-  writeNotNull(
-      'textAlign',
-      instance.textAlign,
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlign]!,
-      TextAlignHorizontalEnum.left);
-  writeNotNull(
-      'textAlignVertical',
-      instance.textAlignVertical,
+  'textAlign': _$TextAlignHorizontalEnumEnumMap[instance.textAlign]!,
+  'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-      TextAlignVerticalEnum.center);
-  writeNotNull('cursorColor', instance.cursorColor,
-      instance.cursorColor.toJson(), ColorRGB.black);
-  writeNotNull(
-      'cursorHeight', instance.cursorHeight, instance.cursorHeight, 14);
-  writeNotNull('cursorWidth', instance.cursorWidth, instance.cursorWidth, 2.0);
-  writeNotNull(
-      'cursorRadius', instance.cursorRadius, instance.cursorRadius, 2.0);
-  writeNotNull('maxLength', instance.maxLength, instance.maxLength, null);
-  writeNotNull('maxLines', instance.maxLines, instance.maxLines, 1);
-  writeNotNull('minLines', instance.minLines, instance.minLines, null);
-  writeNotNull('obscuringCharacter', instance.obscuringCharacter,
-      instance.obscuringCharacter, '•');
-  val['inputStyle'] = instance.inputStyle.toJson();
-  val['decoration'] = instance.decoration.toJson();
-  writeNotNull('expands', instance.expands, instance.expands, false);
-  writeNotNull('formatter', instance.formatter, instance.formatter.toJson(),
-      const NoneTextInputFormatterModel());
-  writeNotNull('validator', instance.validator, instance.validator.toJson(),
-      const NoneTextInputValidatorModel());
-  writeNotNull(
-      'autovalidateMode',
-      instance.autovalidateMode,
-      _$AutovalidateModeCEnumMap[instance.autovalidateMode]!,
-      AutovalidateModeC.onUserInteraction);
-  writeNotNull(
-      'autofillHints',
-      instance.autofillHints,
-      instance.autofillHints
-          .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
-          .toList(),
-      const {});
-  writeNotNull(
-      'textInputAction',
-      instance.textInputAction,
-      _$TextInputActionCEnumMap[instance.textInputAction]!,
-      TextInputActionC.none);
-  return val;
-}
+  'cursorColor': instance.cursorColor.toJson(),
+  'cursorHeight': instance.cursorHeight,
+  'cursorWidth': instance.cursorWidth,
+  'cursorRadius': instance.cursorRadius,
+  'maxLength': ?instance.maxLength,
+  'maxLines': ?instance.maxLines,
+  'minLines': ?instance.minLines,
+  'obscuringCharacter': instance.obscuringCharacter,
+  'inputStyle': instance.inputStyle.toJson(),
+  'decoration': instance.decoration.toJson(),
+  'expands': instance.expands,
+  'formatter': instance.formatter.toJson(),
+  'validator': instance.validator.toJson(),
+  'autovalidateMode': _$AutovalidateModeCEnumMap[instance.autovalidateMode]!,
+  'autofillHints': instance.autofillHints
+      .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
+      .toList(),
+  'textInputAction': _$TextInputActionCEnumMap[instance.textInputAction]!,
+};
 
 const _$TextInputTypeEnumEnumMap = {
   TextInputTypeEnum.dateTime: 'dateTime',
@@ -322,6 +366,8 @@ const _$TextInputTypeEnumEnumMap = {
   TextInputTypeEnum.text: 'text',
   TextInputTypeEnum.url: 'url',
   TextInputTypeEnum.visiblePassword: 'visiblePassword',
+  TextInputTypeEnum.webSearch: 'webSearch',
+  TextInputTypeEnum.twitter: 'twitter',
 };
 
 const _$BoxHeightStyleEnumEnumMap = {
@@ -343,6 +389,8 @@ const _$TextAlignHorizontalEnumEnumMap = {
   TextAlignHorizontalEnum.center: 'center',
   TextAlignHorizontalEnum.right: 'right',
   TextAlignHorizontalEnum.justified: 'justified',
+  TextAlignHorizontalEnum.start: 'start',
+  TextAlignHorizontalEnum.end: 'end',
 };
 
 const _$TextAlignVerticalEnumEnumMap = {
@@ -355,6 +403,8 @@ const _$AutovalidateModeCEnumMap = {
   AutovalidateModeC.disabled: 'disabled',
   AutovalidateModeC.always: 'always',
   AutovalidateModeC.onUserInteraction: 'onUserInteraction',
+  AutovalidateModeC.onUnfocus: 'onUnfocus',
+  AutovalidateModeC.onUserInteractionIfError: 'onUserInteractionIfError',
 };
 
 const _$TextInputAutofillHintsEnumMap = {

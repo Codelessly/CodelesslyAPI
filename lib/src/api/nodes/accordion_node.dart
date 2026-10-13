@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -51,7 +51,7 @@ class AccordionNode extends SceneNode
     super.multipleVariables,
     AccordionProperties? properties,
   }) : properties =
-            properties ?? AccordionProperties(isExpanded: isExpanded ?? true) {
+           properties ?? AccordionProperties(isExpanded: isExpanded ?? true) {
     setChildrenMixin(children: children);
     setRowColumnMixin(
       rowColumnType: rowColumnType,
@@ -62,20 +62,21 @@ class AccordionNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<AccordionProperties>(
-          'Properties',
-          'Properties of the accordion',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<AccordionProperties>(
+      'Properties',
+      'Properties of the accordion',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [AccordionNode] from a JSON data.
   factory AccordionNode.fromJson(Map json) => _$AccordionNodeFromJson(json);
 
   @override
-  Map toJson() => _$AccordionNodeToJson(this);
+  Map toJson() =>
+      _$AccordionNodeOmitDefaults(this, _$AccordionNodeToJson(this));
 }
 
 /// Custom properties for an [AccordionNode].
@@ -85,23 +86,24 @@ class AccordionProperties extends CustomProperties with FieldsHolder {
   bool isExpanded;
 
   /// Creates a new [AccordionProperties] instance.
-  AccordionProperties({
-    this.isExpanded = true,
-  });
+  AccordionProperties({this.isExpanded = true});
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'isExpanded': BoolFieldAccess(
-          'Is Expanded',
-          'Whether the accordion is expanded or collapsed',
-          () => isExpanded,
-          (value) => isExpanded = value,
-        ),
-      };
+    ...super.generateFields(),
+    'isExpanded': BoolFieldAccess(
+      'Is Expanded',
+      'Whether the accordion is expanded or collapsed',
+      () => isExpanded,
+      (value) => isExpanded = value,
+    ),
+  };
 
   @override
-  Map<String, dynamic> toJson() => _$AccordionPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$AccordionPropertiesOmitDefaults(
+    this,
+    _$AccordionPropertiesToJson(this),
+  );
 
   /// Creates a [AccordionProperties] from a JSON data.
 

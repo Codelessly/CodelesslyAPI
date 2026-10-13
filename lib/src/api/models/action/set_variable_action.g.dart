@@ -3,60 +3,67 @@
 part of 'set_variable_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$SetVariableActionOmitDefaults(
+  SetVariableAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.index, '0')) json.remove('index');
+  if (isJsonDefault(instance.listOperation, ListOperation.replace))
+    json.remove('listOperation');
+  if (isJsonDefault(instance.mapKey, 'key')) json.remove('mapKey');
+  if (isJsonDefault(instance.mapOperation, MapOperation.replace))
+    json.remove('mapOperation');
+  if (isJsonDefault(instance.newValue, '')) json.remove('newValue');
+  if (isJsonDefault(instance.toggled, false)) json.remove('toggled');
+  if (isJsonDefault(instance.numberOperation, NumberOperation.set))
+    json.remove('numberOperation');
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
-      variable: VariableData.fromJson(
-          Map<String, dynamic>.from(json['variable'] as Map)),
-      newValue: json['newValue'] as String? ?? '',
-      toggled: json['toggled'] as bool? ?? false,
-      listOperation:
-          $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
-              ListOperation.replace,
-      index: json['index'] as String? ?? '0',
-      mapOperation:
-          $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
-              MapOperation.replace,
-      mapKey: json['mapKey'] as String? ?? 'key',
-      numberOperation: $enumDecodeNullable(
-              _$NumberOperationEnumMap, json['numberOperation']) ??
-          NumberOperation.set,
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  variable: VariableData.fromJson(
+    Map<String, dynamic>.from(json['variable'] as Map),
+  ),
+  newValue: json['newValue'] as String? ?? '',
+  toggled: json['toggled'] as bool? ?? false,
+  listOperation:
+      $enumDecodeNullable(_$ListOperationEnumMap, json['listOperation']) ??
+      ListOperation.replace,
+  index: json['index'] as String? ?? '0',
+  mapOperation:
+      $enumDecodeNullable(_$MapOperationEnumMap, json['mapOperation']) ??
+      MapOperation.replace,
+  mapKey: json['mapKey'] as String? ?? 'key',
+  numberOperation:
+      $enumDecodeNullable(_$NumberOperationEnumMap, json['numberOperation']) ??
+      NumberOperation.set,
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['variable'] = instance.variable.toJson();
-  writeNotNull('index', instance.index, instance.index, '0');
-  writeNotNull('listOperation', instance.listOperation,
-      _$ListOperationEnumMap[instance.listOperation]!, ListOperation.replace);
-  writeNotNull('mapKey', instance.mapKey, instance.mapKey, 'key');
-  writeNotNull('mapOperation', instance.mapOperation,
-      _$MapOperationEnumMap[instance.mapOperation]!, MapOperation.replace);
-  writeNotNull('newValue', instance.newValue, instance.newValue, '');
-  writeNotNull('toggled', instance.toggled, instance.toggled, false);
-  writeNotNull('numberOperation', instance.numberOperation,
-      _$NumberOperationEnumMap[instance.numberOperation]!, NumberOperation.set);
-  return val;
-}
+Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'variable': instance.variable.toJson(),
+      'index': instance.index,
+      'listOperation': _$ListOperationEnumMap[instance.listOperation]!,
+      'mapKey': instance.mapKey,
+      'mapOperation': _$MapOperationEnumMap[instance.mapOperation]!,
+      'newValue': instance.newValue,
+      'toggled': instance.toggled,
+      'numberOperation': _$NumberOperationEnumMap[instance.numberOperation]!,
+    };
 
 const _$ListOperationEnumMap = {
   ListOperation.replace: 'replace',

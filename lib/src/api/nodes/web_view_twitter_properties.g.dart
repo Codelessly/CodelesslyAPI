@@ -3,20 +3,102 @@
 part of 'web_view_twitter_properties.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$TweetTwitterWebViewPropertiesOmitDefaults(
+  TweetTwitterWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.embedType, TwitterEmbedType.tweet))
+    json.remove('embedType');
+  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
+    json.remove('webviewType');
+  return json;
+}
+
+Map<String, dynamic> _$TimelineTwitterWebViewPropertiesOmitDefaults(
+  TimelineTwitterWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.embedType, TwitterEmbedType.timeline))
+    json.remove('embedType');
+  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesOmitDefaults(
+  FollowButtonTwitterWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.embedType, TwitterEmbedType.follow))
+    json.remove('embedType');
+  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesOmitDefaults(
+  MentionButtonTwitterWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.embedType, TwitterEmbedType.mention))
+    json.remove('embedType');
+  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesOmitDefaults(
+  HashtagButtonTwitterWebViewProperties instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.embedType, TwitterEmbedType.hashtag))
+    json.remove('embedType');
+  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
+    json.remove('webviewType');
+  if (isJsonDefault(
+    instance.mediaAutoPlaybackPolicy,
+    WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+  ))
+    json.remove('mediaAutoPlaybackPolicy');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
-        Map json) =>
+  Map json,
+) =>
     TweetTwitterWebViewProperties(
-      tweetURL: json['tweetURL'] as String,
-      hideConversation: json['hideConversation'] as bool?,
-      theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
-      twitterTailoring: json['twitterTailoring'] as bool?,
-      languageCode: json['languageCode'] as String?,
-    )
+        tweetURL: json['tweetURL'] as String,
+        hideConversation: json['hideConversation'] as bool?,
+        theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
+        twitterTailoring: json['twitterTailoring'] as bool?,
+        languageCode: json['languageCode'] as String?,
+      )
       ..src = _$JsonConverterFromJson<String, String?>(
-          json['src'], const Base64JsonConverter().fromJson)
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
       ..controlVerticalScrollGesture =
           json['controlVerticalScrollGesture'] as bool?
       ..controlHorizontalScrollGesture =
@@ -27,8 +109,9 @@ TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
       ..controlForcePressGesture = json['controlForcePressGesture'] as bool?
       ..allowsInlineMediaPlayback = json['allowsInlineMediaPlayback'] as bool?
       ..mediaAutoPlaybackPolicy = $enumDecode(
-          _$WebViewMediaAutoPlaybackPolicyEnumMap,
-          json['mediaAutoPlaybackPolicy'])
+        _$WebViewMediaAutoPlaybackPolicyEnumMap,
+        json['mediaAutoPlaybackPolicy'],
+      )
       ..backgroundColor = json['backgroundColor'] == null
           ? null
           : ColorRGBA.fromJson(json['backgroundColor'])
@@ -36,58 +119,28 @@ TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
       ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
 Map<String, dynamic> _$TweetTwitterWebViewPropertiesToJson(
-    TweetTwitterWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  val['mediaAutoPlaybackPolicy'] = _$WebViewMediaAutoPlaybackPolicyEnumMap[
-      instance.mediaAutoPlaybackPolicy]!;
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('theme', instance.theme,
-      _$TwitterEmbedThemeEnumMap[instance.theme], null);
-  writeNotNull('twitterTailoring', instance.twitterTailoring,
-      instance.twitterTailoring, null);
-  writeNotNull(
-      'languageCode', instance.languageCode, instance.languageCode, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['tweetURL'] = instance.tweetURL;
-  writeNotNull('hideConversation', instance.hideConversation,
-      instance.hideConversation, null);
-  val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
-  return val;
-}
+  TweetTwitterWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'theme': ?_$TwitterEmbedThemeEnumMap[instance.theme],
+  'twitterTailoring': ?instance.twitterTailoring,
+  'languageCode': ?instance.languageCode,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'tweetURL': instance.tweetURL,
+  'hideConversation': ?instance.hideConversation,
+  'embedType': _$TwitterEmbedTypeEnumMap[instance.embedType]!,
+};
 
 const _$TwitterEmbedThemeEnumMap = {
   TwitterEmbedTheme.light: 'light',
@@ -97,8 +150,7 @@ const _$TwitterEmbedThemeEnumMap = {
 Value? _$JsonConverterFromJson<Json, Value>(
   Object? json,
   Value? Function(Json json) fromJson,
-) =>
-    json == null ? null : fromJson(json as Json);
+) => json == null ? null : fromJson(json as Json);
 
 const _$WebViewMediaAutoPlaybackPolicyEnumMap = {
   WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia:
@@ -121,376 +173,252 @@ const _$TwitterEmbedTypeEnumMap = {
 };
 
 TimelineTwitterWebViewProperties _$TimelineTwitterWebViewPropertiesFromJson(
-        Map json) =>
+  Map json,
+) =>
     TimelineTwitterWebViewProperties(
-      timelineURL: json['timelineURL'] as String,
-      width: (json['width'] as num?)?.toDouble(),
-      height: (json['height'] as num?)?.toDouble(),
-      theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
-      twitterTailoring: json['twitterTailoring'] as bool?,
-      languageCode: json['languageCode'] as String?,
-      controlVerticalScrollGesture:
-          json['controlVerticalScrollGesture'] as bool?,
-      controlHorizontalScrollGesture:
-          json['controlHorizontalScrollGesture'] as bool?,
-      controlScaleGesture: json['controlScaleGesture'] as bool?,
-      controlTapGesture: json['controlTapGesture'] as bool?,
-      controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-      controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-      allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-      mediaAutoPlaybackPolicy: $enumDecodeNullable(
+        timelineURL: json['timelineURL'] as String,
+        width: (json['width'] as num?)?.toDouble(),
+        height: (json['height'] as num?)?.toDouble(),
+        theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
+        twitterTailoring: json['twitterTailoring'] as bool?,
+        languageCode: json['languageCode'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
               _$WebViewMediaAutoPlaybackPolicyEnumMap,
-              json['mediaAutoPlaybackPolicy']) ??
-          WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-      backgroundColor: json['backgroundColor'] == null
-          ? null
-          : ColorRGBA.fromJson(json['backgroundColor']),
-    )
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
       ..src = _$JsonConverterFromJson<String, String?>(
-          json['src'], const Base64JsonConverter().fromJson)
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
       ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
       ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
 Map<String, dynamic> _$TimelineTwitterWebViewPropertiesToJson(
-    TimelineTwitterWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('theme', instance.theme,
-      _$TwitterEmbedThemeEnumMap[instance.theme], null);
-  writeNotNull('twitterTailoring', instance.twitterTailoring,
-      instance.twitterTailoring, null);
-  writeNotNull(
-      'languageCode', instance.languageCode, instance.languageCode, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['timelineURL'] = instance.timelineURL;
-  writeNotNull('width', instance.width, instance.width, null);
-  writeNotNull('height', instance.height, instance.height, null);
-  val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
-  return val;
-}
+  TimelineTwitterWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'theme': ?_$TwitterEmbedThemeEnumMap[instance.theme],
+  'twitterTailoring': ?instance.twitterTailoring,
+  'languageCode': ?instance.languageCode,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'timelineURL': instance.timelineURL,
+  'width': ?instance.width,
+  'height': ?instance.height,
+  'embedType': _$TwitterEmbedTypeEnumMap[instance.embedType]!,
+};
 
 FollowButtonTwitterWebViewProperties
-    _$FollowButtonTwitterWebViewPropertiesFromJson(Map json) =>
-        FollowButtonTwitterWebViewProperties(
-          handle: json['handle'] as String,
-          hideUsername: json['hideUsername'] as bool?,
-          largeButton: json['largeButton'] as bool?,
-          theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
-          twitterTailoring: json['twitterTailoring'] as bool?,
-          languageCode: json['languageCode'] as String?,
-          controlVerticalScrollGesture:
-              json['controlVerticalScrollGesture'] as bool?,
-          controlHorizontalScrollGesture:
-              json['controlHorizontalScrollGesture'] as bool?,
-          controlScaleGesture: json['controlScaleGesture'] as bool?,
-          controlTapGesture: json['controlTapGesture'] as bool?,
-          controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-          controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-          allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-          mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
-                  json['mediaAutoPlaybackPolicy']) ??
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          backgroundColor: json['backgroundColor'] == null
-              ? null
-              : ColorRGBA.fromJson(json['backgroundColor']),
-        )
-          ..src = _$JsonConverterFromJson<String, String?>(
-              json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
-          ..embedType =
-              $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
+_$FollowButtonTwitterWebViewPropertiesFromJson(Map json) =>
+    FollowButtonTwitterWebViewProperties(
+        handle: json['handle'] as String,
+        hideUsername: json['hideUsername'] as bool?,
+        largeButton: json['largeButton'] as bool?,
+        theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
+        twitterTailoring: json['twitterTailoring'] as bool?,
+        languageCode: json['languageCode'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
+      ..src = _$JsonConverterFromJson<String, String?>(
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
+      ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
 Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesToJson(
-    FollowButtonTwitterWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('theme', instance.theme,
-      _$TwitterEmbedThemeEnumMap[instance.theme], null);
-  writeNotNull('twitterTailoring', instance.twitterTailoring,
-      instance.twitterTailoring, null);
-  writeNotNull(
-      'languageCode', instance.languageCode, instance.languageCode, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['handle'] = instance.handle;
-  writeNotNull(
-      'hideUsername', instance.hideUsername, instance.hideUsername, null);
-  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
-  val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
-  return val;
-}
+  FollowButtonTwitterWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'theme': ?_$TwitterEmbedThemeEnumMap[instance.theme],
+  'twitterTailoring': ?instance.twitterTailoring,
+  'languageCode': ?instance.languageCode,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'handle': instance.handle,
+  'hideUsername': ?instance.hideUsername,
+  'largeButton': ?instance.largeButton,
+  'embedType': _$TwitterEmbedTypeEnumMap[instance.embedType]!,
+};
 
 MentionButtonTwitterWebViewProperties
-    _$MentionButtonTwitterWebViewPropertiesFromJson(Map json) =>
-        MentionButtonTwitterWebViewProperties(
-          handle: json['handle'] as String,
-          largeButton: json['largeButton'] as bool?,
-          prefilledText: json['prefilledText'] as String?,
-          recommendedAccounts: (json['recommendedAccounts'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList(),
-          theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
-          twitterTailoring: json['twitterTailoring'] as bool?,
-          languageCode: json['languageCode'] as String?,
-          controlVerticalScrollGesture:
-              json['controlVerticalScrollGesture'] as bool?,
-          controlHorizontalScrollGesture:
-              json['controlHorizontalScrollGesture'] as bool?,
-          controlScaleGesture: json['controlScaleGesture'] as bool?,
-          controlTapGesture: json['controlTapGesture'] as bool?,
-          controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-          controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-          allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-          mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
-                  json['mediaAutoPlaybackPolicy']) ??
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          backgroundColor: json['backgroundColor'] == null
-              ? null
-              : ColorRGBA.fromJson(json['backgroundColor']),
-        )
-          ..src = _$JsonConverterFromJson<String, String?>(
-              json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
-          ..embedType =
-              $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
+_$MentionButtonTwitterWebViewPropertiesFromJson(Map json) =>
+    MentionButtonTwitterWebViewProperties(
+        handle: json['handle'] as String,
+        largeButton: json['largeButton'] as bool?,
+        prefilledText: json['prefilledText'] as String?,
+        recommendedAccounts: (json['recommendedAccounts'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList(),
+        theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
+        twitterTailoring: json['twitterTailoring'] as bool?,
+        languageCode: json['languageCode'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
+      ..src = _$JsonConverterFromJson<String, String?>(
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
+      ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
 Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesToJson(
-    MentionButtonTwitterWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('theme', instance.theme,
-      _$TwitterEmbedThemeEnumMap[instance.theme], null);
-  writeNotNull('twitterTailoring', instance.twitterTailoring,
-      instance.twitterTailoring, null);
-  writeNotNull(
-      'languageCode', instance.languageCode, instance.languageCode, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['handle'] = instance.handle;
-  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
-  writeNotNull(
-      'prefilledText', instance.prefilledText, instance.prefilledText, null);
-  writeNotNull('recommendedAccounts', instance.recommendedAccounts,
-      instance.recommendedAccounts, null);
-  val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
-  return val;
-}
+  MentionButtonTwitterWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'theme': ?_$TwitterEmbedThemeEnumMap[instance.theme],
+  'twitterTailoring': ?instance.twitterTailoring,
+  'languageCode': ?instance.languageCode,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'handle': instance.handle,
+  'largeButton': ?instance.largeButton,
+  'prefilledText': ?instance.prefilledText,
+  'recommendedAccounts': ?instance.recommendedAccounts,
+  'embedType': _$TwitterEmbedTypeEnumMap[instance.embedType]!,
+};
 
 HashtagButtonTwitterWebViewProperties
-    _$HashtagButtonTwitterWebViewPropertiesFromJson(Map json) =>
-        HashtagButtonTwitterWebViewProperties(
-          hashtag: json['hashtag'] as String,
-          largeButton: json['largeButton'] as bool?,
-          prefilledText: json['prefilledText'] as String?,
-          recommendedAccounts: (json['recommendedAccounts'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList(),
-          specificURLInTweet: json['specificURLInTweet'] as String?,
-          theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
-          twitterTailoring: json['twitterTailoring'] as bool?,
-          languageCode: json['languageCode'] as String?,
-          controlVerticalScrollGesture:
-              json['controlVerticalScrollGesture'] as bool?,
-          controlHorizontalScrollGesture:
-              json['controlHorizontalScrollGesture'] as bool?,
-          controlScaleGesture: json['controlScaleGesture'] as bool?,
-          controlTapGesture: json['controlTapGesture'] as bool?,
-          controlLongPressGesture: json['controlLongPressGesture'] as bool?,
-          controlForcePressGesture: json['controlForcePressGesture'] as bool?,
-          allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
-          mediaAutoPlaybackPolicy: $enumDecodeNullable(
-                  _$WebViewMediaAutoPlaybackPolicyEnumMap,
-                  json['mediaAutoPlaybackPolicy']) ??
-              WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
-          backgroundColor: json['backgroundColor'] == null
-              ? null
-              : ColorRGBA.fromJson(json['backgroundColor']),
-        )
-          ..src = _$JsonConverterFromJson<String, String?>(
-              json['src'], const Base64JsonConverter().fromJson)
-          ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
-          ..embedType =
-              $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
+_$HashtagButtonTwitterWebViewPropertiesFromJson(Map json) =>
+    HashtagButtonTwitterWebViewProperties(
+        hashtag: json['hashtag'] as String,
+        largeButton: json['largeButton'] as bool?,
+        prefilledText: json['prefilledText'] as String?,
+        recommendedAccounts: (json['recommendedAccounts'] as List<dynamic>?)
+            ?.map((e) => e as String)
+            .toList(),
+        specificURLInTweet: json['specificURLInTweet'] as String?,
+        theme: $enumDecodeNullable(_$TwitterEmbedThemeEnumMap, json['theme']),
+        twitterTailoring: json['twitterTailoring'] as bool?,
+        languageCode: json['languageCode'] as String?,
+        controlVerticalScrollGesture:
+            json['controlVerticalScrollGesture'] as bool?,
+        controlHorizontalScrollGesture:
+            json['controlHorizontalScrollGesture'] as bool?,
+        controlScaleGesture: json['controlScaleGesture'] as bool?,
+        controlTapGesture: json['controlTapGesture'] as bool?,
+        controlLongPressGesture: json['controlLongPressGesture'] as bool?,
+        controlForcePressGesture: json['controlForcePressGesture'] as bool?,
+        allowsInlineMediaPlayback: json['allowsInlineMediaPlayback'] as bool?,
+        mediaAutoPlaybackPolicy:
+            $enumDecodeNullable(
+              _$WebViewMediaAutoPlaybackPolicyEnumMap,
+              json['mediaAutoPlaybackPolicy'],
+            ) ??
+            WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
+        backgroundColor: json['backgroundColor'] == null
+            ? null
+            : ColorRGBA.fromJson(json['backgroundColor']),
+      )
+      ..src = _$JsonConverterFromJson<String, String?>(
+        json['src'],
+        const Base64JsonConverter().fromJson,
+      )
+      ..webviewType = $enumDecode(_$WebViewTypeEnumMap, json['webviewType'])
+      ..embedType = $enumDecode(_$TwitterEmbedTypeEnumMap, json['embedType']);
 
 Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesToJson(
-    HashtagButtonTwitterWebViewProperties instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('src', instance.src,
-      const Base64JsonConverter().toJson(instance.src), null);
-  writeNotNull(
-      'controlVerticalScrollGesture',
-      instance.controlVerticalScrollGesture,
-      instance.controlVerticalScrollGesture,
-      null);
-  writeNotNull(
-      'controlHorizontalScrollGesture',
-      instance.controlHorizontalScrollGesture,
-      instance.controlHorizontalScrollGesture,
-      null);
-  writeNotNull('controlScaleGesture', instance.controlScaleGesture,
-      instance.controlScaleGesture, null);
-  writeNotNull('controlTapGesture', instance.controlTapGesture,
-      instance.controlTapGesture, null);
-  writeNotNull('controlLongPressGesture', instance.controlLongPressGesture,
-      instance.controlLongPressGesture, null);
-  writeNotNull('controlForcePressGesture', instance.controlForcePressGesture,
-      instance.controlForcePressGesture, null);
-  writeNotNull('allowsInlineMediaPlayback', instance.allowsInlineMediaPlayback,
-      instance.allowsInlineMediaPlayback, null);
-  writeNotNull(
-      'mediaAutoPlaybackPolicy',
-      instance.mediaAutoPlaybackPolicy,
-      _$WebViewMediaAutoPlaybackPolicyEnumMap[
-          instance.mediaAutoPlaybackPolicy]!,
-      WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia);
-  writeNotNull('backgroundColor', instance.backgroundColor,
-      instance.backgroundColor?.toJson(), null);
-  writeNotNull('theme', instance.theme,
-      _$TwitterEmbedThemeEnumMap[instance.theme], null);
-  writeNotNull('twitterTailoring', instance.twitterTailoring,
-      instance.twitterTailoring, null);
-  writeNotNull(
-      'languageCode', instance.languageCode, instance.languageCode, null);
-  val['webviewType'] = _$WebViewTypeEnumMap[instance.webviewType]!;
-  val['hashtag'] = instance.hashtag;
-  writeNotNull('largeButton', instance.largeButton, instance.largeButton, null);
-  writeNotNull(
-      'prefilledText', instance.prefilledText, instance.prefilledText, null);
-  writeNotNull('recommendedAccounts', instance.recommendedAccounts,
-      instance.recommendedAccounts, null);
-  writeNotNull('specificURLInTweet', instance.specificURLInTweet,
-      instance.specificURLInTweet, null);
-  val['embedType'] = _$TwitterEmbedTypeEnumMap[instance.embedType]!;
-  return val;
-}
+  HashtagButtonTwitterWebViewProperties instance,
+) => <String, dynamic>{
+  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
+  'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
+  'controlScaleGesture': ?instance.controlScaleGesture,
+  'controlTapGesture': ?instance.controlTapGesture,
+  'controlLongPressGesture': ?instance.controlLongPressGesture,
+  'controlForcePressGesture': ?instance.controlForcePressGesture,
+  'allowsInlineMediaPlayback': ?instance.allowsInlineMediaPlayback,
+  'mediaAutoPlaybackPolicy':
+      _$WebViewMediaAutoPlaybackPolicyEnumMap[instance
+          .mediaAutoPlaybackPolicy]!,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'theme': ?_$TwitterEmbedThemeEnumMap[instance.theme],
+  'twitterTailoring': ?instance.twitterTailoring,
+  'languageCode': ?instance.languageCode,
+  'webviewType': _$WebViewTypeEnumMap[instance.webviewType]!,
+  'hashtag': instance.hashtag,
+  'largeButton': ?instance.largeButton,
+  'prefilledText': ?instance.prefilledText,
+  'recommendedAccounts': ?instance.recommendedAccounts,
+  'specificURLInTweet': ?instance.specificURLInTweet,
+  'embedType': _$TwitterEmbedTypeEnumMap[instance.embedType]!,
+};

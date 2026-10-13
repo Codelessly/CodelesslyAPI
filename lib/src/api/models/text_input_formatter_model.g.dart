@@ -3,6 +3,31 @@
 part of 'text_input_formatter_model.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$NoneTextInputFormatterModelOmitDefaults(
+  NoneTextInputFormatterModel instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
+Map<String, dynamic> _$RegexTextInputFormatterModelOmitDefaults(
+  RegexTextInputFormatterModel instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.caseSensitive, true)) json.remove('caseSensitive');
+  if (isJsonDefault(instance.dotAll, false)) json.remove('dotAll');
+  if (isJsonDefault(instance.multiLine, false)) json.remove('multiLine');
+  if (isJsonDefault(instance.unicode, false)) json.remove('unicode');
+  if (isJsonDefault(instance.replacementString, ''))
+    json.remove('replacementString');
+  if (isJsonDefault(instance.allow, true)) json.remove('allow');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -10,10 +35,8 @@ NoneTextInputFormatterModel _$NoneTextInputFormatterModelFromJson(Map json) =>
     NoneTextInputFormatterModel();
 
 Map<String, dynamic> _$NoneTextInputFormatterModelToJson(
-        NoneTextInputFormatterModel instance) =>
-    <String, dynamic>{
-      'type': _$TextInputFormatterTypeEnumMap[instance.type]!,
-    };
+  NoneTextInputFormatterModel instance,
+) => <String, dynamic>{'type': _$TextInputFormatterTypeEnumMap[instance.type]!};
 
 const _$TextInputFormatterTypeEnumMap = {
   TextInputFormatterType.none: 'none',
@@ -33,30 +56,15 @@ RegexTextInputFormatterModel _$RegexTextInputFormatterModelFromJson(Map json) =>
     );
 
 Map<String, dynamic> _$RegexTextInputFormatterModelToJson(
-    RegexTextInputFormatterModel instance) {
-  final val = <String, dynamic>{
-    'name': instance.name,
-    'type': _$TextInputFormatterTypeEnumMap[instance.type]!,
-    'pattern': instance.pattern,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'caseSensitive', instance.caseSensitive, instance.caseSensitive, true);
-  writeNotNull('dotAll', instance.dotAll, instance.dotAll, false);
-  writeNotNull('multiLine', instance.multiLine, instance.multiLine, false);
-  writeNotNull('unicode', instance.unicode, instance.unicode, false);
-  writeNotNull('replacementString', instance.replacementString,
-      instance.replacementString, '');
-  writeNotNull('allow', instance.allow, instance.allow, true);
-  return val;
-}
+  RegexTextInputFormatterModel instance,
+) => <String, dynamic>{
+  'name': instance.name,
+  'type': _$TextInputFormatterTypeEnumMap[instance.type]!,
+  'pattern': instance.pattern,
+  'caseSensitive': instance.caseSensitive,
+  'dotAll': instance.dotAll,
+  'multiLine': instance.multiLine,
+  'unicode': instance.unicode,
+  'replacementString': instance.replacementString,
+  'allow': instance.allow,
+};

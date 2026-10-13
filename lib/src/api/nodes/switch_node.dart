@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -38,22 +38,20 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   /// Creates a mock switch preview.
   SwitchNode.empty()
-      : properties = SwitchProperties(),
-        super(
-          id: 'switch',
-          name: 'Switch',
-          basicBoxLocal:
-              NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
-        );
+    : properties = SwitchProperties(),
+      super(
+        id: 'switch',
+        name: 'Switch',
+        basicBoxLocal: NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
+      );
 
   /// Creates a switch from the given properties.
   SwitchNode.fromProperties(this.properties)
-      : super(
-          id: 'switch',
-          name: 'Switch',
-          basicBoxLocal:
-              NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
-        );
+    : super(
+        id: 'switch',
+        name: 'Switch',
+        basicBoxLocal: NodeBox(0, 0, kSwitchDefaultWidth, kSwitchDefaultHeight),
+      );
 
   /// Creates a [SwitchNode] instance with the given data.
   SwitchNode({
@@ -85,14 +83,14 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<SwitchProperties>(
-          'Properties',
-          'Holds configurable properties of the switch.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<SwitchProperties>(
+      'Properties',
+      'Holds configurable properties of the switch.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.changed];
@@ -107,7 +105,7 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   factory SwitchNode.fromJson(Map json) => _$SwitchNodeFromJson(json);
 
   @override
-  Map toJson() => _$SwitchNodeToJson(this);
+  Map toJson() => _$SwitchNodeOmitDefaults(this, _$SwitchNodeToJson(this));
 
   @override
   double get scale => basicBoxLocal.width / kSwitchDefaultWidth;
@@ -150,6 +148,8 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   late double trackOutlineWidth;
 
   /// Whether to use material 3 style.
+  // Designs saved before 5.0.0 omit this key and used Material 2.
+  @JsonKey(defaultValue: false)
   late bool useMaterial3;
 
   /// Creates a [SwitchProperties] instance with the given data.
@@ -165,7 +165,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.activeTrackBorderColor = ColorRGBA.transparent,
     this.inactiveTrackBorderColor = ColorRGBA.transparent,
     this.trackOutlineWidth = 2,
-    this.useMaterial3 = false,
+    this.useMaterial3 = true,
   });
 
   /// Duplicates this [SwitchProperties] instance with the given data
@@ -306,24 +306,25 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
 
   @override
   List<Object?> get props => [
-        activeTrackColor,
-        inactiveTrackColor,
-        activeThumbColor,
-        inactiveThumbColor,
-        hoverColor,
-        focusColor,
-        splashRadius,
-        autofocus,
-        activeTrackBorderColor,
-        inactiveTrackBorderColor,
-        trackOutlineWidth,
-        useMaterial3,
-      ];
+    activeTrackColor,
+    inactiveTrackColor,
+    activeThumbColor,
+    inactiveThumbColor,
+    hoverColor,
+    focusColor,
+    splashRadius,
+    autofocus,
+    activeTrackBorderColor,
+    inactiveTrackBorderColor,
+    trackOutlineWidth,
+    useMaterial3,
+  ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.
   factory SwitchProperties.fromJson(Map json) =>
       _$SwitchPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SwitchPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$SwitchPropertiesOmitDefaults(this, _$SwitchPropertiesToJson(this));
 }
