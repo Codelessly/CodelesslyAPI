@@ -61,11 +61,7 @@ class Breakpoint with Equatable, SerializableMixin {
   });
 
   /// Duplicates this [Breakpoint] with given data overrides.
-  Breakpoint copyWith({
-    String? nodeId,
-    num? lowerBound,
-    num? upperBound,
-  }) =>
+  Breakpoint copyWith({String? nodeId, num? lowerBound, num? upperBound}) =>
       Breakpoint(
         nodeId: nodeId ?? this.nodeId,
         lowerBound: lowerBound ?? this.lowerBound,

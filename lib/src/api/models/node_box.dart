@@ -165,25 +165,24 @@ class NodeBox with Equatable, DynamicSerializableMixin {
 
   /// Creates a new [NodeBox] from a [RectC] object.
   NodeBox.fromRect(RectC rect)
-      : this(rect.left, rect.top, rect.width, rect.height);
+    : this(rect.left, rect.top, rect.width, rect.height);
 
   /// Creates a new [NodeBox] from a [SizeC] object.
   NodeBox.fromCenter({
     required Vec center,
     required double width,
     required double height,
-  }) : this(center.x - width / 2, center.y - height / 2, width.toDouble(),
-            height.toDouble());
+  }) : this(
+         center.x - width / 2,
+         center.y - height / 2,
+         width.toDouble(),
+         height.toDouble(),
+       );
 
   /// Creates a new [NodeBox] using the current values of this [NodeBox], and
   /// optionally allows different values. The new [NodeBox] immediately
   /// pre-computes its values.
-  NodeBox copyWith({
-    double? x,
-    double? y,
-    double? width,
-    double? height,
-  }) =>
+  NodeBox copyWith({double? x, double? y, double? width, double? height}) =>
       NodeBox(
         x ?? this.x,
         y ?? this.y,
@@ -193,11 +192,11 @@ class NodeBox with Equatable, DynamicSerializableMixin {
 
   @override
   dynamic toJson() => [
-        x.toPrettyPrecision(3),
-        y.toPrettyPrecision(3),
-        width.toPrettyPrecision(3),
-        height.toPrettyPrecision(3),
-      ];
+    x.toPrettyPrecision(3),
+    y.toPrettyPrecision(3),
+    width.toPrettyPrecision(3),
+    height.toPrettyPrecision(3),
+  ];
 
   /// Creates a new [NodeBox] from a [json] Map.
   factory NodeBox.fromJson(dynamic json) {
@@ -370,14 +369,22 @@ class OuterNodeBox extends NodeBox {
     assert(y.isFinite, 'y is not finite. Value: $y');
     assert(width.isFinite, 'width is not finite. Value: $width');
     assert(height.isFinite, 'height is not finite. Value: $height');
-    assert(edgeInsets.l.isFinite,
-        'edgeInsets.l is not finite. Value: ${edgeInsets.l}');
-    assert(edgeInsets.t.isFinite,
-        'edgeInsets.t is not finite. Value: ${edgeInsets.t}');
-    assert(edgeInsets.r.isFinite,
-        'edgeInsets.r is not finite. Value: ${edgeInsets.r}');
-    assert(edgeInsets.b.isFinite,
-        'edgeInsets.b is not finite. Value: ${edgeInsets.b}');
+    assert(
+      edgeInsets.l.isFinite,
+      'edgeInsets.l is not finite. Value: ${edgeInsets.l}',
+    );
+    assert(
+      edgeInsets.t.isFinite,
+      'edgeInsets.t is not finite. Value: ${edgeInsets.t}',
+    );
+    assert(
+      edgeInsets.r.isFinite,
+      'edgeInsets.r is not finite. Value: ${edgeInsets.r}',
+    );
+    assert(
+      edgeInsets.b.isFinite,
+      'edgeInsets.b is not finite. Value: ${edgeInsets.b}',
+    );
 
     edgeTop = edgeInsets.t;
     innerTop = rect.top + edgeTop;
@@ -413,13 +420,13 @@ class OuterNodeBox extends NodeBox {
 
   /// Creates an [OuterNodeBox] from a middle or base box and an [edgeInsets].
   OuterNodeBox.fromMiddleBox(NodeBox box, {required EdgeInsetsModel edgeInsets})
-      : this(
-          box.x - edgeInsets.l,
-          box.y - edgeInsets.t,
-          box.width + edgeInsets.l + edgeInsets.r,
-          box.height + edgeInsets.t + edgeInsets.b,
-          edgeInsets: edgeInsets,
-        );
+    : this(
+        box.x - edgeInsets.l,
+        box.y - edgeInsets.t,
+        box.width + edgeInsets.l + edgeInsets.r,
+        box.height + edgeInsets.t + edgeInsets.b,
+        edgeInsets: edgeInsets,
+      );
 
   @override
   OuterNodeBox copyWith({
@@ -428,20 +435,19 @@ class OuterNodeBox extends NodeBox {
     double? width,
     double? height,
     EdgeInsetsModel? edgeInsets,
-  }) =>
-      OuterNodeBox(
-        x ?? this.x,
-        y ?? this.y,
-        width ?? this.width,
-        height ?? this.height,
-        edgeInsets: edgeInsets ?? this.edgeInsets,
-      );
+  }) => OuterNodeBox(
+    x ?? this.x,
+    y ?? this.y,
+    width ?? this.width,
+    height ?? this.height,
+    edgeInsets: edgeInsets ?? this.edgeInsets,
+  );
 
   @override
   dynamic toJson() => [
-        ...super.toJson(),
-        if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
-      ];
+    ...super.toJson(),
+    if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
+  ];
 
   /// Creates an [OuterNodeBox] from a json map.
   factory OuterNodeBox.fromJson(dynamic json) {
@@ -459,11 +465,11 @@ class OuterNodeBox extends NodeBox {
       box.height,
       edgeInsets: json is Iterable
           ? json.length > 4
-              ? EdgeInsetsModel.fromJson(json.sublist(4))
-              : EdgeInsetsModel.zero
+                ? EdgeInsetsModel.fromJson(json.sublist(4))
+                : EdgeInsetsModel.zero
           : json.containsKey('edgeInsets')
-              ? EdgeInsetsModel.fromJson(json['edgeInsets'])
-              : EdgeInsetsModel.zero,
+          ? EdgeInsetsModel.fromJson(json['edgeInsets'])
+          : EdgeInsetsModel.zero,
     );
   }
 
@@ -611,14 +617,22 @@ class InnerNodeBox extends NodeBox {
     assert(height.isFinite, 'height is not finite. Value: $height');
     assert(width.isNegative == false, 'width is negative. Value: $width');
     assert(height.isNegative == false, 'height is negative. Value: $height');
-    assert(edgeInsets.l.isFinite,
-        'edgeInsets.l is not finite. Value: ${edgeInsets.l}');
-    assert(edgeInsets.t.isFinite,
-        'edgeInsets.t is not finite. Value: ${edgeInsets.t}');
-    assert(edgeInsets.r.isFinite,
-        'edgeInsets.r is not finite. Value: ${edgeInsets.r}');
-    assert(edgeInsets.b.isFinite,
-        'edgeInsets.b is not finite. Value: ${edgeInsets.b}');
+    assert(
+      edgeInsets.l.isFinite,
+      'edgeInsets.l is not finite. Value: ${edgeInsets.l}',
+    );
+    assert(
+      edgeInsets.t.isFinite,
+      'edgeInsets.t is not finite. Value: ${edgeInsets.t}',
+    );
+    assert(
+      edgeInsets.r.isFinite,
+      'edgeInsets.r is not finite. Value: ${edgeInsets.r}',
+    );
+    assert(
+      edgeInsets.b.isFinite,
+      'edgeInsets.b is not finite. Value: ${edgeInsets.b}',
+    );
 
     edgeTop = edgeInsets.t;
     outerTop = y - edgeTop;
@@ -654,13 +668,13 @@ class InnerNodeBox extends NodeBox {
 
   /// Creates an [InnerNodeBox] from a middle or base box and an [edgeInsets].
   InnerNodeBox.fromMiddleBox(NodeBox box, {required EdgeInsetsModel edgeInsets})
-      : this(
-          box.x + edgeInsets.l,
-          box.y + edgeInsets.t,
-          box.width - edgeInsets.horizontal,
-          box.height - edgeInsets.vertical,
-          edgeInsets: edgeInsets,
-        );
+    : this(
+        box.x + edgeInsets.l,
+        box.y + edgeInsets.t,
+        box.width - edgeInsets.horizontal,
+        box.height - edgeInsets.vertical,
+        edgeInsets: edgeInsets,
+      );
 
   @override
   InnerNodeBox copyWith({
@@ -695,19 +709,19 @@ class InnerNodeBox extends NodeBox {
       box.height,
       edgeInsets: json is Iterable
           ? json.length > 4
-              ? EdgeInsetsModel.fromJson(json.sublist(4))
-              : EdgeInsetsModel.zero
+                ? EdgeInsetsModel.fromJson(json.sublist(4))
+                : EdgeInsetsModel.zero
           : json.containsKey('edgeInsets')
-              ? EdgeInsetsModel.fromJson(json['edgeInsets'])
-              : EdgeInsetsModel.zero,
+          ? EdgeInsetsModel.fromJson(json['edgeInsets'])
+          : EdgeInsetsModel.zero,
     );
   }
 
   @override
   dynamic toJson() => [
-        ...super.toJson(),
-        if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
-      ];
+    ...super.toJson(),
+    if (edgeInsets == EdgeInsetsModel.zero) edgeInsets.toJson(),
+  ];
 
   @override
   String toString() =>
@@ -726,8 +740,13 @@ class RotatedNodeBox extends NodeBox {
 
   /// The constructor for [RotatedNodeBox]. It takes the same parameters as
   /// [NodeBox] with the addition of [rotationDegrees].
-  RotatedNodeBox(super.x, super.y, super.width, super.height,
-      {required this.rotationDegrees}) {
+  RotatedNodeBox(
+    super.x,
+    super.y,
+    super.width,
+    super.height, {
+    required this.rotationDegrees,
+  }) {
     assert(x.isFinite, 'x is not finite. Value: $x');
     assert(y.isFinite, 'y is not finite. Value: $y');
     assert(width.isFinite, 'width is not finite. Value: $width');
@@ -753,9 +772,9 @@ class RotatedNodeBox extends NodeBox {
 
   @override
   dynamic toJson() => [
-        ...super.toJson(),
-        if (rotationDegrees != 0) rotationDegrees,
-      ];
+    ...super.toJson(),
+    if (rotationDegrees != 0) rotationDegrees,
+  ];
 
   /// Creates a [RotatedNodeBox] from a JSON map.
   factory RotatedNodeBox.fromJson(dynamic json) {
@@ -773,8 +792,8 @@ class RotatedNodeBox extends NodeBox {
       box.height,
       rotationDegrees: json is Iterable
           ? json.length > 4
-              ? EdgeInsetsModel.fromJson(json.elementAt(5))
-              : 0
+                ? EdgeInsetsModel.fromJson(json.elementAt(5))
+                : 0
           : json['rotationDegrees'] ?? 0,
     );
   }

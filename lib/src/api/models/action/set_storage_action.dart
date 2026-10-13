@@ -19,10 +19,10 @@ enum StorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        StorageOperation.addOrUpdate => 'Add/Update',
-        StorageOperation.remove => 'Remove',
-        StorageOperation.clear => 'Clear',
-      };
+    StorageOperation.addOrUpdate => 'Add/Update',
+    StorageOperation.remove => 'Remove',
+    StorageOperation.clear => 'Clear',
+  };
 
   /// Whether the operation is [StorageOperation.remove].
   bool get isRemove => this == StorageOperation.remove;
@@ -125,25 +125,26 @@ class SetStorageAction extends ActionModel
 
   @override
   List<Object?> get props => [
-        key,
-        operation,
-        variableType,
-        newValue,
-        toggled,
-        listOperation,
-        index,
-        mapOperation,
-        mapKey,
-        numberOperation,
-        skipIfAlreadyExists,
-      ];
+    key,
+    operation,
+    variableType,
+    newValue,
+    toggled,
+    listOperation,
+    index,
+    mapOperation,
+    mapKey,
+    numberOperation,
+    skipIfAlreadyExists,
+  ];
 
   /// Creates a new [SetStorageAction] instance from a JSON data.
   factory SetStorageAction.fromJson(Map json) =>
       _$SetStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetStorageActionOmitDefaults(this, _$SetStorageActionToJson(this));
+  Map toJson() =>
+      _$SetStorageActionOmitDefaults(this, _$SetStorageActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSetStorageAction(this);

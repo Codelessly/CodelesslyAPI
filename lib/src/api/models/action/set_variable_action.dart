@@ -54,15 +54,15 @@ class SetVariableAction extends ActionModel
 
   @override
   List<Object?> get props => [
-        variable,
-        newValue,
-        toggled,
-        listOperation,
-        index,
-        mapOperation,
-        mapKey,
-        numberOperation,
-      ];
+    variable,
+    newValue,
+    toggled,
+    listOperation,
+    index,
+    mapOperation,
+    mapKey,
+    numberOperation,
+  ];
 
   /// Duplicates this [SetVariableAction] with given data overrides.
   SetVariableAction copyWith({
@@ -74,24 +74,24 @@ class SetVariableAction extends ActionModel
     MapOperation? mapOperation,
     String? mapKey,
     NumberOperation? numberOperation,
-  }) =>
-      SetVariableAction(
-        variable: variable ?? this.variable,
-        newValue: newValue ?? this.newValue,
-        toggled: toggled ?? this.toggled,
-        listOperation: listOperation ?? this.listOperation,
-        index: index ?? this.index,
-        mapOperation: mapOperation ?? this.mapOperation,
-        mapKey: mapKey ?? this.mapKey,
-        numberOperation: numberOperation ?? this.numberOperation,
-      );
+  }) => SetVariableAction(
+    variable: variable ?? this.variable,
+    newValue: newValue ?? this.newValue,
+    toggled: toggled ?? this.toggled,
+    listOperation: listOperation ?? this.listOperation,
+    index: index ?? this.index,
+    mapOperation: mapOperation ?? this.mapOperation,
+    mapKey: mapKey ?? this.mapKey,
+    numberOperation: numberOperation ?? this.numberOperation,
+  );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
   factory SetVariableAction.fromJson(Map json) =>
       _$SetVariableActionFromJson(json);
 
   @override
-  Map toJson() => _$SetVariableActionOmitDefaults(this, _$SetVariableActionToJson(this));
+  Map toJson() =>
+      _$SetVariableActionOmitDefaults(this, _$SetVariableActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

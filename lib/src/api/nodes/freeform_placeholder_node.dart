@@ -68,5 +68,8 @@ class FreeformPlaceholderNode extends DefaultShapeNode
       _$FreeformPlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$FreeformPlaceholderNodeOmitDefaults(this, _$FreeformPlaceholderNodeToJson(this));
+  Map toJson() => _$FreeformPlaceholderNodeOmitDefaults(
+    this,
+    _$FreeformPlaceholderNodeToJson(this),
+  );
 }

@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+
 import '../../json_defaults.dart';
 
 part 'query_filter.g.dart';
@@ -100,26 +101,26 @@ enum WhereQueryOperator {
 
   /// Returns a set of all range operators.
   static Set<WhereQueryOperator> get rangeOperators => {
-        WhereQueryOperator.greaterThan,
-        WhereQueryOperator.greaterThanOrEqual,
-        WhereQueryOperator.lessThan,
-        WhereQueryOperator.lessThanOrEqual,
-      };
+    WhereQueryOperator.greaterThan,
+    WhereQueryOperator.greaterThanOrEqual,
+    WhereQueryOperator.lessThan,
+    WhereQueryOperator.lessThanOrEqual,
+  };
 
   /// Returns a set of all inequality operators.
   static Set<WhereQueryOperator> get inequalityOperators => {
-        ...rangeOperators,
-        WhereQueryOperator.notEqual,
-        WhereQueryOperator.notInArray,
-      };
+    ...rangeOperators,
+    WhereQueryOperator.notEqual,
+    WhereQueryOperator.notInArray,
+  };
 
   /// Returns a set of all equality operators.
   static Set<WhereQueryOperator> get equalityOperators => {
-        WhereQueryOperator.equal,
-        WhereQueryOperator.arrayContains,
-        WhereQueryOperator.arrayContainsAny,
-        WhereQueryOperator.inArray,
-      };
+    WhereQueryOperator.equal,
+    WhereQueryOperator.arrayContains,
+    WhereQueryOperator.arrayContainsAny,
+    WhereQueryOperator.inArray,
+  };
 
   /// Returns true if the given [operators] iterable contains any equality
   /// operator.
@@ -163,19 +164,19 @@ final class WhereQueryFilter extends QueryFilter with Equatable {
     String? field,
     WhereQueryOperator? operator,
     String? value,
-  }) =>
-      WhereQueryFilter(
-        field: field ?? this.field,
-        operator: operator ?? this.operator,
-        value: value ?? this.value,
-      );
+  }) => WhereQueryFilter(
+    field: field ?? this.field,
+    operator: operator ?? this.operator,
+    value: value ?? this.value,
+  );
 
   /// Converts a JSON object to a [WhereQueryFilter] instance.
   factory WhereQueryFilter.fromJson(Map<String, dynamic> json) =>
       _$WhereQueryFilterFromJson(json);
 
   /// Converts this [WhereQueryFilter] instance to a JSON object.
-  Map<String, dynamic> toJson() => _$WhereQueryFilterOmitDefaults(this, _$WhereQueryFilterToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$WhereQueryFilterOmitDefaults(this, _$WhereQueryFilterToJson(this));
 
   @override
   List<Object?> get props => [field, operator, value];
@@ -228,7 +229,8 @@ final class OrderByQueryFilter extends QueryFilter with Equatable {
       _$OrderByQueryFilterFromJson(json);
 
   /// Converts this [OrderByQueryFilter] instance to a JSON object.
-  Map<String, dynamic> toJson() => _$OrderByQueryFilterOmitDefaults(this, _$OrderByQueryFilterToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$OrderByQueryFilterOmitDefaults(this, _$OrderByQueryFilterToJson(this));
 
   @override
   List<Object?> get props => [field, sortOrder];

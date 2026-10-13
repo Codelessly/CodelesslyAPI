@@ -106,20 +106,22 @@ class MailchimpSubmitAction extends SubmitAction {
     String? listID,
     String? firstNameField,
     String? lastNameField,
-  }) =>
-      MailchimpSubmitAction(
-        primaryTextField: primaryTextField ?? this.primaryTextField,
-        apiKey: apiKey ?? this.apiKey,
-        dataCenter: dataCenter ?? this.dataCenter,
-        listID: listID ?? this.listID,
-        firstNameField: firstNameField ?? this.firstNameField,
-        lastNameField: lastNameField ?? this.lastNameField,
-      );
+  }) => MailchimpSubmitAction(
+    primaryTextField: primaryTextField ?? this.primaryTextField,
+    apiKey: apiKey ?? this.apiKey,
+    dataCenter: dataCenter ?? this.dataCenter,
+    listID: listID ?? this.listID,
+    firstNameField: firstNameField ?? this.firstNameField,
+    lastNameField: lastNameField ?? this.lastNameField,
+  );
 
   /// Creates a new [MailchimpSubmitAction] instance from a JSON data.
   factory MailchimpSubmitAction.fromJson(Map json) =>
       _$MailchimpSubmitActionFromJson(json);
 
   @override
-  Map toJson() => _$MailchimpSubmitActionOmitDefaults(this, _$MailchimpSubmitActionToJson(this));
+  Map toJson() => _$MailchimpSubmitActionOmitDefaults(
+    this,
+    _$MailchimpSubmitActionToJson(this),
+  );
 }

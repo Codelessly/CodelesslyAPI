@@ -29,7 +29,7 @@ enum RadiusType {
   circular,
 
   /// A corner shape controlled by an elliptical shape formula.
-  elliptical;
+  elliptical,
 }
 
 /// Holds corner radius values for a rect. Similar to Flutter's [BorderRadius].
@@ -72,13 +72,13 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
     RadiusType type = RadiusType.circular,
     bool linked = false,
   }) : this.only(
-          type: type,
-          tl: radius,
-          tr: radius,
-          bl: radius,
-          br: radius,
-          linked: linked,
-        );
+         type: type,
+         tl: radius,
+         tr: radius,
+         bl: radius,
+         br: radius,
+         linked: linked,
+       );
 
   /// Creates a [CornerRadius] with individual corner radius values.
   const CornerRadius.only({
@@ -107,15 +107,14 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
     RadiusModel? bl,
     RadiusModel? br,
     bool? linked,
-  }) =>
-      CornerRadius(
-        type: type ?? this.type,
-        linked: linked ?? this.linked,
-        tl: tl ?? this.tl,
-        tr: tr ?? this.tr,
-        bl: bl ?? this.bl,
-        br: br ?? this.br,
-      );
+  }) => CornerRadius(
+    type: type ?? this.type,
+    linked: linked ?? this.linked,
+    tl: tl ?? this.tl,
+    tr: tr ?? this.tr,
+    bl: bl ?? this.bl,
+    br: br ?? this.br,
+  );
 
   /// Factory constructor for creating a new [CornerRadius] instance from
   /// JSON data.

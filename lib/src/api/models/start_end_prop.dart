@@ -57,9 +57,9 @@ final class StartEndProp extends TextProp {
     super.lineHeight,
     super.link,
     super.isJsonPath,
-  })  : start = 0,
-        end = 0,
-        super(fills: fills ?? [PaintModel.whitePaint]);
+  }) : start = 0,
+       end = 0,
+       super(fills: fills ?? [PaintModel.whitePaint]);
 
   /// Creates a [StartEndProp] with the given data.
   StartEndProp({
@@ -76,18 +76,20 @@ final class StartEndProp extends TextProp {
   });
 
   /// Creates a [StartEndProp] with the given data from a [TextProp].
-  StartEndProp.fromTextProp(
-      {required this.start, required this.end, required TextProp prop})
-      : super(
-          fills: prop.fills,
-          textDecoration: prop.textDecoration,
-          letterSpacing: prop.letterSpacing,
-          fontSize: prop.fontSize,
-          fontName: prop.fontName,
-          lineHeight: prop.lineHeight,
-          link: prop.link,
-          isJsonPath: prop.isJsonPath,
-        );
+  StartEndProp.fromTextProp({
+    required this.start,
+    required this.end,
+    required TextProp prop,
+  }) : super(
+         fills: prop.fills,
+         textDecoration: prop.textDecoration,
+         letterSpacing: prop.letterSpacing,
+         fontSize: prop.fontSize,
+         fontName: prop.fontName,
+         lineHeight: prop.lineHeight,
+         link: prop.link,
+         isJsonPath: prop.isJsonPath,
+       );
 
   @override
   StartEndProp copyWith({
@@ -101,33 +103,32 @@ final class StartEndProp extends TextProp {
     LineHeight? lineHeight,
     String? link,
     bool? isJsonPath,
-  }) =>
-      StartEndProp(
-        start: start ?? this.start,
-        end: end ?? this.end,
-        fills: fills ?? this.fills,
-        textDecoration: textDecoration ?? this.textDecoration,
-        fontSize: fontSize ?? this.fontSize,
-        letterSpacing: letterSpacing ?? this.letterSpacing,
-        fontName: fontName ?? this.fontName,
-        lineHeight: lineHeight ?? this.lineHeight,
-        link: link ?? this.link,
-        isJsonPath: isJsonPath ?? this.isJsonPath,
-      );
+  }) => StartEndProp(
+    start: start ?? this.start,
+    end: end ?? this.end,
+    fills: fills ?? this.fills,
+    textDecoration: textDecoration ?? this.textDecoration,
+    fontSize: fontSize ?? this.fontSize,
+    letterSpacing: letterSpacing ?? this.letterSpacing,
+    fontName: fontName ?? this.fontName,
+    lineHeight: lineHeight ?? this.lineHeight,
+    link: link ?? this.link,
+    isJsonPath: isJsonPath ?? this.isJsonPath,
+  );
 
   @override
   List<Object> get props => [
-        start,
-        end,
-        fills,
-        textDecoration,
-        fontSize,
-        letterSpacing,
-        fontName,
-        lineHeight,
-        link,
-        isJsonPath,
-      ];
+    start,
+    end,
+    fills,
+    textDecoration,
+    fontSize,
+    letterSpacing,
+    fontName,
+    lineHeight,
+    link,
+    isJsonPath,
+  ];
 
   /// Factory constructor for creating a new [StartEndProp] instance from
   /// JSON data.
@@ -200,17 +201,16 @@ class TextProp extends Equatable with SerializableMixin {
     LineHeight? lineHeight,
     String? link,
     bool? isJsonPath,
-  }) =>
-      TextProp(
-        fills: fills ?? this.fills,
-        textDecoration: textDecoration ?? this.textDecoration,
-        fontSize: fontSize ?? this.fontSize,
-        letterSpacing: letterSpacing ?? this.letterSpacing,
-        fontName: fontName ?? this.fontName,
-        lineHeight: lineHeight ?? this.lineHeight,
-        link: link ?? this.link,
-        isJsonPath: isJsonPath ?? this.isJsonPath,
-      );
+  }) => TextProp(
+    fills: fills ?? this.fills,
+    textDecoration: textDecoration ?? this.textDecoration,
+    fontSize: fontSize ?? this.fontSize,
+    letterSpacing: letterSpacing ?? this.letterSpacing,
+    fontName: fontName ?? this.fontName,
+    lineHeight: lineHeight ?? this.lineHeight,
+    link: link ?? this.link,
+    isJsonPath: isJsonPath ?? this.isJsonPath,
+  );
 
   /// Returns true if this instance is equivalent to the [other].
   /// The reason this comparison is not done in [Equatable] is because
@@ -232,15 +232,15 @@ class TextProp extends Equatable with SerializableMixin {
 
   @override
   List<Object> get props => [
-        fills,
-        textDecoration,
-        fontSize,
-        letterSpacing,
-        fontName,
-        lineHeight,
-        link,
-        isJsonPath,
-      ];
+    fills,
+    textDecoration,
+    fontSize,
+    letterSpacing,
+    fontName,
+    lineHeight,
+    link,
+    isJsonPath,
+  ];
 
   /// Factory constructor for creating a new [TextProp] instance from JSON data.
   factory TextProp.fromJson(Map json) => _$TextPropFromJson(json);

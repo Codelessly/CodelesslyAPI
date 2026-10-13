@@ -23,12 +23,12 @@ class IconNode extends SceneNode
     with BlendMixin, FixedAspectRatioMixin, CustomPropertiesMixin {
   /// Strictly used for previews. e.g in components panel.
   IconNode.empty()
-      : this(
-          id: 'icon1',
-          name: 'Icon',
-          icon: defaultIcon,
-          basicBoxLocal: NodeBox(0, 0, 24, 24),
-        );
+    : this(
+        id: 'icon1',
+        name: 'Icon',
+        icon: defaultIcon,
+        basicBoxLocal: NodeBox(0, 0, 24, 24),
+      );
 
   @override
   covariant IconProperties properties;
@@ -44,14 +44,14 @@ class IconNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<IconProperties>(
-          'Properties',
-          'Icon properties',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<IconProperties>(
+      'Properties',
+      'Icon properties',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates an [IconNode] with the given data.
   IconNode({
@@ -82,13 +82,14 @@ class IconNode extends SceneNode
     InkWellModel? inkWell,
     List<Reaction> reactions = const [],
     IconProperties? properties,
-  }) : properties = properties ??
-            IconProperties(
-              icon: MultiSourceIconModel.icon(
-                icon: icon ?? defaultIcon,
-                color: color,
-              ),
-            ) {
+  }) : properties =
+           properties ??
+           IconProperties(
+             icon: MultiSourceIconModel.icon(
+               icon: icon ?? defaultIcon,
+               color: color,
+             ),
+           ) {
     setBlendMixin(
       opacity: opacity,
       isMask: isMask,
@@ -101,9 +102,9 @@ class IconNode extends SceneNode
 
   @override
   List<TriggerType> get triggerTypes => [
-        TriggerType.click,
-        TriggerType.longPress,
-      ];
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   /// Creates an [IconNode] from a JSON data.
   factory IconNode.fromJson(Map json) {
@@ -111,11 +112,7 @@ class IconNode extends SceneNode
     if (json.containsKey('icon') && !json.containsKey('properties')) {
       // Very old model where icon was in IconNode.
       json['properties'] = <String, dynamic>{
-        'icon': {
-          'icon': json['icon'],
-          'show': true,
-          'color': json['color'],
-        },
+        'icon': {'icon': json['icon'], 'show': true, 'color': json['color']},
       };
       json.remove('icon');
     }
@@ -145,12 +142,11 @@ class IconProperties extends CustomProperties with FieldsHolder {
   MultiSourceIconModel icon;
 
   /// Creates [IconProperties] with the given data.
-  IconProperties({
-    required this.icon,
-  });
+  IconProperties({required this.icon});
 
   @override
-  Map<String, dynamic> toJson() => _$IconPropertiesOmitDefaults(this, _$IconPropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$IconPropertiesOmitDefaults(this, _$IconPropertiesToJson(this));
 
   /// Creates an [IconProperties] from a JSON data.
   factory IconProperties.fromJson(Map json) => _$IconPropertiesFromJson(json);
@@ -160,13 +156,13 @@ class IconProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'icon': IconFieldAccess<MultiSourceIconModel>(
-          'Icon',
-          'Icon to display',
-          () => icon,
-          requiresLayout: true,
-          (value) => icon = value,
-        ),
-      };
+    ...super.generateFields(),
+    'icon': IconFieldAccess<MultiSourceIconModel>(
+      'Icon',
+      'Icon to display',
+      () => icon,
+      requiresLayout: true,
+      (value) => icon = value,
+    ),
+  };
 }

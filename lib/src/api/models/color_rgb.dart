@@ -21,9 +21,9 @@ base class ColorRGB extends Equatable with DynamicSerializableMixin {
 
   /// Creates a [ColorRGB] with given red, blue and green values.
   const ColorRGB({required this.r, required this.g, required this.b})
-      : assert(r >= 0 && r <= 1),
-        assert(g >= 0 && g <= 1),
-        assert(b >= 0 && b <= 1);
+    : assert(r >= 0 && r <= 1),
+      assert(g >= 0 && g <= 1),
+      assert(b >= 0 && b <= 1);
 
   /// Represents black color.
   static const ColorRGB black = ColorRGB(r: 0.0, g: 0.0, b: 0.0);
@@ -90,7 +90,8 @@ base class ColorRGB extends Equatable with DynamicSerializableMixin {
     final r = (this.r * 255).toInt().toRadixString(16).padLeft(2, '0');
     final g = (this.g * 255).toInt().toRadixString(16).padLeft(2, '0');
     final b = (this.b * 255).toInt().toRadixString(16).padLeft(2, '0');
-    return '${includeHash ? '#' : ''}${includeAlpha ? 'FF' : ''}$r$g$b'.toUpperCase();
+    return '${includeHash ? '#' : ''}${includeAlpha ? 'FF' : ''}$r$g$b'
+        .toUpperCase();
   }
 
   @override
@@ -105,9 +106,6 @@ base class ColorRGB extends Equatable with DynamicSerializableMixin {
   }
 
   /// Creates a [PaintModel] with this color and given [opacity].
-  PaintModel toPaint([String? id, double opacity = 1.0]) => PaintModel.solid(
-        id: id ?? generateId(),
-        color: this,
-        opacity: opacity,
-      );
+  PaintModel toPaint([String? id, double opacity = 1.0]) =>
+      PaintModel.solid(id: id ?? generateId(), color: this, opacity: opacity);
 }

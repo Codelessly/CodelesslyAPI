@@ -80,8 +80,9 @@ class VisualDensityModel with Equatable, SerializableMixin {
   });
 
   /// A standard visual density.
-  static const VisualDensityModel standard =
-      VisualDensityModel(type: VisualDensityType.standard);
+  static const VisualDensityModel standard = VisualDensityModel(
+    type: VisualDensityType.standard,
+  );
 
   /// A comfortable visual density.
   static const VisualDensityModel comfortable = VisualDensityModel(
@@ -136,5 +137,6 @@ class VisualDensityModel with Equatable, SerializableMixin {
       _$VisualDensityModelFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$VisualDensityModelOmitDefaults(this, _$VisualDensityModelToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$VisualDensityModelOmitDefaults(this, _$VisualDensityModelToJson(this));
 }

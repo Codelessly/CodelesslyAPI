@@ -38,20 +38,20 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   /// Creates a mock radio preview.
   RadioNode.empty()
-      : properties = RadioProperties(),
-        super(
-          id: 'radio',
-          name: 'Radio',
-          basicBoxLocal: NodeBox(0, 0, kRadioDefaultSize, kRadioDefaultSize),
-        );
+    : properties = RadioProperties(),
+      super(
+        id: 'radio',
+        name: 'Radio',
+        basicBoxLocal: NodeBox(0, 0, kRadioDefaultSize, kRadioDefaultSize),
+      );
 
   /// Creates a radio node from properties.
   RadioNode.fromProperties(this.properties)
-      : super(
-          id: 'radio',
-          name: 'Radio',
-          basicBoxLocal: NodeBox(0, 0, kRadioDefaultSize, kRadioDefaultSize),
-        );
+    : super(
+        id: 'radio',
+        name: 'Radio',
+        basicBoxLocal: NodeBox(0, 0, kRadioDefaultSize, kRadioDefaultSize),
+      );
 
   /// Creates a [RadioNode] instance with the given data.
   RadioNode({
@@ -83,14 +83,14 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<RadioProperties>(
-          'Properties',
-          'Properties of radio button.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<RadioProperties>(
+      'Properties',
+      'Properties of radio button.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<TriggerType> get triggerTypes => [TriggerType.click];
@@ -163,77 +163,78 @@ class RadioProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'activeColor': ColorFieldAccess<ColorRGBA>(
-          'Active Color',
-          'Color of radio when it is active.',
-          () => activeColor,
-          (ColorRGBA? value) {
-            if (value != null) activeColor = value;
-          },
-        ),
-        'inactiveColor': ColorFieldAccess<ColorRGBA>(
-          'Inactive Color',
-          'Color of radio when it is inactive.',
-          () => inactiveColor,
-          (ColorRGBA? value) {
-            if (value != null) inactiveColor = value;
-          },
-        ),
-        'hoverColor': ColorFieldAccess<ColorRGBA>(
-          'Hover Color',
-          'Color of radio when it is hovered.',
-          () => hoverColor,
-          (ColorRGBA? value) {
-            if (value != null) hoverColor = value;
-          },
-        ),
-        'focusColor': ColorFieldAccess<ColorRGBA>(
-          'Focus Color',
-          'Color of radio when it is focused.',
-          () => focusColor,
-          (ColorRGBA? value) {
-            if (value != null) focusColor = value;
-          },
-        ),
-        'splashRadius': NumFieldAccess<double>(
-          'Splash Radius',
-          'Splash radius of the circular ink response.',
-          () => splashRadius,
-          (double value) => splashRadius = value,
-        ),
-        'autofocus': BoolFieldAccess(
-          'Autofocus',
-          'Whether to focus the radio automatically.',
-          () => autofocus,
-          (bool? value) {
-            if (value != null) autofocus = value;
-          },
-        ),
-        'toggleable': BoolFieldAccess(
-          'Toggleable',
-          'Whether the button\'s value can be toggled on tap.',
-          () => toggleable,
-          (bool? value) {
-            if (value != null) toggleable = value;
-          },
-        ),
-      };
+    ...super.generateFields(),
+    'activeColor': ColorFieldAccess<ColorRGBA>(
+      'Active Color',
+      'Color of radio when it is active.',
+      () => activeColor,
+      (ColorRGBA? value) {
+        if (value != null) activeColor = value;
+      },
+    ),
+    'inactiveColor': ColorFieldAccess<ColorRGBA>(
+      'Inactive Color',
+      'Color of radio when it is inactive.',
+      () => inactiveColor,
+      (ColorRGBA? value) {
+        if (value != null) inactiveColor = value;
+      },
+    ),
+    'hoverColor': ColorFieldAccess<ColorRGBA>(
+      'Hover Color',
+      'Color of radio when it is hovered.',
+      () => hoverColor,
+      (ColorRGBA? value) {
+        if (value != null) hoverColor = value;
+      },
+    ),
+    'focusColor': ColorFieldAccess<ColorRGBA>(
+      'Focus Color',
+      'Color of radio when it is focused.',
+      () => focusColor,
+      (ColorRGBA? value) {
+        if (value != null) focusColor = value;
+      },
+    ),
+    'splashRadius': NumFieldAccess<double>(
+      'Splash Radius',
+      'Splash radius of the circular ink response.',
+      () => splashRadius,
+      (double value) => splashRadius = value,
+    ),
+    'autofocus': BoolFieldAccess(
+      'Autofocus',
+      'Whether to focus the radio automatically.',
+      () => autofocus,
+      (bool? value) {
+        if (value != null) autofocus = value;
+      },
+    ),
+    'toggleable': BoolFieldAccess(
+      'Toggleable',
+      'Whether the button\'s value can be toggled on tap.',
+      () => toggleable,
+      (bool? value) {
+        if (value != null) toggleable = value;
+      },
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        activeColor,
-        inactiveColor,
-        hoverColor,
-        focusColor,
-        splashRadius,
-        autofocus,
-        toggleable,
-      ];
+    activeColor,
+    inactiveColor,
+    hoverColor,
+    focusColor,
+    splashRadius,
+    autofocus,
+    toggleable,
+  ];
 
   /// Creates a [RadioProperties] instance from a JSON object.
   factory RadioProperties.fromJson(Map json) => _$RadioPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$RadioPropertiesOmitDefaults(this, _$RadioPropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$RadioPropertiesOmitDefaults(this, _$RadioPropertiesToJson(this));
 }

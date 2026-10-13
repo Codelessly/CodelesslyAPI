@@ -8,8 +8,7 @@ part 'show_dialog_action.g.dart';
 
 /// An action that navigates to a new page.
 @JsonSerializable()
-class ShowDialogAction extends ActionModel
-    with Equatable, SerializableMixin {
+class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
   final String destinationId;
 
@@ -34,17 +33,17 @@ class ShowDialogAction extends ActionModel
     this.showCloseButton = false,
     super.nonBlocking,
     super.enabled,
-  })  : params = {...params ?? {}},
-        super(type: ActionType.showDialog);
+  }) : params = {...params ?? {}},
+       super(type: ActionType.showDialog);
 
   @override
   List<Object?> get props => [
-        destinationId,
-        params,
-        barrierDismissible,
-        barrierColor,
-        showCloseButton,
-      ];
+    destinationId,
+    params,
+    barrierDismissible,
+    barrierColor,
+    showCloseButton,
+  ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
@@ -53,21 +52,21 @@ class ShowDialogAction extends ActionModel
     bool? barrierDismissible,
     ColorRGBA? barrierColor,
     bool? showCloseButton,
-  }) =>
-      ShowDialogAction(
-        destinationId: destinationId ?? this.destinationId,
-        params: {...this.params, ...params ?? {}},
-        barrierDismissible: barrierDismissible ?? this.barrierDismissible,
-        barrierColor: barrierColor ?? this.barrierColor,
-        showCloseButton: showCloseButton ?? this.showCloseButton,
-      );
+  }) => ShowDialogAction(
+    destinationId: destinationId ?? this.destinationId,
+    params: {...this.params, ...params ?? {}},
+    barrierDismissible: barrierDismissible ?? this.barrierDismissible,
+    barrierColor: barrierColor ?? this.barrierColor,
+    showCloseButton: showCloseButton ?? this.showCloseButton,
+  );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
   factory ShowDialogAction.fromJson(Map json) =>
       _$ShowDialogActionFromJson(json);
 
   @override
-  Map toJson() => _$ShowDialogActionOmitDefaults(this, _$ShowDialogActionToJson(this));
+  Map toJson() =>
+      _$ShowDialogActionOmitDefaults(this, _$ShowDialogActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowDialogAction(this);

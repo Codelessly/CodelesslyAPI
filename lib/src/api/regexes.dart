@@ -136,12 +136,14 @@ const String variableSyntaxIdentifierPattern = r'(?<!\\)\$\{(?<value>[^}]+)\}';
 const String emptyVariableSyntaxIdentifierPattern = r'^(?<!\\)\${?}?$';
 
 /// Regex for [emptyVariableSyntaxIdentifierPattern].
-final RegExp emptyVariableSyntaxIdentifierRegex =
-    RegExp(emptyVariableSyntaxIdentifierPattern);
+final RegExp emptyVariableSyntaxIdentifierRegex = RegExp(
+  emptyVariableSyntaxIdentifierPattern,
+);
 
 /// Regex for [variableSyntaxIdentifierPattern].
-final RegExp variableSyntaxIdentifierRegex =
-    RegExp(variableSyntaxIdentifierPattern);
+final RegExp variableSyntaxIdentifierRegex = RegExp(
+  variableSyntaxIdentifierPattern,
+);
 
 /// A regex that matches any variable name identifier in a string that is
 /// wrapped in ${} curly braces. This is a lenient matching regex that allows
@@ -168,8 +170,9 @@ const String variableNameIdentifierPattern =
     r'(?<!\\)\$\{?(?<name>[a-zA-Z]+[a-zA-Z0-9_]*)\}?';
 
 /// Regex for [variableNameIdentifierPattern].
-final RegExp variableNameIdentifierRegex =
-    RegExp(variableNameIdentifierPattern);
+final RegExp variableNameIdentifierRegex = RegExp(
+  variableNameIdentifierPattern,
+);
 
 /// A regex that matches a simple variable input. This is a strict matching
 /// regex that doesn't allow partial match. e.g. ${id}

@@ -55,5 +55,6 @@ class PlaceholderNode extends SceneNode with PlaceholderMixin {
   factory PlaceholderNode.fromJson(Map json) => _$PlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$PlaceholderNodeOmitDefaults(this, _$PlaceholderNodeToJson(this));
+  Map toJson() =>
+      _$PlaceholderNodeOmitDefaults(this, _$PlaceholderNodeToJson(this));
 }

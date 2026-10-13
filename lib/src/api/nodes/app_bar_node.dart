@@ -73,14 +73,14 @@ class AppBarNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<AppBarProperties>(
-          'Properties',
-          'Properties of the app bar.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<AppBarProperties>(
+      'Properties',
+      'Properties of the app bar.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   List<ReactionMixin> get reactiveChildren {
@@ -108,8 +108,11 @@ class AppBarNode extends SceneNode
       minHeight = 40;
     } else if (properties.leading.icon.show) {
       // Has a leading icon.
-      minHeight = max(properties.leading.icon.size ?? 24,
-              properties.titleStyle.fontSize) +
+      minHeight =
+          max(
+            properties.leading.icon.size ?? 24,
+            properties.titleStyle.fontSize,
+          ) +
           16;
     } else {
       // Does not have a leading icon.
@@ -118,10 +121,10 @@ class AppBarNode extends SceneNode
     minHeight = min(56, minHeight);
     return super
         .internalConstraints(
-            horizontalFit: horizontalFit, verticalFit: verticalFit)
-        .union(
-          BoxConstraintsModel(minHeight: minHeight),
-        );
+          horizontalFit: horizontalFit,
+          verticalFit: verticalFit,
+        )
+        .union(BoxConstraintsModel(minHeight: minHeight));
   }
 
   @override
@@ -209,84 +212,85 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'centerTitle': BoolFieldAccess(
-          'Center Title',
-          'Whether to align the title text in center.',
-          () => centerTitle,
-          (value) => centerTitle = value,
-        ),
-        'elevation': NumFieldAccess<double>(
-          'Elevation',
-          'Elevation of the app bar.',
-          () => elevation,
-          (value) => elevation = value,
-        ),
-        'leading': ObjectFieldAccess<IconAppBarActionItem>(
-          'Leading',
-          'Leading icon of the app bar.',
-          () => leading,
-          (value) => leading = value,
-        ),
-        'automaticallyImplyLeading': BoolFieldAccess(
-          'Automatically Imply Leading',
-          'Whether to automatically show/hide leading icon based on the route.',
-          () => automaticallyImplyLeading,
-          (value) => automaticallyImplyLeading = value,
-        ),
-        'titleStyle': TextStyleFieldAccess<TextProp>(
-          'Title Style',
-          'Style of the title text.',
-          () => titleStyle,
-          (value) => titleStyle = value,
-        ),
-        'backgroundColor': ColorFieldAccess<ColorRGBA>(
-          'Background Color',
-          'Background color of the app bar.',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-        'title': StringFieldAccess(
-          'Title',
-          'Title text of the app bar.',
-          () => title,
-          (value) => title = value,
-        ),
-        'titleSpacing': NumFieldAccess<double>(
-          'Title Spacing',
-          'Spacing between the leading icon (if given) and the title text.',
-          () => titleSpacing,
-          (value) => titleSpacing = value,
-        ),
-        'shadowColor': ColorFieldAccess<ColorRGBA>(
-          'Shadow Color',
-          'Elevation shadow color of the app bar.',
-          () => shadowColor,
-          (value) => shadowColor = value,
-        ),
-        // TODO: Actions
-      };
+    ...super.generateFields(),
+    'centerTitle': BoolFieldAccess(
+      'Center Title',
+      'Whether to align the title text in center.',
+      () => centerTitle,
+      (value) => centerTitle = value,
+    ),
+    'elevation': NumFieldAccess<double>(
+      'Elevation',
+      'Elevation of the app bar.',
+      () => elevation,
+      (value) => elevation = value,
+    ),
+    'leading': ObjectFieldAccess<IconAppBarActionItem>(
+      'Leading',
+      'Leading icon of the app bar.',
+      () => leading,
+      (value) => leading = value,
+    ),
+    'automaticallyImplyLeading': BoolFieldAccess(
+      'Automatically Imply Leading',
+      'Whether to automatically show/hide leading icon based on the route.',
+      () => automaticallyImplyLeading,
+      (value) => automaticallyImplyLeading = value,
+    ),
+    'titleStyle': TextStyleFieldAccess<TextProp>(
+      'Title Style',
+      'Style of the title text.',
+      () => titleStyle,
+      (value) => titleStyle = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA>(
+      'Background Color',
+      'Background color of the app bar.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'title': StringFieldAccess(
+      'Title',
+      'Title text of the app bar.',
+      () => title,
+      (value) => title = value,
+    ),
+    'titleSpacing': NumFieldAccess<double>(
+      'Title Spacing',
+      'Spacing between the leading icon (if given) and the title text.',
+      () => titleSpacing,
+      (value) => titleSpacing = value,
+    ),
+    'shadowColor': ColorFieldAccess<ColorRGBA>(
+      'Shadow Color',
+      'Elevation shadow color of the app bar.',
+      () => shadowColor,
+      (value) => shadowColor = value,
+    ),
+    // TODO: Actions
+  };
 
   @override
   List<Object?> get props => [
-        actions,
-        centerTitle,
-        elevation,
-        leading,
-        automaticallyImplyLeading,
-        titleStyle,
-        backgroundColor,
-        title,
-        titleSpacing,
-        shadowColor,
-      ];
+    actions,
+    centerTitle,
+    elevation,
+    leading,
+    automaticallyImplyLeading,
+    titleStyle,
+    backgroundColor,
+    title,
+    titleSpacing,
+    shadowColor,
+  ];
 
   /// Creates a new [AppBarProperties] instance from a JSON data.
   factory AppBarProperties.fromJson(Map json) =>
       _$AppBarPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$AppBarPropertiesOmitDefaults(this, _$AppBarPropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$AppBarPropertiesOmitDefaults(this, _$AppBarPropertiesToJson(this));
 }
 
 /// An app bar action item.
@@ -342,36 +346,35 @@ class IconAppBarActionItem extends AppBarActionItem with FieldsHolder {
     List<Reaction>? reactions,
     String? tooltip,
     double? iconSize,
-  }) =>
-      IconAppBarActionItem(
-        id: id,
-        icon: icon ?? this.icon,
-        reactions: reactions ?? this.reactions,
-        tooltip: tooltip ?? this.tooltip,
-      );
+  }) => IconAppBarActionItem(
+    id: id,
+    icon: icon ?? this.icon,
+    reactions: reactions ?? this.reactions,
+    tooltip: tooltip ?? this.tooltip,
+  );
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'icon': IconFieldAccess<MultiSourceIconModel>(
-          'Icon',
-          'Icon of the action item.',
-          () => icon,
-          (value) => icon = value,
-        ),
-        'tooltip': StringFieldAccess(
-          'Tooltip',
-          'Tooltip text to show when the action item is hovered.',
-          () => tooltip ?? '',
-          (value) {
-            if (value.isEmpty) {
-              tooltip = null;
-            } else {
-              tooltip = value;
-            }
-          },
-        ),
-      };
+    ...super.generateFields(),
+    'icon': IconFieldAccess<MultiSourceIconModel>(
+      'Icon',
+      'Icon of the action item.',
+      () => icon,
+      (value) => icon = value,
+    ),
+    'tooltip': StringFieldAccess(
+      'Tooltip',
+      'Tooltip text to show when the action item is hovered.',
+      () => tooltip ?? '',
+      (value) {
+        if (value.isEmpty) {
+          tooltip = null;
+        } else {
+          tooltip = value;
+        }
+      },
+    ),
+  };
 
   @override
   List<Object?> get props => [icon, reactions, tooltip];
@@ -381,5 +384,8 @@ class IconAppBarActionItem extends AppBarActionItem with FieldsHolder {
       _$IconAppBarActionItemFromJson(json);
 
   @override
-  Map toJson() => _$IconAppBarActionItemOmitDefaults(this, _$IconAppBarActionItemToJson(this));
+  Map toJson() => _$IconAppBarActionItemOmitDefaults(
+    this,
+    _$IconAppBarActionItemToJson(this),
+  );
 }

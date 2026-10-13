@@ -48,8 +48,8 @@ class CanvasNode extends ParentNode
   @override
   List<ReactionMixin> get reactiveChildren =>
       properties.floatingActionButton != null
-          ? [properties.floatingActionButton!]
-          : [];
+      ? [properties.floatingActionButton!]
+      : [];
 
   /// Creates a new [CanvasNode] with given data.
   CanvasNode({
@@ -160,13 +160,13 @@ class CanvasNode extends ParentNode
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        id,
-        name,
-        rowColumnType,
-        mainAxisAlignment,
-        crossAxisAlignment
-      ];
+    ...super.props,
+    id,
+    name,
+    rowColumnType,
+    mainAxisAlignment,
+    crossAxisAlignment,
+  ];
 }
 
 /// Holds configurable properties for the canvas.
@@ -217,17 +217,18 @@ class CanvasProperties extends CustomProperties {
 
   @override
   List<Object?> get props => [
-        navigationBarPlaceholderId,
-        topAppBarPlaceholderId,
-        floatingActionButton,
-        safeArea,
-        brightness,
-      ];
+    navigationBarPlaceholderId,
+    topAppBarPlaceholderId,
+    floatingActionButton,
+    safeArea,
+    brightness,
+  ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
   factory CanvasProperties.fromJson(Map json) =>
       _$CanvasPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CanvasPropertiesOmitDefaults(this, _$CanvasPropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$CanvasPropertiesOmitDefaults(this, _$CanvasPropertiesToJson(this));
 }

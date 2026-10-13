@@ -26,11 +26,11 @@ class LoadingIndicatorNode extends SceneNode
 
   /// Strictly used for previews. e.g in components panel.
   LoadingIndicatorNode.fromProperties(this.properties)
-      : super(
-          id: 'loadingIndicator',
-          name: 'LoadingIndicator',
-          basicBoxLocal: NodeBox(0, 0, 24, 24),
-        );
+    : super(
+        id: 'loadingIndicator',
+        name: 'LoadingIndicator',
+        basicBoxLocal: NodeBox(0, 0, 24, 24),
+      );
 
   /// Creates a [LoadingIndicatorNode] with given data.
   LoadingIndicatorNode({
@@ -66,21 +66,24 @@ class LoadingIndicatorNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<LoadingIndicatorProperties>(
-          'Properties',
-          'Properties of the loading indicator.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<LoadingIndicatorProperties>(
+      'Properties',
+      'Properties of the loading indicator.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [LoadingIndicatorNode] from a JSON data.
   factory LoadingIndicatorNode.fromJson(Map json) =>
       _$LoadingIndicatorNodeFromJson(json);
 
   @override
-  Map toJson() => _$LoadingIndicatorNodeOmitDefaults(this, _$LoadingIndicatorNodeToJson(this));
+  Map toJson() => _$LoadingIndicatorNodeOmitDefaults(
+    this,
+    _$LoadingIndicatorNodeToJson(this),
+  );
 
   @override
   BoxConstraintsModel internalConstraints({
@@ -89,7 +92,9 @@ class LoadingIndicatorNode extends SceneNode
   }) {
     return super
         .internalConstraints(
-            horizontalFit: horizontalFit, verticalFit: verticalFit)
+          horizontalFit: horizontalFit,
+          verticalFit: verticalFit,
+        )
         .union(const BoxConstraintsModel(minWidth: 2, minHeight: 2));
   }
 
@@ -193,42 +198,51 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'color': ColorFieldAccess<ColorRGBA>(
-          'Color',
-          'Color of the loading indicator.',
-          () => color,
-          (value) => color = value,
-        ),
-        'backgroundColor': ColorFieldAccess<ColorRGBA>(
-          'Background Color',
-          'Background color of the loading indicator.',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-        'strokeWidth': NumFieldAccess<double>(
-          'Stroke Width',
-          'Thickness of the loading indicator.',
-          () => strokeWidth,
-          (value) => strokeWidth = value,
-        ),
-        'strokeCap': EnumFieldAccess<StrokeCapEnum>(
-          'Stroke Cap',
-          'Stroke cap of the loading indicator.',
-          () => strokeCap,
-          (value) => strokeCap = value,
-          defaultValue: () => StrokeCapEnum.square,
-          options: () => StrokeCapEnum.values,
-        ),
-      };
+    ...super.generateFields(),
+    'color': ColorFieldAccess<ColorRGBA>(
+      'Color',
+      'Color of the loading indicator.',
+      () => color,
+      (value) => color = value,
+    ),
+    'backgroundColor': ColorFieldAccess<ColorRGBA>(
+      'Background Color',
+      'Background color of the loading indicator.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'strokeWidth': NumFieldAccess<double>(
+      'Stroke Width',
+      'Thickness of the loading indicator.',
+      () => strokeWidth,
+      (value) => strokeWidth = value,
+    ),
+    'strokeCap': EnumFieldAccess<StrokeCapEnum>(
+      'Stroke Cap',
+      'Stroke cap of the loading indicator.',
+      () => strokeCap,
+      (value) => strokeCap = value,
+      defaultValue: () => StrokeCapEnum.square,
+      options: () => StrokeCapEnum.values,
+    ),
+  };
 
   @override
-  List<Object?> get props =>
-      [type, color, strokeWidth, value, backgroundColor, strokeCap];
+  List<Object?> get props => [
+    type,
+    color,
+    strokeWidth,
+    value,
+    backgroundColor,
+    strokeCap,
+  ];
 
   @override
   Map<String, dynamic> toJson() =>
-      _$MaterialLoadingIndicatorPropertiesOmitDefaults(this, _$MaterialLoadingIndicatorPropertiesToJson(this));
+      _$MaterialLoadingIndicatorPropertiesOmitDefaults(
+        this,
+        _$MaterialLoadingIndicatorPropertiesToJson(this),
+      );
 
   /// Creates a [MaterialLoadingIndicatorProperties] from a JSON data.
   factory MaterialLoadingIndicatorProperties.fromJson(Map json) =>
@@ -251,10 +265,7 @@ class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties
   double radius;
 
   /// Creates a new [CupertinoLoadingIndicatorProperties].
-  CupertinoLoadingIndicatorProperties({
-    required this.color,
-    this.radius = 10,
-  });
+  CupertinoLoadingIndicatorProperties({required this.color, this.radius = 10});
 
   /// Duplicate this [CupertinoLoadingIndicatorProperties] with given data
   /// overrides.
@@ -270,27 +281,30 @@ class CupertinoLoadingIndicatorProperties extends LoadingIndicatorProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'color': ColorFieldAccess<ColorRGBA>(
-          'Color',
-          'Color of the loading indicator.',
-          () => color,
-          (value) => color = value,
-        ),
-        'radius': NumFieldAccess<double>(
-          'Radius',
-          'Radius of the loading indicator.',
-          () => radius,
-          (value) => radius = value,
-        ),
-      };
+    ...super.generateFields(),
+    'color': ColorFieldAccess<ColorRGBA>(
+      'Color',
+      'Color of the loading indicator.',
+      () => color,
+      (value) => color = value,
+    ),
+    'radius': NumFieldAccess<double>(
+      'Radius',
+      'Radius of the loading indicator.',
+      () => radius,
+      (value) => radius = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [type, color, radius];
 
   @override
   Map<String, dynamic> toJson() =>
-      _$CupertinoLoadingIndicatorPropertiesOmitDefaults(this, _$CupertinoLoadingIndicatorPropertiesToJson(this));
+      _$CupertinoLoadingIndicatorPropertiesOmitDefaults(
+        this,
+        _$CupertinoLoadingIndicatorPropertiesToJson(this),
+      );
 
   /// Creates a [CupertinoLoadingIndicatorProperties] from a JSON data.
   factory CupertinoLoadingIndicatorProperties.fromJson(Map json) =>

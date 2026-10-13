@@ -12,7 +12,7 @@ enum BorderStyleEnum {
   solid,
 
   /// No border.
-  none;
+  none,
 }
 
 /// Holds data needed to decorate the border side.
@@ -40,12 +40,11 @@ class BorderSideModel with Equatable, SerializableMixin {
     ColorRGBA? color,
     BorderStyleEnum? style,
     double? width,
-  }) =>
-      BorderSideModel(
-        color: color ?? this.color,
-        style: style ?? this.style,
-        width: width ?? this.width,
-      );
+  }) => BorderSideModel(
+    color: color ?? this.color,
+    style: style ?? this.style,
+    width: width ?? this.width,
+  );
 
   @override
   List<Object?> get props => [color, style, width];
@@ -54,5 +53,6 @@ class BorderSideModel with Equatable, SerializableMixin {
   factory BorderSideModel.fromJson(Map json) => _$BorderSideModelFromJson(json);
 
   @override
-  Map toJson() => _$BorderSideModelOmitDefaults(this, _$BorderSideModelToJson(this));
+  Map toJson() =>
+      _$BorderSideModelOmitDefaults(this, _$BorderSideModelToJson(this));
 }

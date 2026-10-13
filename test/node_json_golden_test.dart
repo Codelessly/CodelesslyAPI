@@ -29,7 +29,7 @@ List<BaseNode> goldenNodes() {
       basicBoxLocal: NodeBox(10, 20, 80, 40),
       value: true,
       visible: false,
-      padding: EdgeInsetsModel.all(4),
+      padding: const EdgeInsetsModel.all(4),
       alignment: AlignmentModel.center,
       properties: SwitchProperties(
         activeTrackColor: ColorRGBA.white,

@@ -20,7 +20,7 @@ enum EffectType {
   layerBlur,
 
   /// Blurs out layer's background.
-  backgroundBlur;
+  backgroundBlur,
 }
 
 /// Represents shadow property.
@@ -35,7 +35,7 @@ enum ShadowProperty {
   spread,
 
   /// Blur radius for the shadow.
-  radius;
+  radius,
 }
 
 /// Generates a random id if the given [json] does not contain a value for the
@@ -46,7 +46,6 @@ Object? _readId(Map json, String key) => json[key] ?? generateId();
 @JsonSerializable()
 class Effect with Equatable, SerializableMixin, FieldsHolder {
   @JsonKey(readValue: _readId)
-
   /// Unique identifier of the effect.
   final String id;
 
@@ -142,17 +141,16 @@ class Effect with Equatable, SerializableMixin, FieldsHolder {
     Vec? offset,
     double? spread,
     BlendModeC? blendMode,
-  }) =>
-      Effect(
-        id: id ?? this.id,
-        type: type ?? this.type,
-        radius: radius ?? this.radius,
-        visible: visible ?? this.visible,
-        color: color ?? this.color,
-        offset: offset ?? this.offset,
-        spread: spread ?? this.spread,
-        blendMode: blendMode ?? this.blendMode,
-      );
+  }) => Effect(
+    id: id ?? this.id,
+    type: type ?? this.type,
+    radius: radius ?? this.radius,
+    visible: visible ?? this.visible,
+    color: color ?? this.color,
+    offset: offset ?? this.offset,
+    spread: spread ?? this.spread,
+    blendMode: blendMode ?? this.blendMode,
+  );
 
   /// [Effect] can store all types of effects at the same time to allow
   /// switching between different effect types. However, this is not the desired
@@ -177,58 +175,58 @@ class Effect with Equatable, SerializableMixin, FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'color': ColorFieldAccess<ColorRGBA?>(
-          'Color',
-          'The color of the effect.',
-          () => color,
-          (value) => color = value,
-        ),
-        'offsetX': NumFieldAccess<double?>(
-          'Offset X',
-          'How far the shadow is projected in the x and y directions.',
-          () => offset?.x,
-          (value) => offset = Vec(value ?? 0, offset?.y ?? 0),
-        ),
-        'offsetY': NumFieldAccess<double?>(
-          'Offset Y',
-          'How far the shadow is projected in the x and y directions.',
-          () => offset?.y,
-          (value) => offset = Vec(offset?.x ?? 0, value ?? 0),
-        ),
-        'spread': NumFieldAccess<double?>(
-          'Spread',
-          'The shadow spread, before blur is applied.',
-          () => spread,
-          (value) => spread = value,
-        ),
-        'radius': NumFieldAccess<double>(
-          'Radius',
-          'Radius of the effect.',
-          () => radius,
-          (value) => radius = value,
-          min: 0,
-        ),
-      };
+    ...super.generateFields(),
+    'color': ColorFieldAccess<ColorRGBA?>(
+      'Color',
+      'The color of the effect.',
+      () => color,
+      (value) => color = value,
+    ),
+    'offsetX': NumFieldAccess<double?>(
+      'Offset X',
+      'How far the shadow is projected in the x and y directions.',
+      () => offset?.x,
+      (value) => offset = Vec(value ?? 0, offset?.y ?? 0),
+    ),
+    'offsetY': NumFieldAccess<double?>(
+      'Offset Y',
+      'How far the shadow is projected in the x and y directions.',
+      () => offset?.y,
+      (value) => offset = Vec(offset?.x ?? 0, value ?? 0),
+    ),
+    'spread': NumFieldAccess<double?>(
+      'Spread',
+      'The shadow spread, before blur is applied.',
+      () => spread,
+      (value) => spread = value,
+    ),
+    'radius': NumFieldAccess<double>(
+      'Radius',
+      'Radius of the effect.',
+      () => radius,
+      (value) => radius = value,
+      min: 0,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        id,
-        type,
-        visible,
-        blendMode,
-        offset,
-        spread,
-        color,
-        radius,
-      ];
+    id,
+    type,
+    visible,
+    blendMode,
+    offset,
+    spread,
+    color,
+    radius,
+  ];
 
   /// Factory constructor for creating new [Effect] from JSON data.
   factory Effect.fromJson(Map json) => _$EffectFromJson({
-        // TODO: backward compatibility, remove in 1.0.0
-        'id': generateId(),
-        ...json,
-      });
+    // TODO: backward compatibility, remove in 1.0.0
+    'id': generateId(),
+    ...json,
+  });
 
   @override
   Map toJson() => _$EffectOmitDefaults(this, _$EffectToJson(this));

@@ -96,5 +96,6 @@ class RowColumnNode extends ParentNode with RowColumnMixin, ScrollableMixin {
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
 
   @override
-  Map toJson() => _$RowColumnNodeOmitDefaults(this, _$RowColumnNodeToJson(this));
+  Map toJson() =>
+      _$RowColumnNodeOmitDefaults(this, _$RowColumnNodeToJson(this));
 }

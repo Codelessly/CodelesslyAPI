@@ -39,13 +39,12 @@ class Reaction with Equatable, SerializableMixin {
     String? name,
     ActionModel? action,
     TriggerModel? trigger,
-  }) =>
-      Reaction(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        action: action ?? this.action,
-        trigger: trigger ?? this.trigger,
-      );
+  }) => Reaction(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    action: action ?? this.action,
+    trigger: trigger ?? this.trigger,
+  );
 
   /// Factory constructor for creating a new [Reaction] instance from JSON data.
   factory Reaction.fromJson(Map json) => _$ReactionFromJson(json);
@@ -56,8 +55,6 @@ class Reaction with Equatable, SerializableMixin {
   /// Sanitize the [Reaction] by removing the [id] and replacing it with a
   /// new one if [changeIds] is true.
   Reaction sanitize({required bool changeIds}) {
-    return copyWith(
-      id: changeIds ? generateId() : id,
-    );
+    return copyWith(id: changeIds ? generateId() : id);
   }
 }

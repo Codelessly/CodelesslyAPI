@@ -26,8 +26,9 @@ extension NodeBoxHelper on NodeBox {
     if (!triggerCompute) {
       node._basicBoxLocal = box;
       if (constraintOverrides != null) {
-        node._resolvedConstraints =
-            node._constraints.union(constraintOverrides);
+        node._resolvedConstraints = node._constraints.union(
+          constraintOverrides,
+        );
       }
     } else {
       NodeProcessor.updateNode(
@@ -108,23 +109,22 @@ extension BaseNodeUpdateExtension on BaseNode {
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
     bool updatingSortedNodeList = false,
-  }) =>
-      NodeProcessor.updateNode(
-        node: this,
-        margin: margin,
-        padding: padding,
-        alignment: alignment,
-        outerBoxLocal: outerBoxLocal,
-        outerBoxGlobal: outerBoxGlobal,
-        basicBoxLocal: middleBoxLocal,
-        constraints: constraints,
-        rotationDegrees: rotationDegrees,
-        resetRetainedBox: resetRetainedBox,
-        recursivelyCalculateChildrenGlobalBoxes:
-            recursivelyCalculateChildrenGlobalBoxes,
-        globalParentBoundingBoxPos: globalParentBoundingBoxPos,
-        updatingSortedNodeList: updatingSortedNodeList,
-      );
+  }) => NodeProcessor.updateNode(
+    node: this,
+    margin: margin,
+    padding: padding,
+    alignment: alignment,
+    outerBoxLocal: outerBoxLocal,
+    outerBoxGlobal: outerBoxGlobal,
+    basicBoxLocal: middleBoxLocal,
+    constraints: constraints,
+    rotationDegrees: rotationDegrees,
+    resetRetainedBox: resetRetainedBox,
+    recursivelyCalculateChildrenGlobalBoxes:
+        recursivelyCalculateChildrenGlobalBoxes,
+    globalParentBoundingBoxPos: globalParentBoundingBoxPos,
+    updatingSortedNodeList: updatingSortedNodeList,
+  );
 
   /// Sets rotation for this node.
   void setNodeRotation(int newRotationDegrees) {
@@ -186,8 +186,8 @@ class NodeProcessor {
 
     if (node.id != kRootNode) {
       final BaseNode parent = getNode(node.parentID);
-      final BoxConstraintsModel? relegatedConstraints =
-          parent.relegatedConstraintsToChildren(node);
+      final BoxConstraintsModel? relegatedConstraints = parent
+          .relegatedConstraintsToChildren(node);
       if (relegatedConstraints != null) {
         resolved = resolved.union(resolved);
       }
@@ -258,41 +258,44 @@ class NodeProcessor {
         if (node.id != kRootNode) node: _allParentsOfNode(node),
     };
 
-    mergeSort(nodes, compare: (a, b) {
-      if (a.id == kRootNode) return reversed ? 1 : -1;
-      if (b.id == kRootNode) return reversed ? -1 : 1;
+    mergeSort(
+      nodes,
+      compare: (a, b) {
+        if (a.id == kRootNode) return reversed ? 1 : -1;
+        if (b.id == kRootNode) return reversed ? -1 : 1;
 
-      final BaseNode aParent = getNode(a.parentID);
-      final BaseNode bParent = getNode(b.parentID);
+        final BaseNode aParent = getNode(a.parentID);
+        final BaseNode bParent = getNode(b.parentID);
 
-      if (aParent.id == bParent.id) {
-        if (reversed) {
-          return bParent.childrenOrEmpty.indexOf(b.id) -
-              aParent.childrenOrEmpty.indexOf(a.id);
-        } else {
-          return aParent.childrenOrEmpty.indexOf(a.id) -
-              bParent.childrenOrEmpty.indexOf(b.id);
+        if (aParent.id == bParent.id) {
+          if (reversed) {
+            return bParent.childrenOrEmpty.indexOf(b.id) -
+                aParent.childrenOrEmpty.indexOf(a.id);
+          } else {
+            return aParent.childrenOrEmpty.indexOf(a.id) -
+                bParent.childrenOrEmpty.indexOf(b.id);
+          }
         }
-      }
 
-      final List<String> aParents = parentChains[a]!;
-      final List<String> bParents = parentChains[b]!;
+        final List<String> aParents = parentChains[a]!;
+        final List<String> bParents = parentChains[b]!;
 
-      final bool aParentOfB = bParents.contains(a.id);
-      final bool bParentOfA = aParents.contains(b.id);
+        final bool aParentOfB = bParents.contains(a.id);
+        final bool bParentOfA = aParents.contains(b.id);
 
-      if (bParentOfA) {
-        return reversed ? -1 : 1;
-      } else if (aParentOfB) {
-        return reversed ? 1 : -1;
-      } else {
-        if (reversed) {
-          return bParents.length - aParents.length;
+        if (bParentOfA) {
+          return reversed ? -1 : 1;
+        } else if (aParentOfB) {
+          return reversed ? 1 : -1;
         } else {
-          return aParents.length - bParents.length;
+          if (reversed) {
+            return bParents.length - aParents.length;
+          } else {
+            return aParents.length - bParents.length;
+          }
         }
-      }
-    });
+      },
+    );
   }
 
   /// [updateNode] is responsible for updating the node and its children when
@@ -411,8 +414,8 @@ class NodeProcessor {
           (node.edgePins.right == null)
               ? null
               : parentNode.outerBoxLocal.width -
-                  node.outerBoxLocal.right -
-                  parentNode.outerBoxGlobal.horizontalEdgeSpace,
+                    node.outerBoxLocal.right -
+                    parentNode.outerBoxGlobal.horizontalEdgeSpace,
         );
       }
       node.edgePins = node.edgePins.copyWithTop(
@@ -423,8 +426,8 @@ class NodeProcessor {
           (node.edgePins.bottom == null)
               ? null
               : parentNode.outerBoxLocal.height -
-                  node.outerBoxLocal.bottom -
-                  parentNode.outerBoxLocal.verticalEdgeSpace,
+                    node.outerBoxLocal.bottom -
+                    parentNode.outerBoxLocal.verticalEdgeSpace,
         );
       }
     }
@@ -462,10 +465,7 @@ class NodeProcessor {
     _computeMiddleBoxGlobal(node);
     _computeInnerBoxGlobal(node);
 
-    _computeRotatedBoxes(
-      node,
-      updatingSortedNodeList: updatingSortedNodeList,
-    );
+    _computeRotatedBoxes(node, updatingSortedNodeList: updatingSortedNodeList);
 
     if (recursivelyCalculateChildren) {
       for (final String childID in node.childrenOrEmpty) {
@@ -544,9 +544,11 @@ class NodeProcessor {
     node._outerRotatedBoxLocal = node._middleRotatedBoxLocal.copyWith(
       x: node._middleRotatedBoxLocal.left - node.outerBoxGlobal.edgeLeft,
       y: node._middleRotatedBoxLocal.top - node.outerBoxGlobal.edgeTop,
-      width: node._middleRotatedBoxLocal.width +
+      width:
+          node._middleRotatedBoxLocal.width +
           node.outerBoxGlobal.horizontalEdgeSpace,
-      height: node._middleRotatedBoxLocal.height +
+      height:
+          node._middleRotatedBoxLocal.height +
           node.outerBoxGlobal.verticalEdgeSpace,
     );
 
@@ -576,9 +578,11 @@ class NodeProcessor {
     node._outerRotatedBoxGlobal = node._middleRotatedBoxGlobal.copyWith(
       x: node._middleRotatedBoxGlobal.left - node.outerBoxGlobal.edgeLeft,
       y: node._middleRotatedBoxGlobal.top - node.outerBoxGlobal.edgeTop,
-      width: node._middleRotatedBoxGlobal.width +
+      width:
+          node._middleRotatedBoxGlobal.width +
           node.outerBoxGlobal.horizontalEdgeSpace,
-      height: node._middleRotatedBoxGlobal.height +
+      height:
+          node._middleRotatedBoxGlobal.height +
           node.outerBoxGlobal.verticalEdgeSpace,
     );
   }
@@ -698,7 +702,8 @@ class NodeProcessor {
     final NodeBox box = boundaryType.getLocalBoxForNode(node);
     final SizeC size = (box is OuterNodeBox ? box.innerSize : box.size);
 
-    final Vec unrotated = calculateUnrotatedVecFromRotatedVec(
+    final Vec unrotated =
+        calculateUnrotatedVecFromRotatedVec(
           x: currentVec.x,
           y: currentVec.y,
           width: size.width,
@@ -749,8 +754,9 @@ class NodeProcessor {
     } else {
       currentVec = parent.rotatedTopLeftCorner;
 
-      final RectC rect =
-          (nodeBox is OuterNodeBox ? nodeBox.innerRect : nodeBox.rect);
+      final RectC rect = (nodeBox is OuterNodeBox
+          ? nodeBox.innerRect
+          : nodeBox.rect);
 
       // Returns local box top left after rotation.
       // This will be the point of the top-left drag handle of this box.
@@ -789,10 +795,12 @@ class NodeProcessor {
 
     // Otherwise were pointing to an already rotated node which is not too
     // useful for most callers so we make it orthogonal w global.
-    final SizeC size =
-        (nodeBox is OuterNodeBox ? nodeBox.innerSize : nodeBox.size);
+    final SizeC size = (nodeBox is OuterNodeBox
+        ? nodeBox.innerSize
+        : nodeBox.size);
 
-    final Vec unrotated = calculateUnrotatedVecFromRotatedVec(
+    final Vec unrotated =
+        calculateUnrotatedVecFromRotatedVec(
           x: currentVec.x,
           y: currentVec.y,
           width: size.width,

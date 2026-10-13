@@ -186,45 +186,30 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects the holder's last/family name as given on a credit
   /// card.
-  creditCardFamilyName(
-    'creditCardFamilyName',
-    'Credit Card Family Name',
-    "The input field expects the holder's last/family name as given on a credit card.",
-    '''
+  creditCardFamilyName('creditCardFamilyName', 'Credit Card Family Name', "The input field expects the holder's last/family name as given on a credit card.", '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["cc-family-name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the holder's first/given name as given on a credit
   /// card.
-  creditCardGivenName(
-    'creditCardGivenName',
-    'Credit Card Given Name',
-    "The input field expects the holder's first/given name as given on a credit card.",
-    '''
+  creditCardGivenName('creditCardGivenName', 'Credit Card Given Name', "The input field expects the holder's first/given name as given on a credit card.", '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["cc-given-name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the holder's middle name as given on a credit
   /// card.
-  creditCardMiddleName(
-    'creditCardMiddleName',
-    'Credit Card Middle Name',
-    "The input field expects the holder's middle name as given on a credit card.",
-    '''
+  creditCardMiddleName('creditCardMiddleName', 'Credit Card Middle Name', "The input field expects the holder's middle name as given on a credit card.", '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["cc-additional-name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the holder's full name as given on a credit card.
   creditCardName(
@@ -282,19 +267,14 @@ This hint will be translated to the below values on different platforms:
   ),
 
   /// The input field expects an email address.
-  email(
-    'email',
-    'Email',
-    'The input field expects an email address.',
-    '''
+  email('email', 'Email', 'The input field expects an email address.', '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_EMAIL_ADDRESS](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_EMAIL_ADDRESS).
 * iOS: [emailAddress](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["email"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a person's last/family name.
   familyName(
@@ -312,33 +292,23 @@ This hint will be translated to the below values on different platforms:
   ),
 
   /// The input field expects a street address that fully identifies a location.
-  fullStreetAddress(
-    'fullStreetAddress',
-    'Full Street Address',
-    'The input field expects a street address that fully identifies a location.',
-    '''
+  fullStreetAddress('fullStreetAddress', 'Full Street Address', 'The input field expects a street address that fully identifies a location.', '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS).
 * iOS: [fullStreetAddress](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["street-address"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a gender.
-  gender(
-    'gender',
-    'Gender',
-    'The input field expects a gender.',
-    '''
+  gender('gender', 'Gender', 'The input field expects a gender.', '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_GENDER](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_GENDER).
 * web: ["sex"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a person's first/given name.
   givenName(
@@ -357,31 +327,21 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects a URL representing an instant messaging protocol
   /// endpoint.
-  impp(
-    'impp',
-    'IMPP Code',
-    'The input field expects a URL representing an instant messaging protocol endpoint.',
-    '''
+  impp('impp', 'IMPP Code', 'The input field expects a URL representing an instant messaging protocol endpoint.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["impp"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a job title.
-  jobTitle(
-    'jobTitle',
-    'Job Title',
-    'The input field expects a job title.',
-    '''
+  jobTitle('jobTitle', 'Job Title', 'The input field expects a job title.', '''
 This hint will be translated to the below values on different platforms:
 
 * iOS: [jobTitle](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["organization-title"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the preferred language of the user.
   language(
@@ -398,17 +358,12 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects a location, such as a point of interest, an
   /// address,or another way to identify a location.
-  location(
-    'location',
-    'Location',
-    'The input field expects a location, such as a point of interest, an address, or another way to identify a location.',
-    '''
+  location('location', 'Location', 'The input field expects a location, such as a point of interest, an address, or another way to identify a location.', '''
 This hint will be translated to the below values on different platforms:
 
 * iOS: [location](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a person's middle initial.
   middleInitial(
@@ -439,19 +394,14 @@ This hint will be translated to the below values on different platforms:
   ),
 
   /// The input field expects a person's full name.
-  name(
-    'name',
-    'Name',
-    "The input field expects a person's full name.",
-    '''
+  name('name', 'Name', "The input field expects a person's full name.", '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_PERSON_NAME](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_PERSON_NAME).
 * iOS: [name](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["name"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a person's name prefix or title, such as "Dr.".
   namePrefix(
@@ -512,18 +462,13 @@ This hint will be translated to the below values on different platforms:
   ),
 
   /// The input field expects a nickname.
-  nickname(
-    'nickname',
-    'Nickname',
-    'The input field expects a nickname.',
-    '''
+  nickname('nickname', 'Nickname', 'The input field expects a nickname.', '''
 This hint will be translated to the below values on different platforms:
 
 * iOS: [nickname](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["nickname"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a SMS one-time code.
   oneTimeCode(
@@ -543,48 +488,33 @@ This hint will be translated to the below values on different platforms:
   /// The input field expects an organization name corresponding to the person,
   /// address, or contact information in the other fields associated with this
   /// field.
-  organizationName(
-    'organizationName',
-    'Organization Name',
-    'The input field expects an organization name corresponding to the person, address, or contact information in the other fields associated with this field.',
-    '''
+  organizationName('organizationName', 'Organization Name', 'The input field expects an organization name corresponding to the person, address, or contact information in the other fields associated with this field.', '''
 This hint will be translated to the below values on different platforms:
 
 * iOS: [organizationName](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["organization"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a password.
-  password(
-    'password',
-    'Password',
-    'The input field expects a password.',
-    '''
+  password('password', 'Password', 'The input field expects a password.', '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_PASSWORD](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_PASSWORD).
 * iOS: [password](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["current-password"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a photograph, icon, or other image corresponding
   /// to the company, person, address, or contact information in the other
   /// fields associated with this field.
-  photo(
-    'photo',
-    'Photo',
-    'The input field expects a photograph, icon, or other image corresponding to the company, person, address, or contact information in the other fields associated with this field.',
-    '''
+  photo('photo', 'Photo', 'The input field expects a photograph, icon, or other image corresponding to the company, person, address, or contact information in the other fields associated with this field.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["photo"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a postal address.
   postalAddress(
@@ -644,60 +574,40 @@ This hint will be translated to the below values on different platforms:
   /// province in which the address is located. In the United States, this would
   /// be the state. In Switzerland, the canton. In the United Kingdom, the post
   /// town.
-  streetAddressLevel1(
-    'streetAddressLevel1',
-    'Street Address Level 1',
-    'The first administrative level in the address. This is typically the province in which the address is located. In the United States, this would be the state. In Switzerland, the canton. In the United Kingdom, the post town.',
-    '''
+  streetAddressLevel1('streetAddressLevel1', 'Street Address Level 1', 'The first administrative level in the address. This is typically the province in which the address is located. In the United States, this would be the state. In Switzerland, the canton. In the United Kingdom, the post town.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["address-level1"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The second administrative level, in addresses with at least two of them.
   /// In countries with two administrative levels, this would typically be the
   /// city, town, village, or other locality in which the address is located.
-  streetAddressLevel2(
-    'streetAddressLevel2',
-    'Street Address Level 2',
-    'The second administrative level, in addresses with at least two of them. In countries with two administrative levels, this would typically be the city, town, village, or other locality in which the address is located.',
-    '''
+  streetAddressLevel2('streetAddressLevel2', 'Street Address Level 2', 'The second administrative level, in addresses with at least two of them. In countries with two administrative levels, this would typically be the city, town, village, or other locality in which the address is located.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["address-level2"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The third administrative level, in addresses with at least three
   /// administrative levels.
-  streetAddressLevel3(
-    'streetAddressLevel3',
-    'Street Address Level 3',
-    'The third administrative level, in addresses with at least three administrative levels.',
-    '''
+  streetAddressLevel3('streetAddressLevel3', 'Street Address Level 3', 'The third administrative level, in addresses with at least three administrative levels.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["address-level3"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The finest-grained administrative level, in addresses which have four
   /// levels.
-  streetAddressLevel4(
-    'streetAddressLevel4',
-    'Street Address Level 4',
-    'The finest-grained administrative level, in addresses which have four levels.',
-    '''
+  streetAddressLevel4('streetAddressLevel4', 'Street Address Level 4', 'The finest-grained administrative level, in addresses which have four levels.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["address-level4"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the first line of a street address.
   streetAddressLine1(
@@ -771,17 +681,12 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects a phone number's area code, with a country
   /// -internal prefix applied if applicable.
-  telephoneNumberAreaCode(
-    'telephoneNumberAreaCode',
-    'Telephone Number Area Code',
-    "The input field expects a phone number's area code, with a country-internal prefix applied if applicable.",
-    '''
+  telephoneNumberAreaCode('telephoneNumberAreaCode', 'Telephone Number Area Code', "The input field expects a phone number's area code, with a country-internal prefix applied if applicable.", '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["tel-area-code"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a phone number's country code.
   telephoneNumberCountryCode(
@@ -799,17 +704,12 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects the current device's phone number, usually for
   /// Sign Up / OTP flows.
-  telephoneNumberDevice(
-    'telephoneNumberDevice',
-    'Telephone Number Device',
-    "The input field expects the current device's phone number, usually for Sign Up / OTP flows.",
-    '''
+  telephoneNumberDevice('telephoneNumberDevice', 'Telephone Number Device', "The input field expects the current device's phone number, usually for Sign Up / OTP flows.", '''
 This hint will be translated to the below values on different platforms:
 
 * Android: [AUTOFILL_HINT_PHONE_NUMBER_DEVICE](https://developer.android.com/reference/androidx/autofill/HintConstants#AUTOFILL_HINT_PHONE_NUMBER_DEVICE).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a phone number's internal extension code.
   telephoneNumberExtension(
@@ -826,47 +726,32 @@ This hint will be translated to the below values on different platforms:
 
   /// The input field expects a phone number without the country code and area
   /// code components.
-  telephoneNumberLocal(
-    'telephoneNumberLocal',
-    'Telephone Number Local',
-    'The input field expects a phone number without the country code and area code components.',
-    '''
+  telephoneNumberLocal('telephoneNumberLocal', 'Telephone Number Local', 'The input field expects a phone number without the country code and area code components.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["tel-local"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the first part of the component of the telephone
   /// number that follows the area code, when that component is split into two
   /// components.
-  telephoneNumberLocalPrefix(
-    'telephoneNumberLocalPrefix',
-    'Telephone Number Local Prefix',
-    'The input field expects the first part of the component of the telephone number that follows the area code, when that component is split into two components.',
-    '''
+  telephoneNumberLocalPrefix('telephoneNumberLocalPrefix', 'Telephone Number Local Prefix', 'The input field expects the first part of the component of the telephone number that follows the area code, when that component is split into two components.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["tel-local-prefix"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects the second part of the component of the telephone
   /// number that follows the area code, when that component is split into two
   /// components.
-  telephoneNumberLocalSuffix(
-    'telephoneNumberLocalSuffix',
-    'Telephone Number Local Suffix',
-    'The input field expects the second part of the component of the telephone number that follows the area code, when that component is split into two components.',
-    '''
+  telephoneNumberLocalSuffix('telephoneNumberLocalSuffix', 'Telephone Number Local Suffix', 'The input field expects the second part of the component of the telephone number that follows the area code, when that component is split into two components.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["tel-local-suffix"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a phone number without country code.
   telephoneNumberNational(
@@ -884,45 +769,30 @@ This hint will be translated to the below values on different platforms:
 
   /// The amount that the user would like for the transaction (e.g. when
   /// entering a bid or sale price).
-  transactionAmount(
-    'transactionAmount',
-    'Transaction Amount',
-    'The amount that the user would like for the transaction (e.g. when entering a bid or sale price).',
-    '''
+  transactionAmount('transactionAmount', 'Transaction Amount', 'The amount that the user would like for the transaction (e.g. when entering a bid or sale price).', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["transaction-amount"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The currency that the user would prefer the transaction to use, in [ISO
   /// 4217 currency code](https://www.iso.org/iso-4217-currency-codes.html).
-  transactionCurrency(
-    'transactionCurrency',
-    'Transaction Currency',
-    'The currency that the user would prefer the transaction to use, in ISO 4217 currency code.',
-    '''
+  transactionCurrency('transactionCurrency', 'Transaction Currency', 'The currency that the user would prefer the transaction to use, in ISO 4217 currency code.', '''
 This hint will be translated to the below values on different platforms:
 
 * web: ["transaction-currency"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a URL.
-  url(
-    'url',
-    'URL',
-    'The input field expects a URL.',
-    '''
+  url('url', 'URL', 'The input field expects a URL.', '''
 This hint will be translated to the below values on different platforms:
 
 * iOS: [URL](https://developer.apple.com/documentation/uikit/uitextcontenttype).
 * web: ["url"](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute).
 * Otherwise, the hint string will be used as-is.
-    ''',
-  ),
+    '''),
 
   /// The input field expects a username or an account name.
   username(
@@ -952,5 +822,9 @@ This hint will be translated to the below values on different platforms:
   final String translation;
 
   const TextInputAutofillHints(
-      this.code, this.title, this.description, this.translation);
+    this.code,
+    this.title,
+    this.description,
+    this.translation,
+  );
 }

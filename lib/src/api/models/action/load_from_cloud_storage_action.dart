@@ -63,36 +63,38 @@ class LoadFromCloudStorageAction extends ActionModel
     List<WhereQueryFilter>? whereFilters,
     List<OrderByQueryFilter>? orderByFilters,
     int? limit,
-  }) =>
-      LoadFromCloudStorageAction(
-        path: path ?? this.path,
-        documentId: documentId ?? this.documentId,
-        variable: variable ?? this.variable,
-        loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
-        whereFilters: whereFilters ?? this.whereFilters,
-        orderByFilters: orderByFilters ?? this.orderByFilters,
-        limit: limit ?? this.limit,
-      );
+  }) => LoadFromCloudStorageAction(
+    path: path ?? this.path,
+    documentId: documentId ?? this.documentId,
+    variable: variable ?? this.variable,
+    loadSingleDocument: loadSingleDocument ?? this.loadSingleDocument,
+    whereFilters: whereFilters ?? this.whereFilters,
+    orderByFilters: orderByFilters ?? this.orderByFilters,
+    limit: limit ?? this.limit,
+  );
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        variable,
-        loadSingleDocument,
-        whereFilters,
-        orderByFilters,
-        limit,
-        useCloudDatabase,
-        collectionPath,
-      ];
+    path,
+    documentId,
+    variable,
+    loadSingleDocument,
+    whereFilters,
+    orderByFilters,
+    limit,
+    useCloudDatabase,
+    collectionPath,
+  ];
 
   /// Creates a new [LoadFromCloudStorageAction] instance from a JSON data.
   factory LoadFromCloudStorageAction.fromJson(Map json) =>
       _$LoadFromCloudStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$LoadFromCloudStorageActionOmitDefaults(this, _$LoadFromCloudStorageActionToJson(this));
+  Map toJson() => _$LoadFromCloudStorageActionOmitDefaults(
+    this,
+    _$LoadFromCloudStorageActionToJson(this),
+  );
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

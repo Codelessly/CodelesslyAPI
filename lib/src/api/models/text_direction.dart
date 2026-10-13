@@ -4,5 +4,5 @@ enum CTextDirection {
   ltr,
 
   /// Right to left text direction.
-  rtl;
+  rtl,
 }

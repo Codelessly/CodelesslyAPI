@@ -14,7 +14,7 @@ enum EmbeddedVideoSource {
   youtube,
 
   /// Vimeo video.
-  vimeo
+  vimeo,
 }
 
 /// This creates a WebView with an embedded video.
@@ -38,13 +38,12 @@ class EmbeddedVideoNode extends SceneNode
 
   /// Creates a blank embedded video preview.
   EmbeddedVideoNode.empty()
-      : properties = EmbeddedYoutubeVideoProperties(),
-        super(
-          id: 'EmbeddedVideo',
-          name: 'Embedded Video',
-          basicBoxLocal:
-              NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
-        );
+    : properties = EmbeddedYoutubeVideoProperties(),
+      super(
+        id: 'EmbeddedVideo',
+        name: 'Embedded Video',
+        basicBoxLocal: NodeBox(0, 0, kSliderDefaultWidth, kSliderDefaultHeight),
+      );
 
   /// Creates a [EmbeddedVideoNode] instance with the given data.
   EmbeddedVideoNode({
@@ -75,21 +74,22 @@ class EmbeddedVideoNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<EmbeddedVideoProperties>(
-          'Properties',
-          'Properties of the embedded video.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<EmbeddedVideoProperties>(
+      'Properties',
+      'Properties of the embedded video.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   /// Creates a [EmbeddedVideoNode] from a JSON object.
   factory EmbeddedVideoNode.fromJson(Map json) =>
       _$EmbeddedVideoNodeFromJson(json);
 
   @override
-  Map toJson() => _$EmbeddedVideoNodeOmitDefaults(this, _$EmbeddedVideoNodeToJson(this));
+  Map toJson() =>
+      _$EmbeddedVideoNodeOmitDefaults(this, _$EmbeddedVideoNodeToJson(this));
 }
 
 /// Holds configurable properties of the embedded video.
@@ -134,20 +134,20 @@ abstract class EmbeddedVideoProperties extends CustomProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'url': StringFieldAccess(
-          'URL',
-          'URL of the video to embed.',
-          () => url ?? '',
-          (value) => url = value.isEmpty ? null : value,
-        ),
-        'autoPlay': BoolFieldAccess(
-          'Auto Play',
-          'Whether to play the video automatically.',
-          () => autoPlay,
-          (value) => autoPlay = value,
-        ),
-      };
+    ...super.generateFields(),
+    'url': StringFieldAccess(
+      'URL',
+      'URL of the video to embed.',
+      () => url ?? '',
+      (value) => url = value.isEmpty ? null : value,
+    ),
+    'autoPlay': BoolFieldAccess(
+      'Auto Play',
+      'Whether to play the video automatically.',
+      () => autoPlay,
+      (value) => autoPlay = value,
+    ),
+  };
 }
 
 /// Holds configurable properties of the embedded youtube video.
@@ -203,85 +203,88 @@ class EmbeddedYoutubeVideoProperties extends EmbeddedVideoProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'mute': BoolFieldAccess(
-          'Mute',
-          'Whether to mute the video.',
-          () => mute,
-          (value) => mute = value,
-        ),
-        'showControls': BoolFieldAccess(
-          'Show Controls',
-          'Whether to show controls for the video.',
-          () => showControls,
-          (value) => showControls = value,
-        ),
-        'showFullscreenButton': BoolFieldAccess(
-          'Show Fullscreen Button',
-          'Whether to show the full screen button for the video.',
-          () => showFullscreenButton,
-          (value) => showFullscreenButton = value,
-        ),
-        'showVideoAnnotations': BoolFieldAccess(
-          'Show Video Annotations',
-          'Whether to show annotations for the video.',
-          () => showVideoAnnotations,
-          (value) => showVideoAnnotations = value,
-        ),
-        'loop': BoolFieldAccess(
-          'Loop',
-          'Whether to loop the video.',
-          () => loop,
-          (value) => loop = value,
-        ),
-        'showCaptions': BoolFieldAccess(
-          'Show Captions',
-          'Whether to show video captions.',
-          () => showCaptions,
-          (value) => showCaptions = value,
-        ),
-        'startAt': NumFieldAccess<int>(
-          'Start At',
-          'Starting point of the video.',
-          () => startAt ?? 0,
-          (value) => startAt = value,
-        ),
-        'endAt': NumFieldAccess<int?>(
-          'End At',
-          'Ending point of the video.',
-          () => endAt,
-          (value) => endAt = value,
-        ),
-        'captionLanguage': StringFieldAccess(
-          'Caption Language',
-          'Video captions\' language.',
-          () => captionLanguage,
-          (value) => captionLanguage = value,
-        ),
-      };
+    ...super.generateFields(),
+    'mute': BoolFieldAccess(
+      'Mute',
+      'Whether to mute the video.',
+      () => mute,
+      (value) => mute = value,
+    ),
+    'showControls': BoolFieldAccess(
+      'Show Controls',
+      'Whether to show controls for the video.',
+      () => showControls,
+      (value) => showControls = value,
+    ),
+    'showFullscreenButton': BoolFieldAccess(
+      'Show Fullscreen Button',
+      'Whether to show the full screen button for the video.',
+      () => showFullscreenButton,
+      (value) => showFullscreenButton = value,
+    ),
+    'showVideoAnnotations': BoolFieldAccess(
+      'Show Video Annotations',
+      'Whether to show annotations for the video.',
+      () => showVideoAnnotations,
+      (value) => showVideoAnnotations = value,
+    ),
+    'loop': BoolFieldAccess(
+      'Loop',
+      'Whether to loop the video.',
+      () => loop,
+      (value) => loop = value,
+    ),
+    'showCaptions': BoolFieldAccess(
+      'Show Captions',
+      'Whether to show video captions.',
+      () => showCaptions,
+      (value) => showCaptions = value,
+    ),
+    'startAt': NumFieldAccess<int>(
+      'Start At',
+      'Starting point of the video.',
+      () => startAt ?? 0,
+      (value) => startAt = value,
+    ),
+    'endAt': NumFieldAccess<int?>(
+      'End At',
+      'Ending point of the video.',
+      () => endAt,
+      (value) => endAt = value,
+    ),
+    'captionLanguage': StringFieldAccess(
+      'Caption Language',
+      'Video captions\' language.',
+      () => captionLanguage,
+      (value) => captionLanguage = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        url,
-        mute,
-        showControls,
-        autoPlay,
-        showFullscreenButton,
-        showVideoAnnotations,
-        loop,
-        showCaptions,
-        startAt,
-        endAt,
-        captionLanguage,
-        metadata
-      ];
+    url,
+    mute,
+    showControls,
+    autoPlay,
+    showFullscreenButton,
+    showVideoAnnotations,
+    loop,
+    showCaptions,
+    startAt,
+    endAt,
+    captionLanguage,
+    metadata,
+  ];
 
   /// Creates a [EmbeddedYoutubeVideoProperties] instance from a JSON object.
   factory EmbeddedYoutubeVideoProperties.fromJson(Map json) =>
       _$EmbeddedYoutubeVideoPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$EmbeddedYoutubeVideoPropertiesOmitDefaults(this, _$EmbeddedYoutubeVideoPropertiesToJson(this));
+  Map<String, dynamic> toJson() => _$EmbeddedYoutubeVideoPropertiesOmitDefaults(
+    this,
+    _$EmbeddedYoutubeVideoPropertiesToJson(this),
+  );
 }
 
 /// Holds configurable properties of the embedded vimeo video.
@@ -313,26 +316,26 @@ class EmbeddedVimeoVideoProperties extends EmbeddedVideoProperties {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'mute': BoolFieldAccess(
-          'Mute',
-          'Whether to mute the video.',
-          () => mute,
-          (value) => mute = value,
-        ),
-        'showFullscreenButton': BoolFieldAccess(
-          'Show Fullscreen Button',
-          'Whether to show the full screen button for the video.',
-          () => showFullscreenButton,
-          (value) => showFullscreenButton = value,
-        ),
-        'loop': BoolFieldAccess(
-          'Loop',
-          'Whether to loop the video.',
-          () => loop,
-          (value) => loop = value,
-        ),
-      };
+    ...super.generateFields(),
+    'mute': BoolFieldAccess(
+      'Mute',
+      'Whether to mute the video.',
+      () => mute,
+      (value) => mute = value,
+    ),
+    'showFullscreenButton': BoolFieldAccess(
+      'Show Fullscreen Button',
+      'Whether to show the full screen button for the video.',
+      () => showFullscreenButton,
+      (value) => showFullscreenButton = value,
+    ),
+    'loop': BoolFieldAccess(
+      'Loop',
+      'Whether to loop the video.',
+      () => loop,
+      (value) => loop = value,
+    ),
+  };
 
   @override
   List<Object?> get props => [url, mute, autoPlay, loop, showFullscreenButton];
@@ -342,7 +345,10 @@ class EmbeddedVimeoVideoProperties extends EmbeddedVideoProperties {
       _$EmbeddedVimeoVideoPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$EmbeddedVimeoVideoPropertiesOmitDefaults(this, _$EmbeddedVimeoVideoPropertiesToJson(this));
+  Map<String, dynamic> toJson() => _$EmbeddedVimeoVideoPropertiesOmitDefaults(
+    this,
+    _$EmbeddedVimeoVideoPropertiesToJson(this),
+  );
 }
 
 /// Holds metadata of the youtube video.
@@ -456,25 +462,28 @@ class YoutubeVideoMetadata with SerializableMixin, Equatable {
 
   @override
   List<Object?> get props => [
-        url,
-        title,
-        author,
-        authorUrl,
-        width,
-        height,
-        thumbnailUrl,
-        thumbnailWidth,
-        thumbnailHeight,
-        providerName,
-        html,
-      ];
+    url,
+    title,
+    author,
+    authorUrl,
+    width,
+    height,
+    thumbnailUrl,
+    thumbnailWidth,
+    thumbnailHeight,
+    providerName,
+    html,
+  ];
 
   /// Creates a [YoutubeVideoMetadata] instance from a JSON object.
   factory YoutubeVideoMetadata.fromJson(Map<String, dynamic> json) =>
       _$YoutubeVideoMetadataFromJson(json);
 
   @override
-  Map toJson() => _$YoutubeVideoMetadataOmitDefaults(this, _$YoutubeVideoMetadataToJson(this));
+  Map toJson() => _$YoutubeVideoMetadataOmitDefaults(
+    this,
+    _$YoutubeVideoMetadataToJson(this),
+  );
 }
 
 /// Holds metadata of the vimeo video.
@@ -627,29 +636,30 @@ class VimeoVideoMetadata with SerializableMixin, Equatable {
 
   @override
   List<Object?> get props => [
-        url,
-        version,
-        title,
-        author,
-        authorUrl,
-        width,
-        height,
-        duration,
-        description,
-        thumbnailUrl,
-        thumbnailWidth,
-        thumbnailHeight,
-        thumbnailUrlWithPlayButton,
-        uploadDate,
-        providerName,
-      ];
+    url,
+    version,
+    title,
+    author,
+    authorUrl,
+    width,
+    height,
+    duration,
+    description,
+    thumbnailUrl,
+    thumbnailWidth,
+    thumbnailHeight,
+    thumbnailUrlWithPlayButton,
+    uploadDate,
+    providerName,
+  ];
 
   /// Creates a [YoutubeVideoMetadata] instance from a JSON object.
   factory VimeoVideoMetadata.fromJson(Map<String, dynamic> json) =>
       _$VimeoVideoMetadataFromJson(json);
 
   @override
-  Map toJson() => _$VimeoVideoMetadataOmitDefaults(this, _$VimeoVideoMetadataToJson(this));
+  Map toJson() =>
+      _$VimeoVideoMetadataOmitDefaults(this, _$VimeoVideoMetadataToJson(this));
 }
 
 /// Helper method that returns Duration in seconds from the provided [value].

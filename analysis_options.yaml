@@ -8,6 +8,10 @@ analyzer:
     missing_required_param: error
     missing_return: error
     todo: ignore
+    # Nodes and their properties are mutable by design: the editor updates
+    # them in place. Equatable 3 marks itself @immutable, which would flag
+    # every one of them.
+    must_be_immutable: ignore
 
 linter:
   rules:

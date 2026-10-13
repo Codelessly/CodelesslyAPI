@@ -64,22 +64,21 @@ class InputBorderModel with Equatable, SerializableMixin {
 
   /// Creates an instance of input border model with no border.
   factory InputBorderModel.none() => const InputBorderModel(
-        borderType: BorderTypeEnum.none,
-        borderSide: BorderSideModel(width: 0.0, style: BorderStyleEnum.none),
-      );
+    borderType: BorderTypeEnum.none,
+    borderSide: BorderSideModel(width: 0.0, style: BorderStyleEnum.none),
+  );
 
   /// Creates an instance of input border model with outline border.
   factory InputBorderModel.outline({
     BorderSideModel borderSide = const BorderSideModel(),
     CornerRadius cornerRadius = const CornerRadius.all(RadiusModel.circular(4)),
     double gapPadding = 4,
-  }) =>
-      InputBorderModel(
-        borderType: BorderTypeEnum.outline,
-        borderSide: borderSide,
-        cornerRadius: cornerRadius,
-        gapPadding: gapPadding,
-      );
+  }) => InputBorderModel(
+    borderType: BorderTypeEnum.outline,
+    borderSide: borderSide,
+    cornerRadius: cornerRadius,
+    gapPadding: gapPadding,
+  );
 
   /// Creates an instance of input border model with underline border.
   factory InputBorderModel.underline({
@@ -90,12 +89,11 @@ class InputBorderModel with Equatable, SerializableMixin {
       bl: RadiusModel.circular(4),
       br: RadiusModel.circular(4),
     ),
-  }) =>
-      InputBorderModel(
-        borderType: BorderTypeEnum.underline,
-        borderSide: borderSide,
-        cornerRadius: cornerRadius,
-      );
+  }) => InputBorderModel(
+    borderType: BorderTypeEnum.underline,
+    borderSide: borderSide,
+    cornerRadius: cornerRadius,
+  );
 
   /// Duplicates this instance with the given data overrides.
   InputBorderModel copyWith({
@@ -103,13 +101,12 @@ class InputBorderModel with Equatable, SerializableMixin {
     BorderSideModel? borderSide,
     CornerRadius? cornerRadius,
     double? gapPadding,
-  }) =>
-      InputBorderModel(
-        borderType: borderType ?? this.borderType,
-        borderSide: borderSide ?? this.borderSide,
-        cornerRadius: cornerRadius ?? this.cornerRadius,
-        gapPadding: gapPadding ?? this.gapPadding,
-      );
+  }) => InputBorderModel(
+    borderType: borderType ?? this.borderType,
+    borderSide: borderSide ?? this.borderSide,
+    cornerRadius: cornerRadius ?? this.cornerRadius,
+    gapPadding: gapPadding ?? this.gapPadding,
+  );
 
   @override
   List<Object?> get props => [borderType, borderSide, cornerRadius, gapPadding];
@@ -120,5 +117,6 @@ class InputBorderModel with Equatable, SerializableMixin {
       _$InputBorderModelFromJson(json);
 
   @override
-  Map toJson() => _$InputBorderModelOmitDefaults(this, _$InputBorderModelToJson(this));
+  Map toJson() =>
+      _$InputBorderModelOmitDefaults(this, _$InputBorderModelToJson(this));
 }

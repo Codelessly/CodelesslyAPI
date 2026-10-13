@@ -222,8 +222,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,

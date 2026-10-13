@@ -12,7 +12,7 @@ enum LetterSpacingUnitEnum {
   pixels,
 
   /// Letter spacing in percentage.
-  percent;
+  percent,
 }
 
 /// The spacing between the text characters.
@@ -35,7 +35,7 @@ class LetterSpacing extends Equatable with SerializableMixin {
 
   /// Creates a percentage based [LetterSpacing] instance.
   const LetterSpacing.percent(this.value)
-      : unit = LetterSpacingUnitEnum.percent;
+    : unit = LetterSpacingUnitEnum.percent;
 
   /// Creates a [LetterSpacing] instance with zero value.
   static const LetterSpacing zero = LetterSpacing(
@@ -51,15 +51,10 @@ class LetterSpacing extends Equatable with SerializableMixin {
   factory LetterSpacing.fromJson(Map json) => _$LetterSpacingFromJson(json);
 
   @override
-  Map toJson() => _$LetterSpacingOmitDefaults(this, _$LetterSpacingToJson(this));
+  Map toJson() =>
+      _$LetterSpacingOmitDefaults(this, _$LetterSpacingToJson(this));
 
   /// Duplicates this instance with given data overrides.
-  LetterSpacing copyWith({
-    double? value,
-    LetterSpacingUnitEnum? unit,
-  }) =>
-      LetterSpacing(
-        value: value ?? this.value,
-        unit: unit ?? this.unit,
-      );
+  LetterSpacing copyWith({double? value, LetterSpacingUnitEnum? unit}) =>
+      LetterSpacing(value: value ?? this.value, unit: unit ?? this.unit);
 }

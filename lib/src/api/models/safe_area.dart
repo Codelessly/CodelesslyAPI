@@ -32,13 +32,13 @@ class SafeAreaModel with Equatable {
 
   /// Creates a new [SafeAreaModel] instance with all sides set to [value].
   const SafeAreaModel.all(bool value)
-      : this(
-          top: value,
-          bottom: value,
-          left: value,
-          right: value,
-          enabled: value,
-        );
+    : this(
+        top: value,
+        bottom: value,
+        left: value,
+        right: value,
+        enabled: value,
+      );
 
   /// Creates a new [SafeAreaModel] instance with overridden values.
   SafeAreaModel copyWith({
@@ -58,13 +58,7 @@ class SafeAreaModel with Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        top,
-        bottom,
-        left,
-        right,
-        enabled,
-      ];
+  List<Object?> get props => [top, bottom, left, right, enabled];
 
   /// Creates a new [SafeAreaModel] from a JSON data.
   factory SafeAreaModel.fromJson(dynamic json) {
@@ -86,8 +80,13 @@ class SafeAreaModel with Equatable {
         enabled: enabled,
       );
     }
-    if (json
-        case [bool left, bool top, bool right, bool bottom, bool enabled]) {
+    if (json case [
+      bool left,
+      bool top,
+      bool right,
+      bool bottom,
+      bool enabled,
+    ]) {
       return SafeAreaModel(
         top: top,
         bottom: bottom,

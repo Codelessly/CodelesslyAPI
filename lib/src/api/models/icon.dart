@@ -17,10 +17,7 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, Equatable {
   List<TriggerType> get triggerTypes => [TriggerType.click];
 
   /// Creates [ReactiveIconModel].
-  ReactiveIconModel({
-    required this.icon,
-    List<Reaction> reactions = const [],
-  }) {
+  ReactiveIconModel({required this.icon, List<Reaction> reactions = const []}) {
     setReactionMixin(reactions);
   }
 
@@ -36,7 +33,8 @@ class ReactiveIconModel with ReactionMixin, SerializableMixin, Equatable {
   }
 
   @override
-  Map toJson() => _$ReactiveIconModelOmitDefaults(this, _$ReactiveIconModelToJson(this));
+  Map toJson() =>
+      _$ReactiveIconModelOmitDefaults(this, _$ReactiveIconModelToJson(this));
 
   /// Factory constructor for creating a new [ReactiveIconModel] instance
   /// from JSON data.
@@ -105,10 +103,10 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     this.size = 24,
     this.color = ColorRGBA.black,
     this.show = true,
-  })  : type = IconTypeEnum.icon,
-        iconImage = null,
-        scale = 1,
-        imageName = null;
+  }) : type = IconTypeEnum.icon,
+       iconImage = null,
+       scale = 1,
+       imageName = null;
 
   /// Creates an instance of this class with image icon.
   const MultiSourceIconModel.image({
@@ -118,8 +116,8 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     this.show = true,
     this.imageName,
     this.scale = 1,
-  })  : type = IconTypeEnum.image,
-        icon = null;
+  }) : type = IconTypeEnum.image,
+       icon = null;
 
   /// Default constructor of this class.
   const MultiSourceIconModel({
@@ -134,8 +132,15 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
   });
 
   @override
-  List<Object?> get props =>
-      [type, icon, iconImage, size, color, show, imageName];
+  List<Object?> get props => [
+    type,
+    icon,
+    iconImage,
+    size,
+    color,
+    show,
+    imageName,
+  ];
 
   /// Duplicates [MultiSourceIconModel] with the given properties overrides.
   MultiSourceIconModel copyWith({
@@ -193,5 +198,8 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$MultiSourceIconModelOmitDefaults(this, _$MultiSourceIconModelToJson(this));
+  Map toJson() => _$MultiSourceIconModelOmitDefaults(
+    this,
+    _$MultiSourceIconModelToJson(this),
+  );
 }

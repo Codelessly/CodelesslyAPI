@@ -1,4 +1,3 @@
-
 import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
@@ -28,9 +27,9 @@ enum MaterialNavigationBarLabelBehavior {
       MaterialNavigationBarLabelBehavior.values;
 
   /// Returns values for Material 3 navigation bar.
-  static List<MaterialNavigationBarLabelBehavior> get valuesForMaterial3 => [
-        ...MaterialNavigationBarLabelBehavior.values
-      ]..remove(MaterialNavigationBarLabelBehavior.onlyShowUnselected);
+  static List<MaterialNavigationBarLabelBehavior> get valuesForMaterial3 =>
+      [...MaterialNavigationBarLabelBehavior.values]
+        ..remove(MaterialNavigationBarLabelBehavior.onlyShowUnselected);
 
   /// Returns values in readable form.
   String prettify() {
@@ -108,8 +107,9 @@ enum M2NavigationBarLandscapeLayout {
 
 /// Creates a [NavigationBarProperties] instance from a JSON object.
 NavigationBarProperties navigationBarPropertiesFromJson(Map json) {
-  final StyleDefinition styleDefinition =
-      StyleDefinition.values.byName(json['styleDefinition']);
+  final StyleDefinition styleDefinition = StyleDefinition.values.byName(
+    json['styleDefinition'],
+  );
 
   switch (styleDefinition) {
     case StyleDefinition.material_2:
@@ -178,23 +178,25 @@ class NavigationBarNode extends SceneNode
       _$NavigationBarNodeFromJson(json);
 
   @override
-  Map toJson() => _$NavigationBarNodeOmitDefaults(this, _$NavigationBarNodeToJson(this));
+  Map toJson() =>
+      _$NavigationBarNodeOmitDefaults(this, _$NavigationBarNodeToJson(this));
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<NavigationBarProperties>(
-          'Properties',
-          'Properties of the navigation bar.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<NavigationBarProperties>(
+      'Properties',
+      'Properties of the navigation bar.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 }
 
 /// Holds configurable properties of the navigation bar.
 abstract class NavigationBarProperties<T extends NavigationBarItem>
-    extends CustomProperties with FieldsHolder {
+    extends CustomProperties
+    with FieldsHolder {
   /// Defines the style of the navigation bar, i.e., Material 2 or Material 3.
   ///
   /// This has to be like this to force json serializable to serialize it.
@@ -220,29 +222,29 @@ abstract class NavigationBarProperties<T extends NavigationBarItem>
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'makeNotched': BoolFieldAccess(
-          'Make Notched',
-          'Whether to make the navigation bar notched.',
-          () => makeNotched,
-          (value) => makeNotched = value,
-          requiresLayout: true,
-        ),
-        'notchMargin': NumFieldAccess<double>(
-          'Notch Margin',
-          'The margin between the floating action button and the navigation bar\'s notch.',
-          () => notchMargin,
-          (value) => notchMargin = value,
-          requiresLayout: true,
-        ),
-        'items': IterableFieldAccess<T>(
-          'Items',
-          'Nav items of the navigation bar.',
-          () => items,
-          (value) => items = value,
-          (item) => item.label,
-        ),
-      };
+    ...super.generateFields(),
+    'makeNotched': BoolFieldAccess(
+      'Make Notched',
+      'Whether to make the navigation bar notched.',
+      () => makeNotched,
+      (value) => makeNotched = value,
+      requiresLayout: true,
+    ),
+    'notchMargin': NumFieldAccess<double>(
+      'Notch Margin',
+      'The margin between the floating action button and the navigation bar\'s notch.',
+      () => notchMargin,
+      (value) => notchMargin = value,
+      requiresLayout: true,
+    ),
+    'items': IterableFieldAccess<T>(
+      'Items',
+      'Nav items of the navigation bar.',
+      () => items,
+      (value) => items = value,
+      (item) => item.label,
+    ),
+  };
 }
 
 /// Holds configurable properties of the material navigation bar.
@@ -320,8 +322,8 @@ class M3NavigationBarProperties
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  })  : selectedLabelStyle = selectedLabelStyle ?? TextProp(fontSize: 14),
-        unselectedLabelStyle = unselectedLabelStyle ?? TextProp(fontSize: 12);
+  }) : selectedLabelStyle = selectedLabelStyle ?? TextProp(fontSize: 14),
+       unselectedLabelStyle = unselectedLabelStyle ?? TextProp(fontSize: 12);
 
   /// Duplicates this [M3NavigationBarProperties] instance with the given data
   /// overrides.
@@ -359,23 +361,26 @@ class M3NavigationBarProperties
 
   @override
   List<Object?> get props => [
-        items,
-        backgroundColor,
-        elevation,
-        selectedLabelStyle,
-        unselectedLabelStyle,
-        unselectedIconColor,
-        selectedIconColor,
-        indicatorColor,
-        unselectedIconSize,
-        selectedIconSize,
-        labelBehavior,
-        makeNotched,
-        notchMargin,
-      ];
+    items,
+    backgroundColor,
+    elevation,
+    selectedLabelStyle,
+    unselectedLabelStyle,
+    unselectedIconColor,
+    selectedIconColor,
+    indicatorColor,
+    unselectedIconSize,
+    selectedIconSize,
+    labelBehavior,
+    makeNotched,
+    notchMargin,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesOmitDefaults(this, _$M3NavigationBarPropertiesToJson(this));
+  Map<String, dynamic> toJson() => _$M3NavigationBarPropertiesOmitDefaults(
+    this,
+    _$M3NavigationBarPropertiesToJson(this),
+  );
 
   /// Creates a [M3NavigationBarProperties] instance from a JSON object.
   static M3NavigationBarProperties fromJson(Map json) =>
@@ -431,10 +436,10 @@ class M2NavigationBarProperties
     this.unselectedIconSize = 24,
     this.selectedIconSize = 24,
     this.labelBehavior = MaterialNavigationBarLabelBehavior.alwaysShow,
-  })  : selectedLabelStyle =
-            selectedLabelStyle ?? TextProp.general(fontSize: 14),
-        unselectedLabelStyle =
-            unselectedLabelStyle ?? TextProp.general(fontSize: 12);
+  }) : selectedLabelStyle =
+           selectedLabelStyle ?? TextProp.general(fontSize: 14),
+       unselectedLabelStyle =
+           unselectedLabelStyle ?? TextProp.general(fontSize: 12);
 
   /// Duplicates this [M2NavigationBarProperties] instance with the given data
   /// overrides.
@@ -472,24 +477,27 @@ class M2NavigationBarProperties
 
   @override
   List<Object?> get props => [
-        items,
-        backgroundColor,
-        elevation,
-        navigationBarType,
-        landscapeLayout,
-        selectedLabelStyle,
-        unselectedLabelStyle,
-        unselectedIconColor,
-        selectedIconColor,
-        unselectedIconSize,
-        selectedIconSize,
-        labelBehavior,
-        makeNotched,
-        notchMargin,
-      ];
+    items,
+    backgroundColor,
+    elevation,
+    navigationBarType,
+    landscapeLayout,
+    selectedLabelStyle,
+    unselectedLabelStyle,
+    unselectedIconColor,
+    selectedIconColor,
+    unselectedIconSize,
+    selectedIconSize,
+    labelBehavior,
+    makeNotched,
+    notchMargin,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesOmitDefaults(this, _$M2NavigationBarPropertiesToJson(this));
+  Map<String, dynamic> toJson() => _$M2NavigationBarPropertiesOmitDefaults(
+    this,
+    _$M2NavigationBarPropertiesToJson(this),
+  );
 
   /// Creates a [M2NavigationBarProperties] instance from a JSON object.
   factory M2NavigationBarProperties.fromJson(Map json) =>

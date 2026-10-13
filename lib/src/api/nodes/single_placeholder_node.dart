@@ -84,5 +84,8 @@ class SinglePlaceholderNode extends SceneNode
       _$SinglePlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$SinglePlaceholderNodeOmitDefaults(this, _$SinglePlaceholderNodeToJson(this));
+  Map toJson() => _$SinglePlaceholderNodeOmitDefaults(
+    this,
+    _$SinglePlaceholderNodeToJson(this),
+  );
 }

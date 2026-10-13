@@ -30,22 +30,30 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Strictly used for previews. e.g in components panel.
   DividerNode.empty()
-      : properties = DividerProperties(),
-        super(
-          id: 'divider',
-          name: 'Divider',
-          basicBoxLocal:
-              NodeBox(0, 0, kDividerDefaultWidth, kDividerDefaultHeight),
-        );
+    : properties = DividerProperties(),
+      super(
+        id: 'divider',
+        name: 'Divider',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kDividerDefaultWidth,
+          kDividerDefaultHeight,
+        ),
+      );
 
   /// Strictly used for previews. e.g in components panel.
   DividerNode.fromProperties(this.properties)
-      : super(
-          id: 'divider',
-          name: 'Divider',
-          basicBoxLocal:
-              NodeBox(0, 0, kDividerDefaultWidth, kDividerDefaultHeight),
-        );
+    : super(
+        id: 'divider',
+        name: 'Divider',
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          kDividerDefaultWidth,
+          kDividerDefaultHeight,
+        ),
+      );
 
   /// Creates a [DividerNode] with the given data.
   DividerNode({
@@ -81,20 +89,17 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<DividerProperties>(
-          'Properties',
-          'Properties of the divider.',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<DividerProperties>(
+      'Properties',
+      'Properties of the divider.',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
-  List<Object?> get props => [
-        ...super.props,
-        properties,
-      ];
+  List<Object?> get props => [...super.props, properties];
 
   /// Creates a [DividerNode] from a JSON data.
   factory DividerNode.fromJson(Map json) => _$DividerNodeFromJson(json);
@@ -118,12 +123,7 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
           horizontalFit: horizontalFit,
           verticalFit: verticalFit,
         )
-        .union(
-          BoxConstraintsModel(
-            minWidth: width,
-            minHeight: height,
-          ),
-        );
+        .union(BoxConstraintsModel(minWidth: width, minHeight: height));
   }
 
   @override
@@ -195,52 +195,48 @@ class DividerProperties extends CustomProperties with FieldsHolder {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'color': ColorFieldAccess<ColorRGBA>(
-          'Color',
-          'Color of the divider.',
-          () => color,
-          (value) => color = value,
-        ),
-        'indent': NumFieldAccess<double>(
-          'Indent',
-          'Start indent of the divider.',
-          () => indent,
-          (value) => indent = value,
-        ),
-        'endIndent': NumFieldAccess<double>(
-          'End Indent',
-          'End indent of the divider.',
-          () => endIndent,
-          (value) => endIndent = value,
-        ),
-        'isVertical': BoolFieldAccess(
-          'Is Vertical',
-          'Whether this is a vertical divider.',
-          () => isVertical,
-          (value) => isVertical = value,
-          requiresLayout: true,
-        ),
-        'thickness': NumFieldAccess<double>(
-          'Thickness',
-          'Thickness of the diving line.',
-          () => thickness,
-          (value) => thickness = value,
-        ),
-      };
+    ...super.generateFields(),
+    'color': ColorFieldAccess<ColorRGBA>(
+      'Color',
+      'Color of the divider.',
+      () => color,
+      (value) => color = value,
+    ),
+    'indent': NumFieldAccess<double>(
+      'Indent',
+      'Start indent of the divider.',
+      () => indent,
+      (value) => indent = value,
+    ),
+    'endIndent': NumFieldAccess<double>(
+      'End Indent',
+      'End indent of the divider.',
+      () => endIndent,
+      (value) => endIndent = value,
+    ),
+    'isVertical': BoolFieldAccess(
+      'Is Vertical',
+      'Whether this is a vertical divider.',
+      () => isVertical,
+      (value) => isVertical = value,
+      requiresLayout: true,
+    ),
+    'thickness': NumFieldAccess<double>(
+      'Thickness',
+      'Thickness of the diving line.',
+      () => thickness,
+      (value) => thickness = value,
+    ),
+  };
 
   @override
-  List<Object?> get props => [
-        color,
-        indent,
-        endIndent,
-        isVertical,
-      ];
+  List<Object?> get props => [color, indent, endIndent, isVertical];
 
   /// Creates a [DividerProperties] from a JSON data.
   factory DividerProperties.fromJson(Map json) =>
       _$DividerPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$DividerPropertiesOmitDefaults(this, _$DividerPropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$DividerPropertiesOmitDefaults(this, _$DividerPropertiesToJson(this));
 }

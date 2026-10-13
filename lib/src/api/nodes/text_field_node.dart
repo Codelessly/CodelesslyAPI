@@ -25,11 +25,11 @@ class TextFieldNode extends SceneNode
 
   /// Creates a text field from the given properties.
   TextFieldNode.fromProperties(this.properties)
-      : super(
-          id: 'textField',
-          name: 'TextField',
-          basicBoxLocal: NodeBox(0, 0, 250, 48),
-        );
+    : super(
+        id: 'textField',
+        name: 'TextField',
+        basicBoxLocal: NodeBox(0, 0, 250, 48),
+      );
 
   @override
   bool get supportsPadding => true;
@@ -63,8 +63,10 @@ class TextFieldNode extends SceneNode
     String obscuringCharacter = '•',
     super.visible,
     super.alignment,
-    super.padding =
-        const EdgeInsetsModel.symmetric(horizontal: 12, vertical: 16),
+    super.padding = const EdgeInsetsModel.symmetric(
+      horizontal: 12,
+      vertical: 16,
+    ),
     super.margin,
     super.rotationDegrees,
     super.reactions,
@@ -82,10 +84,10 @@ class TextFieldNode extends SceneNode
 
   @override
   List<TriggerType> get triggerTypes => [
-        TriggerType.changed,
-        // TriggerType.editingComplete,
-        TriggerType.submitted,
-      ];
+    TriggerType.changed,
+    // TriggerType.editingComplete,
+    TriggerType.submitted,
+  ];
 
   @override
   List<ReactionMixin> get reactiveChildren {
@@ -109,7 +111,9 @@ class TextFieldNode extends SceneNode
     BoolValue(name: 'isCollapsed', value: properties.decoration.isCollapsed),
     BoolValue(name: 'isDense', value: properties.decoration.isDense),
     StringValue(
-        name: 'labelText', value: properties.decoration.labelText ?? ''),
+      name: 'labelText',
+      value: properties.decoration.labelText ?? '',
+    ),
     StringValue(name: 'hintText', value: properties.decoration.hintText ?? ''),
   ];
 
@@ -117,7 +121,8 @@ class TextFieldNode extends SceneNode
   factory TextFieldNode.fromJson(Map json) => _$TextFieldNodeFromJson(json);
 
   @override
-  Map toJson() => _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
+  Map toJson() =>
+      _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
 /// Holds configurable properties of the text field.
@@ -254,9 +259,10 @@ class TextFieldProperties extends CustomProperties {
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
-  })  : inputStyle = inputStyle ??
-            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        decoration = decoration ?? InputDecorationModel();
+  }) : inputStyle =
+           inputStyle ??
+           TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+       decoration = decoration ?? InputDecorationModel();
 
   /// Duplicates this [TextFieldProperties] instance with the given data
   /// overrides.
@@ -332,39 +338,42 @@ class TextFieldProperties extends CustomProperties {
       _$TextFieldPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$TextFieldPropertiesOmitDefaults(this, _$TextFieldPropertiesToJson(this));
+  Map<String, dynamic> toJson() => _$TextFieldPropertiesOmitDefaults(
+    this,
+    _$TextFieldPropertiesToJson(this),
+  );
 
   @override
   List<Object?> get props => [
-        autoCorrect,
-        autoFocus,
-        enableInteractiveSelection,
-        enabled,
-        obscureText,
-        readOnly,
-        showCursor,
-        keyboardType,
-        selectionHeightStyle,
-        selectionWidthStyle,
-        textAlign,
-        textAlignVertical,
-        cursorColor,
-        cursorHeight,
-        cursorWidth,
-        cursorRadius,
-        maxLength,
-        maxLines,
-        minLines,
-        obscuringCharacter,
-        inputStyle,
-        decoration,
-        expands,
-        showDecimalKey,
-        showSignKey,
-        formatter,
-        validator,
-        autofillHints,
-        autovalidateMode,
-        textInputAction,
-      ];
+    autoCorrect,
+    autoFocus,
+    enableInteractiveSelection,
+    enabled,
+    obscureText,
+    readOnly,
+    showCursor,
+    keyboardType,
+    selectionHeightStyle,
+    selectionWidthStyle,
+    textAlign,
+    textAlignVertical,
+    cursorColor,
+    cursorHeight,
+    cursorWidth,
+    cursorRadius,
+    maxLength,
+    maxLines,
+    minLines,
+    obscuringCharacter,
+    inputStyle,
+    decoration,
+    expands,
+    showDecimalKey,
+    showSignKey,
+    formatter,
+    validator,
+    autofillHints,
+    autovalidateMode,
+    textInputAction,
+  ];
 }

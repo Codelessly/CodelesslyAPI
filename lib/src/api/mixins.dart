@@ -151,7 +151,7 @@ enum TextAlignVerticalEnum {
   center,
 
   /// Aligns the text on the bottom edge of the container.
-  bottom;
+  bottom,
 }
 
 /// Defines text node's horizontal alignment.
@@ -170,7 +170,7 @@ enum TextAlignHorizontalEnum {
   /// the container.
   ///
   /// Lines that end with hard line breaks are aligned towards the [start] edge.
-  justified;
+  justified,
 }
 
 /// Defines the affinity of an icon with any other node/widget.
@@ -180,7 +180,7 @@ enum IconPlacementEnum {
   start,
 
   /// Places the icon after its sibling.
-  end;
+  end,
 }
 
 /// Defines the type of an icon.
@@ -192,7 +192,7 @@ enum IconTypeEnum {
 
   /// Represents an image based icon. This could be a network based image or a
   /// local asset.
-  image;
+  image,
 }
 
 /// Defines reactions to user interactions on a node.
@@ -286,20 +286,20 @@ mixin BlendMixin on BaseNode {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'effects': IterableFieldAccess<Effect>(
-          'Effects',
-          'A list of fills applied to the node.',
-          () => effects,
-          (value) => effects = value,
-          (item) => switch (item.type) {
-            EffectType.innerShadow => 'Inner Shadow',
-            EffectType.dropShadow => 'Drop Shadow',
-            EffectType.layerBlur => 'Layer Blur',
-            EffectType.backgroundBlur => 'Background Blur',
-          },
-        ),
-      };
+    ...super.generateFields(),
+    'effects': IterableFieldAccess<Effect>(
+      'Effects',
+      'A list of fills applied to the node.',
+      () => effects,
+      (value) => effects = value,
+      (item) => switch (item.type) {
+        EffectType.innerShadow => 'Inner Shadow',
+        EffectType.dropShadow => 'Drop Shadow',
+        EffectType.layerBlur => 'Layer Blur',
+        EffectType.backgroundBlur => 'Background Blur',
+      },
+    ),
+  };
 
   @override
   String toString() =>
@@ -507,7 +507,7 @@ enum StrokeCapEnum {
   ///
   /// The cap is colored in the diagram above to highlight it: in normal use it
   /// is the same color as the line.
-  square;
+  square,
 }
 
 /// An enum representing the side or sides of a shape that a stroke should be
@@ -526,7 +526,7 @@ enum StrokeSide {
   top,
 
   /// All sides of the shape.
-  all;
+  all,
 }
 
 /// Represents the shape of the track for a slider.
@@ -637,49 +637,49 @@ mixin GeometryMixin on BaseNode {
   //  node.fields['fills'][0].fields['color].setValue(Color(0xFFFFFF));
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'fills': IterableFieldAccess<PaintModel>(
-          'Fills',
-          'A list of fills applied to the node.',
-          () => fills,
-          (value) => fills = value,
-          (item) => switch (item.type) {
-            PaintType.solid => item.color?.toHex() ?? '',
-            PaintType.image => item.imageName ??
-                extractFileNameFromUrl(
-                  item.downloadUrl ?? '',
-                  withExtension: false,
-                ),
-            PaintType.gradientLinear ||
-            PaintType.gradientRadial ||
-            PaintType.gradientAngular ||
-            PaintType.gradientDiamond ||
-            PaintType.emoji =>
-              item.type.prettify,
-          },
-        ),
-        'strokes': IterableFieldAccess<PaintModel>(
-          'Strokes',
-          'A list of strokes applied to the node.',
-          requiresLayout: true,
-          () => strokes,
-          (value) => strokes = value,
-          (item) => switch (item.type) {
-            PaintType.solid => item.color?.toHex() ?? '',
-            PaintType.image => item.imageName ??
-                extractFileNameFromUrl(
-                  item.downloadUrl ?? '',
-                  withExtension: false,
-                ),
-            PaintType.gradientLinear ||
-            PaintType.gradientRadial ||
-            PaintType.gradientAngular ||
-            PaintType.gradientDiamond ||
-            PaintType.emoji =>
-              item.type.prettify,
-          },
-        )
-      };
+    ...super.generateFields(),
+    'fills': IterableFieldAccess<PaintModel>(
+      'Fills',
+      'A list of fills applied to the node.',
+      () => fills,
+      (value) => fills = value,
+      (item) => switch (item.type) {
+        PaintType.solid => item.color?.toHex() ?? '',
+        PaintType.image =>
+          item.imageName ??
+              extractFileNameFromUrl(
+                item.downloadUrl ?? '',
+                withExtension: false,
+              ),
+        PaintType.gradientLinear ||
+        PaintType.gradientRadial ||
+        PaintType.gradientAngular ||
+        PaintType.gradientDiamond ||
+        PaintType.emoji => item.type.prettify,
+      },
+    ),
+    'strokes': IterableFieldAccess<PaintModel>(
+      'Strokes',
+      'A list of strokes applied to the node.',
+      requiresLayout: true,
+      () => strokes,
+      (value) => strokes = value,
+      (item) => switch (item.type) {
+        PaintType.solid => item.color?.toHex() ?? '',
+        PaintType.image =>
+          item.imageName ??
+              extractFileNameFromUrl(
+                item.downloadUrl ?? '',
+                withExtension: false,
+              ),
+        PaintType.gradientLinear ||
+        PaintType.gradientRadial ||
+        PaintType.gradientAngular ||
+        PaintType.gradientDiamond ||
+        PaintType.emoji => item.type.prettify,
+      },
+    ),
+  };
 
   /// If an image is in the fills, allow shrink-wrapping up to to a fixed
   /// minimum.
@@ -696,10 +696,10 @@ mixin GeometryMixin on BaseNode {
       if (fill.type != PaintType.image) continue;
       if ((fill.sourceWidth != null && fill.sourceHeight != null) ||
           (fill.cropData != null)) {
-        final double? imgWidth =
-            (fill.cropData?.width ?? fill.sourceWidth)?.roundToDouble();
-        final double? imgHeight =
-            (fill.cropData?.height ?? fill.sourceHeight)?.roundToDouble();
+        final double? imgWidth = (fill.cropData?.width ?? fill.sourceWidth)
+            ?.roundToDouble();
+        final double? imgHeight = (fill.cropData?.height ?? fill.sourceHeight)
+            ?.roundToDouble();
 
         double? width, height;
         if (horizontalFit == SizeFit.shrinkWrap &&
@@ -711,20 +711,17 @@ mixin GeometryMixin on BaseNode {
           // minimum height to be equal to or less than the source height,
           // preserving aspect ratio with respect to the current node width.
           if (verticalFit == SizeFit.shrinkWrap) {
-            height =
-                (imgHeight * (basicBoxLocal.width / imgWidth)).roundToDouble();
+            height = (imgHeight * (basicBoxLocal.width / imgWidth))
+                .roundToDouble();
           }
           if (horizontalFit == SizeFit.shrinkWrap) {
-            width =
-                (imgWidth * (basicBoxLocal.height / imgHeight)).roundToDouble();
+            width = (imgWidth * (basicBoxLocal.height / imgHeight))
+                .roundToDouble();
           }
         }
 
         resultSize = resultSize.union(
-          BoxConstraintsModel(
-            minWidth: width,
-            minHeight: height,
-          ),
+          BoxConstraintsModel(minWidth: width, minHeight: height),
         );
       }
     }
@@ -738,22 +735,20 @@ mixin ClipMixin on BaseNode {
   late bool clipsContent;
 
   /// Sets the clipping.
-  void setClipMixin({
-    required bool clipsContent,
-  }) {
+  void setClipMixin({required bool clipsContent}) {
     this.clipsContent = clipsContent;
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'clipsContent': BoolFieldAccess(
-          'Clip Content',
-          'Clip the content outside.',
-          () => clipsContent,
-          (value) => clipsContent = value,
-        ),
-      };
+    ...super.generateFields(),
+    'clipsContent': BoolFieldAccess(
+      'Clip Content',
+      'Clip the content outside.',
+      () => clipsContent,
+      (value) => clipsContent = value,
+    ),
+  };
 }
 
 /// Adds border shape properties to a node enabling the node to have differently
@@ -784,35 +779,36 @@ mixin ShapeBorderMixin {
     this.borderColor = borderColor;
   }
 
+  /// Field accessors for the properties of this mixin.
   FieldsMap generateShapeBorderMixinFields() => {
-        'shape': EnumFieldAccess<CShapeBorder>(
-          'Shape',
-          'Shape of the border.',
-          () => shape,
-          (value) => shape = value,
-          defaultValue: () => CShapeBorder.rectangle,
-          options: () => CShapeBorder.values,
-        ),
-        'cornerRadius': RadiusFieldAccess(
-          'Corner Radius',
-          'Radius of the corners of the border.',
-          () => cornerRadius,
-          (value) => cornerRadius = value,
-        ),
-        'borderWidth': NumFieldAccess<double?>(
-          'Border Width',
-          'Thickness of the border.',
-          () => borderWidth,
-          (value) => borderWidth = value,
-          requiresLayout: true,
-        ),
-        'borderColor': ColorFieldAccess<ColorRGBA?>(
-          'Border Color',
-          'Color of the border.',
-          () => borderColor,
-          (value) => borderColor = value,
-        ),
-      };
+    'shape': EnumFieldAccess<CShapeBorder>(
+      'Shape',
+      'Shape of the border.',
+      () => shape,
+      (value) => shape = value,
+      defaultValue: () => CShapeBorder.rectangle,
+      options: () => CShapeBorder.values,
+    ),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Radius of the corners of the border.',
+      () => cornerRadius,
+      (value) => cornerRadius = value,
+    ),
+    'borderWidth': NumFieldAccess<double?>(
+      'Border Width',
+      'Thickness of the border.',
+      () => borderWidth,
+      (value) => borderWidth = value,
+      requiresLayout: true,
+    ),
+    'borderColor': ColorFieldAccess<ColorRGBA?>(
+      'Border Color',
+      'Color of the border.',
+      () => borderColor,
+      (value) => borderColor = value,
+    ),
+  };
 
   @override
   String toString() =>
@@ -839,20 +835,20 @@ mixin CornerMixin on BaseNode {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'cornerRadius': RadiusFieldAccess(
-          'Corner Radius',
-          'Radius of the corners of the node.',
-          () => cornerRadius,
-          (value) => cornerRadius = value,
-        ),
-        'cornerSmoothing': NumFieldAccess<double>(
-          'Corner Smoothing',
-          'Level of pixel smoothing applied to the corners.',
-          () => cornerSmoothing,
-          (value) => cornerSmoothing = value,
-        ),
-      };
+    ...super.generateFields(),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Radius of the corners of the node.',
+      () => cornerRadius,
+      (value) => cornerRadius = value,
+    ),
+    'cornerSmoothing': NumFieldAccess<double>(
+      'Corner Smoothing',
+      'Level of pixel smoothing applied to the corners.',
+      () => cornerSmoothing,
+      (value) => cornerSmoothing = value,
+    ),
+  };
 
   @override
   String toString() =>
@@ -948,11 +944,11 @@ mixin ScalableMixin on BaseNode {
   /// Returns the constraints for the node based on the [minWidth], [minHeight],
   /// [maxWidth] and [maxHeight].
   BoxConstraintsModel getFixedConstraints() => BoxConstraintsModel(
-        minHeight: minHeight,
-        maxWidth: maxWidth,
-        maxHeight: maxHeight,
-        minWidth: minWidth,
-      );
+    minHeight: minHeight,
+    maxWidth: maxWidth,
+    maxHeight: maxHeight,
+    minWidth: minWidth,
+  );
 }
 
 /// A mixin that allows a node to store variables for its properties so that
@@ -1025,9 +1021,9 @@ enum RowColumnType {
 
   /// Returns the opposite of this [RowColumnType].
   RowColumnType get opposite => switch (this) {
-        RowColumnType.row => RowColumnType.column,
-        RowColumnType.column => RowColumnType.row,
-      };
+    RowColumnType.row => RowColumnType.column,
+    RowColumnType.column => RowColumnType.row,
+  };
 }
 
 /// A mixin that allows node to have sequential children layout like row and
@@ -1071,26 +1067,26 @@ mixin RowColumnMixin on BaseNode {
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'mainAxisAlignment': EnumFieldAccess<MainAxisAlignmentC>(
-          'Main Axis Alignment',
-          'Alignment of the children along the main axis.',
-          () => mainAxisAlignment,
-          (value) => mainAxisAlignment = value,
-          defaultValue: () => MainAxisAlignmentC.center,
-          options: () => MainAxisAlignmentC.values,
-          requiresLayout: true,
-        ),
-        'crossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
-          'Cross Axis Alignment',
-          'Alignment of the children along the cross axis.',
-          () => crossAxisAlignment,
-          (value) => crossAxisAlignment = value,
-          defaultValue: () => CrossAxisAlignmentC.center,
-          options: () => CrossAxisAlignmentC.values,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'mainAxisAlignment': EnumFieldAccess<MainAxisAlignmentC>(
+      'Main Axis Alignment',
+      'Alignment of the children along the main axis.',
+      () => mainAxisAlignment,
+      (value) => mainAxisAlignment = value,
+      defaultValue: () => MainAxisAlignmentC.center,
+      options: () => MainAxisAlignmentC.values,
+      requiresLayout: true,
+    ),
+    'crossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+      'Cross Axis Alignment',
+      'Alignment of the children along the cross axis.',
+      () => crossAxisAlignment,
+      (value) => crossAxisAlignment = value,
+      defaultValue: () => CrossAxisAlignmentC.center,
+      options: () => CrossAxisAlignmentC.values,
+      requiresLayout: true,
+    ),
+  };
 }
 
 /// A mixin that allows node behave like a placeholder for other nodes.
@@ -1342,7 +1338,7 @@ enum ComponentMarkerType {
   component,
 
   /// Indicates that the node is marked as an instance of a component.
-  instance;
+  instance,
 }
 
 /// A mixin that allows a node to be connected to a component or identify

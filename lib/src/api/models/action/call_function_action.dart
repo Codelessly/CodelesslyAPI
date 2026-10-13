@@ -7,8 +7,7 @@ part 'call_function_action.g.dart';
 
 /// An action that calls a custom function.
 @JsonSerializable()
-class CallFunctionAction extends ActionModel
-    with Equatable, SerializableMixin {
+class CallFunctionAction extends ActionModel with Equatable, SerializableMixin {
   /// Name of the custom function to be called.
   final String name;
 
@@ -21,17 +20,14 @@ class CallFunctionAction extends ActionModel
     Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
-  })  : params = params ?? {},
-        super(type: ActionType.callFunction);
+  }) : params = params ?? {},
+       super(type: ActionType.callFunction);
 
   @override
   List<Object?> get props => [name, params];
 
   /// Duplicates this [CallFunctionAction] with given data overrides.
-  CallFunctionAction copyWith({
-    String? name,
-    Map<String, dynamic>? params,
-  }) =>
+  CallFunctionAction copyWith({String? name, Map<String, dynamic>? params}) =>
       CallFunctionAction(
         name: name ?? this.name,
         params: params ?? this.params,
@@ -42,7 +38,8 @@ class CallFunctionAction extends ActionModel
       _$CallFunctionActionFromJson(json);
 
   @override
-  Map toJson() => _$CallFunctionActionOmitDefaults(this, _$CallFunctionActionToJson(this));
+  Map toJson() =>
+      _$CallFunctionActionOmitDefaults(this, _$CallFunctionActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>

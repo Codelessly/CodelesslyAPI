@@ -60,75 +60,75 @@ enum ConditionOperation {
 
   /// label for the operation
   String get label => switch (this) {
-        equalsTo => 'Equals To',
-        notEqualsTo => 'Not Equal To',
-        greaterThan => 'Greater Than',
-        lessThan => 'Less Than',
-        greaterThanOrEqualTo => 'Greater Than Or Equal To',
-        lessThanOrEqualTo => 'Less Than Or Equal To',
-        isEmpty => 'Is Empty',
-        isNotEmpty => 'Is Not Empty',
-        contains => 'Contains',
-        isOdd => 'Is Odd',
-        isEven => 'Is Even',
-        isNull => 'Is Null',
-        isTrue => 'Is True',
-        isFalse => 'Is False',
-      };
+    equalsTo => 'Equals To',
+    notEqualsTo => 'Not Equal To',
+    greaterThan => 'Greater Than',
+    lessThan => 'Less Than',
+    greaterThanOrEqualTo => 'Greater Than Or Equal To',
+    lessThanOrEqualTo => 'Less Than Or Equal To',
+    isEmpty => 'Is Empty',
+    isNotEmpty => 'Is Not Empty',
+    contains => 'Contains',
+    isOdd => 'Is Odd',
+    isEven => 'Is Even',
+    isNull => 'Is Null',
+    isTrue => 'Is True',
+    isFalse => 'Is False',
+  };
 
   /// short description of the operation
   String get sentence => switch (this) {
-        equalsTo => 'equal to',
-        notEqualsTo => 'not equal to',
-        greaterThan => 'greater than',
-        lessThan => 'less than',
-        greaterThanOrEqualTo => 'greater than or equal to',
-        lessThanOrEqualTo => 'less than or equal to',
-        isEmpty => 'is empty',
-        isNotEmpty => 'is not empty',
-        contains => 'contains',
-        isOdd => 'is odd',
-        isEven => 'is even',
-        isNull => 'is null',
-        isTrue => 'is true',
-        isFalse => 'is false',
-      };
+    equalsTo => 'equal to',
+    notEqualsTo => 'not equal to',
+    greaterThan => 'greater than',
+    lessThan => 'less than',
+    greaterThanOrEqualTo => 'greater than or equal to',
+    lessThanOrEqualTo => 'less than or equal to',
+    isEmpty => 'is empty',
+    isNotEmpty => 'is not empty',
+    contains => 'contains',
+    isOdd => 'is odd',
+    isEven => 'is even',
+    isNull => 'is null',
+    isTrue => 'is true',
+    isFalse => 'is false',
+  };
 
   /// short description of the operation
   String get longSentence => switch (this) {
-        equalsTo => 'is equal to',
-        notEqualsTo => 'is not equal to',
-        greaterThan => 'is greater than',
-        lessThan => 'is less than',
-        greaterThanOrEqualTo => 'is greater than or equal to',
-        lessThanOrEqualTo => 'is less than or equal to',
-        isEmpty => 'is empty',
-        isNotEmpty => 'is not empty',
-        contains => 'contains',
-        isOdd => 'is odd',
-        isEven => 'is even',
-        isNull => 'is null',
-        isTrue => 'is true',
-        isFalse => 'is false',
-      };
+    equalsTo => 'is equal to',
+    notEqualsTo => 'is not equal to',
+    greaterThan => 'is greater than',
+    lessThan => 'is less than',
+    greaterThanOrEqualTo => 'is greater than or equal to',
+    lessThanOrEqualTo => 'is less than or equal to',
+    isEmpty => 'is empty',
+    isNotEmpty => 'is not empty',
+    contains => 'contains',
+    isOdd => 'is odd',
+    isEven => 'is even',
+    isNull => 'is null',
+    isTrue => 'is true',
+    isFalse => 'is false',
+  };
 
   /// short description of the operation
   String? get sign => switch (this) {
-        equalsTo => '==',
-        notEqualsTo => '!=',
-        greaterThan => '>',
-        lessThan => '<',
-        greaterThanOrEqualTo => '>=',
-        lessThanOrEqualTo => '<=',
-        isEmpty => null,
-        isNotEmpty => null,
-        contains => null,
-        isOdd => null,
-        isEven => null,
-        isNull => null,
-        isTrue => null,
-        isFalse => null,
-      };
+    equalsTo => '==',
+    notEqualsTo => '!=',
+    greaterThan => '>',
+    lessThan => '<',
+    greaterThanOrEqualTo => '>=',
+    lessThanOrEqualTo => '<=',
+    isEmpty => null,
+    isNotEmpty => null,
+    contains => null,
+    isOdd => null,
+    isEven => null,
+    isNull => null,
+    isTrue => null,
+    isFalse => null,
+  };
 
   /// Allows the provided [visitor] to visit this operation.
   bool accept(Object? left, Object? right, ConditionOperatorVisitor visitor) =>
@@ -137,10 +137,14 @@ enum ConditionOperation {
         notEqualsTo => visitor.visitNotEqualsOperator(left, right),
         greaterThan => visitor.visitGreaterThanOperator(left, right),
         lessThan => visitor.visitLessThanOperator(left, right),
-        greaterThanOrEqualTo =>
-          visitor.visitGreaterThanOrEqualToOperator(left, right),
-        lessThanOrEqualTo =>
-          visitor.visitLessThanOrEqualToOperator(left, right),
+        greaterThanOrEqualTo => visitor.visitGreaterThanOrEqualToOperator(
+          left,
+          right,
+        ),
+        lessThanOrEqualTo => visitor.visitLessThanOrEqualToOperator(
+          left,
+          right,
+        ),
         isEmpty => visitor.visitIsEmptyOperator(left),
         isNotEmpty => visitor.visitIsNotEmptyOperator(left),
         contains => visitor.visitContainsOperator(left, right),
@@ -153,21 +157,21 @@ enum ConditionOperation {
 
   /// Returns true if the operation requires a right operand.
   bool get requiresRightOperand => switch (this) {
-        equalsTo => true,
-        notEqualsTo => true,
-        greaterThan => true,
-        lessThan => true,
-        greaterThanOrEqualTo => true,
-        lessThanOrEqualTo => true,
-        isEmpty => false,
-        isNotEmpty => false,
-        contains => true,
-        isOdd => false,
-        isEven => false,
-        isNull => false,
-        isTrue => false,
-        isFalse => false,
-      };
+    equalsTo => true,
+    notEqualsTo => true,
+    greaterThan => true,
+    lessThan => true,
+    greaterThanOrEqualTo => true,
+    lessThanOrEqualTo => true,
+    isEmpty => false,
+    isNotEmpty => false,
+    contains => true,
+    isOdd => false,
+    isEven => false,
+    isNull => false,
+    isTrue => false,
+    isFalse => false,
+  };
 }
 
 /// join operator for complex conditions
@@ -202,10 +206,10 @@ enum ConditionMode {
 
   /// label for the condition
   String get label => switch (this) {
-        ConditionMode.ifMode => 'If',
-        ConditionMode.elseIfMode => 'Else If',
-        ConditionMode.elseMode => 'Else',
-      };
+    ConditionMode.ifMode => 'If',
+    ConditionMode.elseIfMode => 'Else If',
+    ConditionMode.elseMode => 'Else',
+  };
 }
 
 /// Represents an expression in a condition.
@@ -270,7 +274,9 @@ class RawValuePart extends ExpressionPart {
   List<Object?> get props => [value];
 
   @override
-  Map toJson() => _$RawValuePartOmitDefaults(this, _$RawValuePartToJson(this))..['type'] = 'RawValue';
+  Map toJson() =>
+      _$RawValuePartOmitDefaults(this, _$RawValuePartToJson(this))
+        ..['type'] = 'RawValue';
 
   @override
   R? accept<R>(ExpressionPartVisitor<R> visitor) =>
@@ -282,14 +288,11 @@ class RawValuePart extends ExpressionPart {
 @JsonSerializable()
 class VariablePart extends ExpressionPart {
   @JsonKey(defaultValue: '')
-
   /// the actual string interpolated with variables.
   final String valueString;
 
   /// Creates a variable part.
-  VariablePart({
-    required this.valueString,
-  });
+  VariablePart({required this.valueString});
 
   /// Factory constructor for creating a new [VariablePart] instance from
   /// JSON data.
@@ -297,19 +300,17 @@ class VariablePart extends ExpressionPart {
       _$VariablePartFromJson(json);
 
   /// Duplicates the variable part with the provided values.
-  VariablePart copyWith({
-    String? valueString,
-  }) {
-    return VariablePart(
-      valueString: valueString ?? this.valueString,
-    );
+  VariablePart copyWith({String? valueString}) {
+    return VariablePart(valueString: valueString ?? this.valueString);
   }
 
   @override
   List<Object?> get props => [valueString];
 
   @override
-  Map toJson() => _$VariablePartOmitDefaults(this, _$VariablePartToJson(this))..['type'] = 'Variable';
+  Map toJson() =>
+      _$VariablePartOmitDefaults(this, _$VariablePartToJson(this))
+        ..['type'] = 'Variable';
 
   @override
   R? accept<R>(ExpressionPartVisitor<R> visitor) =>
@@ -359,7 +360,9 @@ class Expression extends BaseExpression {
   List<Object?> get props => [leftPart, rightPart, operator];
 
   @override
-  Map toJson() => _$ExpressionOmitDefaults(this, _$ExpressionToJson(this))..['type'] = 'Expression';
+  Map toJson() =>
+      _$ExpressionOmitDefaults(this, _$ExpressionToJson(this))
+        ..['type'] = 'Expression';
 
   @override
   R? accept<R>(ExpressionVisitor<R> visitor) => visitor.visitExpression(this);
@@ -409,7 +412,9 @@ class ExpressionGroup extends BaseExpression {
   List<Object?> get props => [leftExpression, join, rightExpression];
 
   @override
-  Map toJson() => _$ExpressionGroupOmitDefaults(this, _$ExpressionGroupToJson(this))..['type'] = 'ExpressionGroup';
+  Map toJson() =>
+      _$ExpressionGroupOmitDefaults(this, _$ExpressionGroupToJson(this))
+        ..['type'] = 'ExpressionGroup';
 
   @override
   R? accept<R>(ExpressionVisitor<R> visitor) =>
@@ -426,10 +431,8 @@ sealed class BaseCondition with Equatable, SerializableMixin {
   final DateTime lastUpdated;
 
   /// Creates a base condition.
-  BaseCondition({
-    required this.id,
-    DateTime? lastUpdated,
-  }) : lastUpdated = lastUpdated ?? DateTime.now();
+  BaseCondition({required this.id, DateTime? lastUpdated})
+    : lastUpdated = lastUpdated ?? DateTime.now();
 
   /// Factory constructor for creating a new [BaseCondition] instance from
   /// JSON data.
@@ -472,10 +475,7 @@ class ElseCondition extends BaseCondition {
 
   /// Duplicates the else condition with the provided actions list.
   @override
-  ElseCondition copyWith({
-    String? id,
-    List<ActionModel>? actions,
-  }) {
+  ElseCondition copyWith({String? id, List<ActionModel>? actions}) {
     return ElseCondition(
       id: id ?? this.id,
       actions: actions ?? this.actions,
@@ -492,7 +492,9 @@ class ElseCondition extends BaseCondition {
   List<Object?> get props => [mode, actions];
 
   @override
-  Map toJson() => _$ElseConditionOmitDefaults(this, _$ElseConditionToJson(this))..['type'] = 'ElseCondition';
+  Map toJson() =>
+      _$ElseConditionOmitDefaults(this, _$ElseConditionToJson(this))
+        ..['type'] = 'ElseCondition';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitElseCondition(this);
@@ -547,7 +549,9 @@ class Condition extends BaseCondition {
   List<Object?> get props => [mode, expression, actions];
 
   @override
-  Map toJson() => _$ConditionOmitDefaults(this, _$ConditionToJson(this))..['type'] = 'Condition';
+  Map toJson() =>
+      _$ConditionOmitDefaults(this, _$ConditionToJson(this))
+        ..['type'] = 'Condition';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) => visitor.visitCondition(this);
@@ -609,7 +613,9 @@ class ConditionGroup extends BaseCondition {
   List<Object?> get props => [ifCondition, elseIfConditions, elseCondition];
 
   @override
-  Map toJson() => _$ConditionGroupOmitDefaults(this, _$ConditionGroupToJson(this))..['type'] = 'ConditionGroup';
+  Map toJson() =>
+      _$ConditionGroupOmitDefaults(this, _$ConditionGroupToJson(this))
+        ..['type'] = 'ConditionGroup';
 
   @override
   R? accept<R>(ConditionVisitor<R> visitor) =>
@@ -651,14 +657,13 @@ class CanvasConditions with Equatable {
     Map<String, BaseCondition>? conditions,
     String? projectId,
     String? owner,
-  }) =>
-      CanvasConditions(
-        id: id ?? this.id,
-        conditions: conditions ?? this.conditions,
-        lastUpdated: DateTime.now(),
-        projectId: projectId ?? this.projectId,
-        owner: owner ?? this.owner,
-      );
+  }) => CanvasConditions(
+    id: id ?? this.id,
+    conditions: conditions ?? this.conditions,
+    lastUpdated: DateTime.now(),
+    projectId: projectId ?? this.projectId,
+    owner: owner ?? this.owner,
+  );
 
   @override
   List<Object?> get props => [id, conditions];
@@ -668,7 +673,9 @@ class CanvasConditions with Equatable {
       _$CanvasConditionsFromJson(json);
 
   /// Converts this [CanvasConditions] into a JSON map.
-  Map<String, dynamic> toJson() => _$CanvasConditionsOmitDefaults(this, _$CanvasConditionsToJson(this))..remove('id');
+  Map<String, dynamic> toJson() =>
+      _$CanvasConditionsOmitDefaults(this, _$CanvasConditionsToJson(this))
+        ..remove('id');
 
   /// Allows to access canvas variables by variable id.
   BaseCondition? operator [](String conditionId) {

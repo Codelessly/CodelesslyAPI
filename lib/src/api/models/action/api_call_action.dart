@@ -23,18 +23,15 @@ class ApiCallAction extends ActionModel with Equatable, SerializableMixin {
     Map<String, String>? parameters,
     super.nonBlocking,
     super.enabled,
-  })  : parameters = parameters ?? {},
-        super(type: ActionType.callApi);
+  }) : parameters = parameters ?? {},
+       super(type: ActionType.callApi);
 
   @override
   List<Object?> get props => [apiId, parameters];
 
   /// Creates a copy of this [ApiCallAction] but with the given fields replaced
   /// with the new values.
-  ApiCallAction copyWith({
-    String? apiId,
-    Map<String, String>? parameters,
-  }) =>
+  ApiCallAction copyWith({String? apiId, Map<String, String>? parameters}) =>
       ApiCallAction(
         apiId: apiId ?? this.apiId,
         parameters: parameters ?? this.parameters,
@@ -44,7 +41,8 @@ class ApiCallAction extends ActionModel with Equatable, SerializableMixin {
   factory ApiCallAction.fromJson(Map json) => _$ApiCallActionFromJson(json);
 
   @override
-  Map toJson() => _$ApiCallActionOmitDefaults(this, _$ApiCallActionToJson(this));
+  Map toJson() =>
+      _$ApiCallActionOmitDefaults(this, _$ApiCallActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitApiCall(this);

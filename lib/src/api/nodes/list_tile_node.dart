@@ -66,20 +66,20 @@ class ListTileNode extends SceneNode
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.empty()
-      : properties = ListTileProperties(),
-        super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : properties = ListTileProperties(),
+      super(
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      );
 
   /// Strictly used for previews. e.g in components panel.
   ListTileNode.fromProperties(this.properties)
-      : super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : super(
+        id: 'list_tile',
+        name: 'List Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      );
 
   /// Creates a [ListTileNode] with the given data.
   ListTileNode({
@@ -120,19 +120,21 @@ class ListTileNode extends SceneNode
   }
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<ListTileProperties>(
-          'Properties',
-          'Properties of the ListTile',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<ListTileProperties>(
+      'Properties',
+      'Properties of the ListTile',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   void onChildIDChanged(String oldID, String newID) {
@@ -366,145 +368,146 @@ class ListTileProperties extends CustomProperties
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'isThreeLine': BoolFieldAccess(
-          'Is Three Line',
-          'Whether this list tile is intended to display three lines of text.',
-          () => isThreeLine,
-          (value) => isThreeLine = value,
-          requiresLayout: true,
-        ),
-        'dense': BoolFieldAccess(
-          'Dense',
-          'Whether the list tile layout is densely cramped together.',
-          () => dense,
-          (value) => dense = value,
-          requiresLayout: true,
-        ),
-        'selectedColor': ColorFieldAccess<ColorRGBA?>(
-          'Selected Color',
-          'Defines the color used for icons and text when the list tile is selected.',
-          () => selectedColor,
-          (value) => selectedColor = value,
-        ),
-        'iconColor': ColorFieldAccess<ColorRGBA?>(
-          'Icon Color',
-          'Defines the default color for leading and trailing icons.',
-          () => iconColor,
-          (value) => iconColor = value,
-        ),
-        'textColor': ColorFieldAccess<ColorRGBA?>(
-          'Text Color',
-          'Defines the default color for the title and subtitle.',
-          () => textColor,
-          (value) => textColor = value,
-        ),
-        'contentPadding': SpacingFieldAccess.padding(
-          'Content Padding',
-          'The tile\'s internal padding.',
-          () => contentPadding,
-          (value) => contentPadding = value,
-          requiresLayout: true,
-        ),
-        'enabled': BoolFieldAccess(
-          'Enabled',
-          'Whether this list tile is interactive.',
-          () => enabled,
-          (value) => enabled = value,
-        ),
-        'selected': BoolFieldAccess(
-          'Selected',
-          'Whether this list tile is selected.',
-          () => selected,
-          (value) => selected = value,
-          requiresLayout: true,
-        ),
-        'focusColor': ColorFieldAccess<ColorRGBA?>(
-          'Focus Color',
-          'The color for the tile\'s Material when it has the input focus.',
-          () => focusColor,
-          (value) => focusColor = value,
-        ),
-        'hoverColor': ColorFieldAccess<ColorRGBA?>(
-          'Hover Color',
-          'The color for the tile\'s Material when a pointer is hovering over it.',
-          () => hoverColor,
-          (value) => hoverColor = value,
-        ),
-        'autofocus': BoolFieldAccess(
-          'Autofocus',
-          'Whether to automatically focus the tile.',
-          () => autofocus,
-          (value) => autofocus = value,
-        ),
-        'tileColor': ColorFieldAccess<ColorRGBA?>(
-          'Tile Color',
-          'Defines the background color of ListTile when selected is false.',
-          () => tileColor,
-          (value) => tileColor = value,
-        ),
-        'selectedTileColor': ColorFieldAccess<ColorRGBA?>(
-          'Selected Tile Color',
-          'Defines the background color of ListTile when selected is true.',
-          () => selectedTileColor,
-          (value) => selectedTileColor = value,
-        ),
-        'enableFeedback': BoolFieldAccess(
-          'Enable Feedback',
-          'Whether detected gestures should provide acoustic and/or haptic feedback.',
-          () => enableFeedback,
-          (value) => enableFeedback = value,
-        ),
-        'horizontalTitleGap': NumFieldAccess<double?>(
-          'Horizontal Title Gap',
-          'The horizontal gap between the titles and the leading/trailing widgets.',
-          () => horizontalTitleGap,
-          (value) => horizontalTitleGap = value,
-          requiresLayout: true,
-        ),
-        'minVerticalPadding': NumFieldAccess<double?>(
-          'Min Vertical Padding',
-          'The minimum padding on the top and bottom of the title and subtitle widgets.',
-          () => minVerticalPadding,
-          (value) => minVerticalPadding = value,
-          requiresLayout: true,
-        ),
-        'minLeadingWidth': NumFieldAccess<double?>(
-          'Min Leading Width',
-          'The minimum width allocated for the ListTile.leading widget.',
-          () => minLeadingWidth,
-          (value) => minLeadingWidth = value,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'isThreeLine': BoolFieldAccess(
+      'Is Three Line',
+      'Whether this list tile is intended to display three lines of text.',
+      () => isThreeLine,
+      (value) => isThreeLine = value,
+      requiresLayout: true,
+    ),
+    'dense': BoolFieldAccess(
+      'Dense',
+      'Whether the list tile layout is densely cramped together.',
+      () => dense,
+      (value) => dense = value,
+      requiresLayout: true,
+    ),
+    'selectedColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Color',
+      'Defines the color used for icons and text when the list tile is selected.',
+      () => selectedColor,
+      (value) => selectedColor = value,
+    ),
+    'iconColor': ColorFieldAccess<ColorRGBA?>(
+      'Icon Color',
+      'Defines the default color for leading and trailing icons.',
+      () => iconColor,
+      (value) => iconColor = value,
+    ),
+    'textColor': ColorFieldAccess<ColorRGBA?>(
+      'Text Color',
+      'Defines the default color for the title and subtitle.',
+      () => textColor,
+      (value) => textColor = value,
+    ),
+    'contentPadding': SpacingFieldAccess.padding(
+      'Content Padding',
+      'The tile\'s internal padding.',
+      () => contentPadding,
+      (value) => contentPadding = value,
+      requiresLayout: true,
+    ),
+    'enabled': BoolFieldAccess(
+      'Enabled',
+      'Whether this list tile is interactive.',
+      () => enabled,
+      (value) => enabled = value,
+    ),
+    'selected': BoolFieldAccess(
+      'Selected',
+      'Whether this list tile is selected.',
+      () => selected,
+      (value) => selected = value,
+      requiresLayout: true,
+    ),
+    'focusColor': ColorFieldAccess<ColorRGBA?>(
+      'Focus Color',
+      'The color for the tile\'s Material when it has the input focus.',
+      () => focusColor,
+      (value) => focusColor = value,
+    ),
+    'hoverColor': ColorFieldAccess<ColorRGBA?>(
+      'Hover Color',
+      'The color for the tile\'s Material when a pointer is hovering over it.',
+      () => hoverColor,
+      (value) => hoverColor = value,
+    ),
+    'autofocus': BoolFieldAccess(
+      'Autofocus',
+      'Whether to automatically focus the tile.',
+      () => autofocus,
+      (value) => autofocus = value,
+    ),
+    'tileColor': ColorFieldAccess<ColorRGBA?>(
+      'Tile Color',
+      'Defines the background color of ListTile when selected is false.',
+      () => tileColor,
+      (value) => tileColor = value,
+    ),
+    'selectedTileColor': ColorFieldAccess<ColorRGBA?>(
+      'Selected Tile Color',
+      'Defines the background color of ListTile when selected is true.',
+      () => selectedTileColor,
+      (value) => selectedTileColor = value,
+    ),
+    'enableFeedback': BoolFieldAccess(
+      'Enable Feedback',
+      'Whether detected gestures should provide acoustic and/or haptic feedback.',
+      () => enableFeedback,
+      (value) => enableFeedback = value,
+    ),
+    'horizontalTitleGap': NumFieldAccess<double?>(
+      'Horizontal Title Gap',
+      'The horizontal gap between the titles and the leading/trailing widgets.',
+      () => horizontalTitleGap,
+      (value) => horizontalTitleGap = value,
+      requiresLayout: true,
+    ),
+    'minVerticalPadding': NumFieldAccess<double?>(
+      'Min Vertical Padding',
+      'The minimum padding on the top and bottom of the title and subtitle widgets.',
+      () => minVerticalPadding,
+      (value) => minVerticalPadding = value,
+      requiresLayout: true,
+    ),
+    'minLeadingWidth': NumFieldAccess<double?>(
+      'Min Leading Width',
+      'The minimum width allocated for the ListTile.leading widget.',
+      () => minLeadingWidth,
+      (value) => minLeadingWidth = value,
+      requiresLayout: true,
+    ),
+  };
 
   @override
   List<Object?> get props => [
-        isThreeLine,
-        dense,
-        visualDensity,
-        shape,
-        selectedColor,
-        iconColor,
-        textColor,
-        contentPadding,
-        enabled,
-        selected,
-        focusColor,
-        hoverColor,
-        autofocus,
-        tileColor,
-        selectedTileColor,
-        enableFeedback,
-        horizontalTitleGap,
-        minVerticalPadding,
-        minLeadingWidth,
-        borderColor,
-        borderWidth,
-      ];
+    isThreeLine,
+    dense,
+    visualDensity,
+    shape,
+    selectedColor,
+    iconColor,
+    textColor,
+    contentPadding,
+    enabled,
+    selected,
+    focusColor,
+    hoverColor,
+    autofocus,
+    tileColor,
+    selectedTileColor,
+    enableFeedback,
+    horizontalTitleGap,
+    minVerticalPadding,
+    minLeadingWidth,
+    borderColor,
+    borderWidth,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$ListTilePropertiesOmitDefaults(this, _$ListTilePropertiesToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$ListTilePropertiesOmitDefaults(this, _$ListTilePropertiesToJson(this));
 
   /// Creates a new [ListTileProperties] from a JSON data.
   factory ListTileProperties.fromJson(Map json) =>

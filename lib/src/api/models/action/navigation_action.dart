@@ -34,8 +34,7 @@ enum NavigationType {
 
 /// An action that navigates to a new page.
 @JsonSerializable()
-class NavigationAction extends ActionModel
-    with Equatable, SerializableMixin {
+class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Defines how the navigation should be performed.
   final NavigationType navigationType;
 
@@ -52,8 +51,8 @@ class NavigationAction extends ActionModel
     Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
-  })  : params = {...params ?? {}},
-        super(type: ActionType.navigation);
+  }) : params = {...params ?? {}},
+       super(type: ActionType.navigation);
 
   @override
   List<Object?> get props => [destinationId, navigationType, params];
@@ -63,19 +62,19 @@ class NavigationAction extends ActionModel
     NavigationType? navigationType,
     String? destinationId,
     Map<String, String>? params,
-  }) =>
-      NavigationAction(
-        navigationType: navigationType ?? this.navigationType,
-        destinationId: destinationId ?? this.destinationId,
-        params: {...this.params, ...params ?? {}},
-      );
+  }) => NavigationAction(
+    navigationType: navigationType ?? this.navigationType,
+    destinationId: destinationId ?? this.destinationId,
+    params: {...this.params, ...params ?? {}},
+  );
 
   /// Creates a new [NavigationAction] instance from a JSON data.
   factory NavigationAction.fromJson(Map json) =>
       _$NavigationActionFromJson(json);
 
   @override
-  Map toJson() => _$NavigationActionOmitDefaults(this, _$NavigationActionToJson(this));
+  Map toJson() =>
+      _$NavigationActionOmitDefaults(this, _$NavigationActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitNavigationAction(this);

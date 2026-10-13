@@ -85,5 +85,8 @@ class AutoPlaceholderNode extends DefaultShapeNode
       _$AutoPlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$AutoPlaceholderNodeOmitDefaults(this, _$AutoPlaceholderNodeToJson(this));
+  Map toJson() => _$AutoPlaceholderNodeOmitDefaults(
+    this,
+    _$AutoPlaceholderNodeToJson(this),
+  );
 }

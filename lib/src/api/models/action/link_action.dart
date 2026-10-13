@@ -15,11 +15,8 @@ class LinkAction extends ActionModel with Equatable, SerializableMixin {
   final String url;
 
   /// Creates a new [LinkAction] with the given data.
-  LinkAction({
-    required this.url,
-    super.nonBlocking,
-    super.enabled,
-  }) : super(type: ActionType.link);
+  LinkAction({required this.url, super.nonBlocking, super.enabled})
+    : super(type: ActionType.link);
 
   @override
   List<Object?> get props => [url];

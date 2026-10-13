@@ -34,7 +34,8 @@ class WidthRange with SerializableMixin implements Equatable {
       _$WidthRangeFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$WidthRangeOmitDefaults(this, _$WidthRangeToJson(this));
+  Map<String, dynamic> toJson() =>
+      _$WidthRangeOmitDefaults(this, _$WidthRangeToJson(this));
 }
 
 /// A run of text with a single style. The Text widget displays a string of text
@@ -140,8 +141,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   }
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [

@@ -10,7 +10,6 @@ import '../constants.dart';
 import '../field_access.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
-import '../json_defaults.dart';
 import '../models/models.dart';
 import '../utils.dart';
 
@@ -392,13 +391,13 @@ abstract class BaseNode
     NodeBox? retainedOuterBoxLocal,
     this.visible = true,
     int rotationDegrees = 0,
-    AlignmentModel alignment = AlignmentModel.none,
+    this._alignment = AlignmentModel.none,
     EdgeInsetsModel margin = EdgeInsetsModel.zero,
-    EdgeInsetsModel padding = EdgeInsetsModel.zero,
+    this._padding = EdgeInsetsModel.zero,
     this.horizontalFit = SizeFit.fixed,
     this.verticalFit = SizeFit.fixed,
     this.flex = 1,
-    BoxConstraintsModel constraints = const BoxConstraintsModel(),
+    this._constraints = const BoxConstraintsModel(),
     this.edgePins = EdgePinsModel.standard,
     this.aspectRatioLock = false,
     this.positioningMode = PositioningMode.align,
@@ -412,17 +411,15 @@ abstract class BaseNode
     ComponentMarkerType? componentType,
     int? componentVersion,
     Map<String, dynamic>? componentSchema,
-  })  : _basicBoxLocal = basicBoxLocal,
-        _rotationDegrees = rotationDegrees,
-        globalRotationDegrees = rotationDegrees,
-        _rotationRadians = rotationDegrees * pi / 180,
-        globalRotationRadians = rotationDegrees * pi / 180,
-        _margin = margin,
-        _alignment = alignment,
-        _constraints = constraints,
-        _padding = padding,
-        _outerBoxLocal = (outerBoxLocal ??
-            OuterNodeBox.fromMiddleBox(basicBoxLocal, edgeInsets: margin)) {
+  }) : _basicBoxLocal = basicBoxLocal,
+       _rotationDegrees = rotationDegrees,
+       globalRotationDegrees = rotationDegrees,
+       _rotationRadians = rotationDegrees * pi / 180,
+       globalRotationRadians = rotationDegrees * pi / 180,
+       _margin = margin,
+       _outerBoxLocal =
+           (outerBoxLocal ??
+           OuterNodeBox.fromMiddleBox(basicBoxLocal, edgeInsets: margin)) {
     _retainedOuterBoxLocal =
         (retainedOuterBoxLocal ?? _outerBoxLocal.copyWith());
     _outerBoxGlobal = _outerBoxLocal.copyWith();
@@ -446,7 +443,9 @@ abstract class BaseNode
     NodeProcessor._computeInnerBoxLocal(this);
     NodeProcessor._computeInnerBoxGlobal(this);
     setVariablesMixin(
-        variables: variables, multipleVariables: multipleVariables);
+      variables: variables,
+      multipleVariables: multipleVariables,
+    );
   }
 
   /// The minimum internal size is the size that this node
@@ -474,8 +473,7 @@ abstract class BaseNode
   BoxConstraintsModel internalConstraints({
     required SizeFit horizontalFit,
     required SizeFit verticalFit,
-  }) =>
-      const BoxConstraintsModel();
+  }) => const BoxConstraintsModel();
 
   /// The value that this node's padding cannot shrink below. Similar to
   /// [internalConstraints] but is not used for the same purpose. Strokes
@@ -567,27 +565,24 @@ abstract class BaseNode
   NodeBox getBox({
     required NodeBoundaryType type,
     required PositioningSpace space,
-  }) =>
-      switch (space) {
-        PositioningSpace.local => switch (type) {
-            NodeBoundaryType.outerBox => outerBoxLocal,
-            NodeBoundaryType.innerBox ||
-            NodeBoundaryType.innerRotatedBox =>
-              innerBoxLocal,
-            NodeBoundaryType.middleBox => basicBoxLocal,
-            NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
-            NodeBoundaryType.middleRotatedBox => middleRotatedBoxLocal,
-          },
-        PositioningSpace.global => switch (type) {
-            NodeBoundaryType.outerBox => outerBoxGlobal,
-            NodeBoundaryType.innerBox ||
-            NodeBoundaryType.innerRotatedBox =>
-              innerBoxGlobal,
-            NodeBoundaryType.middleBox => basicBoxGlobal,
-            NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
-            NodeBoundaryType.middleRotatedBox => middleRotatedBoxGlobal,
-          }
-      };
+  }) => switch (space) {
+    PositioningSpace.local => switch (type) {
+      NodeBoundaryType.outerBox => outerBoxLocal,
+      NodeBoundaryType.innerBox ||
+      NodeBoundaryType.innerRotatedBox => innerBoxLocal,
+      NodeBoundaryType.middleBox => basicBoxLocal,
+      NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
+      NodeBoundaryType.middleRotatedBox => middleRotatedBoxLocal,
+    },
+    PositioningSpace.global => switch (type) {
+      NodeBoundaryType.outerBox => outerBoxGlobal,
+      NodeBoundaryType.innerBox ||
+      NodeBoundaryType.innerRotatedBox => innerBoxGlobal,
+      NodeBoundaryType.middleBox => basicBoxGlobal,
+      NodeBoundaryType.outerRotatedBox => outerRotatedBoxGlobal,
+      NodeBoundaryType.middleRotatedBox => middleRotatedBoxGlobal,
+    },
+  };
 
   /// A convenience function that will take a [value] and constraint it
   /// using the [resolvedConstraints] function.
@@ -596,38 +591,36 @@ abstract class BaseNode
   SizeC constrainSize(
     SizeC value, {
     required NodeBoundaryType nodeBoundaryType,
-  }) =>
-      SizeC(
-        constrainValue(
-          value.width,
-          AxisC.horizontal,
-          nodeBoundaryType: nodeBoundaryType,
-        ),
-        constrainValue(
-          value.height,
-          AxisC.vertical,
-          nodeBoundaryType: nodeBoundaryType,
-        ),
-      );
+  }) => SizeC(
+    constrainValue(
+      value.width,
+      AxisC.horizontal,
+      nodeBoundaryType: nodeBoundaryType,
+    ),
+    constrainValue(
+      value.height,
+      AxisC.vertical,
+      nodeBoundaryType: nodeBoundaryType,
+    ),
+  );
 
   double _convertMiddleSizeToBoundary(
     double value,
     AxisC axis, {
     required NodeBoundaryType nodeBoundaryType,
-  }) =>
-      switch (nodeBoundaryType) {
-        NodeBoundaryType.middleBox ||
-        NodeBoundaryType.middleRotatedBox =>
-          value,
-        NodeBoundaryType.innerBox || NodeBoundaryType.innerRotatedBox => value -
-            (axis.isHorizontal
-                ? innerBoxLocal.horizontalEdgeSpace
-                : innerBoxLocal.verticalEdgeSpace),
-        NodeBoundaryType.outerBox || NodeBoundaryType.outerRotatedBox => value +
-            (axis.isHorizontal
-                ? outerBoxLocal.horizontalEdgeSpace
-                : outerBoxLocal.verticalEdgeSpace)
-      };
+  }) => switch (nodeBoundaryType) {
+    NodeBoundaryType.middleBox || NodeBoundaryType.middleRotatedBox => value,
+    NodeBoundaryType.innerBox || NodeBoundaryType.innerRotatedBox =>
+      value -
+          (axis.isHorizontal
+              ? innerBoxLocal.horizontalEdgeSpace
+              : innerBoxLocal.verticalEdgeSpace),
+    NodeBoundaryType.outerBox || NodeBoundaryType.outerRotatedBox =>
+      value +
+          (axis.isHorizontal
+              ? outerBoxLocal.horizontalEdgeSpace
+              : outerBoxLocal.verticalEdgeSpace),
+  };
 
   /// A convenience function that will take a [value] and constrain it
   /// using the [resolvedConstraints] of this node.
@@ -711,7 +704,8 @@ abstract class BaseNode
         verticalEdgeSpace = innerBoxLocal.verticalEdgeSpace;
       case NodeBoundaryType.outerBox:
       case NodeBoundaryType.outerRotatedBox:
-        horizontalEdgeSpace = outerBoxLocal.horizontalEdgeSpace +
+        horizontalEdgeSpace =
+            outerBoxLocal.horizontalEdgeSpace +
             innerBoxLocal.horizontalEdgeSpace;
         verticalEdgeSpace =
             outerBoxLocal.verticalEdgeSpace + innerBoxLocal.verticalEdgeSpace;
@@ -724,7 +718,8 @@ abstract class BaseNode
     switch (axis) {
       case AxisC.horizontal:
         if (resolvedConstraints.minWidth != null) {
-          final constrainedMinWidth = (minInnerSize.minWidth ?? 0) +
+          final constrainedMinWidth =
+              (minInnerSize.minWidth ?? 0) +
               (resolvedConstraints.minWidth ?? 0);
 
           return constrainedMinWidth + horizontalEdgeSpace;
@@ -732,7 +727,8 @@ abstract class BaseNode
         return value;
       case AxisC.vertical:
         if (resolvedConstraints.minHeight != null) {
-          final constrainedMinHeight = (minInnerSize.minHeight ?? 0) +
+          final constrainedMinHeight =
+              (minInnerSize.minHeight ?? 0) +
               (resolvedConstraints.minHeight ?? 0);
 
           return constrainedMinHeight + verticalEdgeSpace;
@@ -751,20 +747,20 @@ abstract class BaseNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'visible': BoolFieldAccess(
-          'Visible',
-          'Whether this widget is visible or not.',
-          () => visible,
-          (value) => visible = value,
-        ),
-        'enabled': BoolFieldAccess(
-          'Exclude',
-          'Whether this widget is enabled or not.',
-          () => !enabled,
-          (value) => enabled = !value,
-        ),
-      };
+    ...super.generateFields(),
+    'visible': BoolFieldAccess(
+      'Visible',
+      'Whether this widget is visible or not.',
+      () => visible,
+      (value) => visible = value,
+    ),
+    'enabled': BoolFieldAccess(
+      'Exclude',
+      'Whether this widget is enabled or not.',
+      () => !enabled,
+      (value) => enabled = !value,
+    ),
+  };
 
   @override
   List<Object?> get props => [id];
