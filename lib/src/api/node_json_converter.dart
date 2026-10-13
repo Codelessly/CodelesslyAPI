@@ -47,6 +47,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'singlePlaceholder': SinglePlaceholderNode.fromJson,
       'autoPlaceholder': AutoPlaceholderNode.fromJson,
       'freeformPlaceholder': FreeformPlaceholderNode.fromJson,
+      'placeholder': PlaceholderNode.fromJson,
       'button': ButtonNode.fromJson,
       'textField': TextFieldNode.fromJson,
       'checkbox': CheckboxNode.fromJson,

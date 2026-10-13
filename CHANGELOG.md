@@ -61,6 +61,8 @@
 
 ### Fixes
 
+- Register `PlaceholderNode` with `NodeJsonConverter`; layouts containing
+  one failed to deserialize.
 - `ListTileNode.empty`/`fromProperties` and `ExpansionTileNode.empty`
   no longer leave late fields uninitialized.
 - `FloatingActionButtonNode.empty` and `EmbeddedVideoNode.empty` use their
