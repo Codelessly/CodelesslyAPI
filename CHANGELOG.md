@@ -1,3 +1,84 @@
+## 5.0.0
+
+### Breaking changes
+
+- Require Dart 3.13.
+- Replace the forked `codelessly_json_annotation` and
+  `codelessly_json_serializable` with the standard `json_annotation` and
+  `json_serializable`. Custom nodes should import
+  `package:json_annotation/json_annotation.dart`. `DateTimeConverter` is
+  now exported by this package.
+- Upgrade to equatable 3, which removes `EquatableMixin`; models mix in
+  `Equatable` instead.
+- Remove the unused blend and `value` constructor parameters of
+  `LoadingIndicatorNode`, `ProgressBarNode` and `DividerNode`, which were
+  silently discarded.
+- Remove the unused `automaticChevron` parameter of
+  `ExpansionTileProperties.copyWith`.
+
+### JSON
+
+- Serialized JSON is unchanged: fields that equal their defaults are still
+  omitted, now by a small build step in `tool/json_defaults_builder`.
+  Golden tests pin the output against 4.4.0.
+- Cloud database query `whereFilters`/`orderByFilters` are omitted when
+  empty; they read back as empty lists.
+
+### Flutter parity
+
+- Mirror new Flutter values: `TextAlignHorizontalEnum.start`/`end`,
+  `ButtonTypeEnum.filled`/`filledTonal`, `FABLocation.endContained`,
+  `TextInputTypeEnum.webSearch`/`twitter`,
+  `AutovalidateModeC.onUnfocus`/`onUserInteractionIfError`,
+  `SliderTrackShapeEnum.gapped`, `SliderValueIndicatorShape.drop`/
+  `roundedRectangle` and `CShapeBorder.roundedSuperellipse`.
+- Add Flutter parameters that were missing:
+  - `AppBarProperties.foregroundColor`, `scrolledUnderElevation`
+  - `TabBarProperties.tabAlignment` (new `TabAlignmentC`), `dividerHeight`
+  - `RadioProperties.side`, `innerRadius`, `backgroundColor`
+  - `SliderProperties.showValueIndicator` (new `ShowValueIndicatorC`),
+    `secondaryTrackValue`, `secondaryActiveTrackColor`, `padding`
+  - `ListTileProperties.minTileHeight`, `titleAlignment` (new
+    `ListTileTitleAlignmentC`)
+  - `MaterialLoadingIndicatorProperties.strokeAlign`, `trackGap`
+  - `ExpansionTileProperties.showTrailingIcon`, `shape`, `collapsedShape`,
+    `cornerRadius`
+  - `TextMixin.softWrap`, `textScaleFactor`
+  - `MultiSourceIconModel.fill`, `weight`, `grade`, `opticalSize` (the
+    Material Symbols variable-font axes)
+  - `PageViewProperties.allowImplicitScrolling`
+- Document the Flutter replacements for deprecated `cacheExtent`
+  (`scrollCacheExtent`) and `Radio.groupValue` (`RadioGroup`).
+- New nodes use Material 3 defaults: switches use Material 3, buttons are
+  stadium-shaped with 24 px horizontal padding, FABs are rounded rectangles
+  (radius 16) with Material 3 elevations, a 56 px extended height and 8 px
+  icon spacing, list and expansion tiles use 16/24 px content padding, tab
+  indicators size to the label, and navigation bars use elevation 3 (M3)
+  and 8 (M2).
+- Designs saved before 5.0.0 keep their look: a missing key still reads as
+  the old default, and re-saving them writes the same JSON. The new
+  `JsonLegacyDefault` annotation supports this for non-literal defaults.
+
+### Fixes
+
+- Register `PlaceholderNode` with `NodeJsonConverter`; layouts containing
+  one failed to deserialize.
+- `ListTileNode.empty`/`fromProperties` and `ExpansionTileNode.empty`
+  no longer leave late fields uninitialized.
+- `FloatingActionButtonNode.empty` and `EmbeddedVideoNode.empty` use their
+  own sizes.
+- `copyWith` keeps Divider `thickness`, Dropdown `enabled`/`dense`/
+  `expanded`/`autoFocus`/`enableFeedback`, FAB `location`, M2 navigation
+  bar notch settings.
+- Remove the `contentPadding` parameter of `InputDecorationModel.copyWith`,
+  which was ignored; a text field's content padding is its node padding.
+- Equality includes previously ignored fields of ExpansionTile, grid
+  delegates, Dropdown, Divider, FAB, ListTile, TabBar, icons, web views,
+  submit actions, Vimeo videos, condition groups and visual density.
+- `TypedValue.toEdgeInsetsModel` converts numbers and lists again.
+- Add field access for `TextFieldProperties` and the navigation bar
+  properties.
+
 ## 4.4.0
 
 - Add CornerRadius typedValue.

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -6,6 +6,11 @@ import '../models/models.dart';
 import 'nodes.dart';
 
 part 'expansion_tile_node.g.dart';
+
+/// Reads a missing padding as the Material 2 default stored designs used
+/// before 5.0.0.
+Object? _readLegacyTilePadding(Map json, String key) =>
+    json[key] ?? const EdgeInsetsModel.symmetric(horizontal: 16).toJson();
 
 /// A single-line [ListTile] with an expansion arrow icon that expands or
 /// collapses the tile to reveal or hide the body.
@@ -30,12 +35,20 @@ class ExpansionTileNode extends SceneNode
 
   /// Strictly used for previews. e.g in components panel.
   ExpansionTileNode.empty()
-      : properties = ExpansionTileProperties(),
-        super(
-          id: 'list_tile',
-          name: 'List Tile',
-          basicBoxLocal: NodeBox(0, 0, 300, 65),
-        );
+    : properties = ExpansionTileProperties(),
+      super(
+        id: 'expansion_tile',
+        name: 'Expansion Tile',
+        basicBoxLocal: NodeBox(0, 0, 300, 65),
+      ) {
+    setChildrenMixin(children: []);
+    setRowColumnMixin(
+      rowColumnType: RowColumnType.column,
+      mainAxisAlignment: MainAxisAlignmentC.start,
+      crossAxisAlignment: CrossAxisAlignmentC.center,
+    );
+    isExpanded = properties.initiallyExpanded;
+  }
 
   /// Creates a [ExpansionTileNode] with given data.
   ExpansionTileNode({
@@ -83,14 +96,14 @@ class ExpansionTileNode extends SceneNode
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'properties': ObjectFieldAccess<ExpansionTileProperties>(
-          'Properties',
-          'Properties of the ExpansionTile',
-          () => properties,
-          (value) => properties = value,
-        ),
-      };
+    ...super.generateFields(),
+    'properties': ObjectFieldAccess<ExpansionTileProperties>(
+      'Properties',
+      'Properties of the ExpansionTile',
+      () => properties,
+      (value) => properties = value,
+    ),
+  };
 
   @override
   void onChildIDChanged(String oldID, String newID) {
@@ -112,7 +125,8 @@ class ExpansionTileNode extends SceneNode
       _$ExpansionTileNodeFromJson(json);
 
   @override
-  Map toJson() => _$ExpansionTileNodeToJson(this);
+  Map toJson() =>
+      _$ExpansionTileNodeOmitDefaults(this, _$ExpansionTileNodeToJson(this));
 }
 
 /// Holds configurable properties of an [ExpansionTileNode].
@@ -141,6 +155,9 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// Analogous to [ListTile.contentPadding], this property defines the insets
   /// for the [leading], [title], [subtitle] and [trailing] widgets. It does not
   /// inset the expanded [children] widgets.
+  // Designs saved before 5.0.0 omit this key and used the Material 2 default.
+  @JsonLegacyDefault(EdgeInsetsModel.symmetric(horizontal: 16))
+  @JsonKey(readValue: _readLegacyTilePadding)
   EdgeInsetsModel? tilePadding;
 
   /// Specifies the alignment of [children], which are arranged in a column when
@@ -209,9 +226,25 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// Whether to show a divider between header and body.
   bool showDividers;
 
+  /// Whether to show the expansion arrow. Mirrors
+  /// `ExpansionTile.showTrailingIcon`.
+  bool showTrailingIcon;
+
+  /// Border shape of the tile when expanded. When set, it replaces the
+  /// dividers drawn by [showDividers]. Mirrors `ExpansionTile.shape`.
+  CShapeBorder? shape;
+
+  /// Border shape of the tile when collapsed. When set, it replaces the
+  /// dividers drawn by [showDividers]. Mirrors `ExpansionTile.collapsedShape`.
+  CShapeBorder? collapsedShape;
+
+  /// Corner radius applied to [shape] and [collapsedShape].
+  CornerRadius cornerRadius;
+
   /// Platform or null affinity defaults to trailing.
   ListTileControlAffinityC effectiveAffinity(
-      ListTileControlAffinityC? affinity) {
+    ListTileControlAffinityC? affinity,
+  ) {
     switch (affinity ?? ListTileControlAffinityC.trailing) {
       case ListTileControlAffinityC.leading:
         return ListTileControlAffinityC.leading;
@@ -238,6 +271,10 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     this.controlAffinity,
     this.visualDensity = VisualDensityModel.standard,
     this.showDividers = true,
+    this.showTrailingIcon = true,
+    this.shape,
+    this.collapsedShape,
+    this.cornerRadius = CornerRadius.zero,
   });
 
   /// Duplicates this [ExpansionTileProperties] instance with given data
@@ -257,8 +294,11 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? collapsedTextColor,
     ListTileControlAffinityC? controlAffinity,
     VisualDensityModel? visualDensity,
-    bool? automaticChevron,
     bool? showDividers,
+    bool? showTrailingIcon,
+    CShapeBorder? shape,
+    CShapeBorder? collapsedShape,
+    CornerRadius? cornerRadius,
   }) {
     return ExpansionTileProperties(
       backgroundColor: backgroundColor ?? this.backgroundColor,
@@ -278,111 +318,166 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
       controlAffinity: controlAffinity ?? this.controlAffinity,
       visualDensity: visualDensity ?? this.visualDensity,
       showDividers: showDividers ?? this.showDividers,
+      showTrailingIcon: showTrailingIcon ?? this.showTrailingIcon,
+      shape: shape ?? this.shape,
+      collapsedShape: collapsedShape ?? this.collapsedShape,
+      cornerRadius: cornerRadius ?? this.cornerRadius,
     );
   }
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'backgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Background Color',
-          'Color of the tile\'s background when it is expanded.',
-          () => backgroundColor,
-          (value) => backgroundColor = value,
-        ),
-        'collapsedBackgroundColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Background Color',
-          'Color of the tile\'s background when it is collapsed.',
-          () => collapsedBackgroundColor,
-          (value) => collapsedBackgroundColor = value,
-        ),
-        'initiallyExpanded': BoolFieldAccess(
-          'Initially Expanded',
-          'Specifies if the list tile is initially expanded or collapsed.',
-          () => initiallyExpanded,
-          (value) => initiallyExpanded = value,
-          requiresLayout: true,
-        ),
-        'maintainState': BoolFieldAccess(
-          'Maintain State',
-          'Specifies whether the state of the children is maintained when the tile expands and collapses.',
-          () => maintainState,
-          (value) => maintainState = value,
-        ),
-        'tilePadding': SpacingFieldAccess.padding(
-          'Tile Padding',
-          'Specifies padding for the ListTile.',
-          () => tilePadding ?? EdgeInsetsModel.zero,
-          (value) => tilePadding = value,
-          requiresLayout: true,
-        ),
-        'expandedAlignment': AlignmentFieldAccess(
-          'Expanded Alignment',
-          'Specifies the alignment of children when the tile is expanded.',
-          () => expandedAlignment ?? AlignmentModel.center,
-          (value) => expandedAlignment = value,
-        ),
-        'expandedCrossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
-          'Expanded Cross Axis Alignment',
-          'Specifies the alignment of each child within children when the tile is expanded.',
-          () => expandedCrossAxisAlignment,
-          (value) => expandedCrossAxisAlignment = value,
-          defaultValue: () => CrossAxisAlignmentC.center,
-          options: () => CrossAxisAlignmentC.values,
-        ),
-        'childrenPadding': SpacingFieldAccess.padding(
-          'Children Padding',
-          'Specifies padding for children.',
-          () => childrenPadding ?? EdgeInsetsModel.zero,
-          (value) => childrenPadding = value,
-          requiresLayout: true,
-        ),
-        'iconColor': ColorFieldAccess<ColorRGBA?>(
-          'Icon Color',
-          'The icon color of tile\'s expansion arrow icon when the sublist is expanded.',
-          () => iconColor,
-          (value) => iconColor = value,
-        ),
-        'collapsedIconColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Icon Color',
-          'The icon color of tile\'s expansion arrow icon when the sublist is collapsed.',
-          () => collapsedIconColor,
-          (value) => collapsedIconColor = value,
-        ),
-        'textColor': ColorFieldAccess<ColorRGBA?>(
-          'Text Color',
-          'The color of the tile\'s titles when the sublist is expanded.',
-          () => textColor,
-          (value) => textColor = value,
-        ),
-        'collapsedTextColor': ColorFieldAccess<ColorRGBA?>(
-          'Collapsed Text Color',
-          'The color of the tile\'s titles when the sublist is collapsed.',
-          () => collapsedTextColor,
-          (value) => collapsedTextColor = value,
-        ),
-        'controlAffinity': EnumFieldAccess<ListTileControlAffinityC?>(
-          'Control Affinity',
-          'Platform or null affinity defaults to trailing.',
-          () => controlAffinity,
-          (value) => controlAffinity = value,
-          defaultValue: () => ListTileControlAffinityC.trailing,
-          options: () => ListTileControlAffinityC.values,
-        ),
-        'showDividers': BoolFieldAccess(
-          'Show Dividers',
-          'Whether to show a divider between header and body.',
-          () => showDividers,
-          (value) => showDividers = value,
-          requiresLayout: true,
-        ),
-      };
+    ...super.generateFields(),
+    'backgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Background Color',
+      'Color of the tile\'s background when it is expanded.',
+      () => backgroundColor,
+      (value) => backgroundColor = value,
+    ),
+    'collapsedBackgroundColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Background Color',
+      'Color of the tile\'s background when it is collapsed.',
+      () => collapsedBackgroundColor,
+      (value) => collapsedBackgroundColor = value,
+    ),
+    'initiallyExpanded': BoolFieldAccess(
+      'Initially Expanded',
+      'Specifies if the list tile is initially expanded or collapsed.',
+      () => initiallyExpanded,
+      (value) => initiallyExpanded = value,
+      requiresLayout: true,
+    ),
+    'maintainState': BoolFieldAccess(
+      'Maintain State',
+      'Specifies whether the state of the children is maintained when the tile expands and collapses.',
+      () => maintainState,
+      (value) => maintainState = value,
+    ),
+    'tilePadding': SpacingFieldAccess.padding(
+      'Tile Padding',
+      'Specifies padding for the ListTile.',
+      () => tilePadding ?? EdgeInsetsModel.zero,
+      (value) => tilePadding = value,
+      requiresLayout: true,
+    ),
+    'expandedAlignment': AlignmentFieldAccess(
+      'Expanded Alignment',
+      'Specifies the alignment of children when the tile is expanded.',
+      () => expandedAlignment,
+      (value) => expandedAlignment = value,
+    ),
+    'expandedCrossAxisAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+      'Expanded Cross Axis Alignment',
+      'Specifies the alignment of each child within children when the tile is expanded.',
+      () => expandedCrossAxisAlignment,
+      (value) => expandedCrossAxisAlignment = value,
+      defaultValue: () => CrossAxisAlignmentC.center,
+      options: () => CrossAxisAlignmentC.values,
+    ),
+    'childrenPadding': SpacingFieldAccess.padding(
+      'Children Padding',
+      'Specifies padding for children.',
+      () => childrenPadding ?? EdgeInsetsModel.zero,
+      (value) => childrenPadding = value,
+      requiresLayout: true,
+    ),
+    'iconColor': ColorFieldAccess<ColorRGBA?>(
+      'Icon Color',
+      'The icon color of tile\'s expansion arrow icon when the sublist is expanded.',
+      () => iconColor,
+      (value) => iconColor = value,
+    ),
+    'collapsedIconColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Icon Color',
+      'The icon color of tile\'s expansion arrow icon when the sublist is collapsed.',
+      () => collapsedIconColor,
+      (value) => collapsedIconColor = value,
+    ),
+    'textColor': ColorFieldAccess<ColorRGBA?>(
+      'Text Color',
+      'The color of the tile\'s titles when the sublist is expanded.',
+      () => textColor,
+      (value) => textColor = value,
+    ),
+    'collapsedTextColor': ColorFieldAccess<ColorRGBA?>(
+      'Collapsed Text Color',
+      'The color of the tile\'s titles when the sublist is collapsed.',
+      () => collapsedTextColor,
+      (value) => collapsedTextColor = value,
+    ),
+    'controlAffinity': EnumFieldAccess<ListTileControlAffinityC?>(
+      'Control Affinity',
+      'Platform or null affinity defaults to trailing.',
+      () => controlAffinity,
+      (value) => controlAffinity = value,
+      defaultValue: () => ListTileControlAffinityC.trailing,
+      options: () => ListTileControlAffinityC.values,
+    ),
+    'showDividers': BoolFieldAccess(
+      'Show Dividers',
+      'Whether to show a divider between header and body.',
+      () => showDividers,
+      (value) => showDividers = value,
+      requiresLayout: true,
+    ),
+    'showTrailingIcon': BoolFieldAccess(
+      'Show Trailing Icon',
+      'Whether to show the expansion arrow.',
+      () => showTrailingIcon,
+      (value) => showTrailingIcon = value,
+    ),
+    'shape': EnumFieldAccess<CShapeBorder?>(
+      'Shape',
+      'Border shape of the tile when expanded.',
+      () => shape,
+      (value) => shape = value,
+      defaultValue: () => null,
+      options: () => CShapeBorder.values,
+    ),
+    'collapsedShape': EnumFieldAccess<CShapeBorder?>(
+      'Collapsed Shape',
+      'Border shape of the tile when collapsed.',
+      () => collapsedShape,
+      (value) => collapsedShape = value,
+      defaultValue: () => null,
+      options: () => CShapeBorder.values,
+    ),
+    'cornerRadius': RadiusFieldAccess(
+      'Corner Radius',
+      'Corner radius applied to the shapes.',
+      () => cornerRadius,
+      (value) => cornerRadius = value,
+    ),
+  };
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [
+    backgroundColor,
+    collapsedBackgroundColor,
+    initiallyExpanded,
+    maintainState,
+    tilePadding,
+    expandedAlignment,
+    expandedCrossAxisAlignment,
+    childrenPadding,
+    iconColor,
+    collapsedIconColor,
+    textColor,
+    collapsedTextColor,
+    controlAffinity,
+    visualDensity,
+    showDividers,
+    showTrailingIcon,
+    shape,
+    collapsedShape,
+    cornerRadius,
+  ];
 
   @override
-  Map<String, dynamic> toJson() => _$ExpansionTilePropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ExpansionTilePropertiesOmitDefaults(
+    this,
+    _$ExpansionTilePropertiesToJson(this),
+  );
 
   /// Creates a new [ExpansionTileProperties] from a JSON data.
   factory ExpansionTileProperties.fromJson(Map<String, dynamic> json) =>

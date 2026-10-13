@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -30,8 +30,11 @@ enum FloatingLabelBehaviorEnum {
 }
 
 /// Input decoration for text field.
+///
+/// Flutter's `InputDecoration.contentPadding` is the text field node's own
+/// [BaseNode.padding], so it is not repeated here.
 @JsonSerializable()
-class InputDecorationModel with EquatableMixin, SerializableMixin {
+class InputDecorationModel with Equatable, SerializableMixin {
   /// An icon to show before the input field and outside of the decoration's
   /// container.
   final MultiSourceIconModel icon;
@@ -224,33 +227,33 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     this.semanticCounterText,
     this.alignLabelWithHint = true,
     this.constraints = const BoxConstraintsModel(),
-  })  : labelStyle = labelStyle ?? TextProp(fontSize: 14),
-        floatingLabelStyle = floatingLabelStyle ??
-            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        helperStyle = helperStyle ??
-            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        hintStyle = hintStyle ??
-            TextProp.general(fontSize: 14, fills: [
-              PaintModel.solid(
-                id: generateId(),
-                color: ColorRGB.grey,
-              )
-            ]),
-        errorStyle = errorStyle ??
-            TextProp.general(fills: [
-              PaintModel.solid(
-                id: generateId(),
-                color: ColorRGB.red,
-              )
-            ]),
-        prefixStyle = prefixStyle ?? TextProp.general(),
-        suffixStyle = suffixStyle ??
-            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
-        counterStyle = counterStyle ?? TextProp.general(),
-        prefixIcon =
-            prefixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel()),
-        suffixIcon =
-            suffixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel());
+  }) : labelStyle = labelStyle ?? TextProp(fontSize: 14),
+       floatingLabelStyle =
+           floatingLabelStyle ??
+           TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+       helperStyle =
+           helperStyle ??
+           TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+       hintStyle =
+           hintStyle ??
+           TextProp.general(
+             fontSize: 14,
+             fills: [PaintModel.solid(id: generateId(), color: ColorRGB.grey)],
+           ),
+       errorStyle =
+           errorStyle ??
+           TextProp.general(
+             fills: [PaintModel.solid(id: generateId(), color: ColorRGB.red)],
+           ),
+       prefixStyle = prefixStyle ?? TextProp.general(),
+       suffixStyle =
+           suffixStyle ??
+           TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
+       counterStyle = counterStyle ?? TextProp.general(),
+       prefixIcon =
+           prefixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel()),
+       suffixIcon =
+           suffixIcon ?? ReactiveIconModel(icon: const MultiSourceIconModel());
 
   /// Duplicates this instance with given data overrides.
   InputDecorationModel copyWith({
@@ -270,7 +273,6 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     FloatingLabelBehaviorEnum? floatingLabelBehavior,
     bool? isCollapsed,
     bool? isDense,
-    EdgeInsetsModel? contentPadding,
     ReactiveIconModel? prefixIcon,
     BoxConstraintsModel? prefixIconConstraints,
     String? prefixText,
@@ -297,99 +299,96 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
     BoxConstraintsModel? constraints,
     bool? showCounter,
     bool forceCounterText = false,
-  }) =>
-      InputDecorationModel(
-        icon: icon ?? this.icon,
-        labelText: labelText ?? this.labelText,
-        labelStyle: labelStyle ?? this.labelStyle,
-        floatingLabelStyle: floatingLabelStyle ?? this.floatingLabelStyle,
-        helperText: helperText ?? this.helperText,
-        helperStyle: helperStyle ?? this.helperStyle,
-        helperMaxLines: helperMaxLines ?? this.helperMaxLines,
-        hintText: hintText ?? this.hintText,
-        hintStyle: hintStyle ?? this.hintStyle,
-        hintMaxLines: hintMaxLines ?? this.hintMaxLines,
-        errorText: errorText ?? this.errorText,
-        errorStyle: errorStyle ?? this.errorStyle,
-        errorMaxLines: errorMaxLines ?? this.errorMaxLines,
-        floatingLabelBehavior:
-            floatingLabelBehavior ?? this.floatingLabelBehavior,
-        isCollapsed: isCollapsed ?? this.isCollapsed,
-        isDense: isDense ?? this.isDense,
-        prefixIcon: prefixIcon ?? this.prefixIcon,
-        prefixIconConstraints:
-            prefixIconConstraints ?? this.prefixIconConstraints,
-        prefixText: prefixText ?? this.prefixText,
-        prefixStyle: prefixStyle ?? this.prefixStyle,
-        suffixIcon: suffixIcon ?? this.suffixIcon,
-        suffixText: suffixText ?? this.suffixText,
-        suffixStyle: suffixStyle ?? this.suffixStyle,
-        suffixIconConstraints:
-            suffixIconConstraints ?? this.suffixIconConstraints,
-        counterText:
-            forceCounterText ? counterText : counterText ?? this.counterText,
-        counterStyle: counterStyle ?? this.counterStyle,
-        filled: filled ?? this.filled,
-        fillColor: fillColor ?? this.fillColor,
-        focusColor: focusColor ?? this.focusColor,
-        hoverColor: hoverColor ?? this.hoverColor,
-        errorBorder: errorBorder ?? this.errorBorder,
-        focusedBorder: focusedBorder ?? this.focusedBorder,
-        focusedErrorBorder: focusedErrorBorder ?? this.focusedErrorBorder,
-        disabledBorder: disabledBorder ?? this.disabledBorder,
-        enabledBorder: enabledBorder ?? this.enabledBorder,
-        border: border ?? this.border,
-        enabled: enabled ?? this.enabled,
-        semanticCounterText: semanticCounterText ?? this.semanticCounterText,
-        alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint,
-        constraints: constraints ?? this.constraints,
-        showCounter: showCounter ?? this.showCounter,
-      );
+  }) => InputDecorationModel(
+    icon: icon ?? this.icon,
+    labelText: labelText ?? this.labelText,
+    labelStyle: labelStyle ?? this.labelStyle,
+    floatingLabelStyle: floatingLabelStyle ?? this.floatingLabelStyle,
+    helperText: helperText ?? this.helperText,
+    helperStyle: helperStyle ?? this.helperStyle,
+    helperMaxLines: helperMaxLines ?? this.helperMaxLines,
+    hintText: hintText ?? this.hintText,
+    hintStyle: hintStyle ?? this.hintStyle,
+    hintMaxLines: hintMaxLines ?? this.hintMaxLines,
+    errorText: errorText ?? this.errorText,
+    errorStyle: errorStyle ?? this.errorStyle,
+    errorMaxLines: errorMaxLines ?? this.errorMaxLines,
+    floatingLabelBehavior: floatingLabelBehavior ?? this.floatingLabelBehavior,
+    isCollapsed: isCollapsed ?? this.isCollapsed,
+    isDense: isDense ?? this.isDense,
+    prefixIcon: prefixIcon ?? this.prefixIcon,
+    prefixIconConstraints: prefixIconConstraints ?? this.prefixIconConstraints,
+    prefixText: prefixText ?? this.prefixText,
+    prefixStyle: prefixStyle ?? this.prefixStyle,
+    suffixIcon: suffixIcon ?? this.suffixIcon,
+    suffixText: suffixText ?? this.suffixText,
+    suffixStyle: suffixStyle ?? this.suffixStyle,
+    suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
+    counterText: forceCounterText
+        ? counterText
+        : counterText ?? this.counterText,
+    counterStyle: counterStyle ?? this.counterStyle,
+    filled: filled ?? this.filled,
+    fillColor: fillColor ?? this.fillColor,
+    focusColor: focusColor ?? this.focusColor,
+    hoverColor: hoverColor ?? this.hoverColor,
+    errorBorder: errorBorder ?? this.errorBorder,
+    focusedBorder: focusedBorder ?? this.focusedBorder,
+    focusedErrorBorder: focusedErrorBorder ?? this.focusedErrorBorder,
+    disabledBorder: disabledBorder ?? this.disabledBorder,
+    enabledBorder: enabledBorder ?? this.enabledBorder,
+    border: border ?? this.border,
+    enabled: enabled ?? this.enabled,
+    semanticCounterText: semanticCounterText ?? this.semanticCounterText,
+    alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint,
+    constraints: constraints ?? this.constraints,
+    showCounter: showCounter ?? this.showCounter,
+  );
 
   @override
   List<Object?> get props => [
-        icon,
-        labelText,
-        labelStyle,
-        floatingLabelStyle,
-        helperText,
-        helperStyle,
-        helperMaxLines,
-        hintText,
-        hintStyle,
-        hintMaxLines,
-        errorText,
-        errorStyle,
-        errorMaxLines,
-        floatingLabelBehavior,
-        isCollapsed,
-        isDense,
-        prefixIcon,
-        prefixIconConstraints,
-        prefixText,
-        prefixStyle,
-        suffixIcon,
-        suffixText,
-        suffixStyle,
-        suffixIconConstraints,
-        counterText,
-        counterStyle,
-        filled,
-        fillColor,
-        focusColor,
-        hoverColor,
-        errorBorder,
-        focusedBorder,
-        focusedErrorBorder,
-        disabledBorder,
-        enabledBorder,
-        border,
-        enabled,
-        semanticCounterText,
-        alignLabelWithHint,
-        constraints,
-        showCounter,
-      ];
+    icon,
+    labelText,
+    labelStyle,
+    floatingLabelStyle,
+    helperText,
+    helperStyle,
+    helperMaxLines,
+    hintText,
+    hintStyle,
+    hintMaxLines,
+    errorText,
+    errorStyle,
+    errorMaxLines,
+    floatingLabelBehavior,
+    isCollapsed,
+    isDense,
+    prefixIcon,
+    prefixIconConstraints,
+    prefixText,
+    prefixStyle,
+    suffixIcon,
+    suffixText,
+    suffixStyle,
+    suffixIconConstraints,
+    counterText,
+    counterStyle,
+    filled,
+    fillColor,
+    focusColor,
+    hoverColor,
+    errorBorder,
+    focusedBorder,
+    focusedErrorBorder,
+    disabledBorder,
+    enabledBorder,
+    border,
+    enabled,
+    semanticCounterText,
+    alignLabelWithHint,
+    constraints,
+    showCounter,
+  ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance
   /// from JSON data.
@@ -397,5 +396,8 @@ class InputDecorationModel with EquatableMixin, SerializableMixin {
       _$InputDecorationModelFromJson(json);
 
   @override
-  Map toJson() => _$InputDecorationModelToJson(this);
+  Map toJson() => _$InputDecorationModelOmitDefaults(
+    this,
+    _$InputDecorationModelToJson(this),
+  );
 }

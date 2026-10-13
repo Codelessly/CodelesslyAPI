@@ -3,35 +3,32 @@
 part of 'font_name.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$FontNameOmitDefaults(
+  FontName instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.style, 'Normal')) json.remove('style');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 FontName _$FontNameFromJson(Map json) => FontName(
-      family: json['family'] as String,
-      weight: $enumDecodeNullable(_$FontWeightNumericEnumMap, json['weight']),
-      style: json['style'] as String? ?? 'Normal',
-    );
+  family: json['family'] as String,
+  weight: $enumDecodeNullable(_$FontWeightNumericEnumMap, json['weight']),
+  style: json['style'] as String? ?? 'Normal',
+);
 
-Map<String, dynamic> _$FontNameToJson(FontName instance) {
-  final val = <String, dynamic>{
-    'family': instance.family,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('style', instance.style, instance.style, 'Normal');
-  writeNotNull('weight', instance.weight,
-      _$FontWeightNumericEnumMap[instance.weight], null);
-  return val;
-}
+Map<String, dynamic> _$FontNameToJson(FontName instance) => <String, dynamic>{
+  'family': instance.family,
+  'style': instance.style,
+  'weight': ?_$FontWeightNumericEnumMap[instance.weight],
+};
 
 const _$FontWeightNumericEnumMap = {
   FontWeightNumeric.w100: 'w100',

@@ -1,15 +1,16 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
+import '../../json_defaults.dart';
 
 part 'api_call_action.g.dart';
 
 /// Holds information about an API call action to perform on a user interaction.
 @JsonSerializable()
-class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
+class ApiCallAction extends ActionModel with Equatable, SerializableMixin {
   /// ID of the API to call.
   final String? apiId;
 
@@ -22,18 +23,15 @@ class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
     Map<String, String>? parameters,
     super.nonBlocking,
     super.enabled,
-  })  : parameters = parameters ?? {},
-        super(type: ActionType.callApi);
+  }) : parameters = parameters ?? {},
+       super(type: ActionType.callApi);
 
   @override
   List<Object?> get props => [apiId, parameters];
 
   /// Creates a copy of this [ApiCallAction] but with the given fields replaced
   /// with the new values.
-  ApiCallAction copyWith({
-    String? apiId,
-    Map<String, String>? parameters,
-  }) =>
+  ApiCallAction copyWith({String? apiId, Map<String, String>? parameters}) =>
       ApiCallAction(
         apiId: apiId ?? this.apiId,
         parameters: parameters ?? this.parameters,
@@ -43,7 +41,8 @@ class ApiCallAction extends ActionModel with EquatableMixin, SerializableMixin {
   factory ApiCallAction.fromJson(Map json) => _$ApiCallActionFromJson(json);
 
   @override
-  Map toJson() => _$ApiCallActionToJson(this);
+  Map toJson() =>
+      _$ApiCallActionOmitDefaults(this, _$ApiCallActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitApiCall(this);

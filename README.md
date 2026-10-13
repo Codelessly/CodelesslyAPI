@@ -35,7 +35,7 @@ This is how you can create a custom `BaseNode`:
 
 ```dart
 import 'package:codelessly_api/codelessly_api.dart';
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'custom_node.g.dart';
 
@@ -44,7 +44,7 @@ class CustomNode extends BaseNode {
   @override
   final String type = 'custom_node';
 
-  MyCoolNode({
+  CustomNode({
     required super.id,
     required super.name,
     required super.basicBoxLocal,
@@ -56,6 +56,9 @@ class CustomNode extends BaseNode {
   Map toJson() => _$CustomNodeToJson(this);
 }
 ```
+
+Generate the serialization code with `dart run build_runner build`, using
+[json_serializable](https://pub.dev/packages/json_serializable).
 
 All nodes must extend `BaseNode`. Please refer to the documentation inside `BaseNode` for more information.
 
@@ -112,6 +115,22 @@ or image texture.
 - `PaintModel`: Defines the style properties such as the type of paint (`type`), its visibility (`visible`), and its
   opacity (`opacity`), among others. Depending on the type of paint, it might have properties like color (`color`),
   gradient transform (`gradientTransform`), gradient stops (`gradientStops`), or image transform (`imageTransform`).
+
+### Flutter parity
+
+Models track the Flutter release this version supports (3.47). A Flutter
+parameter is left out when it cannot be data or is already expressed
+elsewhere:
+
+| Flutter parameter | Represented by |
+|---|---|
+| Size and padding parameters such as `ButtonStyle.minimumSize`/`fixedSize`, `InputDecoration.contentPadding` and `TabBar.padding` | The node's own box and `padding` |
+| `ScrollView.clipBehavior` and similar clip parameters | `ClipMixin.clipsContent` |
+| Callbacks and widgets, such as `itemExtentBuilder` and `prototypeItem` | Not representable as JSON; use `itemExtent` |
+
+Defaults follow Material 3. Where a default changed from an earlier
+version, the old value still applies to JSON that omits the key (see
+`JsonLegacyDefault`), so saved designs keep their look.
 
 ## Contributing
 

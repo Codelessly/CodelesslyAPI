@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
@@ -19,10 +19,10 @@ enum SetCloudStorageOperation {
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
-        SetCloudStorageOperation.addDocument => 'Add Document',
-        SetCloudStorageOperation.updateDocument => 'Update Document',
-        SetCloudStorageOperation.removeDocument => 'Remove Document',
-      };
+    SetCloudStorageOperation.addDocument => 'Add Document',
+    SetCloudStorageOperation.updateDocument => 'Update Document',
+    SetCloudStorageOperation.removeDocument => 'Remove Document',
+  };
 
   /// Whether this [StorageOperation] is [addDocument].
   bool get isAddDocument => this == addDocument;
@@ -37,7 +37,7 @@ enum SetCloudStorageOperation {
 /// An action that changes data in cloud storage.
 @JsonSerializable()
 class SetCloudStorageAction extends ActionModel
-    with EquatableMixin, SerializableMixin {
+    with Equatable, SerializableMixin {
   /// The sub action to perform. This can be one of [AddDocumentSubAction],
   /// [UpdateDocumentSubAction] or [RemoveDocumentSubAction].
   final SetCloudStorageSubAction subAction;
@@ -50,12 +50,8 @@ class SetCloudStorageAction extends ActionModel
   }) : super(type: ActionType.setCloudStorage);
 
   /// Duplicates this [SetCloudStorageAction] with given data overrides.
-  SetCloudStorageAction copyWith({
-    SetCloudStorageSubAction? subAction,
-  }) =>
-      SetCloudStorageAction(
-        subAction: subAction ?? this.subAction,
-      );
+  SetCloudStorageAction copyWith({SetCloudStorageSubAction? subAction}) =>
+      SetCloudStorageAction(subAction: subAction ?? this.subAction);
 
   @override
   List<Object?> get props => [subAction];
@@ -65,7 +61,10 @@ class SetCloudStorageAction extends ActionModel
       _$SetCloudStorageActionFromJson(json);
 
   @override
-  Map toJson() => _$SetCloudStorageActionToJson(this);
+  Map toJson() => _$SetCloudStorageActionOmitDefaults(
+    this,
+    _$SetCloudStorageActionToJson(this),
+  );
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) =>
@@ -73,20 +72,21 @@ class SetCloudStorageAction extends ActionModel
 }
 
 /// Represents a sub action to perform on a data in cloud storage.
-sealed class SetCloudStorageSubAction with EquatableMixin, SerializableMixin {
+sealed class SetCloudStorageSubAction with Equatable, SerializableMixin {
   /// The operation to perform. Represents the type of the sub action.
   final SetCloudStorageOperation operation;
 
   /// Creates a new [SetCloudStorageSubAction].
   const SetCloudStorageSubAction({required this.operation});
 
-  @override
   factory SetCloudStorageSubAction.fromJson(Map json) {
-    final operation =
-        SetCloudStorageOperation.values.byName(json['operation'].toString());
+    final operation = SetCloudStorageOperation.values.byName(
+      json['operation'].toString(),
+    );
     return switch (operation) {
-      SetCloudStorageOperation.addDocument =>
-        AddDocumentSubAction.fromJson(json),
+      SetCloudStorageOperation.addDocument => AddDocumentSubAction.fromJson(
+        json,
+      ),
       SetCloudStorageOperation.updateDocument =>
         UpdateDocumentSubAction.fromJson(json),
       SetCloudStorageOperation.removeDocument =>
@@ -175,19 +175,21 @@ class AddDocumentSubAction extends SetCloudStorageSubAction {
       _$AddDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() =>
-      _$AddDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() => _$AddDocumentSubActionOmitDefaults(
+    this,
+    _$AddDocumentSubActionToJson(this),
+  )..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        autoGenerateId,
-        skipCreationIfDocumentExists,
-        newValue,
-        rawValue,
-        useRawValue,
-      ];
+    path,
+    documentId,
+    autoGenerateId,
+    skipCreationIfDocumentExists,
+    newValue,
+    rawValue,
+    useRawValue,
+  ];
 }
 
 /// Represents a sub action to remove a document from a collection in cloud
@@ -209,10 +211,8 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
   final String documentId;
 
   /// Creates a new [RemoveDocumentSubAction].
-  const RemoveDocumentSubAction({
-    this.path = '',
-    this.documentId = '',
-  }) : super(operation: SetCloudStorageOperation.removeDocument);
+  const RemoveDocumentSubAction({this.path = '', this.documentId = ''})
+    : super(operation: SetCloudStorageOperation.removeDocument);
 
   /// Duplicates this [AddDocumentSubAction] with given data overrides.
   RemoveDocumentSubAction copyWith({
@@ -233,8 +233,10 @@ class RemoveDocumentSubAction extends SetCloudStorageSubAction {
       _$RemoveDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() =>
-      _$RemoveDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() => _$RemoveDocumentSubActionOmitDefaults(
+    this,
+    _$RemoveDocumentSubActionToJson(this),
+  )..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [path, documentId];
@@ -356,23 +358,25 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
       _$UpdateDocumentSubActionFromJson(json);
 
   @override
-  Map toJson() =>
-      _$UpdateDocumentSubActionToJson(this)..['operation'] = operation.name;
+  Map toJson() => _$UpdateDocumentSubActionOmitDefaults(
+    this,
+    _$UpdateDocumentSubActionToJson(this),
+  )..['operation'] = operation.name;
 
   @override
   List<Object?> get props => [
-        path,
-        documentId,
-        rawValue,
-        key,
-        variableType,
-        index,
-        listOperation,
-        mapKey,
-        mapOperation,
-        newValue,
-        toggled,
-        useRawValue,
-        numberOperation,
-      ];
+    path,
+    documentId,
+    rawValue,
+    key,
+    variableType,
+    index,
+    listOperation,
+    mapKey,
+    mapOperation,
+    newValue,
+    toggled,
+    useRawValue,
+    numberOperation,
+  ];
 }

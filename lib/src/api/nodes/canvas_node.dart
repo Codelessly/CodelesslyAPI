@@ -1,5 +1,6 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+import '../converters.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -47,8 +48,8 @@ class CanvasNode extends ParentNode
   @override
   List<ReactionMixin> get reactiveChildren =>
       properties.floatingActionButton != null
-          ? [properties.floatingActionButton!]
-          : [];
+      ? [properties.floatingActionButton!]
+      : [];
 
   /// Creates a new [CanvasNode] with given data.
   CanvasNode({
@@ -155,17 +156,17 @@ class CanvasNode extends ParentNode
   factory CanvasNode.fromJson(Map json) => _$CanvasNodeFromJson(json);
 
   @override
-  Map toJson() => _$CanvasNodeToJson(this);
+  Map toJson() => _$CanvasNodeOmitDefaults(this, _$CanvasNodeToJson(this));
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        id,
-        name,
-        rowColumnType,
-        mainAxisAlignment,
-        crossAxisAlignment
-      ];
+    ...super.props,
+    id,
+    name,
+    rowColumnType,
+    mainAxisAlignment,
+    crossAxisAlignment,
+  ];
 }
 
 /// Holds configurable properties for the canvas.
@@ -216,17 +217,18 @@ class CanvasProperties extends CustomProperties {
 
   @override
   List<Object?> get props => [
-        navigationBarPlaceholderId,
-        topAppBarPlaceholderId,
-        floatingActionButton,
-        safeArea,
-        brightness,
-      ];
+    navigationBarPlaceholderId,
+    topAppBarPlaceholderId,
+    floatingActionButton,
+    safeArea,
+    brightness,
+  ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
   factory CanvasProperties.fromJson(Map json) =>
       _$CanvasPropertiesFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$CanvasPropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$CanvasPropertiesOmitDefaults(this, _$CanvasPropertiesToJson(this));
 }

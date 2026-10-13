@@ -14,3 +14,23 @@ enum ListTileControlAffinityC {
   /// side.
   platform,
 }
+
+/// How a list tile aligns its leading and trailing widgets with its title.
+/// Mirrors Flutter's `ListTileTitleAlignment`.
+enum ListTileTitleAlignmentC {
+  /// Top-aligned for three-line tiles, centered otherwise. The Material 3
+  /// default.
+  threeLine,
+
+  /// Aligned relative to the title's height. The Material 2 default.
+  titleHeight,
+
+  /// Aligned to the top of the tile.
+  top,
+
+  /// Centered in the tile.
+  center,
+
+  /// Aligned to the bottom of the tile.
+  bottom,
+}

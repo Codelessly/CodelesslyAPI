@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -12,7 +12,7 @@ part 'rect.g.dart';
 /// An immutable, 2D, axis-aligned, floating-point rectangle whose coordinates
 /// are relative to a given origin.
 @JsonSerializable()
-class RectC with SerializableMixin, EquatableMixin {
+class RectC with SerializableMixin, Equatable {
   /// The offset of the left edge of this rectangle from the x-axis.
   final double left;
 
@@ -40,43 +40,36 @@ class RectC with SerializableMixin, EquatableMixin {
   /// Construct the smallest rectangle that encloses the given width and height,
   /// from [0,0] origin.
   const RectC.fromSize(double width, double height)
-      : left = 0,
-        top = 0,
-        right = width,
-        bottom = height;
+    : left = 0,
+      top = 0,
+      right = width,
+      bottom = height;
 
   /// Construct a rectangle from its left and top edges, its width, and its
   /// height.
   const RectC.fromLTWH(double left, double top, double width, double height)
-      : this.fromLTRB(left, top, left + width, top + height);
+    : this.fromLTRB(left, top, left + width, top + height);
 
   /// Construct a rectangle that bounds the given circle.
   RectC.fromCircle({required Vec center, required double radius})
-      : this.fromCenter(
-          center: center,
-          width: radius * 2,
-          height: radius * 2,
-        );
+    : this.fromCenter(center: center, width: radius * 2, height: radius * 2);
 
   /// Constructs a rectangle from its center point, width, and height.
-  RectC.fromCenter(
-      {required Vec center, required double width, required double height})
-      : this.fromLTRB(
-          center.x - width / 2,
-          center.y - height / 2,
-          center.x + width / 2,
-          center.y + height / 2,
-        );
+  RectC.fromCenter({
+    required Vec center,
+    required double width,
+    required double height,
+  }) : this.fromLTRB(
+         center.x - width / 2,
+         center.y - height / 2,
+         center.x + width / 2,
+         center.y + height / 2,
+       );
 
   /// Construct the smallest rectangle that encloses the given offsets, treating
   /// them as vectors from the origin.
   RectC.fromPoints(Vec a, Vec b)
-      : this.fromLTRB(
-          min(a.x, b.x),
-          min(a.y, b.y),
-          max(a.x, b.x),
-          max(a.y, b.y),
-        );
+    : this.fromLTRB(min(a.x, b.x), min(a.y, b.y), max(a.x, b.x), max(a.y, b.y));
 
   /// A rectangle with left, top, right, and bottom edges all at zero.
   static const RectC zero = RectC.fromLTRB(0, 0, 0, 0);
@@ -156,38 +149,26 @@ class RectC with SerializableMixin, EquatableMixin {
 
   /// Expands this rect such that it includes all the points around with given
   /// distance [value]. Moves all edges outwards by given distance [value].
-  RectC expand(double value) => RectC.fromLTRB(
-        left - value,
-        top - value,
-        right + value,
-        bottom + value,
-      );
+  RectC expand(double value) =>
+      RectC.fromLTRB(left - value, top - value, right + value, bottom + value);
 
   /// Returns a new rectangle which is the bounding box containing this
   /// rectangle and the given rectangle.
   RectC expandToInclude(RectC rect) => RectC.fromLTRB(
-        min(left, rect.left),
-        min(top, rect.top),
-        max(right, rect.right),
-        max(bottom, rect.bottom),
-      );
+    min(left, rect.left),
+    min(top, rect.top),
+    max(right, rect.right),
+    max(bottom, rect.bottom),
+  );
 
   /// Returns a new [v] translated by the given [vec].
-  RectC translate(Vec vec) => RectC.fromLTRB(
-        left + vec.x,
-        top + vec.y,
-        right + vec.x,
-        bottom + vec.y,
-      );
+  RectC translate(Vec vec) =>
+      RectC.fromLTRB(left + vec.x, top + vec.y, right + vec.x, bottom + vec.y);
 
   /// Returns a new [RectC] with edges and radii moved outwards by the given
   /// delta.
-  RectC inflate(double value) => RectC.fromLTRB(
-        left - value,
-        top - value,
-        right + value,
-        bottom + value,
-      );
+  RectC inflate(double value) =>
+      RectC.fromLTRB(left - value, top - value, right + value, bottom + value);
 
   /// Whether this rect intersects with given [rect].
   RectC intersect(RectC rect) {
@@ -204,19 +185,19 @@ class RectC with SerializableMixin, EquatableMixin {
 
   /// Subtracts the given [other] rect from this rectangle.
   RectC operator -(RectC other) => RectC.fromLTRB(
-        left - other.left,
-        top - other.top,
-        right - other.right,
-        bottom - other.bottom,
-      );
+    left - other.left,
+    top - other.top,
+    right - other.right,
+    bottom - other.bottom,
+  );
 
   /// Adds the given [other] rect to this rectangle.
   RectC operator +(RectC other) => RectC.fromLTRB(
-        left + other.left,
-        top + other.top,
-        right + other.right,
-        bottom + other.bottom,
-      );
+    left + other.left,
+    top + other.top,
+    right + other.right,
+    bottom + other.bottom,
+  );
 
   @override
   List<Object?> get props => [left, top, right, bottom];
@@ -225,7 +206,7 @@ class RectC with SerializableMixin, EquatableMixin {
   factory RectC.fromJson(Map json) => _$RectCFromJson(json);
 
   @override
-  Map toJson() => _$RectCToJson(this);
+  Map toJson() => _$RectCOmitDefaults(this, _$RectCToJson(this));
 
   @override
   String toString() {

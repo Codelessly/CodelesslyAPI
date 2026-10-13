@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -68,5 +68,8 @@ class FreeformPlaceholderNode extends DefaultShapeNode
       _$FreeformPlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$FreeformPlaceholderNodeToJson(this);
+  Map toJson() => _$FreeformPlaceholderNodeOmitDefaults(
+    this,
+    _$FreeformPlaceholderNodeToJson(this),
+  );
 }

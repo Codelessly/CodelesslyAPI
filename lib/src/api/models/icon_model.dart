@@ -1,12 +1,13 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../json_defaults.dart';
 
 part 'icon_model.g.dart';
 
 /// Base class for holding data of a font based icon.
-abstract class IconModel with EquatableMixin, SerializableMixin {
+abstract class IconModel with Equatable, SerializableMixin {
   /// Represents the icon in the fonts.
   final int codepoint;
 
@@ -69,8 +70,9 @@ enum MaterialIconStyle {
   /// Factory constructor for creating a new [MaterialIconStyle] instance
   /// from icon category name. Here name refers to [Enum.name].
   factory MaterialIconStyle.fromName(String name) {
-    return MaterialIconStyle.values
-        .firstWhere((element) => element.name.contains(name));
+    return MaterialIconStyle.values.firstWhere(
+      (element) => element.name.contains(name),
+    );
   }
 
   /// Displayable string representation of this enum.
@@ -122,13 +124,12 @@ class MaterialIcon extends IconModel {
     String? name,
     MaterialIconStyle? style,
     int? version,
-  }) =>
-      MaterialIcon(
-        codepoint: codepoint ?? this.codepoint,
-        name: name ?? this.name,
-        style: style ?? this.style,
-        version: version ?? this.version,
-      );
+  }) => MaterialIcon(
+    codepoint: codepoint ?? this.codepoint,
+    name: name ?? this.name,
+    style: style ?? this.style,
+    version: version ?? this.version,
+  );
 
   /// Factory constructor for creating a new [MaterialIcon] instance from
   /// JSON data.
@@ -136,16 +137,12 @@ class MaterialIcon extends IconModel {
       _$MaterialIconFromJson(json);
 
   @override
-  List<Object?> get props => [
-        codepoint,
-        fontFamily,
-        name,
-        style,
-        version,
-      ];
+  List<Object?> get props => [codepoint, fontFamily, name, style, version];
 
   @override
-  Map toJson() => _$MaterialIconToJson(this)..['type'] = type;
+  Map toJson() =>
+      _$MaterialIconOmitDefaults(this, _$MaterialIconToJson(this))
+        ..['type'] = type;
 }
 
 /// An icon model that represents a material symbol.
@@ -175,13 +172,12 @@ class MaterialSymbol extends IconModel {
     List<String>? tags,
     int? version,
     int? popularity,
-  }) =>
-      MaterialSymbol(
-        codepoint: codepoint ?? this.codepoint,
-        fontFamily: fontFamily ?? this.fontFamily,
-        name: name ?? this.name,
-        style: style ?? this.style,
-      );
+  }) => MaterialSymbol(
+    codepoint: codepoint ?? this.codepoint,
+    fontFamily: fontFamily ?? this.fontFamily,
+    name: name ?? this.name,
+    style: style ?? this.style,
+  );
 
   /// Factory constructor for creating a new [MaterialSymbol] instance from
   /// JSON data.
@@ -192,7 +188,9 @@ class MaterialSymbol extends IconModel {
   List<Object?> get props => [codepoint, fontFamily, name, style];
 
   @override
-  Map toJson() => _$MaterialSymbolToJson(this)..['type'] = type;
+  Map toJson() =>
+      _$MaterialSymbolOmitDefaults(this, _$MaterialSymbolToJson(this))
+        ..['type'] = type;
 }
 
 /// An icon model that represents a cupertino icon.
@@ -212,11 +210,7 @@ class CupertinoIcon extends IconModel {
   });
 
   /// Duplicates this instance of [CupertinoIcon] with given data override.
-  CupertinoIcon copyWith({
-    int? codepoint,
-    String? name,
-    String? fontFamily,
-  }) =>
+  CupertinoIcon copyWith({int? codepoint, String? name, String? fontFamily}) =>
       CupertinoIcon(
         codepoint: codepoint ?? this.codepoint,
         fontFamily: fontFamily ?? this.fontFamily,
@@ -232,5 +226,7 @@ class CupertinoIcon extends IconModel {
       _$CupertinoIconFromJson(json);
 
   @override
-  Map toJson() => _$CupertinoIconToJson(this)..['type'] = type;
+  Map toJson() =>
+      _$CupertinoIconOmitDefaults(this, _$CupertinoIconToJson(this))
+        ..['type'] = type;
 }

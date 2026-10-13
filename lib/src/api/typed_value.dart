@@ -210,7 +210,7 @@ extension ConversionExt on Object? {
     final value = this;
     if (value == null) return null;
     if (value is EdgeInsetsModel) return value;
-    if (value case num || [num, num] || [num, num, num, num]) {
+    if (value case num() || [num(), num()] || [num(), num(), num(), num()]) {
       return EdgeInsetsModel.fromJson(value);
     }
 

@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -46,18 +46,23 @@ class ExternalComponentNode extends SceneNode with CustomPropertiesMixin {
     super.multipleVariables,
     ExternalComponentProperties? properties,
   }) : properties =
-            properties ?? ExternalComponentProperties(builderID: builderID);
+           properties ?? ExternalComponentProperties(builderID: builderID);
 
   /// Creates a [ExternalComponentNode] from a JSON object.
   factory ExternalComponentNode.fromJson(Map json) =>
       _$ExternalComponentNodeFromJson(json);
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   @override
-  Map toJson() => _$ExternalComponentNodeToJson(this);
+  Map toJson() => _$ExternalComponentNodeOmitDefaults(
+    this,
+    _$ExternalComponentNodeToJson(this),
+  );
 }
 
 /// Holds configurable properties for the [ExternalComponentNode].
@@ -74,7 +79,10 @@ class ExternalComponentProperties extends CustomProperties {
   ExternalComponentProperties({this.builderID});
 
   @override
-  Map<String, dynamic> toJson() => _$ExternalComponentPropertiesToJson(this);
+  Map<String, dynamic> toJson() => _$ExternalComponentPropertiesOmitDefaults(
+    this,
+    _$ExternalComponentPropertiesToJson(this),
+  );
 
   /// Creates [ExternalComponentProperties] from a JSON object.
   factory ExternalComponentProperties.fromJson(Map<String, dynamic> json) =>

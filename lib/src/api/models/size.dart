@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -15,7 +15,7 @@ part 'size.g.dart';
 ///
 /// The C stands for Codelessly.
 @JsonSerializable()
-class SizeC with SerializableMixin, EquatableMixin {
+class SizeC with SerializableMixin, Equatable {
   /// Width value: Typically distance on x axis from the origin point (0,0).
   final double width;
 
@@ -99,5 +99,5 @@ class SizeC with SerializableMixin, EquatableMixin {
   factory SizeC.fromJson(Map json) => _$SizeCFromJson(json);
 
   @override
-  Map toJson() => _$SizeCToJson(this);
+  Map toJson() => _$SizeCOmitDefaults(this, _$SizeCToJson(this));
 }

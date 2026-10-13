@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -75,7 +75,9 @@ class FrameNode extends DefaultShapeNode
     bool showPortal = false,
   }) {
     setCornerMixin(
-        cornerRadius: cornerRadius, cornerSmoothing: cornerSmoothing);
+      cornerRadius: cornerRadius,
+      cornerSmoothing: cornerSmoothing,
+    );
 
     setClipMixin(clipsContent: clipsContent);
 
@@ -102,12 +104,14 @@ class FrameNode extends DefaultShapeNode
   }
 
   @override
-  List<TriggerType> get triggerTypes =>
-      [TriggerType.click, TriggerType.longPress];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+  ];
 
   /// Creates a [FrameNode] from a JSON data.
   factory FrameNode.fromJson(Map json) => _$FrameNodeFromJson(json);
 
   @override
-  Map toJson() => _$FrameNodeToJson(this);
+  Map toJson() => _$FrameNodeOmitDefaults(this, _$FrameNodeToJson(this));
 }

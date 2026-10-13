@@ -1,9 +1,10 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
 import '../condition.dart';
 import 'action.dart';
+import '../../json_defaults.dart';
 
 part 'submit_action.g.dart';
 
@@ -23,7 +24,7 @@ enum SubmitActionService {
 
 /// An action that submits a form.
 @JsonSerializable()
-class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
+class SubmitAction extends ActionModel with Equatable, SerializableMixin {
   /// Service used to submit the form.
   SubmitActionService service;
 
@@ -43,7 +44,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
   }) : super(type: ActionType.submit);
 
   @override
-  List<Object?> get props => [primaryTextField, apiKey];
+  List<Object?> get props => [service, primaryTextField, apiKey];
 
   /// Creates a new [SubmitAction] instance from a JSON data.
   factory SubmitAction.fromJson(Map json) {
@@ -58,7 +59,7 @@ class SubmitAction extends ActionModel with EquatableMixin, SerializableMixin {
   }
 
   @override
-  Map toJson() => _$SubmitActionToJson(this);
+  Map toJson() => _$SubmitActionOmitDefaults(this, _$SubmitActionToJson(this));
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitSubmitAction(this);
@@ -95,7 +96,13 @@ class MailchimpSubmitAction extends SubmitAction {
   }) : super(service: SubmitActionService.mailchimp);
 
   @override
-  List<Object?> get props => [...super.props, dataCenter, listID];
+  List<Object?> get props => [
+    ...super.props,
+    dataCenter,
+    listID,
+    firstNameField,
+    lastNameField,
+  ];
 
   /// Duplicate this [MailchimpSubmitAction] with given data overrides.
   MailchimpSubmitAction copyWith({
@@ -105,20 +112,22 @@ class MailchimpSubmitAction extends SubmitAction {
     String? listID,
     String? firstNameField,
     String? lastNameField,
-  }) =>
-      MailchimpSubmitAction(
-        primaryTextField: primaryTextField ?? this.primaryTextField,
-        apiKey: apiKey ?? this.apiKey,
-        dataCenter: dataCenter ?? this.dataCenter,
-        listID: listID ?? this.listID,
-        firstNameField: firstNameField ?? this.firstNameField,
-        lastNameField: lastNameField ?? this.lastNameField,
-      );
+  }) => MailchimpSubmitAction(
+    primaryTextField: primaryTextField ?? this.primaryTextField,
+    apiKey: apiKey ?? this.apiKey,
+    dataCenter: dataCenter ?? this.dataCenter,
+    listID: listID ?? this.listID,
+    firstNameField: firstNameField ?? this.firstNameField,
+    lastNameField: lastNameField ?? this.lastNameField,
+  );
 
   /// Creates a new [MailchimpSubmitAction] instance from a JSON data.
   factory MailchimpSubmitAction.fromJson(Map json) =>
       _$MailchimpSubmitActionFromJson(json);
 
   @override
-  Map toJson() => _$MailchimpSubmitActionToJson(this);
+  Map toJson() => _$MailchimpSubmitActionOmitDefaults(
+    this,
+    _$MailchimpSubmitActionToJson(this),
+  );
 }

@@ -14,24 +14,30 @@ class RootNode extends ParentNode with ChildrenMixin {
   /// Creates a new [RootNode] with the given data.
   /// RootNode just needs a children, but it extends [BaseNode] so that
   /// [getNode] works.
-  RootNode({
-    super.id = kRootNode,
-    required super.children,
-    SizeC? size,
-  }) : super(
-          name: kRootNode,
-          basicBoxLocal: NodeBox(0, 0, (size ?? kDefaultCanvasSize).width,
-              (size ?? kDefaultCanvasSize).height),
-          outerBoxLocal: OuterNodeBox(0, 0, (size ?? kDefaultCanvasSize).width,
-              (size ?? kDefaultCanvasSize).height,
-              edgeInsets: EdgeInsetsModel.zero),
-          retainedOuterBoxLocal: NodeBox(
-              0,
-              0,
-              (size ?? kDefaultCanvasSize).width,
-              (size ?? kDefaultCanvasSize).height),
-          flex: 0,
-        );
+  RootNode({super.id = kRootNode, required super.children, SizeC? size})
+    : super(
+        name: kRootNode,
+        basicBoxLocal: NodeBox(
+          0,
+          0,
+          (size ?? kDefaultCanvasSize).width,
+          (size ?? kDefaultCanvasSize).height,
+        ),
+        outerBoxLocal: OuterNodeBox(
+          0,
+          0,
+          (size ?? kDefaultCanvasSize).width,
+          (size ?? kDefaultCanvasSize).height,
+          edgeInsets: EdgeInsetsModel.zero,
+        ),
+        retainedOuterBoxLocal: NodeBox(
+          0,
+          0,
+          (size ?? kDefaultCanvasSize).width,
+          (size ?? kDefaultCanvasSize).height,
+        ),
+        flex: 0,
+      );
 
   /// Creates a new [RootNode] from the given JSON data.
   factory RootNode.fromJson(Map json) => _$RootNodeFromJson(json);
@@ -51,8 +57,8 @@ RootNode _$RootNodeFromJson(Map json) {
 }
 
 Map _$RootNodeToJson(RootNode instance) => {
-      'id': instance.id,
-      'type': instance.type,
-      'children': instance.children,
-      'size': instance.basicBoxGlobal.size.toJson(),
-    };
+  'id': instance.id,
+  'type': instance.type,
+  'children': instance.children,
+  'size': instance.basicBoxGlobal.size.toJson(),
+};

@@ -83,17 +83,15 @@ String resolveParentNodeIDs({
   required BaseNode node,
   required List<BaseNode> nodes,
 }) {
-  return nodes.firstWhereOrNull(
-        (parent) {
-          if (parent is ChildrenMixin && parent.children.contains(node.id)) {
-            return true;
-          }
-          if (parent is VarianceNode) {
-            return parent.allVariantsChildren.contains(node.id);
-          }
-          return false;
-        },
-      )?.id ??
+  return nodes.firstWhereOrNull((parent) {
+        if (parent is ChildrenMixin && parent.children.contains(node.id)) {
+          return true;
+        }
+        if (parent is VarianceNode) {
+          return parent.allVariantsChildren.contains(node.id);
+        }
+        return false;
+      })?.id ??
       kRootNode;
 }
 

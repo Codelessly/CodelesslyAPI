@@ -47,7 +47,11 @@ Vec calculateUnrotatedVecFromRotatedVec({
   );
 
   final unrotated = rotatePointAroundOrigin(
-      globalParentCenter.x, globalParentCenter.y, -radians, [x, y, 0]);
+    globalParentCenter.x,
+    globalParentCenter.y,
+    -radians,
+    [x, y, 0],
+  );
 
   return Vec(unrotated[0], unrotated[1]);
 }
@@ -82,12 +86,18 @@ Vec calculateRotatedBoxTopLeftAroundSelf({
 /// Rotates all points in [vector3] by [radians] around [origin].
 /// [vector3] is a flat list of one or more x,y,z triplets.
 List<double> rotatePointAroundOrigin(
-    double originX, double originY, double radians, List<double> vector3) {
+  double originX,
+  double originY,
+  double radians,
+  List<double> vector3,
+) {
   assert(
-      vector3.length == 3, 'The last number must be the Z axis. Let it be 0');
+    vector3.length == 3,
+    'The last number must be the Z axis. Let it be 0',
+  );
   final transform = Matrix4.translationValues(originX, originY, 0)
     ..rotateZ(radians)
-    ..translate(-originX, -originY, 0);
+    ..translateByDouble(-originX, -originY, 0, 1);
 
   return transform.applyToVector3Array(vector3);
 }
@@ -97,7 +107,7 @@ List<double> rotatePointAroundOrigin(
 Vec rotatePointAroundVec(Vec origin, double radians, Vec point) {
   final transform = Matrix4.translationValues(origin.x, origin.y, 0)
     ..rotateZ(radians)
-    ..translate(-origin.x, -origin.y, 0);
+    ..translateByDouble(-origin.x, -origin.y, 0, 1);
 
   final rotated = transform.applyToVector3Array([point.x, point.y, 0]);
   return Vec(rotated[0], rotated[1]);
@@ -122,10 +132,7 @@ Vec globalToRotatedLocalVec({
   final cosA = cosDeg(degrees);
   final sinA = sinDeg(degrees);
 
-  return Vec(
-    diffX * cosA + diffY * sinA,
-    diffY * cosA - diffX * sinA,
-  );
+  return Vec(diffX * cosA + diffY * sinA, diffY * cosA - diffX * sinA);
 }
 
 /// Converts a [local] offset in [parentContext]'s system, where [parentContext]
@@ -149,7 +156,10 @@ Vec localRotatedVecToGlobalVec({
 /// Returns the size of the bounding box for a box sized [width], [height] that
 /// is rotated by [rotationDegrees] degrees.
 SizeC getBoundsSizeAfterRotation(
-    double width, double height, double rotationRad) {
+  double width,
+  double height,
+  double rotationRad,
+) {
   if (rotationRad == 0) return SizeC(width, height);
 
   final double sinA = sin(rotationRad);
@@ -175,8 +185,11 @@ RectC getRotatedBoundingBoxAroundSelf(
 ) {
   if (rotationRad == 0) return RectC.fromLTWH(x, y, width, height);
 
-  final SizeC rotatedSize =
-      getBoundsSizeAfterRotation(width, height, rotationRad);
+  final SizeC rotatedSize = getBoundsSizeAfterRotation(
+    width,
+    height,
+    rotationRad,
+  );
   return RectC.fromLTWH(
     (x + (width / 2)) - (rotatedSize.width / 2),
     (y + (height / 2)) - (rotatedSize.height / 2),
@@ -203,10 +216,10 @@ Vec projectPointToLine(Vec p1, Vec p2, Vec toProject) {
 Vec? intersectionBetweenTwoLines(Vec p1, Vec p2, Vec p3, Vec p4) {
   final double t =
       ((p1.x - p3.x) * (p3.y - p4.y) - (p1.y - p3.y) * (p3.x - p4.x)) /
-          ((p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x));
+      ((p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x));
   final double u =
       ((p1.x - p3.x) * (p1.y - p2.y) - (p1.y - p3.y) * (p1.x - p2.x)) /
-          ((p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x));
+      ((p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x));
 
   if (0 <= t && t <= 1 && 0 <= u && u <= 1) {
     return Vec(p1.x + t * (p2.x - p1.x), p1.y + t * (p2.y - p1.y));
@@ -230,17 +243,31 @@ Vec? intersectionBetweenLineAndRect(Vec inner, Vec outer, RectC rect) {
   final Vec bottomRight = rect.bottomRight;
 
   final Vec? top = intersectionBetweenTwoLines(inner, outer, topLeft, topRight);
-  final Vec? bottom =
-      intersectionBetweenTwoLines(inner, outer, bottomLeft, bottomRight);
-  final Vec? left =
-      intersectionBetweenTwoLines(inner, outer, topLeft, bottomLeft);
-  final Vec? right =
-      intersectionBetweenTwoLines(inner, outer, topRight, bottomRight);
+  final Vec? bottom = intersectionBetweenTwoLines(
+    inner,
+    outer,
+    bottomLeft,
+    bottomRight,
+  );
+  final Vec? left = intersectionBetweenTwoLines(
+    inner,
+    outer,
+    topLeft,
+    bottomLeft,
+  );
+  final Vec? right = intersectionBetweenTwoLines(
+    inner,
+    outer,
+    topRight,
+    bottomRight,
+  );
 
-  final List<Vec> intersections = [top, bottom, left, right]
-      .where((element) => element != null)
-      .map((e) => e!)
-      .toList();
+  final List<Vec> intersections = [
+    top,
+    bottom,
+    left,
+    right,
+  ].where((element) => element != null).map((e) => e!).toList();
 
   if (intersections.isEmpty) {
     return null;

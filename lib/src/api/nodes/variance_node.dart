@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
@@ -90,54 +90,50 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
     super.variables,
     super.multipleVariables,
     VarianceProperties? properties,
-  })  : assert(variants.isNotEmpty),
-        currentVariantId = currentVariantId ?? variants[0].id,
-        properties = properties ?? const VarianceProperties(),
-        super(
-          children: [],
-          allowedTypes: [],
-          deniedTypes: [],
-          ephemeral: false,
-        );
+  }) : assert(variants.isNotEmpty),
+       currentVariantId = currentVariantId ?? variants[0].id,
+       properties = properties ?? const VarianceProperties(),
+       super(children: [], allowedTypes: [], deniedTypes: [], ephemeral: false);
 
   @override
   FieldsMap generateFields() => {
-        ...super.generateFields(),
-        'currentVariantId': VariantAccess(
-          'Variant',
-          'Select a variant to load',
-          () => currentVariant.name,
-          (String name) {
-            final String? newId =
-                variants.firstWhereOrNull((e) => e.name == name)?.id;
-            if (newId != null) currentVariantId = newId;
-          },
-          options: () => variants.map((variant) => variant.name).toList(),
-          defaultValue: () => 'default',
-        ),
-      };
+    ...super.generateFields(),
+    'currentVariantId': VariantAccess(
+      'Variant',
+      'Select a variant to load',
+      () => currentVariant.name,
+      (String name) {
+        final String? newId = variants
+            .firstWhereOrNull((e) => e.name == name)
+            ?.id;
+        if (newId != null) currentVariantId = newId;
+      },
+      options: () => variants.map((variant) => variant.name).toList(),
+      defaultValue: () => 'default',
+    ),
+  };
 
   @override
   void setChildrenMixin({required List<String> children}) {}
 
   @override
   List<Object?> get props => [
-        ...super.props,
-        variants,
-        properties,
-        currentVariantId,
-      ];
+    ...super.props,
+    variants,
+    properties,
+    currentVariantId,
+  ];
 
   /// Creates a [VarianceNode] instance from a JSON object.
   factory VarianceNode.fromJson(Map json) => _$VarianceNodeFromJson(json);
 
   @override
-  Map toJson() => _$VarianceNodeToJson(this);
+  Map toJson() => _$VarianceNodeOmitDefaults(this, _$VarianceNodeToJson(this));
 }
 
 /// [Variant] is used in [VarianceNode] to define a variation of the same node.
 @JsonSerializable()
-class Variant with SerializableMixin, EquatableMixin {
+class Variant with SerializableMixin, Equatable {
   /// Variant's name, set by user.
   String name;
 
@@ -148,17 +144,13 @@ class Variant with SerializableMixin, EquatableMixin {
   List<String> children;
 
   /// Creates a [Variant] instance with the given data.
-  Variant({
-    required this.id,
-    required this.name,
-    required this.children,
-  });
+  Variant({required this.id, required this.name, required this.children});
 
   @override
   List<Object?> get props => [id, name, children];
 
   @override
-  Map toJson() => _$VariantToJson(this);
+  Map toJson() => _$VariantOmitDefaults(this, _$VariantToJson(this));
 
   /// Creates a [Variant] instance from a JSON object.
   factory Variant.fromJson(Map json) => _$VariantFromJson(json);
@@ -171,7 +163,8 @@ class VarianceProperties extends CustomProperties {
   const VarianceProperties();
 
   @override
-  Map<String, dynamic> toJson() => _$VariancePropertiesToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$VariancePropertiesOmitDefaults(this, _$VariancePropertiesToJson(this));
 
   /// Creates a [VarianceProperties] instance from a JSON object.
   factory VarianceProperties.fromJson(Map<String, dynamic> json) =>

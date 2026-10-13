@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../generate_id.dart';
@@ -9,7 +9,7 @@ part 'reaction.g.dart';
 
 /// [Reaction] holds the action and the trigger which performs the action.
 @JsonSerializable()
-class Reaction with EquatableMixin, SerializableMixin {
+class Reaction with Equatable, SerializableMixin {
   /// Name of the reaction.
   final String name;
 
@@ -39,25 +39,22 @@ class Reaction with EquatableMixin, SerializableMixin {
     String? name,
     ActionModel? action,
     TriggerModel? trigger,
-  }) =>
-      Reaction(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        action: action ?? this.action,
-        trigger: trigger ?? this.trigger,
-      );
+  }) => Reaction(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    action: action ?? this.action,
+    trigger: trigger ?? this.trigger,
+  );
 
   /// Factory constructor for creating a new [Reaction] instance from JSON data.
   factory Reaction.fromJson(Map json) => _$ReactionFromJson(json);
 
   @override
-  Map toJson() => _$ReactionToJson(this);
+  Map toJson() => _$ReactionOmitDefaults(this, _$ReactionToJson(this));
 
   /// Sanitize the [Reaction] by removing the [id] and replacing it with a
   /// new one if [changeIds] is true.
   Reaction sanitize({required bool changeIds}) {
-    return copyWith(
-      id: changeIds ? generateId() : id,
-    );
+    return copyWith(id: changeIds ? generateId() : id);
   }
 }

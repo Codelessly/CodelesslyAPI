@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
@@ -8,7 +8,7 @@ part 'alignment.g.dart';
 /// [AlignmentModel] wraps [AlignmentData] and provides standard alignment
 /// values such as [topRight] and [bottomCenter] for ease of use.
 @JsonSerializable()
-class AlignmentModel with EquatableMixin, SerializableMixin {
+class AlignmentModel with Equatable, SerializableMixin {
   /// Holds the actual x and y percentage information.
   final AlignmentData? data;
 
@@ -29,8 +29,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   ///      |       |       |
   ///      |       |       |
   ///      -----------------
-  static const AlignmentModel topLeft =
-      AlignmentModel(AlignmentData(-1.0, -1.0));
+  static const AlignmentModel topLeft = AlignmentModel(
+    AlignmentData(-1.0, -1.0),
+  );
 
   /// Represents the top-center position in a rect.
   ///         Top-center
@@ -41,8 +42,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// |       |       |
   /// |       |       |
   /// -----------------
-  static const AlignmentModel topCenter =
-      AlignmentModel(AlignmentData(0.0, -1.0));
+  static const AlignmentModel topCenter = AlignmentModel(
+    AlignmentData(0.0, -1.0),
+  );
 
   /// Represents the top-right corner.
   /// ----------------o Top-right
@@ -52,8 +54,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// |       |       |
   /// |       |       |
   /// -----------------
-  static const AlignmentModel topRight =
-      AlignmentModel(AlignmentData(1.0, -1.0));
+  static const AlignmentModel topRight = AlignmentModel(
+    AlignmentData(1.0, -1.0),
+  );
 
   /// Represents the center-left position in a rect.
   ///        -----------------
@@ -63,8 +66,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// Left   |       |       |
   ///        |       |       |
   ///        -----------------
-  static const AlignmentModel centerLeft =
-      AlignmentModel(AlignmentData(-1.0, 0.0));
+  static const AlignmentModel centerLeft = AlignmentModel(
+    AlignmentData(-1.0, 0.0),
+  );
 
   /// Represents the center position in a rect.
   /// -----------------
@@ -84,8 +88,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// |       |       | Right
   /// |       |       |
   /// -----------------
-  static const AlignmentModel centerRight =
-      AlignmentModel(AlignmentData(1.0, 0.0));
+  static const AlignmentModel centerRight = AlignmentModel(
+    AlignmentData(1.0, 0.0),
+  );
 
   /// Represents the bottom-left corner.
   ///        -----------------
@@ -95,8 +100,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   ///        |       |       |
   /// Bottom |       |       |
   /// Left   o----------------
-  static const AlignmentModel bottomLeft =
-      AlignmentModel(AlignmentData(-1.0, 1.0));
+  static const AlignmentModel bottomLeft = AlignmentModel(
+    AlignmentData(-1.0, 1.0),
+  );
 
   /// Represents the bottom-center position in a rect.
   /// -----------------
@@ -107,8 +113,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// |       |       |
   /// --------o--------
   ///         Bottom-center
-  static const AlignmentModel bottomCenter =
-      AlignmentModel(AlignmentData(0.0, 1.0));
+  static const AlignmentModel bottomCenter = AlignmentModel(
+    AlignmentData(0.0, 1.0),
+  );
 
   /// Represents the bottom-right corner.
   /// -----------------
@@ -118,8 +125,9 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   /// |       |       |
   /// |       |       |
   /// ----------------o Bottom-right
-  static const AlignmentModel bottomRight =
-      AlignmentModel(AlignmentData(1.0, 1.0));
+  static const AlignmentModel bottomRight = AlignmentModel(
+    AlignmentData(1.0, 1.0),
+  );
 
   /// Whether this alignment is one of the [values].
   bool get isStandard => values.contains(this);
@@ -174,7 +182,8 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
   factory AlignmentModel.fromJson(Map json) => _$AlignmentModelFromJson(json);
 
   @override
-  Map toJson() => _$AlignmentModelToJson(this);
+  Map toJson() =>
+      _$AlignmentModelOmitDefaults(this, _$AlignmentModelToJson(this));
 
   /// Displayable string representation of the object.
   String get prettify {
@@ -194,18 +203,18 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
 
   /// Displayable string representation of the object.
   String get name => switch (this) {
-        topLeft => 'topLeft',
-        topCenter => 'topCenter',
-        topRight => 'topRight',
-        centerLeft => 'centerLeft',
-        center => 'center',
-        centerRight => 'centerRight',
-        bottomLeft => 'bottomLeft',
-        bottomCenter => 'bottomCenter',
-        bottomRight => 'bottomRight',
-        none => 'none',
-        _ => 'custom',
-      };
+    topLeft => 'topLeft',
+    topCenter => 'topCenter',
+    topRight => 'topRight',
+    centerLeft => 'centerLeft',
+    center => 'center',
+    centerRight => 'centerRight',
+    bottomLeft => 'bottomLeft',
+    bottomCenter => 'bottomCenter',
+    bottomRight => 'bottomRight',
+    none => 'none',
+    _ => 'custom',
+  };
 
   /// Scales the x and y values of this alignment by the given scale factors.
   AlignmentModel scale(double scaleX, double scaleY) {
@@ -215,7 +224,7 @@ class AlignmentModel with EquatableMixin, SerializableMixin {
 }
 
 /// A data class that holds the x and y values of the alignment.
-@JsonSerializable(useDynamics: true, createToJson: false)
+@JsonSerializable(createToJson: false)
 class AlignmentData extends Equatable with DynamicSerializableMixin {
   /// The x value of the alignment that represents how far it is from
   /// the left edge of the rect. -1 means left edge, 0 means center and

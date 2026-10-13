@@ -1,4 +1,4 @@
-import 'package:codelessly_json_annotation/codelessly_json_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -55,5 +55,6 @@ class PlaceholderNode extends SceneNode with PlaceholderMixin {
   factory PlaceholderNode.fromJson(Map json) => _$PlaceholderNodeFromJson(json);
 
   @override
-  Map toJson() => _$PlaceholderNodeToJson(this);
+  Map toJson() =>
+      _$PlaceholderNodeOmitDefaults(this, _$PlaceholderNodeToJson(this));
 }

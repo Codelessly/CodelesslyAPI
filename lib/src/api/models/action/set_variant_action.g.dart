@@ -3,38 +3,37 @@
 part of 'set_variant_action.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$SetVariantActionOmitDefaults(
+  SetVariantAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
+  if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 SetVariantAction _$SetVariantActionFromJson(Map json) => SetVariantAction(
-      nodeID: json['nodeID'] as String,
-      variantID: json['variantID'] as String,
-      nonBlocking: json['nonBlocking'] as bool? ?? false,
-      enabled: json['enabled'] as bool? ?? true,
-    )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
+  nodeID: json['nodeID'] as String,
+  variantID: json['variantID'] as String,
+  nonBlocking: json['nonBlocking'] as bool? ?? false,
+  enabled: json['enabled'] as bool? ?? true,
+)..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$SetVariantActionToJson(SetVariantAction instance) {
-  final val = <String, dynamic>{
-    'type': _$ActionTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull(
-      'nonBlocking', instance.nonBlocking, instance.nonBlocking, false);
-  writeNotNull('enabled', instance.enabled, instance.enabled, true);
-  val['nodeID'] = instance.nodeID;
-  val['variantID'] = instance.variantID;
-  return val;
-}
+Map<String, dynamic> _$SetVariantActionToJson(SetVariantAction instance) =>
+    <String, dynamic>{
+      'type': _$ActionTypeEnumMap[instance.type]!,
+      'nonBlocking': instance.nonBlocking,
+      'enabled': instance.enabled,
+      'nodeID': instance.nodeID,
+      'variantID': instance.variantID,
+    };
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

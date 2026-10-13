@@ -3,46 +3,46 @@
 part of 'effect.dart';
 
 // **************************************************************************
+// JsonDefaultsGenerator
+// **************************************************************************
+
+Map<String, dynamic> _$EffectOmitDefaults(
+  Effect instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.visible, true)) json.remove('visible');
+  return json;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
 Effect _$EffectFromJson(Map json) => Effect(
-      id: _readId(json, 'id') as String,
-      type: $enumDecode(_$EffectTypeEnumMap, json['type']),
-      radius: (json['radius'] as num).toDouble(),
-      visible: json['visible'] as bool? ?? true,
-      color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
-      blendMode: $enumDecodeNullable(_$BlendModeCEnumMap, json['blendMode'],
-          unknownValue: BlendModeC.srcOver),
-      offset: json['offset'] == null ? null : Vec.fromJson(json['offset']),
-      spread: (json['spread'] as num?)?.toDouble(),
-    );
+  id: _readId(json, 'id') as String,
+  type: $enumDecode(_$EffectTypeEnumMap, json['type']),
+  radius: (json['radius'] as num).toDouble(),
+  visible: json['visible'] as bool? ?? true,
+  color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
+  blendMode: $enumDecodeNullable(
+    _$BlendModeCEnumMap,
+    json['blendMode'],
+    unknownValue: BlendModeC.srcOver,
+  ),
+  offset: json['offset'] == null ? null : Vec.fromJson(json['offset']),
+  spread: (json['spread'] as num?)?.toDouble(),
+);
 
-Map<String, dynamic> _$EffectToJson(Effect instance) {
-  final val = <String, dynamic>{
-    'id': instance.id,
-    'type': _$EffectTypeEnumMap[instance.type]!,
-  };
-
-  void writeNotNull(
-      String key, dynamic value, dynamic jsonValue, dynamic defaultValue) {
-    final bool serialize =
-        shouldSerialize(key, value, jsonValue, defaultValue, false);
-
-    if (serialize) {
-      val[key] = jsonValue;
-    }
-  }
-
-  writeNotNull('visible', instance.visible, instance.visible, true);
-  val['radius'] = instance.radius;
-  writeNotNull('spread', instance.spread, instance.spread, null);
-  writeNotNull('color', instance.color, instance.color?.toJson(), null);
-  writeNotNull('blendMode', instance.blendMode,
-      _$BlendModeCEnumMap[instance.blendMode], null);
-  writeNotNull('offset', instance.offset, instance.offset?.toJson(), null);
-  return val;
-}
+Map<String, dynamic> _$EffectToJson(Effect instance) => <String, dynamic>{
+  'id': instance.id,
+  'type': _$EffectTypeEnumMap[instance.type]!,
+  'visible': instance.visible,
+  'radius': instance.radius,
+  'spread': ?instance.spread,
+  'color': ?instance.color?.toJson(),
+  'blendMode': ?_$BlendModeCEnumMap[instance.blendMode],
+  'offset': ?instance.offset?.toJson(),
+};
 
 const _$EffectTypeEnumMap = {
   EffectType.innerShadow: 'innerShadow',
