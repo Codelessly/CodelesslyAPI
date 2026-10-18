@@ -572,7 +572,20 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
-  factory PaintModel.fromJson(Map json) => _$PaintModelFromJson(json);
+  factory PaintModel.fromJson(Map json) =>
+      _$PaintModelFromJson(_alphaAsOpacity(json));
+
+  /// A solid color written as `#AARRGGBB` keeps its alpha as the paint's
+  /// opacity; [ColorRGB] has no alpha channel and would drop it.
+  static Map _alphaAsOpacity(Map json) {
+    final Object? color = json['color'];
+    if (json['opacity'] != null || color is! String) return json;
+    final String hex = color.replaceAll('#', '');
+    if (hex.length != 8) return json;
+    final int? alpha = int.tryParse(hex.substring(0, 2), radix: 16);
+    if (alpha == null || alpha == 255) return json;
+    return <dynamic, dynamic>{...json, 'opacity': alpha / 255};
+  }
 
   @override
   Map toJson() => _$PaintModelOmitDefaults(this, _$PaintModelToJson(this));

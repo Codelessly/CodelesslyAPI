@@ -1,3 +1,25 @@
+## 5.2.0
+
+### New actions
+
+- `AuthAction` (`ActionType.auth`): sign up, sign in, sign out, update the
+  profile and send a password reset email (`AuthOperation`), with an
+  optional error variable.
+- `ConditionalAction` (`ActionType.conditional`): an expression with
+  then/else action lists, so action chains can branch.
+- `ForEachAction` (`ActionType.forEach`): runs actions for each item of a
+  list variable.
+- `CloudFilesAction` (`ActionType.cloudFiles`): picks and uploads images to
+  the project's storage, or deletes a file, running nested actions per file.
+
+### Changes
+
+- `RowColumnNode` has a corner radius.
+- 8-digit `#AARRGGBB` colors set the paint's opacity when none is given.
+- Dates in list and map variables encode as ISO 8601 strings
+  (`encodeJsonValue`), and `VariableType.fromObjectType` maps `DateTime` to
+  text.
+
 ## 5.1.0
 
 ### New nodes

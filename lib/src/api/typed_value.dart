@@ -23,7 +23,9 @@ extension ObjectExt on Object? {
       const (PaintModel) =>
         value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
       const (String) =>
-        (value is List || value is Map ? jsonEncode(value) : value.toString())
+        (value is List || value is Map
+                    ? encodeJsonValue(value)
+                    : value.toString())
                 .tryCast<R>() ??
             defaultValue,
       const (int) => value.toInt().tryCast<R>() ?? defaultValue,

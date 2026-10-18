@@ -89,4 +89,8 @@ const _$ActionTypeEnumMap = {
   ActionType.setStorage: 'setStorage',
   ActionType.setCloudStorage: 'setCloudStorage',
   ActionType.loadFromCloudStorage: 'loadFromCloudStorage',
+  ActionType.auth: 'auth',
+  ActionType.conditional: 'conditional',
+  ActionType.forEach: 'forEach',
+  ActionType.cloudFiles: 'cloudFiles',
 };
