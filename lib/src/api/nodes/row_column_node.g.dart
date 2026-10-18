@@ -78,6 +78,10 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
     json.remove('useFlutterListView');
   if (isJsonDefault(instance.shouldAlwaysScroll, true))
     json.remove('shouldAlwaysScroll');
+  if (isJsonDefault(instance.cornerSmoothing, 0))
+    json.remove('cornerSmoothing');
+  if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
+    json.remove('cornerRadius');
   return json;
 }
 
@@ -197,6 +201,10 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
                 .toList() ??
             const [],
         clipsContent: json['clipsContent'] as bool? ?? false,
+        cornerRadius: json['cornerRadius'] == null
+            ? CornerRadius.zero
+            : CornerRadius.fromJson(json['cornerRadius']),
+        cornerSmoothing: (json['cornerSmoothing'] as num?)?.toDouble() ?? 0,
         isScrollable: json['isScrollable'] as bool? ?? false,
         reverse: json['reverse'] as bool? ?? false,
         physics:
@@ -292,6 +300,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
   'clipsContent': instance.clipsContent,
+  'cornerSmoothing': instance.cornerSmoothing,
+  'cornerRadius': instance.cornerRadius.toJson(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':

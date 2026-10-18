@@ -1,7 +1,19 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:path/path.dart' as p;
 
 import '../../codelessly_api.dart';
+
+/// Encodes [value] as JSON. Dates, such as the createdAt and updatedAt fields
+/// of cloud documents, become ISO-8601 strings instead of failing the encode.
+String encodeJsonValue(Object? value) => jsonEncode(
+  value,
+  toEncodable: (object) => switch (object) {
+    DateTime date => date.toIso8601String(),
+    _ => (object as dynamic).toJson(),
+  },
+);
 
 /// Rounds the given [value] to the [precision]'th decimal place.
 double roundDoubleToJson(double value) => value.roundToPrecision(3);

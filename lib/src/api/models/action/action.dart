@@ -37,7 +37,19 @@ enum ActionType {
   setCloudStorage,
 
   /// Load data from cloud storage.
-  loadFromCloudStorage;
+  loadFromCloudStorage,
+
+  /// Sign app users in and out.
+  auth,
+
+  /// Branch on an expression.
+  conditional,
+
+  /// Run actions for each item of a list.
+  forEach,
+
+  /// Upload or delete files in cloud storage.
+  cloudFiles;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -66,6 +78,14 @@ enum ActionType {
         return 'Set Cloud Storage';
       case ActionType.loadFromCloudStorage:
         return 'Load from Cloud Storage';
+      case ActionType.auth:
+        return 'Authentication';
+      case ActionType.conditional:
+        return 'If / Else';
+      case ActionType.forEach:
+        return 'For Each';
+      case ActionType.cloudFiles:
+        return 'Cloud Files';
     }
   }
 }
@@ -139,6 +159,14 @@ abstract class ActionModel with SerializableMixin {
         return SetCloudStorageAction.fromJson(json);
       case ActionType.loadFromCloudStorage:
         return LoadFromCloudStorageAction.fromJson(json);
+      case ActionType.auth:
+        return AuthAction.fromJson(json);
+      case ActionType.conditional:
+        return ConditionalAction.fromJson(json);
+      case ActionType.forEach:
+        return ForEachAction.fromJson(json);
+      case ActionType.cloudFiles:
+        return CloudFilesAction.fromJson(json);
     }
   }
 

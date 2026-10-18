@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
@@ -55,6 +53,8 @@ enum VariableType {
       List() => VariableType.list,
       Map() => VariableType.map,
       String() => VariableType.text,
+      // Dates read as text, the way they are stored.
+      DateTime() => VariableType.text,
       _ => throw UnsupportedError(
         'object type ${obj.runtimeType} is not supported. Cannot determine variable type',
       ),
@@ -216,13 +216,13 @@ String? sanitizeValueForVariableType(Object? value, VariableType type) {
       return null;
     // This could be a bit expensive. Maybe enable only when required!
     case VariableType.map:
-      if (value is Map) return jsonEncode(value);
+      if (value is Map) return encodeJsonValue(value);
       final map = value.toMap();
-      return map != null ? jsonEncode(map) : null;
+      return map != null ? encodeJsonValue(map) : null;
     case VariableType.list:
-      if (value is List) return jsonEncode(value);
+      if (value is List) return encodeJsonValue(value);
       final list = value.toList();
-      return list != null ? jsonEncode(list) : null;
+      return list != null ? encodeJsonValue(list) : null;
   }
 }
 
