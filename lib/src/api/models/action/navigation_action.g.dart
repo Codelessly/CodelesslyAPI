@@ -64,4 +64,5 @@ const _$ActionTypeEnumMap = {
   ActionType.conditional: 'conditional',
   ActionType.forEach: 'forEach',
   ActionType.cloudFiles: 'cloudFiles',
+  ActionType.showToast: 'showToast',
 };
