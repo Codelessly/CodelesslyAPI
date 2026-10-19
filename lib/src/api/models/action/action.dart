@@ -49,7 +49,10 @@ enum ActionType {
   forEach,
 
   /// Upload or delete files in cloud storage.
-  cloudFiles;
+  cloudFiles,
+
+  /// Show a short message near the bottom of the screen.
+  showToast;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -86,6 +89,8 @@ enum ActionType {
         return 'For Each';
       case ActionType.cloudFiles:
         return 'Cloud Files';
+      case ActionType.showToast:
+        return 'Show Toast';
     }
   }
 }
@@ -167,6 +172,8 @@ abstract class ActionModel with SerializableMixin {
         return ForEachAction.fromJson(json);
       case ActionType.cloudFiles:
         return CloudFilesAction.fromJson(json);
+      case ActionType.showToast:
+        return ShowToastAction.fromJson(json);
     }
   }
 

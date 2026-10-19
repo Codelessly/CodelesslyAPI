@@ -1044,9 +1044,27 @@ mixin VariablePropertiesMixin {
 mixin PropertyVariableMixin on BaseNode {
   /// Properties of the node that can be used in actions or can be changed by
   /// an action.
+  ///
+  /// Style properties (fill, stroke, opacity, width, height; a text's fill is
+  /// its color) can be set by
+  /// conditions, bound to variables or formulas, or changed by a set value
+  /// action, on any node that has them.
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
     IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    if (this case final GeometryMixin geometry) ...[
+      PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
+      PaintValue(name: 'stroke', value: geometry.strokes.firstOrNull),
+    ],
+    if (this case final TextNode text)
+      PaintValue(
+        name: 'fill',
+        value: text.textMixedProps.firstOrNull?.fills.firstOrNull,
+      ),
+    if (this case final BlendMixin blend)
+      DoubleValue(name: 'opacity', value: blend.opacity),
+    DoubleValue(name: 'width', value: basicBoxLocal.width),
+    DoubleValue(name: 'height', value: basicBoxLocal.height),
   ];
 }
 
