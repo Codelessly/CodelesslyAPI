@@ -1,3 +1,10 @@
+## Unreleased
+
+- Every node with fills, strokes or opacity now lists `fill`, `stroke` and
+  `opacity` in its property variables, and every node lists `width` and
+  `height`, so conditions, bound variables and set value actions can change
+  them at runtime.
+
 ## 5.2.0
 
 ### New actions
