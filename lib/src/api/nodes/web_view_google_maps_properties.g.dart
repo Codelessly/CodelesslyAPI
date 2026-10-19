@@ -122,7 +122,7 @@ PlacesGoogleMapsWebViewProperties _$PlacesGoogleMapsWebViewPropertiesFromJson(
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -133,7 +133,7 @@ PlacesGoogleMapsWebViewProperties _$PlacesGoogleMapsWebViewPropertiesFromJson(
 Map<String, dynamic> _$PlacesGoogleMapsWebViewPropertiesToJson(
   PlacesGoogleMapsWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -218,7 +218,7 @@ ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -229,7 +229,7 @@ ViewGoogleMapsWebViewProperties _$ViewGoogleMapsWebViewPropertiesFromJson(
 Map<String, dynamic> _$ViewGoogleMapsWebViewPropertiesToJson(
   ViewGoogleMapsWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -296,7 +296,7 @@ _$DirectionsGoogleMapsWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -307,7 +307,7 @@ _$DirectionsGoogleMapsWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$DirectionsGoogleMapsWebViewPropertiesToJson(
   DirectionsGoogleMapsWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -395,7 +395,7 @@ _$StreetViewGoogleMapsWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -406,7 +406,7 @@ _$StreetViewGoogleMapsWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$StreetViewGoogleMapsWebViewPropertiesToJson(
   StreetViewGoogleMapsWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -466,7 +466,7 @@ SearchGoogleMapsWebViewProperties _$SearchGoogleMapsWebViewPropertiesFromJson(
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -477,7 +477,7 @@ SearchGoogleMapsWebViewProperties _$SearchGoogleMapsWebViewPropertiesFromJson(
 Map<String, dynamic> _$SearchGoogleMapsWebViewPropertiesToJson(
   SearchGoogleMapsWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
