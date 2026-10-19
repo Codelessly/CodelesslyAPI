@@ -1,4 +1,4 @@
-## Unreleased
+## 5.3.0
 
 - `ShowToastAction` (`ActionType.showToast`): shows a short message at the
   bottom of the screen, with an optional icon, colors, duration and offset.
