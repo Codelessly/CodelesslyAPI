@@ -214,7 +214,7 @@ WebPageWebViewProperties _$WebPageWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -223,7 +223,7 @@ WebPageWebViewProperties _$WebPageWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$WebPageWebViewPropertiesToJson(
   WebPageWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
