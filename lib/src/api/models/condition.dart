@@ -774,6 +774,9 @@ abstract interface class ActionVisitor<R> {
   R? visitLinkAction(LinkAction action);
 
   /// Evaluates the action and returns the result.
+  R? visitShowToastAction(ShowToastAction action);
+
+  /// Evaluates the action and returns the result.
   R? visitCallFunctionAction(CallFunctionAction action);
 
   /// Evaluates the action and returns the result.
