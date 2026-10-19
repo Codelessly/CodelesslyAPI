@@ -95,7 +95,7 @@ TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
         twitterTailoring: json['twitterTailoring'] as bool?,
         languageCode: json['languageCode'] as String?,
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -121,7 +121,7 @@ TweetTwitterWebViewProperties _$TweetTwitterWebViewPropertiesFromJson(
 Map<String, dynamic> _$TweetTwitterWebViewPropertiesToJson(
   TweetTwitterWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -201,7 +201,7 @@ TimelineTwitterWebViewProperties _$TimelineTwitterWebViewPropertiesFromJson(
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -211,7 +211,7 @@ TimelineTwitterWebViewProperties _$TimelineTwitterWebViewPropertiesFromJson(
 Map<String, dynamic> _$TimelineTwitterWebViewPropertiesToJson(
   TimelineTwitterWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -261,7 +261,7 @@ _$FollowButtonTwitterWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -271,7 +271,7 @@ _$FollowButtonTwitterWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesToJson(
   FollowButtonTwitterWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -324,7 +324,7 @@ _$MentionButtonTwitterWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -334,7 +334,7 @@ _$MentionButtonTwitterWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesToJson(
   MentionButtonTwitterWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,
@@ -389,7 +389,7 @@ _$HashtagButtonTwitterWebViewPropertiesFromJson(Map json) =>
             ? null
             : ColorRGBA.fromJson(json['backgroundColor']),
       )
-      ..src = _$JsonConverterFromJson<String, String?>(
+      ..src = _$JsonConverterFromJson<String, String>(
         json['src'],
         const Base64JsonConverter().fromJson,
       )
@@ -399,7 +399,7 @@ _$HashtagButtonTwitterWebViewPropertiesFromJson(Map json) =>
 Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesToJson(
   HashtagButtonTwitterWebViewProperties instance,
 ) => <String, dynamic>{
-  'src': ?const Base64JsonConverter().toJson(instance.src),
+  'src': const Base64JsonConverter().toJson(instance.src),
   'controlVerticalScrollGesture': ?instance.controlVerticalScrollGesture,
   'controlHorizontalScrollGesture': ?instance.controlHorizontalScrollGesture,
   'controlScaleGesture': ?instance.controlScaleGesture,

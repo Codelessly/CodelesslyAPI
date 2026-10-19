@@ -1,3 +1,12 @@
+## Unreleased
+
+- `ShowToastAction` (`ActionType.showToast`): shows a short message at the
+  bottom of the screen, with an optional icon, colors, duration and offset.
+- Every node with fills, strokes or opacity now lists `fill`, `stroke` and
+  `opacity` in its property variables, and every node lists `width` and
+  `height`, so conditions, bound variables and set value actions can change
+  them at runtime.
+
 ## 5.2.0
 
 ### New actions
