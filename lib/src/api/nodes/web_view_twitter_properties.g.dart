@@ -10,10 +10,6 @@ Map<String, dynamic> _$TweetTwitterWebViewPropertiesOmitDefaults(
   TweetTwitterWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.embedType, TwitterEmbedType.tweet))
-    json.remove('embedType');
-  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
-    json.remove('webviewType');
   return json;
 }
 
@@ -21,10 +17,6 @@ Map<String, dynamic> _$TimelineTwitterWebViewPropertiesOmitDefaults(
   TimelineTwitterWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.embedType, TwitterEmbedType.timeline))
-    json.remove('embedType');
-  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -37,10 +29,6 @@ Map<String, dynamic> _$FollowButtonTwitterWebViewPropertiesOmitDefaults(
   FollowButtonTwitterWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.embedType, TwitterEmbedType.follow))
-    json.remove('embedType');
-  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -53,10 +41,6 @@ Map<String, dynamic> _$MentionButtonTwitterWebViewPropertiesOmitDefaults(
   MentionButtonTwitterWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.embedType, TwitterEmbedType.mention))
-    json.remove('embedType');
-  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -69,10 +53,6 @@ Map<String, dynamic> _$HashtagButtonTwitterWebViewPropertiesOmitDefaults(
   HashtagButtonTwitterWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.embedType, TwitterEmbedType.hashtag))
-    json.remove('embedType');
-  if (isJsonDefault(instance.webviewType, WebViewType.twitter))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
