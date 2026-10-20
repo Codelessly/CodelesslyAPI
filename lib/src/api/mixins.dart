@@ -1357,6 +1357,18 @@ mixin ConditionsMixin {
   List<BaseCondition> conditions = [];
 }
 
+/// A list's cloud query is loading its first page.
+const String kQueryStatusLoading = 'loading';
+
+/// A list's cloud query returned no documents.
+const String kQueryStatusEmpty = 'empty';
+
+/// A list's cloud query failed.
+const String kQueryStatusError = 'error';
+
+/// A list's cloud query returned documents.
+const String kQueryStatusLoaded = 'loaded';
+
 /// A mixin that adds the ability to filter a collection of data
 /// on a node.
 mixin QueryableMixin {

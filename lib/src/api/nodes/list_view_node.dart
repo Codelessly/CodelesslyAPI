@@ -31,6 +31,11 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   covariant ListViewProperties properties;
 
+  /// A text variable this ListView writes the status of its cloud query into,
+  /// for loading, empty and error states: [kQueryStatusLoading],
+  /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
+  VariableData? statusVariable;
+
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
     if (scrollDirection == AxisC.vertical) {
@@ -67,6 +72,7 @@ class ListViewNode extends SinglePlaceholderNode
     super.variables,
     super.multipleVariables,
     bool clipsContent = true,
+    this.statusVariable,
 
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,
