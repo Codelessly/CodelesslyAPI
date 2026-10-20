@@ -58,6 +58,9 @@ const _$AuthOperationEnumMap = {
   AuthOperation.signOut: 'signOut',
   AuthOperation.updateProfile: 'updateProfile',
   AuthOperation.sendPasswordResetEmail: 'sendPasswordResetEmail',
+  AuthOperation.sendEmailVerification: 'sendEmailVerification',
+  AuthOperation.updatePassword: 'updatePassword',
+  AuthOperation.deleteAccount: 'deleteAccount',
 };
 
 const _$ActionTypeEnumMap = {
