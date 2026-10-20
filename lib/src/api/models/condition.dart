@@ -780,6 +780,9 @@ abstract interface class ActionVisitor<R> {
   R? visitConfirmAction(ConfirmAction action);
 
   /// Evaluates the action and returns the result.
+  R? visitDelayAction(DelayAction action);
+
+  /// Evaluates the action and returns the result.
   R? visitCallFunctionAction(CallFunctionAction action);
 
   /// Evaluates the action and returns the result.

@@ -9,6 +9,7 @@ export 'action/call_function_action.dart';
 export 'action/link_action.dart';
 export 'action/show_toast_action.dart';
 export 'action/confirm_action.dart';
+export 'action/delay_action.dart';
 export 'action/load_from_cloud_storage_action.dart';
 export 'action/navigation_action.dart';
 export 'action/set_cloud_storage_action.dart';

@@ -55,7 +55,10 @@ enum ActionType {
   showToast,
 
   /// Ask the user to confirm, then branch on their answer.
-  confirm;
+  confirm,
+
+  /// Wait before running the next action.
+  delay;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -96,6 +99,8 @@ enum ActionType {
         return 'Show Toast';
       case ActionType.confirm:
         return 'Confirm Dialog';
+      case ActionType.delay:
+        return 'Delay';
     }
   }
 }
@@ -181,6 +186,8 @@ abstract class ActionModel with SerializableMixin {
         return ShowToastAction.fromJson(json);
       case ActionType.confirm:
         return ConfirmAction.fromJson(json);
+      case ActionType.delay:
+        return DelayAction.fromJson(json);
     }
   }
 
