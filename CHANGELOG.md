@@ -1,3 +1,9 @@
+## Unreleased
+
+- `ConfirmAction` (`ActionType.confirm`): asks the user to confirm with a
+  title, message and button labels (optionally destructive), then runs
+  `actions` on confirm or `cancelActions` on cancel.
+
 ## 5.3.0
 
 - `ShowToastAction` (`ActionType.showToast`): shows a short message at the
