@@ -17,6 +17,7 @@ Map<String, dynamic> _$CloudFilesActionOmitDefaults(
     json.remove('fileType');
   if (isJsonDefault(instance.allowMultiple, true)) json.remove('allowMultiple');
   if (isJsonDefault(instance.maxSizeMB, 10)) json.remove('maxSizeMB');
+  if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;

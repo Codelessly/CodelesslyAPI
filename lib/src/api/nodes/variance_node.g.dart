@@ -10,6 +10,8 @@ Map<String, dynamic> _$VarianceNodeOmitDefaults(
   VarianceNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.properties, const VarianceProperties()))
+    json.remove('properties');
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
