@@ -190,6 +190,13 @@ class CanvasProperties extends CustomProperties {
   /// The brightness of the system UI.
   BrightnessModel brightness;
 
+  /// When set, this screen needs a signed-in user: signed-out users are sent
+  /// to the canvas with this ID instead, such as a sign-in screen.
+  String? signInRedirectId;
+
+  /// Whether this screen needs a signed-in user.
+  bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
+
   /// Whether this canvas is a scaffold. A scaffold can hold an app bar, drawer,
   /// bottom navigation bar, and floating action button. If any of this is
   /// present, the canvas is a scaffold.
@@ -206,6 +213,7 @@ class CanvasProperties extends CustomProperties {
     this.floatingActionButton,
     this.safeArea = const SafeAreaModel.all(true),
     this.brightness = BrightnessModel.system,
+    this.signInRedirectId,
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -222,6 +230,7 @@ class CanvasProperties extends CustomProperties {
     floatingActionButton,
     safeArea,
     brightness,
+    signInRedirectId,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
