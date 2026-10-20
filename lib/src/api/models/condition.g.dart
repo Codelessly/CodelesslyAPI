@@ -39,6 +39,7 @@ Map<String, dynamic> _$ElseConditionOmitDefaults(
   ElseCondition instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.actions, [])) json.remove('actions');
   return json;
 }
 
@@ -53,6 +54,8 @@ Map<String, dynamic> _$ConditionGroupOmitDefaults(
   ConditionGroup instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.elseIfConditions, []))
+    json.remove('elseIfConditions');
   return json;
 }
 

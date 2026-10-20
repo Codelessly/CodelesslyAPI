@@ -10,6 +10,8 @@ Map<String, dynamic> _$ConditionalActionOmitDefaults(
   ConditionalAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.actions, [])) json.remove('actions');
+  if (isJsonDefault(instance.elseActions, [])) json.remove('elseActions');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
