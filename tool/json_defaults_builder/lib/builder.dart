@@ -13,7 +13,9 @@
 /// 4. The field's own initializer, if the field is set through that
 ///    constructor or is mutable, and the initializer is a constant-like
 ///    expression. A final field without a constructor parameter (such as a
-///    node's `type`) is always written.
+///    node's `type`) is always written, and so is a field that overrides a
+///    supertype's field (such as `webviewType` in a `WebViewProperties`
+///    subclass), because polymorphic readers pick the subclass from it.
 ///
 /// Fields annotated with `@JsonOmitIf(test)` are also removed when
 /// `test(instance)` is true.
@@ -97,7 +99,8 @@ class JsonDefaultsGenerator extends GeneratorForAnnotation<JsonSerializable> {
           _annotationArgument(declaration, 'JsonLegacyDefault') ??
           _jsonKeyDefaultValue(declaration) ??
           paramDefaults[name] ??
-          (paramNames.contains(name) || !field.isFinal
+          ((paramNames.contains(name) || !field.isFinal) &&
+                  !_overridesSuperField(field)
               ? _simpleInitializer(declaration)
               : null);
       if (defaultCode != null) {
@@ -119,6 +122,23 @@ ${checks.join('\n')}
   return json;
 }
 ''';
+  }
+
+  /// Whether [field] overrides a field of a supertype of the class that
+  /// declares it, like `late WebViewType webviewType = WebViewType.webpage`
+  /// in a subclass of `WebViewProperties`.
+  ///
+  /// Such an initializer tells the subclasses apart rather than being a
+  /// default: polymorphic readers such as `WebViewProperties.fromJson` pick
+  /// the subclass from the key, so it must always be written.
+  bool _overridesSuperField(FieldElement field) {
+    final owner = field.enclosingElement;
+    if (owner is! InterfaceElement) return false;
+    return owner.allSupertypes.any(
+      (type) => type.element.fields.any(
+        (other) => !other.isStatic && other.name == field.name,
+      ),
+    );
   }
 
   /// Public instance fields of [element] and its superclasses, closest first.

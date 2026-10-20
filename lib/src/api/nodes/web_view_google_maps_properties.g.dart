@@ -10,10 +10,6 @@ Map<String, dynamic> _$PlacesGoogleMapsWebViewPropertiesOmitDefaults(
   PlacesGoogleMapsWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.places))
-    json.remove('mapMode');
-  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -26,10 +22,6 @@ Map<String, dynamic> _$ViewGoogleMapsWebViewPropertiesOmitDefaults(
   ViewGoogleMapsWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.view))
-    json.remove('mapMode');
-  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -42,10 +34,6 @@ Map<String, dynamic> _$DirectionsGoogleMapsWebViewPropertiesOmitDefaults(
   DirectionsGoogleMapsWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.directions))
-    json.remove('mapMode');
-  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -58,10 +46,6 @@ Map<String, dynamic> _$StreetViewGoogleMapsWebViewPropertiesOmitDefaults(
   StreetViewGoogleMapsWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.streetView))
-    json.remove('mapMode');
-  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
@@ -74,10 +58,6 @@ Map<String, dynamic> _$SearchGoogleMapsWebViewPropertiesOmitDefaults(
   SearchGoogleMapsWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.mapMode, GoogleMapsMapMode.search))
-    json.remove('mapMode');
-  if (isJsonDefault(instance.webviewType, WebViewType.googleMaps))
-    json.remove('webviewType');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,

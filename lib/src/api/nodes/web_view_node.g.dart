@@ -48,9 +48,6 @@ Map<String, dynamic> _$WebPageWebViewPropertiesOmitDefaults(
   WebPageWebViewProperties instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.webviewType, WebViewType.webpage))
-    json.remove('webviewType');
-  if (isJsonDefault(instance.label, 'Webpage')) json.remove('label');
   if (isJsonDefault(
     instance.mediaAutoPlaybackPolicy,
     WebViewMediaAutoPlaybackPolicy.requireUserActionForAllMedia,
