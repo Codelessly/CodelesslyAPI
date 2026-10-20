@@ -1,5 +1,7 @@
 ## Unreleased
 
+- `AuthOperation.sendEmailVerification`, `updatePassword` and
+  `deleteAccount`.
 - `DelayAction` (`ActionType.delay`): waits `milliseconds` before the next
   action runs.
 - `CanvasProperties.signInRedirectId`: a screen that needs a signed-in user
