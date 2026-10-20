@@ -470,6 +470,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
   brightness:
       $enumDecodeNullable(_$BrightnessModelEnumMap, json['brightness']) ??
       BrightnessModel.system,
+  signInRedirectId: json['signInRedirectId'] as String?,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -480,6 +481,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'floatingActionButton': ?instance.floatingActionButton?.toJson(),
       'safeArea': instance.safeArea.toJson(),
       'brightness': _$BrightnessModelEnumMap[instance.brightness]!,
+      'signInRedirectId': ?instance.signInRedirectId,
     };
 
 const _$BrightnessModelEnumMap = {
