@@ -1,5 +1,7 @@
 ## Unreleased
 
+- `CanvasProperties.signInRedirectId`: a screen that needs a signed-in user
+  sends signed-out users to that canvas (`requiresSignIn`).
 - `ListViewNode.statusVariable` and `GridViewNode.statusVariable`: a text
   variable a cloud list writes its query status into (`kQueryStatusLoading`,
   `kQueryStatusEmpty`, `kQueryStatusError`, `kQueryStatusLoaded`), for
