@@ -12,6 +12,7 @@ Map<String, dynamic> _$VariableDataOmitDefaults(
 ) {
   if (isJsonDefault(instance.value, '')) json.remove('value');
   if (isJsonDefault(instance.type, VariableType.text)) json.remove('type');
+  if (isJsonDefault(instance.extra, {})) json.remove('extra');
   return json;
 }
 

@@ -91,7 +91,7 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
     AutovalidateModeC.onUserInteraction,
   ))
     json.remove('autovalidateMode');
-  if (isJsonDefault(instance.autofillHints, const {}))
+  if (isJsonDefault(instance.autofillHints, const <Object?>{}))
     json.remove('autofillHints');
   if (isJsonDefault(instance.textInputAction, TextInputActionC.none))
     json.remove('textInputAction');

@@ -10,6 +10,7 @@ Map<String, dynamic> _$CallFunctionActionOmitDefaults(
   CallFunctionAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.params, {})) json.remove('params');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
