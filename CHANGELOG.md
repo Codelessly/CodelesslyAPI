@@ -1,5 +1,9 @@
 ## Unreleased
 
+- `ListViewNode.statusVariable` and `GridViewNode.statusVariable`: a text
+  variable a cloud list writes its query status into (`kQueryStatusLoading`,
+  `kQueryStatusEmpty`, `kQueryStatusError`, `kQueryStatusLoaded`), for
+  loading, empty and error states.
 - `ConfirmAction` (`ActionType.confirm`): asks the user to confirm with a
   title, message and button labels (optionally destructive), then runs
   `actions` on confirm or `cancelActions` on cancel.
