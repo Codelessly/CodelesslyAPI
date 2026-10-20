@@ -141,4 +141,5 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudFiles: 'cloudFiles',
   ActionType.showToast: 'showToast',
   ActionType.confirm: 'confirm',
+  ActionType.delay: 'delay',
 };
