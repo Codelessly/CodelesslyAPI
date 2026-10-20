@@ -10,6 +10,7 @@ Map<String, dynamic> _$ApiCallActionOmitDefaults(
   ApiCallAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.parameters, {})) json.remove('parameters');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;

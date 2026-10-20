@@ -10,7 +10,10 @@
 /// 2. `@JsonKey(defaultValue: ...)` on the field.
 /// 3. The default of the matching parameter of the constructor used by
 ///    json_serializable (including inherited `super.` parameter defaults).
-/// 4. The field's own initializer, if the field is set through that
+/// 4. A constant on the right of `field = param ?? <constant>` in that
+///    constructor's initializer list, where `param` is one of its own
+///    parameters (json_serializable passes null for a missing key).
+/// 5. The field's own initializer, if the field is set through that
 ///    constructor or is mutable, and the initializer is a constant-like
 ///    expression. A final field without a constructor parameter (such as a
 ///    node's `type`) is always written, and so is a field that overrides a
@@ -69,6 +72,11 @@ class JsonDefaultsGenerator extends GeneratorForAnnotation<JsonSerializable> {
             param.defaultValueCode != 'null')
           param.name!: param.defaultValueCode!,
     };
+    final initializerDefaults = await _initializerDefaults(
+      ctor,
+      paramNames,
+      buildStep,
+    );
 
     final checks = <String>[];
     final seen = <String>{};
@@ -95,15 +103,22 @@ class JsonDefaultsGenerator extends GeneratorForAnnotation<JsonSerializable> {
       }
 
       final declaration = await _declaration(field, buildStep);
-      final defaultCode =
+      var defaultCode =
           _annotationArgument(declaration, 'JsonLegacyDefault') ??
           _jsonKeyDefaultValue(declaration) ??
           paramDefaults[name] ??
+          initializerDefaults[name] ??
           ((paramNames.contains(name) || !field.isFinal) &&
                   !_overridesSuperField(field)
               ? _simpleInitializer(declaration)
               : null);
       if (defaultCode != null) {
+        // An untyped `{}` copied out of its declaration is a Map literal in
+        // the generated code, so an empty Set default would never match.
+        if (field.type.isDartCoreSet &&
+            RegExp(r'^(const\s+)?\{\s*\}$').hasMatch(defaultCode)) {
+          defaultCode = 'const <Object?>{}';
+        }
         checks.add(
           '  if (isJsonDefault(instance.$name, $defaultCode)) '
           'json.remove($keyLiteral);',
@@ -122,6 +137,41 @@ ${checks.join('\n')}
   return json;
 }
 ''';
+  }
+
+  /// Defaults set in the initializer list of [ctor] as
+  /// `field = param ?? <constant>`, where `param` is one of the constructor's
+  /// own parameters.
+  ///
+  /// json_serializable passes null for such a parameter when its key is
+  /// missing, so `fromJson` restores the right-hand side.
+  Future<Map<String, String>> _initializerDefaults(
+    ConstructorElement? ctor,
+    Set<String> paramNames,
+    BuildStep buildStep,
+  ) async {
+    if (ctor == null) return const {};
+    final AstNode? node;
+    try {
+      node = await buildStep.resolver.astNodeFor(ctor.firstFragment);
+    } on Object {
+      return const {};
+    }
+    if (node is! ConstructorDeclaration) return const {};
+    return {
+      for (final initializer in node.initializers)
+        if (initializer is ConstructorFieldInitializer)
+          if (initializer.expression
+              case BinaryExpression(
+                :final operator,
+                leftOperand: SimpleIdentifier(:final name),
+                :final rightOperand,
+              )
+              when operator.lexeme == '??' &&
+                  paramNames.contains(name) &&
+                  _isConstant(rightOperand))
+            initializer.fieldName.name: rightOperand.toSource(),
+    };
   }
 
   /// Whether [field] overrides a field of a supertype of the class that
@@ -216,6 +266,30 @@ ${checks.join('\n')}
     final source = initializer.toSource();
     return source == 'null' ? null : source;
   }
+
+  /// Whether [expression] is a literal, a const instance creation, or an
+  /// identifier of a const variable, so it has no side effects and always
+  /// produces the same value.
+  ///
+  /// Stricter than [_isSimple]: a getter such as `PaintModel.blackPaint`
+  /// generates a new id on every call and must not be used as a default.
+  bool _isConstant(Expression expression) => switch (expression) {
+    NullLiteral() => false,
+    BooleanLiteral() || IntegerLiteral() || DoubleLiteral() => true,
+    SimpleStringLiteral() => true,
+    ListLiteral(:final elements) || SetOrMapLiteral(:final elements) =>
+      elements.every((e) => e is Expression && _isConstant(e)),
+    InstanceCreationExpression(:final isConst) => isConst,
+    Identifier(:final element) => switch (element) {
+      PropertyAccessorElement(:final variable) => variable.isConst,
+      VariableElement(:final isConst) => isConst,
+      _ => false,
+    },
+    PrefixExpression(:final operator, :final operand)
+        when operator.lexeme == '-' =>
+      _isConstant(operand),
+    _ => false,
+  };
 
   bool _isSimple(Expression expression) => switch (expression) {
     BooleanLiteral() || IntegerLiteral() || DoubleLiteral() => true,

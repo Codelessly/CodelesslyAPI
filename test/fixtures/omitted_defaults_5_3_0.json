@@ -1,0 +1,173 @@
+{
+  "ConditionalAction": {
+    "type": "conditional",
+    "expression": {
+      "leftPart": {
+        "valueString": "${a}",
+        "type": "Variable"
+      },
+      "rightPart": {
+        "value": "1",
+        "type": "RawValue"
+      },
+      "operator": "equalsTo",
+      "type": "Expression"
+    },
+    "actions": [],
+    "elseActions": []
+  },
+  "ConditionalActionNested": {
+    "type": "conditional",
+    "expression": {
+      "leftPart": {
+        "valueString": "${a}",
+        "type": "Variable"
+      },
+      "rightPart": {
+        "value": "1",
+        "type": "RawValue"
+      },
+      "operator": "equalsTo",
+      "type": "Expression"
+    },
+    "actions": [
+      {
+        "type": "forEach",
+        "items": "${list}",
+        "actions": []
+      }
+    ],
+    "elseActions": [
+      {
+        "type": "callFunction",
+        "name": "f",
+        "params": {}
+      }
+    ]
+  },
+  "ForEachAction": {
+    "type": "forEach",
+    "items": "${list}",
+    "actions": []
+  },
+  "CloudFilesAction": {
+    "type": "cloudFiles",
+    "actions": []
+  },
+  "ApiCallAction": {
+    "type": "callApi",
+    "apiId": "api",
+    "parameters": {}
+  },
+  "CallFunctionAction": {
+    "type": "callFunction",
+    "name": "f",
+    "params": {}
+  },
+  "VariableData": {
+    "id": "v",
+    "name": "count",
+    "value": "1",
+    "extra": {}
+  },
+  "ElseCondition": {
+    "id": "e",
+    "lastUpdated": 1767225600000,
+    "actions": [],
+    "type": "ElseCondition"
+  },
+  "ConditionGroup": {
+    "id": "g",
+    "lastUpdated": 1767225600000,
+    "ifCondition": {
+      "id": "c",
+      "lastUpdated": 1767225600000,
+      "expression": {
+        "leftPart": {
+          "valueString": "${a}",
+          "type": "Variable"
+        },
+        "rightPart": {
+          "value": "1",
+          "type": "RawValue"
+        },
+        "operator": "equalsTo",
+        "type": "Expression"
+      },
+      "actions": [],
+      "mode": "ifMode",
+      "type": "Condition"
+    },
+    "elseIfConditions": [],
+    "type": "ConditionGroup"
+  },
+  "VarianceNode": {
+    "id": "var",
+    "name": "Variance",
+    "basicBoxLocal": [
+      0,
+      0,
+      10,
+      10
+    ],
+    "allowedTypes": [],
+    "deniedTypes": [],
+    "type": "variance",
+    "currentVariantId": "v1",
+    "variants": [
+      {
+        "name": "A",
+        "id": "v1",
+        "children": []
+      }
+    ],
+    "properties": {}
+  },
+  "FrameWithReactions": {
+    "id": "f",
+    "name": "F",
+    "reactions": [
+      {
+        "name": "tap",
+        "action": {
+          "type": "conditional",
+          "expression": {
+            "leftPart": {
+              "valueString": "${a}",
+              "type": "Variable"
+            },
+            "rightPart": {
+              "value": "1",
+              "type": "RawValue"
+            },
+            "operator": "equalsTo",
+            "type": "Expression"
+          },
+          "actions": [
+            {
+              "type": "cloudFiles",
+              "actions": []
+            },
+            {
+              "type": "callApi",
+              "apiId": "a",
+              "parameters": {}
+            }
+          ],
+          "elseActions": []
+        },
+        "trigger": {
+          "type": "click"
+        },
+        "id": "r1"
+      }
+    ],
+    "basicBoxLocal": [
+      0,
+      0,
+      10,
+      10
+    ],
+    "type": "frame"
+  }
+}

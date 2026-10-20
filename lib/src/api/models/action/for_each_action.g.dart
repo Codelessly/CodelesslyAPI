@@ -11,6 +11,7 @@ Map<String, dynamic> _$ForEachActionOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.items, '')) json.remove('items');
+  if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
