@@ -34,6 +34,11 @@ class GridViewNode extends SinglePlaceholderNode
   @override
   covariant GridViewProperties properties;
 
+  /// A text variable this GridView writes the status of its cloud query into,
+  /// for loading, empty and error states: [kQueryStatusLoading],
+  /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
+  VariableData? statusVariable;
+
   /// Creates a [GridViewNode].
   GridViewNode({
     required super.id,
@@ -61,6 +66,7 @@ class GridViewNode extends SinglePlaceholderNode
     super.variables,
     super.multipleVariables,
     bool clipsContent = true,
+    this.statusVariable,
 
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,

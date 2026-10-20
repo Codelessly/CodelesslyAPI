@@ -147,6 +147,11 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             ) ??
             {},
         clipsContent: json['clipsContent'] as bool? ?? true,
+        statusVariable: json['statusVariable'] == null
+            ? null
+            : VariableData.fromJson(
+                Map<String, dynamic>.from(json['statusVariable'] as Map),
+              ),
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -239,11 +244,11 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'heightFactor': ?instance.heightFactor,
       'enabled': instance.enabled,
       'children': instance.children,
+      'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
-      'clipsContent': instance.clipsContent,
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,
@@ -261,6 +266,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
       'type': instance.type,
       'properties': instance.properties.toJson(),
+      'statusVariable': ?instance.statusVariable?.toJson(),
     };
 
 const _$SizeFitEnumMap = {
