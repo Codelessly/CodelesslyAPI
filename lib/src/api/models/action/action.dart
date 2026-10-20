@@ -52,7 +52,10 @@ enum ActionType {
   cloudFiles,
 
   /// Show a short message near the bottom of the screen.
-  showToast;
+  showToast,
+
+  /// Ask the user to confirm, then branch on their answer.
+  confirm;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -91,6 +94,8 @@ enum ActionType {
         return 'Cloud Files';
       case ActionType.showToast:
         return 'Show Toast';
+      case ActionType.confirm:
+        return 'Confirm Dialog';
     }
   }
 }
@@ -174,6 +179,8 @@ abstract class ActionModel with SerializableMixin {
         return CloudFilesAction.fromJson(json);
       case ActionType.showToast:
         return ShowToastAction.fromJson(json);
+      case ActionType.confirm:
+        return ConfirmAction.fromJson(json);
     }
   }
 
