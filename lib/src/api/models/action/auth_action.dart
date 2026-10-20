@@ -22,7 +22,17 @@ enum AuthOperation {
   updateProfile,
 
   /// Sends a password reset email to [AuthAction.email].
-  sendPasswordResetEmail;
+  sendPasswordResetEmail,
+
+  /// Sends the signed-in user an email to verify their address. Whether it
+  /// is verified is `${auth.emailVerified}`.
+  sendEmailVerification,
+
+  /// Sets the signed-in user's password to [AuthAction.password].
+  updatePassword,
+
+  /// Deletes the signed-in user's account and signs them out.
+  deleteAccount;
 
   /// A readable name for this operation.
   String get label => switch (this) {
@@ -31,6 +41,9 @@ enum AuthOperation {
     signOut => 'Sign Out',
     updateProfile => 'Update Profile',
     sendPasswordResetEmail => 'Send Password Reset Email',
+    sendEmailVerification => 'Send Verification Email',
+    updatePassword => 'Change Password',
+    deleteAccount => 'Delete Account',
   };
 }
 
@@ -53,7 +66,8 @@ class AuthAction extends ActionModel with Equatable, SerializableMixin {
   /// and [AuthOperation.sendPasswordResetEmail].
   final String email;
 
-  /// The password, for [AuthOperation.signIn] and [AuthOperation.signUp].
+  /// The password, for [AuthOperation.signIn] and [AuthOperation.signUp],
+  /// or the new password for [AuthOperation.updatePassword].
   final String password;
 
   /// The display name, for [AuthOperation.signUp] and
