@@ -121,7 +121,7 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
-  }) : value = sanitizeValueForVariableType(value, type).toString(),
+  }) : value = sanitizeValueForVariableType(value, type) ?? '',
        extra = extra ?? {};
 
   /// Duplicate a [VariableData] with the given parameters.
@@ -171,8 +171,11 @@ class VariableData
   );
 
   /// Returns the value converted to the appropriate type according to [type].
+  ///
+  /// A text variable returns its value as is, so one holding an empty string
+  /// stays an empty string and compares equal to `''` in conditions.
   Object? getValue() => switch (type) {
-    VariableType.text => value.isEmpty ? null : value,
+    VariableType.text => value,
     VariableType.image => value.isEmpty ? null : value,
     VariableType.integer => num.tryParse(value).toInt(),
     VariableType.decimal => num.tryParse(value).toDouble(),
