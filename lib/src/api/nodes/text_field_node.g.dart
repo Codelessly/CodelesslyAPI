@@ -276,7 +276,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
   cursorWidth: (json['cursorWidth'] as num?)?.toDouble() ?? 2.0,
   cursorRadius: (json['cursorRadius'] as num?)?.toDouble() ?? 2.0,
   maxLength: (json['maxLength'] as num?)?.toInt(),
-  maxLines: (json['maxLines'] as num?)?.toInt() ?? 1,
+  maxLines: _readMaxLines(json, 'maxLines') == null
+      ? 1
+      : _maxLinesFromJson(_readMaxLines(json, 'maxLines')),
   minLines: (json['minLines'] as num?)?.toInt(),
   obscuringCharacter: json['obscuringCharacter'] as String? ?? '•',
   inputStyle: json['inputStyle'] == null
@@ -339,7 +341,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
   'cursorWidth': instance.cursorWidth,
   'cursorRadius': instance.cursorRadius,
   'maxLength': ?instance.maxLength,
-  'maxLines': ?instance.maxLines,
+  'maxLines': instance.maxLines,
   'minLines': ?instance.minLines,
   'obscuringCharacter': instance.obscuringCharacter,
   'inputStyle': instance.inputStyle.toJson(),
