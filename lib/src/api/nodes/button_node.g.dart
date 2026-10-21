@@ -52,8 +52,6 @@ Map<String, dynamic> _$ButtonPropertiesOmitDefaults(
     json.remove('shape');
   if (isJsonDefault(instance.buttonType, ButtonTypeEnum.elevated))
     json.remove('buttonType');
-  if (isJsonDefault(instance.buttonColor, ColorRGBA.black))
-    json.remove('buttonColor');
   if (isJsonDefault(
     instance.shadowColor,
     const ColorRGBA(r: 0.65, g: 0.65, b: 0.65, a: 1),
@@ -214,7 +212,7 @@ ButtonProperties _$ButtonPropertiesFromJson(Map json) => ButtonProperties(
       $enumDecodeNullable(_$ButtonTypeEnumEnumMap, json['buttonType']) ??
       ButtonTypeEnum.elevated,
   buttonColor: json['buttonColor'] == null
-      ? ColorRGBA.black
+      ? null
       : ColorRGBA.fromJson(json['buttonColor']),
   shadowColor: json['shadowColor'] == null
       ? const ColorRGBA(r: 0.65, g: 0.65, b: 0.65, a: 1)
@@ -258,7 +256,7 @@ Map<String, dynamic> _$ButtonPropertiesToJson(
   'borderColor': ?instance.borderColor?.toJson(),
   'shape': _$CShapeBorderEnumMap[instance.shape]!,
   'buttonType': _$ButtonTypeEnumEnumMap[instance.buttonType]!,
-  'buttonColor': instance.buttonColor.toJson(),
+  'buttonColor': ?instance.buttonColor?.toJson(),
   'shadowColor': instance.shadowColor.toJson(),
   'elevation': instance.elevation,
   'enabled': instance.enabled,
