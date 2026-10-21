@@ -1,5 +1,9 @@
 ## Unreleased
 
+- Breaking: `ButtonProperties.buttonColor` is nullable and defaults to `null`,
+  the button type's default colour. It was black, and black was left out of
+  the JSON, so a missing key now reads as `null` and an explicit black is
+  written and read back as black.
 - `TextFieldProperties.maxLines`: `null` (unlimited lines) is written as an
   explicit `null` and reads back as `null`; a missing key still reads as 1.
 - `VariableData.getValue()` returns an empty text variable as `''` instead of
