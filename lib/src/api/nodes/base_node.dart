@@ -86,13 +86,14 @@ abstract class BaseNode
   /// [PositioningMode] defines if the node positions itself using [alignment]
   /// or [edgePins].
   ///
-  /// At any given point, both arguments are properly synchronized and
-  /// up-to-date, however, what the widget physically uses is determined by
-  /// the values of [edgePins] and [alignment].
+  /// What the widget physically uses is determined by the values of
+  /// [edgePins] and [alignment].
   ///
-  /// [edgePins] are never null and will always reflect the [middleBoxLocal]
-  /// in some way, while [alignment] can have a null data model inside to
-  /// indicate freeform (no-alignment) positioning.
+  /// [edgePins] are never null. They follow the node's box only where they
+  /// position it, as a freeform child with no alignment in a parent that is
+  /// not a row or column ([NodeProcessor.edgePinsPosition]); elsewhere they
+  /// keep their value and are ignored. [alignment] can have a null data
+  /// model inside to indicate freeform (no-alignment) positioning.
   PositioningMode positioningMode;
 
   /// The horizontal fit of a node determines how this node gets its box laid
