@@ -11,13 +11,11 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.duration, 2600)) json.remove('duration');
-  if (isJsonDefault(
-    instance.backgroundColor,
-    const ColorRGBA(r: 0.169, g: 0.141, b: 0.125, a: 1),
-  ))
-    json.remove('backgroundColor');
-  if (isJsonDefault(instance.textColor, ColorRGBA.white))
-    json.remove('textColor');
+  if (isJsonDefault(instance.style, ToastStyle.neutral)) json.remove('style');
+  if (isJsonDefault(instance.position, ToastPosition.bottom))
+    json.remove('position');
+  if (isJsonDefault(instance.actionLabel, '')) json.remove('actionLabel');
+  if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.bottomOffset, 104)) json.remove('bottomOffset');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -32,11 +30,29 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   message: json['message'] as String,
   duration: (json['duration'] as num?)?.toInt() ?? 2600,
   backgroundColor: json['backgroundColor'] == null
-      ? const ColorRGBA(r: 0.169, g: 0.141, b: 0.125, a: 1)
+      ? null
       : ColorRGBA.fromJson(json['backgroundColor']),
   textColor: json['textColor'] == null
-      ? ColorRGBA.white
+      ? null
       : ColorRGBA.fromJson(json['textColor']),
+  style:
+      $enumDecodeNullable(
+        _$ToastStyleEnumMap,
+        json['style'],
+        unknownValue: ToastStyle.neutral,
+      ) ??
+      ToastStyle.neutral,
+  position:
+      $enumDecodeNullable(
+        _$ToastPositionEnumMap,
+        json['position'],
+        unknownValue: ToastPosition.bottom,
+      ) ??
+      ToastPosition.bottom,
+  actionLabel: json['actionLabel'] as String? ?? '',
+  actions: (json['actions'] as List<dynamic>?)
+      ?.map((e) => ActionModel.fromJson(e as Map))
+      .toList(),
   icon: json['icon'] == null
       ? null
       : MultiSourceIconModel.fromJson(json['icon'] as Map),
@@ -52,11 +68,28 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'enabled': instance.enabled,
       'message': instance.message,
       'duration': instance.duration,
-      'backgroundColor': instance.backgroundColor.toJson(),
-      'textColor': instance.textColor.toJson(),
+      'backgroundColor': ?instance.backgroundColor?.toJson(),
+      'textColor': ?instance.textColor?.toJson(),
+      'style': _$ToastStyleEnumMap[instance.style]!,
+      'position': _$ToastPositionEnumMap[instance.position]!,
+      'actionLabel': instance.actionLabel,
+      'actions': instance.actions.map((e) => e.toJson()).toList(),
       'icon': ?instance.icon?.toJson(),
       'bottomOffset': instance.bottomOffset,
     };
+
+const _$ToastStyleEnumMap = {
+  ToastStyle.neutral: 'neutral',
+  ToastStyle.info: 'info',
+  ToastStyle.success: 'success',
+  ToastStyle.warning: 'warning',
+  ToastStyle.error: 'error',
+};
+
+const _$ToastPositionEnumMap = {
+  ToastPosition.bottom: 'bottom',
+  ToastPosition.top: 'top',
+};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
