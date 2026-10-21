@@ -40,6 +40,45 @@ enum ScaleMode {
   const ScaleMode(this.label);
 }
 
+/// The screen size classes a layout can adapt to: mobile, tablet and desktop.
+///
+/// A width picks one by the rule the runtime's `screen` variable uses: below
+/// [tablet]'s [minWidth] is mobile, below [desktop]'s is tablet, and anything
+/// wider is desktop. A responsive [VarianceNode] maps each of its variants to
+/// one of these (see [Variant.breakpoint]).
+enum ScreenBreakpoint {
+  /// Phones: narrower than 600.
+  mobile('Mobile', minWidth: 0, defaultWidth: 390),
+
+  /// Tablets: from 600 up to 1024.
+  tablet('Tablet', minWidth: 600, defaultWidth: 834),
+
+  /// Desktops: 1024 and wider.
+  desktop('Desktop', minWidth: 1024, defaultWidth: 1440);
+
+  /// Displayable name.
+  final String label;
+
+  /// The narrowest width this breakpoint covers, inclusive.
+  final double minWidth;
+
+  /// The width a design canvas takes to show this breakpoint.
+  final double defaultWidth;
+
+  const ScreenBreakpoint(
+    this.label, {
+    required this.minWidth,
+    required this.defaultWidth,
+  });
+
+  /// The breakpoint a screen or canvas [width] wide falls in.
+  static ScreenBreakpoint forWidth(double width) {
+    if (width >= desktop.minWidth) return desktop;
+    if (width >= tablet.minWidth) return tablet;
+    return mobile;
+  }
+}
+
 /// Represents a breakpoint for responsiveness.
 @JsonSerializable()
 class Breakpoint with Equatable, SerializableMixin {
