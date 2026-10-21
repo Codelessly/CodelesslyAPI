@@ -323,9 +323,11 @@ class NodeProcessor {
   /// still affected by user-given constraints.
   ///
   /// [EdgePins] are updated if this function is triggered manually, without
-  /// the layout system. If the layout system triggers this function, edge pins
-  /// are not updated because there were used BY the layout system to figure out
-  /// the rest of the values (outer box global, middle box global, etc...).
+  /// the layout system, and only where they position the node (see
+  /// [edgePinsPosition]). If the layout system triggers this function, edge
+  /// pins are not updated because there were used BY the layout system to
+  /// figure out the rest of the values (outer box global, middle box global,
+  /// etc...).
   static void updateNode({
     required BaseNode node,
     EdgeInsetsModel? margin,
@@ -404,31 +406,8 @@ class NodeProcessor {
 
     if (node.id != kRootNode && !performLayoutRan) {
       final BaseNode parentNode = getNode(node.parentID);
-
-      node.edgePins = node.edgePins.copyWithLeft(
-        (node.edgePins.left == null) ? null : node.outerBoxLocal.left,
-      );
-
-      if (node.outerBoxLocal.width > 0) {
-        node.edgePins = node.edgePins.copyWithRight(
-          (node.edgePins.right == null)
-              ? null
-              : parentNode.outerBoxLocal.width -
-                    node.outerBoxLocal.right -
-                    parentNode.outerBoxGlobal.horizontalEdgeSpace,
-        );
-      }
-      node.edgePins = node.edgePins.copyWithTop(
-        (node.edgePins.top == null) ? null : node.outerBoxLocal.top,
-      );
-      if (node.outerBoxLocal.height > 0) {
-        node.edgePins = node.edgePins.copyWithBottom(
-          (node.edgePins.bottom == null)
-              ? null
-              : parentNode.outerBoxLocal.height -
-                    node.outerBoxLocal.bottom -
-                    parentNode.outerBoxLocal.verticalEdgeSpace,
-        );
+      if (edgePinsPosition(node, parentNode)) {
+        _syncEdgePinsWithBox(node, parentNode);
       }
     }
 
@@ -443,6 +422,45 @@ class NodeProcessor {
     );
 
     _computeInnerBoxLocal(node);
+  }
+
+  /// Whether [node]'s [BaseNode.edgePins] position it inside [parent].
+  ///
+  /// Pins place a freeform child: a child with no alignment in a parent that
+  /// is not a row or column. A row or column places its children along its
+  /// axes and an aligned child is placed by its alignment, so their pins
+  /// mean nothing: the editor's solver and the SDK ignore them.
+  static bool edgePinsPosition(BaseNode node, BaseNode parent) =>
+      parent is! RowColumnMixin && node.alignment.data == null;
+
+  /// Rewrites the set pins of [node] from its box in [parentNode], keeping
+  /// which sides are pinned.
+  static void _syncEdgePinsWithBox(BaseNode node, BaseNode parentNode) {
+    node.edgePins = node.edgePins.copyWithLeft(
+      (node.edgePins.left == null) ? null : node.outerBoxLocal.left,
+    );
+
+    if (node.outerBoxLocal.width > 0) {
+      node.edgePins = node.edgePins.copyWithRight(
+        (node.edgePins.right == null)
+            ? null
+            : parentNode.outerBoxLocal.width -
+                  node.outerBoxLocal.right -
+                  parentNode.outerBoxGlobal.horizontalEdgeSpace,
+      );
+    }
+    node.edgePins = node.edgePins.copyWithTop(
+      (node.edgePins.top == null) ? null : node.outerBoxLocal.top,
+    );
+    if (node.outerBoxLocal.height > 0) {
+      node.edgePins = node.edgePins.copyWithBottom(
+        (node.edgePins.bottom == null)
+            ? null
+            : parentNode.outerBoxLocal.height -
+                  node.outerBoxLocal.bottom -
+                  parentNode.outerBoxLocal.verticalEdgeSpace,
+      );
+    }
   }
 
   static void _computeGlobalAndRotatedBoxes(
