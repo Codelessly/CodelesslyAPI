@@ -16,6 +16,9 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   if (isJsonDefault(instance.destructive, false)) json.remove('destructive');
   if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.cancelActions, [])) json.remove('cancelActions');
+  if (isJsonDefault(instance.params, {})) json.remove('params');
+  if (isJsonDefault(instance.barrierDismissible, true))
+    json.remove('barrierDismissible');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -37,6 +40,22 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
   cancelActions: (json['cancelActions'] as List<dynamic>?)
       ?.map((e) => ActionModel.fromJson(e as Map))
       .toList(),
+  dialogId: json['dialogId'] as String?,
+  params: (json['params'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  barrierDismissible: json['barrierDismissible'] as bool? ?? true,
+  barrierColor: json['barrierColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['barrierColor']),
+  backgroundColor: json['backgroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['backgroundColor']),
+  textColor: json['textColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['textColor']),
+  confirmColor: json['confirmColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['confirmColor']),
+  cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -53,6 +72,14 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'destructive': instance.destructive,
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'cancelActions': instance.cancelActions.map((e) => e.toJson()).toList(),
+      'dialogId': ?instance.dialogId,
+      'params': instance.params,
+      'barrierDismissible': instance.barrierDismissible,
+      'barrierColor': ?instance.barrierColor?.toJson(),
+      'backgroundColor': ?instance.backgroundColor?.toJson(),
+      'textColor': ?instance.textColor?.toJson(),
+      'confirmColor': ?instance.confirmColor?.toJson(),
+      'cornerRadius': ?instance.cornerRadius,
     };
 
 const _$ActionTypeEnumMap = {
