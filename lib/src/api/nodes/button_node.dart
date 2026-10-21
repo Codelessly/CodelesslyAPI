@@ -211,8 +211,12 @@ class ButtonProperties extends CustomProperties
   /// Type of the button.
   late ButtonTypeEnum buttonType;
 
-  /// Background color of the button.
-  late ColorRGBA buttonColor;
+  /// Background color of the button, or null for the button type's default
+  /// (no fill for a text or outlined button).
+  ///
+  /// Designs saved before this was nullable omit black, then the default:
+  /// a missing key reads as null, an explicit color (black too) as set.
+  ColorRGBA? buttonColor;
 
   /// Elevation shadow color of the button.
   late ColorRGBA shadowColor;
@@ -248,7 +252,7 @@ class ButtonProperties extends CustomProperties
   /// Creates a [ButtonProperties] with given data.
   ButtonProperties({
     this.buttonType = ButtonTypeEnum.elevated,
-    this.buttonColor = ColorRGBA.black,
+    this.buttonColor,
     this.shadowColor = const ColorRGBA(r: 0.65, g: 0.65, b: 0.65, a: 1),
     this.label = '',
     this.elevation = 0,
@@ -321,13 +325,11 @@ class ButtonProperties extends CustomProperties
     //   },
     //   ButtonTypeEnum.values,
     // ),
-    'buttonColor': ColorFieldAccess<ColorRGBA>(
+    'buttonColor': ColorFieldAccess<ColorRGBA?>(
       'Button Color',
       'Color of the button.',
       () => buttonColor,
-      (ColorRGBA? value) {
-        if (value != null) buttonColor = value;
-      },
+      (ColorRGBA? value) => buttonColor = value,
     ),
     'shadowColor': ColorFieldAccess<ColorRGBA>(
       'Shadow Color',
