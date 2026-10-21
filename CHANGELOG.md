@@ -1,5 +1,9 @@
 ## Unreleased
 
+- `TextFieldProperties.maxLines`: `null` (unlimited lines) is written as an
+  explicit `null` and reads back as `null`; a missing key still reads as 1.
+- `VariableData.getValue()` returns an empty text variable as `''` instead of
+  `null`, and a `null` value is stored as `''` instead of `'null'`.
 - `AuthOperation.sendEmailVerification`, `updatePassword` and
   `deleteAccount`.
 - `DelayAction` (`ActionType.delay`): waits `milliseconds` before the next

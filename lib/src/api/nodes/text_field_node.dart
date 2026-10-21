@@ -202,7 +202,16 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   int? maxLength;
 
   /// Maximum lines of text that appear at a time before the field becomes
-  /// scrollable.
+  /// scrollable. Null means unlimited: the field grows with its content.
+  ///
+  /// Stored JSON leaves the key out for the default of 1 and writes an
+  /// explicit `null` for unlimited, so both survive a round trip. Designs
+  /// saved before null was written have no key and keep reading as 1.
+  @JsonKey(
+    includeIfNull: true,
+    readValue: _readMaxLines,
+    fromJson: _maxLinesFromJson,
+  )
   int? maxLines;
 
   /// Maximum lines of text that appear at a time.
@@ -571,3 +580,18 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     textInputAction,
   ];
 }
+
+/// Reads `maxLines`: a missing key is the default of 1, while an explicit
+/// `null` means unlimited lines.
+///
+/// An explicit null is passed on as [_unlimitedLines] because the generated
+/// reader replaces a null result with the constructor default of 1.
+Object? _readMaxLines(Map json, String key) =>
+    json.containsKey(key) ? (json[key] ?? _unlimitedLines) : 1;
+
+/// Converts what [_readMaxLines] returned into the field value.
+int? _maxLinesFromJson(Object? value) => value is num ? value.toInt() : null;
+
+/// Marks an explicit `null` (unlimited lines) between [_readMaxLines] and
+/// [_maxLinesFromJson].
+const String _unlimitedLines = 'unlimited';
