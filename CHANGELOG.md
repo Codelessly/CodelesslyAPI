@@ -1,9 +1,28 @@
-## Unreleased
+## 6.0.0
 
-- Breaking: `ButtonProperties.buttonColor` is nullable and defaults to `null`,
+### Breaking changes
+
+- `ButtonProperties.buttonColor` is nullable and defaults to `null`,
   the button type's default colour. It was black, and black was left out of
   the JSON, so a missing key now reads as `null` and an explicit black is
   written and read back as black.
+- `ShowToastAction.backgroundColor` and `textColor` are nullable and default
+  to `null` (the app's theme). Saved toasts, which omitted the old defaults,
+  now take the theme's colours. `copyWith` gains `clearBackgroundColor` and
+  `clearTextColor`.
+
+### New
+
+- Responsive variances: `ScreenBreakpoint` (mobile, tablet, desktop; widths
+  600 and 1024, design widths 390/834/1440), an optional `Variant.breakpoint`
+  (omitted from JSON when unset), and `VarianceNode.isResponsive`,
+  `variantForBreakpoint` and `variantForWidth`.
+- `ShowToastAction`: a button (`actionLabel` and `actions`, e.g. Undo), a
+  `ToastStyle` and a `ToastPosition` (top or bottom).
+- `ConfirmAction` can show a canvas as its dialog (`dialogId`, `params`),
+  which answers through a Navigate back action whose params hold
+  `confirmed`, and has optional colour, radius and barrier overrides for the
+  built-in dialog.
 - `TextFieldProperties.maxLines`: `null` (unlimited lines) is written as an
   explicit `null` and reads back as `null`; a missing key still reads as 1.
 - `VariableData.getValue()` returns an empty text variable as `''` instead of
@@ -21,6 +40,19 @@
 - `ConfirmAction` (`ActionType.confirm`): asks the user to confirm with a
   title, message and button labels (optionally destructive), then runs
   `actions` on confirm or `cancelActions` on cancel.
+
+### Fixes
+
+- Web view nodes always write their `webviewType`, `mapMode` and
+  `embedType` discriminators, so they read back from JSON.
+- Empty action lists, maps and sets are left out of JSON (conditional,
+  for-each and cloud files actions, API call parameters, call function
+  params, else conditions, condition groups, variable extras, text field
+  autofill hints and variance properties); 5.2.0 and 5.3.0 read the shorter
+  JSON back to equal objects.
+- `NodeProcessor.updateNode` rewrites edge pins from the node's box only for
+  freeform children with no alignment (`NodeProcessor.edgePinsPosition`);
+  children of rows and columns and aligned children keep their pins.
 
 ## 5.3.0
 
