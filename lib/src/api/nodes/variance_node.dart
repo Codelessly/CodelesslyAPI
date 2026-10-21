@@ -38,6 +38,37 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
       .expand((e) => e.children)
       .toList();
 
+  /// Whether this node is a responsive layout: its variants map to screen
+  /// breakpoints ([Variant.breakpoint]) and the one shown follows the width of
+  /// the canvas it is on, instead of [currentVariantId] or a variable.
+  bool get isResponsive =>
+      variants.any((variant) => variant.breakpoint != null);
+
+  /// The variant mapped to [breakpoint], or the nearest one when none is:
+  /// the variant whose breakpoint is fewest steps away, the smaller one on a
+  /// tie (a narrower layout fits a wider screen better than the reverse).
+  /// Null when no variant has a breakpoint.
+  Variant? variantForBreakpoint(ScreenBreakpoint breakpoint) {
+    Variant? best;
+    int bestDistance = 1 << 30;
+    for (final Variant variant in variants) {
+      final ScreenBreakpoint? own = variant.breakpoint;
+      if (own == null) continue;
+      final int distance = (own.index - breakpoint.index).abs();
+      if (distance < bestDistance ||
+          (distance == bestDistance && own.index < best!.breakpoint!.index)) {
+        best = variant;
+        bestDistance = distance;
+      }
+    }
+    return best;
+  }
+
+  /// The variant a responsive node shows on a canvas [width] wide, or the
+  /// current variant when the node is not responsive.
+  Variant variantForWidth(double width) =>
+      variantForBreakpoint(ScreenBreakpoint.forWidth(width)) ?? currentVariant;
+
   /// The variant that is loaded by default.
   Variant get defaultVariant => variants.firstWhere((e) => e.id == 'default');
 
@@ -143,11 +174,24 @@ class Variant with SerializableMixin, Equatable {
   /// All the child nodes' IDs that the variant contains.
   List<String> children;
 
+  /// The screen breakpoint this variant is the layout for, when its
+  /// [VarianceNode] is responsive. Null for an ordinary state.
+  ScreenBreakpoint? breakpoint;
+
   /// Creates a [Variant] instance with the given data.
-  Variant({required this.id, required this.name, required this.children});
+  Variant({
+    required this.id,
+    required this.name,
+    required this.children,
+    this.breakpoint,
+  });
+
+  /// The name to show for this variant: its breakpoint's label when it has
+  /// one, otherwise its [name].
+  String get label => breakpoint?.label ?? name;
 
   @override
-  List<Object?> get props => [id, name, children];
+  List<Object?> get props => [id, name, children, breakpoint];
 
   @override
   Map toJson() => _$VariantOmitDefaults(this, _$VariantToJson(this));

@@ -220,12 +220,23 @@ Variant _$VariantFromJson(Map json) => Variant(
   children: (json['children'] as List<dynamic>)
       .map((e) => e as String)
       .toList(),
+  breakpoint: $enumDecodeNullable(
+    _$ScreenBreakpointEnumMap,
+    json['breakpoint'],
+  ),
 );
 
 Map<String, dynamic> _$VariantToJson(Variant instance) => <String, dynamic>{
   'name': instance.name,
   'id': instance.id,
   'children': instance.children,
+  'breakpoint': ?_$ScreenBreakpointEnumMap[instance.breakpoint],
+};
+
+const _$ScreenBreakpointEnumMap = {
+  ScreenBreakpoint.mobile: 'mobile',
+  ScreenBreakpoint.tablet: 'tablet',
+  ScreenBreakpoint.desktop: 'desktop',
 };
 
 VarianceProperties _$VariancePropertiesFromJson(Map json) =>
