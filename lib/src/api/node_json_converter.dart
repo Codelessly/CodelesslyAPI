@@ -75,6 +75,8 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,
       'external': ExternalComponentNode.fromJson,
+      'gauge': GaugeNode.fromJson,
+      'chart': ChartNode.fromJson,
     };
   }
 
