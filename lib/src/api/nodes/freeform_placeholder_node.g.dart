@@ -34,6 +34,8 @@ Map<String, dynamic> _$FreeformPlaceholderNodeOmitDefaults(
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -201,6 +203,8 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -238,6 +242,8 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'children': instance.children,
   'opacity': instance.opacity,
