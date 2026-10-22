@@ -143,11 +143,9 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         children:
             (json['children'] as List<dynamic>?)
                 ?.map((e) => e as String)

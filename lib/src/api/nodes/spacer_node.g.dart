@@ -92,9 +92,7 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
         json['positioningMode'],
       )
       ..aspectRatioLock = json['aspectRatioLock'] as bool
-      ..reactions = (json['reactions'] as List<dynamic>)
-          .map((e) => Reaction.fromJson(e as Map))
-          .toList()
+      ..reactions = reactionsFromJson(json['reactions'])
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =

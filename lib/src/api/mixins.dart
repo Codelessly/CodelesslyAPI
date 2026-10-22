@@ -203,9 +203,28 @@ enum IconTypeEnum {
   image,
 }
 
+/// Decodes a node's reactions, leaving out any this version can't read, such
+/// as a trigger or action type added later. One unknown reaction then costs
+/// only itself instead of failing the whole layout.
+List<Reaction> reactionsFromJson(Object? json) => [
+  if (json is List)
+    for (final Object? item in json)
+      if (item is Map)
+        if (_tryReaction(item) case final Reaction reaction) reaction,
+];
+
+Reaction? _tryReaction(Map json) {
+  try {
+    return Reaction.fromJson(json);
+  } on Object {
+    return null;
+  }
+}
+
 /// Defines reactions to user interactions on a node.
 mixin ReactionMixin {
   /// Holds reactions defined on a node.
+  @JsonKey(fromJson: reactionsFromJson)
   late List<Reaction> reactions;
 
   /// Sets the reactions on a node.

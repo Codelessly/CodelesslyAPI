@@ -94,11 +94,9 @@ AppBarNode _$AppBarNodeFromJson(Map json) =>
         margin: json['margin'] == null
             ? EdgeInsetsModel.zero
             : EdgeInsetsModel.fromJson(json['margin']),
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         horizontalFit:
             $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
             SizeFit.fixed,
@@ -272,11 +270,9 @@ IconAppBarActionItem _$IconAppBarActionItemFromJson(Map json) =>
       id: json['id'] as String,
       icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
       tooltip: json['tooltip'] as String?,
-      reactions:
-          (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e as Map))
-              .toList() ??
-          const [],
+      reactions: json['reactions'] == null
+          ? const []
+          : reactionsFromJson(json['reactions']),
     )..type = json['type'] as String;
 
 Map<String, dynamic> _$IconAppBarActionItemToJson(

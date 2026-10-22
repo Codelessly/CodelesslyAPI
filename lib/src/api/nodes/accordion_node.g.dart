@@ -126,11 +126,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         children:
             (json['children'] as List<dynamic>?)
                 ?.map((e) => e as String)
@@ -184,7 +182,6 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
 Map<String, dynamic> _$AccordionNodeToJson(
   AccordionNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -202,6 +199,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),

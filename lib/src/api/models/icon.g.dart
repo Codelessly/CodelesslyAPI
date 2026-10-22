@@ -31,11 +31,9 @@ Map<String, dynamic> _$MultiSourceIconModelOmitDefaults(
 
 ReactiveIconModel _$ReactiveIconModelFromJson(Map json) => ReactiveIconModel(
   icon: MultiSourceIconModel.fromJson(json['icon'] as Map),
-  reactions:
-      (json['reactions'] as List<dynamic>?)
-          ?.map((e) => Reaction.fromJson(e as Map))
-          .toList() ??
-      const [],
+  reactions: json['reactions'] == null
+      ? const []
+      : reactionsFromJson(json['reactions']),
 );
 
 Map<String, dynamic> _$ReactiveIconModelToJson(ReactiveIconModel instance) =>

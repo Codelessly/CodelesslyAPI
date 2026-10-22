@@ -119,11 +119,9 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
         margin: json['margin'] == null
             ? EdgeInsetsModel.zero
             : EdgeInsetsModel.fromJson(json['margin']),
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         horizontalFit:
             $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
             SizeFit.fixed,

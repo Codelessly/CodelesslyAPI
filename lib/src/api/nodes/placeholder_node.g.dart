@@ -95,11 +95,9 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
       )
       ..variables =
           (json['variables'] as Map?)?.map(

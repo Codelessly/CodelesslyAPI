@@ -122,11 +122,9 @@ CheckboxNode _$CheckboxNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         properties: CheckboxProperties.fromJson(json['properties'] as Map),
         variables:
             (json['variables'] as Map?)?.map(

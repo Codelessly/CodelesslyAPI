@@ -94,11 +94,9 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
         margin: json['margin'] == null
             ? EdgeInsetsModel.zero
             : EdgeInsetsModel.fromJson(json['margin']),
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         horizontalFit:
             $enumDecodeNullable(_$SizeFitEnumMap, json['horizontalFit']) ??
             SizeFit.fixed,
@@ -215,6 +213,13 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   FreeformPlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
   'id': instance.id,
   'name': instance.name,
   'visible': instance.visible,
@@ -226,13 +231,6 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'variables': instance.variables,
-  'multipleVariables': instance.multipleVariables,
-  'componentId': ?instance.componentId,
-  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-  'componentVersion': instance.componentVersion,
-  'componentSchema': instance.componentSchema,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),

@@ -124,11 +124,9 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         properties: PageViewProperties.fromJson(json['properties'] as Map),
         children:
             (json['children'] as List<dynamic>?)
@@ -211,7 +209,6 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -229,6 +226,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'flex': instance.flex,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),

@@ -126,11 +126,9 @@ TextNode _$TextNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         characters: json['characters'] as String,
         textMixedProps:
             (json['textMixedProps'] as List<dynamic>?)
@@ -244,11 +242,11 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),

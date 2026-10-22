@@ -149,11 +149,9 @@ TabBarNode _$TabBarNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         variables:
             (json['variables'] as Map?)?.map(
               (k, e) => MapEntry(k as String, e as String),
@@ -434,9 +432,7 @@ const _$TabAlignmentCEnumMap = {
 TabItem _$TabItemFromJson(Map json) => TabItem(
   id: json['id'] as String,
   label: json['label'] as String,
-  reactions: (json['reactions'] as List<dynamic>?)
-      ?.map((e) => Reaction.fromJson(e as Map))
-      .toList(),
+  reactions: reactionsFromJson(json['reactions']),
   icon: json['icon'] == null
       ? const MultiSourceIconModel(size: 20, color: null)
       : MultiSourceIconModel.fromJson(json['icon'] as Map),

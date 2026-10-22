@@ -199,11 +199,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
         strokeSide:
             $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
             StrokeSide.all,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         clipsContent: json['clipsContent'] as bool? ?? false,
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero

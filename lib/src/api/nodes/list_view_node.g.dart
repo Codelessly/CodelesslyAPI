@@ -128,11 +128,9 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         properties: ListViewProperties.fromJson(json['properties'] as Map),
         children:
             (json['children'] as List<dynamic>?)

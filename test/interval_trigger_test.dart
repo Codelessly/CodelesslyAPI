@@ -24,4 +24,32 @@ void main() {
     );
     expect(canvas.triggerTypes, contains(TriggerType.interval));
   });
+
+  test('A node keeps the reactions it can read and drops newer ones', () {
+    final Map<String, dynamic> json = {
+      'id': 'go',
+      'name': 'Go',
+      'type': 'rectangle',
+      'basicBoxLocal': [0, 0, 100, 40],
+      'reactions': [
+        {
+          'id': 'a',
+          'trigger': {'type': 'click'},
+          'action': {'type': 'link', 'url': 'https://codelessly.com'},
+        },
+        {
+          'id': 'b',
+          'trigger': {'type': 'someFutureTrigger'},
+          'action': {'type': 'link', 'url': 'https://codelessly.com'},
+        },
+        {
+          'id': 'c',
+          'trigger': {'type': 'click'},
+          'action': {'type': 'someFutureAction'},
+        },
+      ],
+    };
+    final BaseNode node = NodeJsonConverter.instance.fromJson(json)!;
+    expect((node as ReactionMixin).reactions.map((r) => r.id), ['a']);
+  });
 }

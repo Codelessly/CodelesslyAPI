@@ -114,11 +114,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         currentVariantId: json['currentVariantId'] as String?,
         maxAllowedSize: json['maxAllowedSize'] == null
             ? null

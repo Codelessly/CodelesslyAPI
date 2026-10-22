@@ -124,11 +124,9 @@ IconNode _$IconNodeFromJson(Map json) =>
             : InkWellModel.fromJson(
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
-        reactions:
-            (json['reactions'] as List<dynamic>?)
-                ?.map((e) => Reaction.fromJson(e as Map))
-                .toList() ??
-            const [],
+        reactions: json['reactions'] == null
+            ? const []
+            : reactionsFromJson(json['reactions']),
         properties: json['properties'] == null
             ? null
             : IconProperties.fromJson(json['properties'] as Map),
