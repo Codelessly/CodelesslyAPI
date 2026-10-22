@@ -61,6 +61,7 @@ const _$VariableTypeEnumMap = {
   VariableType.list: 'list',
   VariableType.map: 'map',
   VariableType.image: 'image',
+  VariableType.choice: 'choice',
 };
 
 CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
