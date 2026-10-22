@@ -120,8 +120,9 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
   /// JSON data.
   factory CornerRadius.fromJson(dynamic json) {
     // A bare number is the same circular radius on every corner.
-    if (json is num)
+    if (json is num) {
       return CornerRadius.all(RadiusModel.circular(json.toDouble()));
+    }
     if (json case [num radius, bool linked, String type]) {
       return CornerRadius.all(
         RadiusModel.circular(radius.toDouble()),
@@ -134,6 +135,16 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
         RadiusModel.elliptical(x.toDouble(), y.toDouble()),
         linked: linked,
         type: RadiusType.values.byName(type),
+      );
+    }
+    // Four circular corners: tl, tr, bl, br.
+    if (json case [num tl, num tr, num bl, num br]) {
+      return CornerRadius(
+        tl: RadiusModel.circular(tl.toDouble()),
+        tr: RadiusModel.circular(tr.toDouble()),
+        bl: RadiusModel.circular(bl.toDouble()),
+        br: RadiusModel.circular(br.toDouble()),
+        linked: false,
       );
     }
     if (json is Iterable) {
@@ -154,8 +165,11 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
           x: json.elementAt(6).toDouble(),
           y: json.elementAt(7).toDouble(),
         ),
-        linked: json.elementAt(8),
-        type: RadiusType.values.byName(json.elementAt(9)),
+        // x, y per corner, optionally followed by linked and type.
+        linked: json.length > 8 ? json.elementAt(8) : false,
+        type: json.length > 9
+            ? RadiusType.values.byName(json.elementAt(9))
+            : RadiusType.circular,
       );
     }
     return _$CornerRadiusFromJson(json);
