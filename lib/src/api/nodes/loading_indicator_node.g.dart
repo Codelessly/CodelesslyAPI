@@ -57,6 +57,8 @@ Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesOmitDefaults(
   if (isJsonDefault(instance.strokeWidth, 4)) json.remove('strokeWidth');
   if (isJsonDefault(instance.strokeCap, StrokeCapEnum.square))
     json.remove('strokeCap');
+  if (isJsonDefault(instance.startAngle, -90)) json.remove('startAngle');
+  if (isJsonDefault(instance.sweepAngle, 360)) json.remove('sweepAngle');
   return json;
 }
 
@@ -240,6 +242,8 @@ MaterialLoadingIndicatorProperties _$MaterialLoadingIndicatorPropertiesFromJson(
       StrokeCapEnum.square,
   strokeAlign: (json['strokeAlign'] as num?)?.toDouble(),
   trackGap: (json['trackGap'] as num?)?.toDouble(),
+  startAngle: (json['startAngle'] as num?)?.toDouble() ?? -90,
+  sweepAngle: (json['sweepAngle'] as num?)?.toDouble() ?? 360,
 )..type = json['type'] as String;
 
 Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
@@ -253,6 +257,8 @@ Map<String, dynamic> _$MaterialLoadingIndicatorPropertiesToJson(
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'strokeAlign': ?instance.strokeAlign,
   'trackGap': ?instance.trackGap,
+  'startAngle': instance.startAngle,
+  'sweepAngle': instance.sweepAngle,
 };
 
 const _$StrokeCapEnumEnumMap = {
