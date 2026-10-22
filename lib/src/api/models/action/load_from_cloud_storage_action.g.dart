@@ -19,6 +19,7 @@ Map<String, dynamic> _$LoadFromCloudStorageActionOmitDefaults(
   if (isJsonDefault(instance.useCloudDatabase, true))
     json.remove('useCloudDatabase');
   if (isJsonDefault(instance.paging, QueryPaging.scroll)) json.remove('paging');
+  if (isJsonDefault(instance.loadRelated, [])) json.remove('loadRelated');
   if (isJsonDefault(instance.whereFilters, [])) json.remove('whereFilters');
   if (isJsonDefault(instance.orderByFilters, [])) json.remove('orderByFilters');
   return json;
@@ -61,7 +62,12 @@ LoadFromCloudStorageAction _$LoadFromCloudStorageActionFromJson(Map json) =>
       ..collectionPath = json['collectionPath'] as String?
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
-          QueryPaging.scroll;
+          QueryPaging.scroll
+      ..loadRelated =
+          (json['loadRelated'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [];
 
 Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
   LoadFromCloudStorageAction instance,
@@ -73,6 +79,7 @@ Map<String, dynamic> _$LoadFromCloudStorageActionToJson(
   'collectionPath': ?instance.collectionPath,
   'limit': ?instance.limit,
   'paging': _$QueryPagingEnumMap[instance.paging]!,
+  'loadRelated': instance.loadRelated,
   'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
   'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
   'path': instance.path,

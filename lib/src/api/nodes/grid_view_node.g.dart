@@ -65,6 +65,7 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('useCloudDatabase');
   if (isJsonDefault(instance.limit, 20)) json.remove('limit');
   if (isJsonDefault(instance.paging, QueryPaging.scroll)) json.remove('paging');
+  if (isJsonDefault(instance.loadRelated, [])) json.remove('loadRelated');
   if (isJsonDefault(instance.whereFilters, [])) json.remove('whereFilters');
   if (isJsonDefault(instance.orderByFilters, [])) json.remove('orderByFilters');
   return json;
@@ -241,21 +242,26 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
-      ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
+      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList()
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
+      ..loadRelated =
+          (json['loadRelated'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
@@ -291,11 +297,11 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
       'children': instance.children,
-      'ephemeral': instance.ephemeral,
-      'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
       'clipsContent': instance.clipsContent,
+      'ephemeral': instance.ephemeral,
+      'allowedTypes': instance.allowedTypes,
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,
@@ -310,6 +316,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'collectionPath': ?instance.collectionPath,
       'limit': ?instance.limit,
       'paging': _$QueryPagingEnumMap[instance.paging]!,
+      'loadRelated': instance.loadRelated,
       'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
       'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
       'type': instance.type,
