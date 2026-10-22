@@ -33,6 +33,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
   if (isJsonDefault(instance.padding, EdgeInsetsModel.zero))
     json.remove('padding');
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.interactionStates, {}))
+    json.remove('interactionStates');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -214,6 +216,17 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..interactionStates =
+          (json['interactionStates'] as Map?)?.map(
+            (k, e) => MapEntry(
+              $enumDecode(_$InteractionStateEnumMap, k),
+              (e as Map).map(
+                (k, e) =>
+                    MapEntry(k as String, Map<String, dynamic>.from(e as Map)),
+              ),
+            ),
+          ) ??
+          {}
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -248,6 +261,9 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'rotation': instance.rotationDegrees,
   'widthFactor': ?instance.widthFactor,
   'heightFactor': ?instance.heightFactor,
+  'interactionStates': instance.interactionStates.map(
+    (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+  ),
   'enabled': instance.enabled,
   'children': instance.children,
   'opacity': instance.opacity,
@@ -361,4 +377,12 @@ const _$StrokeSideEnumMap = {
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
+};
+
+const _$InteractionStateEnumMap = {
+  InteractionState.hovered: 'hovered',
+  InteractionState.focused: 'focused',
+  InteractionState.pressed: 'pressed',
+  InteractionState.selected: 'selected',
+  InteractionState.disabled: 'disabled',
 };

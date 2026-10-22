@@ -21,6 +21,8 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.interactionStates, {}))
+    json.remove('interactionStates');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -93,6 +95,17 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
           .toList()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..interactionStates =
+          (json['interactionStates'] as Map?)?.map(
+            (k, e) => MapEntry(
+              $enumDecode(_$InteractionStateEnumMap, k),
+              (e as Map).map(
+                (k, e) =>
+                    MapEntry(k as String, Map<String, dynamic>.from(e as Map)),
+              ),
+            ),
+          ) ??
+          {}
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
@@ -117,6 +130,9 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'widthFactor': ?instance.widthFactor,
       'heightFactor': ?instance.heightFactor,
+      'interactionStates': instance.interactionStates.map(
+        (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+      ),
       'enabled': instance.enabled,
       'type': instance.type,
     };
@@ -137,4 +153,12 @@ const _$ComponentMarkerTypeEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$InteractionStateEnumMap = {
+  InteractionState.hovered: 'hovered',
+  InteractionState.focused: 'focused',
+  InteractionState.pressed: 'pressed',
+  InteractionState.selected: 'selected',
+  InteractionState.disabled: 'disabled',
 };
