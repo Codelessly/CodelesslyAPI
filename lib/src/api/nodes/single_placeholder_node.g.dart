@@ -11,6 +11,10 @@ Map<String, dynamic> _$SinglePlaceholderNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.allowedTypes, <String>[]))
+    json.remove('allowedTypes');
+  if (isJsonDefault(instance.deniedTypes, <String>[]))
+    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -56,12 +60,16 @@ Map<String, dynamic> _$SinglePlaceholderNodeOmitDefaults(
 
 SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
     SinglePlaceholderNode(
-        allowedTypes: (json['allowedTypes'] as List<dynamic>)
-            .map((e) => e as String)
-            .toList(),
-        deniedTypes: (json['deniedTypes'] as List<dynamic>)
-            .map((e) => e as String)
-            .toList(),
+        allowedTypes:
+            (json['allowedTypes'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        deniedTypes:
+            (json['deniedTypes'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
         maxAllowedSize: json['maxAllowedSize'] == null
             ? null
             : SizeC.fromJson(json['maxAllowedSize'] as Map),
@@ -155,6 +163,9 @@ SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SinglePlaceholderNodeToJson(
@@ -190,6 +201,7 @@ Map<String, dynamic> _$SinglePlaceholderNodeToJson(
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'children': instance.children,
   'type': instance.type,
   'ephemeral': instance.ephemeral,

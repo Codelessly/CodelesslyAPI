@@ -179,6 +179,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$AccordionNodeToJson(
@@ -214,6 +217,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,

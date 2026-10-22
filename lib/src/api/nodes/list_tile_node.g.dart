@@ -178,6 +178,9 @@ ListTileNode _$ListTileNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
@@ -212,6 +215,7 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'children': instance.children,
       'type': instance.type,
       'leading': ?instance.leading,

@@ -162,6 +162,9 @@ ChipNode _$ChipNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ChipNodeToJson(ChipNode instance) => <String, dynamic>{
@@ -195,6 +198,7 @@ Map<String, dynamic> _$ChipNodeToJson(ChipNode instance) => <String, dynamic>{
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
 };
