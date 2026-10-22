@@ -47,7 +47,11 @@ enum TriggerType {
 
   /// Triggered when the variable named by [TriggerModel.variable] changes,
   /// while the screen it is set on shows.
-  valueChanged;
+  valueChanged,
+
+  /// Triggered every [TriggerModel.intervalMs] milliseconds while the screen
+  /// it is set on shows, e.g. to count a timer down.
+  interval;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -78,6 +82,8 @@ enum TriggerType {
         return 'Load';
       case TriggerType.valueChanged:
         return 'Value Changed';
+      case TriggerType.interval:
+        return 'Every Interval';
     }
   }
 }
@@ -97,21 +103,32 @@ class TriggerModel with Equatable, SerializableMixin {
   /// For [TriggerType.valueChanged], the name of the variable to watch.
   final String? variable;
 
+  /// For [TriggerType.interval], milliseconds between runs.
+  @JsonKey(defaultValue: 1000)
+  final int intervalMs;
+
   /// Creates a [TriggerModel] with given data.
-  TriggerModel({required this.type, this.debounceMs = 0, this.variable});
+  TriggerModel({
+    required this.type,
+    this.debounceMs = 0,
+    this.variable,
+    this.intervalMs = 1000,
+  });
 
   @override
-  List<Object?> get props => [type, debounceMs, variable];
+  List<Object?> get props => [type, debounceMs, variable, intervalMs];
 
   /// Duplicate this [TriggerModel] with given data overrides.
   TriggerModel copyWith({
     TriggerType? type,
     int? debounceMs,
     String? variable,
+    int? intervalMs,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
     variable: variable ?? this.variable,
+    intervalMs: intervalMs ?? this.intervalMs,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from
