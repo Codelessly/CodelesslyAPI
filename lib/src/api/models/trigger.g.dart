@@ -49,5 +49,6 @@ const _$TriggerTypeEnumMap = {
   TriggerType.pointerUp: 'pointerUp',
   TriggerType.load: 'load',
   TriggerType.valueChanged: 'valueChanged',
+  TriggerType.changeEnd: 'changeEnd',
   TriggerType.interval: 'interval',
 };
