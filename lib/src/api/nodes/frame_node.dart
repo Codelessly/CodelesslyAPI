@@ -107,6 +107,8 @@ class FrameNode extends DefaultShapeNode
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   /// Creates a [FrameNode] from a JSON data.

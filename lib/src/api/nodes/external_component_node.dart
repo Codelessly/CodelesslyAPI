@@ -56,6 +56,8 @@ class ExternalComponentNode extends SceneNode with CustomPropertiesMixin {
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   @override
