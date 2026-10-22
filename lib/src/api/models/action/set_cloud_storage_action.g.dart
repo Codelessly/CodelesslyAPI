@@ -104,6 +104,8 @@ const _$ActionTypeEnumMap = {
   ActionType.showToast: 'showToast',
   ActionType.confirm: 'confirm',
   ActionType.delay: 'delay',
+  ActionType.cloudData: 'cloudData',
+  ActionType.cloudBatch: 'cloudBatch',
 };
 
 AddDocumentSubAction _$AddDocumentSubActionFromJson(Map json) =>
