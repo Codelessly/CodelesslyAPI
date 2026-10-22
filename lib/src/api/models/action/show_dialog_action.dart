@@ -99,4 +99,9 @@ enum DialogPresentation {
 
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
+
+  /// A menu anchored to the node that ran the action: just below it,
+  /// left-aligned with it (right-aligned when it would run off the screen),
+  /// or above it when there is no room below. Tapping outside closes it.
+  popover,
 }
