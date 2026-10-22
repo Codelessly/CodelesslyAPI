@@ -164,6 +164,19 @@ enum ListItemSeparator {
   space,
 }
 
+/// How a [ListViewNode] arranges its items.
+enum ListLayout {
+  /// Items follow one another along the scroll direction (a normal list).
+  list,
+
+  /// Items are layered on top of each other in the list's box, each placed
+  /// by its item's `x` and `y` (bound with `BaseNode.variables`, evaluated
+  /// for that item) relative to the list's padded box, or by its design
+  /// offset when not bound. Nothing scrolls. Use it to draw data as a
+  /// diagram, such as furniture on a floor plan or pins on a map.
+  stack,
+}
+
 /// The properties of a [ListViewNode].
 @JsonSerializable()
 class ListViewProperties extends CustomProperties with FieldsHolder {
@@ -194,8 +207,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
+  /// How the items are arranged: one after another, or layered and placed
+  /// by their bound `x`/`y` (see [ListLayout.stack]).
+  ListLayout layout;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
+    this.layout = ListLayout.list,
     this.itemCount,
     this.itemExtent,
     this.cacheExtent,
@@ -222,8 +240,10 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? dividerSpacing,
     bool? hasSeparator,
     DividerProperties? dividerProperties,
+    ListLayout? layout,
   }) {
     return ListViewProperties(
+      layout: layout ?? this.layout,
       itemCount: itemCount ?? this.itemCount,
       itemExtent: itemExtent ?? this.itemExtent,
       cacheExtent: cacheExtent ?? this.cacheExtent,
@@ -260,6 +280,15 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       options: () => ListItemSeparator.values,
       requiresLayout: true,
     ),
+    'layout': EnumFieldAccess<ListLayout>(
+      'Layout',
+      'List: items follow one another. Stack: items are layered and placed by their bound x and y.',
+      () => layout,
+      (value) => layout = value,
+      defaultValue: () => ListLayout.list,
+      options: () => ListLayout.values,
+      requiresLayout: true,
+    ),
     'dividerProperties': ObjectFieldAccess<DividerProperties>(
       'Divider Properties',
       'The properties of the divider to use as a separator between list view items, if enabled.',
@@ -286,5 +315,6 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     separatorSpacing,
     hasSeparator,
     dividerProperties,
+    layout,
   ];
 }

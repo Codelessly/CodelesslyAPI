@@ -47,7 +47,11 @@ enum TriggerType {
 
   /// Triggered when the variable named by [TriggerModel.variable] changes,
   /// while the screen it is set on shows.
-  valueChanged;
+  valueChanged,
+
+  /// Triggered once when the user lifts the pointer after dragging the
+  /// target (see [drag], which fires on every move).
+  dragEnd;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -78,6 +82,8 @@ enum TriggerType {
         return 'Load';
       case TriggerType.valueChanged:
         return 'Value Changed';
+      case TriggerType.dragEnd:
+        return 'Drag End';
     }
   }
 }
