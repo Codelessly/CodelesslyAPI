@@ -1255,6 +1255,7 @@ mixin ScrollableMixin on BaseNode {
   bool get isScrollingEnforced => false;
 
   /// Whether the scrolling is enabled.
+  @JsonKey(defaultValue: false)
   late bool isScrollable;
 
   /// Direction in which the scrolling is allowed.
@@ -1277,6 +1278,7 @@ mixin ScrollableMixin on BaseNode {
 
   /// Whether to use a [ListView] instead of [SingleChildScrollView] in flutter
   /// code-gen and transformers.
+  @JsonKey(defaultValue: false)
   late bool useFlutterListView;
 
   /// Whether to use AlwaysScrollableScrollPhysics or not.

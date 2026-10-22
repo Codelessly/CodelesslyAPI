@@ -11,6 +11,10 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.allowedTypes, <String>[]))
+    json.remove('allowedTypes');
+  if (isJsonDefault(instance.deniedTypes, <String>[]))
+    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -47,6 +51,7 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('componentSchema');
   if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
   if (isJsonDefault(instance.children, [])) json.remove('children');
+  if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.scrollDirection, AxisC.vertical))
     json.remove('scrollDirection');
   if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
@@ -58,6 +63,8 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     ScrollViewKeyboardDismissBehaviorC.manual,
   ))
     json.remove('keyboardDismissBehavior');
+  if (isJsonDefault(instance.useFlutterListView, false))
+    json.remove('useFlutterListView');
   if (isJsonDefault(instance.shouldAlwaysScroll, true))
     json.remove('shouldAlwaysScroll');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
@@ -242,18 +249,22 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
-      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
+      ..deniedTypes =
+          (json['deniedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
-      ..isScrollable = json['isScrollable'] as bool
-      ..useFlutterListView = json['useFlutterListView'] as bool
+      ..allowedTypes =
+          (json['allowedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
+      ..isScrollable = json['isScrollable'] as bool? ?? false
+      ..useFlutterListView = json['useFlutterListView'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -376,7 +387,9 @@ const _$QueryPagingEnumMap = {
 GridViewProperties _$GridViewPropertiesFromJson(Map json) => GridViewProperties(
   itemCount: (json['itemCount'] as num?)?.toInt(),
   cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
-  gridDelegate: GridDelegateProperties.fromJson(json['gridDelegate'] as Map),
+  gridDelegate: GridDelegateProperties.fromJson(
+    _readGridDelegate(json, 'gridDelegate') as Map,
+  ),
 );
 
 Map<String, dynamic> _$GridViewPropertiesToJson(GridViewProperties instance) =>
