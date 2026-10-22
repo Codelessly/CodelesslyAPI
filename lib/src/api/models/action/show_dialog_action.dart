@@ -6,7 +6,6 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// An action that navigates to a new page.
 /// How a [ShowDialogAction] presents its canvas.
 enum DialogPresentation {
   /// Centered over a dimmed barrier.
@@ -31,6 +30,7 @@ enum DialogPresentation {
   };
 }
 
+/// An action that shows a canvas as a dialog, sheet or popover.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
