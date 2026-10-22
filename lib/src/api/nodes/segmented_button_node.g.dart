@@ -34,6 +34,8 @@ Map<String, dynamic> _$SegmentedButtonNodeOmitDefaults(
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -173,6 +175,8 @@ SegmentedButtonNode _$SegmentedButtonNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SegmentedButtonNodeToJson(
@@ -205,6 +209,8 @@ Map<String, dynamic> _$SegmentedButtonNodeToJson(
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'type': instance.type,
   'properties': instance.properties.toJson(),
