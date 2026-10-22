@@ -30,8 +30,18 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   final DialogPresentation presentation;
 
   /// Where a dialog sits on the screen, e.g. top right for a menu. Center by
-  /// default. Bottom sheets always sit at the bottom.
+  /// default. Bottom sheets always sit at the bottom and side sheets at the
+  /// right edge.
   final AlignmentModel alignment;
+
+  /// Space kept between the overlay and the screen edges: a dialog placed
+  /// in a corner stays this far from it, a side sheet is inset by it.
+  final EdgeInsetsModel insets;
+
+  /// The most of the screen height a dialog or bottom sheet may take, as a
+  /// share of it (e.g. 0.9); its content scrolls beyond. Null keeps the
+  /// canvas's design height (a bottom sheet's own cap applies).
+  final double? maxHeightFactor;
 
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
@@ -42,6 +52,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.showCloseButton = false,
     this.presentation = DialogPresentation.dialog,
     this.alignment = AlignmentModel.center,
+    this.insets = EdgeInsetsModel.zero,
+    this.maxHeightFactor,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -56,6 +68,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton,
     presentation,
     alignment,
+    insets,
+    maxHeightFactor,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -67,6 +81,9 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? showCloseButton,
     DialogPresentation? presentation,
     AlignmentModel? alignment,
+    EdgeInsetsModel? insets,
+    double? maxHeightFactor,
+    bool clearMaxHeightFactor = false,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -75,6 +92,12 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton: showCloseButton ?? this.showCloseButton,
     presentation: presentation ?? this.presentation,
     alignment: alignment ?? this.alignment,
+    insets: insets ?? this.insets,
+    maxHeightFactor: clearMaxHeightFactor
+        ? null
+        : maxHeightFactor ?? this.maxHeightFactor,
+    nonBlocking: nonBlocking,
+    enabled: enabled,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
@@ -99,4 +122,8 @@ enum DialogPresentation {
 
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
+
+  /// A sheet that slides in from the right edge, as tall as the screen less
+  /// the insets (or as its content when the canvas hugs its height).
+  sideSheet,
 }
