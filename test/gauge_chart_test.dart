@@ -94,9 +94,52 @@ void main() {
   });
 
   test('gauge and chart JSON may leave out properties', () {
-    final gauge = NodeJsonConverter().fromJson({'id': 'g', 'name': 'G', 'type': 'gauge', 'basicBoxLocal': [0, 0, 220, 185]});
-    final chart = NodeJsonConverter().fromJson({'id': 'c', 'name': 'C', 'type': 'chart', 'basicBoxLocal': [0, 0, 300, 200]});
+    final gauge = NodeJsonConverter().fromJson({
+      'id': 'g',
+      'name': 'G',
+      'type': 'gauge',
+      'basicBoxLocal': [0, 0, 220, 185],
+    });
+    final chart = NodeJsonConverter().fromJson({
+      'id': 'c',
+      'name': 'C',
+      'type': 'chart',
+      'basicBoxLocal': [0, 0, 300, 200],
+    });
     expect((gauge! as GaugeNode).properties, GaugeProperties());
     expect((chart! as ChartNode).properties.series, kDefaultChartSeries);
+  });
+
+  // Types that need content of their own (an icon, a URL, a title, ...)
+  // still need it in JSON.
+  test('nodes read minimal JSON: no properties, no scroll settings', () {
+    for (final type in [
+      'listView',
+      'gridView',
+      'pageView',
+      'progressBar',
+      'switch',
+      'checkbox',
+      'textField',
+      'button',
+      'chip',
+      'badge',
+      'divider',
+      'segmentedButton',
+      'listTile',
+      'radio',
+      'floatingActionButton',
+      'accordion',
+      'gauge',
+      'chart',
+    ]) {
+      final node = NodeJsonConverter().fromJson({
+        'id': type,
+        'name': type,
+        'type': type,
+        'basicBoxLocal': [0, 0, 100, 40],
+      });
+      expect(node?.type, type, reason: type);
+    }
   });
 }
