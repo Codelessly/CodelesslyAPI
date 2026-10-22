@@ -1,3 +1,12 @@
+## Unreleased
+
+### New
+
+- Repeating gradients: `PaintModel.tileMode` (`GradientTileMode` clamp,
+  repeated or mirror; default clamp, left out of the JSON) and
+  `PaintModel.gradientExtent`, the length in pixels of one run of the
+  gradient. A short repeating gradient with hard stops paints stripes.
+
 ## 6.1.0
 
 ### States and conditions
