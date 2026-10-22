@@ -1,5 +1,8 @@
 ## Unreleased
 
+- `ShowDialogAction.presentation` (`DialogPresentation`): a dialog (the
+  default), a bottom sheet, `adaptive` (a sheet below 600 wide, a dialog
+  above), or full screen.
 - `flex` is one of the properties every node can bind, set by a condition
   or change with an action.
 - `IconNode` declares `iconColor` and `iconName` as properties that can be

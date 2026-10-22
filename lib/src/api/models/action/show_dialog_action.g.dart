@@ -16,6 +16,8 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('barrierColor');
   if (isJsonDefault(instance.showCloseButton, false))
     json.remove('showCloseButton');
+  if (isJsonDefault(instance.presentation, DialogPresentation.dialog))
+    json.remove('presentation');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -35,6 +37,9 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       : ColorRGBA.fromJson(json['barrierColor']),
   barrierDismissible: json['barrierDismissible'] as bool? ?? true,
   showCloseButton: json['showCloseButton'] as bool? ?? false,
+  presentation:
+      $enumDecodeNullable(_$DialogPresentationEnumMap, json['presentation']) ??
+      DialogPresentation.dialog,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -49,7 +54,15 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'barrierDismissible': instance.barrierDismissible,
       'barrierColor': ?instance.barrierColor?.toJson(),
       'showCloseButton': instance.showCloseButton,
+      'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
     };
+
+const _$DialogPresentationEnumMap = {
+  DialogPresentation.dialog: 'dialog',
+  DialogPresentation.bottomSheet: 'bottomSheet',
+  DialogPresentation.adaptive: 'adaptive',
+  DialogPresentation.fullScreen: 'fullScreen',
+};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
