@@ -16,11 +16,15 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
     json.remove('constraints');
   if (isJsonDefault(instance.edgePins, EdgePinsModel.standard))
     json.remove('edgePins');
+  if (isJsonDefault(instance.positioningMode, PositioningMode.align))
+    json.remove('positioningMode');
   if (isJsonDefault(instance.horizontalFit, SizeFit.fixed))
     json.remove('horizontalFit');
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.aspectRatioLock, false))
+    json.remove('aspectRatioLock');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
@@ -33,6 +37,7 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
     json.remove('componentVersion');
   if (isJsonDefault(instance.componentSchema, {}))
     json.remove('componentSchema');
+  if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
   return json;
 }
 
@@ -59,23 +64,35 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
             : EdgePinsModel.fromJson(
                 Map<String, dynamic>.from(json['edgePins'] as Map),
               ),
+        aspectRatioLock: json['aspectRatioLock'] as bool? ?? false,
+        positioningMode:
+            $enumDecodeNullable(
+              _$PositioningModeEnumMap,
+              json['positioningMode'],
+            ) ??
+            PositioningMode.align,
         constraints: json['constraints'] == null
             ? const BoxConstraintsModel()
             : BoxConstraintsModel.fromJson(json['constraints'] as Map),
+        variables:
+            (json['variables'] as Map?)?.map(
+              (k, e) => MapEntry(k as String, e as String),
+            ) ??
+            {},
+        multipleVariables:
+            (json['multipleVariables'] as Map?)?.map(
+              (k, e) => MapEntry(
+                k as String,
+                (e as List<dynamic>).map((e) => e as String).toList(),
+              ),
+            ) ??
+            {},
+        reactions:
+            (json['reactions'] as List<dynamic>?)
+                ?.map((e) => Reaction.fromJson(e as Map))
+                .toList() ??
+            const [],
       )
-      ..variables =
-          (json['variables'] as Map?)?.map(
-            (k, e) => MapEntry(k as String, e as String),
-          ) ??
-          {}
-      ..multipleVariables =
-          (json['multipleVariables'] as Map?)?.map(
-            (k, e) => MapEntry(
-              k as String,
-              (e as List<dynamic>).map((e) => e as String).toList(),
-            ),
-          ) ??
-          {}
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -87,14 +104,6 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..positioningMode = $enumDecode(
-        _$PositioningModeEnumMap,
-        json['positioningMode'],
-      )
-      ..aspectRatioLock = json['aspectRatioLock'] as bool
-      ..reactions = (json['reactions'] as List<dynamic>)
-          .map((e) => Reaction.fromJson(e as Map))
-          .toList()
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -151,14 +160,14 @@ const _$SizeFitEnumMap = {
   SizeFit.shrinkWrap: 'shrinkWrap',
 };
 
-const _$ComponentMarkerTypeEnumMap = {
-  ComponentMarkerType.component: 'component',
-  ComponentMarkerType.instance: 'instance',
-};
-
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$ComponentMarkerTypeEnumMap = {
+  ComponentMarkerType.component: 'component',
+  ComponentMarkerType.instance: 'instance',
 };
 
 const _$InteractionStateEnumMap = {
