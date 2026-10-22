@@ -71,6 +71,7 @@ export 'text_input_formatter_model.dart';
 export 'text_input_type.dart';
 export 'text_input_validator_model.dart';
 export 'text_overflow.dart';
+export 'theme_tokens.dart';
 export 'trigger.dart';
 export 'twitter.dart';
 export 'variables_model.dart';
