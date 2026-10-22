@@ -49,6 +49,10 @@ enum TriggerType {
   /// while the screen it is set on shows.
   valueChanged,
 
+  /// Triggered when the user lets go of a slider after changing it, with
+  /// the final value. [changed] fires on every step of the drag.
+  changeEnd,
+
   /// Triggered repeatedly while the canvas is shown, every
   /// [TriggerModel.intervalMillis] milliseconds. Live readouts, countdowns
   /// and polling use it.
@@ -85,6 +89,8 @@ enum TriggerType {
         return 'Value Changed';
       case TriggerType.interval:
         return 'Interval';
+      case TriggerType.changeEnd:
+        return 'Change End';
     }
   }
 }
