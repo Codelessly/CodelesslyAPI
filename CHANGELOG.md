@@ -1,3 +1,32 @@
+## 6.1.0
+
+### States and conditions
+
+- `InteractionState` (hover, focus, pressed, selected, disabled) and
+  `BaseNode.interactionStates`: sparse property overrides per state.
+- `Variant.overrides` for property-override states; `PropertyOverridePatch`
+  applies, diffs and merges them.
+- Query-status variants (loading, empty, error) with an optional skeleton.
+
+### Data
+
+- `CollectionSchema` and `SchemaField` for typed collections.
+- `CloudDataAction` (create, update, delete, get, query, count, sum,
+  average) and `CloudBatchAction` built from schemas, without JSON.
+- `QueryableMixin.paging` (scroll or a Show more button) and
+  `QueryableMixin.loadRelated` for reference fields.
+- `CloudFilesAction.access`: uploads are private to the uploader by default.
+
+### Auth, actions and variables
+
+- `AuthOperation` adds Google, Apple and email-link sign-in and
+  `updatePhoto`.
+- `TriggerModel.debounceMs` and the `valueChanged` trigger.
+- `BaseNode.tooltip` and `BaseNode.zoomable`.
+- `VariableType.choice` with named options.
+- `ThemeTokens` for what the runtime draws itself.
+- A value read as a paint turns an image link into an image paint.
+
 ## 6.0.0
 
 ### Breaking changes
