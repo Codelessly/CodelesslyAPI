@@ -71,6 +71,9 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Corner radius of the built-in dialog. Null follows the app's buttons.
   final double? cornerRadius;
 
+  /// Where a [dialogId] dialog shows, as for [ShowDialogAction.placement].
+  final DialogPlacement placement;
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -107,6 +110,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.textColor,
     this.confirmColor,
     this.cornerRadius,
+    this.placement = DialogPlacement.center,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -137,6 +141,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearConfirmColor = false,
     double? cornerRadius,
     bool clearCornerRadius = false,
+    DialogPlacement? placement,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -155,6 +160,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     textColor: clearTextColor ? null : textColor ?? this.textColor,
     confirmColor: clearConfirmColor ? null : confirmColor ?? this.confirmColor,
     cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
+    placement: placement ?? this.placement,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -176,6 +182,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     textColor,
     confirmColor,
     cornerRadius,
+    placement,
   ];
 
   /// Creates an instance from a JSON object.

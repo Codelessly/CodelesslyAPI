@@ -155,7 +155,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     ...super.propertyVariables,
     StringValue(name: 'characters', value: characters),
     // Overrides the color of every span; set by a binding or condition.
-    ColorValue(name: 'textColor', value: null),
+    const ColorValue(name: 'textColor', value: null),
   ];
 
   @override
