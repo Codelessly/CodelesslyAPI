@@ -71,6 +71,7 @@ const _$DialogPresentationEnumMap = {
   DialogPresentation.dialog: 'dialog',
   DialogPresentation.bottomSheet: 'bottomSheet',
   DialogPresentation.adaptive: 'adaptive',
+  DialogPresentation.popover: 'popover',
 };
 
 const _$ActionTypeEnumMap = {
