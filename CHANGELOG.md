@@ -1,5 +1,8 @@
 ## Unreleased
 
+- `IconNode` declares `iconColor` and `iconName` as properties that can be
+  bound, set by conditions or changed by actions; `iconName` names the
+  Material Symbol to show.
 - `SpacerNode` parses JSON without `positioningMode`, `aspectRatioLock` or
   `reactions`, like other nodes. Its constructor didn't take them, so the
   generated `fromJson` required them.
