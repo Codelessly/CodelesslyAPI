@@ -148,6 +148,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.pointerDown,
+    TriggerType.pointerUp,
   ];
 
   @override
