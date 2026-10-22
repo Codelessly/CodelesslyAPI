@@ -177,6 +177,8 @@ List<BaseNode> sampleNodes() {
     IconNode.empty(),
     ListTileNode.empty(),
     ProgressBarNode.empty(),
+    GaugeNode.empty(),
+    BarChartNode.empty(),
     RadioNode.empty(),
     SegmentedButtonNode.empty(),
     SliderNode.empty(),
