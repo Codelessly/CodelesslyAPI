@@ -169,6 +169,7 @@ List<BaseNode> sampleNodes() {
     BadgeNode.empty(),
     ButtonNode.empty(),
     CheckboxNode.empty(),
+    SignatureNode.empty(),
     ChipNode.empty(),
     DividerNode.empty(),
     EmbeddedVideoNode.empty(),
