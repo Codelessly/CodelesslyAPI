@@ -14,6 +14,8 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
   if (isJsonDefault(instance.opacity, 1)) json.remove('opacity');
   if (isJsonDefault(instance.blendMode, BlendModeC.srcOver))
     json.remove('blendMode');
+  if (isJsonDefault(instance.tileMode, GradientTileMode.clamp))
+    json.remove('tileMode');
   if (isJsonDefault(instance.fit, Fit.none)) json.remove('fit');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
     json.remove('alignment');
@@ -54,6 +56,14 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   gradientStops: (json['gradientStops'] as List<dynamic>?)
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
+  tileMode:
+      $enumDecodeNullable(
+        _$GradientTileModeEnumMap,
+        json['tileMode'],
+        unknownValue: GradientTileMode.clamp,
+      ) ??
+      GradientTileMode.clamp,
+  gradientExtent: (json['gradientExtent'] as num?)?.toDouble(),
   imageTransform: (json['imageTransform'] as List<dynamic>?)
       ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
       .toList(),
@@ -88,6 +98,8 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'gradientTransform': ?instance.gradientTransform,
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
+      'tileMode': _$GradientTileModeEnumMap[instance.tileMode]!,
+      'gradientExtent': ?instance.gradientExtent,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
       'imageName': ?instance.imageName,
@@ -144,6 +156,12 @@ const _$BlendModeCEnumMap = {
   BlendModeC.saturation: 'saturation',
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
+};
+
+const _$GradientTileModeEnumMap = {
+  GradientTileMode.clamp: 'clamp',
+  GradientTileMode.repeated: 'repeated',
+  GradientTileMode.mirror: 'mirror',
 };
 
 const _$FitEnumMap = {
