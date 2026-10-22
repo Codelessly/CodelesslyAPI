@@ -29,7 +29,12 @@ enum VariableType {
   map,
 
   /// Image type. Represents an image URL.
-  image;
+  image,
+
+  /// One of a set of named options ([VariableData.choiceOptions]), stored as
+  /// the option's value; e.g. the state a variance node shows, by its id, so
+  /// renaming the state keeps it.
+  choice;
 
   /// Returns a string representation of the variable type.
   String get label => switch (this) {
@@ -41,6 +46,7 @@ enum VariableType {
     VariableType.list => 'List',
     VariableType.map => 'Map',
     VariableType.image => 'Image',
+    VariableType.choice => 'Choice',
   };
 
   factory VariableType.fromObjectType(Object obj) {
@@ -60,6 +66,9 @@ enum VariableType {
       ),
     };
   }
+
+  /// Whether the variable type is [VariableType.choice].
+  bool get isChoice => this == VariableType.choice;
 
   /// Whether the variable type is [VariableType.map].
   bool get isMap => this == VariableType.map;
@@ -105,6 +114,30 @@ class VariableData
 
   /// Whether the variable has a value or not.
   bool get hasValue => value.isNotEmpty;
+
+  /// The `extra` key of a [VariableType.choice] variable's options.
+  static const String optionsKey = 'options';
+
+  /// The options of a [VariableType.choice] variable: each a value and the
+  /// label shown for it. Options stored as plain text are their own label.
+  List<({String value, String label})> get choiceOptions => [
+    for (final Object? option in (extra[optionsKey] as List?) ?? const [])
+      switch (option) {
+        Map() when option['value'] != null => (
+          value: '${option['value']}',
+          label: '${option['label'] ?? option['value']}',
+        ),
+        _ => (value: '$option', label: '$option'),
+      },
+  ];
+
+  /// The label of the option this variable's [value] picks, or the value.
+  String get choiceLabel =>
+      choiceOptions
+          .where((option) => option.value == value)
+          .map((option) => option.label)
+          .firstOrNull ??
+      value;
 
   /// Type of the variable. This is used to determine how to parse the value.
   @JsonKey(unknownEnumValue: VariableType.text)
@@ -175,7 +208,7 @@ class VariableData
   /// A text variable returns its value as is, so one holding an empty string
   /// stays an empty string and compares equal to `''` in conditions.
   Object? getValue() => switch (type) {
-    VariableType.text => value,
+    VariableType.text || VariableType.choice => value,
     VariableType.image => value.isEmpty ? null : value,
     VariableType.integer => num.tryParse(value).toInt(),
     VariableType.decimal => num.tryParse(value).toDouble(),
@@ -200,6 +233,7 @@ String? sanitizeValueForVariableType(Object? value, VariableType type) {
   switch (type) {
     case VariableType.text:
     case VariableType.image:
+    case VariableType.choice:
       return value.toString();
     case VariableType.integer:
       return num.tryParse(value.toString()).toInt()?.toString();
