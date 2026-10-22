@@ -32,7 +32,24 @@ enum AuthOperation {
   updatePassword,
 
   /// Deletes the signed-in user's account and signs them out.
-  deleteAccount;
+  deleteAccount,
+
+  /// Signs in with a Google account.
+  signInWithGoogle,
+
+  /// Signs in with an Apple ID.
+  signInWithApple,
+
+  /// Emails [AuthAction.email] a link that signs them in without a password.
+  sendSignInLink,
+
+  /// Finishes signing in from the link [sendSignInLink] sent, when the app
+  /// was opened from it. Run it when the screen loads.
+  completeSignInLink,
+
+  /// Sets the signed-in user's photo to [AuthAction.photoUrl], e.g. the URL
+  /// a Cloud Files upload gave.
+  updatePhoto;
 
   /// A readable name for this operation.
   String get label => switch (this) {
@@ -44,7 +61,21 @@ enum AuthOperation {
     sendEmailVerification => 'Send Verification Email',
     updatePassword => 'Change Password',
     deleteAccount => 'Delete Account',
+    signInWithGoogle => 'Sign In with Google',
+    signInWithApple => 'Sign In with Apple',
+    sendSignInLink => 'Email a Sign-In Link',
+    completeSignInLink => 'Finish Sign-In from Link',
+    updatePhoto => 'Update Profile Photo',
   };
+
+  /// Whether this operation signs a user in or creates their account, after
+  /// which the user's profile document is created when missing.
+  bool get signsIn =>
+      this == signIn ||
+      this == signUp ||
+      this == signInWithGoogle ||
+      this == signInWithApple ||
+      this == completeSignInLink;
 }
 
 /// Signs app users in and out with email and password.
@@ -74,6 +105,10 @@ class AuthAction extends ActionModel with Equatable, SerializableMixin {
   /// [AuthOperation.updateProfile].
   final String displayName;
 
+  /// The photo URL, for [AuthOperation.updatePhoto].
+  @JsonKey(defaultValue: '')
+  final String photoUrl;
+
   /// A text variable that receives the error message when the operation
   /// fails, and is cleared when it succeeds.
   final VariableData? errorVariable;
@@ -84,6 +119,7 @@ class AuthAction extends ActionModel with Equatable, SerializableMixin {
     this.email = '',
     this.password = '',
     this.displayName = '',
+    this.photoUrl = '',
     this.errorVariable,
     super.nonBlocking,
     super.enabled,
@@ -95,12 +131,14 @@ class AuthAction extends ActionModel with Equatable, SerializableMixin {
     String? email,
     String? password,
     String? displayName,
+    String? photoUrl,
     VariableData? errorVariable,
   }) => AuthAction(
     operation: operation ?? this.operation,
     email: email ?? this.email,
     password: password ?? this.password,
     displayName: displayName ?? this.displayName,
+    photoUrl: photoUrl ?? this.photoUrl,
     errorVariable: errorVariable ?? this.errorVariable,
     nonBlocking: nonBlocking,
     enabled: enabled,
@@ -112,6 +150,7 @@ class AuthAction extends ActionModel with Equatable, SerializableMixin {
     email,
     password,
     displayName,
+    photoUrl,
     errorVariable,
   ];
 
