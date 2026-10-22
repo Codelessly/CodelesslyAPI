@@ -1,3 +1,9 @@
+## Unreleased
+
+- `SpacerNode` parses JSON without `positioningMode`, `aspectRatioLock` or
+  `reactions`, like other nodes. Its constructor didn't take them, so the
+  generated `fromJson` required them.
+
 ## 6.1.0
 
 ### States and conditions
