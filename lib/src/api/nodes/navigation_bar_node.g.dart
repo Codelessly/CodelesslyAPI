@@ -186,6 +186,9 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
@@ -220,6 +223,7 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'currentIndex': instance.currentIndex,
       'properties': instance.properties.toJson(),

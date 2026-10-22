@@ -209,6 +209,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -218,13 +221,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
       'id': instance.id,
       'name': instance.name,
       'visible': instance.visible,
@@ -236,6 +232,13 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'flex': instance.flex,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),
@@ -248,6 +251,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'opacity': instance.opacity,
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'isMask': instance.isMask,
