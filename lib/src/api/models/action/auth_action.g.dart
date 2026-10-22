@@ -15,6 +15,7 @@ Map<String, dynamic> _$AuthActionOmitDefaults(
   if (isJsonDefault(instance.email, '')) json.remove('email');
   if (isJsonDefault(instance.password, '')) json.remove('password');
   if (isJsonDefault(instance.displayName, '')) json.remove('displayName');
+  if (isJsonDefault(instance.photoUrl, '')) json.remove('photoUrl');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -31,6 +32,7 @@ AuthAction _$AuthActionFromJson(Map json) => AuthAction(
   email: json['email'] as String? ?? '',
   password: json['password'] as String? ?? '',
   displayName: json['displayName'] as String? ?? '',
+  photoUrl: json['photoUrl'] as String? ?? '',
   errorVariable: json['errorVariable'] == null
       ? null
       : VariableData.fromJson(
@@ -49,6 +51,7 @@ Map<String, dynamic> _$AuthActionToJson(AuthAction instance) =>
       'email': instance.email,
       'password': instance.password,
       'displayName': instance.displayName,
+      'photoUrl': instance.photoUrl,
       'errorVariable': ?instance.errorVariable?.toJson(),
     };
 
@@ -61,6 +64,11 @@ const _$AuthOperationEnumMap = {
   AuthOperation.sendEmailVerification: 'sendEmailVerification',
   AuthOperation.updatePassword: 'updatePassword',
   AuthOperation.deleteAccount: 'deleteAccount',
+  AuthOperation.signInWithGoogle: 'signInWithGoogle',
+  AuthOperation.signInWithApple: 'signInWithApple',
+  AuthOperation.sendSignInLink: 'sendSignInLink',
+  AuthOperation.completeSignInLink: 'completeSignInLink',
+  AuthOperation.updatePhoto: 'updatePhoto',
 };
 
 const _$ActionTypeEnumMap = {
