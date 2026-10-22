@@ -53,6 +53,7 @@ Map<String, dynamic> _$VariantOmitDefaults(
   Variant instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.skeleton, false)) json.remove('skeleton');
   return json;
 }
 
@@ -251,6 +252,7 @@ Variant _$VariantFromJson(Map json) => Variant(
   overrides: (json['overrides'] as Map?)?.map(
     (k, e) => MapEntry(k as String, Map<String, dynamic>.from(e as Map)),
   ),
+  skeleton: json['skeleton'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$VariantToJson(Variant instance) => <String, dynamic>{
@@ -259,6 +261,7 @@ Map<String, dynamic> _$VariantToJson(Variant instance) => <String, dynamic>{
   'children': instance.children,
   'breakpoint': ?_$ScreenBreakpointEnumMap[instance.breakpoint],
   'overrides': ?instance.overrides,
+  'skeleton': instance.skeleton,
 };
 
 const _$ScreenBreakpointEnumMap = {
