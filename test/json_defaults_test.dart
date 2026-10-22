@@ -257,6 +257,38 @@ List<BaseNode> sampleNodes() {
       _node('placeholder'),
       _node('accordion', {'rowColumnType': 'column', 'properties': {}}),
       _node('external', {'properties': {}}),
+      _node('gauge', {
+        'value': 72.6,
+        'properties': {
+          'segments': 0,
+          'target': 90,
+          'labels': [0, 100],
+          'labelFontFamily': 'JetBrains Mono',
+          'zones': [
+            {'from': 0, 'to': 50, 'color': '#FF4A3D'},
+            {'from': 50, 'to': 100, 'color': '#2FD17A'},
+          ],
+        },
+      }),
+      _node('chart', {
+        'selectedIndex': 2,
+        'properties': {
+          'chartType': 'line',
+          'xSlots': 8,
+          'nowValue': 342,
+          'series': [
+            {'field': 'actual', 'kind': 'area', 'fillTo': 'plan', 'endDot': true},
+            {'field': 'plan', 'kind': 'line', 'dashed': true},
+          ],
+          'referenceLines': [
+            {'value': 85, 'color': '#2FD17A'},
+          ],
+          'sampleData': [
+            {'label': '14', 'actual': 0, 'plan': 0},
+            {'label': '15', 'actual': 700, 'plan': 800},
+          ],
+        },
+      }),
     ])
       NodeJsonConverter().fromJson(json)!,
   ];
