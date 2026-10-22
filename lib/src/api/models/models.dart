@@ -55,6 +55,7 @@ export 'node_box.dart';
 export 'paint.dart';
 export 'paint_type.dart';
 export 'pins_model.dart';
+export 'property_overrides.dart';
 export 'reaction.dart';
 export 'rect.dart';
 export 'safe_area.dart';

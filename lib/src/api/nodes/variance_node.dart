@@ -25,18 +25,28 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  List<String> get children => currentVariant.children;
+  List<String> get children => childrenOf(currentVariant);
+
+  /// The children [variant] shows: its own, or the default variant's when it
+  /// only overrides their properties.
+  List<String> childrenOf(Variant variant) =>
+      variant.isOverride ? defaultVariant.children : variant.children;
 
   /// Get all the children from all the variants.
   List<String> get allVariantsChildren =>
       variants.expand((e) => e.children).toList();
 
   /// Get all the children from all the variants except the currently loaded
-  /// variant.
-  List<String> get unloadedVariantsChildren => variants
-      .where((element) => element.id != currentVariantId)
-      .expand((e) => e.children)
-      .toList();
+  /// variant (and the default variant's, when the current variant shows
+  /// them with overrides).
+  List<String> get unloadedVariantsChildren {
+    final Set<String> loaded = childrenOf(currentVariant).toSet();
+    return variants
+        .where((element) => element.id != currentVariantId)
+        .expand((e) => e.children)
+        .where((id) => !loaded.contains(id))
+        .toList();
+  }
 
   /// Whether this node is a responsive layout: its variants map to screen
   /// breakpoints ([Variant.breakpoint]) and the one shown follows the width of
@@ -70,12 +80,14 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
       variantForBreakpoint(ScreenBreakpoint.forWidth(width)) ?? currentVariant;
 
   /// The variant that is loaded by default.
-  Variant get defaultVariant => variants.firstWhere((e) => e.id == 'default');
+  Variant get defaultVariant =>
+      variants.firstWhereOrNull((e) => e.id == 'default') ?? variants.first;
 
   @override
   set children(List<String> value) {
     if (variants.isEmpty) return;
-    currentVariant.children = value;
+    final Variant variant = currentVariant;
+    (variant.isOverride ? defaultVariant : variant).children = value;
   }
 
   /// Currently loaded variant's ID.
@@ -178,12 +190,23 @@ class Variant with SerializableMixin, Equatable {
   /// [VarianceNode] is responsive. Null for an ordinary state.
   ScreenBreakpoint? breakpoint;
 
+  /// When not null, this variant is a property-override state: it shows the
+  /// default variant's children with these property changes (node id to a
+  /// sparse patch of that node) instead of a copy of them, and its own
+  /// [children] stay empty.
+  PropertyOverrides? overrides;
+
+  /// Whether this variant overrides the default variant's properties instead
+  /// of holding its own copy of the children.
+  bool get isOverride => overrides != null;
+
   /// Creates a [Variant] instance with the given data.
   Variant({
     required this.id,
     required this.name,
     required this.children,
     this.breakpoint,
+    this.overrides,
   });
 
   /// The name to show for this variant: its breakpoint's label when it has
@@ -191,7 +214,7 @@ class Variant with SerializableMixin, Equatable {
   String get label => breakpoint?.label ?? name;
 
   @override
-  List<Object?> get props => [id, name, children, breakpoint];
+  List<Object?> get props => [id, name, children, breakpoint, overrides];
 
   @override
   Map toJson() => _$VariantOmitDefaults(this, _$VariantToJson(this));

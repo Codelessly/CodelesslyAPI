@@ -369,6 +369,15 @@ abstract class BaseNode
   /// parent.
   double? heightFactor;
 
+  /// What this node and its descendants change to in each interaction
+  /// state (hover, pressed, ...): node id to a sparse patch of that node's
+  /// properties. Empty when the node has no interaction states.
+  @JsonKey(defaultValue: {})
+  Map<InteractionState, PropertyOverrides> interactionStates = {};
+
+  /// Whether this node changes how it looks in any interaction state.
+  bool get hasInteractionStates => interactionStates.isNotEmpty;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
