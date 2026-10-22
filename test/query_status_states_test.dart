@@ -58,9 +58,11 @@ void main() {
     );
     expect(list.toJson().containsKey('paging'), isFalse);
     list.paging = QueryPaging.button;
+    list.loadRelated = ['author'];
     final ListViewNode listBack = ListViewNode.fromJson(
       jsonDecode(jsonEncode(list.toJson())) as Map,
     );
     expect(listBack.paging, QueryPaging.button);
+    expect(listBack.loadRelated, ['author']);
   });
 }

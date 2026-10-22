@@ -1395,6 +1395,12 @@ mixin QueryableMixin {
   @JsonKey(defaultValue: QueryPaging.scroll)
   QueryPaging paging = QueryPaging.scroll;
 
+  /// Reference fields whose documents load with the results: each result's
+  /// field then holds the referenced document (with its `id`), e.g.
+  /// `${item.author.name}`. The collection comes from the schema.
+  @JsonKey(defaultValue: [])
+  List<String> loadRelated = [];
+
   /// Whether the query operation is going to be restrictive.
   /// This pertains to Firestore's indexing rules.
   bool get restrictedIndexing => useCloudDatabase;
