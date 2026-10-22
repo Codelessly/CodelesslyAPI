@@ -60,7 +60,15 @@ enum ToastAlignment {
   end,
 
   /// As wide as the space between the margins.
-  stretch,
+  stretch;
+
+  /// Label for the editor.
+  String get prettify => switch (this) {
+    ToastAlignment.center => 'Center',
+    ToastAlignment.start => 'Left',
+    ToastAlignment.end => 'Right',
+    ToastAlignment.stretch => 'Stretch',
+  };
 }
 
 /// An action that shows a short message near the bottom or top of the screen,
@@ -197,6 +205,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     double? maxWidth,
     double? cornerRadius,
     ColorRGBA? actionColor,
+    bool clearActionColor = false,
+    bool clearCornerRadius = false,
     bool? showCloseButton,
     double? fontSize,
   }) => ShowToastAction(
@@ -215,8 +225,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     alignment: alignment ?? this.alignment,
     sideMargin: sideMargin ?? this.sideMargin,
     maxWidth: maxWidth ?? this.maxWidth,
-    cornerRadius: cornerRadius ?? this.cornerRadius,
-    actionColor: actionColor ?? this.actionColor,
+    cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
+    actionColor: clearActionColor ? null : actionColor ?? this.actionColor,
     showCloseButton: showCloseButton ?? this.showCloseButton,
     fontSize: fontSize ?? this.fontSize,
     nonBlocking: nonBlocking,
