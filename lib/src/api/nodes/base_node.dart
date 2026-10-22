@@ -378,6 +378,16 @@ abstract class BaseNode
   /// Whether this node changes how it looks in any interaction state.
   bool get hasInteractionStates => interactionStates.isNotEmpty;
 
+  /// Text shown when the user hovers or long-presses the node; may hold
+  /// `${...}` data. Empty for none.
+  @JsonKey(defaultValue: '')
+  String tooltip = '';
+
+  /// Whether the user can pinch, scroll or double-tap to zoom and pan the
+  /// node, e.g. a photo.
+  @JsonKey(defaultValue: false)
+  bool zoomable = false;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.

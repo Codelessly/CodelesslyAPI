@@ -23,6 +23,8 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -106,6 +108,8 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
@@ -133,6 +137,8 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
       'interactionStates': instance.interactionStates.map(
         (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
       ),
+      'tooltip': instance.tooltip,
+      'zoomable': instance.zoomable,
       'enabled': instance.enabled,
       'type': instance.type,
     };

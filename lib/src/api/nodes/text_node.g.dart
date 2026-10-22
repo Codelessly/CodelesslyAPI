@@ -41,6 +41,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -212,9 +214,12 @@ TextNode _$TextNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
+  'characters': instance.characters,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -231,7 +236,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
-  'characters': instance.characters,
   'alignment': instance.alignment.toJson(),
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
@@ -254,6 +258,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
