@@ -782,6 +782,12 @@ abstract interface class ActionVisitor<R> {
   /// Evaluates the action and returns the result.
   R? visitDelayAction(DelayAction action);
 
+  /// Visits a [CloudDataAction].
+  R? visitCloudDataAction(CloudDataAction action);
+
+  /// Visits a [CloudBatchAction].
+  R? visitCloudBatchAction(CloudBatchAction action);
+
   /// Evaluates the action and returns the result.
   R? visitCallFunctionAction(CallFunctionAction action);
 

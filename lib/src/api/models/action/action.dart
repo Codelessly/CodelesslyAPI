@@ -58,7 +58,13 @@ enum ActionType {
   confirm,
 
   /// Wait before running the next action.
-  delay;
+  delay,
+
+  /// Create, update, delete, read, query or aggregate cloud documents.
+  cloudData,
+
+  /// Write several cloud documents together.
+  cloudBatch;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -101,6 +107,10 @@ enum ActionType {
         return 'Confirm Dialog';
       case ActionType.delay:
         return 'Delay';
+      case ActionType.cloudData:
+        return 'Cloud Data';
+      case ActionType.cloudBatch:
+        return 'Cloud Batch';
     }
   }
 }
@@ -188,6 +198,10 @@ abstract class ActionModel with SerializableMixin {
         return ConfirmAction.fromJson(json);
       case ActionType.delay:
         return DelayAction.fromJson(json);
+      case ActionType.cloudData:
+        return CloudDataAction.fromJson(json);
+      case ActionType.cloudBatch:
+        return CloudBatchAction.fromJson(json);
     }
   }
 
