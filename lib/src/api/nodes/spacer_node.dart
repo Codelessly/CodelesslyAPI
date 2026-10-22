@@ -41,6 +41,9 @@ class SpacerNode extends SceneNode {
     super.edgePins,
     super.parentID,
     super.constraints,
+    super.positioningMode,
+    super.aspectRatioLock,
+    super.reactions,
   });
 
   /// Creates a new [SpacerNode] from a JSON data.
