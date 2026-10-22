@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
+import '../json_defaults.dart';
 import '../mixins.dart';
 
 part 'trigger.g.dart';
@@ -42,7 +43,11 @@ enum TriggerType {
   pointerUp,
 
   /// Triggered when the canvas is loaded.
-  load;
+  load,
+
+  /// Triggered when the variable named by [TriggerModel.variable] changes,
+  /// while the screen it is set on shows.
+  valueChanged;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -71,6 +76,8 @@ enum TriggerType {
         return 'Submitted';
       case TriggerType.load:
         return 'Load';
+      case TriggerType.valueChanged:
+        return 'Value Changed';
     }
   }
 }
@@ -81,15 +88,31 @@ class TriggerModel with Equatable, SerializableMixin {
   /// The type of the trigger.
   final TriggerType type;
 
+  /// Waits this many milliseconds after the last trigger before running,
+  /// so a burst (typing in a search field) runs the actions once. 0 runs
+  /// them every time.
+  @JsonKey(defaultValue: 0)
+  final int debounceMs;
+
+  /// For [TriggerType.valueChanged], the name of the variable to watch.
+  final String? variable;
+
   /// Creates a [TriggerModel] with given data.
-  TriggerModel({required this.type});
+  TriggerModel({required this.type, this.debounceMs = 0, this.variable});
 
   @override
-  List<Object?> get props => [type];
+  List<Object?> get props => [type, debounceMs, variable];
 
   /// Duplicate this [TriggerModel] with given data overrides.
-  TriggerModel copyWith({TriggerType? type}) =>
-      TriggerModel(type: type ?? this.type);
+  TriggerModel copyWith({
+    TriggerType? type,
+    int? debounceMs,
+    String? variable,
+  }) => TriggerModel(
+    type: type ?? this.type,
+    debounceMs: debounceMs ?? this.debounceMs,
+    variable: variable ?? this.variable,
+  );
 
   /// Factory constructor for creating a new [TriggerModel] instance from
   /// JSON data.
