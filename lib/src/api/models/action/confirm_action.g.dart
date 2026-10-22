@@ -19,6 +19,8 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   if (isJsonDefault(instance.params, {})) json.remove('params');
   if (isJsonDefault(instance.barrierDismissible, true))
     json.remove('barrierDismissible');
+  if (isJsonDefault(instance.placement, DialogPlacement.center))
+    json.remove('placement');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -56,6 +58,9 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
       ? null
       : ColorRGBA.fromJson(json['confirmColor']),
   cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
+  placement:
+      $enumDecodeNullable(_$DialogPlacementEnumMap, json['placement']) ??
+      DialogPlacement.center,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -80,7 +85,15 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'textColor': ?instance.textColor?.toJson(),
       'confirmColor': ?instance.confirmColor?.toJson(),
       'cornerRadius': ?instance.cornerRadius,
+      'placement': _$DialogPlacementEnumMap[instance.placement]!,
     };
+
+const _$DialogPlacementEnumMap = {
+  DialogPlacement.center: 'center',
+  DialogPlacement.bottomSheet: 'bottomSheet',
+  DialogPlacement.adaptive: 'adaptive',
+  DialogPlacement.anchored: 'anchored',
+};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
