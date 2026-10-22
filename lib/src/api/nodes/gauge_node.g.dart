@@ -33,6 +33,10 @@ Map<String, dynamic> _$GaugeNodeOmitDefaults(
   if (isJsonDefault(instance.padding, EdgeInsetsModel.zero))
     json.remove('padding');
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.interactionStates, {}))
+    json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -192,6 +196,19 @@ GaugeNode _$GaugeNodeFromJson(Map json) =>
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..interactionStates =
+          (json['interactionStates'] as Map?)?.map(
+            (k, e) => MapEntry(
+              $enumDecode(_$InteractionStateEnumMap, k),
+              (e as Map).map(
+                (k, e) =>
+                    MapEntry(k as String, Map<String, dynamic>.from(e as Map)),
+              ),
+            ),
+          ) ??
+          {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
@@ -219,6 +236,11 @@ Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
   'rotation': instance.rotationDegrees,
   'widthFactor': ?instance.widthFactor,
   'heightFactor': ?instance.heightFactor,
+  'interactionStates': instance.interactionStates.map(
+    (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+  ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'type': instance.type,
   'properties': instance.properties.toJson(),
@@ -241,6 +263,14 @@ const _$PositioningModeEnumMap = {
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
+};
+
+const _$InteractionStateEnumMap = {
+  InteractionState.hovered: 'hovered',
+  InteractionState.focused: 'focused',
+  InteractionState.pressed: 'pressed',
+  InteractionState.selected: 'selected',
+  InteractionState.disabled: 'disabled',
 };
 
 GaugeZone _$GaugeZoneFromJson(Map json) => GaugeZone(

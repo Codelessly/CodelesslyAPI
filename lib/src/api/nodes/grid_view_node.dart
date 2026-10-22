@@ -229,6 +229,8 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
   double? cacheExtent;
 
   /// Properties of the grid delegate that controls the layout of the grid.
+  /// JSON without one gets two columns.
+  @JsonKey(readValue: _readGridDelegate)
   GridDelegateProperties gridDelegate;
 
   /// Creates a new [GridViewProperties] instance.
@@ -500,3 +502,6 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
   @override
   List<Object?> get props => [...super.props, maxCrossAxisExtent];
 }
+
+Object? _readGridDelegate(Map json, String key) =>
+    json[key] ?? const {'type': 'fixedCrossAxisCount', 'crossAxisCount': 2};
