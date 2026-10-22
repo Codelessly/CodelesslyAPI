@@ -33,6 +33,10 @@ Map<String, dynamic> _$SignatureNodeOmitDefaults(
   if (isJsonDefault(instance.padding, EdgeInsetsModel.zero))
     json.remove('padding');
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.interactionStates, {}))
+    json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -159,6 +163,22 @@ SignatureNode _$SignatureNodeFromJson(Map json) =>
           {}
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
+      ..interactionStates =
+          (json['interactionStates'] as Map?)?.map(
+            (k, e) => MapEntry(
+              $enumDecode(_$InteractionStateEnumMap, k),
+              (e as Map).map(
+                (k, e) =>
+                    MapEntry(k as String, Map<String, dynamic>.from(e as Map)),
+              ),
+            ),
+          ) ??
+          {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SignatureNodeToJson(SignatureNode instance) =>
@@ -187,6 +207,12 @@ Map<String, dynamic> _$SignatureNodeToJson(SignatureNode instance) =>
       'rotation': instance.rotationDegrees,
       'widthFactor': ?instance.widthFactor,
       'heightFactor': ?instance.heightFactor,
+      'interactionStates': instance.interactionStates.map(
+        (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+      ),
+      'tooltip': instance.tooltip,
+      'zoomable': instance.zoomable,
+      'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
       'type': instance.type,
       'properties': instance.properties.toJson(),
@@ -209,6 +235,14 @@ const _$PositioningModeEnumMap = {
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
+};
+
+const _$InteractionStateEnumMap = {
+  InteractionState.hovered: 'hovered',
+  InteractionState.focused: 'focused',
+  InteractionState.pressed: 'pressed',
+  InteractionState.selected: 'selected',
+  InteractionState.disabled: 'disabled',
 };
 
 SignatureProperties _$SignaturePropertiesFromJson(
