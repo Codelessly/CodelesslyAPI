@@ -25,7 +25,7 @@ Map<String, Object Function()> omittedDefaultModels() => {
     elseActions: [CallFunctionAction(name: 'f')],
   ),
   'ForEachAction': () => ForEachAction(items: r'${list}'),
-  'CloudFilesAction': () => CloudFilesAction(),
+  'CloudFilesAction': () => CloudFilesAction(access: CloudFileAccess.public),
   'ApiCallAction': () => ApiCallAction(apiId: 'api'),
   'CallFunctionAction': () => CallFunctionAction(name: 'f'),
   'VariableData': () => VariableData(id: 'v', name: 'count', value: '1'),
@@ -61,7 +61,7 @@ Map<String, Object Function()> omittedDefaultModels() => {
         action: ConditionalAction(
           expression: _expression(),
           actions: [
-            CloudFilesAction(),
+            CloudFilesAction(access: CloudFileAccess.public),
             ApiCallAction(apiId: 'a'),
           ],
         ),

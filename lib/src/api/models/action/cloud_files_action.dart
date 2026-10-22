@@ -30,6 +30,16 @@ enum CloudFilesType {
   any,
 }
 
+/// Who can open an uploaded file.
+enum CloudFileAccess {
+  /// Only the user who uploaded it: stored under their own folder
+  /// (`users/{uid}/...`), which storage rules keep to them.
+  private,
+
+  /// Anyone with its URL: stored in the project's shared folder.
+  public,
+}
+
 /// Uploads files the user picks to the project's cloud storage, or deletes
 /// one.
 ///
@@ -66,6 +76,11 @@ class CloudFilesAction extends ActionModel with Equatable, SerializableMixin {
   /// Map variable that receives the upload progress.
   final VariableData? progressVariable;
 
+  /// Who can open the uploaded files. New actions upload private files;
+  /// actions saved before this option keep uploading public ones.
+  @JsonKey(defaultValue: CloudFileAccess.public)
+  final CloudFileAccess access;
+
   /// Actions to run after each file uploads, with `${result}` set to it.
   final List<ActionModel> actions;
 
@@ -77,6 +92,7 @@ class CloudFilesAction extends ActionModel with Equatable, SerializableMixin {
     this.allowMultiple = true,
     this.maxSizeMB = 10,
     this.progressVariable,
+    this.access = CloudFileAccess.private,
     List<ActionModel>? actions,
     super.nonBlocking,
     super.enabled,
@@ -91,6 +107,7 @@ class CloudFilesAction extends ActionModel with Equatable, SerializableMixin {
     bool? allowMultiple,
     num? maxSizeMB,
     VariableData? progressVariable,
+    CloudFileAccess? access,
     List<ActionModel>? actions,
   }) => CloudFilesAction(
     operation: operation ?? this.operation,
@@ -99,6 +116,7 @@ class CloudFilesAction extends ActionModel with Equatable, SerializableMixin {
     allowMultiple: allowMultiple ?? this.allowMultiple,
     maxSizeMB: maxSizeMB ?? this.maxSizeMB,
     progressVariable: progressVariable ?? this.progressVariable,
+    access: access ?? this.access,
     actions: actions ?? this.actions,
     nonBlocking: nonBlocking,
     enabled: enabled,
@@ -112,6 +130,7 @@ class CloudFilesAction extends ActionModel with Equatable, SerializableMixin {
     allowMultiple,
     maxSizeMB,
     progressVariable,
+    access,
     actions,
   ];
 
