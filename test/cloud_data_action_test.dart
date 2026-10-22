@@ -99,9 +99,9 @@ void main() {
     expect(back, schema);
     expect(back.field('author')!.referenceCollection, 'users');
     expect(back.field('missing'), isNull);
+    // The default type is left out.
     expect((schema.toJson()['fields'] as List)[0], {
       'name': 'text',
-      'type': 'text',
       'required': true,
     });
   });
