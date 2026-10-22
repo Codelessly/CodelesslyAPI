@@ -17,6 +17,8 @@ Map<String, dynamic> _$CloudFilesActionOmitDefaults(
     json.remove('fileType');
   if (isJsonDefault(instance.allowMultiple, true)) json.remove('allowMultiple');
   if (isJsonDefault(instance.maxSizeMB, 10)) json.remove('maxSizeMB');
+  if (isJsonDefault(instance.access, CloudFileAccess.public))
+    json.remove('access');
   if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -42,6 +44,9 @@ CloudFilesAction _$CloudFilesActionFromJson(Map json) => CloudFilesAction(
       : VariableData.fromJson(
           Map<String, dynamic>.from(json['progressVariable'] as Map),
         ),
+  access:
+      $enumDecodeNullable(_$CloudFileAccessEnumMap, json['access']) ??
+      CloudFileAccess.public,
   actions: (json['actions'] as List<dynamic>?)
       ?.map((e) => ActionModel.fromJson(e as Map))
       .toList(),
@@ -60,6 +65,7 @@ Map<String, dynamic> _$CloudFilesActionToJson(CloudFilesAction instance) =>
       'allowMultiple': instance.allowMultiple,
       'maxSizeMB': instance.maxSizeMB,
       'progressVariable': ?instance.progressVariable?.toJson(),
+      'access': _$CloudFileAccessEnumMap[instance.access]!,
       'actions': instance.actions.map((e) => e.toJson()).toList(),
     };
 
@@ -71,6 +77,11 @@ const _$CloudFilesOperationEnumMap = {
 const _$CloudFilesTypeEnumMap = {
   CloudFilesType.image: 'image',
   CloudFilesType.any: 'any',
+};
+
+const _$CloudFileAccessEnumMap = {
+  CloudFileAccess.private: 'private',
+  CloudFileAccess.public: 'public',
 };
 
 const _$ActionTypeEnumMap = {
