@@ -10,6 +10,7 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
   TriggerModel instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.debounceMs, 0)) json.remove('debounceMs');
   return json;
 }
 
@@ -17,11 +18,18 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
 // JsonSerializableGenerator
 // **************************************************************************
 
-TriggerModel _$TriggerModelFromJson(Map json) =>
-    TriggerModel(type: $enumDecode(_$TriggerTypeEnumMap, json['type']));
+TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
+  type: $enumDecode(_$TriggerTypeEnumMap, json['type']),
+  debounceMs: (json['debounceMs'] as num?)?.toInt() ?? 0,
+  variable: json['variable'] as String?,
+);
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
-    <String, dynamic>{'type': _$TriggerTypeEnumMap[instance.type]!};
+    <String, dynamic>{
+      'type': _$TriggerTypeEnumMap[instance.type]!,
+      'debounceMs': instance.debounceMs,
+      'variable': ?instance.variable,
+    };
 
 const _$TriggerTypeEnumMap = {
   TriggerType.click: 'click',
@@ -36,4 +44,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.pointerDown: 'pointerDown',
   TriggerType.pointerUp: 'pointerUp',
   TriggerType.load: 'load',
+  TriggerType.valueChanged: 'valueChanged',
 };
