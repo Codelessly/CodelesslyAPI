@@ -29,8 +29,9 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
 
   /// The children [variant] shows: its own, or the default variant's when it
   /// only overrides their properties.
-  List<String> childrenOf(Variant variant) =>
-      variant.isOverride ? defaultVariant.children : variant.children;
+  List<String> childrenOf(Variant variant) => variant.sharesDefaultChildren
+      ? defaultVariant.children
+      : variant.children;
 
   /// Get all the children from all the variants.
   List<String> get allVariantsChildren =>
@@ -79,6 +80,18 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   Variant variantForWidth(double width) =>
       variantForBreakpoint(ScreenBreakpoint.forWidth(width)) ?? currentVariant;
 
+  /// Whether this node shows the status of a cloud list: it has a variant
+  /// with the id of a query status ([kQueryStatusLoading],
+  /// [kQueryStatusEmpty] or [kQueryStatusError]), and its current variant is
+  /// bound to the list's status variable.
+  bool get isQueryStatus => variants.any(
+    (variant) => const {
+      kQueryStatusLoading,
+      kQueryStatusEmpty,
+      kQueryStatusError,
+    }.contains(variant.id),
+  );
+
   /// The variant that is loaded by default.
   Variant get defaultVariant =>
       variants.firstWhereOrNull((e) => e.id == 'default') ?? variants.first;
@@ -87,7 +100,7 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   set children(List<String> value) {
     if (variants.isEmpty) return;
     final Variant variant = currentVariant;
-    (variant.isOverride ? defaultVariant : variant).children = value;
+    (variant.sharesDefaultChildren ? defaultVariant : variant).children = value;
   }
 
   /// Currently loaded variant's ID.
@@ -200,6 +213,15 @@ class Variant with SerializableMixin, Equatable {
   /// of holding its own copy of the children.
   bool get isOverride => overrides != null;
 
+  /// Whether this variant shows the default variant's children as a
+  /// shimmering skeleton (for a loading state) instead of its own children.
+  @JsonKey(defaultValue: false)
+  bool skeleton;
+
+  /// Whether this variant shows the default variant's children rather than
+  /// its own: it overrides their properties or shows them as a skeleton.
+  bool get sharesDefaultChildren => isOverride || skeleton;
+
   /// Creates a [Variant] instance with the given data.
   Variant({
     required this.id,
@@ -207,6 +229,7 @@ class Variant with SerializableMixin, Equatable {
     required this.children,
     this.breakpoint,
     this.overrides,
+    this.skeleton = false,
   });
 
   /// The name to show for this variant: its breakpoint's label when it has
@@ -214,7 +237,14 @@ class Variant with SerializableMixin, Equatable {
   String get label => breakpoint?.label ?? name;
 
   @override
-  List<Object?> get props => [id, name, children, breakpoint, overrides];
+  List<Object?> get props => [
+    id,
+    name,
+    children,
+    breakpoint,
+    overrides,
+    skeleton,
+  ];
 
   @override
   Map toJson() => _$VariantOmitDefaults(this, _$VariantToJson(this));
