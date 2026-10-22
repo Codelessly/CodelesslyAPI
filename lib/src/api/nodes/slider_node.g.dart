@@ -197,6 +197,9 @@ SliderNode _$SliderNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) =>
@@ -231,6 +234,7 @@ Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'value': instance.value,
       'properties': instance.properties.toJson(),
