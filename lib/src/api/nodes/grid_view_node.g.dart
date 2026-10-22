@@ -62,6 +62,7 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
   if (isJsonDefault(instance.useCloudDatabase, false))
     json.remove('useCloudDatabase');
   if (isJsonDefault(instance.limit, 20)) json.remove('limit');
+  if (isJsonDefault(instance.paging, QueryPaging.scroll)) json.remove('paging');
   if (isJsonDefault(instance.whereFilters, [])) json.remove('whereFilters');
   if (isJsonDefault(instance.orderByFilters, [])) json.remove('orderByFilters');
   return json;
@@ -248,6 +249,9 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
+      ..paging =
+          $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
+          QueryPaging.scroll
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
@@ -281,11 +285,11 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       ),
       'enabled': instance.enabled,
       'children': instance.children,
-      'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
+      'clipsContent': instance.clipsContent,
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,
@@ -299,6 +303,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'useCloudDatabase': instance.useCloudDatabase,
       'collectionPath': ?instance.collectionPath,
       'limit': ?instance.limit,
+      'paging': _$QueryPagingEnumMap[instance.paging]!,
       'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
       'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
       'type': instance.type,
@@ -348,6 +353,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$QueryPagingEnumMap = {
+  QueryPaging.scroll: 'scroll',
+  QueryPaging.button: 'button',
 };
 
 GridViewProperties _$GridViewPropertiesFromJson(Map json) => GridViewProperties(

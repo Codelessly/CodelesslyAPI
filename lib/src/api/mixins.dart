@@ -1369,6 +1369,16 @@ const String kQueryStatusError = 'error';
 /// A list's cloud query returned documents.
 const String kQueryStatusLoaded = 'loaded';
 
+/// How a cloud list loads more than its first page.
+enum QueryPaging {
+  /// The next page loads when the end of the list scrolls into view.
+  scroll,
+
+  /// A "Show more" button after the last item loads the next page and says
+  /// how many documents are left.
+  button,
+}
+
 /// A mixin that adds the ability to filter a collection of data
 /// on a node.
 mixin QueryableMixin {
@@ -1380,6 +1390,10 @@ mixin QueryableMixin {
 
   /// A limit integer to specify the number of documents to be returned.
   int? limit;
+
+  /// How the list loads the pages after the first one.
+  @JsonKey(defaultValue: QueryPaging.scroll)
+  QueryPaging paging = QueryPaging.scroll;
 
   /// Whether the query operation is going to be restrictive.
   /// This pertains to Firestore's indexing rules.
