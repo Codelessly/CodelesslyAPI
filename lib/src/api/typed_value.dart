@@ -20,8 +20,7 @@ extension ObjectExt on Object? {
         ColorRGB.fromColorRGBA(value.toColorRGBA()).tryCast<R>() ??
             defaultValue,
       const (ColorRGBA) => value.toColorRGBA().tryCast<R>() ?? defaultValue,
-      const (PaintModel) =>
-        value.toColorRGBA()?.toPaint().tryCast<R>() ?? defaultValue,
+      const (PaintModel) => value.toPaintModel().tryCast<R>() ?? defaultValue,
       const (String) =>
         (value is List || value is Map
                     ? encodeJsonValue(value)
@@ -184,6 +183,30 @@ extension ConversionExt on Object? {
       if (parsedNum != null) return parsedNum != 0;
     }
     return null;
+  }
+
+  /// Converts given object to a [PaintModel] if possible: a paint's JSON,
+  /// an image URL as an image that covers the node, or a color. Returns null
+  /// otherwise.
+  PaintModel? toPaintModel() {
+    final value = this;
+    if (value is PaintModel) return value;
+    if (value is Map) {
+      try {
+        return PaintModel.fromJson(value);
+      } catch (_) {
+        return null;
+      }
+    }
+    if (value is String && _isImageUrl(value)) {
+      return PaintModel.fromJson({
+        'id': 'bound-image',
+        'type': PaintType.image.name,
+        'downloadUrl': value.trim(),
+        'fit': Fit.cover.name,
+      });
+    }
+    return value.toColorRGBA()?.toPaint();
   }
 
   /// Converts given object to [ColorRGBA] if possible. Returns null otherwise.
@@ -368,4 +391,12 @@ extension ConversionExt on Object? {
 
     return set.tryCast<R>();
   }
+}
+
+/// Whether [value] is a link to an image rather than a color.
+bool _isImageUrl(String value) {
+  final String url = value.trim().toLowerCase();
+  return url.startsWith('https://') ||
+      url.startsWith('http://') ||
+      url.startsWith('data:image/');
 }
