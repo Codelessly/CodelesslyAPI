@@ -6,7 +6,24 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// An action that navigates to a new page.
+/// How a [ShowDialogAction] presents its canvas.
+enum DialogPresentation {
+  /// Centered over the page at the canvas's size (its content's height when
+  /// the canvas shrink-wraps vertically).
+  dialog,
+
+  /// Slides up from the bottom, as wide as the screen and as tall as its
+  /// content (up to 90% of the screen), with rounded top corners.
+  bottomSheet,
+
+  /// A bottom sheet on mobile widths (below 600), a dialog on wider screens.
+  adaptive,
+
+  /// Covers the whole screen, like a photo viewer.
+  fullScreen,
+}
+
+/// An action that shows a canvas over the current page.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
@@ -24,6 +41,10 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether to show a close button on the dialog.
   final bool showCloseButton;
 
+  /// How the canvas is presented: a dialog, a bottom sheet, either by screen
+  /// width, or full screen.
+  final DialogPresentation presentation;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -31,6 +52,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.barrierColor = ColorRGBA.black54,
     this.barrierDismissible = true,
     this.showCloseButton = false,
+    this.presentation = DialogPresentation.dialog,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -43,6 +65,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierDismissible,
     barrierColor,
     showCloseButton,
+    presentation,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -52,12 +75,14 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? barrierDismissible,
     ColorRGBA? barrierColor,
     bool? showCloseButton,
+    DialogPresentation? presentation,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
     barrierDismissible: barrierDismissible ?? this.barrierDismissible,
     barrierColor: barrierColor ?? this.barrierColor,
     showCloseButton: showCloseButton ?? this.showCloseButton,
+    presentation: presentation ?? this.presentation,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
