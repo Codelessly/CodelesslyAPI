@@ -1,3 +1,11 @@
+## Unreleased
+
+- `LineChartNode` (`lineChart`) and `LineChartProperties`: a data-driven
+  line chart. The series, domain, bands, grid lines, area bands, reference
+  lines, x ticks, markers and vertical lines are bound through `variables`
+  (see the class docs for their JSON shapes); colors, insets, curve style,
+  text styles and the scrub readout are properties.
+
 ## 6.1.0
 
 ### States and conditions
