@@ -187,6 +187,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
+  /// Whether the items are laid on top of each other in the list's box
+  /// instead of one after another in a scrolling run. Each item is placed
+  /// like a child of a freeform frame, so bind its `positionX` and
+  /// `positionY` variables to place it by data, e.g. pins on a floor plan
+  /// or markers on a chart. The list does not scroll.
+  bool overlay;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -195,6 +202,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.separator = ListItemSeparator.space,
     this.separatorSpacing = 0,
     this.hasSeparator = false,
+    this.overlay = false,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
@@ -214,6 +222,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? dividerColor,
     double? dividerSpacing,
     bool? hasSeparator,
+    bool? overlay,
     DividerProperties? dividerProperties,
   }) {
     return ListViewProperties(
@@ -223,6 +232,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       separator: separator ?? this.separator,
       separatorSpacing: separatorSpacing ?? this.separatorSpacing,
       hasSeparator: hasSeparator ?? this.hasSeparator,
+      overlay: overlay ?? this.overlay,
       dividerProperties: dividerProperties ?? this.dividerProperties,
     );
   }
@@ -253,6 +263,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       options: () => ListItemSeparator.values,
       requiresLayout: true,
     ),
+    'overlay': BoolFieldAccess(
+      'Overlay Items',
+      'Lay the items on top of each other in the list box, placed by their positionX and positionY variables, instead of in a scrolling run.',
+      () => overlay,
+      (value) => overlay = value,
+      requiresLayout: true,
+    ),
     'dividerProperties': ObjectFieldAccess<DividerProperties>(
       'Divider Properties',
       'The properties of the divider to use as a separator between list view items, if enabled.',
@@ -278,6 +295,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     separator,
     separatorSpacing,
     hasSeparator,
+    overlay,
     dividerProperties,
   ];
 }
