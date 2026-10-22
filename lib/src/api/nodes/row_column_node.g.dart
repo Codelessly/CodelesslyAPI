@@ -34,6 +34,8 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -263,6 +265,8 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -273,7 +277,6 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -291,6 +294,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -300,6 +304,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'children': instance.children,
   'opacity': instance.opacity,

@@ -35,6 +35,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
   if (isJsonDefault(instance.rotationDegrees, 0)) json.remove('rotation');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
+  if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
+  if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -227,6 +229,8 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
             ),
           ) ??
           {}
+      ..tooltip = json['tooltip'] as String? ?? ''
+      ..zoomable = json['zoomable'] as bool? ?? false
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -237,7 +241,6 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   AutoPlaceholderNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -255,6 +258,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -264,6 +268,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
   'enabled': instance.enabled,
   'children': instance.children,
   'opacity': instance.opacity,
