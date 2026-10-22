@@ -151,6 +151,9 @@ DividerNode _$DividerNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DividerNodeToJson(DividerNode instance) =>
@@ -185,6 +188,7 @@ Map<String, dynamic> _$DividerNodeToJson(DividerNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'properties': instance.properties.toJson(),
     };

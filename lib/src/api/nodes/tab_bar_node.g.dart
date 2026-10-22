@@ -205,6 +205,9 @@ TabBarNode _$TabBarNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..scrollDirection = $enumDecode(_$AxisCEnumMap, json['scrollDirection'])
       ..reverse = json['reverse'] as bool
       ..primary = json['primary'] as bool
@@ -247,6 +250,7 @@ Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,

@@ -120,7 +120,14 @@ class ListViewNode extends SinglePlaceholderNode
   }
 
   /// Creates a [ListViewNode] from a JSON object.
-  factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson(json);
+  ///
+  /// A list always scrolls with a Flutter list view, so JSON written by hand
+  /// can leave those flags out.
+  factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson({
+    'isScrollable': true,
+    'useFlutterListView': true,
+    ...json,
+  });
 
   @override
   Map toJson() => _$ListViewNodeOmitDefaults(this, _$ListViewNodeToJson(this));
@@ -187,6 +194,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
+  /// Whether the items are stacked on top of each other, like a deck of
+  /// cards or records in a crate, instead of laid out one after another.
+  /// The first item is drawn on top. A stacked list doesn't scroll; items
+  /// are placed at the top center of the list and are usually moved apart
+  /// with motion bound to their index (see [MotionModel]).
+  bool stacked;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -195,6 +209,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.separator = ListItemSeparator.space,
     this.separatorSpacing = 0,
     this.hasSeparator = false,
+    this.stacked = false,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
@@ -214,9 +229,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? dividerColor,
     double? dividerSpacing,
     bool? hasSeparator,
+    bool? stacked,
     DividerProperties? dividerProperties,
   }) {
     return ListViewProperties(
+      stacked: stacked ?? this.stacked,
       itemCount: itemCount ?? this.itemCount,
       itemExtent: itemExtent ?? this.itemExtent,
       cacheExtent: cacheExtent ?? this.cacheExtent,
@@ -230,6 +247,14 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),
+    'stacked': BoolFieldAccess(
+      'Stacked',
+      'Draw the items on top of each other, the first on top, instead of '
+          'one after another.',
+      () => stacked,
+      (value) => stacked = value,
+      requiresLayout: true,
+    ),
     'hasSeparator': BoolFieldAccess(
       'Has Separator',
       'Whether to use a separator between list view items.',
@@ -278,6 +303,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     separator,
     separatorSpacing,
     hasSeparator,
+    stacked,
     dividerProperties,
   ];
 }

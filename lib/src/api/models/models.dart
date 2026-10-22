@@ -51,6 +51,7 @@ export 'input_border.dart';
 export 'input_decoration.dart';
 export 'letter_spacing.dart';
 export 'line_height.dart';
+export 'motion.dart';
 export 'list_tile_control_affinity.dart';
 export 'navigation_bar_item.dart';
 export 'node_box.dart';
