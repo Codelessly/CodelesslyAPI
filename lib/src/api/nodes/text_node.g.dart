@@ -219,7 +219,6 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
-  'characters': instance.characters,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
