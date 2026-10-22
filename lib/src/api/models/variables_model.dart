@@ -147,6 +147,16 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
+  /// A formula expression (what goes inside `${= ...}`) that computes this
+  /// variable's value from other variables, e.g. `fresh < freshLimit`. Empty
+  /// for a variable that holds a value. A computed variable is read-only:
+  /// actions that set it are ignored, and it changes whenever a variable its
+  /// formula reads changes.
+  final String formula;
+
+  /// Whether this variable's value comes from [formula].
+  bool get isComputed => formula.trim().isNotEmpty;
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
@@ -154,6 +164,7 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
+    this.formula = '',
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
        extra = extra ?? {};
 
@@ -166,6 +177,7 @@ class VariableData
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -176,11 +188,12 @@ class VariableData
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, value, type];
+  List<Object?> get props => [id, name, value, type, formula];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -201,6 +214,7 @@ class VariableData
     name: name,
     value: value,
     type: type,
+    formula: formula,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -281,6 +295,7 @@ class CanvasVariableData extends VariableData {
     super.type,
     super.value,
     super.extra,
+    super.formula,
   });
 
   @override
@@ -293,6 +308,7 @@ class CanvasVariableData extends VariableData {
     String? canvasId,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -304,6 +320,7 @@ class CanvasVariableData extends VariableData {
       id: id ?? this.id,
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
@@ -339,6 +356,7 @@ class RuntimeVariableData extends VariableData {
     super.value = '',
     super.type = VariableType.text,
     super.extra,
+    super.formula,
   }) : super(id: id ?? generateId());
 
   @override
@@ -350,6 +368,7 @@ class RuntimeVariableData extends VariableData {
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -360,6 +379,7 @@ class RuntimeVariableData extends VariableData {
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 }
