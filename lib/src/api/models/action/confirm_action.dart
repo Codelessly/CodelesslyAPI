@@ -11,7 +11,8 @@ part 'confirm_action.g.dart';
 ///
 /// By default the dialog is built by the runtime and takes the app's look:
 /// its font, primary color and surface come from the layout that shows it.
-/// The optional color and radius fields override that look.
+/// The optional color, radius, border, shadow and text style fields
+/// override that look.
 ///
 /// With a [dialogId] the dialog is that canvas instead, like
 /// [ShowDialogAction]. A button in it answers the dialog with a "Navigate
@@ -71,6 +72,44 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Corner radius of the built-in dialog. Null follows the app's buttons.
   final double? cornerRadius;
 
+  /// Outline of the built-in dialog. Null draws none.
+  final BorderSideModel? border;
+
+  /// Drop shadows of the built-in dialog, e.g. a hard offset shadow (radius
+  /// 0). Null keeps the default elevation shadow; an empty list draws none.
+  final List<Effect>? shadows;
+
+  /// Font, size and color of the title. Unset values follow the app.
+  final TextStyleModel? titleStyle;
+
+  /// Font, size and color of the message. Unset values follow the app.
+  final TextStyleModel? messageStyle;
+
+  /// Font, size and color of both buttons' labels. Unset values follow the
+  /// app; the label colors come from [confirmTextColor] and
+  /// [cancelTextColor] when this sets none.
+  final TextStyleModel? buttonStyle;
+
+  /// Corner radius of the buttons. Null follows the app's buttons.
+  final double? buttonRadius;
+
+  /// Outline of both buttons. Null draws none.
+  final BorderSideModel? buttonBorder;
+
+  /// Drop shadows of the confirm button, and of the cancel button when it
+  /// has a [cancelColor]. Null draws none.
+  final List<Effect>? buttonShadows;
+
+  /// Label color of the confirm button. Null picks one that reads on its
+  /// fill.
+  final ColorRGBA? confirmTextColor;
+
+  /// Fill of the cancel button. Null leaves it a text button.
+  final ColorRGBA? cancelColor;
+
+  /// Label color of the cancel button. Null uses the dialog's text color.
+  final ColorRGBA? cancelTextColor;
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -107,6 +146,17 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.textColor,
     this.confirmColor,
     this.cornerRadius,
+    this.border,
+    this.shadows,
+    this.titleStyle,
+    this.messageStyle,
+    this.buttonStyle,
+    this.buttonRadius,
+    this.buttonBorder,
+    this.buttonShadows,
+    this.confirmTextColor,
+    this.cancelColor,
+    this.cancelTextColor,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -137,6 +187,28 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearConfirmColor = false,
     double? cornerRadius,
     bool clearCornerRadius = false,
+    BorderSideModel? border,
+    bool clearBorder = false,
+    List<Effect>? shadows,
+    bool clearShadows = false,
+    TextStyleModel? titleStyle,
+    bool clearTitleStyle = false,
+    TextStyleModel? messageStyle,
+    bool clearMessageStyle = false,
+    TextStyleModel? buttonStyle,
+    bool clearButtonStyle = false,
+    double? buttonRadius,
+    bool clearButtonRadius = false,
+    BorderSideModel? buttonBorder,
+    bool clearButtonBorder = false,
+    List<Effect>? buttonShadows,
+    bool clearButtonShadows = false,
+    ColorRGBA? confirmTextColor,
+    bool clearConfirmTextColor = false,
+    ColorRGBA? cancelColor,
+    bool clearCancelColor = false,
+    ColorRGBA? cancelTextColor,
+    bool clearCancelTextColor = false,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -155,6 +227,23 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     textColor: clearTextColor ? null : textColor ?? this.textColor,
     confirmColor: clearConfirmColor ? null : confirmColor ?? this.confirmColor,
     cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
+    border: clearBorder ? null : border ?? this.border,
+    shadows: clearShadows ? null : shadows ?? this.shadows,
+    titleStyle: clearTitleStyle ? null : titleStyle ?? this.titleStyle,
+    messageStyle: clearMessageStyle ? null : messageStyle ?? this.messageStyle,
+    buttonStyle: clearButtonStyle ? null : buttonStyle ?? this.buttonStyle,
+    buttonRadius: clearButtonRadius ? null : buttonRadius ?? this.buttonRadius,
+    buttonBorder: clearButtonBorder ? null : buttonBorder ?? this.buttonBorder,
+    buttonShadows: clearButtonShadows
+        ? null
+        : buttonShadows ?? this.buttonShadows,
+    confirmTextColor: clearConfirmTextColor
+        ? null
+        : confirmTextColor ?? this.confirmTextColor,
+    cancelColor: clearCancelColor ? null : cancelColor ?? this.cancelColor,
+    cancelTextColor: clearCancelTextColor
+        ? null
+        : cancelTextColor ?? this.cancelTextColor,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -176,6 +265,17 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     textColor,
     confirmColor,
     cornerRadius,
+    border,
+    shadows,
+    titleStyle,
+    messageStyle,
+    buttonStyle,
+    buttonRadius,
+    buttonBorder,
+    buttonShadows,
+    confirmTextColor,
+    cancelColor,
+    cancelTextColor,
   ];
 
   /// Creates an instance from a JSON object.
