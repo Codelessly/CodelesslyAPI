@@ -13,6 +13,10 @@ Map<String, dynamic> _$VarianceNodeOmitDefaults(
   if (isJsonDefault(instance.properties, const VarianceProperties()))
     json.remove('properties');
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.allowedTypes, <String>[]))
+    json.remove('allowedTypes');
+  if (isJsonDefault(instance.deniedTypes, <String>[]))
+    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -169,12 +173,16 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
-      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
+      ..allowedTypes =
+          (json['allowedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
+      ..deniedTypes =
+          (json['deniedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>

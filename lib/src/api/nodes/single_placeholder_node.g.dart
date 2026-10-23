@@ -11,6 +11,10 @@ Map<String, dynamic> _$SinglePlaceholderNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.allowedTypes, <String>[]))
+    json.remove('allowedTypes');
+  if (isJsonDefault(instance.deniedTypes, <String>[]))
+    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -56,12 +60,16 @@ Map<String, dynamic> _$SinglePlaceholderNodeOmitDefaults(
 
 SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
     SinglePlaceholderNode(
-        allowedTypes: (json['allowedTypes'] as List<dynamic>)
-            .map((e) => e as String)
-            .toList(),
-        deniedTypes: (json['deniedTypes'] as List<dynamic>)
-            .map((e) => e as String)
-            .toList(),
+        allowedTypes:
+            (json['allowedTypes'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        deniedTypes:
+            (json['deniedTypes'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
         maxAllowedSize: json['maxAllowedSize'] == null
             ? null
             : SizeC.fromJson(json['maxAllowedSize'] as Map),
