@@ -1143,6 +1143,46 @@ mixin RowColumnMixin on BaseNode {
   /// for details on available alignments.
   late CrossAxisAlignmentC crossAxisAlignment;
 
+  /// The gap between consecutive children along the main axis, in logical
+  /// pixels. Corresponds to the `spacing` property of [Row] and [Column] in
+  /// Flutter and to item spacing in Figma auto-layout.
+  ///
+  /// Unlike margins, the spacing is subtracted from the main axis extent
+  /// before free space is distributed to flexible children, so expanded
+  /// children with equal flex receive equal sizes.
+  @JsonKey(defaultValue: 0.0)
+  double spacing = 0;
+
+  /// Whether the children wrap onto further runs (lines) when they do not
+  /// fit along the main axis, like Flutter's [Wrap] and Figma auto-layout
+  /// wrap. A wrapping row lays its children out like
+  /// `Wrap(direction: Axis.horizontal)` and a wrapping column like
+  /// `Wrap(direction: Axis.vertical)`.
+  ///
+  /// While wrapping:
+  /// - [spacing] is the gap between consecutive children within a run and
+  ///   [runSpacing] the gap between runs. Children hidden by a visibility
+  ///   formula take no space and no gaps.
+  /// - [mainAxisAlignment] aligns the children within each run (Flutter's
+  ///   `Wrap.alignment`).
+  /// - [crossAxisAlignment] aligns the children within their run
+  ///   (`Wrap.crossAxisAlignment`; stretch and baseline act as start) and
+  ///   also aligns the runs in the cross-axis free space
+  ///   (`Wrap.runAlignment`: start, center or end), as in Figma.
+  /// - Children cannot be flexible: an expanded (or flex) child is laid out
+  ///   at its own size, as a fixed child, like inside a Flutter [Wrap].
+  ///   A child that fills the main axis takes a whole run.
+  /// - A shrink-wrapping cross axis hugs the runs; a shrink-wrapping main
+  ///   axis hugs the widest run.
+  @JsonKey(defaultValue: false)
+  bool wrap = false;
+
+  /// The gap between consecutive runs along the cross axis, in logical
+  /// pixels, when [wrap] is on. Corresponds to `Wrap.runSpacing` in
+  /// Flutter. Has no effect when [wrap] is off.
+  @JsonKey(defaultValue: 0.0)
+  double runSpacing = 0;
+
   /// Returns the main axis based on whether this is a row or column.
   AxisC get mainAxis =>
       (rowColumnType == RowColumnType.row) ? AxisC.horizontal : AxisC.vertical;
@@ -1156,10 +1196,16 @@ mixin RowColumnMixin on BaseNode {
     required RowColumnType rowColumnType,
     required MainAxisAlignmentC mainAxisAlignment,
     required CrossAxisAlignmentC crossAxisAlignment,
+    double spacing = 0,
+    bool wrap = false,
+    double runSpacing = 0,
   }) {
     this.rowColumnType = rowColumnType;
     this.mainAxisAlignment = mainAxisAlignment;
     this.crossAxisAlignment = crossAxisAlignment;
+    this.spacing = spacing;
+    this.wrap = wrap;
+    this.runSpacing = runSpacing;
   }
 
   @override
