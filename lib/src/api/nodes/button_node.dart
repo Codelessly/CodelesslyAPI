@@ -163,6 +163,8 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.doubleTap,
+    ...TriggerType.hovers,
   ];
 
   @override
