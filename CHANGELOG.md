@@ -16,7 +16,11 @@
 
 ### Layout
 
-- `RowColumnNode.itemSpacing`: a gap between children.
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space (JSON `itemSpacing` is
+  read as it).
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
 - `ListViewProperties.stacked` (items drawn on top of each other) and `wrap`
   with `wrapSpacing`, `wrapRunSpacing` and `wrapAlignment`.
 - Sliders: `orientation` (vertical), `inverted`, thumb stroke, and a
@@ -24,7 +28,9 @@
 
 ### Variables and JSON
 
-- Computed variables: `VariableData.formula`.
+- Computed variables: a variable whose value is a `${= ...}` formula keeps
+  it for every type (`VariableData.isComputed`); JSON with a separate
+  `formula` is read into the value.
 - Bindable `effectsVisible`, `strokeWeight`, `cornerRadius`, `fontWeight`
   and a slider's `min`/`max` as property variables.
 - `variableSyntaxIdentifierPattern` matches a `${= ...}` formula whole,

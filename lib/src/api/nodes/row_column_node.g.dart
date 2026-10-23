@@ -10,7 +10,6 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.itemSpacing, 0)) json.remove('itemSpacing');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -69,6 +68,9 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0.0)) json.remove('runSpacing');
   if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
   if (isJsonDefault(instance.primary, true)) json.remove('primary');
@@ -120,6 +122,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               json['crossAxisAlignment'],
             ) ??
             CrossAxisAlignmentC.center,
+        spacing: (json['spacing'] as num?)?.toDouble() ?? 0.0,
+        wrap: json['wrap'] as bool? ?? false,
+        runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0.0,
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         rotationDegrees: json['rotation'] == null
@@ -206,7 +211,6 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
                 .toList() ??
             const [],
         clipsContent: json['clipsContent'] as bool? ?? false,
-        itemSpacing: (json['itemSpacing'] as num?)?.toDouble() ?? 0,
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
@@ -334,6 +338,9 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
+  'wrap': instance.wrap,
+  'runSpacing': instance.runSpacing,
   'isScrollable': instance.isScrollable,
   'reverse': instance.reverse,
   'primary': instance.primary,
@@ -344,7 +351,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'type': instance.type,
-  'itemSpacing': instance.itemSpacing,
 };
 
 const _$RowColumnTypeEnumMap = {

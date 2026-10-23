@@ -147,24 +147,14 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
-  /// The formula of a computed (derived) variable, or null for a normal
-  /// variable.
-  ///
-  /// A computed variable's value is not set by the user or by actions: it is
-  /// the result of this formula over other variables, e.g.
-  /// `${= filter(records, r => r.crate == crateId)}`. The formula is written
-  /// like a binding: `${= expression}`, a single variable path such as
-  /// `${records}`, or a bare expression (`length(records)`). It is
-  /// recomputed when a variable it reads changes. Set variable actions
-  /// don't change a computed variable. [value] is unused for it, and [type]
-  /// only describes the value the formula is expected to produce.
-  ///
-  /// Blank text counts as null, so `copyWith(formula: '')` makes the
-  /// variable a normal one again.
-  final String? formula;
-
-  /// Whether this variable is computed from a [formula].
-  bool get isComputed => formula != null;
+  /// Whether this is a computed variable: its [value] is a `${= ...}`
+  /// formula over other variables, e.g.
+  /// `${= filter(records, r => r.crate == crateId)}`, worked out whenever it
+  /// is read.
+  bool get isComputed {
+    final String text = value.trim();
+    return text.startsWith(r'${=') && text.endsWith('}');
+  }
 
   /// Creates a new [VariableData].
   VariableData({
@@ -173,10 +163,8 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
-    String? formula,
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
-       extra = extra ?? {},
-       formula = formula == null || formula.trim().isEmpty ? null : formula;
+       extra = extra ?? {};
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -187,7 +175,6 @@ class VariableData
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
-    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -198,19 +185,18 @@ class VariableData
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
-      formula: formula ?? this.formula,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, value, type, formula];
+  List<Object?> get props => [id, name, value, type];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
 
   /// Creates a new [VariableData] from a JSON map.
   factory VariableData.fromJson(Map<String, dynamic> json) =>
-      _$VariableDataFromJson(json);
+      _$VariableDataFromJson(withFormulaAsValue(json));
 
   @override
   Map<String, dynamic> toJson() =>
@@ -225,7 +211,6 @@ class VariableData
     value: value,
     type: type,
     extra: extra,
-    formula: formula,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -244,6 +229,14 @@ class VariableData
   };
 }
 
+/// [json] with a `formula` (how computed variables were stored for a while)
+/// moved into `value`, where a computed variable keeps its formula.
+Map<String, dynamic> withFormulaAsValue(Map<String, dynamic> json) {
+  final Object? formula = json['formula'];
+  if (formula is! String || formula.trim().isEmpty) return json;
+  return <String, dynamic>{...json, 'value': formula}..remove('formula');
+}
+
 /// Returns the value converted to the appropriate type according to [type].
 /// Supported color values:
 /// - ColorRGBA
@@ -253,8 +246,12 @@ class VariableData
 String? sanitizeValueForVariableType(Object? value, VariableType type) {
   if (value == null) return null;
   // if (value.isEmpty) return '';
-  // Do not sanitize if the value contains a variable path.
-  if (value.toString().contains(variablePathPattern)) return value.toString();
+  // Do not sanitize if the value contains a variable path or a formula: a
+  // computed variable's value is a `${= ...}` formula whatever its type.
+  if (value.toString().contains(variablePathPattern) ||
+      value.toString().contains(r'${=')) {
+    return value.toString();
+  }
   switch (type) {
     case VariableType.text:
     case VariableType.image:
@@ -302,7 +299,6 @@ class CanvasVariableData extends VariableData {
     super.type,
     super.value,
     super.extra,
-    super.formula,
   });
 
   @override
@@ -315,7 +311,6 @@ class CanvasVariableData extends VariableData {
     String? canvasId,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
-    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -327,7 +322,6 @@ class CanvasVariableData extends VariableData {
       id: id ?? this.id,
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
-      formula: formula ?? this.formula,
     );
   }
 
@@ -336,7 +330,7 @@ class CanvasVariableData extends VariableData {
 
   /// Creates a new [CanvasVariableData] from a JSON map.
   factory CanvasVariableData.fromJson(Map<String, dynamic> json) =>
-      _$CanvasVariableDataFromJson(json);
+      _$CanvasVariableDataFromJson(withFormulaAsValue(json));
 
   @override
   Map<String, dynamic> toJson() =>
@@ -363,7 +357,6 @@ class RuntimeVariableData extends VariableData {
     super.value = '',
     super.type = VariableType.text,
     super.extra,
-    super.formula,
   }) : super(id: id ?? generateId());
 
   @override
@@ -375,7 +368,6 @@ class RuntimeVariableData extends VariableData {
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
-    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -386,7 +378,6 @@ class RuntimeVariableData extends VariableData {
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
-      formula: formula ?? this.formula,
     );
   }
 }
