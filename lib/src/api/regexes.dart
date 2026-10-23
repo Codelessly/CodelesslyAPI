@@ -128,9 +128,24 @@ const String variablePathComposingPattern =
 /// Regex for [variablePathComposingPattern].
 final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
 
+const String _formulaAtom = r'''[^{}'"]|'[^']*'|"[^"]*"''';
+const String _formulaBody0 = '(?:$_formulaAtom)*';
+const String _formulaBody1 = '(?:$_formulaAtom|\\{$_formulaBody0\\})*';
+const String _formulaBody2 = '(?:$_formulaAtom|\\{$_formulaBody1\\})*';
+
+/// The expression of a `${= ...}` formula: text and quoted strings, with
+/// braces only in balanced pairs nested up to three deep, such as the object
+/// literal in `${= merge(r, {plays: r.plays + 1})}`. Braces inside quoted
+/// strings don't count.
+const String formulaExpressionPattern =
+    '(?:$_formulaAtom|\\{$_formulaBody2\\})*';
+
 /// A regex that matches any variable path identifier in a string that is
-/// wrapped in ${} curly braces.
-const String variableSyntaxIdentifierPattern = r'(?<!\\)\$\{(?<value>[^}]+)\}';
+/// wrapped in ${} curly braces. A formula (`${= ...}`) matches whole, braces
+/// of its object literals included, so `${= merge(r, {a: 1})}` is one match
+/// rather than ending at the first `}`.
+const String variableSyntaxIdentifierPattern =
+    '(?<!\\\\)\\\$\\{(?<value>=$formulaExpressionPattern|[^}]+)\\}';
 
 /// A regex that can match empty ${} syntax with partial match for curly braces.
 const String emptyVariableSyntaxIdentifierPattern = r'^(?<!\\)\${?}?$';

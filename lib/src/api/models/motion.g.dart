@@ -55,6 +55,10 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   loop:
       $enumDecodeNullable(_$MotionLoopEnumMap, json['loop']) ?? MotionLoop.none,
   enter: json['enter'] as bool? ?? false,
+  enterFrom: json['enterFrom'] == null
+      ? null
+      : MotionModel.fromJson(json['enterFrom'] as Map),
+  replayKey: json['replayKey'] as String?,
   delayMs: (json['delayMs'] as num?)?.toInt() ?? 0,
 );
 
@@ -76,6 +80,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'spinRampMs': instance.spinRampMs,
       'loop': _$MotionLoopEnumMap[instance.loop]!,
       'enter': instance.enter,
+      'enterFrom': ?instance.enterFrom?.toJson(),
+      'replayKey': ?instance.replayKey,
       'delayMs': instance.delayMs,
     };
 
