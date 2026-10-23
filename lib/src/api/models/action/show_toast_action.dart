@@ -53,7 +53,8 @@ enum ToastPosition {
 /// [actions].
 ///
 /// Its colors come from [style] and the app's theme unless [backgroundColor]
-/// or [textColor] are set. Its font is the app's.
+/// or [textColor] are set. Its font is the app's. It can show a close (✕)
+/// button ([showClose]).
 @JsonSerializable()
 class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The message. Supports variables and formulas, e.g.
@@ -91,6 +92,27 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// [ToastPosition.bottom].
   final double bottomOffset;
 
+  /// Distance from the screen edge the toast shows at, bound to a variable
+  /// or formula, e.g. `${= screen.isMobile ? 96 : 24}` to sit above a
+  /// bottom bar on phones. Overrides [bottomOffset] (and the top inset when
+  /// [position] is [ToastPosition.top]) when it gives a number. Empty to use
+  /// [bottomOffset].
+  final String offset;
+
+  /// Color of the button's label, e.g. an orange Undo. Null takes the
+  /// message color.
+  final ColorRGBA? actionColor;
+
+  /// Whether the toast shows a close (✕) button that hides it.
+  final bool showClose;
+
+  /// Radius of the toast's corners. Null makes a pill, or follows the app's
+  /// button radius when the toast has a button.
+  final double? cornerRadius;
+
+  /// Size of the message's text. Null is 14.
+  final double? fontSize;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -103,6 +125,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     List<ActionModel>? actions,
     this.icon,
     this.bottomOffset = 104,
+    this.offset = '',
+    this.actionColor,
+    this.showClose = false,
+    this.cornerRadius,
+    this.fontSize,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -123,6 +150,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions,
     icon,
     bottomOffset,
+    offset,
+    actionColor,
+    showClose,
+    cornerRadius,
+    fontSize,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -140,6 +172,14 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     MultiSourceIconModel? icon,
     bool clearIcon = false,
     double? bottomOffset,
+    String? offset,
+    ColorRGBA? actionColor,
+    bool clearActionColor = false,
+    bool? showClose,
+    double? cornerRadius,
+    bool clearCornerRadius = false,
+    double? fontSize,
+    bool clearFontSize = false,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -153,6 +193,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions: actions ?? this.actions,
     icon: clearIcon ? null : icon ?? this.icon,
     bottomOffset: bottomOffset ?? this.bottomOffset,
+    offset: offset ?? this.offset,
+    actionColor: clearActionColor ? null : actionColor ?? this.actionColor,
+    showClose: showClose ?? this.showClose,
+    cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
+    fontSize: clearFontSize ? null : fontSize ?? this.fontSize,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
