@@ -25,6 +25,7 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -91,6 +92,7 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
         _$PositioningModeEnumMap,
         json['positioningMode'],
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..aspectRatioLock = json['aspectRatioLock'] as bool
       ..reactions = (json['reactions'] as List<dynamic>)
           .map((e) => Reaction.fromJson(e as Map))
@@ -129,6 +131,7 @@ Map<String, dynamic> _$SpacerNodeToJson(SpacerNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
