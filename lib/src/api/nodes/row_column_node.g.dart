@@ -281,6 +281,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -298,7 +299,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
