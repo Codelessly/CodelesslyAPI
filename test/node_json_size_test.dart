@@ -31,7 +31,7 @@ void main() {
           ),
         ],
         strokeWeight: 1,
-        cornerRadius: const CornerRadius.all(const RadiusModel.circular(12)),
+        cornerRadius: const CornerRadius.all(RadiusModel.circular(12)),
         reactions: [
           Reaction(
             trigger: TriggerModel(type: TriggerType.click),
