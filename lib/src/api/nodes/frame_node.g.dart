@@ -10,6 +10,8 @@ Map<String, dynamic> _$FrameNodeOmitDefaults(
   FrameNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.contentAlignment, AlignmentModel.center))
+    json.remove('contentAlignment');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -217,6 +219,10 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         pageID: json['pageID'] as String?,
         layoutID: json['layoutID'] as String?,
         showPortal: json['showPortal'] as bool? ?? false,
+        contentFit: $enumDecodeNullable(_$FitEnumMap, json['contentFit']),
+        contentAlignment: json['contentAlignment'] == null
+            ? AlignmentModel.center
+            : AlignmentModel.fromJson(json['contentAlignment'] as Map),
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -331,6 +337,8 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'layoutID': ?instance.layoutID,
   'showPortal': instance.showPortal,
   'type': instance.type,
+  'contentFit': ?_$FitEnumMap[instance.contentFit],
+  'contentAlignment': instance.contentAlignment.toJson(),
 };
 
 const _$BlendModeCEnumMap = {
@@ -414,6 +422,16 @@ const _$ScrollPhysicsCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$FitEnumMap = {
+  Fit.contain: 'contain',
+  Fit.cover: 'cover',
+  Fit.fill: 'fill',
+  Fit.fitHeight: 'fitHeight',
+  Fit.fitWidth: 'fitWidth',
+  Fit.none: 'none',
+  Fit.scaleDown: 'scaleDown',
 };
 
 const _$ComponentMarkerTypeEnumMap = {
