@@ -277,7 +277,12 @@ List<BaseNode> sampleNodes() {
           'xSlots': 8,
           'nowValue': 342,
           'series': [
-            {'field': 'actual', 'kind': 'area', 'fillTo': 'plan', 'endDot': true},
+            {
+              'field': 'actual',
+              'kind': 'area',
+              'fillTo': 'plan',
+              'endDot': true,
+            },
             {'field': 'plan', 'kind': 'line', 'dashed': true},
           ],
           'referenceLines': [
