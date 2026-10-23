@@ -197,6 +197,15 @@ class CanvasProperties extends CustomProperties {
   /// to the canvas with this ID instead, such as a sign-in screen.
   String? signInRedirectId;
 
+  /// The URL path this screen opens at on a published site, relative to the
+  /// site's root, such as `journal` or `guide/:id`. A `:name` segment matches
+  /// any value and passes it to the screen as the route param `name`. Null or
+  /// empty means the screen has no URL path of its own.
+  String? path;
+
+  /// Whether this screen has a URL path.
+  bool get hasPath => path?.trim().isNotEmpty ?? false;
+
   /// Whether this screen needs a signed-in user.
   bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
 
@@ -217,6 +226,7 @@ class CanvasProperties extends CustomProperties {
     this.safeArea = const SafeAreaModel.all(true),
     this.brightness = BrightnessModel.system,
     this.signInRedirectId,
+    this.path,
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -234,6 +244,7 @@ class CanvasProperties extends CustomProperties {
     safeArea,
     brightness,
     signInRedirectId,
+    path,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
