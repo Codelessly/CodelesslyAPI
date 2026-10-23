@@ -36,6 +36,25 @@ enum MotionCurve {
   };
 }
 
+/// Whether a [MotionModel] repeats on its own.
+enum MotionLoop {
+  /// Moves only when its values change.
+  none,
+
+  /// From rest to its values, then jumps back to rest and starts again.
+  restart,
+
+  /// From rest to its values and back, over and over (a pulse).
+  reverse;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    MotionLoop.none => 'No loop',
+    MotionLoop.restart => 'Loop',
+    MotionLoop.reverse => 'Back and forth',
+  };
+}
+
 /// How a node moves: a transform drawn on top of its layout (it never changes
 /// the space the node takes up), an animated transition whenever a value
 /// changes, and an optional continuous spin.
@@ -100,6 +119,20 @@ class MotionModel with Equatable, SerializableMixin {
   /// How long the spin takes to reach a new speed, in milliseconds.
   final int spinRampMs;
 
+  /// Repeats the motion on its own, between the node at rest (no
+  /// transform) and these values, each way over [durationMs]: a skeleton's
+  /// pulse, a blinking cursor.
+  final MotionLoop loop;
+
+  /// Animates from rest to these values when the node first appears, over
+  /// [durationMs], instead of starting there: a record sliding out of its
+  /// sleeve when the screen opens.
+  final bool enter;
+
+  /// Waits this long, in milliseconds, before a transition, entrance or
+  /// loop starts, so motions can be staggered.
+  final int delayMs;
+
   /// Creates a [MotionModel].
   const MotionModel({
     this.translateX = 0,
@@ -116,6 +149,9 @@ class MotionModel with Equatable, SerializableMixin {
     this.curve = MotionCurve.easeInOut,
     this.spin = 0,
     this.spinRampMs = 800,
+    this.loop = MotionLoop.none,
+    this.enter = false,
+    this.delayMs = 0,
   });
 
   /// No motion at all.
@@ -176,6 +212,9 @@ class MotionModel with Equatable, SerializableMixin {
     MotionCurve? curve,
     double? spin,
     int? spinRampMs,
+    MotionLoop? loop,
+    bool? enter,
+    int? delayMs,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -191,6 +230,20 @@ class MotionModel with Equatable, SerializableMixin {
     curve: curve ?? this.curve,
     spin: spin ?? this.spin,
     spinRampMs: spinRampMs ?? this.spinRampMs,
+    loop: loop ?? this.loop,
+    enter: enter ?? this.enter,
+    delayMs: delayMs ?? this.delayMs,
+  );
+
+  /// These settings with every value at rest: no transform at all.
+  MotionModel get atRest => copyWith(
+    translateX: 0,
+    translateY: 0,
+    scale: 1,
+    opacity: 1,
+    rotate: 0,
+    rotateX: 0,
+    rotateY: 0,
   );
 
   /// Returns a copy with [property] set to [value].
@@ -222,6 +275,9 @@ class MotionModel with Equatable, SerializableMixin {
     curve,
     spin,
     spinRampMs,
+    loop,
+    enter,
+    delayMs,
   ];
 
   /// Creates a [MotionModel] from JSON.

@@ -147,6 +147,25 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
+  /// The formula of a computed (derived) variable, or null for a normal
+  /// variable.
+  ///
+  /// A computed variable's value is not set by the user or by actions: it is
+  /// the result of this formula over other variables, e.g.
+  /// `${= filter(records, r => r.crate == crateId)}`. The formula is written
+  /// like a binding: `${= expression}`, a single variable path such as
+  /// `${records}`, or a bare expression (`length(records)`). It is
+  /// recomputed when a variable it reads changes. Set variable actions
+  /// don't change a computed variable. [value] is unused for it, and [type]
+  /// only describes the value the formula is expected to produce.
+  ///
+  /// Blank text counts as null, so `copyWith(formula: '')` makes the
+  /// variable a normal one again.
+  final String? formula;
+
+  /// Whether this variable is computed from a [formula].
+  bool get isComputed => formula != null;
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
@@ -154,8 +173,10 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
+    String? formula,
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
-       extra = extra ?? {};
+       extra = extra ?? {},
+       formula = formula == null || formula.trim().isEmpty ? null : formula;
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -166,6 +187,7 @@ class VariableData
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -176,11 +198,12 @@ class VariableData
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, value, type];
+  List<Object?> get props => [id, name, value, type, formula];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -201,6 +224,8 @@ class VariableData
     name: name,
     value: value,
     type: type,
+    extra: extra,
+    formula: formula,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -277,6 +302,7 @@ class CanvasVariableData extends VariableData {
     super.type,
     super.value,
     super.extra,
+    super.formula,
   });
 
   @override
@@ -289,6 +315,7 @@ class CanvasVariableData extends VariableData {
     String? canvasId,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -300,6 +327,7 @@ class CanvasVariableData extends VariableData {
       id: id ?? this.id,
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
@@ -335,6 +363,7 @@ class RuntimeVariableData extends VariableData {
     super.value = '',
     super.type = VariableType.text,
     super.extra,
+    super.formula,
   }) : super(id: id ?? generateId());
 
   @override
@@ -346,6 +375,7 @@ class RuntimeVariableData extends VariableData {
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -356,6 +386,7 @@ class RuntimeVariableData extends VariableData {
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 }
