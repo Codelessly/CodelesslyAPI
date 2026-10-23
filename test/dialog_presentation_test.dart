@@ -8,7 +8,8 @@ void main() {
         destinationId: 'sheet',
         presentation: presentation,
       );
-      final ShowDialogAction read = ActionModel.fromJson(action.toJson()) as ShowDialogAction;
+      final ShowDialogAction read =
+          ActionModel.fromJson(action.toJson()) as ShowDialogAction;
       expect(read.presentation, presentation);
     }
   });
