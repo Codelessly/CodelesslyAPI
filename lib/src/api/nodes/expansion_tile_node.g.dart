@@ -47,6 +47,8 @@ Map<String, dynamic> _$ExpansionTileNodeOmitDefaults(
   if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
   if (isJsonDefault(instance.children, [])) json.remove('children');
   if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0.0)) json.remove('runSpacing');
   return json;
 }
 
@@ -207,6 +209,8 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
         json['crossAxisAlignment'],
       )
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
+      ..wrap = json['wrap'] as bool? ?? false
+      ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ExpansionTileNodeToJson(
@@ -248,6 +252,8 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
   'spacing': instance.spacing,
+  'wrap': instance.wrap,
+  'runSpacing': instance.runSpacing,
   'type': instance.type,
   'isExpanded': instance.isExpanded,
   'listTileChild': ?instance.listTileChild,
