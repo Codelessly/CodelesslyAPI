@@ -1,5 +1,8 @@
 ## Unreleased
 
+- A navigate-back (`pop`) action reads from JSON without `destinationId`,
+  which it has no use for. It is still written, as `''`, for readers that
+  require it.
 - `SignatureNode` (`signature`): a box to sign in. Its `value` is a list of
   strokes, each a list of `[x, y]` points normalized to the box; `inkColor`,
   `strokeWidth` and `readOnly` are in `SignatureProperties`.
