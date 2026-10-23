@@ -23,7 +23,8 @@ void main() {
         selectableMax: 95,
       ),
     );
-    final back = NodeJsonConverter.instance.fromJson(node.toJson()) as SliderNode;
+    final back =
+        NodeJsonConverter.instance.fromJson(node.toJson()) as SliderNode;
     expect(back.markerValue, 87);
     expect(back.properties, node.properties);
     expect(back.triggerTypes, contains(TriggerType.changeEnd));
