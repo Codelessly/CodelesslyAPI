@@ -2,65 +2,41 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {
-  const String formula =
-      r"${= sortBy(filter(records, r => crateId == 'all' || r.crate == crateId), sortBy)}";
+  test('a variable whose value is a formula is computed', () {
+    final VariableData computed = VariableData(
+      id: 'v',
+      name: 'visible',
+      type: VariableType.list,
+      value: r'${= filter(records, r => r.crate == crateId)}',
+    );
+    expect(computed.isComputed, isTrue);
+    expect(computed.value, r'${= filter(records, r => r.crate == crateId)}');
+    expect(
+      VariableData(id: 'w', name: 'plain', value: 'jazz').isComputed,
+      isFalse,
+    );
+  });
 
-  group('computed variables', () {
-    test('a normal variable has no formula and writes none', () {
-      final variable = VariableData(id: 'a', name: 'a', value: 'x');
-      expect(variable.formula, isNull);
-      expect(variable.isComputed, isFalse);
-      expect(variable.toJson().containsKey('formula'), isFalse);
+  test('a formula stored in its own field is read into the value', () {
+    final VariableData variable = VariableData.fromJson(<String, dynamic>{
+      'id': 'v',
+      'name': 'frontRec',
+      'type': 'map',
+      'formula': r'${= visibleRecords[front]}',
     });
+    expect(variable.value, r'${= visibleRecords[front]}');
+    expect(variable.isComputed, isTrue);
+    expect(variable.toJson().containsKey('formula'), isFalse);
 
-    test('formula round-trips through JSON', () {
-      final variable = VariableData(
-        id: 'v1',
-        name: 'visible',
-        type: VariableType.list,
-        formula: formula,
-      );
-      final Map<String, dynamic> json = variable.toJson();
-      expect(json, {
-        'id': 'v1',
-        'name': 'visible',
-        'type': 'list',
-        'formula': formula,
-      });
-      final VariableData decoded = VariableData.fromJson(json);
-      expect(decoded.formula, formula);
-      expect(decoded.isComputed, isTrue);
-      expect(decoded, variable);
-    });
-
-    test('canvas variables keep the formula', () {
-      final canvasVariable = VariableData(
-        id: 'v1',
-        name: 'count',
-        type: VariableType.integer,
-        formula: r'${= length(records)}',
-      ).withCanvas('canvas1');
-      expect(canvasVariable.formula, r'${= length(records)}');
-      final decoded = CanvasVariableData.fromJson({
-        ...canvasVariable.toJson(),
-        'canvasId': 'canvas1',
-      });
-      expect(decoded.formula, r'${= length(records)}');
-      expect(decoded.copyWith(name: 'n').formula, r'${= length(records)}');
-    });
-
-    test('a blank formula counts as none, so copyWith can clear it', () {
-      expect(VariableData(id: 'a', name: 'a', formula: '  ').formula, isNull);
-      final computed = VariableData(id: 'a', name: 'a', formula: 'x + 1');
-      expect(computed.copyWith(formula: '').isComputed, isFalse);
-      expect(computed.copyWith(value: '3').formula, 'x + 1');
-    });
-
-    test('the formula takes part in equality', () {
-      expect(
-        VariableData(id: 'a', name: 'a', formula: 'x'),
-        isNot(VariableData(id: 'a', name: 'a', formula: 'y')),
-      );
-    });
+    final CanvasVariableData canvasVariable = CanvasVariableData.fromJson(
+      <String, dynamic>{
+        'id': 'v',
+        'canvasId': 'c',
+        'name': 'count',
+        'type': 'integer',
+        'formula': r'${= length(records)}',
+      },
+    );
+    expect(canvasVariable.value, r'${= length(records)}');
   });
 }
