@@ -562,6 +562,22 @@ enum SliderTrackShapeEnum {
   }
 }
 
+/// Represents the shape of a slider's thumb.
+enum SliderThumbShapeEnum {
+  /// A circle of the slider's thumb radius.
+  circle,
+
+  /// A rectangle of the slider's thumb width and height with rounded
+  /// corners, like a fader cap.
+  roundedRect;
+
+  /// Display-able string representation of the enum.
+  String get prettify => switch (this) {
+    SliderThumbShapeEnum.circle => 'Circle',
+    SliderThumbShapeEnum.roundedRect => 'Rectangle',
+  };
+}
+
 /// When a slider shows its value indicator. Mirrors Flutter's
 /// `ShowValueIndicator`.
 enum ShowValueIndicatorC {

@@ -88,6 +88,17 @@ Map<String, dynamic> _$SliderPropertiesOmitDefaults(
     json.remove('allowFractionalPoints');
   if (isJsonDefault(instance.thumbRadius, kSliderDefaultThumbRadius))
     json.remove('thumbRadius');
+  if (isJsonDefault(instance.thumbShape, SliderThumbShapeEnum.circle))
+    json.remove('thumbShape');
+  if (isJsonDefault(instance.thumbWidth, kSliderDefaultThumbSize))
+    json.remove('thumbWidth');
+  if (isJsonDefault(instance.thumbHeight, kSliderDefaultThumbSize))
+    json.remove('thumbHeight');
+  if (isJsonDefault(
+    instance.thumbCornerRadius,
+    kSliderDefaultThumbCornerRadius,
+  ))
+    json.remove('thumbCornerRadius');
   if (isJsonDefault(instance.showThumb, true)) json.remove('showThumb');
   if (isJsonDefault(instance.trackShape, SliderTrackShapeEnum.roundedRectangle))
     json.remove('trackShape');
@@ -310,6 +321,16 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       (json['valueIndicatorFontSize'] as num?)?.toDouble() ?? 14,
   thumbRadius:
       (json['thumbRadius'] as num?)?.toDouble() ?? kSliderDefaultThumbRadius,
+  thumbShape:
+      $enumDecodeNullable(_$SliderThumbShapeEnumEnumMap, json['thumbShape']) ??
+      SliderThumbShapeEnum.circle,
+  thumbWidth:
+      (json['thumbWidth'] as num?)?.toDouble() ?? kSliderDefaultThumbSize,
+  thumbHeight:
+      (json['thumbHeight'] as num?)?.toDouble() ?? kSliderDefaultThumbSize,
+  thumbCornerRadius:
+      (json['thumbCornerRadius'] as num?)?.toDouble() ??
+      kSliderDefaultThumbCornerRadius,
   showThumb: json['showThumb'] as bool? ?? true,
   trackShape:
       $enumDecodeNullable(_$SliderTrackShapeEnumEnumMap, json['trackShape']) ??
@@ -371,6 +392,10 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'valueIndicatorFontSize': instance.valueIndicatorFontSize,
   'allowFractionalPoints': instance.allowFractionalPoints,
   'thumbRadius': instance.thumbRadius,
+  'thumbShape': _$SliderThumbShapeEnumEnumMap[instance.thumbShape]!,
+  'thumbWidth': instance.thumbWidth,
+  'thumbHeight': instance.thumbHeight,
+  'thumbCornerRadius': instance.thumbCornerRadius,
   'showThumb': instance.showThumb,
   'trackShape': _$SliderTrackShapeEnumEnumMap[instance.trackShape]!,
   'tickMarkRadius': instance.tickMarkRadius,
@@ -387,6 +412,11 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'inverted': instance.inverted,
   'thumbStrokeColor': ?instance.thumbStrokeColor?.toJson(),
   'thumbStrokeWidth': instance.thumbStrokeWidth,
+};
+
+const _$SliderThumbShapeEnumEnumMap = {
+  SliderThumbShapeEnum.circle: 'circle',
+  SliderThumbShapeEnum.roundedRect: 'roundedRect',
 };
 
 const _$SliderTrackShapeEnumEnumMap = {
