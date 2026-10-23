@@ -6,6 +6,18 @@
   repeated or mirror; default clamp, left out of the JSON) and
   `PaintModel.gradientExtent`, the length in pixels of one run of the
   gradient. A short repeating gradient with hard stops paints stripes.
+- `GridDelegateProperties.shrinkWrapRows`: each row of a grid is as tall
+  as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
+  fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
+  the JSON.
+
+### Fixes
+
+- `SpacerNode.fromJson` defaults `positioningMode` (align),
+  `aspectRatioLock` (false) and `reactions` ([]) like every other node, and
+  `GridViewNode.fromJson` defaults `isScrollable` (true) and
+  `useFlutterListView` (false). Both still write those keys for older
+  readers.
 
 ## 6.1.0
 
