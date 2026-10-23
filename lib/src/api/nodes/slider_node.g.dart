@@ -102,6 +102,11 @@ Map<String, dynamic> _$SliderPropertiesOmitDefaults(
     json.remove('overlayRadius');
   if (isJsonDefault(instance.deriveOverlayColorFromThumb, true))
     json.remove('deriveOverlayColorFromThumb');
+  if (isJsonDefault(instance.orientation, AxisC.horizontal))
+    json.remove('orientation');
+  if (isJsonDefault(instance.inverted, false)) json.remove('inverted');
+  if (isJsonDefault(instance.thumbStrokeWidth, 0))
+    json.remove('thumbStrokeWidth');
   return json;
 }
 
@@ -334,6 +339,14 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
   padding: json['padding'] == null
       ? null
       : EdgeInsetsModel.fromJson(json['padding']),
+  orientation:
+      $enumDecodeNullable(_$AxisCEnumMap, json['orientation']) ??
+      AxisC.horizontal,
+  inverted: json['inverted'] as bool? ?? false,
+  thumbStrokeColor: json['thumbStrokeColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['thumbStrokeColor']),
+  thumbStrokeWidth: (json['thumbStrokeWidth'] as num?)?.toDouble() ?? 0,
 );
 
 Map<String, dynamic> _$SliderPropertiesToJson(
@@ -370,6 +383,10 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'secondaryTrackValue': ?instance.secondaryTrackValue,
   'secondaryActiveTrackColor': ?instance.secondaryActiveTrackColor?.toJson(),
   'padding': ?instance.padding?.toJson(),
+  'orientation': _$AxisCEnumMap[instance.orientation]!,
+  'inverted': instance.inverted,
+  'thumbStrokeColor': ?instance.thumbStrokeColor?.toJson(),
+  'thumbStrokeWidth': instance.thumbStrokeWidth,
 };
 
 const _$SliderTrackShapeEnumEnumMap = {
@@ -391,4 +408,9 @@ const _$ShowValueIndicatorCEnumMap = {
   ShowValueIndicatorC.onDrag: 'onDrag',
   ShowValueIndicatorC.alwaysVisible: 'alwaysVisible',
   ShowValueIndicatorC.never: 'never',
+};
+
+const _$AxisCEnumMap = {
+  AxisC.horizontal: 'horizontal',
+  AxisC.vertical: 'vertical',
 };

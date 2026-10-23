@@ -114,12 +114,17 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   };
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.changed];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.changed,
+    TriggerType.doubleTap,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     DoubleValue(name: 'value', value: value),
+    DoubleValue(name: 'min', value: properties.min),
+    DoubleValue(name: 'max', value: properties.max),
   ];
 
   /// Creates a [SliderNode] instance from a JSON object.
@@ -224,6 +229,22 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// room for the thumb's overlay. Mirrors `Slider.padding`.
   EdgeInsetsModel? padding;
 
+  /// Direction the slider runs in. A vertical slider runs from [min] at the
+  /// bottom to [max] at the top (top to bottom when [inverted]); its node box
+  /// is its full hit area.
+  AxisC orientation;
+
+  /// Whether the slider runs the other way: right to left when horizontal,
+  /// top to bottom when vertical.
+  bool inverted;
+
+  /// Color of the stroke around the slider's thumb. No stroke when null or
+  /// when [thumbStrokeWidth] is 0.
+  ColorRGBA? thumbStrokeColor;
+
+  /// Width of the stroke around the slider's thumb, drawn inside the thumb.
+  double thumbStrokeWidth;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -255,6 +276,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.secondaryTrackValue,
     this.secondaryActiveTrackColor,
     this.padding,
+    this.orientation = AxisC.horizontal,
+    this.inverted = false,
+    this.thumbStrokeColor,
+    this.thumbStrokeWidth = 0,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -289,6 +314,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     double? secondaryTrackValue,
     ColorRGBA? secondaryActiveTrackColor,
     EdgeInsetsModel? padding,
+    AxisC? orientation,
+    bool? inverted,
+    ColorRGBA? thumbStrokeColor,
+    double? thumbStrokeWidth,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -326,6 +355,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       secondaryActiveTrackColor:
           secondaryActiveTrackColor ?? this.secondaryActiveTrackColor,
       padding: padding ?? this.padding,
+      orientation: orientation ?? this.orientation,
+      inverted: inverted ?? this.inverted,
+      thumbStrokeColor: thumbStrokeColor ?? this.thumbStrokeColor,
+      thumbStrokeWidth: thumbStrokeWidth ?? this.thumbStrokeWidth,
     );
   }
 
@@ -528,6 +561,33 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       () => secondaryActiveTrackColor,
       (value) => secondaryActiveTrackColor = value,
     ),
+    'orientation': EnumFieldAccess<AxisC>(
+      'Orientation',
+      'Direction the slider runs in.',
+      () => orientation,
+      (AxisC value) => orientation = value,
+      defaultValue: () => AxisC.horizontal,
+      options: () => AxisC.values,
+      requiresLayout: true,
+    ),
+    'inverted': BoolFieldAccess(
+      'Inverted',
+      'Whether the slider runs right to left, or top to bottom.',
+      () => inverted,
+      (bool value) => inverted = value,
+    ),
+    'thumbStrokeColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Stroke Color',
+      'Color of the stroke around the slider\'s thumb.',
+      () => thumbStrokeColor,
+      (value) => thumbStrokeColor = value,
+    ),
+    'thumbStrokeWidth': NumFieldAccess<double>(
+      'Thumb Stroke Width',
+      'Width of the stroke around the slider\'s thumb.',
+      () => thumbStrokeWidth,
+      (double value) => thumbStrokeWidth = value,
+    ),
   };
 
   @override
@@ -561,6 +621,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     secondaryTrackValue,
     secondaryActiveTrackColor,
     padding,
+    orientation,
+    inverted,
+    thumbStrokeColor,
+    thumbStrokeWidth,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.
