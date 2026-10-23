@@ -68,7 +68,26 @@ enum TriggerType {
   swipeUp,
 
   /// Triggered when the user swipes the target down.
-  swipeDown;
+  swipeDown,
+
+  /// Triggered when the user taps the target twice in quick succession.
+  /// A node with a double tap reaction delays its single taps ([click]) by
+  /// the double tap timeout (300ms), the way Flutter tells the two apart.
+  doubleTap,
+
+  /// Triggered when a mouse pointer moves onto the target. Touch input never
+  /// fires it.
+  hoverEnter,
+
+  /// Triggered when a mouse pointer leaves the target. Touch input never
+  /// fires it.
+  hoverExit;
+
+  /// The hover triggers.
+  static const List<TriggerType> hovers = [
+    TriggerType.hoverEnter,
+    TriggerType.hoverExit,
+  ];
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [
@@ -119,6 +138,12 @@ enum TriggerType {
         return 'Swipe Up';
       case TriggerType.swipeDown:
         return 'Swipe Down';
+      case TriggerType.doubleTap:
+        return 'Double Tap';
+      case TriggerType.hoverEnter:
+        return 'Hover Enter';
+      case TriggerType.hoverExit:
+        return 'Hover Exit';
     }
   }
 }
