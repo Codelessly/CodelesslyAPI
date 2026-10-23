@@ -21,11 +21,11 @@ Map<String, dynamic> _$SpacerNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
-  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
