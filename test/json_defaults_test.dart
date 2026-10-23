@@ -384,15 +384,17 @@ void main() {
 
   group('JSON from build scripts', () {
     test('a spacer needs no positioning, aspect lock or reactions', () {
-      final node = NodeJsonConverter().fromJson({
-        'type': 'spacer',
-        'id': 'sp',
-        'name': 'sp',
-        'flex': 1,
-        'basicBoxLocal': [0, 0, 10, 10],
-        'horizontalFit': 'expanded',
-        'verticalFit': 'expanded',
-      })! as SpacerNode;
+      final node =
+          NodeJsonConverter().fromJson({
+                'type': 'spacer',
+                'id': 'sp',
+                'name': 'sp',
+                'flex': 1,
+                'basicBoxLocal': [0, 0, 10, 10],
+                'horizontalFit': 'expanded',
+                'verticalFit': 'expanded',
+              })!
+              as SpacerNode;
       expect(node.positioningMode, PositioningMode.align);
       expect(node.aspectRatioLock, isFalse);
       expect(node.reactions, isEmpty);
@@ -408,22 +410,24 @@ void main() {
     });
 
     test('a grid needs no useFlutterListView or isScrollable', () {
-      final node = NodeJsonConverter().fromJson({
-        'type': 'gridView',
-        'id': 'grid',
-        'name': 'grid',
-        'basicBoxLocal': [0, 0, 300, 300],
-        'allowedTypes': [],
-        'deniedTypes': ['gridView'],
-        'children': ['item'],
-        'properties': {
-          'gridDelegate': {
-            'type': 'fixedCrossAxisCount',
-            'crossAxisCount': 2,
-            'shrinkWrapRows': true,
-          },
-        },
-      })! as GridViewNode;
+      final node =
+          NodeJsonConverter().fromJson({
+                'type': 'gridView',
+                'id': 'grid',
+                'name': 'grid',
+                'basicBoxLocal': [0, 0, 300, 300],
+                'allowedTypes': [],
+                'deniedTypes': ['gridView'],
+                'children': ['item'],
+                'properties': {
+                  'gridDelegate': {
+                    'type': 'fixedCrossAxisCount',
+                    'crossAxisCount': 2,
+                    'shrinkWrapRows': true,
+                  },
+                },
+              })!
+              as GridViewNode;
       expect(node.useFlutterListView, isFalse);
       expect(node.isScrollable, isTrue);
       expect(node.properties.gridDelegate.shrinkWrapRows, isTrue);
