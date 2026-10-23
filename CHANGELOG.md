@@ -1,3 +1,17 @@
+## Unreleased
+
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
+### Variables
+
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
+
 ## 6.1.0
 
 ### States and conditions
