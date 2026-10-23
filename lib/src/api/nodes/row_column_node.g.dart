@@ -10,6 +10,9 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.spacing, 0)) json.remove('spacing');
+  if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -227,6 +230,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             ScrollViewKeyboardDismissBehaviorC.manual,
         useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
+        wrap: json['wrap'] as bool? ?? false,
+        spacing: (json['spacing'] as num?)?.toDouble() ?? 0,
+        runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -338,6 +344,9 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'type': instance.type,
+  'wrap': instance.wrap,
+  'spacing': instance.spacing,
+  'runSpacing': instance.runSpacing,
 };
 
 const _$RowColumnTypeEnumMap = {
