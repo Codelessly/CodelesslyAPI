@@ -366,6 +366,25 @@ void main() {
       });
     }
 
+    test('a pulse round-trips and is left out when unset', () {
+      final RectangleNode rect = RectangleNode.fromJson({
+        'id': 'r',
+        'name': 'Skeleton',
+        'type': 'rectangle',
+        'basicBoxLocal': [0, 0, 100, 12],
+        'pulse': {'durationMillis': 600},
+      });
+      expect(rect.pulse, const PulseModel(durationMillis: 600));
+      expect(rect.pulse!.minOpacity, 0.45);
+      expect(rect.toJson()['pulse'], {'durationMillis': 600});
+      expect(
+        RectangleNode.fromJson(rect.toJson()).pulse,
+        const PulseModel(durationMillis: 600),
+      );
+      rect.pulse = null;
+      expect(rect.toJson(), isNot(contains('pulse')));
+    });
+
     test('a spacer reads JSON that leaves out its defaults', () {
       final SpacerNode spacer = SpacerNode.fromJson({
         'id': 's',
