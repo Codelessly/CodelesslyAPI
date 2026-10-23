@@ -23,6 +23,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -166,6 +167,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
             StrokeSide.all,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -224,6 +226,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
+  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),

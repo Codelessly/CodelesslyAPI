@@ -5,6 +5,10 @@
   lines, x ticks, markers and vertical lines are bound through `variables`
   (see the class docs for their JSON shapes); colors, insets, curve style,
   text styles and the scrub readout are properties.
+- `BaseNode.squeezable` (`"squeezable": true`, default `false` and left out
+  of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
+  Row/Column's main axis may shrink below it when the Row/Column runs out of
+  space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
 
 ## 6.1.0
 
