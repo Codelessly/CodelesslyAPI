@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -23,6 +24,19 @@ class RowColumnNode extends ParentNode
 
   @override
   set scrollDirection(AxisC value) {}
+
+  /// Whether the children wrap onto new runs when they don't fit the main
+  /// axis, like Flutter's [Wrap] widget, instead of being laid out in a single
+  /// line.
+  bool wrap;
+
+  /// The gap between adjacent children along the main axis within a run.
+  /// Only used when [wrap] is true.
+  double spacing;
+
+  /// The gap between adjacent runs along the cross axis.
+  /// Only used when [wrap] is true.
+  double runSpacing;
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -76,6 +90,9 @@ class RowColumnNode extends ParentNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
     bool shouldAlwaysScroll = true,
+    this.wrap = false,
+    this.spacing = 0,
+    this.runSpacing = 0,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
@@ -111,6 +128,38 @@ class RowColumnNode extends ParentNode
     TriggerType.hold,
   ];
 
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Whether the children wrap onto new runs when they overflow.',
+      () => wrap,
+      (value) => wrap = value,
+      defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'spacing': NumFieldAccess<double>(
+      'Spacing',
+      'Gap between children within a run when wrapping.',
+      () => spacing,
+      (value) => spacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Spacing',
+      'Gap between runs when wrapping.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+  };
+
+  /// Creates a [RowColumnNode] from [json].
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
 
   @override
