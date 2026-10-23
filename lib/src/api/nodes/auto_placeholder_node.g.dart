@@ -70,6 +70,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
   return json;
 }
 
@@ -236,6 +237,7 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(
@@ -289,6 +291,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
   'type': instance.type,
   'ephemeral': instance.ephemeral,
 };
