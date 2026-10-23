@@ -21,12 +21,17 @@ void main() {
         padding: const EdgeInsetsModel.all(16),
         horizontalFit: SizeFit.expanded,
         verticalFit: SizeFit.shrinkWrap,
-        fills: [PaintModel.solid(color: ColorRGB(r: 1, g: 1, b: 1), id: 'p1')],
+        fills: [
+          PaintModel.solid(color: const ColorRGB(r: 1, g: 1, b: 1), id: 'p1'),
+        ],
         strokes: [
-          PaintModel.solid(color: ColorRGB(r: 0.9, g: 0.9, b: 0.9), id: 'p4'),
+          PaintModel.solid(
+            color: const ColorRGB(r: 0.9, g: 0.9, b: 0.9),
+            id: 'p4',
+          ),
         ],
         strokeWeight: 1,
-        cornerRadius: CornerRadius.all(RadiusModel.circular(12)),
+        cornerRadius: const CornerRadius.all(const RadiusModel.circular(12)),
         reactions: [
           Reaction(
             trigger: TriggerModel(type: TriggerType.click),
@@ -48,14 +53,14 @@ void main() {
             fontSize: 16,
             lineHeight: LineHeight.auto,
             letterSpacing: LetterSpacing.zero,
-            fontName: FontName(
+            fontName: const FontName(
               family: 'Inter',
               style: 'Bold',
               weight: FontWeightNumeric.w700,
             ),
             fills: [
               PaintModel.solid(
-                color: ColorRGB(r: 0.1, g: 0.1, b: 0.1),
+                color: const ColorRGB(r: 0.1, g: 0.1, b: 0.1),
                 id: 'p2',
               ),
             ],
@@ -67,7 +72,10 @@ void main() {
         name: 'Divider',
         basicBoxLocal: box,
         fills: [
-          PaintModel.solid(color: ColorRGB(r: 0.9, g: 0.9, b: 0.9), id: 'p3'),
+          PaintModel.solid(
+            color: const ColorRGB(r: 0.9, g: 0.9, b: 0.9),
+            id: 'p3',
+          ),
         ],
       ),
     ];
