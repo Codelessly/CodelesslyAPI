@@ -201,6 +201,33 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// with motion bound to their index (see [MotionModel]).
   bool stacked;
 
+  /// Whether the items flow onto further lines (runs) when they don't fit,
+  /// like Flutter's [Wrap], instead of scrolling in one line. The scroll
+  /// direction is the wrap direction: a horizontal list fills a line from
+  /// left to right, then starts a new line below; a vertical list fills a
+  /// column top to bottom, then starts a new column to the right. Items keep
+  /// their own size (they are not stretched to the list's cross extent).
+  /// Separators are not drawn; use [wrapSpacing] and [wrapRunSpacing].
+  /// Ignored when [stacked] is true.
+  ///
+  /// A wrapping list shows every item, so it needs an item count or a data
+  /// source. It scrolls along the cross axis when its runs don't fit its box;
+  /// give it a shrink-wrap fit on the cross axis to grow with its runs.
+  bool wrap;
+
+  /// The gap between two items of the same line when [wrap] is true.
+  double wrapSpacing;
+
+  /// The gap between two lines (runs) when [wrap] is true.
+  double wrapRunSpacing;
+
+  /// How the items of a line are placed along the wrap direction when [wrap]
+  /// is true. Maps to Flutter's [WrapAlignment] by name.
+  MainAxisAlignmentC wrapAlignment;
+
+  /// Whether this list wraps its items: [wrap] is on and [stacked] is off.
+  bool get isWrapping => wrap && !stacked;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -210,6 +237,10 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.separatorSpacing = 0,
     this.hasSeparator = false,
     this.stacked = false,
+    this.wrap = false,
+    this.wrapSpacing = 0,
+    this.wrapRunSpacing = 0,
+    this.wrapAlignment = MainAxisAlignmentC.start,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
@@ -230,10 +261,18 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? dividerSpacing,
     bool? hasSeparator,
     bool? stacked,
+    bool? wrap,
+    double? wrapSpacing,
+    double? wrapRunSpacing,
+    MainAxisAlignmentC? wrapAlignment,
     DividerProperties? dividerProperties,
   }) {
     return ListViewProperties(
       stacked: stacked ?? this.stacked,
+      wrap: wrap ?? this.wrap,
+      wrapSpacing: wrapSpacing ?? this.wrapSpacing,
+      wrapRunSpacing: wrapRunSpacing ?? this.wrapRunSpacing,
+      wrapAlignment: wrapAlignment ?? this.wrapAlignment,
       itemCount: itemCount ?? this.itemCount,
       itemExtent: itemExtent ?? this.itemExtent,
       cacheExtent: cacheExtent ?? this.cacheExtent,
@@ -253,6 +292,37 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
           'one after another.',
       () => stacked,
       (value) => stacked = value,
+      requiresLayout: true,
+    ),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Flow the items onto further lines when they do not fit, instead of '
+          'scrolling in one line. Ignored when Stacked is on.',
+      () => wrap,
+      (value) => wrap = value,
+      requiresLayout: true,
+    ),
+    'wrapSpacing': NumFieldAccess<double>(
+      'Wrap Spacing',
+      'The gap between two items of the same line of a wrapping list.',
+      () => wrapSpacing,
+      (value) => wrapSpacing = value,
+      requiresLayout: true,
+    ),
+    'wrapRunSpacing': NumFieldAccess<double>(
+      'Wrap Run Spacing',
+      'The gap between two lines of a wrapping list.',
+      () => wrapRunSpacing,
+      (value) => wrapRunSpacing = value,
+      requiresLayout: true,
+    ),
+    'wrapAlignment': EnumFieldAccess<MainAxisAlignmentC>(
+      'Wrap Alignment',
+      'How the items of a line of a wrapping list are placed along it.',
+      () => wrapAlignment,
+      (value) => wrapAlignment = value,
+      defaultValue: () => MainAxisAlignmentC.start,
+      options: () => MainAxisAlignmentC.values,
       requiresLayout: true,
     ),
     'hasSeparator': BoolFieldAccess(
@@ -304,6 +374,10 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     separatorSpacing,
     hasSeparator,
     stacked,
+    wrap,
+    wrapSpacing,
+    wrapRunSpacing,
+    wrapAlignment,
     dividerProperties,
   ];
 }

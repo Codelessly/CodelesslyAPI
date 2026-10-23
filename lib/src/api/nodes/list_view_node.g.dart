@@ -85,6 +85,11 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
     json.remove('separator');
   if (isJsonDefault(instance.hasSeparator, false)) json.remove('hasSeparator');
   if (isJsonDefault(instance.stacked, false)) json.remove('stacked');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.wrapSpacing, 0)) json.remove('wrapSpacing');
+  if (isJsonDefault(instance.wrapRunSpacing, 0)) json.remove('wrapRunSpacing');
+  if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
+    json.remove('wrapAlignment');
   return json;
 }
 
@@ -375,6 +380,12 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
   separatorSpacing: (json['separatorSpacing'] as num?)?.toDouble() ?? 0,
   hasSeparator: json['hasSeparator'] as bool? ?? false,
   stacked: json['stacked'] as bool? ?? false,
+  wrap: json['wrap'] as bool? ?? false,
+  wrapSpacing: (json['wrapSpacing'] as num?)?.toDouble() ?? 0,
+  wrapRunSpacing: (json['wrapRunSpacing'] as num?)?.toDouble() ?? 0,
+  wrapAlignment:
+      $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
+      MainAxisAlignmentC.start,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -390,9 +401,22 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'hasSeparator': instance.hasSeparator,
       'dividerProperties': instance.dividerProperties.toJson(),
       'stacked': instance.stacked,
+      'wrap': instance.wrap,
+      'wrapSpacing': instance.wrapSpacing,
+      'wrapRunSpacing': instance.wrapRunSpacing,
+      'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
     };
 
 const _$ListItemSeparatorEnumMap = {
   ListItemSeparator.divider: 'divider',
   ListItemSeparator.space: 'space',
+};
+
+const _$MainAxisAlignmentCEnumMap = {
+  MainAxisAlignmentC.start: 'start',
+  MainAxisAlignmentC.center: 'center',
+  MainAxisAlignmentC.end: 'end',
+  MainAxisAlignmentC.spaceBetween: 'spaceBetween',
+  MainAxisAlignmentC.spaceAround: 'spaceAround',
+  MainAxisAlignmentC.spaceEvenly: 'spaceEvenly',
 };
