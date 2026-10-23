@@ -10,6 +10,10 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
+  if (isJsonDefault(instance.runAlignment, MainAxisAlignmentC.start))
+    json.remove('runAlignment');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -228,6 +232,14 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             ScrollViewKeyboardDismissBehaviorC.manual,
         useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
+        wrap: json['wrap'] as bool? ?? false,
+        runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
+        runAlignment:
+            $enumDecodeNullable(
+              _$MainAxisAlignmentCEnumMap,
+              json['runAlignment'],
+            ) ??
+            MainAxisAlignmentC.start,
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -279,6 +291,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -296,7 +309,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -341,6 +353,9 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'type': instance.type,
+  'wrap': instance.wrap,
+  'runSpacing': instance.runSpacing,
+  'runAlignment': _$MainAxisAlignmentCEnumMap[instance.runAlignment]!,
 };
 
 const _$RowColumnTypeEnumMap = {

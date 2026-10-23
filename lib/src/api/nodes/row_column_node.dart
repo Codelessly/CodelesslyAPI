@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -23,6 +24,23 @@ class RowColumnNode extends ParentNode
 
   @override
   set scrollDirection(AxisC value) {}
+
+  /// Whether the children flow onto a new run (a line for a row, a column of
+  /// items for a column) when they don't fit on the main axis, like Flutter's
+  /// [Wrap]. Items keep their own size: a child that flexes on the main axis
+  /// can't share free space in a run, so it takes its design size there.
+  /// [mainAxisAlignment] places the items within each run and
+  /// [crossAxisAlignment] places them within their run's thickness (stretch
+  /// and baseline aren't available in a wrap and align to the start).
+  /// The space between items is the children's margins.
+  bool wrap;
+
+  /// The space between runs on the cross axis when [wrap] is true.
+  double runSpacing;
+
+  /// How the runs are placed on the cross axis when [wrap] is true and the
+  /// node is thicker than its runs.
+  MainAxisAlignmentC runAlignment;
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -76,6 +94,9 @@ class RowColumnNode extends ParentNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
     bool shouldAlwaysScroll = true,
+    this.wrap = false,
+    this.runSpacing = 0,
+    this.runAlignment = MainAxisAlignmentC.start,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
@@ -107,4 +128,35 @@ class RowColumnNode extends ParentNode
   @override
   Map toJson() =>
       _$RowColumnNodeOmitDefaults(this, _$RowColumnNodeToJson(this));
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Whether the children flow onto a new run when they don\'t fit.',
+      () => wrap,
+      (value) => wrap = value,
+      defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Spacing',
+      'The space between runs when the children wrap.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+    'runAlignment': EnumFieldAccess<MainAxisAlignmentC>(
+      'Run Alignment',
+      'How the runs are placed on the cross axis when the children wrap.',
+      () => runAlignment,
+      (value) => runAlignment = value,
+      defaultValue: () => MainAxisAlignmentC.start,
+      options: () => MainAxisAlignmentC.values,
+      requiresLayout: true,
+    ),
+  };
 }
