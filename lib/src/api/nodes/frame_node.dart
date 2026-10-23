@@ -15,6 +15,17 @@ class FrameNode extends DefaultShapeNode
   @override
   final bool supportsPadding = true;
 
+  /// Scales the frame's content to fit it, like Flutter's [FittedBox]: the
+  /// children are laid out in the frame's design-size content box and the
+  /// result is scaled by this fit into the content box the frame gets, e.g.
+  /// [Fit.contain] to show a fixed drawing as large as it fits. Null (the
+  /// default) lays the children out in the frame's actual size, unscaled.
+  Fit? contentFit;
+
+  /// Where scaled content sits in the frame when [contentFit] leaves space
+  /// on one axis.
+  AlignmentModel contentAlignment;
+
   /// Frame is a Rectangle with children, which can be clipped.
   FrameNode({
     required super.id,
@@ -73,6 +84,8 @@ class FrameNode extends DefaultShapeNode
     String? pageID,
     String? layoutID,
     bool showPortal = false,
+    this.contentFit,
+    this.contentAlignment = AlignmentModel.center,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,

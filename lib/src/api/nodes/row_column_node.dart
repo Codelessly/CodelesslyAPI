@@ -24,6 +24,20 @@ class RowColumnNode extends ParentNode
   @override
   set scrollDirection(AxisC value) {}
 
+  /// Whether children that don't fit on the main axis wrap onto a new line
+  /// (a row) or column (a column), like Flutter's [Wrap]. The main axis
+  /// alignment places each line's children, the cross axis alignment places
+  /// children within their line (stretch and baseline read as start).
+  /// Children keep their own sizes: a child that flexes on the main axis
+  /// fills a whole line, and spacers take no space.
+  bool wrap;
+
+  /// The gap between children on a line when [wrap] is on.
+  double wrapSpacing;
+
+  /// The gap between lines when [wrap] is on.
+  double wrapRunSpacing;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -76,6 +90,9 @@ class RowColumnNode extends ParentNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
     bool shouldAlwaysScroll = true,
+    this.wrap = false,
+    this.wrapSpacing = 0,
+    this.wrapRunSpacing = 0,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,

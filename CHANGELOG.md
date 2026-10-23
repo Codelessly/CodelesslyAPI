@@ -2,6 +2,16 @@
 
 ### New
 
+- `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
+  `showDragHandle`, as on `ShowDialogAction`.
+- `ShowToastAction.accentColor`, `accentWidth` (4), `iconColor`,
+  `fontFamily` and `cornerRadius`.
+- `RowColumnNode.wrap`, `wrapSpacing` and `wrapRunSpacing`.
+- `FrameNode.contentFit` (a `Fit`, null for none) and `contentAlignment`
+  (center).
+- `TextFieldNode.propertyVariables` lists `errorText` and `error`.
+- All new fields are left out of the JSON at their defaults.
+
 - Repeating gradients: `PaintModel.tileMode` (`GradientTileMode` clamp,
   repeated or mirror; default clamp, left out of the JSON) and
   `PaintModel.gradientExtent`, the length in pixels of one run of the
