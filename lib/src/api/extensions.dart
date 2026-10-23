@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:intl/intl.dart';
 
 import '../../codelessly_api.dart';
 
@@ -45,8 +44,6 @@ extension IterableExt<E> on Iterable<E> {
   }
 }
 
-final NumberFormat _formatter = NumberFormat('0.##')..minimumFractionDigits = 0;
-
 /// A helper extension that adds additional functionality to [double].
 extension RoundNum on num {
   /// Rounds the double to the [precision]'th decimal place.
@@ -65,10 +62,17 @@ extension RoundNum on num {
   }
 
   /// Returns the double as a pretty rounded double.
+  ///
+  /// Whole results are ints (`2.0001` → `2`). Arithmetic, not number
+  /// formatting: node JSON rounds every box and inset this way, and the
+  /// editor serializes nodes while building them.
   num toPrettyPrecision(int precision) {
     if (isNaN || isInfinite) return this;
-    _formatter.maximumFractionDigits = precision;
-    return num.parse(_formatter.format(this));
+    final double rounded = roundToPrecision(precision);
+    if (rounded == rounded.truncateToDouble() && rounded.abs() < 1e15) {
+      return rounded.toInt();
+    }
+    return rounded;
   }
 }
 
