@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -34,6 +35,7 @@ class RowColumnNode extends ParentNode
     required RowColumnType rowColumnType,
     MainAxisAlignmentC mainAxisAlignment = MainAxisAlignmentC.center,
     CrossAxisAlignmentC crossAxisAlignment = CrossAxisAlignmentC.center,
+    double spacing = 0,
     super.retainedOuterBoxLocal,
     super.visible,
     super.enabled,
@@ -86,6 +88,7 @@ class RowColumnNode extends ParentNode
       rowColumnType: rowColumnType,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
+      spacing: spacing,
     );
 
     setScrollableMixin(
@@ -100,6 +103,20 @@ class RowColumnNode extends ParentNode
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'spacing': NumFieldAccess<double>(
+      'Spacing',
+      'Gap between consecutive children along the main axis.',
+      () => spacing,
+      (value) => spacing = value,
+      defaultValue: () => 0,
+      min: 0,
+      requiresLayout: true,
+    ),
+  };
 
   /// Creates a [RowColumnNode] from a JSON data.
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);

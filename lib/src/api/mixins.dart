@@ -1109,6 +1109,16 @@ mixin RowColumnMixin on BaseNode {
   /// for details on available alignments.
   late CrossAxisAlignmentC crossAxisAlignment;
 
+  /// The gap between consecutive children along the main axis, in logical
+  /// pixels. Corresponds to the `spacing` property of [Row] and [Column] in
+  /// Flutter and to item spacing in Figma auto-layout.
+  ///
+  /// Unlike margins, the spacing is subtracted from the main axis extent
+  /// before free space is distributed to flexible children, so expanded
+  /// children with equal flex receive equal sizes.
+  @JsonKey(defaultValue: 0.0)
+  double spacing = 0;
+
   /// Returns the main axis based on whether this is a row or column.
   AxisC get mainAxis =>
       (rowColumnType == RowColumnType.row) ? AxisC.horizontal : AxisC.vertical;
@@ -1122,10 +1132,12 @@ mixin RowColumnMixin on BaseNode {
     required RowColumnType rowColumnType,
     required MainAxisAlignmentC mainAxisAlignment,
     required CrossAxisAlignmentC crossAxisAlignment,
+    double spacing = 0,
   }) {
     this.rowColumnType = rowColumnType;
     this.mainAxisAlignment = mainAxisAlignment;
     this.crossAxisAlignment = crossAxisAlignment;
+    this.spacing = spacing;
   }
 
   @override
