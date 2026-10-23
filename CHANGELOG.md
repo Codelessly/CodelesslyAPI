@@ -1,4 +1,4 @@
-## Unreleased
+## 6.2.0
 
 - `CornerRadius.fromJson` accepts a bare number (a circular radius on every
   corner), like `EdgeInsetsModel` does.
