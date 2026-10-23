@@ -43,10 +43,10 @@ void main() {
         strokeAlign: align,
       ),
     ).minimumPadding();
-    expect(padding(null), EdgeInsetsModel.all(6));
-    expect(padding(0), EdgeInsetsModel.all(6));
+    expect(padding(null), const EdgeInsetsModel.all(6));
+    expect(padding(0), const EdgeInsetsModel.all(6));
     expect(padding(-1), EdgeInsetsModel.zero);
-    expect(padding(1), EdgeInsetsModel.all(12));
+    expect(padding(1), const EdgeInsetsModel.all(12));
   });
 
   test('showDialog presentation defaults to dialog and round-trips', () {
