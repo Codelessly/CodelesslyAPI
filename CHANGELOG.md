@@ -1,5 +1,6 @@
 ## Unreleased
 
+- `strokeWeight` is a bindable style property of every node with strokes.
 - A navigate-back (`pop`) action reads from JSON without `destinationId`,
   which it has no use for. It is still written, as `''`, for readers that
   require it.
