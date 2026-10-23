@@ -32,6 +32,23 @@ void main() {
     expect(gauge.copyWith(sweepAngle: 90).sweepAngle, 90);
   });
 
+  test('only the stroke outside the circle pads the indicator', () {
+    EdgeInsetsModel padding(double? align) => LoadingIndicatorNode(
+      id: 'gauge',
+      name: 'Gauge',
+      basicBoxLocal: NodeBox(0, 0, 132, 132),
+      properties: MaterialLoadingIndicatorProperties(
+        color: ColorRGBA.black,
+        strokeWidth: 12,
+        strokeAlign: align,
+      ),
+    ).minimumPadding();
+    expect(padding(null), EdgeInsetsModel.all(6));
+    expect(padding(0), EdgeInsetsModel.all(6));
+    expect(padding(-1), EdgeInsetsModel.zero);
+    expect(padding(1), EdgeInsetsModel.all(12));
+  });
+
   test('showDialog presentation defaults to dialog and round-trips', () {
     final ShowDialogAction plain = ShowDialogAction.fromJson({
       'type': 'showDialog',
