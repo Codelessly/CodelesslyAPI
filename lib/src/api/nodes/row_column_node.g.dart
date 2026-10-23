@@ -68,6 +68,7 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
   if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
   if (isJsonDefault(instance.primary, true)) json.remove('primary');
@@ -119,6 +120,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               json['crossAxisAlignment'],
             ) ??
             CrossAxisAlignmentC.center,
+        spacing: (json['spacing'] as num?)?.toDouble() ?? 0.0,
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         rotationDegrees: json['rotation'] == null
@@ -328,6 +330,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
   'isScrollable': instance.isScrollable,
   'reverse': instance.reverse,
   'primary': instance.primary,
