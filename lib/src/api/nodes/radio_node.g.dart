@@ -166,6 +166,7 @@ RadioNode _$RadioNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$RadioNodeToJson(RadioNode instance) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -184,7 +185,6 @@ Map<String, dynamic> _$RadioNodeToJson(RadioNode instance) => <String, dynamic>{
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
