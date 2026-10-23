@@ -277,6 +277,9 @@ mixin BlendMixin on BaseNode {
   /// Whether to use ink well on this node, along with its properties.
   late InkWellModel? inkWell;
 
+  /// How the node animates when its style changes at runtime. Null jumps.
+  NodeTransition? transition;
+
   /// Sets the blend properties of the node.
   void setBlendMixin({
     required double opacity,
