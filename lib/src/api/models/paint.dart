@@ -169,6 +169,10 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// Tile mode for image fill.
   final ImageRepeatEnum imageRepeat;
 
+  /// Color saturation of an image fill: 1 keeps the image's colors, 0 makes
+  /// it greyscale, values between fade the colors.
+  final double saturation;
+
   /// Whether image fill type has source size.
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
@@ -261,6 +265,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        scaleX = 1,
        scaleY = 1,
        imageRepeat = ImageRepeatEnum.noRepeat,
+       saturation = 1,
        sourceWidth = null,
        sourceHeight = null,
        assetID = null;
@@ -282,6 +287,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.cropData,
     this.croppedImageURL,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
+    this.saturation = 1,
     this.imageName,
     required this.sourceWidth,
     required this.sourceHeight,
@@ -316,6 +322,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        scaleY = 1,
        cropData = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
+       saturation = 1,
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
@@ -343,6 +350,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        cropData = null,
        croppedImageURL = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
+       saturation = 1,
        sourceWidth = null,
        sourceHeight = null,
        assetID = null;
@@ -364,6 +372,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        fit = Fit.none,
        imageName = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
+       saturation = 1,
        alignment = AlignmentModel.none,
        scaleX = 1,
        scaleY = 1,
@@ -398,6 +407,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.sourceHeight,
     this.assetID,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
+    this.saturation = 1,
   });
 
   /// Duplicates this instance with given data overrides.
@@ -427,6 +437,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     double? sourceWidth,
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
+    double? saturation,
     bool forceSourceSize = false,
   }) => PaintModel(
     id: id,
@@ -458,6 +469,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
         : croppedImageURL ?? this.croppedImageURL,
     assetID: assetID ?? this.assetID,
     imageRepeat: imageRepeat ?? this.imageRepeat,
+    saturation: saturation ?? this.saturation,
   );
 
   /// [PaintModel] can store all types of paints at the same time to allow
@@ -507,6 +519,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           imageHash: imageHash,
           imageName: imageName,
           imageRepeat: imageRepeat,
+          saturation: saturation,
           imageTransform: imageTransform,
           assetID: assetID,
         );
@@ -536,6 +549,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (scaleX != other.scaleX) return false;
     if (scaleY != other.scaleY) return false;
     if (imageRepeat != other.imageRepeat) return false;
+    if (saturation != other.saturation) return false;
     if (assetID != other.assetID) return false;
     if (sourceWidth != other.sourceWidth) return false;
     if (sourceHeight != other.sourceHeight) return false;
@@ -564,6 +578,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     scaleX,
     scaleY,
     imageRepeat,
+    saturation,
     assetID,
     sourceWidth,
     sourceHeight,

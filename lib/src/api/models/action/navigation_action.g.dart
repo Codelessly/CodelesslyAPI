@@ -12,6 +12,7 @@ Map<String, dynamic> _$NavigationActionOmitDefaults(
 ) {
   if (isJsonDefault(instance.navigationType, NavigationType.push))
     json.remove('navigationType');
+  if (isJsonDefault(instance.destinationId, null)) json.remove('destinationId');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
