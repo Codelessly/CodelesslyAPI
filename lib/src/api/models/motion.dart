@@ -124,10 +124,22 @@ class MotionModel with Equatable, SerializableMixin {
   /// pulse, a blinking cursor.
   final MotionLoop loop;
 
-  /// Animates from rest to these values when the node first appears, over
-  /// [durationMs], instead of starting there: a record sliding out of its
-  /// sleeve when the screen opens.
+  /// Animates from rest (or from [enterFrom]) to these values when the node
+  /// first appears, over [durationMs], instead of starting there: a record
+  /// sliding out of its sleeve when the screen opens.
   final bool enter;
+
+  /// Where the entrance starts instead of rest: its offset, scale, opacity,
+  /// rotation and tilts (its other settings are ignored). Setting it plays
+  /// an entrance even when [enter] is false: a record fading and settling in
+  /// from `{"scale": 1.15, "opacity": 0}`.
+  final MotionModel? enterFrom;
+
+  /// Plays the entrance again, from [enterFrom] or rest, whenever this
+  /// changes. Meant to be bound through `motion.replayKey` in
+  /// [BaseNode.variables] to any value, for example `${playingId}`, so
+  /// loading another record replays its entrance.
+  final String? replayKey;
 
   /// Waits this long, in milliseconds, before a transition, entrance or
   /// loop starts, so motions can be staggered.
@@ -151,6 +163,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.spinRampMs = 800,
     this.loop = MotionLoop.none,
     this.enter = false,
+    this.enterFrom,
+    this.replayKey,
     this.delayMs = 0,
   });
 
@@ -170,6 +184,10 @@ class MotionModel with Equatable, SerializableMixin {
     'spin',
   ];
 
+  /// The name of the binding that replays the entrance when its value
+  /// changes; see [replayKey].
+  static const String replayKeyProperty = 'replayKey';
+
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
 
@@ -182,6 +200,24 @@ class MotionModel with Equatable, SerializableMixin {
       rotate != 0 ||
       rotateX != 0 ||
       rotateY != 0;
+
+  /// Whether the node animates in when it first appears.
+  bool get hasEntrance => enter || enterFrom != null;
+
+  /// Where the entrance starts: these settings with the transform of
+  /// [enterFrom], or at rest when there is none.
+  MotionModel get entranceStart => switch (enterFrom) {
+    null => atRest,
+    MotionModel from => copyWith(
+      translateX: from.translateX,
+      translateY: from.translateY,
+      scale: from.scale,
+      opacity: from.opacity,
+      rotate: from.rotate,
+      rotateX: from.rotateX,
+      rotateY: from.rotateY,
+    ),
+  };
 
   /// The value of [property] in this model.
   double valueOf(String property) => switch (property) {
@@ -214,6 +250,10 @@ class MotionModel with Equatable, SerializableMixin {
     int? spinRampMs,
     MotionLoop? loop,
     bool? enter,
+    MotionModel? enterFrom,
+    bool clearEnterFrom = false,
+    String? replayKey,
+    bool clearReplayKey = false,
     int? delayMs,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
@@ -232,6 +272,8 @@ class MotionModel with Equatable, SerializableMixin {
     spinRampMs: spinRampMs ?? this.spinRampMs,
     loop: loop ?? this.loop,
     enter: enter ?? this.enter,
+    enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
+    replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
   );
 
@@ -277,6 +319,8 @@ class MotionModel with Equatable, SerializableMixin {
     spinRampMs,
     loop,
     enter,
+    enterFrom,
+    replayKey,
     delayMs,
   ];
 
