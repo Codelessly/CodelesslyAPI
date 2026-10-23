@@ -239,6 +239,9 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -247,6 +250,7 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   AutoPlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -264,7 +268,6 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -283,6 +286,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
+  'transition': ?instance.transition?.toJson(),
   'fills': instance.fills.map((e) => e.toJson()).toList(),
   'strokes': instance.strokes.map((e) => e.toJson()).toList(),
   'strokeWeight': instance.strokeWeight,

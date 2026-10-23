@@ -47,6 +47,7 @@ export 'grid_delegate_type.dart';
 export 'icon.dart';
 export 'icon_model.dart';
 export 'ink_well.dart';
+export 'node_transition.dart';
 export 'input_border.dart';
 export 'input_decoration.dart';
 export 'letter_spacing.dart';
