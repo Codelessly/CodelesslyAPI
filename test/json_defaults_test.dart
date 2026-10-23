@@ -381,4 +381,82 @@ void main() {
       );
     });
   });
+
+  group('JSON from build scripts', () {
+    test('a spacer needs no positioning, aspect lock or reactions', () {
+      final node = NodeJsonConverter().fromJson({
+        'type': 'spacer',
+        'id': 'sp',
+        'name': 'sp',
+        'flex': 1,
+        'basicBoxLocal': [0, 0, 10, 10],
+        'horizontalFit': 'expanded',
+        'verticalFit': 'expanded',
+      })! as SpacerNode;
+      expect(node.positioningMode, PositioningMode.align);
+      expect(node.aspectRatioLock, isFalse);
+      expect(node.reactions, isEmpty);
+      // Older readers require these keys, so they are still written.
+      expect(
+        node.toJson(),
+        allOf(
+          containsPair('positioningMode', 'align'),
+          containsPair('aspectRatioLock', false),
+          containsPair('reactions', isEmpty),
+        ),
+      );
+    });
+
+    test('a grid needs no useFlutterListView or isScrollable', () {
+      final node = NodeJsonConverter().fromJson({
+        'type': 'gridView',
+        'id': 'grid',
+        'name': 'grid',
+        'basicBoxLocal': [0, 0, 300, 300],
+        'allowedTypes': [],
+        'deniedTypes': ['gridView'],
+        'children': ['item'],
+        'properties': {
+          'gridDelegate': {
+            'type': 'fixedCrossAxisCount',
+            'crossAxisCount': 2,
+            'shrinkWrapRows': true,
+          },
+        },
+      })! as GridViewNode;
+      expect(node.useFlutterListView, isFalse);
+      expect(node.isScrollable, isTrue);
+      expect(node.properties.gridDelegate.shrinkWrapRows, isTrue);
+      final json = encodeDecode(node.toJson()) as Map;
+      expect(json, containsPair('useFlutterListView', false));
+      expect(json, containsPair('isScrollable', true));
+      expect(
+        (json['properties'] as Map)['gridDelegate'],
+        containsPair('shrinkWrapRows', true),
+      );
+      expect(NodeJsonConverter().fromJson(json), node);
+    });
+
+    test('rows sized to their content leave the item main axis free', () {
+      final grid = GridViewNode(
+        id: 'grid',
+        name: 'grid',
+        basicBoxLocal: NodeBox(0, 0, 316, 300),
+        children: ['item'],
+        properties: GridViewProperties(
+          gridDelegate: FixedCrossAxisCountGridDelegateProperties(
+            crossAxisCount: 2,
+            crossAxisSpacing: 16,
+            mainAxisExtent: 130,
+            shrinkWrapRows: true,
+          ),
+        ),
+      );
+      final constraints = grid.relegatedConstraintsToChildren(grid)!;
+      expect(constraints.minWidth, 150);
+      expect(constraints.maxWidth, 150);
+      expect(constraints.minHeight, isNull);
+      expect(constraints.maxHeight, isNull);
+    });
+  });
 }

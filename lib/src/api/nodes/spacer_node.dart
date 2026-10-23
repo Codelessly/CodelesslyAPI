@@ -41,11 +41,28 @@ class SpacerNode extends SceneNode {
     super.edgePins,
     super.parentID,
     super.constraints,
+    super.positioningMode,
+    super.aspectRatioLock,
+    super.reactions,
   });
 
   /// Creates a new [SpacerNode] from a JSON data.
   factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson(json);
 
+  /// Keys that SDKs up to codelessly_api 6.0.0 require in a spacer's JSON. They are written
+  /// even at their defaults so those SDKs can still read it.
+  static const List<String> _legacyRequiredKeys = [
+    'positioningMode',
+    'aspectRatioLock',
+    'reactions',
+  ];
+
   @override
-  Map toJson() => _$SpacerNodeOmitDefaults(this, _$SpacerNodeToJson(this));
+  Map toJson() {
+    final Map<String, dynamic> json = _$SpacerNodeToJson(this);
+    final Map<String, dynamic> legacy = {
+      for (final key in _legacyRequiredKeys) key: json[key],
+    };
+    return {..._$SpacerNodeOmitDefaults(this, json), ...legacy};
+  }
 }
