@@ -355,6 +355,21 @@ void main() {
       expect(TextFieldProperties().toJson(), isNot(contains('autofillHints')));
     });
 
+    test('squeezable is written only when set', () {
+      TextNode node() => TextNode(
+        id: 't',
+        name: 'T',
+        basicBoxLocal: NodeBox(0, 0, 10, 10),
+        characters: 'a',
+        horizontalFit: SizeFit.shrinkWrap,
+      );
+      expect(node().toJson(), isNot(contains('squeezable')));
+      final json = encodeDecode((node()..squeezable = true).toJson()) as Map;
+      expect(json['squeezable'], true);
+      expect(TextNode.fromJson(json).squeezable, isTrue);
+      expect(TextNode.fromJson(node().toJson()).squeezable, isFalse);
+    });
+
     test('non-default values are still written', () {
       expect(
         ConditionalAction(
