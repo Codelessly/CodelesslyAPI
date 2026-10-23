@@ -1,3 +1,25 @@
+## 6.2.0
+
+### Layout
+
+- `RowColumnNode.wrap` and `runSpacing`: a row or column can flow its
+  children onto new runs, like Flutter's `Wrap`.
+- List, grid and page views, spacers and placeholders read from minimal JSON
+  (missing keys take their defaults).
+
+### Indicators and dialogs
+
+- Circular loading indicators take `startAngle` and `sweepAngle`, so one can
+  draw an arc or a gauge; `minimumPadding` counts only the part of the
+  stroke outside the circle.
+- `ShowDialogAction.presentation`: dialog, bottom sheet, adaptive (a sheet
+  on phones) or popover (`DialogPresentation`).
+- A back navigation (`NavigationType.pop`) needs no `destinationId`.
+
+### Text
+
+- `TextNode.tabularFigures`: digits of equal width for clocks and counters.
+
 ## 6.1.0
 
 ### States and conditions
