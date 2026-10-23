@@ -39,6 +39,10 @@
   of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
   Row/Column's main axis may shrink below it when the Row/Column runs out of
   space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
+- `RowColumnNode.wrap` (`"wrap": true`), `runSpacing` and `runAlignment`
+  (`MainAxisAlignmentC`): a row or column whose children flow onto a new run
+  when they don't fit, like Flutter's `Wrap`. Defaults (`false`, `0`,
+  `start`) are left out of the JSON.
 
 ## 6.1.0
 
