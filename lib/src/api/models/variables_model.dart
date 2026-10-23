@@ -180,7 +180,8 @@ class VariableData
   }
 
   @override
-  List<Object?> get props => [id, name, value, type];
+  // Extra holds a computed variable's formula: a new formula is a change.
+  List<Object?> get props => [id, name, value, type, extra];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
