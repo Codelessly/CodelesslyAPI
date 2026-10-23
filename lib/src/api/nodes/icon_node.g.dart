@@ -172,6 +172,9 @@ IconNode _$IconNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
@@ -210,6 +213,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
+  'transition': ?instance.transition?.toJson(),
   'properties': instance.properties.toJson(),
   'type': instance.type,
 };
