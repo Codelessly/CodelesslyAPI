@@ -1,3 +1,38 @@
+## 6.2.0
+
+### Motion
+
+- `MotionModel` on every node (`BaseNode.motion`): offset, scale, opacity,
+  rotation, 3D tilt with perspective and origin, an animated transition
+  (duration and curve), continuous spin, `loop` (restart or back and forth),
+  `enter`, `enterFrom`, `delayMs` and a bindable `replayKey`. Values bind as
+  `motion.<name>` variables.
+
+### Triggers
+
+- `timer` (`TriggerModel.intervalMs`) and `keyPress` (`TriggerModel.key`) on
+  canvases; `swipeLeft/Right/Up/Down`, `doubleTap`, `hoverEnter` and
+  `hoverExit` on frames, rectangles, buttons, icons and text.
+
+### Layout
+
+- `RowColumnNode.itemSpacing`: a gap between children.
+- `ListViewProperties.stacked` (items drawn on top of each other) and `wrap`
+  with `wrapSpacing`, `wrapRunSpacing` and `wrapAlignment`.
+- Sliders: `orientation` (vertical), `inverted`, thumb stroke, and a
+  `roundedRect` thumb shape with width, height and corners.
+
+### Variables and JSON
+
+- Computed variables: `VariableData.formula`.
+- Bindable `effectsVisible`, `strokeWeight`, `cornerRadius`, `fontWeight`
+  and a slider's `min`/`max` as property variables.
+- `variableSyntaxIdentifierPattern` matches a `${= ...}` formula whole,
+  object literals included.
+- `EdgeInsetsModel.fromJson` reads `{left, top, right, bottom}` and
+  `{horizontal, vertical}`; placeholders and lists read JSON without their
+  editor-only keys.
+
 ## 6.1.0
 
 ### States and conditions
