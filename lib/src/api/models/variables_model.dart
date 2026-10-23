@@ -201,6 +201,7 @@ class VariableData
     name: name,
     value: value,
     type: type,
+    extra: extra,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
