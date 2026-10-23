@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -23,6 +24,15 @@ class RowColumnNode extends ParentNode
 
   @override
   set scrollDirection(AxisC value) {}
+
+  /// The gap, in logical pixels, inserted between consecutive visible
+  /// children along the main axis. Equivalent to Flutter's
+  /// `Row(spacing: ...)` / `Column(spacing: ...)` and CSS `gap`.
+  ///
+  /// Only children that are actually laid out (visible) receive a gap; a
+  /// hidden child does not contribute an extra gap. Defaults to 0 and is
+  /// omitted from JSON at the default.
+  double itemSpacing;
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -63,6 +73,7 @@ class RowColumnNode extends ParentNode
     super.reactions,
     super.parentID,
     super.clipsContent = false,
+    this.itemSpacing = 0,
     // [CornerMixin] properties.
     CornerRadius cornerRadius = CornerRadius.zero,
     double cornerSmoothing = 0,
@@ -100,6 +111,20 @@ class RowColumnNode extends ParentNode
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'itemSpacing': NumFieldAccess<double>(
+      'Gap',
+      'Space between consecutive children along the main axis.',
+      () => itemSpacing,
+      (value) => itemSpacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+  };
 
   /// Creates a [RowColumnNode] from a JSON data.
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);

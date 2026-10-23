@@ -10,6 +10,7 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.itemSpacing, 0)) json.remove('itemSpacing');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -205,6 +206,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
                 .toList() ??
             const [],
         clipsContent: json['clipsContent'] as bool? ?? false,
+        itemSpacing: (json['itemSpacing'] as num?)?.toDouble() ?? 0,
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
@@ -280,6 +282,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -297,7 +300,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -342,6 +344,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'type': instance.type,
+  'itemSpacing': instance.itemSpacing,
 };
 
 const _$RowColumnTypeEnumMap = {
