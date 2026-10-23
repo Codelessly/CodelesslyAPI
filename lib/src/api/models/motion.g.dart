@@ -25,6 +25,9 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('curve');
   if (isJsonDefault(instance.spin, 0)) json.remove('spin');
   if (isJsonDefault(instance.spinRampMs, 800)) json.remove('spinRampMs');
+  if (isJsonDefault(instance.loop, MotionLoop.none)) json.remove('loop');
+  if (isJsonDefault(instance.enter, false)) json.remove('enter');
+  if (isJsonDefault(instance.delayMs, 0)) json.remove('delayMs');
   return json;
 }
 
@@ -49,6 +52,10 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
       MotionCurve.easeInOut,
   spin: (json['spin'] as num?)?.toDouble() ?? 0,
   spinRampMs: (json['spinRampMs'] as num?)?.toInt() ?? 800,
+  loop:
+      $enumDecodeNullable(_$MotionLoopEnumMap, json['loop']) ?? MotionLoop.none,
+  enter: json['enter'] as bool? ?? false,
+  delayMs: (json['delayMs'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -67,6 +74,9 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'curve': _$MotionCurveEnumMap[instance.curve]!,
       'spin': instance.spin,
       'spinRampMs': instance.spinRampMs,
+      'loop': _$MotionLoopEnumMap[instance.loop]!,
+      'enter': instance.enter,
+      'delayMs': instance.delayMs,
     };
 
 const _$MotionCurveEnumMap = {
@@ -76,4 +86,10 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+};
+
+const _$MotionLoopEnumMap = {
+  MotionLoop.none: 'none',
+  MotionLoop.restart: 'restart',
+  MotionLoop.reverse: 'reverse',
 };

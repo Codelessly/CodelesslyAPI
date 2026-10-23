@@ -41,6 +41,7 @@ VariableData _$VariableDataFromJson(Map json) => VariableData(
       ) ??
       VariableType.text,
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  formula: json['formula'] as String?,
 );
 
 Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
@@ -50,6 +51,7 @@ Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
+      'formula': ?instance.formula,
     };
 
 const _$VariableTypeEnumMap = {
@@ -77,6 +79,7 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       VariableType.text,
   value: json['value'] ?? '',
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  formula: json['formula'] as String?,
 );
 
 Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
@@ -86,5 +89,6 @@ Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
+      'formula': ?instance.formula,
       'canvasId': instance.canvasId,
     };
