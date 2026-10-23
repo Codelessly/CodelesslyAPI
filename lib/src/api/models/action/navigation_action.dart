@@ -32,13 +32,18 @@ enum NavigationType {
   }
 }
 
+Object? _readDestinationId(Map json, String key) => json[key] ?? '';
+
 /// An action that navigates to a new page.
 @JsonSerializable()
 class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Defines how the navigation should be performed.
   final NavigationType navigationType;
 
-  /// Destination canvas node's ID.
+  /// Destination canvas node's ID. Empty for [NavigationType.pop], which
+  /// has no destination, and still written so older readers, which require
+  /// it, can read the action.
+  @JsonKey(readValue: _readDestinationId)
   final String destinationId;
 
   /// Parameters to pass to the destination page.
