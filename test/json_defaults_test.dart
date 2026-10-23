@@ -366,6 +366,20 @@ void main() {
       });
     }
 
+    test('a spacer reads JSON that leaves out its defaults', () {
+      final SpacerNode spacer = SpacerNode.fromJson({
+        'id': 's',
+        'name': 'Spacer',
+        'type': 'spacer',
+        'basicBoxLocal': [0, 0, 1, 1],
+        'flex': 2,
+      });
+      expect(spacer.positioningMode, PositioningMode.align);
+      expect(spacer.aspectRatioLock, isFalse);
+      expect(spacer.reactions, isEmpty);
+      expect(spacer.toJson(), isNot(contains('positioningMode')));
+    });
+
     test('empty action lists, maps and sets are left out', () {
       expect(
         ConditionalAction(expression: _expression()).toJson().keys,
