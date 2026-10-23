@@ -185,6 +185,9 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       constraints: json['constraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['constraints'] as Map),
+      contentPadding: json['contentPadding'] == null
+          ? null
+          : EdgeInsetsModel.fromJson(json['contentPadding']),
     );
 
 Map<String, dynamic> _$InputDecorationModelToJson(
@@ -232,6 +235,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'alignLabelWithHint': instance.alignLabelWithHint,
   'constraints': instance.constraints.toJson(),
   'showCounter': instance.showCounter,
+  'contentPadding': ?instance.contentPadding?.toJson(),
 };
 
 const _$FloatingLabelBehaviorEnumEnumMap = {
