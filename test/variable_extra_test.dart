@@ -16,4 +16,15 @@ void main() {
       {'formula': r'${= filter(homes, h => h.published)}'},
     );
   });
+
+  test('a variable with a new formula is a different variable', () {
+    VariableData withFormula(String formula) => VariableData(
+      id: 'shown',
+      name: 'shown',
+      type: VariableType.list,
+      extra: {'formula': formula},
+    );
+    expect(withFormula(r'${= homes}'), withFormula(r'${= homes}'));
+    expect(withFormula(r'${= homes}'), isNot(withFormula(r'${= []}')));
+  });
 }
