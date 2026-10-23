@@ -102,6 +102,15 @@ class RowColumnNode extends ParentNode
   }
 
   /// Creates a [RowColumnNode] from a JSON data.
+  /// Rows and columns are the usual buttons and cards of a layout, so they
+  /// take taps, long presses and holds.
+  @override
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+    TriggerType.hold,
+  ];
+
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
 
   @override

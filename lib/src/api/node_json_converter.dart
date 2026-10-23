@@ -57,6 +57,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'switch': SwitchNode.fromJson,
       'radio': RadioNode.fromJson,
       'slider': SliderNode.fromJson,
+      'signature': SignatureNode.fromJson,
       'expansionTile': ExpansionTileNode.fromJson,
       'accordion': AccordionNode.fromJson,
       'listTile': ListTileNode.fromJson,

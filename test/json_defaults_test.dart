@@ -180,6 +180,7 @@ List<BaseNode> sampleNodes() {
     RadioNode.empty(),
     SegmentedButtonNode.empty(),
     SliderNode.empty(),
+    SignatureNode.empty(),
     SwitchNode.empty(),
     for (final json in [
       _node('root', {'children': <String>[]}),
