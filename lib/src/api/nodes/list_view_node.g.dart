@@ -80,6 +80,8 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.separator, ListItemSeparator.space))
     json.remove('separator');
   if (isJsonDefault(instance.hasSeparator, false)) json.remove('hasSeparator');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   return json;
 }
 
@@ -364,6 +366,8 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
+  wrap: json['wrap'] as bool? ?? false,
+  runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
 );
 
 Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
@@ -375,6 +379,8 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'separator': _$ListItemSeparatorEnumMap[instance.separator]!,
       'hasSeparator': instance.hasSeparator,
       'dividerProperties': instance.dividerProperties.toJson(),
+      'wrap': instance.wrap,
+      'runSpacing': instance.runSpacing,
     };
 
 const _$ListItemSeparatorEnumMap = {
