@@ -54,4 +54,14 @@ void main() {
       DialogPresentation.popover,
     );
   });
+
+  test('a back navigation needs no destination', () {
+    final ActionModel pop = ActionModel.fromJson({
+      'type': 'navigation',
+      'navigationType': 'pop',
+    });
+    expect(pop, isA<NavigationAction>());
+    expect((pop as NavigationAction).destinationId, '');
+    expect(pop.toJson().containsKey('destinationId'), isFalse);
+  });
 }
