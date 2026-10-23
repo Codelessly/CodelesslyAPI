@@ -1,3 +1,31 @@
+## 6.2.0
+
+### Paint and widgets
+
+- `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
+  instead of stretching across the box (hazard stripes, tick patterns).
+- Progress bars take `shape: arc`: a gauge with start and sweep angles,
+  stroke width, tick count and color, a needle and colored zone `bands`
+  (`ProgressBand`).
+
+### Actions
+
+- `ShowDialogAction.presentation` (dialog, bottom sheet, or adaptive: a
+  sheet below 600 px) and `alignment` for where a dialog opens.
+- `DelayAction.duration`: a variable or formula for the wait, used instead
+  of `milliseconds` when it gives a number.
+
+### Data
+
+- A variable whose value is a `${= ...}` formula keeps it (computed
+  variables) instead of having it sanitized away.
+
+### JSON
+
+- List, grid, page and tab views and spacers parse from minimal node JSON:
+  fields with constructor defaults (`isScrollable`, `useFlutterListView`,
+  `allowedTypes`, `deniedTypes`, ...) may be left out.
+
 ## 6.1.0
 
 ### States and conditions
