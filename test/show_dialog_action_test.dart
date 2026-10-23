@@ -60,4 +60,37 @@ void main() {
     expect(popover.insets.l, 96);
     expect(popover.insets.b, 16);
   });
+
+  test('maxHeightFactor round-trips and is left out when unset', () {
+    final ShowDialogAction action = ActionModel.fromJson({
+      'type': 'showDialog',
+      'destinationId': 'logForm',
+      'maxHeightFactor': 0.9,
+    }) as ShowDialogAction;
+    expect(action.maxHeightFactor, 0.9);
+    expect(action.toJson()['maxHeightFactor'], 0.9);
+    expect(ActionModel.fromJson(action.toJson()), action);
+
+    final ShowDialogAction plain = ShowDialogAction(destinationId: 'c1');
+    expect(plain.maxHeightFactor, isNull);
+    expect(plain.toJson().containsKey('maxHeightFactor'), isFalse);
+    expect(plain == action.copyWith(destinationId: 'c1'), isFalse);
+  });
+
+  test('copyWith sets and clears maxHeightFactor', () {
+    final ShowDialogAction action = ShowDialogAction(
+      destinationId: 'logForm',
+      nonBlocking: true,
+    );
+    final ShowDialogAction capped = action.copyWith(maxHeightFactor: 0.8);
+    expect(capped.maxHeightFactor, 0.8);
+    expect(capped.nonBlocking, isTrue);
+    expect(
+      capped
+          .copyWith(presentation: DialogPresentation.bottomSheet)
+          .maxHeightFactor,
+      0.8,
+    );
+    expect(capped.copyWith(clearMaxHeightFactor: true).maxHeightFactor, isNull);
+  });
 }
