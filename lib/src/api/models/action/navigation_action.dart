@@ -38,7 +38,8 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Defines how the navigation should be performed.
   final NavigationType navigationType;
 
-  /// Destination canvas node's ID.
+  /// Destination canvas node's ID. For a pop it's optional: where to go
+  /// instead when there is no previous screen to go back to.
   final String destinationId;
 
   /// Parameters to pass to the destination page.
@@ -47,7 +48,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Creates a new [NavigationAction].
   NavigationAction({
     this.navigationType = NavigationType.push,
-    required this.destinationId,
+    this.destinationId = '',
     Map<String, dynamic>? params,
     super.nonBlocking,
     super.enabled,
