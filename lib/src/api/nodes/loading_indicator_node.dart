@@ -93,12 +93,17 @@ class LoadingIndicatorNode extends SceneNode
   }
 
   @override
+  /// Room for the part of the stroke that falls outside the indicator's
+  /// circle: half of it when centered on the circle (the default), none
+  /// when inside it (`strokeAlign` -1), all of it when outside (1).
   EdgeInsetsModel minimumPadding() {
-    final double stroke = (properties is MaterialLoadingIndicatorProperties
-        ? (properties as MaterialLoadingIndicatorProperties).strokeWidth / 2
-        : 0);
-
-    return EdgeInsetsModel.all(stroke);
+    if (properties is! MaterialLoadingIndicatorProperties) {
+      return EdgeInsetsModel.zero;
+    }
+    final MaterialLoadingIndicatorProperties material =
+        properties as MaterialLoadingIndicatorProperties;
+    final double align = (material.strokeAlign ?? 0).clamp(-1, 1).toDouble();
+    return EdgeInsetsModel.all(material.strokeWidth / 2 * (1 + align));
   }
 }
 
