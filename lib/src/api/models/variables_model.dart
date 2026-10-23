@@ -228,10 +228,10 @@ class VariableData
 String? sanitizeValueForVariableType(Object? value, VariableType type) {
   if (value == null) return null;
   // if (value.isEmpty) return '';
-  // Do not sanitize if the value contains a variable path, or is a formula:
-  // a computed variable stores `${= ...}` and the runtime evaluates it.
+  // Do not sanitize if the value contains a variable path or a formula: a
+  // computed variable's value is a `${= ...}` formula whatever its type.
   if (value.toString().contains(variablePathPattern) ||
-      value.toString().trimLeft().startsWith(r'${=')) {
+      value.toString().contains(r'${=')) {
     return value.toString();
   }
   switch (type) {

@@ -1,5 +1,12 @@
 ## 6.2.0
 
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
 ### Paint and widgets
 
 - `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
@@ -17,8 +24,8 @@
 
 ### Data
 
-- A variable whose value is a `${= ...}` formula keeps it (computed
-  variables) instead of having it sanitized away.
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
 
 ### JSON
 
