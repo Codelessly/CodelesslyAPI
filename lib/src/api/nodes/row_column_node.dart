@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -23,6 +24,18 @@ class RowColumnNode extends ParentNode
 
   @override
   set scrollDirection(AxisC value) {}
+
+  /// Whether the children wrap onto new runs when they don't fit along the
+  /// main axis, like Flutter's [Wrap] widget. When true, [mainAxisAlignment]
+  /// aligns the children within each run ([Wrap.alignment]) and
+  /// [crossAxisAlignment] aligns them within their run
+  /// ([Wrap.crossAxisAlignment]). Spacing between children along a run comes
+  /// from the children's margins; [runSpacing] is the gap between runs.
+  bool wrap;
+
+  /// The gap between runs along the cross axis when [wrap] is true.
+  /// Corresponds to [Wrap.runSpacing].
+  double runSpacing;
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -63,6 +76,8 @@ class RowColumnNode extends ParentNode
     super.reactions,
     super.parentID,
     super.clipsContent = false,
+    this.wrap = false,
+    this.runSpacing = 0,
     // [CornerMixin] properties.
     CornerRadius cornerRadius = CornerRadius.zero,
     double cornerSmoothing = 0,
@@ -100,6 +115,29 @@ class RowColumnNode extends ParentNode
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Whether the children wrap onto new runs when they do not fit along the '
+          'main axis.',
+      () => wrap,
+      (value) => wrap = value,
+      defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Spacing',
+      'The gap between runs when the children wrap.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+  };
 
   /// Creates a [RowColumnNode] from a JSON data.
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
