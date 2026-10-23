@@ -1,4 +1,4 @@
-## Unreleased
+## 6.2.0
 
 ### Layout
 
@@ -7,10 +7,33 @@
 - Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
   Flutter's `Wrap`.
 
-### Variables
+### Nodes
 
-- A variable whose value is a `${= ...}` formula keeps it for every type
-  (computed variables).
+- `GaugeNode` (`gauge`): an arc or bar gauge, continuous or segmented, with
+  scale ticks, a solid or dashed limit marker and an optional fill fade and
+  meniscus. `value`, `limit`, `color` and `limitColor` are bindable.
+- `BarChartNode` (`barChart`): bars with null "future" slots, a highlighted
+  bar, grid lines with labels and per-bar labels. `values`, `labels`,
+  `highlight` and `color` are bindable.
+- `SliderNode`: a rectangle fader thumb with grip, fill from the thumb to the
+  end, notch tick marks every N divisions, a marker at a bindable
+  `markerValue`, a bindable `activeTrackColor`, and a selectable range.
+- `TextNode` exposes `textColor` for bindings and conditions.
+- `BlendMixin.transition` (`NodeTransition`: duration and curve): runtime
+  opacity changes from bindings and conditions animate.
+- `SpacerNode` reads minimal JSON (`positioningMode`, `aspectRatioLock` and
+  `reactions` are optional).
+
+### Triggers, actions and variables
+
+- `TriggerType.interval` with `TriggerModel.intervalMillis`, and
+  `TriggerType.changeEnd` for sliders.
+- `ShowDialogAction.placement` (center, bottom sheet, adaptive, anchored) and
+  `anchorGap`; `ConfirmAction.placement` for canvas confirms.
+- `ShowToastAction`: alignment, side margin, max width, corner radius,
+  action color, close button and font size.
+- Computed variables: `VariableData.formula` and `isComputed`; a variable
+  whose value is a `${= ...}` formula keeps it for every type.
 
 ## 6.1.0
 
