@@ -20,6 +20,7 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('presentation');
   if (isJsonDefault(instance.alignment, AlignmentModel.center))
     json.remove('alignment');
+  if (isJsonDefault(instance.fullHeight, false)) json.remove('fullHeight');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -49,6 +50,7 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
   alignment: json['alignment'] == null
       ? AlignmentModel.center
       : AlignmentModel.fromJson(json['alignment'] as Map),
+  fullHeight: json['fullHeight'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -65,6 +67,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'showCloseButton': instance.showCloseButton,
       'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
       'alignment': instance.alignment.toJson(),
+      'fullHeight': instance.fullHeight,
     };
 
 const _$DialogPresentationEnumMap = {

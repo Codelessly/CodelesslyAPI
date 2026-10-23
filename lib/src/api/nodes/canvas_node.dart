@@ -46,6 +46,7 @@ class CanvasNode extends ParentNode
   List<TriggerType> get triggerTypes => [
     TriggerType.load,
     TriggerType.valueChanged,
+    TriggerType.keyDown,
   ];
 
   @override
