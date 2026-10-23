@@ -52,6 +52,9 @@ Map<String, dynamic> _$AccordionNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0.0)) json.remove('runSpacing');
   return json;
 }
 
@@ -179,6 +182,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
+      ..wrap = json['wrap'] as bool? ?? false
+      ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$AccordionNodeToJson(
@@ -219,6 +225,9 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
+  'wrap': instance.wrap,
+  'runSpacing': instance.runSpacing,
   'type': instance.type,
   'properties': instance.properties.toJson(),
 };
