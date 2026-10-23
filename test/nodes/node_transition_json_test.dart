@@ -22,8 +22,10 @@ void main() {
       'transition': {'durationMillis': 1100, 'curve': 'easeInOut'},
     };
     final BaseNode node = NodeJsonConverter().fromJson(json)!;
-    expect((node as BlendMixin).transition,
-        const NodeTransition(durationMillis: 1100));
+    expect(
+      (node as BlendMixin).transition,
+      const NodeTransition(durationMillis: 1100),
+    );
     final BaseNode again = NodeJsonConverter().fromJson(node.toJson())!;
     expect((again as BlendMixin).transition?.durationMillis, 1100);
     expect(const NodeTransition().toJson(), isEmpty);
