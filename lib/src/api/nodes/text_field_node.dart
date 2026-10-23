@@ -124,7 +124,7 @@ class TextFieldNode extends SceneNode
       value: properties.decoration.errorText ?? '',
     ),
     // Shows the error borders without a message when true.
-    BoolValue(name: 'error', value: false),
+    const BoolValue(name: 'error', value: false),
   ];
 
   @override
