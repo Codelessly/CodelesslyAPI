@@ -71,6 +71,7 @@ Map<String, dynamic> _$CanvasNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
   if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.scrollDirection, AxisC.vertical))
     json.remove('scrollDirection');
@@ -290,6 +291,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$CanvasNodeToJson(
@@ -344,6 +346,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
