@@ -24,8 +24,10 @@ void main() {
 
   test('periods shorter than the minimum are clamped', () {
     expect(
-      TriggerModel(type: TriggerType.interval, intervalMillis: 5)
-          .effectiveIntervalMillis,
+      TriggerModel(
+        type: TriggerType.interval,
+        intervalMillis: 5,
+      ).effectiveIntervalMillis,
       TriggerModel.minIntervalMillis,
     );
   });
