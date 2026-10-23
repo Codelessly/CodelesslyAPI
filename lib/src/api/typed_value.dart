@@ -13,7 +13,7 @@ extension ObjectExt on Object? {
 
     return switch (R) {
       const (CornerRadius) =>
-        CornerRadius.fromJson(value).tryCast<R>() ?? defaultValue,
+        value.toCornerRadius().tryCast<R>() ?? defaultValue,
       const (EdgeInsetsModel) =>
         value.toEdgeInsetsModel().tryCast<R>() ?? defaultValue,
       const (ColorRGB) =>
@@ -231,14 +231,64 @@ extension ConversionExt on Object? {
   }
 
   /// Converts given object to [EdgeInsetsModel] if possible. Returns null otherwise.
+  ///
+  /// Accepts what a binding or formula gives a node's padding: a number for
+  /// all sides, `[horizontal, vertical]`, `[left, top, right, bottom]`, a
+  /// one-item list, or any of those as text (`"12"`, `"[16, 8]"`).
   EdgeInsetsModel? toEdgeInsetsModel() {
     final value = this;
     if (value == null) return null;
     if (value is EdgeInsetsModel) return value;
+    if (value case [final num all]) return EdgeInsetsModel.all(all.toDouble());
     if (value case num() || [num(), num()] || [num(), num(), num(), num()]) {
       return EdgeInsetsModel.fromJson(value);
     }
+    if (value is String) {
+      final String text = value.trim();
+      final Object? parsed = num.tryParse(text) ?? tryJsonDecode(text);
+      if (parsed is String) return null;
+      return parsed.toEdgeInsetsModel();
+    }
 
+    return null;
+  }
+
+  /// Converts given object to [CornerRadius] if possible. Returns null
+  /// otherwise.
+  ///
+  /// Accepts what a binding or formula gives a node's corner radius: a
+  /// number for all corners, `[topLeft, topRight, bottomRight, bottomLeft]`
+  /// (the order of CSS's border-radius), a one-item list, any of those as
+  /// text (`"12"`, `"[18, 18, 0, 0]"`), or a [CornerRadius]'s JSON.
+  CornerRadius? toCornerRadius() {
+    final value = this;
+    switch (value) {
+      case null:
+        return null;
+      case CornerRadius():
+        return value;
+      case num() || [num()]:
+        final num all = value is num ? value : (value as List).first as num;
+        return CornerRadius.all(RadiusModel.circular(all.toDouble()));
+      case [num tl, num tr, num br, num bl]:
+        return CornerRadius.only(
+          tl: RadiusModel.circular(tl.toDouble()),
+          tr: RadiusModel.circular(tr.toDouble()),
+          br: RadiusModel.circular(br.toDouble()),
+          bl: RadiusModel.circular(bl.toDouble()),
+        );
+      case String():
+        final String text = value.trim();
+        final Object? parsed = num.tryParse(text) ?? tryJsonDecode(text);
+        if (parsed is String) return null;
+        return parsed.toCornerRadius();
+      case Map() || List():
+        try {
+          return CornerRadius.fromJson(value);
+        } catch (_) {
+          return null;
+        }
+    }
     return null;
   }
 
