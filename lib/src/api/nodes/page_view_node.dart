@@ -54,6 +54,8 @@ class PageViewNode extends SinglePlaceholderNode
     super.variables,
     bool clipsContent = true,
     // [ScrollableMixin] properties.
+    bool isScrollable = true,
+    bool useFlutterListView = true,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
@@ -71,14 +73,14 @@ class PageViewNode extends SinglePlaceholderNode
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(
-      isScrollable: true,
+      isScrollable: isScrollable,
       scrollDirection: scrollDirection,
       reverse: reverse,
       physics: physics,
       primary: primary,
       shrinkWrap: false,
       keyboardDismissBehavior: keyboardDismissBehavior,
-      useFlutterListView: true,
+      useFlutterListView: useFlutterListView,
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
