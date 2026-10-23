@@ -194,6 +194,21 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
+  /// Whether the items flow onto new runs when they don't fit along the
+  /// scroll direction, like Flutter's [Wrap], instead of scrolling.
+  ///
+  /// It applies to a list whose item count is known (an [itemCount] or bound
+  /// `data`) and that doesn't use the cloud database: such a list builds all
+  /// its items in a [Wrap] and never scrolls. A list with an unknown count
+  /// (endless, or a cloud query) ignores it and scrolls as usual.
+  ///
+  /// The gap between items in a run is the separator's [separatorSpacing]
+  /// when [hasSeparator] is on; a wrapping list draws no dividers.
+  bool wrap;
+
+  /// The gap between runs when [wrap] is on, across the scroll direction.
+  double runSpacing;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -203,6 +218,8 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.separatorSpacing = 0,
     this.hasSeparator = false,
     DividerProperties? dividerProperties,
+    this.wrap = false,
+    this.runSpacing = 0,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
   /// Creates a copy of this [ListViewProperties] instance with the given value
@@ -222,6 +239,8 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? dividerSpacing,
     bool? hasSeparator,
     DividerProperties? dividerProperties,
+    bool? wrap,
+    double? runSpacing,
   }) {
     return ListViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -231,6 +250,8 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       separatorSpacing: separatorSpacing ?? this.separatorSpacing,
       hasSeparator: hasSeparator ?? this.hasSeparator,
       dividerProperties: dividerProperties ?? this.dividerProperties,
+      wrap: wrap ?? this.wrap,
+      runSpacing: runSpacing ?? this.runSpacing,
     );
   }
 
@@ -267,6 +288,22 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       (value) => dividerProperties = value,
       requiresLayout: true,
     ),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Whether the items flow onto new runs when they don\'t fit.',
+      () => wrap,
+      (value) => wrap = value,
+      defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Gap',
+      'The gap between runs when the items wrap.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
   };
 
   @override
@@ -286,5 +323,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     separatorSpacing,
     hasSeparator,
     dividerProperties,
+    wrap,
+    runSpacing,
   ];
 }
