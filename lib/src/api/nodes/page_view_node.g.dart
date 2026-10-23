@@ -194,10 +194,10 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
+      ..allowedTypes = (readTypesOrEmpty(json, 'allowedTypes') as List<dynamic>)
           .map((e) => e as String)
           .toList()
-      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
+      ..deniedTypes = (readTypesOrEmpty(json, 'deniedTypes') as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..maxAllowedSize = json['maxAllowedSize'] == null
@@ -209,6 +209,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -226,7 +227,6 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'flex': instance.flex,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),
