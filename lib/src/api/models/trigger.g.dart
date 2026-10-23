@@ -11,6 +11,8 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.debounceMs, 0)) json.remove('debounceMs');
+  if (isJsonDefault(instance.duration, kDefaultHoldDuration))
+    json.remove('duration');
   return json;
 }
 
@@ -22,6 +24,7 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   type: $enumDecode(_$TriggerTypeEnumMap, json['type']),
   debounceMs: (json['debounceMs'] as num?)?.toInt() ?? 0,
   variable: json['variable'] as String?,
+  duration: (json['duration'] as num?)?.toInt() ?? 1200,
 );
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
@@ -29,6 +32,7 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'type': _$TriggerTypeEnumMap[instance.type]!,
       'debounceMs': instance.debounceMs,
       'variable': ?instance.variable,
+      'duration': instance.duration,
     };
 
 const _$TriggerTypeEnumMap = {
@@ -45,4 +49,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.pointerUp: 'pointerUp',
   TriggerType.load: 'load',
   TriggerType.valueChanged: 'valueChanged',
+  TriggerType.hold: 'hold',
 };

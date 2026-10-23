@@ -31,6 +31,7 @@ export 'row_column_node.dart';
 export 'scene_node.dart';
 export 'segmented_button_node.dart';
 export 'single_placeholder_node.dart';
+export 'signature_node.dart';
 export 'slider_node.dart';
 export 'spacer_node.dart';
 export 'switch_node.dart';

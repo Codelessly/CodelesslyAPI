@@ -1,5 +1,13 @@
 ## Unreleased
 
+- `SignatureNode` (`signature`): a box to sign in. Its `value` is a list of
+  strokes, each a list of `[x, y]` points normalized to the box; `inkColor`,
+  `strokeWidth` and `readOnly` are in `SignatureProperties`.
+- `TriggerType.hold` fires once the target has been held for the trigger's
+  `duration` (milliseconds, 1200 by default). Frames, rectangles, rows and
+  columns offer it.
+- Rows and columns declare the click and long-press triggers they already
+  ran, so the actions panel offers them.
 - `ShowDialogAction.presentation` (`DialogPresentation`): a dialog (the
   default), a bottom sheet, `adaptive` (a sheet below 600 wide, a dialog
   above), or full screen.
