@@ -1,5 +1,18 @@
 ## Unreleased
 
+- `CornerRadius.fromJson` accepts a bare number (a circular radius on every
+  corner), like `EdgeInsetsModel` does.
+- `ApiCallAction.onSuccess` and `onError`: actions to run after the call
+  answers with a 2xx status, or after it fails or answers with another.
+- `ActionModel.childActions` and `selfAndNestedActions` walk actions nested
+  in conditionals, for-each loops and API call handlers.
+- `NavigationAction.destinationId` defaults to `''`: a pop needs none, and
+  for a pop it names where to go when there is nothing to go back to. It is
+  still always written, for SDKs that require it.
+- `PaintModel.saturation` (default 1, left out of the JSON when 1): an image
+  fill's color saturation; 0 is greyscale.
+- `CanvasProperties.path`: an optional URL path for a screen, such as
+  `journal` or `guide/:id`, for links that open it with its parameters.
 - Styling for the runtime's own UI, all optional and left out of the JSON
   when unset, so saved designs keep their look:
   - `ShowToastAction`: `actionColor`, `showClose`, `closeColor`,
