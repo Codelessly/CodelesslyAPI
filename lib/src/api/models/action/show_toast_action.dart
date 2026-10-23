@@ -53,7 +53,9 @@ enum ToastPosition {
 /// [actions].
 ///
 /// Its colors come from [style] and the app's theme unless [backgroundColor]
-/// or [textColor] are set. Its font is the app's.
+/// or [textColor] are set. Its font is the app's unless [fontFamily] is set.
+/// An [accentColor] draws a bar down its left edge, and [iconColor] colors
+/// its [icon].
 @JsonSerializable()
 class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The message. Supports variables and formulas, e.g.
@@ -91,6 +93,24 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// [ToastPosition.bottom].
   final double bottomOffset;
 
+  /// Color of a bar down the toast's left edge, e.g. a yellow or red accent.
+  /// Null draws no bar.
+  final ColorRGBA? accentColor;
+
+  /// Width of the [accentColor] bar.
+  final double accentWidth;
+
+  /// Color of the [icon]. Null takes the message color.
+  final ColorRGBA? iconColor;
+
+  /// Font family of the message and button, e.g. `Barlow`. Null takes the
+  /// app's font.
+  final String? fontFamily;
+
+  /// Corner radius of the toast. Null makes a pill, or follows the app's
+  /// buttons when the toast has a button.
+  final double? cornerRadius;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -103,6 +123,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     List<ActionModel>? actions,
     this.icon,
     this.bottomOffset = 104,
+    this.accentColor,
+    this.accentWidth = 4,
+    this.iconColor,
+    this.fontFamily,
+    this.cornerRadius,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -123,6 +148,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions,
     icon,
     bottomOffset,
+    accentColor,
+    accentWidth,
+    iconColor,
+    fontFamily,
+    cornerRadius,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -140,6 +170,15 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     MultiSourceIconModel? icon,
     bool clearIcon = false,
     double? bottomOffset,
+    ColorRGBA? accentColor,
+    bool clearAccentColor = false,
+    double? accentWidth,
+    ColorRGBA? iconColor,
+    bool clearIconColor = false,
+    String? fontFamily,
+    bool clearFontFamily = false,
+    double? cornerRadius,
+    bool clearCornerRadius = false,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -153,6 +192,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions: actions ?? this.actions,
     icon: clearIcon ? null : icon ?? this.icon,
     bottomOffset: bottomOffset ?? this.bottomOffset,
+    accentColor: clearAccentColor ? null : accentColor ?? this.accentColor,
+    accentWidth: accentWidth ?? this.accentWidth,
+    iconColor: clearIconColor ? null : iconColor ?? this.iconColor,
+    fontFamily: clearFontFamily ? null : fontFamily ?? this.fontFamily,
+    cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
