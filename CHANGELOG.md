@@ -1,5 +1,22 @@
 ## Unreleased
 
+- Styling for the runtime's own UI, all optional and left out of the JSON
+  when unset, so saved designs keep their look:
+  - `ShowToastAction`: `actionColor`, `showClose`, `closeColor`,
+    `cornerRadius`, `border` (`BorderSideModel`), `shadows` (drop shadow
+    `Effect`s), `padding`, `maxWidth`, `messageStyle`, `actionStyle`,
+    `iconSize`, and `bottomOffsets` (per `ScreenBreakpoint`, e.g.
+    `{"mobile": 84}`, see `bottomOffsetFor`).
+  - `ConfirmAction`: `border`, `shadows`, `titleStyle`, `messageStyle`,
+    `buttonStyle`, `buttonRadius`, `buttonBorder`, `buttonShadows`,
+    `confirmTextColor`, `cancelColor`, `cancelTextColor`.
+  - `DropdownProperties`: `menuStyle` (`DropdownMenuStyleModel`: an anchored
+    menu card's color, border, radius, shadows, offset, sizes, paddings,
+    selected and hover row colors, selected text style and check mark) and
+    `itemImage` (a URL or item template such as `${item.image}`),
+    `itemImageSize`, `itemImageRadius`.
+  - `TextStyleModel`: a partial text style (font family, weight, italic,
+    size, line height, letter spacing, color).
 - `LineChartNode` (`lineChart`) and `LineChartProperties`: a data-driven
   line chart. The series, domain, bands, grid lines, area bands, reference
   lines, x ticks, markers and vertical lines are bound through `variables`
