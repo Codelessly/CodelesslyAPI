@@ -3,9 +3,17 @@ import 'package:test/test.dart';
 
 void main() {
   test('wrap settings survive JSON and are omitted at their defaults', () {
-    expect(ListViewProperties().toJson().keys,
-        isNot(anyOf(contains('wrap'), contains('wrapSpacing'),
-            contains('wrapRunSpacing'), contains('wrapAlignment'))));
+    expect(
+      ListViewProperties().toJson().keys,
+      isNot(
+        anyOf(
+          contains('wrap'),
+          contains('wrapSpacing'),
+          contains('wrapRunSpacing'),
+          contains('wrapAlignment'),
+        ),
+      ),
+    );
 
     final ListViewProperties props = ListViewProperties(
       wrap: true,
