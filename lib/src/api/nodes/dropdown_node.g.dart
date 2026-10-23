@@ -85,6 +85,10 @@ Map<String, dynamic> _$DropdownPropertiesOmitDefaults(
   if (isJsonDefault(instance.useDataSource, false))
     json.remove('useDataSource');
   if (isJsonDefault(instance.itemLabel, '')) json.remove('itemLabel');
+  if (isJsonDefault(instance.itemImage, '')) json.remove('itemImage');
+  if (isJsonDefault(instance.itemImageSize, 28)) json.remove('itemImageSize');
+  if (isJsonDefault(instance.itemImageRadius, 2))
+    json.remove('itemImageRadius');
   return json;
 }
 
@@ -299,6 +303,12 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
   underline: json['underline'] as bool? ?? true,
   useDataSource: json['useDataSource'] as bool? ?? false,
   itemLabel: json['itemLabel'] as String? ?? '',
+  menuStyle: json['menuStyle'] == null
+      ? null
+      : DropdownMenuStyleModel.fromJson(json['menuStyle'] as Map),
+  itemImage: json['itemImage'] as String? ?? '',
+  itemImageSize: (json['itemImageSize'] as num?)?.toDouble() ?? 28,
+  itemImageRadius: (json['itemImageRadius'] as num?)?.toDouble() ?? 2,
 );
 
 Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
@@ -328,4 +338,8 @@ Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
       'underline': instance.underline,
       'useDataSource': instance.useDataSource,
       'itemLabel': instance.itemLabel,
+      'menuStyle': ?instance.menuStyle?.toJson(),
+      'itemImage': instance.itemImage,
+      'itemImageSize': instance.itemImageSize,
+      'itemImageRadius': instance.itemImageRadius,
     };

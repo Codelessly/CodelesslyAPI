@@ -16,7 +16,11 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
     json.remove('position');
   if (isJsonDefault(instance.actionLabel, '')) json.remove('actionLabel');
   if (isJsonDefault(instance.actions, [])) json.remove('actions');
+  if (isJsonDefault(instance.iconSize, 18)) json.remove('iconSize');
   if (isJsonDefault(instance.bottomOffset, 104)) json.remove('bottomOffset');
+  if (isJsonDefault(instance.bottomOffsets, {})) json.remove('bottomOffsets');
+  if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
+  if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -56,7 +60,38 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   icon: json['icon'] == null
       ? null
       : MultiSourceIconModel.fromJson(json['icon'] as Map),
+  iconSize: (json['iconSize'] as num?)?.toDouble() ?? 18,
   bottomOffset: (json['bottomOffset'] as num?)?.toDouble() ?? 104,
+  bottomOffsets: (json['bottomOffsets'] as Map?)?.map(
+    (k, e) => MapEntry(
+      $enumDecode(_$ScreenBreakpointEnumMap, k),
+      (e as num).toDouble(),
+    ),
+  ),
+  actionColor: json['actionColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['actionColor']),
+  showClose: json['showClose'] as bool? ?? false,
+  closeColor: json['closeColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['closeColor']),
+  cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
+  border: json['border'] == null
+      ? null
+      : BorderSideModel.fromJson(json['border'] as Map),
+  shadows: (json['shadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  padding: json['padding'] == null
+      ? null
+      : EdgeInsetsModel.fromJson(json['padding']),
+  maxWidth: (json['maxWidth'] as num?)?.toDouble() ?? 560,
+  messageStyle: json['messageStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['messageStyle'] as Map),
+  actionStyle: json['actionStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['actionStyle'] as Map),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -75,7 +110,21 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'actionLabel': instance.actionLabel,
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'icon': ?instance.icon?.toJson(),
+      'iconSize': instance.iconSize,
       'bottomOffset': instance.bottomOffset,
+      'bottomOffsets': instance.bottomOffsets.map(
+        (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
+      ),
+      'actionColor': ?instance.actionColor?.toJson(),
+      'showClose': instance.showClose,
+      'closeColor': ?instance.closeColor?.toJson(),
+      'cornerRadius': ?instance.cornerRadius,
+      'border': ?instance.border?.toJson(),
+      'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
+      'padding': ?instance.padding?.toJson(),
+      'maxWidth': instance.maxWidth,
+      'messageStyle': ?instance.messageStyle?.toJson(),
+      'actionStyle': ?instance.actionStyle?.toJson(),
     };
 
 const _$ToastStyleEnumMap = {
@@ -89,6 +138,12 @@ const _$ToastStyleEnumMap = {
 const _$ToastPositionEnumMap = {
   ToastPosition.bottom: 'bottom',
   ToastPosition.top: 'top',
+};
+
+const _$ScreenBreakpointEnumMap = {
+  ScreenBreakpoint.mobile: 'mobile',
+  ScreenBreakpoint.tablet: 'tablet',
+  ScreenBreakpoint.desktop: 'desktop',
 };
 
 const _$ActionTypeEnumMap = {

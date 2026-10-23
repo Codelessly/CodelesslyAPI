@@ -163,6 +163,20 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   /// is true. Allows to specify a template for item builder.
   String itemLabel;
 
+  /// The look of the menu. When set, the menu is a card anchored under the
+  /// field, styled by it, instead of the platform's dropdown menu.
+  DropdownMenuStyleModel? menuStyle;
+
+  /// Image shown before each item's label: a URL, or a template the item
+  /// fills like [itemLabel], e.g. `${item.image}`. Empty shows none.
+  String itemImage;
+
+  /// Width and height of [itemImage].
+  double itemImageSize;
+
+  /// Corner radius of [itemImage].
+  double itemImageRadius;
+
   /// Creates a [DropdownProperties] instance with the given data.
   DropdownProperties({
     this.enabled = true,
@@ -190,6 +204,10 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     this.underline = true,
     this.useDataSource = false,
     this.itemLabel = '',
+    this.menuStyle,
+    this.itemImage = '',
+    this.itemImageSize = 28,
+    this.itemImageRadius = 2,
   }) : itemTextStyle =
            itemTextStyle ??
            TextProp.general(
@@ -240,6 +258,11 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     bool? expanded,
     bool? autoFocus,
     bool? enableFeedback,
+    DropdownMenuStyleModel? menuStyle,
+    bool clearMenuStyle = false,
+    String? itemImage,
+    double? itemImageSize,
+    double? itemImageRadius,
   }) {
     return DropdownProperties(
       items: items ?? this.items,
@@ -269,6 +292,10 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       expanded: expanded ?? this.expanded,
       autoFocus: autoFocus ?? this.autoFocus,
       enableFeedback: enableFeedback ?? this.enableFeedback,
+      menuStyle: clearMenuStyle ? null : menuStyle ?? this.menuStyle,
+      itemImage: itemImage ?? this.itemImage,
+      itemImageSize: itemImageSize ?? this.itemImageSize,
+      itemImageRadius: itemImageRadius ?? this.itemImageRadius,
     );
   }
 
@@ -431,6 +458,20 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       (value) => itemLabel = value,
       requiresLayout: true,
     ),
+    'itemImage': StringFieldAccess(
+      'Item Image',
+      'Image before each item\'s label: a URL or a template the item fills, e.g. \${item.image}.',
+      () => itemImage,
+      (value) => itemImage = value,
+      requiresLayout: true,
+    ),
+    'itemImageSize': NumFieldAccess<double>(
+      'Item Image Size',
+      'Width and height of the item image.',
+      () => itemImageSize,
+      (value) => itemImageSize = value,
+      requiresLayout: true,
+    ),
   };
 
   @override
@@ -460,6 +501,10 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     expanded,
     autoFocus,
     enableFeedback,
+    menuStyle,
+    itemImage,
+    itemImageSize,
+    itemImageRadius,
   ];
 
   /// Creates a [DropdownProperties] instance from a JSON object.
