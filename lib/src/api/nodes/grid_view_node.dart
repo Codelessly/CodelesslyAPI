@@ -76,6 +76,8 @@ class GridViewNode extends SinglePlaceholderNode
     List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
+    bool isScrollable = true,
+    bool useFlutterListView = false,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
@@ -93,14 +95,14 @@ class GridViewNode extends SinglePlaceholderNode
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(
-      isScrollable: true,
+      isScrollable: isScrollable,
       scrollDirection: scrollDirection,
       reverse: reverse,
       physics: physics,
       primary: primary,
       shrinkWrap: false,
       keyboardDismissBehavior: keyboardDismissBehavior,
-      useFlutterListView: false,
+      useFlutterListView: useFlutterListView,
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
 

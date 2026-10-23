@@ -82,6 +82,8 @@ class ListViewNode extends SinglePlaceholderNode
     List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
+    bool isScrollable = true,
+    bool useFlutterListView = true,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,
@@ -99,14 +101,14 @@ class ListViewNode extends SinglePlaceholderNode
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(
-      isScrollable: true,
+      isScrollable: isScrollable,
       scrollDirection: scrollDirection,
       reverse: reverse,
       physics: physics,
       primary: primary,
       shrinkWrap: false,
       keyboardDismissBehavior: keyboardDismissBehavior,
-      useFlutterListView: true,
+      useFlutterListView: useFlutterListView,
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
 
