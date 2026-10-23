@@ -40,6 +40,8 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
 
   /// Destination canvas node's ID. For a pop it's optional: where to go
   /// instead when there is no previous screen to go back to.
+  // Always written: SDKs before the '' default require the key.
+  @JsonLegacyDefault(null)
   final String destinationId;
 
   /// Parameters to pass to the destination page.
