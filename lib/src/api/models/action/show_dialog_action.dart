@@ -6,6 +6,31 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
+/// Where a [ShowDialogAction] puts its canvas.
+enum DialogPlacement {
+  /// Centered over the screen at its design size.
+  center,
+
+  /// Pinned to the bottom edge, full width, sliding up.
+  bottomSheet,
+
+  /// A bottom sheet on screens narrower than 600 (mobile), centered
+  /// otherwise.
+  adaptive,
+
+  /// A popover just below the widget that opened it, like a menu, kept on
+  /// screen. Falls back to [center] when the opener has no position.
+  anchored;
+
+  /// Displayable label.
+  String get prettify => switch (this) {
+    DialogPlacement.center => 'Center',
+    DialogPlacement.bottomSheet => 'Bottom sheet',
+    DialogPlacement.adaptive => 'Sheet on mobile',
+    DialogPlacement.anchored => 'Below trigger',
+  };
+}
+
 /// An action that navigates to a new page.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
@@ -24,6 +49,12 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether to show a close button on the dialog.
   final bool showCloseButton;
 
+  /// Where the dialog shows.
+  final DialogPlacement placement;
+
+  /// Space between the opener and an [DialogPlacement.anchored] dialog.
+  final double anchorGap;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -31,6 +62,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.barrierColor = ColorRGBA.black54,
     this.barrierDismissible = true,
     this.showCloseButton = false,
+    this.placement = DialogPlacement.center,
+    this.anchorGap = 6,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -43,6 +76,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierDismissible,
     barrierColor,
     showCloseButton,
+    placement,
+    anchorGap,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -52,12 +87,16 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? barrierDismissible,
     ColorRGBA? barrierColor,
     bool? showCloseButton,
+    DialogPlacement? placement,
+    double? anchorGap,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
     barrierDismissible: barrierDismissible ?? this.barrierDismissible,
     barrierColor: barrierColor ?? this.barrierColor,
     showCloseButton: showCloseButton ?? this.showCloseButton,
+    placement: placement ?? this.placement,
+    anchorGap: anchorGap ?? this.anchorGap,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.

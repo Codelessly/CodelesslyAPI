@@ -47,7 +47,16 @@ enum TriggerType {
 
   /// Triggered when the variable named by [TriggerModel.variable] changes,
   /// while the screen it is set on shows.
-  valueChanged;
+  valueChanged,
+
+  /// Triggered when the user lets go of a slider after changing it, with
+  /// the final value. [changed] fires on every step of the drag.
+  changeEnd,
+
+  /// Triggered repeatedly while the canvas is shown, every
+  /// [TriggerModel.intervalMillis] milliseconds. Live readouts, countdowns
+  /// and polling use it.
+  interval;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -78,6 +87,10 @@ enum TriggerType {
         return 'Load';
       case TriggerType.valueChanged:
         return 'Value Changed';
+      case TriggerType.interval:
+        return 'Interval';
+      case TriggerType.changeEnd:
+        return 'Change End';
     }
   }
 }
@@ -97,21 +110,39 @@ class TriggerModel with Equatable, SerializableMixin {
   /// For [TriggerType.valueChanged], the name of the variable to watch.
   final String? variable;
 
+  /// How often an [TriggerType.interval] trigger fires, in milliseconds.
+  /// Ignored by other triggers.
+  final int intervalMillis;
+
+  /// The shortest interval allowed, so a typo can't flood the app.
+  static const int minIntervalMillis = 100;
+
   /// Creates a [TriggerModel] with given data.
-  TriggerModel({required this.type, this.debounceMs = 0, this.variable});
+  TriggerModel({
+    required this.type,
+    this.debounceMs = 0,
+    this.variable,
+    this.intervalMillis = 1000,
+  });
+
+  /// [intervalMillis], no shorter than [minIntervalMillis].
+  int get effectiveIntervalMillis =>
+      intervalMillis < minIntervalMillis ? minIntervalMillis : intervalMillis;
 
   @override
-  List<Object?> get props => [type, debounceMs, variable];
+  List<Object?> get props => [type, debounceMs, variable, intervalMillis];
 
   /// Duplicate this [TriggerModel] with given data overrides.
   TriggerModel copyWith({
     TriggerType? type,
     int? debounceMs,
     String? variable,
+    int? intervalMillis,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
     variable: variable ?? this.variable,
+    intervalMillis: intervalMillis ?? this.intervalMillis,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from

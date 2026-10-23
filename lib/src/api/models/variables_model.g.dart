@@ -13,6 +13,7 @@ Map<String, dynamic> _$VariableDataOmitDefaults(
   if (isJsonDefault(instance.value, '')) json.remove('value');
   if (isJsonDefault(instance.type, VariableType.text)) json.remove('type');
   if (isJsonDefault(instance.extra, {})) json.remove('extra');
+  if (isJsonDefault(instance.formula, '')) json.remove('formula');
   return json;
 }
 
@@ -22,6 +23,7 @@ Map<String, dynamic> _$CanvasVariableDataOmitDefaults(
 ) {
   if (isJsonDefault(instance.value, '')) json.remove('value');
   if (isJsonDefault(instance.type, VariableType.text)) json.remove('type');
+  if (isJsonDefault(instance.formula, '')) json.remove('formula');
   return json;
 }
 
@@ -41,6 +43,7 @@ VariableData _$VariableDataFromJson(Map json) => VariableData(
       ) ??
       VariableType.text,
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  formula: json['formula'] as String? ?? '',
 );
 
 Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
@@ -50,6 +53,7 @@ Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
+      'formula': instance.formula,
     };
 
 const _$VariableTypeEnumMap = {
@@ -77,6 +81,7 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
       VariableType.text,
   value: json['value'] ?? '',
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  formula: json['formula'] as String? ?? '',
 );
 
 Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
@@ -86,5 +91,6 @@ Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
       'value': instance.value,
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
+      'formula': instance.formula,
       'canvasId': instance.canvasId,
     };
