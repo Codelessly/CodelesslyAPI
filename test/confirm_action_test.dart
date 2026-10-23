@@ -70,6 +70,60 @@ void main() {
     );
   });
 
+  test('ConfirmAction round-trips its border, shadows, fonts and buttons', () {
+    final Map stamp = {
+      'id': 'stamp',
+      'type': 'dropShadow',
+      'radius': 0,
+      'spread': 0,
+      'color': '#1F2B2E',
+      'offset': {'x': 6, 'y': 6},
+    };
+    final confirm = ActionModel.fromJson({
+      'type': 'confirm',
+      'title': 'Delete this sighting?',
+      'destructive': true,
+      'backgroundColor': '#F3ECDD',
+      'cornerRadius': 6,
+      'border': {'color': '#1F2B2E', 'width': 1.5},
+      'shadows': [stamp],
+      'titleStyle': {
+        'fontFamily': 'Fraunces',
+        'fontWeight': 'w600',
+        'fontSize': 19,
+      },
+      'messageStyle': {'fontFamily': 'Work Sans', 'color': '#4A5558'},
+      'buttonStyle': {'fontFamily': 'Work Sans', 'fontWeight': 'w600'},
+      'buttonRadius': 4,
+      'buttonBorder': {'color': '#1F2B2E', 'width': 1.5},
+      'buttonShadows': [
+        {
+          ...stamp,
+          'offset': {'x': 3, 'y': 3},
+        },
+      ],
+      'confirmColor': '#B3392B',
+      'confirmTextColor': '#F3ECDD',
+      'cancelColor': '#FBF7EE',
+      'cancelTextColor': '#1F2B2E',
+    }) as ConfirmAction;
+    expect(confirm.border!.width, 1.5);
+    expect(confirm.shadows!.single.offset, const Vec(6, 6));
+    expect(confirm.titleStyle!.fontName!.family, 'Fraunces');
+    expect(confirm.messageStyle!.color, ColorRGBA.fromHex('#4A5558'));
+    expect(confirm.buttonRadius, 4);
+    expect(confirm.buttonShadows!.single.offset, const Vec(3, 3));
+    expect(confirm.cancelColor, ColorRGBA.fromHex('#FBF7EE'));
+    expect(ActionModel.fromJson(confirm.toJson()), confirm);
+    expect(confirm.copyWith(clearShadows: true).shadows, isNull);
+
+    // An existing confirm writes none of it.
+    expect(ConfirmAction(title: 'Leave?').toJson(), {
+      'type': 'confirm',
+      'title': 'Leave?',
+    });
+  });
+
   test('ConfirmAction reads a dialog result', () {
     expect(ConfirmAction.isConfirmResult({'confirmed': true}), isTrue);
     expect(ConfirmAction.isConfirmResult({'confirmed': 'true'}), isTrue);
