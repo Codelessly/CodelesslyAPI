@@ -277,6 +277,9 @@ mixin BlendMixin on BaseNode {
   /// Whether to use ink well on this node, along with its properties.
   late InkWellModel? inkWell;
 
+  /// A looping fade of the node's opacity, or null for none.
+  PulseModel? pulse;
+
   /// Sets the blend properties of the node.
   void setBlendMixin({
     required double opacity,
