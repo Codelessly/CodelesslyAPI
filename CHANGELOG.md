@@ -14,6 +14,9 @@
 - `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
   gradients such as stripes.
 - `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.
+- `ShowDialogAction.anchor` (`DialogAnchor.trigger`), `placement`,
+  `anchorGap` and `anchorOffset`: a dialog can open as a popover next to
+  the node that ran it. `copyWith` keeps `nonBlocking` and `enabled`.
 - `ShowToastAction.accentColor` (a 4 px leading edge), `cornerRadius` and
   `maxWidth`.
 - Slider thumbs can be rectangles: `SliderProperties.thumbShape`,
