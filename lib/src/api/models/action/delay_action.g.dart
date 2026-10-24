@@ -22,6 +22,7 @@ Map<String, dynamic> _$DelayActionOmitDefaults(
 
 DelayAction _$DelayActionFromJson(Map json) => DelayAction(
   milliseconds: (json['milliseconds'] as num?)?.toInt() ?? 500,
+  duration: json['duration'] as String?,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -32,6 +33,7 @@ Map<String, dynamic> _$DelayActionToJson(DelayAction instance) =>
       'nonBlocking': instance.nonBlocking,
       'enabled': instance.enabled,
       'milliseconds': instance.milliseconds,
+      'duration': ?instance.duration,
     };
 
 const _$ActionTypeEnumMap = {

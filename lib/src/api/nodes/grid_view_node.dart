@@ -215,7 +215,14 @@ class GridViewNode extends SinglePlaceholderNode
   };
 
   /// Creates a [GridViewNode] from a JSON object.
-  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
+  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson({
+    // Node JSON may leave out scrolling fields; read the constructor's.
+    'isScrollable': true,
+    'useFlutterListView': false,
+    'allowedTypes': <String>[],
+    'deniedTypes': ['GridView'],
+    ...json,
+  });
 
   /// Keys that SDKs up to codelessly_api 6.0.0 require in a grid's JSON. They are written
   /// even at their defaults so those SDKs can still read it.

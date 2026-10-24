@@ -120,7 +120,14 @@ class ListViewNode extends SinglePlaceholderNode
   }
 
   /// Creates a [ListViewNode] from a JSON object.
-  factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson(json);
+  factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson({
+    // Node JSON may leave out scrolling fields; read the constructor's.
+    'isScrollable': true,
+    'useFlutterListView': true,
+    'allowedTypes': <String>[],
+    'deniedTypes': ['listView'],
+    ...json,
+  });
 
   @override
   Map toJson() => _$ListViewNodeOmitDefaults(this, _$ListViewNodeToJson(this));

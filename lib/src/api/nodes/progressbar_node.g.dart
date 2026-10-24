@@ -64,6 +64,21 @@ Map<String, dynamic> _$ProgressBarPropertiesOmitDefaults(
   if (isJsonDefault(instance.animate, false)) json.remove('animate');
   if (isJsonDefault(instance.animationDurationInMillis, 300))
     json.remove('animationDurationInMillis');
+  if (isJsonDefault(instance.shape, ProgressBarShape.bar)) json.remove('shape');
+  if (isJsonDefault(instance.arcStartAngle, 150)) json.remove('arcStartAngle');
+  if (isJsonDefault(instance.arcSweepAngle, 240)) json.remove('arcSweepAngle');
+  if (isJsonDefault(instance.arcStrokeWidth, 12)) json.remove('arcStrokeWidth');
+  if (isJsonDefault(instance.tickCount, 0)) json.remove('tickCount');
+  if (isJsonDefault(instance.tickColor, ColorRGBA.white))
+    json.remove('tickColor');
+  if (isJsonDefault(instance.bands, [])) json.remove('bands');
+  return json;
+}
+
+Map<String, dynamic> _$ProgressBandOmitDefaults(
+  ProgressBand instance,
+  Map<String, dynamic> json,
+) {
   return json;
 }
 
@@ -244,6 +259,26 @@ ProgressBarProperties _$ProgressBarPropertiesFromJson(Map json) =>
       animate: json['animate'] as bool? ?? false,
       animationDurationInMillis:
           (json['animationDurationInMillis'] as num?)?.toInt() ?? 300,
+      shape:
+          $enumDecodeNullable(
+            _$ProgressBarShapeEnumMap,
+            json['shape'],
+            unknownValue: ProgressBarShape.bar,
+          ) ??
+          ProgressBarShape.bar,
+      arcStartAngle: (json['arcStartAngle'] as num?)?.toDouble() ?? 150,
+      arcSweepAngle: (json['arcSweepAngle'] as num?)?.toDouble() ?? 240,
+      arcStrokeWidth: (json['arcStrokeWidth'] as num?)?.toDouble() ?? 12,
+      needleColor: json['needleColor'] == null
+          ? null
+          : ColorRGBA.fromJson(json['needleColor']),
+      tickCount: (json['tickCount'] as num?)?.toInt() ?? 0,
+      tickColor: json['tickColor'] == null
+          ? ColorRGBA.white
+          : ColorRGBA.fromJson(json['tickColor']),
+      bands: (json['bands'] as List<dynamic>?)
+          ?.map((e) => ProgressBand.fromJson(e as Map))
+          .toList(),
     );
 
 Map<String, dynamic> _$ProgressBarPropertiesToJson(
@@ -256,4 +291,30 @@ Map<String, dynamic> _$ProgressBarPropertiesToJson(
   'cornerRadius': instance.cornerRadius.toJson(),
   'animate': instance.animate,
   'animationDurationInMillis': instance.animationDurationInMillis,
+  'shape': _$ProgressBarShapeEnumMap[instance.shape]!,
+  'arcStartAngle': instance.arcStartAngle,
+  'arcSweepAngle': instance.arcSweepAngle,
+  'arcStrokeWidth': instance.arcStrokeWidth,
+  'needleColor': ?instance.needleColor?.toJson(),
+  'tickCount': instance.tickCount,
+  'tickColor': instance.tickColor.toJson(),
+  'bands': instance.bands.map((e) => e.toJson()).toList(),
 };
+
+const _$ProgressBarShapeEnumMap = {
+  ProgressBarShape.bar: 'bar',
+  ProgressBarShape.arc: 'arc',
+};
+
+ProgressBand _$ProgressBandFromJson(Map json) => ProgressBand(
+  start: (json['start'] as num).toDouble(),
+  end: (json['end'] as num).toDouble(),
+  color: ColorRGBA.fromJson(json['color']),
+);
+
+Map<String, dynamic> _$ProgressBandToJson(ProgressBand instance) =>
+    <String, dynamic>{
+      'start': instance.start,
+      'end': instance.end,
+      'color': instance.color.toJson(),
+    };
