@@ -3,17 +3,16 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-RowColumnNode _row({bool wrap = false, double runSpacing = 0}) =>
-    RowColumnNode(
-      id: 'row',
-      name: 'Row',
-      basicBoxLocal: NodeBox(0, 0, 330, 100),
-      children: const ['a', 'b', 'c'],
-      rowColumnType: RowColumnType.row,
-      spacing: 8,
-      wrap: wrap,
-      runSpacing: runSpacing,
-    );
+RowColumnNode _row({bool wrap = false, double runSpacing = 0}) => RowColumnNode(
+  id: 'row',
+  name: 'Row',
+  basicBoxLocal: NodeBox(0, 0, 330, 100),
+  children: const ['a', 'b', 'c'],
+  rowColumnType: RowColumnType.row,
+  spacing: 8,
+  wrap: wrap,
+  runSpacing: runSpacing,
+);
 
 void main() {
   group('RowColumnNode wrap', () {
@@ -27,9 +26,9 @@ void main() {
     });
 
     test('round-trips wrap and runSpacing', () {
-      final json =
-          jsonDecode(jsonEncode(_row(wrap: true, runSpacing: 12).toJson()))
-              as Map;
+      final json = jsonDecode(
+        jsonEncode(_row(wrap: true, runSpacing: 12).toJson()),
+      ) as Map;
       expect(json['wrap'], isTrue);
       expect(json['runSpacing'], 12);
       final decoded = RowColumnNode.fromJson(json);
