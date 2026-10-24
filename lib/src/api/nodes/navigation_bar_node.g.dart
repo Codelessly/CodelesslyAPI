@@ -191,10 +191,14 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -212,7 +216,6 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -227,6 +230,7 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'currentIndex': instance.currentIndex,
       'properties': instance.properties.toJson(),

@@ -214,6 +214,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -255,6 +258,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'opacity': instance.opacity,
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'isMask': instance.isMask,

@@ -187,6 +187,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -227,6 +230,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,

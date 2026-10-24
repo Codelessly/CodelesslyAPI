@@ -412,6 +412,10 @@ abstract class BaseNode
   /// should be included and accounted for or not.
   bool enabled;
 
+  /// How the node moves: a transform drawn over its layout, transitions and
+  /// spin. Null for a node that doesn't move. See [MotionModel].
+  MotionModel? motion;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

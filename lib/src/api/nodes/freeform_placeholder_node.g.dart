@@ -167,7 +167,6 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
             StrokeSide.all,
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -192,6 +191,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -210,6 +210,9 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -220,6 +223,13 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   FreeformPlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
   'id': instance.id,
   'name': instance.name,
   'visible': instance.visible,
@@ -231,13 +241,6 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'variables': instance.variables,
-  'multipleVariables': instance.multipleVariables,
-  'componentId': ?instance.componentId,
-  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-  'componentVersion': instance.componentVersion,
-  'componentSchema': instance.componentSchema,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -252,6 +255,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,

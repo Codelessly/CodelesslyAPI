@@ -1,5 +1,41 @@
 ## Unreleased
 
+### Motion
+
+- `MotionModel` on every node (`BaseNode.motion`): offset, scale, opacity,
+  rotation, 3D tilt with perspective and origin, an animated transition
+  (duration and curve), continuous spin, `loop` (restart or back and forth),
+  `enter`, `enterFrom`, `delayMs` and a bindable `replayKey`. Values bind as
+  `motion.<name>` variables.
+
+### Triggers
+
+- `timer` (`TriggerModel.intervalMs`) and `keyPress` (`TriggerModel.key`) on
+  canvases; `swipeLeft/Right/Up/Down` and `doubleTap` on frames, rectangles,
+  buttons, icons and text, beside `cursorEnter` and `cursorExit`. Trigger
+  JSON naming `hoverEnter` or `hoverExit` reads as `cursorEnter` and
+  `cursorExit` (`TriggerType.aliases`).
+
+### Lists and sliders
+
+- `ListViewProperties.stacked` (items drawn on top of each other) and `wrap`
+  with `wrapSpacing`, `wrapRunSpacing` and `wrapAlignment`.
+- Sliders: `orientation` (vertical), `inverted`, thumb stroke, and a
+  `roundedRect` thumb shape with width, height and corners.
+- Row/column JSON with `itemSpacing` is read as `spacing`.
+
+### Variables and JSON
+
+- JSON with a separate `formula` for a computed variable is read into its
+  value.
+- Bindable `effectsVisible`, `strokeWeight`, `cornerRadius`, `fontWeight`
+  and a slider's `min`/`max` as property variables.
+- `variableSyntaxIdentifierPattern` matches a `${= ...}` formula whole,
+  object literals included.
+- `EdgeInsetsModel.fromJson` reads `{left, top, right, bottom}` and
+  `{horizontal, vertical}`; placeholders and lists read JSON without their
+  editor-only keys.
+
 ### New
 
 - `SignatureNode` (`signature`), a draw-to-sign pad. Its value is the list

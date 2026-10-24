@@ -239,6 +239,9 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -252,7 +255,6 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   AutoPlaceholderNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -270,6 +272,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -284,6 +287,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
