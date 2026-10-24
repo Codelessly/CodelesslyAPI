@@ -75,6 +75,17 @@ void main() {
       final back = NodeJsonConverter().fromJson(node.toJson())! as ChartNode;
       expect(back, node);
     });
+
+    test('a timeline keeps its now marker color', () {
+      final props = ChartProperties.fromJson({
+        'type': 'timeline',
+        'nowValue': 7.7,
+        'nowColor': {'r': 1, 'g': 1, 'b': 1, 'a': 1},
+      });
+      expect(props.nowColor, const ColorRGBA(r: 1, g: 1, b: 1, a: 1));
+      expect(ChartProperties.fromJson(props.toJson()), props);
+      expect(ChartProperties().toJson().containsKey('nowColor'), isFalse);
+    });
   });
 
   test('a repeating gradient keeps its tile mode', () {
