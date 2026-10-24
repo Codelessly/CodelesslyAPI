@@ -17,26 +17,17 @@ class RowColumnNode extends ParentNode
   @override
   final bool supportsPadding = true;
 
+  /// A row/column scrolls along its main axis. One that [wrap]s scrolls
+  /// along its cross axis instead, through its runs: its main axis is where
+  /// it wraps, so it needs a bounded extent there.
   @JsonKey(includeFromJson: false)
   @override
-  AxisC get scrollDirection =>
-      rowColumnType == RowColumnType.row ? AxisC.horizontal : AxisC.vertical;
+  AxisC get scrollDirection => (rowColumnType == RowColumnType.row) != wrap
+      ? AxisC.horizontal
+      : AxisC.vertical;
 
   @override
   set scrollDirection(AxisC value) {}
-
-  /// Whether the children wrap onto new runs when they don't fit the main
-  /// axis, like Flutter's [Wrap] widget, instead of being laid out in a single
-  /// line.
-  bool wrap;
-
-  /// The gap between adjacent children along the main axis within a run.
-  /// Only used when [wrap] is true.
-  double spacing;
-
-  /// The gap between adjacent runs along the cross axis.
-  /// Only used when [wrap] is true.
-  double runSpacing;
 
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
@@ -48,6 +39,9 @@ class RowColumnNode extends ParentNode
     required RowColumnType rowColumnType,
     MainAxisAlignmentC mainAxisAlignment = MainAxisAlignmentC.center,
     CrossAxisAlignmentC crossAxisAlignment = CrossAxisAlignmentC.center,
+    double spacing = 0,
+    bool wrap = false,
+    double runSpacing = 0,
     super.retainedOuterBoxLocal,
     super.visible,
     super.enabled,
@@ -90,9 +84,6 @@ class RowColumnNode extends ParentNode
         ScrollViewKeyboardDismissBehaviorC.manual,
     bool useFlutterListView = false,
     bool shouldAlwaysScroll = true,
-    this.wrap = false,
-    this.spacing = 0,
-    this.runSpacing = 0,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
@@ -103,6 +94,9 @@ class RowColumnNode extends ParentNode
       rowColumnType: rowColumnType,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
+      spacing: spacing,
+      wrap: wrap,
+      runSpacing: runSpacing,
     );
 
     setScrollableMixin(
@@ -118,7 +112,6 @@ class RowColumnNode extends ParentNode
     );
   }
 
-  /// Creates a [RowColumnNode] from a JSON data.
   /// Rows and columns are the usual buttons and cards of a layout, so they
   /// take taps, long presses and holds.
   @override
@@ -131,35 +124,35 @@ class RowColumnNode extends ParentNode
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),
+    'spacing': NumFieldAccess<double>(
+      'Spacing',
+      'Gap between consecutive children along the main axis.',
+      () => spacing,
+      (value) => spacing = value,
+      defaultValue: () => 0,
+      min: 0,
+      requiresLayout: true,
+    ),
     'wrap': BoolFieldAccess(
       'Wrap',
-      'Whether the children wrap onto new runs when they overflow.',
+      'Whether children wrap onto further runs when they do not fit.',
       () => wrap,
       (value) => wrap = value,
       defaultValue: () => false,
       requiresLayout: true,
     ),
-    'spacing': NumFieldAccess<double>(
-      'Spacing',
-      'Gap between children within a run when wrapping.',
-      () => spacing,
-      (value) => spacing = value,
-      min: 0,
-      defaultValue: () => 0,
-      requiresLayout: true,
-    ),
     'runSpacing': NumFieldAccess<double>(
       'Run Spacing',
-      'Gap between runs when wrapping.',
+      'Gap between runs along the cross axis when wrapping.',
       () => runSpacing,
       (value) => runSpacing = value,
-      min: 0,
       defaultValue: () => 0,
+      min: 0,
       requiresLayout: true,
     ),
   };
 
-  /// Creates a [RowColumnNode] from [json].
+  /// Creates a [RowColumnNode] from a JSON data.
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
 
   @override
