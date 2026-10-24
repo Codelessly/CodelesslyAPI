@@ -15,7 +15,8 @@
 - Nodes with a click trigger also offer `cursorEnter` and `cursorExit`;
   the trigger docs say what `hover`, `cursorEnter` and `cursorExit` mean.
 - `DialogPresentation.sideSheet`, and `ShowDialogAction.sheetWidth`,
-  `maxHeightFactor` (0.92) and `showDragHandle` (true) for sheets.
+  `maxHeightFactor` (1: no cap) and `showDragHandle` (false) for sheets,
+  so saved bottom sheets look as before.
   `copyWith` keeps `nonBlocking` and `enabled`.
 - `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
   `showDragHandle`, as on `ShowDialogAction`.

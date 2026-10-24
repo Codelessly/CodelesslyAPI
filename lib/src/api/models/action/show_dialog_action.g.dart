@@ -20,9 +20,9 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('presentation');
   if (isJsonDefault(instance.alignment, AlignmentModel.center))
     json.remove('alignment');
-  if (isJsonDefault(instance.maxHeightFactor, 0.92))
+  if (isJsonDefault(instance.maxHeightFactor, 1))
     json.remove('maxHeightFactor');
-  if (isJsonDefault(instance.showDragHandle, true))
+  if (isJsonDefault(instance.showDragHandle, false))
     json.remove('showDragHandle');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -54,8 +54,8 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       ? AlignmentModel.center
       : AlignmentModel.fromJson(json['alignment'] as Map),
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
-  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 0.92,
-  showDragHandle: json['showDragHandle'] as bool? ?? true,
+  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
+  showDragHandle: json['showDragHandle'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
