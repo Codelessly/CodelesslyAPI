@@ -36,6 +36,8 @@ Map<String, dynamic> _$FloatingActionButtonNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -171,11 +173,17 @@ FloatingActionButtonNode _$FloatingActionButtonNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   FloatingActionButtonNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -193,7 +201,6 @@ Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -205,6 +212,9 @@ Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'type': instance.type,
   'properties': instance.properties.toJson(),

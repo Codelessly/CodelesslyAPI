@@ -1052,6 +1052,7 @@ mixin PropertyVariableMixin on BaseNode {
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
     IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    DoubleValue(name: 'drawScale', value: drawScale),
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
       PaintValue(name: 'stroke', value: geometry.strokes.firstOrNull),

@@ -36,6 +36,8 @@ Map<String, dynamic> _$ExpansionTileNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -193,6 +195,11 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..rowColumnType = $enumDecode(
         _$RowColumnTypeEnumMap,
         json['rowColumnType'],
@@ -210,6 +217,7 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
 Map<String, dynamic> _$ExpansionTileNodeToJson(
   ExpansionTileNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -227,7 +235,6 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -239,6 +246,9 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
