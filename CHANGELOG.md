@@ -9,7 +9,8 @@
   `ChartReferenceLine`): bar, line and timeline charts bound to a list
   through `variables.data`; bar, line, area and tick series with stacks,
   per-item colors, dashes, end dots and fill-between; reference lines;
-  bindable `selectedIndex` and a `changed` trigger.
+  bindable `selectedIndex` and a `changed` trigger; a timeline's `nowColor`
+  colors its now marker.
 - `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
   gradients such as stripes.
 - `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.

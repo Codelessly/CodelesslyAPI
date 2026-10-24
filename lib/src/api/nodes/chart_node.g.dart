@@ -397,6 +397,9 @@ ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(
   domainMin: (json['domainMin'] as num?)?.toDouble() ?? 0,
   domainMax: (json['domainMax'] as num?)?.toDouble() ?? 100,
   nowValue: (json['nowValue'] as num?)?.toDouble(),
+  nowColor: json['nowColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['nowColor']),
   trackColor: json['trackColor'] == null
       ? const ColorRGBA(r: 18 / 255, g: 19 / 255, b: 22 / 255, a: 1)
       : ColorRGBA.fromJson(json['trackColor']),
@@ -434,6 +437,7 @@ Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
       'domainMin': instance.domainMin,
       'domainMax': instance.domainMax,
       'nowValue': ?instance.nowValue,
+      'nowColor': ?instance.nowColor?.toJson(),
       'trackColor': instance.trackColor.toJson(),
       'divisions': instance.divisions,
     };
