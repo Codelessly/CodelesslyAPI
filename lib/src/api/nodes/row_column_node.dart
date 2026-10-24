@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 
+import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -24,6 +25,29 @@ class RowColumnNode extends ParentNode
   @override
   set scrollDirection(AxisC value) {}
 
+  /// Whether a row lays its children out in runs, starting a new line when
+  /// the next child does not fit the remaining width, like Flutter's [Wrap].
+  ///
+  /// Only rows wrap; a column ignores it. A wrapping row does not scroll, and
+  /// its expanded or flexible children take their natural (design) size, as
+  /// children of a Flutter [Wrap] do. [mainAxisAlignment] aligns each run
+  /// along the row, and [crossAxisAlignment] aligns each child within its
+  /// run (stretch and baseline behave as start).
+  bool wrap;
+
+  /// The gap between neighboring children of a run, along the main axis,
+  /// when [wrap] is on. Corresponds to [Wrap.spacing].
+  double spacing;
+
+  /// The gap between runs, along the cross axis, when [wrap] is on.
+  /// Corresponds to [Wrap.runSpacing].
+  double runSpacing;
+
+  /// Whether this node wraps its children into runs: [wrap] is on and it is
+  /// a row.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get wrapsChildren => wrap && rowColumnType == RowColumnType.row;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -34,6 +58,9 @@ class RowColumnNode extends ParentNode
     required RowColumnType rowColumnType,
     MainAxisAlignmentC mainAxisAlignment = MainAxisAlignmentC.center,
     CrossAxisAlignmentC crossAxisAlignment = CrossAxisAlignmentC.center,
+    this.wrap = false,
+    this.spacing = 0,
+    this.runSpacing = 0,
     super.retainedOuterBoxLocal,
     super.visible,
     super.enabled,
@@ -100,6 +127,37 @@ class RowColumnNode extends ParentNode
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
   }
+
+  @override
+  FieldsMap generateFields() => {
+    ...super.generateFields(),
+    'wrap': BoolFieldAccess(
+      'Wrap',
+      'Whether a row starts a new line when its children do not fit.',
+      () => wrap,
+      (value) => wrap = value,
+      defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'spacing': NumFieldAccess<double>(
+      'Spacing',
+      'Gap between children of a run when wrap is on.',
+      () => spacing,
+      (value) => spacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Spacing',
+      'Gap between runs when wrap is on.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      min: 0,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
+  };
 
   /// Creates a [RowColumnNode] from a JSON data.
   factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
