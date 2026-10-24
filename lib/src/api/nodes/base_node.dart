@@ -388,8 +388,9 @@ abstract class BaseNode
   @JsonKey(defaultValue: false)
   bool zoomable = false;
 
-  /// Milliseconds a change to this node's opacity or scale takes to ease in
-  /// (a pin that grows when selected, a list that dims); 0 changes at once.
+  /// Milliseconds a change to this node's opacity, draw scale or solid fill
+  /// takes to ease in (a pin that grows when selected, a row that lights up
+  /// on hover); 0 changes at once.
   @JsonKey(defaultValue: 0)
   int transitionMs = 0;
 
