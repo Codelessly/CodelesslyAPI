@@ -91,6 +91,16 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// [ToastPosition.bottom].
   final double bottomOffset;
 
+  /// Color of a 4 px edge on the toast's leading side, or null for none.
+  final ColorRGBA? accentColor;
+
+  /// Corner radius, or null for the default: a pill, or the theme's button
+  /// radius when the toast has a button.
+  final double? cornerRadius;
+
+  /// The widest the toast gets.
+  final double maxWidth;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -103,6 +113,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     List<ActionModel>? actions,
     this.icon,
     this.bottomOffset = 104,
+    this.accentColor,
+    this.cornerRadius,
+    this.maxWidth = 560,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -123,6 +136,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions,
     icon,
     bottomOffset,
+    accentColor,
+    cornerRadius,
+    maxWidth,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -140,6 +156,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     MultiSourceIconModel? icon,
     bool clearIcon = false,
     double? bottomOffset,
+    ColorRGBA? accentColor,
+    bool clearAccentColor = false,
+    double? cornerRadius,
+    double? maxWidth,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -153,6 +173,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions: actions ?? this.actions,
     icon: clearIcon ? null : icon ?? this.icon,
     bottomOffset: bottomOffset ?? this.bottomOffset,
+    accentColor: clearAccentColor ? null : accentColor ?? this.accentColor,
+    cornerRadius: cornerRadius ?? this.cornerRadius,
+    maxWidth: maxWidth ?? this.maxWidth,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
