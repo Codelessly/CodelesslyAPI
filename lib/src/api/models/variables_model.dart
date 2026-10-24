@@ -180,7 +180,8 @@ class VariableData
   }
 
   @override
-  List<Object?> get props => [id, name, value, type];
+  // A change to extra (metadata the editor and apps keep) is a change.
+  List<Object?> get props => [id, name, value, type, extra];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -201,6 +202,7 @@ class VariableData
     name: name,
     value: value,
     type: type,
+    extra: extra,
   );
 
   /// Returns the value converted to the appropriate type according to [type].

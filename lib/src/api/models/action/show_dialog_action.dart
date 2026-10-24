@@ -33,6 +33,12 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// default. Bottom sheets always sit at the bottom.
   final AlignmentModel alignment;
 
+  /// For a bottom sheet: whether it is as tall as it can be (90% of the
+  /// screen) with the canvas filling it, so the canvas scrolls its own
+  /// content (a fixed header over a scrolling list). Otherwise the sheet is
+  /// as tall as the canvas, up to 90% of the screen, and scrolls as one.
+  final bool fullHeight;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -42,6 +48,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.showCloseButton = false,
     this.presentation = DialogPresentation.dialog,
     this.alignment = AlignmentModel.center,
+    this.fullHeight = false,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -56,6 +63,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton,
     presentation,
     alignment,
+    fullHeight,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -67,6 +75,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? showCloseButton,
     DialogPresentation? presentation,
     AlignmentModel? alignment,
+    bool? fullHeight,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -75,6 +84,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton: showCloseButton ?? this.showCloseButton,
     presentation: presentation ?? this.presentation,
     alignment: alignment ?? this.alignment,
+    fullHeight: fullHeight ?? this.fullHeight,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
@@ -99,4 +109,9 @@ enum DialogPresentation {
 
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
+
+  /// A menu anchored to the node that ran the action: just below it,
+  /// left-aligned with it (right-aligned when it would run off the screen),
+  /// or above it when there is no room below. Tapping outside closes it.
+  popover,
 }
