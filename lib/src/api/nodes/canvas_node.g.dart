@@ -101,6 +101,8 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
     json.remove('safeArea');
   if (isJsonDefault(instance.brightness, BrightnessModel.system))
     json.remove('brightness');
+  if (isJsonDefault(instance.previewParams, const {}))
+    json.remove('previewParams');
   return json;
 }
 
@@ -514,6 +516,11 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
       $enumDecodeNullable(_$BrightnessModelEnumMap, json['brightness']) ??
       BrightnessModel.system,
   signInRedirectId: json['signInRedirectId'] as String?,
+  previewParams:
+      (json['previewParams'] as Map?)?.map(
+        (k, e) => MapEntry(k as String, e),
+      ) ??
+      const {},
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -525,6 +532,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'safeArea': instance.safeArea.toJson(),
       'brightness': _$BrightnessModelEnumMap[instance.brightness]!,
       'signInRedirectId': ?instance.signInRedirectId,
+      'previewParams': instance.previewParams,
     };
 
 const _$BrightnessModelEnumMap = {
