@@ -34,12 +34,14 @@ class SinglePlaceholderNode extends SceneNode
   /// The node types that are allowed to be inside this [SinglePlaceholderNode].
   /// Example: 'APP_BAR' for AppBarNode.
   /// When empty, allow all types.
+  @JsonKey(readValue: readTypesOrEmpty)
   List<String> allowedTypes;
 
   /// The node types that are not allowed to be inside this
   /// [SinglePlaceholderNode].
   /// Example: "TEXT" for TextNode.
   /// When empty, allow all types.
+  @JsonKey(readValue: readTypesOrEmpty)
   List<String> deniedTypes;
 
   /// If not null, this [SinglePlaceholderNode] will only accept nodes that do
@@ -89,3 +91,7 @@ class SinglePlaceholderNode extends SceneNode
     _$SinglePlaceholderNodeToJson(this),
   );
 }
+
+/// Reads [allowedTypes] or [deniedTypes] from [json], an empty list when the
+/// key is missing: JSON that leaves empty lists out still reads.
+Object? readTypesOrEmpty(Map json, String key) => json[key] ?? const <String>[];

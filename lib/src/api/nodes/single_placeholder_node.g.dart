@@ -57,10 +57,10 @@ Map<String, dynamic> _$SinglePlaceholderNodeOmitDefaults(
 
 SinglePlaceholderNode _$SinglePlaceholderNodeFromJson(Map json) =>
     SinglePlaceholderNode(
-        allowedTypes: (json['allowedTypes'] as List<dynamic>)
+        allowedTypes: (readTypesOrEmpty(json, 'allowedTypes') as List<dynamic>)
             .map((e) => e as String)
             .toList(),
-        deniedTypes: (json['deniedTypes'] as List<dynamic>)
+        deniedTypes: (readTypesOrEmpty(json, 'deniedTypes') as List<dynamic>)
             .map((e) => e as String)
             .toList(),
         maxAllowedSize: json['maxAllowedSize'] == null
