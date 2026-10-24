@@ -132,9 +132,25 @@ class MaterialIcon extends IconModel {
   );
 
   /// Factory constructor for creating a new [MaterialIcon] instance from
-  /// JSON data.
-  factory MaterialIcon.fromJson(Map<String, dynamic> json) =>
-      _$MaterialIconFromJson(json);
+  /// JSON data. A Flutter-style name with a style suffix and no style of its
+  /// own, such as `home_outlined`, becomes the base name in that style: the
+  /// icon is drawn from Google's icon set by base name and style.
+  factory MaterialIcon.fromJson(Map<String, dynamic> json) {
+    final MaterialIcon icon = _$MaterialIconFromJson(json);
+    if (icon.style != MaterialIconStyle.filled) return icon;
+    final RegExpMatch? match = _styleSuffix.firstMatch(icon.name);
+    if (match == null) return icon;
+    return icon.copyWith(
+      name: icon.name.substring(0, match.start),
+      style: switch (match[1]) {
+        'outlined' => MaterialIconStyle.outlined,
+        'rounded' => MaterialIconStyle.rounded,
+        _ => MaterialIconStyle.sharp,
+      },
+    );
+  }
+
+  static final RegExp _styleSuffix = RegExp(r'_(outlined|rounded|sharp)$');
 
   @override
   List<Object?> get props => [codepoint, fontFamily, name, style, version];

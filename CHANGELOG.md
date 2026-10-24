@@ -13,6 +13,8 @@
 - `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
   gradients such as stripes.
 - `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.
+- `MaterialIcon.fromJson` reads a Flutter-style name with a style suffix
+  (`home_outlined`) as the base name in that style, so it draws.
 
 ### Variables
 
