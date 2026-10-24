@@ -36,6 +36,8 @@ Map<String, dynamic> _$WebViewNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -151,6 +153,11 @@ WebViewNode _$WebViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$WebViewNodeToJson(WebViewNode instance) =>
@@ -184,6 +191,9 @@ Map<String, dynamic> _$WebViewNodeToJson(WebViewNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'transitionMs': instance.transitionMs,
+      'drawScale': instance.drawScale,
+      'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'type': instance.type,
       'properties': instance.properties.toJson(),
