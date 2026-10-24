@@ -19,6 +19,9 @@ part 'confirm_action.g.dart';
 /// back" action whose params hold [resultKey]: `true` confirms, anything else
 /// cancels. Closing the dialog any other way cancels. The params popped with a
 /// confirm are the `${result}` the [actions] read.
+///
+/// Either dialog can be presented as a centered dialog, a bottom sheet or a
+/// side sheet ([presentation]), like [ShowDialogAction.presentation].
 @JsonSerializable()
 class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// The dialog's title. Supports variables and formulas.
@@ -110,6 +113,23 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Label color of the cancel button. Null uses the dialog's text color.
   final ColorRGBA? cancelTextColor;
 
+  /// How the dialog is presented: centered, as a bottom sheet or as a side
+  /// sheet. See [ShowDialogAction.presentation].
+  @JsonKey(unknownEnumValue: DialogPresentation.dialog)
+  final DialogPresentation presentation;
+
+  /// Width of a [DialogPresentation.sideSheet], in logical pixels. Null takes
+  /// the [dialogId] canvas's width, or 400 for the built-in dialog.
+  final double? sheetWidth;
+
+  /// The most of the screen's height a [DialogPresentation.bottomSheet] takes,
+  /// from 0 to 1.
+  final double maxHeightFactor;
+
+  /// Whether a [DialogPresentation.bottomSheet] shows a grab handle at its
+  /// top.
+  final bool showDragHandle;
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -157,6 +177,10 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.confirmTextColor,
     this.cancelColor,
     this.cancelTextColor,
+    this.presentation = DialogPresentation.dialog,
+    this.sheetWidth,
+    this.maxHeightFactor = 1,
+    this.showDragHandle = false,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -209,6 +233,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearCancelColor = false,
     ColorRGBA? cancelTextColor,
     bool clearCancelTextColor = false,
+    DialogPresentation? presentation,
+    double? sheetWidth,
+    bool clearSheetWidth = false,
+    double? maxHeightFactor,
+    bool? showDragHandle,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -244,6 +273,10 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     cancelTextColor: clearCancelTextColor
         ? null
         : cancelTextColor ?? this.cancelTextColor,
+    presentation: presentation ?? this.presentation,
+    sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
+    maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
+    showDragHandle: showDragHandle ?? this.showDragHandle,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -276,6 +309,10 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     confirmTextColor,
     cancelColor,
     cancelTextColor,
+    presentation,
+    sheetWidth,
+    maxHeightFactor,
+    showDragHandle,
   ];
 
   /// Creates an instance from a JSON object.

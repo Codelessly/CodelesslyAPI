@@ -21,6 +21,7 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.bottomOffsets, {})) json.remove('bottomOffsets');
   if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
+  if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -92,6 +93,14 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   actionStyle: json['actionStyle'] == null
       ? null
       : TextStyleModel.fromJson(json['actionStyle'] as Map),
+  accentColor: json['accentColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['accentColor']),
+  accentWidth: (json['accentWidth'] as num?)?.toDouble() ?? 4,
+  iconColor: json['iconColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['iconColor']),
+  fontFamily: json['fontFamily'] as String?,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -125,6 +134,10 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'maxWidth': instance.maxWidth,
       'messageStyle': ?instance.messageStyle?.toJson(),
       'actionStyle': ?instance.actionStyle?.toJson(),
+      'accentColor': ?instance.accentColor?.toJson(),
+      'accentWidth': instance.accentWidth,
+      'iconColor': ?instance.iconColor?.toJson(),
+      'fontFamily': ?instance.fontFamily,
     };
 
 const _$ToastStyleEnumMap = {

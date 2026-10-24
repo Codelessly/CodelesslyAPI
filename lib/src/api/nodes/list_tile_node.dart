@@ -134,6 +134,8 @@ class ListTileNode extends SceneNode
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   @override

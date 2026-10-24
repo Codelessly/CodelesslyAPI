@@ -95,7 +95,14 @@ class PageViewNode extends SinglePlaceholderNode
   };
 
   /// Creates a [ListViewNode] from a JSON object.
-  factory PageViewNode.fromJson(Map json) => _$PageViewNodeFromJson(json);
+  factory PageViewNode.fromJson(Map json) => _$PageViewNodeFromJson({
+    // Node JSON may leave out scrolling fields; read the constructor's.
+    'isScrollable': true,
+    'useFlutterListView': true,
+    'allowedTypes': <String>[],
+    'deniedTypes': ['pageView'],
+    ...json,
+  });
 
   @override
   Map toJson() => _$PageViewNodeOmitDefaults(this, _$PageViewNodeToJson(this));
