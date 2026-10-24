@@ -208,7 +208,14 @@ class GridViewNode extends SinglePlaceholderNode
   };
 
   /// Creates a [GridViewNode] from a JSON object.
-  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson(json);
+  factory GridViewNode.fromJson(Map json) => _$GridViewNodeFromJson({
+    // Node JSON may leave out scrolling fields; read the constructor's.
+    'isScrollable': true,
+    'useFlutterListView': false,
+    'allowedTypes': <String>[],
+    'deniedTypes': ['GridView'],
+    ...json,
+  });
 
   @override
   Map toJson() => _$GridViewNodeOmitDefaults(this, _$GridViewNodeToJson(this));

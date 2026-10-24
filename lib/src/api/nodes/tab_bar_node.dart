@@ -90,7 +90,13 @@ class TabBarNode extends SceneNode
   };
 
   /// Creates a [TabBarNode] from a JSON object.
-  factory TabBarNode.fromJson(Map json) => _$TabBarNodeFromJson(json);
+  factory TabBarNode.fromJson(Map json) => _$TabBarNodeFromJson({
+    // Node JSON may leave out scrolling fields; read the constructor's.
+    'reverse': false,
+    'primary': false,
+    'useFlutterListView': false,
+    ...json,
+  });
 
   @override
   Map toJson() => _$TabBarNodeOmitDefaults(this, _$TabBarNodeToJson(this));
