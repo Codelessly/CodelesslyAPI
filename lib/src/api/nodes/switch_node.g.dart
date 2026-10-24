@@ -175,6 +175,9 @@ SwitchNode _$SwitchNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) =>
@@ -211,6 +214,7 @@ Map<String, dynamic> _$SwitchNodeToJson(SwitchNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'value': instance.value,
       'properties': instance.properties.toJson(),

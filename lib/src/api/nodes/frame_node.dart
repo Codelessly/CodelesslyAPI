@@ -120,6 +120,8 @@ class FrameNode extends DefaultShapeNode
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.longPress,
+    TriggerType.doubleTap,
+    ...TriggerType.swipes,
     TriggerType.cursorEnter,
     TriggerType.cursorExit,
   ];

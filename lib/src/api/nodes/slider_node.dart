@@ -22,6 +22,12 @@ const double kSliderDefaultTickMarkRadius = 1;
 /// Default radius of slider's thumb.
 const double kSliderDefaultThumbRadius = 10;
 
+/// Default width and height of a slider's rectangular thumb.
+const double kSliderDefaultThumbSize = 20;
+
+/// Default corner radius of a slider's rectangular thumb.
+const double kSliderDefaultThumbCornerRadius = 4;
+
 /// Default radius of slider's overlay.
 const double kSliderDefaultOverlayRadius = 24;
 
@@ -114,12 +120,17 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   };
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.changed];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.changed,
+    TriggerType.doubleTap,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     DoubleValue(name: 'value', value: value),
+    DoubleValue(name: 'min', value: properties.min),
+    DoubleValue(name: 'max', value: properties.max),
   ];
 
   /// Creates a [SliderNode] instance from a JSON object.
@@ -186,8 +197,25 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Whether to allow non-whole numbers as min or max values of slider.
   bool allowFractionalPoints;
 
-  /// Radius of slider's thumb.
+  /// Radius of slider's thumb when [thumbShape] is
+  /// [SliderThumbShapeEnum.circle].
   double thumbRadius;
+
+  /// Shape of slider's thumb: a circle of [thumbRadius], or a rounded
+  /// rectangle of [thumbWidth] by [thumbHeight] with [thumbCornerRadius]
+  /// corners.
+  SliderThumbShapeEnum thumbShape;
+
+  /// Width of a rectangular thumb as drawn on screen, across a vertical
+  /// slider's track and along a horizontal one's.
+  double thumbWidth;
+
+  /// Height of a rectangular thumb as drawn on screen, along a vertical
+  /// slider's track and across a horizontal one's.
+  double thumbHeight;
+
+  /// Corner radius of a rectangular thumb.
+  double thumbCornerRadius;
 
   /// Whether to show slider's thumb.
   bool showThumb;
@@ -224,6 +252,22 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// room for the thumb's overlay. Mirrors `Slider.padding`.
   EdgeInsetsModel? padding;
 
+  /// Direction the slider runs in. A vertical slider runs from [min] at the
+  /// bottom to [max] at the top (top to bottom when [inverted]); its node box
+  /// is its full hit area.
+  AxisC orientation;
+
+  /// Whether the slider runs the other way: right to left when horizontal,
+  /// top to bottom when vertical.
+  bool inverted;
+
+  /// Color of the stroke around the slider's thumb. No stroke when null or
+  /// when [thumbStrokeWidth] is 0.
+  ColorRGBA? thumbStrokeColor;
+
+  /// Width of the stroke around the slider's thumb, drawn inside the thumb.
+  double thumbStrokeWidth;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -245,6 +289,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.valueIndicatorTextColor = ColorRGBA.white,
     this.valueIndicatorFontSize = 14,
     this.thumbRadius = kSliderDefaultThumbRadius,
+    this.thumbShape = SliderThumbShapeEnum.circle,
+    this.thumbWidth = kSliderDefaultThumbSize,
+    this.thumbHeight = kSliderDefaultThumbSize,
+    this.thumbCornerRadius = kSliderDefaultThumbCornerRadius,
     this.showThumb = true,
     this.trackShape = SliderTrackShapeEnum.roundedRectangle,
     this.tickMarkRadius = kSliderDefaultTickMarkRadius,
@@ -255,6 +303,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.secondaryTrackValue,
     this.secondaryActiveTrackColor,
     this.padding,
+    this.orientation = AxisC.horizontal,
+    this.inverted = false,
+    this.thumbStrokeColor,
+    this.thumbStrokeWidth = 0,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -279,6 +331,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? valueIndicatorTextColor,
     double? valueIndicatorFontSize,
     double? thumbRadius,
+    SliderThumbShapeEnum? thumbShape,
+    double? thumbWidth,
+    double? thumbHeight,
+    double? thumbCornerRadius,
     bool? showThumb,
     SliderTrackShapeEnum? trackShape,
     double? tickMarkRadius,
@@ -289,6 +345,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     double? secondaryTrackValue,
     ColorRGBA? secondaryActiveTrackColor,
     EdgeInsetsModel? padding,
+    AxisC? orientation,
+    bool? inverted,
+    ColorRGBA? thumbStrokeColor,
+    double? thumbStrokeWidth,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -314,6 +374,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       valueIndicatorFontSize:
           valueIndicatorFontSize ?? this.valueIndicatorFontSize,
       thumbRadius: thumbRadius ?? this.thumbRadius,
+      thumbShape: thumbShape ?? this.thumbShape,
+      thumbWidth: thumbWidth ?? this.thumbWidth,
+      thumbHeight: thumbHeight ?? this.thumbHeight,
+      thumbCornerRadius: thumbCornerRadius ?? this.thumbCornerRadius,
       showThumb: showThumb ?? this.showThumb,
       trackShape: trackShape ?? this.trackShape,
       tickMarkRadius: tickMarkRadius ?? this.tickMarkRadius,
@@ -326,6 +390,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       secondaryActiveTrackColor:
           secondaryActiveTrackColor ?? this.secondaryActiveTrackColor,
       padding: padding ?? this.padding,
+      orientation: orientation ?? this.orientation,
+      inverted: inverted ?? this.inverted,
+      thumbStrokeColor: thumbStrokeColor ?? this.thumbStrokeColor,
+      thumbStrokeWidth: thumbStrokeWidth ?? this.thumbStrokeWidth,
     );
   }
 
@@ -528,6 +596,59 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       () => secondaryActiveTrackColor,
       (value) => secondaryActiveTrackColor = value,
     ),
+    'orientation': EnumFieldAccess<AxisC>(
+      'Orientation',
+      'Direction the slider runs in.',
+      () => orientation,
+      (AxisC value) => orientation = value,
+      defaultValue: () => AxisC.horizontal,
+      options: () => AxisC.values,
+      requiresLayout: true,
+    ),
+    'inverted': BoolFieldAccess(
+      'Inverted',
+      'Whether the slider runs right to left, or top to bottom.',
+      () => inverted,
+      (bool value) => inverted = value,
+    ),
+    'thumbStrokeColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Stroke Color',
+      'Color of the stroke around the slider\'s thumb.',
+      () => thumbStrokeColor,
+      (value) => thumbStrokeColor = value,
+    ),
+    'thumbStrokeWidth': NumFieldAccess<double>(
+      'Thumb Stroke Width',
+      'Width of the stroke around the slider\'s thumb.',
+      () => thumbStrokeWidth,
+      (double value) => thumbStrokeWidth = value,
+    ),
+    'thumbShape': EnumFieldAccess<SliderThumbShapeEnum>(
+      'Thumb Shape',
+      'Shape of slider\'s thumb: a circle or a rounded rectangle.',
+      () => thumbShape,
+      (SliderThumbShapeEnum value) => thumbShape = value,
+      defaultValue: () => SliderThumbShapeEnum.circle,
+      options: () => SliderThumbShapeEnum.values,
+    ),
+    'thumbWidth': NumFieldAccess<double>(
+      'Thumb Width',
+      'Width of slider\'s rectangular thumb.',
+      () => thumbWidth,
+      (double value) => thumbWidth = value,
+    ),
+    'thumbHeight': NumFieldAccess<double>(
+      'Thumb Height',
+      'Height of slider\'s rectangular thumb.',
+      () => thumbHeight,
+      (double value) => thumbHeight = value,
+    ),
+    'thumbCornerRadius': NumFieldAccess<double>(
+      'Thumb Corner Radius',
+      'Corner radius of slider\'s rectangular thumb.',
+      () => thumbCornerRadius,
+      (double value) => thumbCornerRadius = value,
+    ),
   };
 
   @override
@@ -551,6 +672,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     valueIndicatorTextColor,
     valueIndicatorFontSize,
     thumbRadius,
+    thumbShape,
+    thumbWidth,
+    thumbHeight,
+    thumbCornerRadius,
     showThumb,
     trackShape,
     tickMarkRadius,
@@ -561,6 +686,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     secondaryTrackValue,
     secondaryActiveTrackColor,
     padding,
+    orientation,
+    inverted,
+    thumbStrokeColor,
+    thumbStrokeWidth,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.

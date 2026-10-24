@@ -51,7 +51,53 @@ enum TriggerType {
 
   /// Triggered when the variable named by [TriggerModel.variable] changes,
   /// while the screen it is set on shows.
-  valueChanged;
+  valueChanged,
+
+  /// Triggered over and over while the canvas is shown, every
+  /// [TriggerModel.intervalMs].
+  timer,
+
+  /// Triggered when a key is pressed while the canvas is shown. The key is
+  /// [TriggerModel.key], a logical key label such as `Arrow Right`, `Enter`
+  /// or `A`.
+  keyPress,
+
+  /// Triggered when the user swipes the target to the left.
+  swipeLeft,
+
+  /// Triggered when the user swipes the target to the right.
+  swipeRight,
+
+  /// Triggered when the user swipes the target up.
+  swipeUp,
+
+  /// Triggered when the user swipes the target down.
+  swipeDown,
+
+  /// Triggered when the user taps the target twice in quick succession.
+  /// A node with a double tap reaction delays its single taps ([click]) by
+  /// the double tap timeout (300ms), the way Flutter tells the two apart.
+  doubleTap;
+
+  /// The triggers for the mouse cursor entering and leaving the target.
+  static const List<TriggerType> hovers = [
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
+  ];
+
+  /// Earlier names of trigger types, read as the types they became.
+  static const Map<String, String> aliases = {
+    'hoverEnter': 'cursorEnter',
+    'hoverExit': 'cursorExit',
+  };
+
+  /// The swipe triggers.
+  static const List<TriggerType> swipes = [
+    TriggerType.swipeLeft,
+    TriggerType.swipeRight,
+    TriggerType.swipeUp,
+    TriggerType.swipeDown,
+  ];
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -82,6 +128,20 @@ enum TriggerType {
         return 'Load';
       case TriggerType.valueChanged:
         return 'Value Changed';
+      case TriggerType.timer:
+        return 'Timer';
+      case TriggerType.keyPress:
+        return 'Key Press';
+      case TriggerType.swipeLeft:
+        return 'Swipe Left';
+      case TriggerType.swipeRight:
+        return 'Swipe Right';
+      case TriggerType.swipeUp:
+        return 'Swipe Up';
+      case TriggerType.swipeDown:
+        return 'Swipe Down';
+      case TriggerType.doubleTap:
+        return 'Double Tap';
     }
   }
 }
@@ -101,26 +161,53 @@ class TriggerModel with Equatable, SerializableMixin {
   /// For [TriggerType.valueChanged], the name of the variable to watch.
   final String? variable;
 
+  /// How often a [TriggerType.timer] fires, in milliseconds.
+  final int? intervalMs;
+
+  /// The key a [TriggerType.keyPress] listens for, as a logical key label
+  /// (`Arrow Right`, `Enter`, `Space`, `A`).
+  final String? key;
+
   /// Creates a [TriggerModel] with given data.
-  TriggerModel({required this.type, this.debounceMs = 0, this.variable});
+  TriggerModel({
+    required this.type,
+    this.debounceMs = 0,
+    this.variable,
+    this.intervalMs,
+    this.key,
+  });
+
+  /// The interval of a timer trigger; one second when unset.
+  int get effectiveIntervalMs => (intervalMs ?? 1000).clamp(16, 86400000);
 
   @override
-  List<Object?> get props => [type, debounceMs, variable];
+  List<Object?> get props => [type, debounceMs, variable, intervalMs, key];
 
   /// Duplicate this [TriggerModel] with given data overrides.
   TriggerModel copyWith({
     TriggerType? type,
     int? debounceMs,
     String? variable,
+    int? intervalMs,
+    String? key,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
     variable: variable ?? this.variable,
+    intervalMs: intervalMs ?? this.intervalMs,
+    key: key ?? this.key,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from
   /// JSON data.
-  factory TriggerModel.fromJson(Map json) => _$TriggerModelFromJson(json);
+  ///
+  /// A type named by an earlier name ([TriggerType.aliases]) reads as the
+  /// type it became.
+  factory TriggerModel.fromJson(Map json) =>
+      _$TriggerModelFromJson(switch (TriggerType.aliases[json['type']]) {
+        final String type => {...json, 'type': type},
+        null => json,
+      });
 
   @override
   Map toJson() => _$TriggerModelOmitDefaults(this, _$TriggerModelToJson(this));
