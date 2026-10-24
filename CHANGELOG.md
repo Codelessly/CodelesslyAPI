@@ -23,6 +23,9 @@
   opacity changes from bindings and conditions animate.
 - `SpacerNode` reads minimal JSON (`positioningMode`, `aspectRatioLock` and
   `reactions` are optional).
+- `CornerRadius.fromJson` reads a number (every corner) and four numbers
+  (top-left, top-right, bottom-right, bottom-left), so `cornerRadius` can be
+  bound: `${= screen.isMobile ? [6, 6, 0, 0] : 6}`.
 
 ### Triggers, actions and variables
 
