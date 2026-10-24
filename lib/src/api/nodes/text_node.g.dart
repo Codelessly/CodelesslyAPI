@@ -221,18 +221,14 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'maxLines': ?instance.maxLines,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -250,7 +246,14 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
   'alignment': instance.alignment.toJson(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
@@ -268,6 +271,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,

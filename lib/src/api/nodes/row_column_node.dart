@@ -144,7 +144,14 @@ class RowColumnNode extends ParentNode
   };
 
   /// Creates a [RowColumnNode] from a JSON data.
-  factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(json);
+  ///
+  /// `itemSpacing`, an earlier name for [RowColumnMixin.spacing], is read as
+  /// it.
+  factory RowColumnNode.fromJson(Map json) => _$RowColumnNodeFromJson(
+    json.containsKey('itemSpacing') && !json.containsKey('spacing')
+        ? {...json, 'spacing': json['itemSpacing']}
+        : json,
+  );
 
   @override
   Map toJson() =>

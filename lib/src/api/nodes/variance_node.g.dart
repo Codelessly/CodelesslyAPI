@@ -173,6 +173,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
@@ -216,6 +219,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,

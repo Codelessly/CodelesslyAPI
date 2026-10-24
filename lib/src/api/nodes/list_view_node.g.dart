@@ -81,6 +81,12 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.separator, ListItemSeparator.space))
     json.remove('separator');
   if (isJsonDefault(instance.hasSeparator, false)) json.remove('hasSeparator');
+  if (isJsonDefault(instance.stacked, false)) json.remove('stacked');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.wrapSpacing, 0)) json.remove('wrapSpacing');
+  if (isJsonDefault(instance.wrapRunSpacing, 0)) json.remove('wrapRunSpacing');
+  if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
+    json.remove('wrapAlignment');
   return json;
 }
 
@@ -226,6 +232,9 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -250,6 +259,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -267,7 +277,6 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -282,6 +291,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'children': instance.children,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
@@ -368,6 +378,13 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       ListItemSeparator.space,
   separatorSpacing: (json['separatorSpacing'] as num?)?.toDouble() ?? 0,
   hasSeparator: json['hasSeparator'] as bool? ?? false,
+  stacked: json['stacked'] as bool? ?? false,
+  wrap: json['wrap'] as bool? ?? false,
+  wrapSpacing: (json['wrapSpacing'] as num?)?.toDouble() ?? 0,
+  wrapRunSpacing: (json['wrapRunSpacing'] as num?)?.toDouble() ?? 0,
+  wrapAlignment:
+      $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
+      MainAxisAlignmentC.start,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -382,9 +399,23 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'separator': _$ListItemSeparatorEnumMap[instance.separator]!,
       'hasSeparator': instance.hasSeparator,
       'dividerProperties': instance.dividerProperties.toJson(),
+      'stacked': instance.stacked,
+      'wrap': instance.wrap,
+      'wrapSpacing': instance.wrapSpacing,
+      'wrapRunSpacing': instance.wrapRunSpacing,
+      'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
     };
 
 const _$ListItemSeparatorEnumMap = {
   ListItemSeparator.divider: 'divider',
   ListItemSeparator.space: 'space',
+};
+
+const _$MainAxisAlignmentCEnumMap = {
+  MainAxisAlignmentC.start: 'start',
+  MainAxisAlignmentC.center: 'center',
+  MainAxisAlignmentC.end: 'end',
+  MainAxisAlignmentC.spaceBetween: 'spaceBetween',
+  MainAxisAlignmentC.spaceAround: 'spaceAround',
+  MainAxisAlignmentC.spaceEvenly: 'spaceEvenly',
 };

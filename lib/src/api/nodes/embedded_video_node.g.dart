@@ -193,11 +193,13 @@ EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -215,6 +217,7 @@ Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -229,6 +232,7 @@ Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'properties': instance.properties.toJson(),
     };

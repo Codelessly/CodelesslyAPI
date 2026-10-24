@@ -188,6 +188,9 @@ DropdownNode _$DropdownNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) =>
@@ -224,6 +227,7 @@ Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'properties': instance.properties.toJson(),
       'value': ?instance.value,
