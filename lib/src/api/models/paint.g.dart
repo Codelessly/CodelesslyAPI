@@ -21,6 +21,7 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
   if (isJsonDefault(instance.scaleY, 1)) json.remove('scaleY');
   if (isJsonDefault(instance.imageRepeat, ImageRepeatEnum.noRepeat))
     json.remove('imageRepeat');
+  if (isJsonDefault(instance.saturation, 1)) json.remove('saturation');
   return json;
 }
 
@@ -77,6 +78,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   imageRepeat:
       $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
       ImageRepeatEnum.noRepeat,
+  saturation: (json['saturation'] as num?)?.toDouble() ?? 1,
 );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
@@ -104,6 +106,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'sourceWidth': ?instance.sourceWidth,
       'sourceHeight': ?instance.sourceHeight,
       'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
+      'saturation': instance.saturation,
     };
 
 const _$PaintTypeEnumMap = {

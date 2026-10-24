@@ -18,6 +18,7 @@ export 'freeform_placeholder_node.dart';
 export 'grid_view_node.dart';
 export 'icon_node.dart';
 export 'list_tile_node.dart';
+export 'line_chart_node.dart';
 export 'list_view_node.dart';
 export 'loading_indicator_node.dart';
 export 'navigation_bar_node.dart';

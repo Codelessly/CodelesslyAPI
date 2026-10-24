@@ -75,4 +75,71 @@ void main() {
 
     expect(toast.copyWith(clearBackgroundColor: true).backgroundColor, isNull);
   });
+
+  test('ShowToastAction round-trips its look', () {
+    final Map json = {
+      'type': 'showToast',
+      'message': r'Spotted ${item.name}',
+      'actionLabel': 'View',
+      'backgroundColor': '#1F2B2E',
+      'textColor': '#F3ECDD',
+      'actionColor': '#9CC5B5',
+      'showClose': true,
+      'closeColor': '#F3ECDD',
+      'cornerRadius': 4,
+      'border': {'color': '#1F2B2E', 'width': 1.5},
+      'shadows': [
+        {
+          'id': 'stamp',
+          'type': 'dropShadow',
+          'radius': 0,
+          'spread': 0,
+          'color': '#1F2B2E',
+          'offset': {'x': 4, 'y': 4},
+        },
+      ],
+      'padding': [16, 0, 6, 0],
+      'maxWidth': 480,
+      'iconSize': 34,
+      'messageStyle': {
+        'fontFamily': 'Work Sans',
+        'fontWeight': 'w600',
+        'fontSize': 13,
+        'lineHeight': 1.4,
+      },
+      'actionStyle': {'fontFamily': 'Work Sans', 'fontWeight': 'w700'},
+      'bottomOffset': 24,
+      'bottomOffsets': {'mobile': 84},
+    };
+    final toast = ActionModel.fromJson(json) as ShowToastAction;
+    expect(toast.actionColor, ColorRGBA.fromHex('#9CC5B5'));
+    expect(toast.showClose, isTrue);
+    expect(toast.cornerRadius, 4);
+    expect(toast.border!.width, 1.5);
+    expect(toast.shadows!.single.offset, const Vec(4, 4));
+    expect(toast.messageStyle!.fontName!.family, 'Work Sans');
+    expect(toast.messageStyle!.fontName!.weight, FontWeightNumeric.w600);
+    expect(toast.actionStyle!.fontSize, isNull);
+    expect(toast.maxWidth, 480);
+    expect(toast.iconSize, 34);
+    // Per screen size offsets, falling back to bottomOffset.
+    expect(toast.bottomOffsetFor(390), 84);
+    expect(toast.bottomOffsetFor(834), 24);
+    expect(toast.bottomOffsetFor(1440), 24);
+
+    final Map out = toast.toJson();
+    expect(out['bottomOffsets'], {'mobile': 84.0});
+    expect(out['messageStyle'], {
+      'fontFamily': 'Work Sans',
+      'fontWeight': 'w600',
+      'fontSize': 13.0,
+      'lineHeight': 1.4,
+    });
+    expect(ActionModel.fromJson(out), toast);
+
+    // None of it is written for a plain toast.
+    final Map plain = ShowToastAction(message: 'Saved').toJson();
+    expect(plain, {'type': 'showToast', 'message': 'Saved'});
+    expect(ShowToastAction(message: 'x').bottomOffsetFor(390), 104);
+  });
 }
