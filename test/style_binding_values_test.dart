@@ -4,23 +4,34 @@ import 'package:test/test.dart';
 void main() {
   group('toCornerRadius', () {
     test('a number rounds every corner', () {
-      expect(12.toCornerRadius(), const CornerRadius.all(RadiusModel.circular(12)));
-      expect('12'.toCornerRadius(), const CornerRadius.all(RadiusModel.circular(12)));
-      expect([8].toCornerRadius(), const CornerRadius.all(RadiusModel.circular(8)));
+      expect(
+        12.toCornerRadius(),
+        const CornerRadius.all(RadiusModel.circular(12)),
+      );
+      expect(
+        '12'.toCornerRadius(),
+        const CornerRadius.all(RadiusModel.circular(12)),
+      );
+      expect(
+        [8].toCornerRadius(),
+        const CornerRadius.all(RadiusModel.circular(8)),
+      );
     });
 
-    test('a list of four is top-left, top-right, bottom-right, bottom-left',
-        () {
-      const expected = CornerRadius.only(
-        tl: RadiusModel.circular(18),
-        tr: RadiusModel.circular(18),
-        br: RadiusModel.circular(0),
-        bl: RadiusModel.circular(0),
-      );
-      expect([18, 18, 0, 0].toCornerRadius(), expected);
-      expect('[18, 18, 0, 0]'.toCornerRadius(), expected);
-      expect([18, 18, 0, 0].typedValue<CornerRadius>(), expected);
-    });
+    test(
+      'a list of four is top-left, top-right, bottom-right, bottom-left',
+      () {
+        const expected = CornerRadius.only(
+          tl: RadiusModel.circular(18),
+          tr: RadiusModel.circular(18),
+          br: RadiusModel.circular(0),
+          bl: RadiusModel.circular(0),
+        );
+        expect([18, 18, 0, 0].toCornerRadius(), expected);
+        expect('[18, 18, 0, 0]'.toCornerRadius(), expected);
+        expect([18, 18, 0, 0].typedValue<CornerRadius>(), expected);
+      },
+    );
 
     test("a CornerRadius's JSON still parses", () {
       const radius = CornerRadius.only(
