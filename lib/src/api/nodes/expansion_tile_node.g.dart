@@ -196,6 +196,9 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..rowColumnType = $enumDecode(
         _$RowColumnTypeEnumMap,
         json['rowColumnType'],
@@ -245,6 +248,7 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,

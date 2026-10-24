@@ -24,16 +24,20 @@ enum TriggerType {
   /// Triggered when the user long presses on a target.
   longPress,
 
-  /// Triggered when the user hovers over a target with mouse cursor.
+  /// Triggered each time the mouse cursor moves over the target, after it
+  /// entered. Use [cursorEnter] and [cursorExit] to track whether the cursor
+  /// is over the target: they fire once each.
   hover,
 
   /// Triggered when the user drags the target.
   drag,
 
-  /// Triggered when the cursor enters the target region.
+  /// Triggered once when the mouse cursor enters the target region. Touch
+  /// input doesn't fire it.
   cursorEnter,
 
-  /// Triggered when the cursor exits the target region.
+  /// Triggered once when the mouse cursor exits the target region. Touch
+  /// input doesn't fire it.
   cursorExit,
 
   /// Triggered when a pointer down event is received on the target.

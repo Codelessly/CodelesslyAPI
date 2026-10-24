@@ -68,6 +68,11 @@ class GridViewNode extends SinglePlaceholderNode
     bool clipsContent = true,
     this.statusVariable,
 
+    // A grid always scrolls its items (see [isScrollingEnforced]) and never
+    // uses a Flutter ListView, so neither has to be in its JSON.
+    bool isScrollable = true,
+    bool useFlutterListView = false,
+
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,
     String? collectionPath,
@@ -93,14 +98,14 @@ class GridViewNode extends SinglePlaceholderNode
     setClipMixin(clipsContent: clipsContent);
 
     setScrollableMixin(
-      isScrollable: true,
+      isScrollable: isScrollable,
       scrollDirection: scrollDirection,
       reverse: reverse,
       physics: physics,
       primary: primary,
       shrinkWrap: false,
       keyboardDismissBehavior: keyboardDismissBehavior,
-      useFlutterListView: false,
+      useFlutterListView: useFlutterListView,
       shouldAlwaysScroll: shouldAlwaysScroll,
     );
 
@@ -169,18 +174,20 @@ class GridViewNode extends SinglePlaceholderNode
       childCrossAxisExtent,
     );
 
+    // Rows sized to their content leave the item's main axis to its own fit.
+    final bool shrinkWrapRows = properties.gridDelegate.shrinkWrapRows;
     return switch (scrollDirection) {
       AxisC.horizontal => BoxConstraintsModel(
-        minWidth: childMainAxisExtent,
-        maxWidth: childMainAxisExtent,
+        minWidth: shrinkWrapRows ? null : childMainAxisExtent,
+        maxWidth: shrinkWrapRows ? null : childMainAxisExtent,
         minHeight: childCrossAxisExtent,
         maxHeight: childCrossAxisExtent,
       ),
       AxisC.vertical => BoxConstraintsModel(
         minWidth: childCrossAxisExtent,
         maxWidth: childCrossAxisExtent,
-        minHeight: childMainAxisExtent,
-        maxHeight: childMainAxisExtent,
+        minHeight: shrinkWrapRows ? null : childMainAxisExtent,
+        maxHeight: shrinkWrapRows ? null : childMainAxisExtent,
       ),
     };
   }
@@ -217,8 +224,21 @@ class GridViewNode extends SinglePlaceholderNode
     ...json,
   });
 
+  /// Keys that SDKs up to codelessly_api 6.0.0 require in a grid's JSON. They are written
+  /// even at their defaults so those SDKs can still read it.
+  static const List<String> _legacyRequiredKeys = [
+    'isScrollable',
+    'useFlutterListView',
+  ];
+
   @override
-  Map toJson() => _$GridViewNodeOmitDefaults(this, _$GridViewNodeToJson(this));
+  Map toJson() {
+    final Map<String, dynamic> json = _$GridViewNodeToJson(this);
+    final Map<String, dynamic> legacy = {
+      for (final key in _legacyRequiredKeys) key: json[key],
+    };
+    return {..._$GridViewNodeOmitDefaults(this, json), ...legacy};
+  }
 }
 
 /// The properties of a [GridViewNode].
@@ -308,6 +328,13 @@ sealed class GridDelegateProperties
   /// [childAspectRatio] controls the main axis extent of each child.
   double? mainAxisExtent;
 
+  /// Whether each row (each column of a horizontal grid) takes the main axis
+  /// extent of its largest item instead of a fixed one, like a [Row] of
+  /// cells in an `IntrinsicHeight`: items keep their own main axis fit and
+  /// the other cells of the row stretch to match. [mainAxisExtent] and
+  /// [childAspectRatio] are then ignored.
+  bool shrinkWrapRows;
+
   /// Creates a new [GridDelegateProperties] instance.
   GridDelegateProperties(
     this.type, {
@@ -315,6 +342,7 @@ sealed class GridDelegateProperties
     this.crossAxisSpacing = 0,
     this.childAspectRatio = 1,
     this.mainAxisExtent,
+    this.shrinkWrapRows = false,
   });
 
   /// Creates a copy of this [GridDelegateProperties] instance with the given
@@ -325,6 +353,7 @@ sealed class GridDelegateProperties
     double? childAspectRatio,
     double? mainAxisExtent,
     bool forceMainAxisExtent = false,
+    bool? shrinkWrapRows,
   });
 
   factory GridDelegateProperties.fromJson(Map json) {
@@ -344,6 +373,7 @@ sealed class GridDelegateProperties
     crossAxisSpacing,
     childAspectRatio,
     mainAxisExtent,
+    shrinkWrapRows,
   ];
 
   @override
@@ -377,6 +407,13 @@ sealed class GridDelegateProperties
       (value) => mainAxisExtent = value,
       requiresLayout: true,
     ),
+    'shrinkWrapRows': BoolFieldAccess(
+      'Shrink-wrap Rows',
+      'Whether each row is as tall as its tallest item.',
+      () => shrinkWrapRows,
+      (value) => shrinkWrapRows = value,
+      requiresLayout: true,
+    ),
   };
 }
 
@@ -394,6 +431,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
     super.crossAxisSpacing = 0,
     super.childAspectRatio = 1,
     super.mainAxisExtent,
+    super.shrinkWrapRows = false,
   }) : super(GridDelegateType.fixedCrossAxisCount);
 
   @override
@@ -416,6 +454,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
     double? childAspectRatio,
     double? mainAxisExtent,
     bool forceMainAxisExtent = false,
+    bool? shrinkWrapRows,
   }) {
     return FixedCrossAxisCountGridDelegateProperties(
       crossAxisCount: crossAxisCount ?? this.crossAxisCount,
@@ -425,6 +464,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
       mainAxisExtent: forceMainAxisExtent
           ? mainAxisExtent
           : mainAxisExtent ?? super.mainAxisExtent,
+      shrinkWrapRows: shrinkWrapRows ?? super.shrinkWrapRows,
     );
   }
 
@@ -458,6 +498,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
     super.crossAxisSpacing = 0,
     super.childAspectRatio = 1,
     super.mainAxisExtent,
+    super.shrinkWrapRows = false,
   }) : super(GridDelegateType.maxCrossAxisExtent);
 
   @override
@@ -480,6 +521,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
     double? childAspectRatio,
     double? mainAxisExtent,
     bool forceMainAxisExtent = false,
+    bool? shrinkWrapRows,
   }) {
     return MaxCrossAxisExtentGridDelegateProperties(
       maxCrossAxisExtent: maxCrossAxisExtent ?? this.maxCrossAxisExtent,
@@ -489,6 +531,7 @@ class MaxCrossAxisExtentGridDelegateProperties extends GridDelegateProperties {
       mainAxisExtent: forceMainAxisExtent
           ? mainAxisExtent
           : mainAxisExtent ?? super.mainAxisExtent,
+      shrinkWrapRows: shrinkWrapRows ?? super.shrinkWrapRows,
     );
   }
 
