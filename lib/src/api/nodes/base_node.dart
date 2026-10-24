@@ -116,6 +116,19 @@ abstract class BaseNode
   /// [SizeFit.flexible] in the given [RowColumnNode].
   int flex;
 
+  /// Whether a node that wraps its content ([SizeFit.shrinkWrap]) on its
+  /// parent Row/Column's main axis may shrink below that size when the
+  /// Row/Column runs out of space, like Flutter's
+  /// `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child: a text
+  /// that hugs its content and ellipsizes only when the row is full, or a
+  /// card that is as tall as its content up to the height it has.
+  ///
+  /// The node then takes part in sharing the free space by its [flex], so
+  /// next to an expanded sibling it gets at most its share. Has no effect on
+  /// other fits ([SizeFit.flexible] is the same for a fixed size).
+  @JsonKey(defaultValue: false)
+  bool squeezable = false;
+
   /// Whether the node preserves its aspect ratio while resizing.
   bool aspectRatioLock;
 
@@ -387,6 +400,12 @@ abstract class BaseNode
   /// node, e.g. a photo.
   @JsonKey(defaultValue: false)
   bool zoomable = false;
+
+  /// An animation that repeats while this node is shown, e.g. a pulsing
+  /// halo or a spinning icon. Null when the node doesn't animate.
+  ///
+  /// See [LoopAnimation].
+  LoopAnimation? loopAnimation;
 
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
@@ -783,6 +802,12 @@ abstract class BaseNode
       'Whether this widget is enabled or not.',
       () => !enabled,
       (value) => enabled = !value,
+    ),
+    'loopAnimationEnabled': BoolFieldAccess(
+      'Animate',
+      'Whether the loop animation of this widget runs.',
+      () => loopAnimation?.enabled ?? false,
+      (value) => loopAnimation = loopAnimation?.copyWith(enabled: value),
     ),
   };
 

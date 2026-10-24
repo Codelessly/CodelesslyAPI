@@ -149,7 +149,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TriggerType.click,
     TriggerType.longPress,
     TriggerType.doubleTap,
-    ...TriggerType.hovers,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   @override

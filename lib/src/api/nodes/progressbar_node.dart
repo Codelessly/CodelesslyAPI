@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -151,6 +152,35 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
   /// Duration of animation in milliseconds.
   int animationDurationInMillis;
 
+  /// A straight bar, or an arc like a dial or gauge.
+  @JsonKey(unknownEnumValue: ProgressBarShape.bar)
+  ProgressBarShape shape;
+
+  /// Arc only: where the arc starts, in degrees clockwise from 3 o'clock.
+  /// The default 150 with a 240 sweep makes a dial open at the bottom.
+  double arcStartAngle;
+
+  /// Arc only: how far the arc runs, in degrees.
+  double arcSweepAngle;
+
+  /// Arc only: thickness of the track and progress.
+  double arcStrokeWidth;
+
+  /// Arc only: color of a needle pointing at the value, or null for none.
+  /// The needle goes past the end of the arc a little when the value is
+  /// over the max, so an overrun shows.
+  ColorRGBA? needleColor;
+
+  /// Arc only: tick marks dividing the track evenly, drawn in [tickColor].
+  int tickCount;
+
+  /// Arc only: color of the tick marks.
+  ColorRGBA tickColor;
+
+  /// Arc only: colored zones drawn just outside the track, e.g. green up to
+  /// 90% and amber after.
+  List<ProgressBand> bands;
+
   /// Creates a [ProgressBarProperties] instance with the given data.
   ProgressBarProperties({
     this.maxValue = 100,
@@ -160,7 +190,15 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     this.cornerRadius = CornerRadius.zero,
     this.animate = false,
     this.animationDurationInMillis = 300,
-  });
+    this.shape = ProgressBarShape.bar,
+    this.arcStartAngle = 150,
+    this.arcSweepAngle = 240,
+    this.arcStrokeWidth = 12,
+    this.needleColor,
+    this.tickCount = 0,
+    this.tickColor = ColorRGBA.white,
+    List<ProgressBand>? bands,
+  }) : bands = bands ?? [];
 
   /// Duplicates this [ProgressBarProperties] instance with the given data
   /// overrides.
@@ -172,6 +210,15 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     CornerRadius? cornerRadius,
     bool? animate,
     int? animationDurationInMillis,
+    ProgressBarShape? shape,
+    double? arcStartAngle,
+    double? arcSweepAngle,
+    double? arcStrokeWidth,
+    ColorRGBA? needleColor,
+    bool clearNeedle = false,
+    int? tickCount,
+    ColorRGBA? tickColor,
+    List<ProgressBand>? bands,
   }) {
     return ProgressBarProperties(
       maxValue: maxValue ?? this.maxValue,
@@ -182,6 +229,14 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
       animate: animate ?? this.animate,
       animationDurationInMillis:
           animationDurationInMillis ?? this.animationDurationInMillis,
+      shape: shape ?? this.shape,
+      arcStartAngle: arcStartAngle ?? this.arcStartAngle,
+      arcSweepAngle: arcSweepAngle ?? this.arcSweepAngle,
+      arcStrokeWidth: arcStrokeWidth ?? this.arcStrokeWidth,
+      needleColor: clearNeedle ? null : needleColor ?? this.needleColor,
+      tickCount: tickCount ?? this.tickCount,
+      tickColor: tickColor ?? this.tickColor,
+      bands: bands ?? this.bands,
     );
   }
 
@@ -235,6 +290,50 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
       () => animationDurationInMillis,
       (value) => animationDurationInMillis = value,
     ),
+    'shape': EnumFieldAccess<ProgressBarShape>(
+      'Shape',
+      'A straight bar, or an arc like a dial or gauge',
+      () => shape,
+      (value) => shape = value,
+      options: () => ProgressBarShape.values,
+      defaultValue: () => ProgressBarShape.bar,
+    ),
+    'arcStartAngle': NumFieldAccess<double>(
+      'Arc Start',
+      'Arc only: start angle in degrees, clockwise from 3 o\'clock',
+      () => arcStartAngle,
+      (value) => arcStartAngle = value,
+    ),
+    'arcSweepAngle': NumFieldAccess<double>(
+      'Arc Sweep',
+      'Arc only: how far the arc runs, in degrees',
+      () => arcSweepAngle,
+      (value) => arcSweepAngle = value,
+    ),
+    'arcStrokeWidth': NumFieldAccess<double>(
+      'Arc Thickness',
+      'Arc only: thickness of the track and progress',
+      () => arcStrokeWidth,
+      (value) => arcStrokeWidth = value,
+    ),
+    'needleColor': ColorFieldAccess<ColorRGBA?>(
+      'Needle Color',
+      'Arc only: color of a needle pointing at the value; empty for none',
+      () => needleColor,
+      (value) => needleColor = value,
+    ),
+    'tickCount': NumFieldAccess<int>(
+      'Ticks',
+      'Arc only: how many tick marks divide the track',
+      () => tickCount,
+      (value) => tickCount = value,
+    ),
+    'tickColor': ColorFieldAccess<ColorRGBA>(
+      'Tick Color',
+      'Arc only: color of the tick marks',
+      () => tickColor,
+      (value) => tickColor = value,
+    ),
   };
 
   @override
@@ -246,6 +345,14 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     cornerRadius,
     animate,
     animationDurationInMillis,
+    shape,
+    arcStartAngle,
+    arcSweepAngle,
+    arcStrokeWidth,
+    needleColor,
+    tickCount,
+    tickColor,
+    bands,
   ];
 
   /// Creates a [ProgressBarProperties] instance from a JSON object.
@@ -257,4 +364,43 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     this,
     _$ProgressBarPropertiesToJson(this),
   );
+}
+
+/// The shape of a [ProgressBarNode].
+enum ProgressBarShape {
+  /// A straight horizontal or vertical bar.
+  bar,
+
+  /// An arc, like a dial or gauge.
+  arc,
+}
+
+/// A colored zone of an arc progress bar, from [start] to [end] as fractions
+/// of the max value (0 to 1).
+@JsonSerializable()
+class ProgressBand extends Equatable with SerializableMixin {
+  /// Where the zone starts, as a fraction of the max value.
+  final double start;
+
+  /// Where the zone ends, as a fraction of the max value.
+  final double end;
+
+  /// The zone's color.
+  final ColorRGBA color;
+
+  /// Creates a [ProgressBand].
+  const ProgressBand({
+    required this.start,
+    required this.end,
+    required this.color,
+  });
+
+  /// Creates a [ProgressBand] from JSON.
+  factory ProgressBand.fromJson(Map json) => _$ProgressBandFromJson(json);
+
+  @override
+  Map toJson() => _$ProgressBandToJson(this);
+
+  @override
+  List<Object?> get props => [start, end, color];
 }

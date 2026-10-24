@@ -66,6 +66,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'webView': WebViewNode.fromJson,
       'dropdown': DropdownNode.fromJson,
       'progressBar': ProgressBarNode.fromJson,
+      'lineChart': LineChartNode.fromJson,
       'variance': VarianceNode.fromJson,
       'listView': ListViewNode.fromJson,
       'gridView': GridViewNode.fromJson,
@@ -74,6 +75,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'badge': BadgeNode.fromJson,
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,
+      'signature': SignatureNode.fromJson,
       'external': ExternalComponentNode.fromJson,
     };
   }

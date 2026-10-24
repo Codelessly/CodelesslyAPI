@@ -84,7 +84,11 @@ class FloatingActionButtonNode extends SceneNode
   });
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
+  ];
 
   @override
   FieldsMap generateFields() => {

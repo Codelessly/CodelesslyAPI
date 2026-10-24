@@ -11,10 +11,6 @@ Map<String, dynamic> _$ListViewNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
-  if (isJsonDefault(instance.allowedTypes, <String>[]))
-    json.remove('allowedTypes');
-  if (isJsonDefault(instance.deniedTypes, <String>[]))
-    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -28,6 +24,7 @@ Map<String, dynamic> _$ListViewNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -216,6 +213,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -231,23 +229,22 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
-      ..deniedTypes =
-          (json['deniedTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          []
+      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList()
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes =
-          (json['allowedTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          []
+      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
+          .map((e) => e as String)
+          .toList()
       ..isScrollable = json['isScrollable'] as bool
       ..useFlutterListView = json['useFlutterListView'] as bool
       ..paging =
@@ -262,6 +259,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -277,9 +275,9 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),
@@ -291,6 +289,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'children': instance.children,

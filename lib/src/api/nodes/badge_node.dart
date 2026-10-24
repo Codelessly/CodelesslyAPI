@@ -95,7 +95,11 @@ class BadgeNode extends SceneNode with CustomPropertiesMixin {
   };
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
+  ];
 
   @override
   late final List<ValueModel> propertyVariables = [
