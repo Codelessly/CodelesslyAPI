@@ -17,6 +17,8 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.actionLabel, '')) json.remove('actionLabel');
   if (isJsonDefault(instance.actions, [])) json.remove('actions');
   if (isJsonDefault(instance.bottomOffset, 104)) json.remove('bottomOffset');
+  if (isJsonDefault(instance.offset, '')) json.remove('offset');
+  if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -57,6 +59,13 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : MultiSourceIconModel.fromJson(json['icon'] as Map),
   bottomOffset: (json['bottomOffset'] as num?)?.toDouble() ?? 104,
+  offset: json['offset'] as String? ?? '',
+  actionColor: json['actionColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['actionColor']),
+  showClose: json['showClose'] as bool? ?? false,
+  cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
+  fontSize: (json['fontSize'] as num?)?.toDouble(),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -76,6 +85,11 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'actions': instance.actions.map((e) => e.toJson()).toList(),
       'icon': ?instance.icon?.toJson(),
       'bottomOffset': instance.bottomOffset,
+      'offset': instance.offset,
+      'actionColor': ?instance.actionColor?.toJson(),
+      'showClose': instance.showClose,
+      'cornerRadius': ?instance.cornerRadius,
+      'fontSize': ?instance.fontSize,
     };
 
 const _$ToastStyleEnumMap = {
