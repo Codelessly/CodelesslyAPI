@@ -27,6 +27,10 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
       NavigationType.push,
   destinationId: json['destinationId'] as String,
   params: (json['params'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
+  baseDestinationId: json['baseDestinationId'] as String?,
+  baseParams: (json['baseParams'] as Map?)?.map(
+    (k, e) => MapEntry(k as String, e),
+  ),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -39,12 +43,15 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) =>
       'navigationType': _$NavigationTypeEnumMap[instance.navigationType]!,
       'destinationId': instance.destinationId,
       'params': instance.params,
+      'baseDestinationId': ?instance.baseDestinationId,
+      'baseParams': ?instance.baseParams,
     };
 
 const _$NavigationTypeEnumMap = {
   NavigationType.push: 'push',
   NavigationType.pop: 'pop',
   NavigationType.replace: 'replace',
+  NavigationType.reset: 'reset',
 };
 
 const _$ActionTypeEnumMap = {
