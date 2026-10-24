@@ -10,8 +10,8 @@ void main() {
     }) as ShowDialogAction;
     expect(action.presentation, DialogPresentation.dialog);
     expect(action.sheetWidth, isNull);
-    expect(action.maxHeightFactor, 0.92);
-    expect(action.showDragHandle, isTrue);
+    expect(action.maxHeightFactor, 1);
+    expect(action.showDragHandle, isFalse);
     expect(action.toJson(), {
       'type': 'showDialog',
       'destinationId': 'canvas-1',
@@ -26,12 +26,12 @@ void main() {
       'params': <String, dynamic>{},
       'presentation': 'bottomSheet',
       'maxHeightFactor': 0.8,
-      'showDragHandle': false,
+      'showDragHandle': true,
     };
     final action = ActionModel.fromJson(json) as ShowDialogAction;
     expect(action.presentation, DialogPresentation.bottomSheet);
     expect(action.maxHeightFactor, 0.8);
-    expect(action.showDragHandle, isFalse);
+    expect(action.showDragHandle, isTrue);
     expect(action.toJson(), json);
     expect(ActionModel.fromJson(action.toJson()), action);
   });
