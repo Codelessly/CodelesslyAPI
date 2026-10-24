@@ -75,4 +75,28 @@ void main() {
 
     expect(toast.copyWith(clearBackgroundColor: true).backgroundColor, isNull);
   });
+
+  test('close button, action color and corner radius round-trip', () {
+    final ShowToastAction plain = ShowToastAction(message: 'Saved');
+    final Map plainJson = plain.toJson();
+    expect(plainJson.containsKey('showCloseButton'), isFalse);
+    expect(plainJson.containsKey('actionColor'), isFalse);
+    expect(plainJson.containsKey('cornerRadius'), isFalse);
+
+    final ShowToastAction toast = ShowToastAction(
+      message: '#025 deleted',
+      actionLabel: 'Undo',
+      showCloseButton: true,
+      actionColor: ColorRGBA.fromHex('#FF6A13'),
+      cornerRadius: 10,
+    );
+    final Map json = toast.toJson();
+    expect(json['showCloseButton'], isTrue);
+    expect(json['cornerRadius'], 10);
+    final ShowToastAction decoded =
+        ActionModel.fromJson(json) as ShowToastAction;
+    expect(decoded, toast);
+    expect(decoded.actionColor, ColorRGBA.fromHex('#FF6A13'));
+    expect(decoded.copyWith(clearCornerRadius: true).cornerRadius, isNull);
+  });
 }

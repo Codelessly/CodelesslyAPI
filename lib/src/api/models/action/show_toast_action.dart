@@ -91,6 +91,16 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// [ToastPosition.bottom].
   final double bottomOffset;
 
+  /// Whether the toast shows a close (×) button that dismisses it.
+  final bool showCloseButton;
+
+  /// Color of the button's label. Null takes the message color.
+  final ColorRGBA? actionColor;
+
+  /// Corner radius. Null is a pill without a button, the theme's button
+  /// radius with one.
+  final double? cornerRadius;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -103,6 +113,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     List<ActionModel>? actions,
     this.icon,
     this.bottomOffset = 104,
+    this.showCloseButton = false,
+    this.actionColor,
+    this.cornerRadius,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -123,6 +136,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions,
     icon,
     bottomOffset,
+    showCloseButton,
+    actionColor,
+    cornerRadius,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -140,6 +156,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     MultiSourceIconModel? icon,
     bool clearIcon = false,
     double? bottomOffset,
+    bool? showCloseButton,
+    ColorRGBA? actionColor,
+    bool clearActionColor = false,
+    double? cornerRadius,
+    bool clearCornerRadius = false,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -153,6 +174,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actions: actions ?? this.actions,
     icon: clearIcon ? null : icon ?? this.icon,
     bottomOffset: bottomOffset ?? this.bottomOffset,
+    showCloseButton: showCloseButton ?? this.showCloseButton,
+    actionColor: clearActionColor ? null : actionColor ?? this.actionColor,
+    cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
