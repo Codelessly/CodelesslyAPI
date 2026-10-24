@@ -259,14 +259,14 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
-      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
+      ..deniedTypes = (readTypesOrEmpty(json, 'deniedTypes') as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
+      ..allowedTypes = (readTypesOrEmpty(json, 'allowedTypes') as List<dynamic>)
           .map((e) => e as String)
           .toList()
       ..paging =

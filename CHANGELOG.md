@@ -108,6 +108,9 @@
 
 ### Fixes
 
+- Placeholders (variances, lists, grids, pages) read JSON that leaves out
+  empty `allowedTypes` or `deniedTypes`, as JSON written before this
+  release could.
 - `SpacerNode.fromJson` defaults `positioningMode` (align),
   `aspectRatioLock` (false) and `reactions` ([]) like every other node, and
   `GridViewNode.fromJson` defaults `isScrollable` (true) and
