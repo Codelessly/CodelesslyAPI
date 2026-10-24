@@ -14,22 +14,17 @@
   `loopAnimationEnabled` can be bound to turn it on and off.
 - Nodes with a click trigger also offer `cursorEnter` and `cursorExit`;
   the trigger docs say what `hover`, `cursorEnter` and `cursorExit` mean.
-- `ShowDialogAction.presentation` (dialog, bottomSheet or sideSheet),
-  `sheetWidth`, `maxHeightFactor` (0.92) and `showDragHandle` (true).
+- `DialogPresentation.sideSheet`, and `ShowDialogAction.sheetWidth`,
+  `maxHeightFactor` (0.92) and `showDragHandle` (true) for sheets.
   `copyWith` keeps `nonBlocking` and `enabled`.
 - `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
   `showDragHandle`, as on `ShowDialogAction`.
 - `ShowToastAction.accentColor`, `accentWidth` (4), `iconColor`,
   `fontFamily` and `cornerRadius`.
-- `RowColumnNode.wrap`, `wrapSpacing` and `wrapRunSpacing`.
 - `FrameNode.contentFit` (a `Fit`, null for none) and `contentAlignment`
   (center).
 - `TextFieldNode.propertyVariables` lists `errorText` and `error`.
 - All new fields are left out of the JSON at their defaults.
-- Repeating gradients: `PaintModel.tileMode` (`GradientTileMode` clamp,
-  repeated or mirror; default clamp, left out of the JSON) and
-  `PaintModel.gradientExtent`, the length in pixels of one run of the
-  gradient. A short repeating gradient with hard stops paints stripes.
 - `GridDelegateProperties.shrinkWrapRows`: each row of a grid is as tall
   as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
   fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
@@ -42,6 +37,41 @@
   `GridViewNode.fromJson` defaults `isScrollable` (true) and
   `useFlutterListView` (false). Both still write those keys for older
   readers.
+
+## 6.2.0
+
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
+### Paint and widgets
+
+- `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
+  instead of stretching across the box (hazard stripes, tick patterns).
+- Progress bars take `shape: arc`: a gauge with start and sweep angles,
+  stroke width, tick count and color, a needle and colored zone `bands`
+  (`ProgressBand`).
+
+### Actions
+
+- `ShowDialogAction.presentation` (dialog, bottom sheet, or adaptive: a
+  sheet below 600 px) and `alignment` for where a dialog opens.
+- `DelayAction.duration`: a variable or formula for the wait, used instead
+  of `milliseconds` when it gives a number.
+
+### Data
+
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
+
+### JSON
+
+- List, grid, page and tab views and spacers parse from minimal node JSON:
+  fields with constructor defaults (`isScrollable`, `useFlutterListView`,
+  `allowedTypes`, `deniedTypes`, ...) may be left out.
 
 ## 6.1.0
 

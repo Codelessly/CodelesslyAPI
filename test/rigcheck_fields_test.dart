@@ -61,21 +61,7 @@ void main() {
     );
   });
 
-  test('rowColumn wrap and frame contentFit read from JSON', () {
-    final RowColumnNode row = RowColumnNode.fromJson({
-      'id': 'r',
-      'name': 'r',
-      'type': 'rowColumn',
-      'rowColumnType': 'row',
-      'basicBoxLocal': [0, 0, 100, 40],
-      'children': <String>[],
-      'wrap': true,
-      'wrapSpacing': 24,
-      'wrapRunSpacing': 8,
-    });
-    expect(row.wrap, isTrue);
-    expect(row.wrapSpacing, 24);
-    expect(row.wrapRunSpacing, 8);
+  test('frame contentFit reads from JSON', () {
     final FrameNode frame = FrameNode.fromJson({
       'id': 'f',
       'name': 'f',

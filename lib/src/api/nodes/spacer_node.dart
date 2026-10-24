@@ -47,7 +47,12 @@ class SpacerNode extends SceneNode {
   });
 
   /// Creates a new [SpacerNode] from a JSON data.
-  factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson(json);
+  factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson({
+    'aspectRatioLock': false,
+    'reactions': <Map>[],
+    'positioningMode': 'align',
+    ...json,
+  });
 
   /// Keys that SDKs up to codelessly_api 6.0.0 require in a spacer's JSON. They are written
   /// even at their defaults so those SDKs can still read it.
