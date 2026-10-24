@@ -782,6 +782,9 @@ abstract interface class ActionVisitor<R> {
   /// Evaluates the action and returns the result.
   R? visitDelayAction(DelayAction action);
 
+  /// Visits a [CopyToClipboardAction].
+  R? visitCopyToClipboardAction(CopyToClipboardAction action);
+
   /// Visits a [CloudDataAction].
   R? visitCloudDataAction(CloudDataAction action);
 

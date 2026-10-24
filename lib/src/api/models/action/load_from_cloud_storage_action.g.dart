@@ -110,6 +110,7 @@ const _$ActionTypeEnumMap = {
   ActionType.delay: 'delay',
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
+  ActionType.copyToClipboard: 'copyToClipboard',
 };
 
 const _$QueryPagingEnumMap = {
