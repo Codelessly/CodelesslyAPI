@@ -1,3 +1,44 @@
+## Unreleased
+
+### New
+
+- `SignatureNode` (`signature`), a draw-to-sign pad. Its value is the list
+  of strokes drawn (each a list of `[x, y]` points), bindable through
+  `variables.value` and settable with a set value action; `changed` fires
+  when a stroke ends. Properties: ink color and width, background, border
+  and error border, corner radius, placeholder, sign line, and bindable
+  `error` and `enabled`.
+- `BaseNode.loopAnimation` (`LoopAnimation`: pulse, fade, scale or spin,
+  with duration, delay, reverse, curve and from/to scale, opacity or
+  turns), on every node type and left out of the JSON when null.
+  `loopAnimationEnabled` can be bound to turn it on and off.
+- Nodes with a click trigger also offer `cursorEnter` and `cursorExit`;
+  the trigger docs say what `hover`, `cursorEnter` and `cursorExit` mean.
+- `DialogPresentation.sideSheet`, and `ShowDialogAction.sheetWidth`,
+  `maxHeightFactor` (1: no cap) and `showDragHandle` (false) for sheets,
+  so saved bottom sheets look as before.
+  `copyWith` keeps `nonBlocking` and `enabled`.
+- `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
+  `showDragHandle`, as on `ShowDialogAction`.
+- `ShowToastAction.accentColor`, `accentWidth` (4), `iconColor`,
+  `fontFamily` and `cornerRadius`.
+- `FrameNode.contentFit` (a `Fit`, null for none) and `contentAlignment`
+  (center).
+- `TextFieldNode.propertyVariables` lists `errorText` and `error`.
+- All new fields are left out of the JSON at their defaults.
+- `GridDelegateProperties.shrinkWrapRows`: each row of a grid is as tall
+  as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
+  fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
+  the JSON.
+
+### Fixes
+
+- `SpacerNode.fromJson` defaults `positioningMode` (align),
+  `aspectRatioLock` (false) and `reactions` ([]) like every other node, and
+  `GridViewNode.fromJson` defaults `isScrollable` (true) and
+  `useFlutterListView` (false). Both still write those keys for older
+  readers.
+
 ## 6.2.0
 
 ### Layout
