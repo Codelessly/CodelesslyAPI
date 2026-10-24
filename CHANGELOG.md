@@ -22,7 +22,7 @@
 
 ### Motion
 
-- `BaseNode.transitionMs`: opacity and scale changes ease in.
+- `BaseNode.transitionMs`: opacity, draw scale and solid fill changes ease in.
 - `BaseNode.drawScale` (bindable as `drawScale`): draw a node larger or
   smaller around its center without changing layout.
 - `BaseNode.pulse` (`PulseModel`): a looping opacity and scale animation.
