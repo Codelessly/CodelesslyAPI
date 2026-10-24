@@ -30,6 +30,7 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -201,6 +202,7 @@ TextNode _$TextNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -223,6 +225,14 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'maxLines': ?instance.maxLines,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -238,17 +248,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
+  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'alignment': instance.alignment.toJson(),
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'maxLines': ?instance.maxLines,
+  'alignment': instance.alignment.toJson(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
