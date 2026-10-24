@@ -41,6 +41,8 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -251,6 +253,11 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..deniedTypes =
           (json['deniedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -306,6 +313,9 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'transitionMs': instance.transitionMs,
+      'drawScale': instance.drawScale,
+      'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'children': instance.children,
       'deniedTypes': instance.deniedTypes,

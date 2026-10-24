@@ -20,6 +20,13 @@
 
 - `TextNode.tabularFigures`: digits of equal width for clocks and counters.
 
+### Motion
+
+- `BaseNode.transitionMs`: opacity and scale changes ease in.
+- `BaseNode.drawScale` (bindable as `drawScale`): draw a node larger or
+  smaller around its center without changing layout.
+- `BaseNode.pulse` (`PulseModel`): a looping opacity and scale animation.
+
 ## 6.1.0
 
 ### States and conditions
