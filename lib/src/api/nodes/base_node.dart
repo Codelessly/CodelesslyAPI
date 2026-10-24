@@ -388,6 +388,20 @@ abstract class BaseNode
   @JsonKey(defaultValue: false)
   bool zoomable = false;
 
+  /// Milliseconds a change to this node's opacity or scale takes to ease in
+  /// (a pin that grows when selected, a list that dims); 0 changes at once.
+  @JsonKey(defaultValue: 0)
+  int transitionMs = 0;
+
+  /// Size multiplier the node is drawn at, around its center; layout is
+  /// unchanged. Bindable as `drawScale`.
+  @JsonKey(defaultValue: 1.0)
+  double drawScale = 1;
+
+  /// A looping opacity and scale animation while the node shows; null for
+  /// none.
+  PulseModel? pulse;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
