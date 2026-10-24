@@ -1,4 +1,4 @@
-## Unreleased
+## 6.2.0
 
 ### Layout
 
@@ -7,7 +7,22 @@
 - Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
   Flutter's `Wrap`.
 
-### Variables
+### Paint and widgets
+
+- `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
+  instead of stretching across the box (hazard stripes, tick patterns).
+- Progress bars take `shape: arc`: a gauge with start and sweep angles,
+  stroke width, tick count and color, a needle and colored zone `bands`
+  (`ProgressBand`).
+
+### Actions
+
+- `ShowDialogAction.presentation` (dialog, bottom sheet, or adaptive: a
+  sheet below 600 px) and `alignment` for where a dialog opens.
+- `DelayAction.duration`: a variable or formula for the wait, used instead
+  of `milliseconds` when it gives a number.
+
+### Data
 
 - A variable whose value is a `${= ...}` formula keeps it for every type
   (computed variables).
@@ -28,9 +43,8 @@
   columns offer it.
 - Rows and columns declare the click and long-press triggers they already
   ran, so the actions panel offers them.
-- `ShowDialogAction.presentation` (`DialogPresentation`): a dialog (the
-  default), a bottom sheet, `adaptive` (a sheet below 600 wide, a dialog
-  above), or full screen.
+- `DialogPresentation.fullScreen`: a show dialog action can cover the
+  whole screen, like a photo viewer.
 - A navigate-back (`pop`) action reads from JSON without `destinationId`,
   which it has no use for. It is still written, as `''`, for readers that
   require it.
@@ -43,6 +57,12 @@
 - `IconNode` declares `iconColor` and `iconName` as properties that can be
   bound, set by conditions or changed by actions; `iconName` names the
   Material Symbol to show.
+
+### JSON
+
+- List, grid, page and tab views and spacers parse from minimal node JSON:
+  fields with constructor defaults (`isScrollable`, `useFlutterListView`,
+  `allowedTypes`, `deniedTypes`, ...) may be left out.
 
 ## 6.1.0
 

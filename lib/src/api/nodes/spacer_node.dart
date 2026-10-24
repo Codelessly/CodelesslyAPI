@@ -52,7 +52,12 @@ class SpacerNode extends SceneNode {
   }
 
   /// Creates a new [SpacerNode] from a JSON data.
-  factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson(json);
+  factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson({
+    'aspectRatioLock': false,
+    'reactions': <Map>[],
+    'positioningMode': 'align',
+    ...json,
+  });
 
   @override
   Map toJson() => _$SpacerNodeOmitDefaults(this, _$SpacerNodeToJson(this));
