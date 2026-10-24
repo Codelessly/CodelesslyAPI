@@ -1,3 +1,25 @@
+## 6.3.0
+
+### Layout
+
+- `ListViewProperties.layout`: `stack` layers a list's items in its box,
+  each placed at its item node's bound `x`/`y`, for diagrams drawn from
+  data.
+
+### Actions and triggers
+
+- `TriggerType.dragEnd` and `TriggerType.keyDown` (with `TriggerModel.key`);
+  drag and pointer triggers on frames, rectangles, icons and text.
+- `DialogPresentation.popover`: a menu anchored to the node that ran the
+  action.
+- `ShowDialogAction.fullHeight` for a bottom sheet whose layout scrolls its
+  own content.
+
+### Data
+
+- A variable's `extra` is kept by `withCanvas` and counts toward equality.
+- `SpacerNode` takes a box lock, positioning mode and reactions.
+
 ## 6.2.0
 
 ### Layout
