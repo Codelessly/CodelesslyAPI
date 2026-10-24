@@ -192,6 +192,28 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Whether to show slider's thumb.
   bool showThumb;
 
+  /// Shape of slider's thumb.
+  SliderThumbShapeEnum thumbShape;
+
+  /// Width of a rectangular thumb.
+  double thumbWidth;
+
+  /// Height of a rectangular thumb.
+  double thumbHeight;
+
+  /// Corner radius of a rectangular thumb.
+  double thumbCornerRadius;
+
+  /// Border color of a rectangular thumb, or null for no border.
+  ColorRGBA? thumbBorderColor;
+
+  /// Border width of a rectangular thumb.
+  double thumbBorderWidth;
+
+  /// Color of a vertical grip line in the middle of a rectangular thumb, or
+  /// null for none.
+  ColorRGBA? thumbGripColor;
+
   /// Shape of slider's track.
   SliderTrackShapeEnum trackShape;
 
@@ -246,6 +268,13 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.valueIndicatorFontSize = 14,
     this.thumbRadius = kSliderDefaultThumbRadius,
     this.showThumb = true,
+    this.thumbShape = SliderThumbShapeEnum.circle,
+    this.thumbWidth = 18,
+    this.thumbHeight = 24,
+    this.thumbCornerRadius = 2,
+    this.thumbBorderColor,
+    this.thumbBorderWidth = 2,
+    this.thumbGripColor,
     this.trackShape = SliderTrackShapeEnum.roundedRectangle,
     this.tickMarkRadius = kSliderDefaultTickMarkRadius,
     this.valueIndicatorShape = SliderValueIndicatorShape.rectangle,
@@ -289,6 +318,13 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     double? secondaryTrackValue,
     ColorRGBA? secondaryActiveTrackColor,
     EdgeInsetsModel? padding,
+    SliderThumbShapeEnum? thumbShape,
+    double? thumbWidth,
+    double? thumbHeight,
+    double? thumbCornerRadius,
+    ColorRGBA? thumbBorderColor,
+    double? thumbBorderWidth,
+    ColorRGBA? thumbGripColor,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -326,6 +362,13 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       secondaryActiveTrackColor:
           secondaryActiveTrackColor ?? this.secondaryActiveTrackColor,
       padding: padding ?? this.padding,
+      thumbShape: thumbShape ?? this.thumbShape,
+      thumbWidth: thumbWidth ?? this.thumbWidth,
+      thumbHeight: thumbHeight ?? this.thumbHeight,
+      thumbCornerRadius: thumbCornerRadius ?? this.thumbCornerRadius,
+      thumbBorderColor: thumbBorderColor ?? this.thumbBorderColor,
+      thumbBorderWidth: thumbBorderWidth ?? this.thumbBorderWidth,
+      thumbGripColor: thumbGripColor ?? this.thumbGripColor,
     );
   }
 
@@ -473,6 +516,53 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       (bool value) => showThumb = value,
       requiresLayout: true,
     ),
+    'thumbShape': EnumFieldAccess<SliderThumbShapeEnum>(
+      'Thumb Shape',
+      'Shape of slider\'s thumb.',
+      () => thumbShape,
+      (SliderThumbShapeEnum value) => thumbShape = value,
+      defaultValue: () => SliderThumbShapeEnum.circle,
+      options: () => SliderThumbShapeEnum.values,
+      requiresLayout: true,
+    ),
+    'thumbWidth': NumFieldAccess<double>(
+      'Thumb Width',
+      'Width of a rectangular thumb.',
+      () => thumbWidth,
+      (double value) => thumbWidth = value,
+      requiresLayout: true,
+    ),
+    'thumbHeight': NumFieldAccess<double>(
+      'Thumb Height',
+      'Height of a rectangular thumb.',
+      () => thumbHeight,
+      (double value) => thumbHeight = value,
+      requiresLayout: true,
+    ),
+    'thumbCornerRadius': NumFieldAccess<double>(
+      'Thumb Corner Radius',
+      'Corner radius of a rectangular thumb.',
+      () => thumbCornerRadius,
+      (double value) => thumbCornerRadius = value,
+    ),
+    'thumbBorderColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Border Color',
+      'Border color of a rectangular thumb.',
+      () => thumbBorderColor,
+      (value) => thumbBorderColor = value,
+    ),
+    'thumbBorderWidth': NumFieldAccess<double>(
+      'Thumb Border Width',
+      'Border width of a rectangular thumb.',
+      () => thumbBorderWidth,
+      (double value) => thumbBorderWidth = value,
+    ),
+    'thumbGripColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Grip Color',
+      'Color of the grip line in a rectangular thumb.',
+      () => thumbGripColor,
+      (value) => thumbGripColor = value,
+    ),
     'trackShape': EnumFieldAccess<SliderTrackShapeEnum>(
       'Track Shape',
       'Shape of slider\'s track.',
@@ -561,6 +651,13 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     secondaryTrackValue,
     secondaryActiveTrackColor,
     padding,
+    thumbShape,
+    thumbWidth,
+    thumbHeight,
+    thumbCornerRadius,
+    thumbBorderColor,
+    thumbBorderWidth,
+    thumbGripColor,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.
