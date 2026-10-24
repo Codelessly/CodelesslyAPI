@@ -1,5 +1,35 @@
 ## Unreleased
 
+### New
+
+- `SignatureNode` (`signature`), a draw-to-sign pad. Its value is the list
+  of strokes drawn (each a list of `[x, y]` points), bindable through
+  `variables.value` and settable with a set value action; `changed` fires
+  when a stroke ends. Properties: ink color and width, background, border
+  and error border, corner radius, placeholder, sign line, and bindable
+  `error` and `enabled`.
+- `BaseNode.loopAnimation` (`LoopAnimation`: pulse, fade, scale or spin,
+  with duration, delay, reverse, curve and from/to scale, opacity or
+  turns), on every node type and left out of the JSON when null.
+  `loopAnimationEnabled` can be bound to turn it on and off.
+- Nodes with a click trigger also offer `cursorEnter` and `cursorExit`;
+  the trigger docs say what `hover`, `cursorEnter` and `cursorExit` mean.
+- `DialogPresentation.sideSheet`, and `ShowDialogAction.sheetWidth`,
+  `maxHeightFactor` (1: no cap) and `showDragHandle` (false) for sheets,
+  so saved bottom sheets look as before.
+  `copyWith` keeps `nonBlocking` and `enabled`.
+- `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
+  `showDragHandle`, as on `ShowDialogAction`.
+- `ShowToastAction.accentColor`, `accentWidth` (4), `iconColor`,
+  `fontFamily` and `cornerRadius`.
+- `FrameNode.contentFit` (a `Fit`, null for none) and `contentAlignment`
+  (center).
+- `TextFieldNode.propertyVariables` lists `errorText` and `error`.
+- All new fields are left out of the JSON at their defaults.
+- `GridDelegateProperties.shrinkWrapRows`: each row of a grid is as tall
+  as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
+  fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
+  the JSON.
 - `CornerRadius.fromJson` accepts a bare number (a circular radius on every
   corner), like `EdgeInsetsModel` does.
 - `ApiCallAction.onSuccess` and `onError`: actions to run after the call
@@ -16,7 +46,7 @@
 - Styling for the runtime's own UI, all optional and left out of the JSON
   when unset, so saved designs keep their look:
   - `ShowToastAction`: `actionColor`, `showClose`, `closeColor`,
-    `cornerRadius`, `border` (`BorderSideModel`), `shadows` (drop shadow
+    `border` (`BorderSideModel`), `shadows` (drop shadow
     `Effect`s), `padding`, `maxWidth`, `messageStyle`, `actionStyle`,
     `iconSize`, and `bottomOffsets` (per `ScreenBreakpoint`, e.g.
     `{"mobile": 84}`, see `bottomOffsetFor`).
@@ -39,10 +69,49 @@
   of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
   Row/Column's main axis may shrink below it when the Row/Column runs out of
   space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
-- `RowColumnNode.wrap` (`"wrap": true`), `runSpacing` and `runAlignment`
-  (`MainAxisAlignmentC`): a row or column whose children flow onto a new run
-  when they don't fit, like Flutter's `Wrap`. Defaults (`false`, `0`,
-  `start`) are left out of the JSON.
+
+### Fixes
+
+- `SpacerNode.fromJson` defaults `positioningMode` (align),
+  `aspectRatioLock` (false) and `reactions` ([]) like every other node, and
+  `GridViewNode.fromJson` defaults `isScrollable` (true) and
+  `useFlutterListView` (false). Both still write those keys for older
+  readers.
+
+## 6.2.0
+
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
+### Paint and widgets
+
+- `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
+  instead of stretching across the box (hazard stripes, tick patterns).
+- Progress bars take `shape: arc`: a gauge with start and sweep angles,
+  stroke width, tick count and color, a needle and colored zone `bands`
+  (`ProgressBand`).
+
+### Actions
+
+- `ShowDialogAction.presentation` (dialog, bottom sheet, or adaptive: a
+  sheet below 600 px) and `alignment` for where a dialog opens.
+- `DelayAction.duration`: a variable or formula for the wait, used instead
+  of `milliseconds` when it gives a number.
+
+### Data
+
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
+
+### JSON
+
+- List, grid, page and tab views and spacers parse from minimal node JSON:
+  fields with constructor defaults (`isScrollable`, `useFlutterListView`,
+  `allowedTypes`, `deniedTypes`, ...) may be left out.
 
 ## 6.1.0
 

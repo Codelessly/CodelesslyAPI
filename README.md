@@ -115,6 +115,7 @@ or image texture.
 - `PaintModel`: Defines the style properties such as the type of paint (`type`), its visibility (`visible`), and its
   opacity (`opacity`), among others. Depending on the type of paint, it might have properties like color (`color`),
   gradient transform (`gradientTransform`), gradient stops (`gradientStops`), or image transform (`imageTransform`).
+  A gradient can repeat past its ends (`tileMode`) over a set length in pixels (`gradientExtent`), which makes stripes.
 
 ### Flutter parity
 
