@@ -14,6 +14,8 @@
 - `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
   gradients such as stripes.
 - `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.
+- `ShowToastAction.accentColor` (a 4 px leading edge), `cornerRadius` and
+  `maxWidth`.
 - Slider thumbs can be rectangles: `SliderProperties.thumbShape`,
   `thumbWidth`, `thumbHeight`, `thumbCornerRadius`, `thumbBorderColor`,
   `thumbBorderWidth` and `thumbGripColor`.
