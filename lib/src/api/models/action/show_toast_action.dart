@@ -53,7 +53,8 @@ enum ToastPosition {
 /// [actions].
 ///
 /// Its colors come from [style] and the app's theme unless [backgroundColor]
-/// or [textColor] are set. Its font is the app's. It can show a close (✕)
+/// or [textColor] are set. Its font is the app's unless [fontFamily] or
+/// [fontWeight] are set. It can show a close (✕)
 /// button ([showClose]).
 @JsonSerializable()
 class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
@@ -113,6 +114,13 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// Size of the message's text. Null is 14.
   final double? fontSize;
 
+  /// Font family of the message, e.g. a Google or project font. Null is
+  /// the app's.
+  final String? fontFamily;
+
+  /// Weight of the message's text. Null is the app's.
+  final FontWeightNumeric? fontWeight;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -130,6 +138,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.showClose = false,
     this.cornerRadius,
     this.fontSize,
+    this.fontFamily,
+    this.fontWeight,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -155,6 +165,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     showClose,
     cornerRadius,
     fontSize,
+    fontFamily,
+    fontWeight,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -180,6 +192,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     bool clearCornerRadius = false,
     double? fontSize,
     bool clearFontSize = false,
+    String? fontFamily,
+    bool clearFontFamily = false,
+    FontWeightNumeric? fontWeight,
+    bool clearFontWeight = false,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -198,6 +214,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     showClose: showClose ?? this.showClose,
     cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
     fontSize: clearFontSize ? null : fontSize ?? this.fontSize,
+    fontFamily: clearFontFamily ? null : fontFamily ?? this.fontFamily,
+    fontWeight: clearFontWeight ? null : fontWeight ?? this.fontWeight,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
