@@ -303,7 +303,9 @@ enum NumberOperation {
 /// A base action class that represents an action that can be performed to
 /// modify some data in some way depending on the data type.
 abstract interface class DataOperationInterface {
-  /// New value to be set.
+  /// New value to be set. It can hold variable paths and `${= ...}`
+  /// formulas; when a widget's trigger runs the action (a slider, switch or
+  /// text field changing), `${value}` is that widget's new value.
   abstract final String newValue;
 
   /// Whether to toggle the value. This is used for boolean type variable.

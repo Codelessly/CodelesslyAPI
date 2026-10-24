@@ -74,6 +74,7 @@ Map<String, dynamic> _$InputDecorationModelOmitDefaults(
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
     json.remove('constraints');
   if (isJsonDefault(instance.showCounter, true)) json.remove('showCounter');
+  if (isJsonDefault(instance.showErrorText, true)) json.remove('showErrorText');
   return json;
 }
 
@@ -151,6 +152,7 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           ? ColorRGBA.grey10
           : ColorRGBA.fromJson(json['hoverColor']),
       showCounter: json['showCounter'] as bool? ?? true,
+      showErrorText: json['showErrorText'] as bool? ?? true,
       errorBorder: json['errorBorder'] == null
           ? const InputBorderModel(
               borderSide: BorderSideModel(color: ColorRGBA.red),
@@ -232,6 +234,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'alignLabelWithHint': instance.alignLabelWithHint,
   'constraints': instance.constraints.toJson(),
   'showCounter': instance.showCounter,
+  'showErrorText': instance.showErrorText,
 };
 
 const _$FloatingLabelBehaviorEnumEnumMap = {

@@ -174,6 +174,11 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// Whether to show counter text.
   final bool showCounter;
 
+  /// Whether a non-empty [errorText] shows its line under the field. When
+  /// false the field only takes [errorBorder] and [focusedErrorBorder] while
+  /// it has an error (an error shown elsewhere, e.g. in a custom row).
+  final bool showErrorText;
+
   /// Creates [InputDecorationModel] with given data.
   InputDecorationModel({
     this.icon = const MultiSourceIconModel(),
@@ -207,6 +212,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.focusColor = ColorRGBA.black,
     this.hoverColor = ColorRGBA.grey10,
     this.showCounter = true,
+    this.showErrorText = true,
     this.errorBorder = const InputBorderModel(
       borderSide: BorderSideModel(color: ColorRGBA.red),
     ),
@@ -298,6 +304,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     bool? alignLabelWithHint,
     BoxConstraintsModel? constraints,
     bool? showCounter,
+    bool? showErrorText,
     bool forceCounterText = false,
   }) => InputDecorationModel(
     icon: icon ?? this.icon,
@@ -343,6 +350,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint,
     constraints: constraints ?? this.constraints,
     showCounter: showCounter ?? this.showCounter,
+    showErrorText: showErrorText ?? this.showErrorText,
   );
 
   @override
@@ -388,6 +396,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint,
     constraints,
     showCounter,
+    showErrorText,
   ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance
