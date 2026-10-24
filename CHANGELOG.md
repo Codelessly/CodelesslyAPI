@@ -1,14 +1,28 @@
 ## Unreleased
 
-- `RowColumnNode.wrap`, `spacing` and `runSpacing`: a row or column flows its
-  children onto new runs when they don't fit, like Flutter's `Wrap`.
-- `strokeWeight` is a bindable style property of every node with strokes.
-- A navigate-back (`pop`) action reads from JSON without `destinationId`,
-  which it has no use for. It is still written, as `''`, for readers that
-  require it.
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
+### Variables
+
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
+
+### Nodes
+
 - `SignatureNode` (`signature`): a box to sign in. Its `value` is a list of
   strokes, each a list of `[x, y]` points normalized to the box; `inkColor`,
   `strokeWidth` and `readOnly` are in `SignatureProperties`.
+- `SpacerNode` parses JSON without `positioningMode`, `aspectRatioLock` or
+  `reactions`, like other nodes. Its constructor didn't take them, so the
+  generated `fromJson` required them.
+
+### Triggers and actions
+
 - `TriggerType.hold` fires once the target has been held for the trigger's
   `duration` (milliseconds, 1200 by default). Frames, rectangles, rows and
   columns offer it.
@@ -17,14 +31,18 @@
 - `ShowDialogAction.presentation` (`DialogPresentation`): a dialog (the
   default), a bottom sheet, `adaptive` (a sheet below 600 wide, a dialog
   above), or full screen.
+- A navigate-back (`pop`) action reads from JSON without `destinationId`,
+  which it has no use for. It is still written, as `''`, for readers that
+  require it.
+
+### Bindings
+
+- `strokeWeight` is a bindable style property of every node with strokes.
 - `flex` is one of the properties every node can bind, set by a condition
   or change with an action.
 - `IconNode` declares `iconColor` and `iconName` as properties that can be
   bound, set by conditions or changed by actions; `iconName` names the
   Material Symbol to show.
-- `SpacerNode` parses JSON without `positioningMode`, `aspectRatioLock` or
-  `reactions`, like other nodes. Its constructor didn't take them, so the
-  generated `fromJson` required them.
 
 ## 6.1.0
 
