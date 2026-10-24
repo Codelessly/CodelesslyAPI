@@ -4,6 +4,7 @@ export 'action/api_call_action.dart';
 export 'action/auth_action.dart';
 export 'action/cloud_files_action.dart';
 export 'action/conditional_action.dart';
+export 'action/copy_to_clipboard_action.dart';
 export 'action/for_each_action.dart';
 export 'action/call_function_action.dart';
 export 'action/link_action.dart';
