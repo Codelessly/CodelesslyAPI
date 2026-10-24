@@ -198,6 +198,12 @@ class CanvasProperties extends CustomProperties {
   /// to the canvas with this ID instead, such as a sign-in screen.
   String? signInRedirectId;
 
+  /// Sample route params the design canvas shows this canvas with, in place
+  /// of the params a navigation or dialog action passes it at runtime: a
+  /// confirm dialog reading `${route.title}` shows its title while designing.
+  /// The runtime never reads them.
+  Map<String, dynamic> previewParams;
+
   /// Whether this screen needs a signed-in user.
   bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
 
@@ -218,6 +224,7 @@ class CanvasProperties extends CustomProperties {
     this.safeArea = const SafeAreaModel.all(true),
     this.brightness = BrightnessModel.system,
     this.signInRedirectId,
+    this.previewParams = const {},
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -235,6 +242,7 @@ class CanvasProperties extends CustomProperties {
     safeArea,
     brightness,
     signInRedirectId,
+    previewParams,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
