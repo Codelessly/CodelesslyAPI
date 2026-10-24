@@ -6,7 +6,9 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// An action that navigates to a new page.
+/// An action that shows a canvas over the current page, as a dialog, a
+/// bottom sheet or a side sheet (see [presentation]). A "Navigate back"
+/// action in the canvas closes it.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
@@ -33,6 +35,17 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// default. Bottom sheets always sit at the bottom.
   final AlignmentModel alignment;
 
+  /// Width of a [DialogPresentation.sideSheet], in logical pixels. Null takes
+  /// the destination canvas's width.
+  final double? sheetWidth;
+
+  /// The most of the screen's height a bottom sheet takes, from 0 to 1. A
+  /// taller canvas scrolls within it.
+  final double maxHeightFactor;
+
+  /// Whether a bottom sheet shows a grab handle at its top.
+  final bool showDragHandle;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -42,6 +55,9 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.showCloseButton = false,
     this.presentation = DialogPresentation.dialog,
     this.alignment = AlignmentModel.center,
+    this.sheetWidth,
+    this.maxHeightFactor = 1,
+    this.showDragHandle = false,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -56,6 +72,9 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton,
     presentation,
     alignment,
+    sheetWidth,
+    maxHeightFactor,
+    showDragHandle,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -67,6 +86,10 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? showCloseButton,
     DialogPresentation? presentation,
     AlignmentModel? alignment,
+    double? sheetWidth,
+    bool clearSheetWidth = false,
+    double? maxHeightFactor,
+    bool? showDragHandle,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -75,6 +98,11 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     showCloseButton: showCloseButton ?? this.showCloseButton,
     presentation: presentation ?? this.presentation,
     alignment: alignment ?? this.alignment,
+    sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
+    maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
+    showDragHandle: showDragHandle ?? this.showDragHandle,
+    nonBlocking: nonBlocking,
+    enabled: enabled,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
@@ -99,4 +127,16 @@ enum DialogPresentation {
 
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
+
+  /// Anchored to the right edge, as tall as the screen and
+  /// [ShowDialogAction.sheetWidth] wide. Slides in from the right.
+  sideSheet;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DialogPresentation.dialog => 'Dialog',
+    DialogPresentation.bottomSheet => 'Bottom Sheet',
+    DialogPresentation.adaptive => 'Adaptive',
+    DialogPresentation.sideSheet => 'Side Sheet',
+  };
 }

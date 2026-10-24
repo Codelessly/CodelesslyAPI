@@ -116,6 +116,15 @@ class TextFieldNode extends SceneNode
       value: properties.decoration.labelText ?? '',
     ),
     StringValue(name: 'hintText', value: properties.decoration.hintText ?? ''),
+    // The error message under the field. Bind it to a formula such as
+    // `${= showErrors && length(note) < 10 ? "Too short" : ""}`: an empty
+    // result means no error.
+    StringValue(
+      name: 'errorText',
+      value: properties.decoration.errorText ?? '',
+    ),
+    // Shows the error borders without a message when true.
+    const BoolValue(name: 'error', value: false),
   ];
 
   @override
