@@ -147,6 +147,15 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
+  /// Whether this is a computed variable: its [value] is a `${= ...}`
+  /// formula over other variables, e.g.
+  /// `${= filter(records, r => r.crate == crateId)}`, worked out whenever it
+  /// is read.
+  bool get isComputed {
+    final String text = value.trim();
+    return text.startsWith(r'${=') && text.endsWith('}');
+  }
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
@@ -187,7 +196,7 @@ class VariableData
 
   /// Creates a new [VariableData] from a JSON map.
   factory VariableData.fromJson(Map<String, dynamic> json) =>
-      _$VariableDataFromJson(json);
+      _$VariableDataFromJson(withFormulaAsValue(json));
 
   @override
   Map<String, dynamic> toJson() =>
@@ -201,6 +210,7 @@ class VariableData
     name: name,
     value: value,
     type: type,
+    extra: extra,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -217,6 +227,14 @@ class VariableData
     VariableType.map => tryJsonDecode(value),
     VariableType.list => value.toList(),
   };
+}
+
+/// [json] with a `formula` (how computed variables were stored for a while)
+/// moved into `value`, where a computed variable keeps its formula.
+Map<String, dynamic> withFormulaAsValue(Map<String, dynamic> json) {
+  final Object? formula = json['formula'];
+  if (formula is! String || formula.trim().isEmpty) return json;
+  return <String, dynamic>{...json, 'value': formula}..remove('formula');
 }
 
 /// Returns the value converted to the appropriate type according to [type].
@@ -312,7 +330,7 @@ class CanvasVariableData extends VariableData {
 
   /// Creates a new [CanvasVariableData] from a JSON map.
   factory CanvasVariableData.fromJson(Map<String, dynamic> json) =>
-      _$CanvasVariableDataFromJson(json);
+      _$CanvasVariableDataFromJson(withFormulaAsValue(json));
 
   @override
   Map<String, dynamic> toJson() =>

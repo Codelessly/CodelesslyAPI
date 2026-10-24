@@ -256,6 +256,9 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -278,6 +281,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -295,7 +299,6 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -310,6 +313,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
+      'motion': ?instance.motion?.toJson(),
       'children': instance.children,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),

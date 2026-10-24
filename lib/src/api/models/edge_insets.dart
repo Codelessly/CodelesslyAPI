@@ -188,8 +188,24 @@ class EdgeInsetsModel with Equatable, DynamicSerializableMixin {
   @override
   List<Object> get props => [l, t, r, b];
 
+  static const Set<String> _longSideKeys = <String>{
+    'left',
+    'top',
+    'right',
+    'bottom',
+    'horizontal',
+    'vertical',
+  };
+
+  static double _side(Map<dynamic, dynamic> json, String side, String axis) =>
+      ((json[side] ?? json[axis] ?? 0) as num).toDouble();
+
   /// Factory constructor for creating a new [EdgeInsetsModel] instance
   /// from JSON data.
+  ///
+  /// Reads the stored forms (a number for all sides, `[horizontal,
+  /// vertical]`, `[l, t, r, b]`, `{l, t, r, b}`) and the spelled-out
+  /// `{left, top, right, bottom}` / `{horizontal, vertical}`.
   factory EdgeInsetsModel.fromJson(dynamic json) {
     return switch (json) {
       num all => EdgeInsetsModel.all(all.toDouble()),
@@ -203,6 +219,14 @@ class EdgeInsetsModel with Equatable, DynamicSerializableMixin {
         right: right.toDouble(),
         bottom: bottom.toDouble(),
       ),
+      // Spelled-out sides, as Flutter names them; missing sides are 0.
+      Map<dynamic, dynamic> sides when sides.keys.any(_longSideKeys.contains) =>
+        EdgeInsetsModel.only(
+          left: _side(sides, 'left', 'horizontal'),
+          top: _side(sides, 'top', 'vertical'),
+          right: _side(sides, 'right', 'horizontal'),
+          bottom: _side(sides, 'bottom', 'vertical'),
+        ),
       _ => _$EdgeInsetsModelFromJson(json),
     };
   }
