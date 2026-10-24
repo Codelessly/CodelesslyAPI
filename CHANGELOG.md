@@ -1,3 +1,32 @@
+## 6.3.0
+
+### Nodes and layout
+
+- `ChartNode` (`chart`): a line/area chart with bindable `points`,
+  `markers` and `selectedX`, grid, labels, ranges, a reference line and a
+  selection band.
+- `ListViewProperties.wrap` and `runSpacing`: a list with a known item
+  count flows its items onto runs; the gap between items is the separator
+  spacing.
+- `InputDecorationModel.contentPadding`.
+
+### Bindings
+
+- `TypedValue` reads `CornerRadius` (a number, `[tl, tr, br, bl]` or its
+  JSON) and reads `EdgeInsetsModel` from text and one-item lists, for
+  `cornerRadius` and `padding` bindings.
+
+### Actions
+
+- `DialogPresentation.sideSheet`, and `ShowDialogAction.insets` and
+  `maxHeightFactor`.
+- `NavigationAction.destinationId` defaults to `''`, so a pop needs none.
+- `SetCloudStorageAction`: `removeDocuments` (ids, where filters or the
+  whole collection) and `setDocuments` (a list of documents, id field,
+  merge, replace the collection).
+- `ShowToastAction`: `cornerRadius`, `fontSize`, `actionColor`, `showClose`
+  and a bindable `offset`.
+
 ## 6.2.0
 
 ### Layout
