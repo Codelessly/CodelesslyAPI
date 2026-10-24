@@ -17,7 +17,14 @@ enum NavigationType {
   pop,
 
   /// Replace the current page with the specified page in the navigation stack.
-  replace;
+  replace,
+
+  /// Clear the navigation history and open the specified page, with
+  /// [NavigationAction.baseDestinationId] (if set) beneath it, so going back
+  /// leads there and no further: Flutter's `pushNamedAndRemoveUntil`. For
+  /// example, after creating a trip, open the trip above the trips list
+  /// instead of above the creation form.
+  reset;
 
   /// Displayable string representation of [NavigationType].
   String get prettify {
@@ -28,6 +35,8 @@ enum NavigationType {
         return 'Navigate back';
       case NavigationType.replace:
         return 'Replace page';
+      case NavigationType.reset:
+        return 'Clear history and navigate';
     }
   }
 }
@@ -49,28 +58,50 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Parameters to pass to the destination page.
   final Map<String, dynamic> params;
 
+  /// For [NavigationType.reset]: the canvas left beneath the destination
+  /// once the history is cleared, which going back from the destination
+  /// opens. Null leaves the destination alone in the history.
+  final String? baseDestinationId;
+
+  /// Parameters to pass to the [baseDestinationId] page.
+  final Map<String, dynamic>? baseParams;
+
   /// Creates a new [NavigationAction].
   NavigationAction({
     this.navigationType = NavigationType.push,
     this.destinationId = '',
     Map<String, dynamic>? params,
+    this.baseDestinationId,
+    this.baseParams,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
        super(type: ActionType.navigation);
 
   @override
-  List<Object?> get props => [destinationId, navigationType, params];
+  List<Object?> get props => [
+    destinationId,
+    navigationType,
+    params,
+    baseDestinationId,
+    baseParams,
+  ];
 
   /// Duplicates this [NavigationAction] with given data overrides.
   NavigationAction copyWith({
     NavigationType? navigationType,
     String? destinationId,
     Map<String, String>? params,
+    String? baseDestinationId,
+    Map<String, dynamic>? baseParams,
   }) => NavigationAction(
     navigationType: navigationType ?? this.navigationType,
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
+    baseDestinationId: baseDestinationId ?? this.baseDestinationId,
+    baseParams: baseParams ?? this.baseParams,
+    nonBlocking: nonBlocking,
+    enabled: enabled,
   );
 
   /// Creates a new [NavigationAction] instance from a JSON data.
