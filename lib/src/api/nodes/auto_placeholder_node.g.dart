@@ -71,6 +71,9 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
     json.remove('mainAxisAlignment');
   if (isJsonDefault(instance.crossAxisAlignment, CrossAxisAlignmentC.center))
     json.remove('crossAxisAlignment');
+  if (isJsonDefault(instance.spacing, 0.0)) json.remove('spacing');
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.runSpacing, 0.0)) json.remove('runSpacing');
   return json;
 }
 
@@ -233,16 +236,23 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
+      ..wrap = json['wrap'] as bool? ?? false
+      ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   AutoPlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -260,7 +270,6 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -273,6 +282,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'children': instance.children,
   'opacity': instance.opacity,
@@ -292,6 +302,9 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
       _$CrossAxisAlignmentCEnumMap[instance.crossAxisAlignment]!,
+  'spacing': instance.spacing,
+  'wrap': instance.wrap,
+  'runSpacing': instance.runSpacing,
   'type': instance.type,
   'ephemeral': instance.ephemeral,
 };

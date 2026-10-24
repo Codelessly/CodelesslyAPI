@@ -97,7 +97,11 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   };
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.click];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
+  ];
 
   /// Creates a [RadioNode] instance from a JSON object.
   factory RadioNode.fromJson(Map json) => _$RadioNodeFromJson(json);
