@@ -23,6 +23,7 @@ Map<String, dynamic> _$DropdownNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -84,6 +85,10 @@ Map<String, dynamic> _$DropdownPropertiesOmitDefaults(
   if (isJsonDefault(instance.useDataSource, false))
     json.remove('useDataSource');
   if (isJsonDefault(instance.itemLabel, '')) json.remove('itemLabel');
+  if (isJsonDefault(instance.itemImage, '')) json.remove('itemImage');
+  if (isJsonDefault(instance.itemImageSize, 28)) json.remove('itemImageSize');
+  if (isJsonDefault(instance.itemImageRadius, 2))
+    json.remove('itemImageRadius');
   return json;
 }
 
@@ -164,6 +169,7 @@ DropdownNode _$DropdownNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -179,6 +185,9 @@ DropdownNode _$DropdownNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -201,9 +210,10 @@ Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'alignment': instance.alignment.toJson(),
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),
@@ -215,6 +225,7 @@ Map<String, dynamic> _$DropdownNodeToJson(DropdownNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'type': instance.type,
@@ -300,6 +311,12 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
   underline: json['underline'] as bool? ?? true,
   useDataSource: json['useDataSource'] as bool? ?? false,
   itemLabel: json['itemLabel'] as String? ?? '',
+  menuStyle: json['menuStyle'] == null
+      ? null
+      : DropdownMenuStyleModel.fromJson(json['menuStyle'] as Map),
+  itemImage: json['itemImage'] as String? ?? '',
+  itemImageSize: (json['itemImageSize'] as num?)?.toDouble() ?? 28,
+  itemImageRadius: (json['itemImageRadius'] as num?)?.toDouble() ?? 2,
 );
 
 Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
@@ -329,4 +346,8 @@ Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
       'underline': instance.underline,
       'useDataSource': instance.useDataSource,
       'itemLabel': instance.itemLabel,
+      'menuStyle': ?instance.menuStyle?.toJson(),
+      'itemImage': instance.itemImage,
+      'itemImageSize': instance.itemImageSize,
+      'itemImageRadius': instance.itemImageRadius,
     };

@@ -24,16 +24,20 @@ enum TriggerType {
   /// Triggered when the user long presses on a target.
   longPress,
 
-  /// Triggered when the user hovers over a target with mouse cursor.
+  /// Triggered each time the mouse cursor moves over the target, after it
+  /// entered. Use [cursorEnter] and [cursorExit] to track whether the cursor
+  /// is over the target: they fire once each.
   hover,
 
   /// Triggered when the user drags the target.
   drag,
 
-  /// Triggered when the cursor enters the target region.
+  /// Triggered once when the mouse cursor enters the target region. Touch
+  /// input doesn't fire it.
   cursorEnter,
 
-  /// Triggered when the cursor exits the target region.
+  /// Triggered once when the mouse cursor exits the target region. Touch
+  /// input doesn't fire it.
   cursorExit,
 
   /// Triggered when a pointer down event is received on the target.
@@ -73,21 +77,19 @@ enum TriggerType {
   /// Triggered when the user taps the target twice in quick succession.
   /// A node with a double tap reaction delays its single taps ([click]) by
   /// the double tap timeout (300ms), the way Flutter tells the two apart.
-  doubleTap,
+  doubleTap;
 
-  /// Triggered when a mouse pointer moves onto the target. Touch input never
-  /// fires it.
-  hoverEnter,
-
-  /// Triggered when a mouse pointer leaves the target. Touch input never
-  /// fires it.
-  hoverExit;
-
-  /// The hover triggers.
+  /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
-    TriggerType.hoverEnter,
-    TriggerType.hoverExit,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
+
+  /// Earlier names of trigger types, read as the types they became.
+  static const Map<String, String> aliases = {
+    'hoverEnter': 'cursorEnter',
+    'hoverExit': 'cursorExit',
+  };
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [
@@ -140,10 +142,6 @@ enum TriggerType {
         return 'Swipe Down';
       case TriggerType.doubleTap:
         return 'Double Tap';
-      case TriggerType.hoverEnter:
-        return 'Hover Enter';
-      case TriggerType.hoverExit:
-        return 'Hover Exit';
     }
   }
 }
@@ -202,7 +200,14 @@ class TriggerModel with Equatable, SerializableMixin {
 
   /// Factory constructor for creating a new [TriggerModel] instance from
   /// JSON data.
-  factory TriggerModel.fromJson(Map json) => _$TriggerModelFromJson(json);
+  ///
+  /// A type named by an earlier name ([TriggerType.aliases]) reads as the
+  /// type it became.
+  factory TriggerModel.fromJson(Map json) =>
+      _$TriggerModelFromJson(switch (TriggerType.aliases[json['type']]) {
+        final String type => {...json, 'type': type},
+        null => json,
+      });
 
   @override
   Map toJson() => _$TriggerModelOmitDefaults(this, _$TriggerModelToJson(this));
