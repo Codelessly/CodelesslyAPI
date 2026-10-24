@@ -399,6 +399,9 @@ class ChartProperties extends CustomProperties with FieldsHolder {
   /// Timeline: domain position of "now"; the rest is hatched. Null for none.
   double? nowValue;
 
+  /// Timeline: color of the "now" marker. Null for [axisLabelColor].
+  ColorRGBA? nowColor;
+
   /// Timeline: track color and hatch color.
   ColorRGBA trackColor;
 
@@ -446,6 +449,7 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     this.domainMin = 0,
     this.domainMax = 100,
     this.nowValue,
+    this.nowColor,
     this.trackColor = const ColorRGBA(
       r: 18 / 255,
       g: 19 / 255,
@@ -486,6 +490,7 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     double? domainMin,
     double? domainMax,
     double? nowValue,
+    ColorRGBA? nowColor,
     ColorRGBA? trackColor,
     int? divisions,
   }) => ChartProperties(
@@ -518,6 +523,7 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     domainMin: domainMin ?? this.domainMin,
     domainMax: domainMax ?? this.domainMax,
     nowValue: nowValue ?? this.nowValue,
+    nowColor: nowColor ?? this.nowColor,
     trackColor: trackColor ?? this.trackColor,
     divisions: divisions ?? this.divisions,
   );
@@ -606,6 +612,7 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     domainMin,
     domainMax,
     nowValue,
+    nowColor,
     trackColor,
     divisions,
   ];
