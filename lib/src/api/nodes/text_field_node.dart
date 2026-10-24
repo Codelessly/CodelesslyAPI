@@ -155,6 +155,12 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   /// Whether to obscure the input text. Used for password fields.
   bool obscureText;
 
+  /// Whether leaving the field runs its submitted actions, as pressing the
+  /// keyboard's action key (Enter) does. Off, only that key submits: a form
+  /// whose submitted actions save shouldn't save when the user taps another
+  /// field.
+  bool submitOnUnfocus;
+
   /// Whether the field is read-only.
   bool readOnly;
 
@@ -255,6 +261,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.enableInteractiveSelection = true,
     this.enabled = true,
     this.obscureText = false,
+    this.submitOnUnfocus = true,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -293,6 +300,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     bool? enableInteractiveSelection,
     bool? enabled,
     bool? obscureText,
+    bool? submitOnUnfocus,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -326,6 +334,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
+      submitOnUnfocus: submitOnUnfocus ?? this.submitOnUnfocus,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -390,6 +399,12 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       'Whether the field is enabled.',
       () => enabled,
       (value) => enabled = value,
+    ),
+    'submitOnUnfocus': BoolFieldAccess(
+      'Submit On Unfocus',
+      'Whether leaving the field runs its submitted actions.',
+      () => submitOnUnfocus,
+      (value) => submitOnUnfocus = value,
     ),
     'obscureText': BoolFieldAccess(
       'Obscure Text',
@@ -553,6 +568,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     enableInteractiveSelection,
     enabled,
     obscureText,
+    submitOnUnfocus,
     readOnly,
     showCursor,
     keyboardType,

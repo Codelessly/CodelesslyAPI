@@ -1,3 +1,11 @@
+## Unreleased
+
+- `FixedCrossAxisCountGridDelegateProperties.reflowColumns` (default true):
+  off keeps exactly `crossAxisCount` columns at any width, for grids whose
+  column count is part of the design, like a 7-day calendar.
+- `TextFieldProperties.submitOnUnfocus` (default true): off, only the
+  keyboard's action key runs a field's submitted actions.
+
 ## 6.2.0
 
 ### Layout

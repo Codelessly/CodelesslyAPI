@@ -387,9 +387,16 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   /// The number of children to fit in the cross axis for a grid view.
   int crossAxisCount;
 
+  /// Whether the runtime fits as many cells of the designed width as the
+  /// grid's width holds (more columns on wider screens, fewer on narrower
+  /// ones) instead of exactly [crossAxisCount]. Turn it off for grids whose
+  /// column count is part of the design, like a 7-day calendar.
+  bool reflowColumns;
+
   /// Creates a new [FixedCrossAxisCountGridDelegateProperties] instance.
   FixedCrossAxisCountGridDelegateProperties({
     required this.crossAxisCount,
+    this.reflowColumns = true,
     super.mainAxisSpacing = 0,
     super.crossAxisSpacing = 0,
     super.childAspectRatio = 1,
@@ -411,6 +418,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   @override
   FixedCrossAxisCountGridDelegateProperties copyWith({
     int? crossAxisCount,
+    bool? reflowColumns,
     double? mainAxisSpacing,
     double? crossAxisSpacing,
     double? childAspectRatio,
@@ -419,6 +427,7 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
   }) {
     return FixedCrossAxisCountGridDelegateProperties(
       crossAxisCount: crossAxisCount ?? this.crossAxisCount,
+      reflowColumns: reflowColumns ?? this.reflowColumns,
       mainAxisSpacing: mainAxisSpacing ?? super.mainAxisSpacing,
       crossAxisSpacing: crossAxisSpacing ?? super.crossAxisSpacing,
       childAspectRatio: childAspectRatio ?? super.childAspectRatio,
@@ -438,10 +447,17 @@ class FixedCrossAxisCountGridDelegateProperties extends GridDelegateProperties {
       (value) => crossAxisCount = value,
       requiresLayout: true,
     ),
+    'reflowColumns': BoolFieldAccess(
+      'Reflow Columns',
+      'Fit as many cells of the designed width as the grid holds, instead '
+          'of exactly the cross axis count.',
+      () => reflowColumns,
+      (value) => reflowColumns = value,
+    ),
   };
 
   @override
-  List<Object?> get props => [...super.props, crossAxisCount];
+  List<Object?> get props => [...super.props, crossAxisCount, reflowColumns];
 }
 
 /// Represents a delegate that makes grid layouts with tiles that each have a

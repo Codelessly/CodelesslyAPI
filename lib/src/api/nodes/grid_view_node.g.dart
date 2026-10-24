@@ -82,6 +82,7 @@ Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesOmitDefaults(
   FixedCrossAxisCountGridDelegateProperties instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.reflowColumns, true)) json.remove('reflowColumns');
   if (isJsonDefault(instance.mainAxisSpacing, 0))
     json.remove('mainAxisSpacing');
   if (isJsonDefault(instance.crossAxisSpacing, 0))
@@ -390,6 +391,7 @@ FixedCrossAxisCountGridDelegateProperties
 _$FixedCrossAxisCountGridDelegatePropertiesFromJson(Map json) =>
     FixedCrossAxisCountGridDelegateProperties(
       crossAxisCount: (json['crossAxisCount'] as num).toInt(),
+      reflowColumns: json['reflowColumns'] as bool? ?? true,
       mainAxisSpacing: (json['mainAxisSpacing'] as num?)?.toDouble() ?? 0,
       crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
       childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
@@ -404,6 +406,7 @@ Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
   'childAspectRatio': instance.childAspectRatio,
   'mainAxisExtent': ?instance.mainAxisExtent,
   'crossAxisCount': instance.crossAxisCount,
+  'reflowColumns': instance.reflowColumns,
 };
 
 MaxCrossAxisExtentGridDelegateProperties

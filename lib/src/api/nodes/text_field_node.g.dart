@@ -62,6 +62,8 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
     json.remove('enableInteractiveSelection');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
+  if (isJsonDefault(instance.submitOnUnfocus, true))
+    json.remove('submitOnUnfocus');
   if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
   if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
   if (isJsonDefault(instance.showDecimalKey, false))
@@ -268,6 +270,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
       json['enableInteractiveSelection'] as bool? ?? true,
   enabled: json['enabled'] as bool? ?? true,
   obscureText: json['obscureText'] as bool? ?? false,
+  submitOnUnfocus: json['submitOnUnfocus'] as bool? ?? true,
   readOnly: json['readOnly'] as bool? ?? false,
   showCursor: json['showCursor'] as bool? ?? true,
   keyboardType:
@@ -354,6 +357,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
   'enableInteractiveSelection': instance.enableInteractiveSelection,
   'enabled': instance.enabled,
   'obscureText': instance.obscureText,
+  'submitOnUnfocus': instance.submitOnUnfocus,
   'readOnly': instance.readOnly,
   'showCursor': instance.showCursor,
   'showDecimalKey': instance.showDecimalKey,
