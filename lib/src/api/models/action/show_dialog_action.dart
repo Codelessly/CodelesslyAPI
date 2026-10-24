@@ -99,4 +99,7 @@ enum DialogPresentation {
 
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
+
+  /// Covers the whole screen, like a photo viewer.
+  fullScreen,
 }

@@ -41,7 +41,15 @@ class SpacerNode extends SceneNode {
     super.edgePins,
     super.parentID,
     super.constraints,
-  });
+    super.aspectRatioLock,
+    super.positioningMode,
+    List<Reaction> reactions = const [],
+  }) {
+    // Without these the generated fromJson required them in the JSON, so
+    // a spacer written without positioningMode, aspectRatioLock or
+    // reactions (as other nodes allow) failed to parse.
+    setReactionMixin([...reactions]);
+  }
 
   /// Creates a new [SpacerNode] from a JSON data.
   factory SpacerNode.fromJson(Map json) => _$SpacerNodeFromJson({

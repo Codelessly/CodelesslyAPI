@@ -27,6 +27,37 @@
 - A variable whose value is a `${= ...}` formula keeps it for every type
   (computed variables).
 
+### Nodes
+
+- `SignatureNode` (`signature`): a box to sign in. Its `value` is a list of
+  strokes, each a list of `[x, y]` points normalized to the box; `inkColor`,
+  `strokeWidth` and `readOnly` are in `SignatureProperties`.
+- `SpacerNode` parses JSON without `positioningMode`, `aspectRatioLock` or
+  `reactions`, like other nodes. Its constructor didn't take them, so the
+  generated `fromJson` required them.
+
+### Triggers and actions
+
+- `TriggerType.hold` fires once the target has been held for the trigger's
+  `duration` (milliseconds, 1200 by default). Frames, rectangles, rows and
+  columns offer it.
+- Rows and columns declare the click and long-press triggers they already
+  ran, so the actions panel offers them.
+- `DialogPresentation.fullScreen`: a show dialog action can cover the
+  whole screen, like a photo viewer.
+- A navigate-back (`pop`) action reads from JSON without `destinationId`,
+  which it has no use for. It is still written, as `''`, for readers that
+  require it.
+
+### Bindings
+
+- `strokeWeight` is a bindable style property of every node with strokes.
+- `flex` is one of the properties every node can bind, set by a condition
+  or change with an action.
+- `IconNode` declares `iconColor` and `iconName` as properties that can be
+  bound, set by conditions or changed by actions; `iconName` names the
+  Material Symbol to show.
+
 ### JSON
 
 - List, grid, page and tab views and spacers parse from minimal node JSON:

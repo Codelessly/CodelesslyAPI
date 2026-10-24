@@ -1045,8 +1045,8 @@ mixin PropertyVariableMixin on BaseNode {
   /// Properties of the node that can be used in actions or can be changed by
   /// an action.
   ///
-  /// Style properties (fill, stroke, opacity, width, height; a text's fill is
-  /// its color) can be set by
+  /// Style properties (fill, stroke, strokeWeight, opacity, width, height,
+  /// flex; a text's fill is its color) can be set by
   /// conditions, bound to variables or formulas, or changed by a set value
   /// action, on any node that has them.
   late final List<ValueModel> propertyVariables = [
@@ -1055,6 +1055,8 @@ mixin PropertyVariableMixin on BaseNode {
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
       PaintValue(name: 'stroke', value: geometry.strokes.firstOrNull),
+      // A border that thickens when selected or hovered.
+      DoubleValue(name: 'strokeWeight', value: geometry.strokeWeight),
     ],
     if (this case final TextNode text)
       PaintValue(
@@ -1065,6 +1067,9 @@ mixin PropertyVariableMixin on BaseNode {
       DoubleValue(name: 'opacity', value: blend.opacity),
     DoubleValue(name: 'width', value: basicBoxLocal.width),
     DoubleValue(name: 'height', value: basicBoxLocal.height),
+    // A child's share of its row or column's free space when it expands,
+    // e.g. the bars of a gauge sized by data.
+    IntValue(name: 'flex', value: flex),
   ];
 }
 

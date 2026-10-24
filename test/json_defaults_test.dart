@@ -121,6 +121,18 @@ List<BaseNode> sampleNodes() {
       verticalFit: SizeFit.shrinkWrap,
       padding: const EdgeInsetsModel.all(8),
     ),
+    RowColumnNode(
+      id: 'wrapRow',
+      name: 'Wrap Row',
+      basicBoxLocal: box,
+      children: ['a', 'b'],
+      rowColumnType: RowColumnType.row,
+      mainAxisAlignment: MainAxisAlignmentC.start,
+      verticalFit: SizeFit.shrinkWrap,
+      wrap: true,
+      spacing: 8,
+      runSpacing: 6,
+    ),
     FrameNode(
       id: 'frame',
       name: 'Frame',
@@ -180,6 +192,7 @@ List<BaseNode> sampleNodes() {
     RadioNode.empty(),
     SegmentedButtonNode.empty(),
     SliderNode.empty(),
+    SignatureNode.empty(),
     SwitchNode.empty(),
     for (final json in [
       _node('root', {'children': <String>[]}),

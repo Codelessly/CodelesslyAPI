@@ -112,6 +112,15 @@ class RowColumnNode extends ParentNode
     );
   }
 
+  /// Rows and columns are the usual buttons and cards of a layout, so they
+  /// take taps, long presses and holds.
+  @override
+  List<TriggerType> get triggerTypes => [
+    TriggerType.click,
+    TriggerType.longPress,
+    TriggerType.hold,
+  ];
+
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),

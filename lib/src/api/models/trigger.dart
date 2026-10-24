@@ -47,7 +47,13 @@ enum TriggerType {
 
   /// Triggered when the variable named by [TriggerModel.variable] changes,
   /// while the screen it is set on shows.
-  valueChanged;
+  valueChanged,
+
+  /// Triggered when the user presses and holds the target for the trigger's
+  /// [TriggerModel.duration]. Releasing early cancels it. While held, the
+  /// target's descendants can read the progress, 0 to 1, as `${hold}`, for
+  /// example to fill a hold-to-confirm button.
+  hold;
 
   /// Displayable string representation of the trigger type.
   String get prettify {
@@ -78,9 +84,15 @@ enum TriggerType {
         return 'Load';
       case TriggerType.valueChanged:
         return 'Value Changed';
+      case TriggerType.hold:
+        return 'Hold to Confirm';
     }
   }
 }
+
+/// How long a [TriggerType.hold] trigger is held by default, in
+/// milliseconds.
+const int kDefaultHoldDuration = 1200;
 
 /// A model representing a trigger event data.
 @JsonSerializable()
@@ -97,21 +109,33 @@ class TriggerModel with Equatable, SerializableMixin {
   /// For [TriggerType.valueChanged], the name of the variable to watch.
   final String? variable;
 
+  /// How long, in milliseconds, a [TriggerType.hold] trigger must be held
+  /// before it fires.
+  @JsonKey(defaultValue: kDefaultHoldDuration)
+  final int duration;
+
   /// Creates a [TriggerModel] with given data.
-  TriggerModel({required this.type, this.debounceMs = 0, this.variable});
+  TriggerModel({
+    required this.type,
+    this.debounceMs = 0,
+    this.variable,
+    this.duration = kDefaultHoldDuration,
+  });
 
   @override
-  List<Object?> get props => [type, debounceMs, variable];
+  List<Object?> get props => [type, debounceMs, variable, duration];
 
   /// Duplicate this [TriggerModel] with given data overrides.
   TriggerModel copyWith({
     TriggerType? type,
     int? debounceMs,
     String? variable,
+    int? duration,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
     variable: variable ?? this.variable,
+    duration: duration ?? this.duration,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from
