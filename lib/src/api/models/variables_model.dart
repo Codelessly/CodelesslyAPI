@@ -180,7 +180,7 @@ class VariableData
   }
 
   @override
-  // Extra holds a computed variable's formula: a new formula is a change.
+  // A change to extra (metadata the editor and apps keep) is a change.
   List<Object?> get props => [id, name, value, type, extra];
 
   @override
