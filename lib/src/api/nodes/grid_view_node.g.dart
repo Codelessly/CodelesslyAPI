@@ -48,6 +48,7 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('componentSchema');
   if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
   if (isJsonDefault(instance.children, [])) json.remove('children');
+  if (isJsonDefault(instance.isScrollable, true)) json.remove('isScrollable');
   if (isJsonDefault(instance.scrollDirection, AxisC.vertical))
     json.remove('scrollDirection');
   if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
@@ -59,6 +60,8 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     ScrollViewKeyboardDismissBehaviorC.manual,
   ))
     json.remove('keyboardDismissBehavior');
+  if (isJsonDefault(instance.useFlutterListView, false))
+    json.remove('useFlutterListView');
   if (isJsonDefault(instance.shouldAlwaysScroll, true))
     json.remove('shouldAlwaysScroll');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
@@ -89,6 +92,8 @@ Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesOmitDefaults(
     json.remove('crossAxisSpacing');
   if (isJsonDefault(instance.childAspectRatio, 1))
     json.remove('childAspectRatio');
+  if (isJsonDefault(instance.shrinkWrapRows, false))
+    json.remove('shrinkWrapRows');
   return json;
 }
 
@@ -102,6 +107,8 @@ Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesOmitDefaults(
     json.remove('crossAxisSpacing');
   if (isJsonDefault(instance.childAspectRatio, 1))
     json.remove('childAspectRatio');
+  if (isJsonDefault(instance.shrinkWrapRows, false))
+    json.remove('shrinkWrapRows');
   return json;
 }
 
@@ -180,6 +187,8 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
+        isScrollable: json['isScrollable'] as bool? ?? true,
+        useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -244,6 +253,9 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
@@ -254,8 +266,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
           .map((e) => e as String)
           .toList()
-      ..isScrollable = json['isScrollable'] as bool
-      ..useFlutterListView = json['useFlutterListView'] as bool
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -298,6 +308,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
       'children': instance.children,
       'deniedTypes': instance.deniedTypes,
@@ -397,6 +408,7 @@ _$FixedCrossAxisCountGridDelegatePropertiesFromJson(Map json) =>
       crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
       childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
       mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
+      shrinkWrapRows: json['shrinkWrapRows'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
@@ -406,6 +418,7 @@ Map<String, dynamic> _$FixedCrossAxisCountGridDelegatePropertiesToJson(
   'crossAxisSpacing': instance.crossAxisSpacing,
   'childAspectRatio': instance.childAspectRatio,
   'mainAxisExtent': ?instance.mainAxisExtent,
+  'shrinkWrapRows': instance.shrinkWrapRows,
   'crossAxisCount': instance.crossAxisCount,
 };
 
@@ -417,6 +430,7 @@ _$MaxCrossAxisExtentGridDelegatePropertiesFromJson(Map json) =>
       crossAxisSpacing: (json['crossAxisSpacing'] as num?)?.toDouble() ?? 0,
       childAspectRatio: (json['childAspectRatio'] as num?)?.toDouble() ?? 1,
       mainAxisExtent: (json['mainAxisExtent'] as num?)?.toDouble(),
+      shrinkWrapRows: json['shrinkWrapRows'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesToJson(
@@ -426,5 +440,6 @@ Map<String, dynamic> _$MaxCrossAxisExtentGridDelegatePropertiesToJson(
   'crossAxisSpacing': instance.crossAxisSpacing,
   'childAspectRatio': instance.childAspectRatio,
   'mainAxisExtent': ?instance.mainAxisExtent,
+  'shrinkWrapRows': instance.shrinkWrapRows,
   'maxCrossAxisExtent': instance.maxCrossAxisExtent,
 };

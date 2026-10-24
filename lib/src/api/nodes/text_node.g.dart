@@ -218,11 +218,21 @@ TextNode _$TextNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'maxLines': ?instance.maxLines,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -240,16 +250,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -263,6 +266,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,

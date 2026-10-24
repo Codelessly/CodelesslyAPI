@@ -401,6 +401,12 @@ abstract class BaseNode
   @JsonKey(defaultValue: false)
   bool zoomable = false;
 
+  /// An animation that repeats while this node is shown, e.g. a pulsing
+  /// halo or a spinning icon. Null when the node doesn't animate.
+  ///
+  /// See [LoopAnimation].
+  LoopAnimation? loopAnimation;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
@@ -792,6 +798,12 @@ abstract class BaseNode
       'Whether this widget is enabled or not.',
       () => !enabled,
       (value) => enabled = !value,
+    ),
+    'loopAnimationEnabled': BoolFieldAccess(
+      'Animate',
+      'Whether the loop animation of this widget runs.',
+      () => loopAnimation?.enabled ?? false,
+      (value) => loopAnimation = loopAnimation?.copyWith(enabled: value),
     ),
   };
 

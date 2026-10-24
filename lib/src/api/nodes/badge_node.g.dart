@@ -166,6 +166,9 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
@@ -199,6 +202,7 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'type': instance.type,
   'properties': instance.properties.toJson(),

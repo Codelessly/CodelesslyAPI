@@ -55,6 +55,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   gradientStops: (json['gradientStops'] as List<dynamic>?)
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
+  gradientRepeatEvery: (json['gradientRepeatEvery'] as num?)?.toDouble(),
   imageTransform: (json['imageTransform'] as List<dynamic>?)
       ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
       .toList(),
@@ -90,6 +91,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'gradientTransform': ?instance.gradientTransform,
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
+      'gradientRepeatEvery': ?instance.gradientRepeatEvery,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
       'imageName': ?instance.imageName,

@@ -56,6 +56,8 @@ class DropdownNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.changed,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   @override
