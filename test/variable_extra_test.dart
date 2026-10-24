@@ -11,7 +11,7 @@ void main() {
     );
     final CanvasVariableData saved = variable.withCanvas('app');
     expect(saved.extra, variable.extra);
-    expect(saved.toJson()['extra'], {'formula': 'published homes'});
+    expect(saved.toJson()['extra'], {'note': 'published homes'});
   });
 
   test('a variable with a different extra is a different variable', () {
