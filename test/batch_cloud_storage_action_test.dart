@@ -84,30 +84,41 @@ void main() {
     },
   );
 
-  test('ShowToastAction close button, action color, radius and offset', () {
-    final ShowToastAction plain = ShowToastAction(message: 'Saved');
-    expect(plain.toJson(), {'type': 'showToast', 'message': 'Saved'});
-    expect(plain.showClose, isFalse);
+  test(
+    'ShowToastAction close button, action color, radius, font and offset',
+    () {
+      final ShowToastAction plain = ShowToastAction(message: 'Saved');
+      expect(plain.toJson(), {'type': 'showToast', 'message': 'Saved'});
+      expect(plain.showClose, isFalse);
 
-    final ShowToastAction custom = plain.copyWith(
-      actionLabel: 'UNDO',
-      actionColor: ColorRGBA.fromHex('#F2542D'),
-      showClose: true,
-      cornerRadius: 8,
-      fontSize: 13,
-      offset: r'${= screen.isMobile ? 96 : 24}',
-    );
-    final Map json = custom.toJson();
-    expect(json['showClose'], isTrue);
-    expect(json['cornerRadius'], 8);
-    expect(json['fontSize'], 13);
-    expect(ActionModel.fromJson(json), custom);
-    expect(
-      custom
-          .copyWith(clearActionColor: true, clearCornerRadius: true)
-          .toJson()
-          .keys,
-      isNot(contains('actionColor')),
-    );
-  });
+      final ShowToastAction custom = plain.copyWith(
+        actionLabel: 'UNDO',
+        actionColor: ColorRGBA.fromHex('#F2542D'),
+        showClose: true,
+        cornerRadius: 8,
+        fontSize: 13,
+        fontFamily: 'Inter',
+        fontWeight: FontWeightNumeric.w600,
+        offset: r'${= screen.isMobile ? 96 : 24}',
+      );
+      final Map json = custom.toJson();
+      expect(json['showClose'], isTrue);
+      expect(json['cornerRadius'], 8);
+      expect(json['fontSize'], 13);
+      expect(json['fontFamily'], 'Inter');
+      expect(json['fontWeight'], 'w600');
+      expect(ActionModel.fromJson(json), custom);
+      expect(
+        custom.copyWith(clearFontFamily: true, clearFontWeight: true).toJson(),
+        isNot(contains('fontFamily')),
+      );
+      expect(
+        custom
+            .copyWith(clearActionColor: true, clearCornerRadius: true)
+            .toJson()
+            .keys,
+        isNot(contains('actionColor')),
+      );
+    },
+  );
 }

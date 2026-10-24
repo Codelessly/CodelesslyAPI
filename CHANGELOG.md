@@ -24,8 +24,8 @@
 - `SetCloudStorageAction`: `removeDocuments` (ids, where filters or the
   whole collection) and `setDocuments` (a list of documents, id field,
   merge, replace the collection).
-- `ShowToastAction`: `cornerRadius`, `fontSize`, `actionColor`, `showClose`
-  and a bindable `offset`.
+- `ShowToastAction`: `cornerRadius`, `fontSize`, `fontFamily`, `fontWeight`,
+  `actionColor`, `showClose` and a bindable `offset`.
 
 ## 6.2.0
 

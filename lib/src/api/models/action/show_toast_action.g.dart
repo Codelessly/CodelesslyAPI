@@ -66,6 +66,11 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   showClose: json['showClose'] as bool? ?? false,
   cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
   fontSize: (json['fontSize'] as num?)?.toDouble(),
+  fontFamily: json['fontFamily'] as String?,
+  fontWeight: $enumDecodeNullable(
+    _$FontWeightNumericEnumMap,
+    json['fontWeight'],
+  ),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -90,6 +95,8 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'showClose': instance.showClose,
       'cornerRadius': ?instance.cornerRadius,
       'fontSize': ?instance.fontSize,
+      'fontFamily': ?instance.fontFamily,
+      'fontWeight': ?_$FontWeightNumericEnumMap[instance.fontWeight],
     };
 
 const _$ToastStyleEnumMap = {
@@ -103,6 +110,18 @@ const _$ToastStyleEnumMap = {
 const _$ToastPositionEnumMap = {
   ToastPosition.bottom: 'bottom',
   ToastPosition.top: 'top',
+};
+
+const _$FontWeightNumericEnumMap = {
+  FontWeightNumeric.w100: 'w100',
+  FontWeightNumeric.w200: 'w200',
+  FontWeightNumeric.w300: 'w300',
+  FontWeightNumeric.w400: 'w400',
+  FontWeightNumeric.w500: 'w500',
+  FontWeightNumeric.w600: 'w600',
+  FontWeightNumeric.w700: 'w700',
+  FontWeightNumeric.w800: 'w800',
+  FontWeightNumeric.w900: 'w900',
 };
 
 const _$ActionTypeEnumMap = {
