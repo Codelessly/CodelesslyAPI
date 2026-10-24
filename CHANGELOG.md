@@ -14,6 +14,8 @@
 - `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
   gradients such as stripes.
 - `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.
+- Rows can wrap: `RowColumnNode.wrap`, `spacing` and `runSpacing` lay a
+  row's children out in lines like Flutter's `Wrap`.
 - `ShowDialogAction.anchor` (`DialogAnchor.trigger`), `placement`,
   `anchorGap` and `anchorOffset`: a dialog can open as a popover next to
   the node that ran it. `copyWith` keeps `nonBlocking` and `enabled`.

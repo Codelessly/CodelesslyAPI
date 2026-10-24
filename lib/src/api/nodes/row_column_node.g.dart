@@ -10,6 +10,9 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.wrap, false)) json.remove('wrap');
+  if (isJsonDefault(instance.spacing, 0)) json.remove('spacing');
+  if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -119,6 +122,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               json['crossAxisAlignment'],
             ) ??
             CrossAxisAlignmentC.center,
+        wrap: json['wrap'] as bool? ?? false,
+        spacing: (json['spacing'] as num?)?.toDouble() ?? 0,
+        runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         rotationDegrees: json['rotation'] == null
@@ -280,6 +286,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -297,7 +304,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'flex': instance.flex,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -342,6 +348,9 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'type': instance.type,
+  'wrap': instance.wrap,
+  'spacing': instance.spacing,
+  'runSpacing': instance.runSpacing,
 };
 
 const _$RowColumnTypeEnumMap = {
