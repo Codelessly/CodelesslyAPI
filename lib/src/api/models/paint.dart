@@ -169,6 +169,18 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// Tile mode for image fill.
   final ImageRepeatEnum imageRepeat;
 
+  /// A color the image of an image paint is tinted with, combined with the
+  /// image by [imageColorBlendMode], like Flutter's
+  /// `ColorFilter.mode(imageColor, imageColorBlendMode)`. With the default
+  /// [BlendModeC.srcIn] the image's opaque pixels take this color, e.g. a
+  /// white texture drawn in the theme's color. Null leaves the image as is.
+  final ColorRGBA? imageColor;
+
+  /// How [imageColor] is combined with the image. Defaults to
+  /// [BlendModeC.srcIn].
+  @JsonKey(unknownEnumValue: BlendModeC.srcIn)
+  final BlendModeC imageColorBlendMode;
+
   /// Whether image fill type has source size.
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
 
@@ -263,7 +275,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageRepeat = ImageRepeatEnum.noRepeat,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       imageColor = null,
+       imageColorBlendMode = BlendModeC.srcIn;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -286,6 +300,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     required this.sourceWidth,
     required this.sourceHeight,
     this.assetID,
+    this.imageColor,
+    this.imageColorBlendMode = BlendModeC.srcIn,
   }) : assert(
          sourceWidth != null && sourceHeight != null,
          'Images must always provide their original size.',
@@ -319,7 +335,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       imageColor = null,
+       imageColorBlendMode = BlendModeC.srcIn;
 
   /// Creates [PaintModel] with radial gradient.
   PaintModel.radialGradient({
@@ -345,7 +363,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageRepeat = ImageRepeatEnum.noRepeat,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       imageColor = null,
+       imageColorBlendMode = BlendModeC.srcIn;
 
   /// Creates [PaintModel] with angular gradient.
   PaintModel.angularGradient({
@@ -371,7 +391,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       imageColor = null,
+       imageColorBlendMode = BlendModeC.srcIn;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -398,6 +420,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.sourceHeight,
     this.assetID,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
+    this.imageColor,
+    this.imageColorBlendMode = BlendModeC.srcIn,
   });
 
   /// Duplicates this instance with given data overrides.
@@ -428,6 +452,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
     bool forceSourceSize = false,
+    ColorRGBA? imageColor,
+    bool clearImageColor = false,
+    BlendModeC? imageColorBlendMode,
   }) => PaintModel(
     id: id,
     type: type ?? this.type,
@@ -458,6 +485,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
         : croppedImageURL ?? this.croppedImageURL,
     assetID: assetID ?? this.assetID,
     imageRepeat: imageRepeat ?? this.imageRepeat,
+    imageColor: clearImageColor ? null : imageColor ?? this.imageColor,
+    imageColorBlendMode: imageColorBlendMode ?? this.imageColorBlendMode,
   );
 
   /// [PaintModel] can store all types of paints at the same time to allow
@@ -509,6 +538,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           imageRepeat: imageRepeat,
           imageTransform: imageTransform,
           assetID: assetID,
+          imageColor: imageColor,
+          imageColorBlendMode: imageColorBlendMode,
         );
       case PaintType.emoji:
         throw Exception('Paint type $type is not supported');
@@ -541,6 +572,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (sourceHeight != other.sourceHeight) return false;
     if (cropData != other.cropData) return false;
     if (croppedImageURL != other.croppedImageURL) return false;
+    if (imageColor != other.imageColor) return false;
+    if (imageColorBlendMode != other.imageColorBlendMode) return false;
     return true;
   }
 
@@ -569,6 +602,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     sourceHeight,
     cropData,
     croppedImageURL,
+    imageColor,
+    imageColorBlendMode,
   ];
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.

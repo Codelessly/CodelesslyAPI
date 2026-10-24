@@ -21,6 +21,8 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
   if (isJsonDefault(instance.scaleY, 1)) json.remove('scaleY');
   if (isJsonDefault(instance.imageRepeat, ImageRepeatEnum.noRepeat))
     json.remove('imageRepeat');
+  if (isJsonDefault(instance.imageColorBlendMode, BlendModeC.srcIn))
+    json.remove('imageColorBlendMode');
   return json;
 }
 
@@ -76,6 +78,16 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   imageRepeat:
       $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
       ImageRepeatEnum.noRepeat,
+  imageColor: json['imageColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['imageColor']),
+  imageColorBlendMode:
+      $enumDecodeNullable(
+        _$BlendModeCEnumMap,
+        json['imageColorBlendMode'],
+        unknownValue: BlendModeC.srcIn,
+      ) ??
+      BlendModeC.srcIn,
 );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
@@ -102,6 +114,8 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'sourceWidth': ?instance.sourceWidth,
       'sourceHeight': ?instance.sourceHeight,
       'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
+      'imageColor': ?instance.imageColor?.toJson(),
+      'imageColorBlendMode': _$BlendModeCEnumMap[instance.imageColorBlendMode]!,
     };
 
 const _$PaintTypeEnumMap = {
