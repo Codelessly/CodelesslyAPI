@@ -29,25 +29,6 @@ enum ImageRepeatEnum {
   final String label;
 }
 
-/// Describes how a gradient paints past its ends, for example to repeat a
-/// short gradient into stripes. Directly translates to Flutter's [TileMode].
-enum GradientTileMode {
-  /// The colors at the ends of the gradient extend past them.
-  clamp('Clamp'),
-
-  /// The gradient repeats from its start after its end.
-  repeated('Repeat'),
-
-  /// The gradient repeats, flipping direction on every repetition.
-  mirror('Mirror');
-
-  /// Default constructor for [GradientTileMode].
-  const GradientTileMode(this.label);
-
-  /// Displayable string representation of [GradientTileMode].
-  final String label;
-}
-
 /// Generates a random id if the given [json] does not contain a value for the
 /// given [key]. Required for backwards compatibility.
 Object? _readId(Map json, String key) => json[key] ?? generateId();
@@ -107,19 +88,12 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// neighboring gradient stops.
   final List<ColorStop>? gradientStops;
 
-  /// How the gradient paints past its ends.
-  @JsonKey(unknownEnumValue: GradientTileMode.clamp)
-  final GradientTileMode tileMode;
-
-  /// Length in logical pixels of one run of the gradient, from its first stop
-  /// to its last, along the gradient's axis. For a radial gradient it is the
-  /// radius. Null spans the gradient across the node's box.
-  ///
-  /// Combined with a repeating [tileMode], a short gradient tiles: stops
-  /// `[yellow 0, yellow 0.5, black 0.5, black 1]` with an extent of 20 paint
-  /// 10px yellow and black stripes. Two stops at one position give a hard
-  /// edge.
-  final double? gradientExtent;
+  /// When set, a linear gradient repeats every this many logical pixels
+  /// along its axis instead of stretching across the box, at any box size.
+  /// Hard stops (two colors at the same position) then make even stripes,
+  /// e.g. 45° hazard stripes: stops `[a 0, a .5, b .5, b 1]` repeating every
+  /// 16 px. Null (the default) stretches the gradient across the box.
+  final double? gradientRepeatEvery;
 
   // For image paint:
 
@@ -287,8 +261,6 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageHash = null,
        gradientTransform = null,
        gradientStops = null,
-       tileMode = GradientTileMode.clamp,
-       gradientExtent = null,
        imageTransform = null,
        imageName = null,
        fit = Fit.none,
@@ -298,7 +270,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageRepeat = ImageRepeatEnum.noRepeat,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       gradientRepeatEvery = null;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -328,9 +301,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        type = PaintType.image,
        gradientTransform = null,
        gradientStops = null,
-       tileMode = GradientTileMode.clamp,
-       gradientExtent = null,
-       color = null;
+       color = null,
+       gradientRepeatEvery = null;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -339,8 +311,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
-    this.tileMode = GradientTileMode.clamp,
-    this.gradientExtent,
+    this.gradientRepeatEvery,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientLinear,
        color = null,
@@ -367,8 +338,6 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
-    this.tileMode = GradientTileMode.clamp,
-    this.gradientExtent,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientRadial,
        color = null,
@@ -386,7 +355,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageRepeat = ImageRepeatEnum.noRepeat,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       gradientRepeatEvery = null;
 
   /// Creates [PaintModel] with angular gradient.
   PaintModel.angularGradient({
@@ -395,8 +365,6 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
-    this.tileMode = GradientTileMode.clamp,
-    this.gradientExtent,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientAngular,
        color = null,
@@ -414,7 +382,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       gradientRepeatEvery = null;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -426,8 +395,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.blendMode = BlendModeC.srcOver,
     this.gradientTransform,
     this.gradientStops,
-    this.tileMode = GradientTileMode.clamp,
-    this.gradientExtent,
+    this.gradientRepeatEvery,
     this.imageTransform,
     this.hasImageBytes = false,
     this.downloadUrl,
@@ -454,9 +422,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     BlendModeC? blendMode,
     List<num>? gradientTransform,
     List<ColorStop>? gradientStops,
-    GradientTileMode? tileMode,
-    double? gradientExtent,
-    bool clearGradientExtent = false,
+    double? gradientRepeatEvery,
+    bool clearGradientRepeat = false,
     List<List<num>>? imageTransform,
     double? scalingFactor,
     String? downloadUrl,
@@ -485,10 +452,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     blendMode: blendMode ?? this.blendMode,
     gradientTransform: gradientTransform ?? this.gradientTransform,
     gradientStops: gradientStops ?? this.gradientStops,
-    tileMode: tileMode ?? this.tileMode,
-    gradientExtent: clearGradientExtent
+    gradientRepeatEvery: clearGradientRepeat
         ? null
-        : gradientExtent ?? this.gradientExtent,
+        : gradientRepeatEvery ?? this.gradientRepeatEvery,
     imageTransform: imageTransform ?? this.imageTransform,
     hasImageBytes: hasImageBytes ?? this.hasImageBytes,
     downloadUrl: downloadUrl ?? this.downloadUrl,
@@ -539,8 +505,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           visible: visible,
           gradientStops: gradientStops,
           gradientTransform: gradientTransform,
-          tileMode: tileMode,
-          gradientExtent: gradientExtent,
+          gradientRepeatEvery: gradientRepeatEvery,
         );
       case PaintType.image:
         return PaintModel.image(
@@ -580,8 +545,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (blendMode != other.blendMode) return false;
     if (gradientTransform != other.gradientTransform) return false;
     if (gradientStops != other.gradientStops) return false;
-    if (tileMode != other.tileMode) return false;
-    if (gradientExtent != other.gradientExtent) return false;
+    if (gradientRepeatEvery != other.gradientRepeatEvery) return false;
     if (imageTransform != other.imageTransform) return false;
     if (hasImageBytes != other.hasImageBytes) return false;
     if (downloadUrl != other.downloadUrl) return false;
@@ -610,8 +574,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     blendMode,
     gradientTransform,
     gradientStops,
-    tileMode,
-    gradientExtent,
+    gradientRepeatEvery,
     imageTransform,
     hasImageBytes,
     downloadUrl,

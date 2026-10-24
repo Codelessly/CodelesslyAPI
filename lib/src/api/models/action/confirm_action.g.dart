@@ -105,6 +105,7 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
 const _$DialogPresentationEnumMap = {
   DialogPresentation.dialog: 'dialog',
   DialogPresentation.bottomSheet: 'bottomSheet',
+  DialogPresentation.adaptive: 'adaptive',
   DialogPresentation.sideSheet: 'sideSheet',
 };
 

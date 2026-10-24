@@ -18,6 +18,8 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('showCloseButton');
   if (isJsonDefault(instance.presentation, DialogPresentation.dialog))
     json.remove('presentation');
+  if (isJsonDefault(instance.alignment, AlignmentModel.center))
+    json.remove('alignment');
   if (isJsonDefault(instance.maxHeightFactor, 0.92))
     json.remove('maxHeightFactor');
   if (isJsonDefault(instance.showDragHandle, true))
@@ -48,6 +50,9 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
         unknownValue: DialogPresentation.dialog,
       ) ??
       DialogPresentation.dialog,
+  alignment: json['alignment'] == null
+      ? AlignmentModel.center
+      : AlignmentModel.fromJson(json['alignment'] as Map),
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 0.92,
   showDragHandle: json['showDragHandle'] as bool? ?? true,
@@ -66,6 +71,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'barrierColor': ?instance.barrierColor?.toJson(),
       'showCloseButton': instance.showCloseButton,
       'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
+      'alignment': instance.alignment.toJson(),
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
@@ -74,6 +80,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
 const _$DialogPresentationEnumMap = {
   DialogPresentation.dialog: 'dialog',
   DialogPresentation.bottomSheet: 'bottomSheet',
+  DialogPresentation.adaptive: 'adaptive',
   DialogPresentation.sideSheet: 'sideSheet',
 };
 

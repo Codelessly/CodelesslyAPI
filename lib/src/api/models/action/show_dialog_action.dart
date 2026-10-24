@@ -6,31 +6,9 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// How a [ShowDialogAction] presents its destination canvas.
-enum DialogPresentation {
-  /// Centered over the page at the canvas's design size.
-  dialog,
-
-  /// Anchored to the bottom edge, as wide as the screen and as tall as the
-  /// canvas's content, up to [ShowDialogAction.maxHeightFactor] of the
-  /// screen. Slides up from the bottom.
-  bottomSheet,
-
-  /// Anchored to the right edge, as tall as the screen and
-  /// [ShowDialogAction.sheetWidth] wide. Slides in from the right.
-  sideSheet;
-
-  /// Displayable name.
-  String get prettify => switch (this) {
-    DialogPresentation.dialog => 'Dialog',
-    DialogPresentation.bottomSheet => 'Bottom Sheet',
-    DialogPresentation.sideSheet => 'Side Sheet',
-  };
-}
-
-/// An action that shows a canvas over the current page, as a centered
-/// dialog, a bottom sheet or a side sheet (see [presentation]). A
-/// "Navigate back" action in the canvas closes it.
+/// An action that shows a canvas over the current page, as a dialog, a
+/// bottom sheet or a side sheet (see [presentation]). A "Navigate back"
+/// action in the canvas closes it.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
@@ -48,20 +26,24 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether to show a close button on the dialog.
   final bool showCloseButton;
 
-  /// How the canvas is presented.
+  /// How the canvas opens: a dialog, a bottom sheet, or adaptive (a bottom
+  /// sheet on phones, below 600 px wide, and a dialog otherwise).
   @JsonKey(unknownEnumValue: DialogPresentation.dialog)
   final DialogPresentation presentation;
+
+  /// Where a dialog sits on the screen, e.g. top right for a menu. Center by
+  /// default. Bottom sheets always sit at the bottom.
+  final AlignmentModel alignment;
 
   /// Width of a [DialogPresentation.sideSheet], in logical pixels. Null takes
   /// the destination canvas's width.
   final double? sheetWidth;
 
-  /// The most of the screen's height a [DialogPresentation.bottomSheet] takes,
-  /// from 0 to 1. A taller canvas scrolls within it.
+  /// The most of the screen's height a bottom sheet takes, from 0 to 1. A
+  /// taller canvas scrolls within it.
   final double maxHeightFactor;
 
-  /// Whether a [DialogPresentation.bottomSheet] shows a grab handle at its
-  /// top.
+  /// Whether a bottom sheet shows a grab handle at its top.
   final bool showDragHandle;
 
   /// Creates a new [ShowDialogAction].
@@ -72,6 +54,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.barrierDismissible = true,
     this.showCloseButton = false,
     this.presentation = DialogPresentation.dialog,
+    this.alignment = AlignmentModel.center,
     this.sheetWidth,
     this.maxHeightFactor = 0.92,
     this.showDragHandle = true,
@@ -88,6 +71,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierColor,
     showCloseButton,
     presentation,
+    alignment,
     sheetWidth,
     maxHeightFactor,
     showDragHandle,
@@ -101,6 +85,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     ColorRGBA? barrierColor,
     bool? showCloseButton,
     DialogPresentation? presentation,
+    AlignmentModel? alignment,
     double? sheetWidth,
     bool clearSheetWidth = false,
     double? maxHeightFactor,
@@ -112,6 +97,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierColor: barrierColor ?? this.barrierColor,
     showCloseButton: showCloseButton ?? this.showCloseButton,
     presentation: presentation ?? this.presentation,
+    alignment: alignment ?? this.alignment,
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
@@ -129,4 +115,28 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowDialogAction(this);
+}
+
+/// How a [ShowDialogAction] presents its canvas.
+enum DialogPresentation {
+  /// A dialog, centered unless the action gives an alignment.
+  dialog,
+
+  /// A modal sheet that slides up from the bottom edge.
+  bottomSheet,
+
+  /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
+  adaptive,
+
+  /// Anchored to the right edge, as tall as the screen and
+  /// [ShowDialogAction.sheetWidth] wide. Slides in from the right.
+  sideSheet;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DialogPresentation.dialog => 'Dialog',
+    DialogPresentation.bottomSheet => 'Bottom Sheet',
+    DialogPresentation.adaptive => 'Adaptive',
+    DialogPresentation.sideSheet => 'Side Sheet',
+  };
 }
