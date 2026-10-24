@@ -326,3 +326,27 @@ abstract interface class DataOperationInterface {
   /// Operation to be performed on the int/double type variable.
   abstract final NumberOperation numberOperation;
 }
+
+/// Walks the actions nested in other actions.
+extension NestedActions on ActionModel {
+  /// The actions this action runs itself: a conditional's branches, a
+  /// for-each body, an API call's onSuccess/onError, a confirm's or toast's
+  /// buttons and a cloud files action's follow-ups.
+  List<ActionModel> get childActions => switch (this) {
+    final ConditionalAction a => [...a.actions, ...a.elseActions],
+    final ForEachAction a => a.actions,
+    final ApiCallAction a => [...a.onSuccess, ...a.onError],
+    final ConfirmAction a => [...a.actions, ...a.cancelActions],
+    final ShowToastAction a => a.actions,
+    final CloudFilesAction a => a.actions,
+    _ => const [],
+  };
+
+  /// This action followed by every action nested in it, depth first.
+  Iterable<ActionModel> get selfAndNestedActions sync* {
+    yield this;
+    for (final ActionModel child in childActions) {
+      yield* child.selfAndNestedActions;
+    }
+  }
+}

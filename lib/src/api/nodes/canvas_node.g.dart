@@ -25,6 +25,7 @@ Map<String, dynamic> _$CanvasNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -273,6 +274,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -320,6 +322,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
+  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -514,6 +517,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
       $enumDecodeNullable(_$BrightnessModelEnumMap, json['brightness']) ??
       BrightnessModel.system,
   signInRedirectId: json['signInRedirectId'] as String?,
+  path: json['path'] as String?,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -525,6 +529,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'safeArea': instance.safeArea.toJson(),
       'brightness': _$BrightnessModelEnumMap[instance.brightness]!,
       'signInRedirectId': ?instance.signInRedirectId,
+      'path': ?instance.path,
     };
 
 const _$BrightnessModelEnumMap = {

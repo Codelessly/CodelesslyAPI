@@ -30,6 +30,45 @@
   as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
   fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
   the JSON.
+- `CornerRadius.fromJson` accepts a bare number (a circular radius on every
+  corner), like `EdgeInsetsModel` does.
+- `ApiCallAction.onSuccess` and `onError`: actions to run after the call
+  answers with a 2xx status, or after it fails or answers with another.
+- `ActionModel.childActions` and `selfAndNestedActions` walk actions nested
+  in conditionals, for-each loops and API call handlers.
+- `NavigationAction.destinationId` defaults to `''`: a pop needs none, and
+  for a pop it names where to go when there is nothing to go back to. It is
+  still always written, for SDKs that require it.
+- `PaintModel.saturation` (default 1, left out of the JSON when 1): an image
+  fill's color saturation; 0 is greyscale.
+- `CanvasProperties.path`: an optional URL path for a screen, such as
+  `journal` or `guide/:id`, for links that open it with its parameters.
+- Styling for the runtime's own UI, all optional and left out of the JSON
+  when unset, so saved designs keep their look:
+  - `ShowToastAction`: `actionColor`, `showClose`, `closeColor`,
+    `border` (`BorderSideModel`), `shadows` (drop shadow
+    `Effect`s), `padding`, `maxWidth`, `messageStyle`, `actionStyle`,
+    `iconSize`, and `bottomOffsets` (per `ScreenBreakpoint`, e.g.
+    `{"mobile": 84}`, see `bottomOffsetFor`).
+  - `ConfirmAction`: `border`, `shadows`, `titleStyle`, `messageStyle`,
+    `buttonStyle`, `buttonRadius`, `buttonBorder`, `buttonShadows`,
+    `confirmTextColor`, `cancelColor`, `cancelTextColor`.
+  - `DropdownProperties`: `menuStyle` (`DropdownMenuStyleModel`: an anchored
+    menu card's color, border, radius, shadows, offset, sizes, paddings,
+    selected and hover row colors, selected text style and check mark) and
+    `itemImage` (a URL or item template such as `${item.image}`),
+    `itemImageSize`, `itemImageRadius`.
+  - `TextStyleModel`: a partial text style (font family, weight, italic,
+    size, line height, letter spacing, color).
+- `LineChartNode` (`lineChart`) and `LineChartProperties`: a data-driven
+  line chart. The series, domain, bands, grid lines, area bands, reference
+  lines, x ticks, markers and vertical lines are bound through `variables`
+  (see the class docs for their JSON shapes); colors, insets, curve style,
+  text styles and the scrub readout are properties.
+- `BaseNode.squeezable` (`"squeezable": true`, default `false` and left out
+  of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
+  Row/Column's main axis may shrink below it when the Row/Column runs out of
+  space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
 
 ### Fixes
 

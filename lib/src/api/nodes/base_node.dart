@@ -116,6 +116,19 @@ abstract class BaseNode
   /// [SizeFit.flexible] in the given [RowColumnNode].
   int flex;
 
+  /// Whether a node that wraps its content ([SizeFit.shrinkWrap]) on its
+  /// parent Row/Column's main axis may shrink below that size when the
+  /// Row/Column runs out of space, like Flutter's
+  /// `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child: a text
+  /// that hugs its content and ellipsizes only when the row is full, or a
+  /// card that is as tall as its content up to the height it has.
+  ///
+  /// The node then takes part in sharing the free space by its [flex], so
+  /// next to an expanded sibling it gets at most its share. Has no effect on
+  /// other fits ([SizeFit.flexible] is the same for a fixed size).
+  @JsonKey(defaultValue: false)
+  bool squeezable = false;
+
   /// Whether the node preserves its aspect ratio while resizing.
   bool aspectRatioLock;
 
