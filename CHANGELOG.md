@@ -8,6 +8,11 @@
   when a stroke ends. Properties: ink color and width, background, border
   and error border, corner radius, placeholder, sign line, and bindable
   `error` and `enabled`.
+- `BaseNode.semanticLabel` (`semanticLabel`, default empty), on every
+  node type and left out of the JSON when empty: what screen readers
+  announce for the node instead of its text, e.g. "Sign in" for a button
+  that shows "SIGN IN". It may hold `${...}` data and is a bindable field
+  (`variables.semanticLabel`).
 - `BaseNode.loopAnimation` (`LoopAnimation`: pulse, fade, scale or spin,
   with duration, delay, reverse, curve and from/to scale, opacity or
   turns), on every node type and left out of the JSON when null.

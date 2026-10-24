@@ -388,6 +388,14 @@ abstract class BaseNode
   @JsonKey(defaultValue: false)
   bool zoomable = false;
 
+  /// What screen readers announce for this node instead of the text it
+  /// shows, e.g. "Sign in" for a button that reads "SIGN IN"; may hold
+  /// `${...}` data and can be bound through [variables]. It replaces what
+  /// the node and its children would read. Empty to read the node as
+  /// usual.
+  @JsonKey(defaultValue: '')
+  String semanticLabel = '';
+
   /// An animation that repeats while this node is shown, e.g. a pulsing
   /// halo or a spinning icon. Null when the node doesn't animate.
   ///
@@ -785,6 +793,12 @@ abstract class BaseNode
       'Whether this widget is enabled or not.',
       () => !enabled,
       (value) => enabled = !value,
+    ),
+    'semanticLabel': StringFieldAccess(
+      'Accessibility Label',
+      'What screen readers announce for this widget instead of its text.',
+      () => semanticLabel,
+      (value) => semanticLabel = value,
     ),
     'loopAnimationEnabled': BoolFieldAccess(
       'Animate',

@@ -36,6 +36,7 @@ Map<String, dynamic> _$ExternalComponentNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.semanticLabel, '')) json.remove('semanticLabel');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -150,6 +151,7 @@ ExternalComponentNode _$ExternalComponentNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..semanticLabel = json['semanticLabel'] as String? ?? ''
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
@@ -187,6 +189,7 @@ Map<String, dynamic> _$ExternalComponentNodeToJson(
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'semanticLabel': instance.semanticLabel,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'type': instance.type,
