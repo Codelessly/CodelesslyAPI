@@ -75,4 +75,20 @@ void main() {
 
     expect(toast.copyWith(clearBackgroundColor: true).backgroundColor, isNull);
   });
+
+  test('ShowToastAction keeps its accent edge, radius and width', () {
+    final toast = ShowToastAction(
+      message: 'Saved',
+      accentColor: ColorRGBA.black,
+      cornerRadius: 4,
+      maxWidth: 460,
+    );
+    final Map json = toast.toJson();
+    expect(json['maxWidth'], 460);
+    expect(ShowToastAction.fromJson(json), toast);
+    final Map plain = ShowToastAction(message: 'Saved').toJson();
+    for (final key in ['accentColor', 'cornerRadius', 'maxWidth']) {
+      expect(plain.containsKey(key), isFalse, reason: key);
+    }
+  });
 }
