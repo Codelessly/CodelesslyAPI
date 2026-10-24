@@ -13,7 +13,8 @@ void main() {
         'properties': <String, dynamic>{},
       }) as SinglePlaceholderNode;
       expect(node.allowedTypes, isEmpty, reason: type);
-      expect(node.deniedTypes, isEmpty, reason: type);
+      // A list can't hold another list directly.
+      expect(node.deniedTypes, ['listView'], reason: type);
       expect((node as ListViewNode).isScrollable, isTrue);
       expect(node.useFlutterListView, isTrue);
     }

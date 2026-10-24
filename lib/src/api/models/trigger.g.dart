@@ -56,6 +56,4 @@ const _$TriggerTypeEnumMap = {
   TriggerType.swipeUp: 'swipeUp',
   TriggerType.swipeDown: 'swipeDown',
   TriggerType.doubleTap: 'doubleTap',
-  TriggerType.hoverEnter: 'hoverEnter',
-  TriggerType.hoverExit: 'hoverExit',
 };

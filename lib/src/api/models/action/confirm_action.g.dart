@@ -19,6 +19,12 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   if (isJsonDefault(instance.params, {})) json.remove('params');
   if (isJsonDefault(instance.barrierDismissible, true))
     json.remove('barrierDismissible');
+  if (isJsonDefault(instance.presentation, DialogPresentation.dialog))
+    json.remove('presentation');
+  if (isJsonDefault(instance.maxHeightFactor, 1))
+    json.remove('maxHeightFactor');
+  if (isJsonDefault(instance.showDragHandle, false))
+    json.remove('showDragHandle');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -56,6 +62,47 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
       ? null
       : ColorRGBA.fromJson(json['confirmColor']),
   cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
+  border: json['border'] == null
+      ? null
+      : BorderSideModel.fromJson(json['border'] as Map),
+  shadows: (json['shadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  titleStyle: json['titleStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['titleStyle'] as Map),
+  messageStyle: json['messageStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['messageStyle'] as Map),
+  buttonStyle: json['buttonStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['buttonStyle'] as Map),
+  buttonRadius: (json['buttonRadius'] as num?)?.toDouble(),
+  buttonBorder: json['buttonBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['buttonBorder'] as Map),
+  buttonShadows: (json['buttonShadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  confirmTextColor: json['confirmTextColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['confirmTextColor']),
+  cancelColor: json['cancelColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['cancelColor']),
+  cancelTextColor: json['cancelTextColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['cancelTextColor']),
+  presentation:
+      $enumDecodeNullable(
+        _$DialogPresentationEnumMap,
+        json['presentation'],
+        unknownValue: DialogPresentation.dialog,
+      ) ??
+      DialogPresentation.dialog,
+  sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
+  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
+  showDragHandle: json['showDragHandle'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -80,7 +127,29 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'textColor': ?instance.textColor?.toJson(),
       'confirmColor': ?instance.confirmColor?.toJson(),
       'cornerRadius': ?instance.cornerRadius,
+      'border': ?instance.border?.toJson(),
+      'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
+      'titleStyle': ?instance.titleStyle?.toJson(),
+      'messageStyle': ?instance.messageStyle?.toJson(),
+      'buttonStyle': ?instance.buttonStyle?.toJson(),
+      'buttonRadius': ?instance.buttonRadius,
+      'buttonBorder': ?instance.buttonBorder?.toJson(),
+      'buttonShadows': ?instance.buttonShadows?.map((e) => e.toJson()).toList(),
+      'confirmTextColor': ?instance.confirmTextColor?.toJson(),
+      'cancelColor': ?instance.cancelColor?.toJson(),
+      'cancelTextColor': ?instance.cancelTextColor?.toJson(),
+      'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
+      'sheetWidth': ?instance.sheetWidth,
+      'maxHeightFactor': instance.maxHeightFactor,
+      'showDragHandle': instance.showDragHandle,
     };
+
+const _$DialogPresentationEnumMap = {
+  DialogPresentation.dialog: 'dialog',
+  DialogPresentation.bottomSheet: 'bottomSheet',
+  DialogPresentation.adaptive: 'adaptive',
+  DialogPresentation.sideSheet: 'sideSheet',
+};
 
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',

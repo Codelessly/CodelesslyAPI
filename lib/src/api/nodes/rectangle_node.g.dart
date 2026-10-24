@@ -23,6 +23,7 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -170,6 +171,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             : CornerRadius.fromJson(json['cornerRadius']),
         clipsContent: json['clipsContent'] as bool? ?? true,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -209,6 +211,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -230,8 +235,8 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'alignment': instance.alignment.toJson(),
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
@@ -239,6 +244,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
       'componentVersion': instance.componentVersion,
       'componentSchema': instance.componentSchema,
+      'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
       'padding': instance.padding.toJson(),
@@ -250,6 +256,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       ),
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
+      'loopAnimation': ?instance.loopAnimation?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'opacity': instance.opacity,
