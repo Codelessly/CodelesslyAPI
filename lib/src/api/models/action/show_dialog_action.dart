@@ -6,24 +6,7 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// How a [ShowDialogAction] presents its canvas.
-enum DialogPresentation {
-  /// Centered over the page at the canvas's size (its content's height when
-  /// the canvas shrink-wraps vertically).
-  dialog,
-
-  /// Slides up from the bottom, as wide as the screen and as tall as its
-  /// content (up to 90% of the screen), with rounded top corners.
-  bottomSheet,
-
-  /// A bottom sheet on mobile widths (below 600), a dialog on wider screens.
-  adaptive,
-
-  /// Covers the whole screen, like a photo viewer.
-  fullScreen,
-}
-
-/// An action that shows a canvas over the current page.
+/// An action that navigates to a new page.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
@@ -41,9 +24,14 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether to show a close button on the dialog.
   final bool showCloseButton;
 
-  /// How the canvas is presented: a dialog, a bottom sheet, either by screen
-  /// width, or full screen.
+  /// How the canvas opens: a dialog, a bottom sheet, or adaptive (a bottom
+  /// sheet on phones, below 600 px wide, and a dialog otherwise).
+  @JsonKey(unknownEnumValue: DialogPresentation.dialog)
   final DialogPresentation presentation;
+
+  /// Where a dialog sits on the screen, e.g. top right for a menu. Center by
+  /// default. Bottom sheets always sit at the bottom.
+  final AlignmentModel alignment;
 
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
@@ -53,6 +41,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.barrierDismissible = true,
     this.showCloseButton = false,
     this.presentation = DialogPresentation.dialog,
+    this.alignment = AlignmentModel.center,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -66,6 +55,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierColor,
     showCloseButton,
     presentation,
+    alignment,
   ];
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
@@ -76,6 +66,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     ColorRGBA? barrierColor,
     bool? showCloseButton,
     DialogPresentation? presentation,
+    AlignmentModel? alignment,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -83,6 +74,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierColor: barrierColor ?? this.barrierColor,
     showCloseButton: showCloseButton ?? this.showCloseButton,
     presentation: presentation ?? this.presentation,
+    alignment: alignment ?? this.alignment,
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
@@ -95,4 +87,19 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowDialogAction(this);
+}
+
+/// How a [ShowDialogAction] presents its canvas.
+enum DialogPresentation {
+  /// A dialog, centered unless the action gives an alignment.
+  dialog,
+
+  /// A modal sheet that slides up from the bottom edge.
+  bottomSheet,
+
+  /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
+  adaptive,
+
+  /// Covers the whole screen, like a photo viewer.
+  fullScreen,
 }

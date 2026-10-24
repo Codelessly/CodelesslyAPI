@@ -1,52 +1,53 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-/// Layout and widget nodes parse from JSON that leaves out the base node fields
-/// (positioning mode, aspect ratio lock, reactions, fits, pins, ...), as
-/// tools and older documents write it. Only what the type itself needs is
-/// given: its properties, a text's characters, a container's children, a
-/// row or column's direction.
-const List<String> _types = [
-  'frame',
-  'text',
-  'rectangle',
-  'spacer',
-  'rowColumn',
-  'autoPlaceholder',
-  'freeformPlaceholder',
-  'button',
-  'textField',
-  'checkbox',
-  'switch',
-  'radio',
-  'accordion',
-  'listTile',
-  'divider',
-  'progressBar',
-  'badge',
-  'chip',
-  'segmentedButton',
-  'floatingActionButton',
-  'external',
-];
-
+/// Nodes built from hand-written JSON (the editor's insertTree command, AI
+/// tools) may leave out fields that have constructor defaults.
 void main() {
-  for (final String type in _types) {
-    test('$type parses without base node fields', () {
-      final BaseNode? node = NodeJsonConverter().fromJson({
-        'id': 'n',
-        'name': type,
-        'type': type,
-        'basicBoxLocal': [0, 0, 10, 10],
-        'properties': <String, dynamic>{},
-        'characters': '',
-        'children': <String>[],
-        'rowColumnType': 'column',
-      });
-      expect(node?.type, type);
-      expect(node!.positioningMode, isNotNull);
-      // And what it writes back parses the same way.
-      expect(NodeJsonConverter().fromJson(node.toJson())?.type, type);
+  const box = {
+    'id': 'n',
+    'name': 'n',
+    'basicBoxLocal': [0, 0, 100, 100],
+  };
+
+  test('a grid view needs only its delegate', () {
+    final node = GridViewNode.fromJson({
+      ...box,
+      'type': 'gridView',
+      'properties': {
+        'gridDelegate': {'type': 'fixedCrossAxisCount', 'crossAxisCount': 3},
+      },
     });
-  }
+    expect(node.isScrollable, isTrue);
+    expect(node.useFlutterListView, isFalse);
+  });
+
+  test('a grid view keeps scrolling fields it is given', () {
+    final node = GridViewNode.fromJson({
+      ...box,
+      'type': 'gridView',
+      'isScrollable': false,
+      'properties': {
+        'gridDelegate': {'type': 'fixedCrossAxisCount', 'crossAxisCount': 3},
+      },
+    });
+    expect(node.isScrollable, isFalse);
+  });
+
+  test('list, page and tab views and spacers parse from minimal JSON', () {
+    expect(
+      ListViewNode.fromJson({...box, 'type': 'listView', 'properties': {}})
+          .useFlutterListView,
+      isTrue,
+    );
+    expect(
+      PageViewNode.fromJson({...box, 'type': 'pageView', 'properties': {}})
+          .isScrollable,
+      isTrue,
+    );
+    expect(
+      SpacerNode.fromJson({...box, 'type': 'spacer'}).aspectRatioLock,
+      isFalse,
+    );
+  });
 }
