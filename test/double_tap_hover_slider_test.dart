@@ -5,8 +5,8 @@ void main() {
   test('Double tap and hover triggers survive JSON', () {
     for (final type in [
       TriggerType.doubleTap,
-      TriggerType.hoverEnter,
-      TriggerType.hoverExit,
+      TriggerType.cursorEnter,
+      TriggerType.cursorExit,
     ]) {
       final reaction = Reaction(
         trigger: TriggerModel(type: type),
@@ -17,8 +17,25 @@ void main() {
       expect(Reaction.fromJson(json).trigger.type, type);
     }
     expect(TriggerType.doubleTap.prettify, 'Double Tap');
-    expect(TriggerType.hoverEnter.prettify, 'Hover Enter');
   });
+
+  test(
+    'Trigger JSON with the earlier hover names reads as cursor triggers',
+    () {
+      expect(
+        TriggerModel.fromJson({'type': 'hoverEnter'}).type,
+        TriggerType.cursorEnter,
+      );
+      expect(
+        TriggerModel.fromJson({'type': 'hoverExit'}).type,
+        TriggerType.cursorExit,
+      );
+      expect(TriggerType.hovers, [
+        TriggerType.cursorEnter,
+        TriggerType.cursorExit,
+      ]);
+    },
+  );
 
   test('Shapes, buttons, icons and sliders offer the new triggers', () {
     final box = NodeBox(0, 0, 10, 10);

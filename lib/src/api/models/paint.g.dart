@@ -21,6 +21,7 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
   if (isJsonDefault(instance.scaleY, 1)) json.remove('scaleY');
   if (isJsonDefault(instance.imageRepeat, ImageRepeatEnum.noRepeat))
     json.remove('imageRepeat');
+  if (isJsonDefault(instance.saturation, 1)) json.remove('saturation');
   return json;
 }
 
@@ -54,6 +55,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   gradientStops: (json['gradientStops'] as List<dynamic>?)
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
+  gradientRepeatEvery: (json['gradientRepeatEvery'] as num?)?.toDouble(),
   imageTransform: (json['imageTransform'] as List<dynamic>?)
       ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
       .toList(),
@@ -76,6 +78,7 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   imageRepeat:
       $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
       ImageRepeatEnum.noRepeat,
+  saturation: (json['saturation'] as num?)?.toDouble() ?? 1,
 );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
@@ -88,6 +91,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'gradientTransform': ?instance.gradientTransform,
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
+      'gradientRepeatEvery': ?instance.gradientRepeatEvery,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
       'imageName': ?instance.imageName,
@@ -102,6 +106,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'sourceWidth': ?instance.sourceWidth,
       'sourceHeight': ?instance.sourceHeight,
       'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
+      'saturation': instance.saturation,
     };
 
 const _$PaintTypeEnumMap = {

@@ -105,7 +105,8 @@ class IconNode extends SceneNode
     TriggerType.click,
     TriggerType.longPress,
     TriggerType.doubleTap,
-    ...TriggerType.hovers,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   /// Creates an [IconNode] from a JSON data.

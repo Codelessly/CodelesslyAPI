@@ -1,4 +1,4 @@
-## 6.2.0
+## Unreleased
 
 ### Motion
 
@@ -11,26 +11,23 @@
 ### Triggers
 
 - `timer` (`TriggerModel.intervalMs`) and `keyPress` (`TriggerModel.key`) on
-  canvases; `swipeLeft/Right/Up/Down`, `doubleTap`, `hoverEnter` and
-  `hoverExit` on frames, rectangles, buttons, icons and text.
+  canvases; `swipeLeft/Right/Up/Down` and `doubleTap` on frames, rectangles,
+  buttons, icons and text, beside `cursorEnter` and `cursorExit`. Trigger
+  JSON naming `hoverEnter` or `hoverExit` reads as `cursorEnter` and
+  `cursorExit` (`TriggerType.aliases`).
 
-### Layout
+### Lists and sliders
 
-- Row/column `spacing`: a gap between children along the main axis, taken
-  out before expanded children share the free space (JSON `itemSpacing` is
-  read as it).
-- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
-  Flutter's `Wrap`.
 - `ListViewProperties.stacked` (items drawn on top of each other) and `wrap`
   with `wrapSpacing`, `wrapRunSpacing` and `wrapAlignment`.
 - Sliders: `orientation` (vertical), `inverted`, thumb stroke, and a
   `roundedRect` thumb shape with width, height and corners.
+- Row/column JSON with `itemSpacing` is read as `spacing`.
 
 ### Variables and JSON
 
-- Computed variables: a variable whose value is a `${= ...}` formula keeps
-  it for every type (`VariableData.isComputed`); JSON with a separate
-  `formula` is read into the value.
+- JSON with a separate `formula` for a computed variable is read into its
+  value.
 - Bindable `effectsVisible`, `strokeWeight`, `cornerRadius`, `fontWeight`
   and a slider's `min`/`max` as property variables.
 - `variableSyntaxIdentifierPattern` matches a `${= ...}` formula whole,
@@ -38,6 +35,119 @@
 - `EdgeInsetsModel.fromJson` reads `{left, top, right, bottom}` and
   `{horizontal, vertical}`; placeholders and lists read JSON without their
   editor-only keys.
+
+### New
+
+- `SignatureNode` (`signature`), a draw-to-sign pad. Its value is the list
+  of strokes drawn (each a list of `[x, y]` points), bindable through
+  `variables.value` and settable with a set value action; `changed` fires
+  when a stroke ends. Properties: ink color and width, background, border
+  and error border, corner radius, placeholder, sign line, and bindable
+  `error` and `enabled`.
+- `BaseNode.loopAnimation` (`LoopAnimation`: pulse, fade, scale or spin,
+  with duration, delay, reverse, curve and from/to scale, opacity or
+  turns), on every node type and left out of the JSON when null.
+  `loopAnimationEnabled` can be bound to turn it on and off.
+- Nodes with a click trigger also offer `cursorEnter` and `cursorExit`;
+  the trigger docs say what `hover`, `cursorEnter` and `cursorExit` mean.
+- `DialogPresentation.sideSheet`, and `ShowDialogAction.sheetWidth`,
+  `maxHeightFactor` (1: no cap) and `showDragHandle` (false) for sheets,
+  so saved bottom sheets look as before.
+  `copyWith` keeps `nonBlocking` and `enabled`.
+- `ConfirmAction.presentation`, `sheetWidth`, `maxHeightFactor` and
+  `showDragHandle`, as on `ShowDialogAction`.
+- `ShowToastAction.accentColor`, `accentWidth` (4), `iconColor`,
+  `fontFamily` and `cornerRadius`.
+- `FrameNode.contentFit` (a `Fit`, null for none) and `contentAlignment`
+  (center).
+- `TextFieldNode.propertyVariables` lists `errorText` and `error`.
+- All new fields are left out of the JSON at their defaults.
+- `GridDelegateProperties.shrinkWrapRows`: each row of a grid is as tall
+  as its tallest item (like a `Row` in an `IntrinsicHeight`) instead of a
+  fixed `mainAxisExtent` or `childAspectRatio`. Default false, left out of
+  the JSON.
+- `CornerRadius.fromJson` accepts a bare number (a circular radius on every
+  corner), like `EdgeInsetsModel` does.
+- `ApiCallAction.onSuccess` and `onError`: actions to run after the call
+  answers with a 2xx status, or after it fails or answers with another.
+- `ActionModel.childActions` and `selfAndNestedActions` walk actions nested
+  in conditionals, for-each loops and API call handlers.
+- `NavigationAction.destinationId` defaults to `''`: a pop needs none, and
+  for a pop it names where to go when there is nothing to go back to. It is
+  still always written, for SDKs that require it.
+- `PaintModel.saturation` (default 1, left out of the JSON when 1): an image
+  fill's color saturation; 0 is greyscale.
+- `CanvasProperties.path`: an optional URL path for a screen, such as
+  `journal` or `guide/:id`, for links that open it with its parameters.
+- Styling for the runtime's own UI, all optional and left out of the JSON
+  when unset, so saved designs keep their look:
+  - `ShowToastAction`: `actionColor`, `showClose`, `closeColor`,
+    `border` (`BorderSideModel`), `shadows` (drop shadow
+    `Effect`s), `padding`, `maxWidth`, `messageStyle`, `actionStyle`,
+    `iconSize`, and `bottomOffsets` (per `ScreenBreakpoint`, e.g.
+    `{"mobile": 84}`, see `bottomOffsetFor`).
+  - `ConfirmAction`: `border`, `shadows`, `titleStyle`, `messageStyle`,
+    `buttonStyle`, `buttonRadius`, `buttonBorder`, `buttonShadows`,
+    `confirmTextColor`, `cancelColor`, `cancelTextColor`.
+  - `DropdownProperties`: `menuStyle` (`DropdownMenuStyleModel`: an anchored
+    menu card's color, border, radius, shadows, offset, sizes, paddings,
+    selected and hover row colors, selected text style and check mark) and
+    `itemImage` (a URL or item template such as `${item.image}`),
+    `itemImageSize`, `itemImageRadius`.
+  - `TextStyleModel`: a partial text style (font family, weight, italic,
+    size, line height, letter spacing, color).
+- `LineChartNode` (`lineChart`) and `LineChartProperties`: a data-driven
+  line chart. The series, domain, bands, grid lines, area bands, reference
+  lines, x ticks, markers and vertical lines are bound through `variables`
+  (see the class docs for their JSON shapes); colors, insets, curve style,
+  text styles and the scrub readout are properties.
+- `BaseNode.squeezable` (`"squeezable": true`, default `false` and left out
+  of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
+  Row/Column's main axis may shrink below it when the Row/Column runs out of
+  space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
+
+### Fixes
+
+- `SpacerNode.fromJson` defaults `positioningMode` (align),
+  `aspectRatioLock` (false) and `reactions` ([]) like every other node, and
+  `GridViewNode.fromJson` defaults `isScrollable` (true) and
+  `useFlutterListView` (false). Both still write those keys for older
+  readers.
+
+## 6.2.0
+
+### Layout
+
+- Row/column `spacing`: a gap between children along the main axis, taken
+  out before expanded children share the free space.
+- Row/column `wrap` and `runSpacing`: children wrap onto further runs, like
+  Flutter's `Wrap`.
+
+### Paint and widgets
+
+- `PaintModel.gradientRepeatEvery`: a linear gradient repeats every N px
+  instead of stretching across the box (hazard stripes, tick patterns).
+- Progress bars take `shape: arc`: a gauge with start and sweep angles,
+  stroke width, tick count and color, a needle and colored zone `bands`
+  (`ProgressBand`).
+
+### Actions
+
+- `ShowDialogAction.presentation` (dialog, bottom sheet, or adaptive: a
+  sheet below 600 px) and `alignment` for where a dialog opens.
+- `DelayAction.duration`: a variable or formula for the wait, used instead
+  of `milliseconds` when it gives a number.
+
+### Data
+
+- A variable whose value is a `${= ...}` formula keeps it for every type
+  (computed variables).
+
+### JSON
+
+- List, grid, page and tab views and spacers parse from minimal node JSON:
+  fields with constructor defaults (`isScrollable`, `useFlutterListView`,
+  `allowedTypes`, `deniedTypes`, ...) may be left out.
 
 ## 6.1.0
 

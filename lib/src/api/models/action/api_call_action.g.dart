@@ -11,6 +11,8 @@ Map<String, dynamic> _$ApiCallActionOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.parameters, {})) json.remove('parameters');
+  if (isJsonDefault(instance.onSuccess, [])) json.remove('onSuccess');
+  if (isJsonDefault(instance.onError, [])) json.remove('onError');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -25,6 +27,12 @@ ApiCallAction _$ApiCallActionFromJson(Map json) => ApiCallAction(
   parameters: (json['parameters'] as Map?)?.map(
     (k, e) => MapEntry(k as String, e as String),
   ),
+  onSuccess: (json['onSuccess'] as List<dynamic>?)
+      ?.map((e) => ActionModel.fromJson(e as Map))
+      .toList(),
+  onError: (json['onError'] as List<dynamic>?)
+      ?.map((e) => ActionModel.fromJson(e as Map))
+      .toList(),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -36,6 +44,8 @@ Map<String, dynamic> _$ApiCallActionToJson(ApiCallAction instance) =>
       'enabled': instance.enabled,
       'apiId': ?instance.apiId,
       'parameters': instance.parameters,
+      'onSuccess': instance.onSuccess.map((e) => e.toJson()).toList(),
+      'onError': instance.onError.map((e) => e.toJson()).toList(),
     };
 
 const _$ActionTypeEnumMap = {

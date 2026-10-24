@@ -126,6 +126,8 @@ class ListViewNode extends SinglePlaceholderNode
   factory ListViewNode.fromJson(Map json) => _$ListViewNodeFromJson({
     'isScrollable': true,
     'useFlutterListView': true,
+    'allowedTypes': <String>[],
+    'deniedTypes': ['listView'],
     ...json,
   });
 

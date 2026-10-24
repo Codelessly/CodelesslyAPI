@@ -10,6 +10,8 @@ Map<String, dynamic> _$FrameNodeOmitDefaults(
   FrameNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.contentAlignment, AlignmentModel.center))
+    json.remove('contentAlignment');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -23,6 +25,7 @@ Map<String, dynamic> _$FrameNodeOmitDefaults(
   if (isJsonDefault(instance.verticalFit, SizeFit.fixed))
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
+  if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -217,6 +220,10 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         pageID: json['pageID'] as String?,
         layoutID: json['layoutID'] as String?,
         showPortal: json['showPortal'] as bool? ?? false,
+        contentFit: $enumDecodeNullable(_$FitEnumMap, json['contentFit']),
+        contentAlignment: json['contentAlignment'] == null
+            ? AlignmentModel.center
+            : AlignmentModel.fromJson(json['contentAlignment'] as Map),
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -242,6 +249,7 @@ FrameNode _$FrameNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -257,6 +265,9 @@ FrameNode _$FrameNodeFromJson(Map json) =>
           {}
       ..tooltip = json['tooltip'] as String? ?? ''
       ..zoomable = json['zoomable'] as bool? ?? false
+      ..loopAnimation = json['loopAnimation'] == null
+          ? null
+          : LoopAnimation.fromJson(json['loopAnimation'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -283,9 +294,10 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
+  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'alignment': instance.alignment.toJson(),
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -297,6 +309,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   ),
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
   'children': instance.children,
@@ -331,6 +344,8 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'layoutID': ?instance.layoutID,
   'showPortal': instance.showPortal,
   'type': instance.type,
+  'contentFit': ?_$FitEnumMap[instance.contentFit],
+  'contentAlignment': instance.contentAlignment.toJson(),
 };
 
 const _$BlendModeCEnumMap = {
@@ -414,6 +429,16 @@ const _$ScrollPhysicsCEnumMap = {
 const _$ScrollViewKeyboardDismissBehaviorCEnumMap = {
   ScrollViewKeyboardDismissBehaviorC.manual: 'manual',
   ScrollViewKeyboardDismissBehaviorC.onDrag: 'onDrag',
+};
+
+const _$FitEnumMap = {
+  Fit.contain: 'contain',
+  Fit.cover: 'cover',
+  Fit.fill: 'fill',
+  Fit.fitHeight: 'fitHeight',
+  Fit.fitWidth: 'fitWidth',
+  Fit.none: 'none',
+  Fit.scaleDown: 'scaleDown',
 };
 
 const _$ComponentMarkerTypeEnumMap = {

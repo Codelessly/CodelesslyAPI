@@ -97,6 +97,8 @@ class ChipNode extends SceneNode with CustomPropertiesMixin {
   List<TriggerType> get triggerTypes => [
     TriggerType.click,
     TriggerType.changed,
+    TriggerType.cursorEnter,
+    TriggerType.cursorExit,
   ];
 
   @override

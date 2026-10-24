@@ -34,14 +34,12 @@ class SinglePlaceholderNode extends SceneNode
   /// The node types that are allowed to be inside this [SinglePlaceholderNode].
   /// Example: 'APP_BAR' for AppBarNode.
   /// When empty, allow all types.
-  @JsonKey(defaultValue: <String>[])
   List<String> allowedTypes;
 
   /// The node types that are not allowed to be inside this
   /// [SinglePlaceholderNode].
   /// Example: "TEXT" for TextNode.
   /// When empty, allow all types.
-  @JsonKey(defaultValue: <String>[])
   List<String> deniedTypes;
 
   /// If not null, this [SinglePlaceholderNode] will only accept nodes that do
