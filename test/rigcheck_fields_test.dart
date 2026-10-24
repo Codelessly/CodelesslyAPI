@@ -9,11 +9,11 @@ void main() {
       'dialogId': 'reopen',
       'presentation': 'sideSheet',
       'sheetWidth': 440,
-      'showDragHandle': false,
+      'showDragHandle': true,
     });
     expect(action.presentation, DialogPresentation.sideSheet);
     expect(action.sheetWidth, 440);
-    expect(action.showDragHandle, isFalse);
+    expect(action.showDragHandle, isTrue);
     expect(ConfirmAction.fromJson(action.toJson()), action);
     expect(
       ConfirmAction.fromJson({

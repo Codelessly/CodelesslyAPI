@@ -21,9 +21,9 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
     json.remove('barrierDismissible');
   if (isJsonDefault(instance.presentation, DialogPresentation.dialog))
     json.remove('presentation');
-  if (isJsonDefault(instance.maxHeightFactor, 0.92))
+  if (isJsonDefault(instance.maxHeightFactor, 1))
     json.remove('maxHeightFactor');
-  if (isJsonDefault(instance.showDragHandle, true))
+  if (isJsonDefault(instance.showDragHandle, false))
     json.remove('showDragHandle');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -70,8 +70,8 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
       ) ??
       DialogPresentation.dialog,
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
-  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 0.92,
-  showDragHandle: json['showDragHandle'] as bool? ?? true,
+  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
+  showDragHandle: json['showDragHandle'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
