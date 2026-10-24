@@ -14,6 +14,8 @@
   action.
 - `ShowDialogAction.fullHeight` for a bottom sheet whose layout scrolls its
   own content.
+- `CopyToClipboardAction` (`ActionType.copyToClipboard`) copies a text, with
+  variables and formulas.
 
 ### Data
 
