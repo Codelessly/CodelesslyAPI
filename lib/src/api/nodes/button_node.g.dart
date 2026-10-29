@@ -90,10 +90,11 @@ Map<String, dynamic> _$ButtonPropertiesOmitDefaults(
 // **************************************************************************
 
 ButtonNode _$ButtonNodeFromJson(Map json) =>
-    ButtonNode(
+    ButtonNode._forJson(
         id: json['id'] as String,
         name: json['name'] as String,
         basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
+        properties: ButtonProperties.fromJson(json['properties'] as Map),
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         alignment: json['alignment'] == null
@@ -135,7 +136,6 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        properties: ButtonProperties.fromJson(json['properties'] as Map),
         variables:
             (json['variables'] as Map?)?.map(
               (k, e) => MapEntry(k as String, e as String),
@@ -187,8 +187,7 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
           : PulseModel.fromJson(json['pulse'] as Map)
       ..motion = json['motion'] == null
           ? null
-          : MotionModel.fromJson(json['motion'] as Map)
-      ..type = json['type'] as String;
+          : MotionModel.fromJson(json['motion'] as Map);
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
@@ -228,7 +227,6 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
-      'type': instance.type,
       'properties': instance.properties.toJson(),
     };
 

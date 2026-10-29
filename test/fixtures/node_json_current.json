@@ -224,7 +224,7 @@
     ],
     "rowColumnType": "row",
     "mainAxisAlignment": "spaceBetween",
-    "type": "rowColumn"
+    "type": "row"
   },
   "text": {
     "id": "text",

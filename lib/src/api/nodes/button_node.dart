@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../extensions.dart';
@@ -76,11 +77,23 @@ enum ButtonTypeEnum {
 /// A material button.
 /// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for
 /// more details.
-@FlutterNode('ElevatedButton', family: 'material', nodeType: 'button')
-@JsonSerializable()
-class ButtonNode extends SceneNode with CustomPropertiesMixin {
+@JsonSerializable(constructor: '_forJson')
+abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
-  final String type = 'button';
+  @JsonKey(includeFromJson: false)
+  String get type;
+
+  ButtonTypeEnum get buttonType;
+
+  void validateButtonType() {
+    if (properties.buttonType != buttonType) {
+      throw ArgumentError.value(
+        properties.buttonType,
+        'properties.buttonType',
+        'Expected $buttonType for $type',
+      );
+    }
+  }
 
   @override
   final bool supportsPadding = true;
@@ -90,8 +103,8 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   covariant ButtonProperties properties;
 
   /// Strictly used for previews. e.g in components panel.
-  ButtonNode.empty()
-    : properties = ButtonProperties(),
+  ButtonNode.empty(ButtonTypeEnum kind)
+    : properties = ButtonProperties(buttonType: kind),
       super(
         id: 'button',
         name: 'Button',
@@ -106,13 +119,8 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
         basicBoxLocal: NodeBox(0, 0, 100, 30),
       );
 
-  /// An icon button can be defined by either having a buttonType of
-  /// [ButtonTypeEnum.icon], or by having a shape of [CShapeBorder.circle] with
-  /// an empty label.
-  bool get behavesLikeAnIconButton =>
-      properties.buttonType.isIconButton ||
-      (properties.shape == CShapeBorder.circle &&
-          properties.label.trim().isEmpty);
+  /// Icon behavior follows the Flutter class, never the visual shape.
+  bool get behavesLikeAnIconButton => type == 'iconButton';
 
   @override
   EdgeInsetsModel? preferredDefaultPadding() {
@@ -122,6 +130,38 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
       return defaultButtonPadding;
     }
   }
+
+  /// Constructor selected by json_serializable to instantiate the wire subtype.
+  factory ButtonNode._forJson({
+    required String id,
+    required String name,
+    required NodeBox basicBoxLocal,
+    required ButtonProperties properties,
+    bool visible = true,
+    bool enabled = true,
+    AlignmentModel alignment = AlignmentModel.none,
+    EdgeInsetsModel padding = EdgeInsetsModel.zero,
+    EdgeInsetsModel margin = EdgeInsetsModel.zero,
+    int rotationDegrees = 0,
+    List<Reaction> reactions = const [],
+    SizeFit horizontalFit = SizeFit.fixed,
+    SizeFit verticalFit = SizeFit.fixed,
+    int flex = 1,
+    BoxConstraintsModel constraints = const BoxConstraintsModel(),
+    bool aspectRatioLock = false,
+    EdgePinsModel edgePins = EdgePinsModel.standard,
+    PositioningMode positioningMode = PositioningMode.align,
+    Map<String, String> variables = const {},
+    Map<String, List<String>> multipleVariables = const {},
+  }) => _buttonNodeForJson(
+    id: id, name: name, basicBoxLocal: basicBoxLocal, properties: properties,
+    visible: visible, enabled: enabled, alignment: alignment, padding: padding,
+    margin: margin, rotationDegrees: rotationDegrees, reactions: reactions,
+    horizontalFit: horizontalFit, verticalFit: verticalFit, flex: flex,
+    constraints: constraints, aspectRatioLock: aspectRatioLock,
+    edgePins: edgePins, positioningMode: positioningMode,
+    variables: variables, multipleVariables: multipleVariables,
+  );
 
   /// Creates a [ButtonNode] with given data.
   ButtonNode({
@@ -148,7 +188,9 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
     required this.properties,
     super.variables,
     super.multipleVariables,
-  });
+  }) {
+    validateButtonType();
+  }
 
   @override
   FieldsMap generateFields() => {
@@ -185,10 +227,40 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
   ];
 
   /// Creates a [ButtonNode] from a JSON data.
-  factory ButtonNode.fromJson(Map json) => _$ButtonNodeFromJson(json);
+  factory ButtonNode.fromJson(Map json) {
+    final kind = switch (json['type']) {
+      'elevatedButton' => ButtonTypeEnum.elevated,
+      'textButton' => ButtonTypeEnum.text,
+      'outlinedButton' => ButtonTypeEnum.outlined,
+      'iconButton' => ButtonTypeEnum.icon,
+      'filledButton' => ButtonTypeEnum.filled,
+      _ => throw FormatException('Unknown button wire type: ${json['type']}'),
+    };
+    final rawProperties = json['properties'];
+    if (rawProperties is! Map)
+      throw const FormatException('Missing button properties');
+    final expected = kind == ButtonTypeEnum.filled
+        ? {ButtonTypeEnum.filled.name, ButtonTypeEnum.filledTonal.name}
+        : {kind.name};
+    if ((rawProperties['buttonType'] == null &&
+            kind != ButtonTypeEnum.elevated) ||
+        (rawProperties['buttonType'] != null &&
+            !expected.contains(rawProperties['buttonType']))) {
+      throw FormatException(
+        'Button type ${json['type']} requires buttonType $expected',
+      );
+    }
+    return _$ButtonNodeFromJson(json);
+  }
 
   @override
-  Map toJson() => _$ButtonNodeOmitDefaults(this, _$ButtonNodeToJson(this));
+  Map toJson() {
+    validateButtonType();
+    final json = _$ButtonNodeOmitDefaults(this, _$ButtonNodeToJson(this));
+    (json['properties'] as Map)['buttonType'] = properties.buttonType.name;
+    json['type'] = type;
+    return json;
+  }
 
   @override
   void updateVariableName({required String oldName, required String newName}) {
@@ -196,6 +268,248 @@ class ButtonNode extends SceneNode with CustomPropertiesMixin {
     if (properties.label.isEmpty) return;
     properties.label = properties.label.replaceVariableName(oldName, newName);
   }
+}
+
+ButtonNode _buttonNodeForJson({
+  required String id,
+  required String name,
+  required NodeBox basicBoxLocal,
+  bool visible = true,
+  bool enabled = true,
+  AlignmentModel alignment = AlignmentModel.none,
+  EdgeInsetsModel padding = EdgeInsetsModel.zero,
+  EdgeInsetsModel margin = EdgeInsetsModel.zero,
+  int rotationDegrees = 0,
+  List<Reaction> reactions = const [],
+  SizeFit horizontalFit = SizeFit.fixed,
+  SizeFit verticalFit = SizeFit.fixed,
+  int flex = 1,
+  BoxConstraintsModel constraints = const BoxConstraintsModel(),
+  bool aspectRatioLock = false,
+  EdgePinsModel edgePins = EdgePinsModel.standard,
+  PositioningMode positioningMode = PositioningMode.align,
+  required ButtonProperties properties,
+  Map<String, String> variables = const {},
+  Map<String, List<String>> multipleVariables = const {},
+}) {
+  final kind = properties.buttonType;
+  final constructor = switch (kind) {
+    ButtonTypeEnum.elevated => ElevatedButtonNode.new,
+    ButtonTypeEnum.text => TextButtonNode.new,
+    ButtonTypeEnum.outlined => OutlinedButtonNode.new,
+    ButtonTypeEnum.icon => IconButtonNode.new,
+    ButtonTypeEnum.filled || ButtonTypeEnum.filledTonal => FilledButtonNode.new,
+  };
+  return constructor(
+    id: id,
+    name: name,
+    basicBoxLocal: basicBoxLocal,
+    properties: properties,
+    visible: visible,
+    enabled: enabled,
+    alignment: alignment,
+    padding: padding,
+    margin: margin,
+    rotationDegrees: rotationDegrees,
+    reactions: reactions,
+    horizontalFit: horizontalFit,
+    verticalFit: verticalFit,
+    flex: flex,
+    constraints: constraints,
+    aspectRatioLock: aspectRatioLock,
+    edgePins: edgePins,
+    positioningMode: positioningMode,
+    variables: variables,
+    multipleVariables: multipleVariables,
+  );
+}
+
+@FlutterNode('ElevatedButton', family: 'material', nodeType: 'elevatedButton')
+class ElevatedButtonNode extends ButtonNode {
+  @override
+  String get type => 'elevatedButton';
+  @override
+  ButtonTypeEnum get buttonType => ButtonTypeEnum.elevated;
+  ElevatedButtonNode({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+    required super.properties,
+    super.visible,
+    super.enabled,
+    super.alignment,
+    super.padding,
+    super.margin,
+    super.rotationDegrees,
+    super.reactions,
+    super.horizontalFit,
+    super.verticalFit,
+    super.flex,
+    super.constraints,
+    super.aspectRatioLock,
+    super.edgePins,
+    super.positioningMode,
+    super.variables,
+    super.multipleVariables,
+  });
+  ElevatedButtonNode.empty() : super.empty(ButtonTypeEnum.elevated);
+  factory ElevatedButtonNode.fromJson(Map json) =>
+      _decodeButton<ElevatedButtonNode>(json, 'elevatedButton');
+}
+
+@FlutterNode('TextButton', family: 'material', nodeType: 'textButton')
+class TextButtonNode extends ButtonNode {
+  @override
+  String get type => 'textButton';
+  @override
+  ButtonTypeEnum get buttonType => ButtonTypeEnum.text;
+  TextButtonNode({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+    required super.properties,
+    super.visible,
+    super.enabled,
+    super.alignment,
+    super.padding,
+    super.margin,
+    super.rotationDegrees,
+    super.reactions,
+    super.horizontalFit,
+    super.verticalFit,
+    super.flex,
+    super.constraints,
+    super.aspectRatioLock,
+    super.edgePins,
+    super.positioningMode,
+    super.variables,
+    super.multipleVariables,
+  });
+  TextButtonNode.empty() : super.empty(ButtonTypeEnum.text);
+  factory TextButtonNode.fromJson(Map json) =>
+      _decodeButton<TextButtonNode>(json, 'textButton');
+}
+
+@FlutterNode('OutlinedButton', family: 'material', nodeType: 'outlinedButton')
+class OutlinedButtonNode extends ButtonNode {
+  @override
+  String get type => 'outlinedButton';
+  @override
+  ButtonTypeEnum get buttonType => ButtonTypeEnum.outlined;
+  OutlinedButtonNode({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+    required super.properties,
+    super.visible,
+    super.enabled,
+    super.alignment,
+    super.padding,
+    super.margin,
+    super.rotationDegrees,
+    super.reactions,
+    super.horizontalFit,
+    super.verticalFit,
+    super.flex,
+    super.constraints,
+    super.aspectRatioLock,
+    super.edgePins,
+    super.positioningMode,
+    super.variables,
+    super.multipleVariables,
+  });
+  OutlinedButtonNode.empty() : super.empty(ButtonTypeEnum.outlined);
+  factory OutlinedButtonNode.fromJson(Map json) =>
+      _decodeButton<OutlinedButtonNode>(json, 'outlinedButton');
+}
+
+@FlutterNode('IconButton', family: 'material', nodeType: 'iconButton')
+class IconButtonNode extends ButtonNode {
+  @override
+  String get type => 'iconButton';
+  @override
+  ButtonTypeEnum get buttonType => ButtonTypeEnum.icon;
+  IconButtonNode({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+    required super.properties,
+    super.visible,
+    super.enabled,
+    super.alignment,
+    super.padding,
+    super.margin,
+    super.rotationDegrees,
+    super.reactions,
+    super.horizontalFit,
+    super.verticalFit,
+    super.flex,
+    super.constraints,
+    super.aspectRatioLock,
+    super.edgePins,
+    super.positioningMode,
+    super.variables,
+    super.multipleVariables,
+  });
+  IconButtonNode.empty() : super.empty(ButtonTypeEnum.icon);
+  factory IconButtonNode.fromJson(Map json) =>
+      _decodeButton<IconButtonNode>(json, 'iconButton');
+}
+
+@FlutterNode('FilledButton', family: 'material', nodeType: 'filledButton')
+class FilledButtonNode extends ButtonNode {
+  @override
+  String get type => 'filledButton';
+  @override
+  ButtonTypeEnum get buttonType => ButtonTypeEnum.filled;
+  @override
+  void validateButtonType() {
+    if (!properties.buttonType.isFilledButton) {
+      throw ArgumentError.value(
+        properties.buttonType,
+        'properties.buttonType',
+        'Expected filled or filledTonal',
+      );
+    }
+  }
+
+  FilledButtonNode({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+    required super.properties,
+    super.visible,
+    super.enabled,
+    super.alignment,
+    super.padding,
+    super.margin,
+    super.rotationDegrees,
+    super.reactions,
+    super.horizontalFit,
+    super.verticalFit,
+    super.flex,
+    super.constraints,
+    super.aspectRatioLock,
+    super.edgePins,
+    super.positioningMode,
+    super.variables,
+    super.multipleVariables,
+  });
+  FilledButtonNode.empty() : super.empty(ButtonTypeEnum.filled);
+  FilledButtonNode.tonal({
+    required super.id,
+    required super.name,
+    required super.basicBoxLocal,
+  }) : super(
+         properties: ButtonProperties(buttonType: ButtonTypeEnum.filledTonal),
+       );
+  factory FilledButtonNode.fromJson(Map json) =>
+      _decodeButton<FilledButtonNode>(json, 'filledButton');
+}
+
+T _decodeButton<T extends ButtonNode>(Map json, String type) {
+  if (json['type'] != type) throw FormatException('Expected $type');
+  return ButtonNode.fromJson(json) as T;
 }
 
 /// Holds configurable properties of a [ButtonNode].
@@ -235,7 +549,13 @@ class ButtonProperties extends CustomProperties
   // Label properties.
 
   /// Text to display in the button.
-  @FlutterProp('child', type: 'string', group: 'Content', control: 'text', field: 'properties.label')
+  @FlutterProp(
+    'child',
+    type: 'string',
+    group: 'Content',
+    control: 'text',
+    field: 'properties.label',
+  )
   late String label;
 
   /// Alignment of the label.
@@ -253,6 +573,8 @@ class ButtonProperties extends CustomProperties
   late double gap;
 
   /// Icon to display in the button.
+  @FlutterProp('icon', type: 'object', group: 'Content', control: 'icon',
+    field: 'properties.icon', required: true)
   late MultiSourceIconModel icon;
 
   /// Creates a [ButtonProperties] with given data.

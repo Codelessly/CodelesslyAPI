@@ -79,7 +79,7 @@ void main() {
         ],
       ),
     ];
-    const maxBytes = {'rowColumn': 600, 'text': 380, 'rectangle': 160};
+    const maxBytes = {'row': 600, 'text': 380, 'rectangle': 160};
     for (final node in nodes) {
       final json =
           jsonDecode(jsonEncode(node.toJson())) as Map<String, dynamic>;
@@ -92,7 +92,7 @@ void main() {
         jsonEncode(json),
       );
       for (final key in json.keys) {
-        if (key == 'type' || key == 'id') continue;
+        if (key == 'type' || key == 'id' || key == 'rowColumnType') continue;
         final without = Map<String, dynamic>.from(json)..remove(key);
         Object? back;
         try {

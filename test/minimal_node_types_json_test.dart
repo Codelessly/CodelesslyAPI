@@ -11,10 +11,15 @@ const List<String> _types = [
   'text',
   'rectangle',
   'spacer',
-  'rowColumn',
+  'row',
+  'column',
   'autoPlaceholder',
   'freeformPlaceholder',
-  'button',
+  'elevatedButton',
+  'textButton',
+  'outlinedButton',
+  'iconButton',
+  'filledButton',
   'textField',
   'checkbox',
   'switch',
@@ -38,10 +43,14 @@ void main() {
         'name': type,
         'type': type,
         'basicBoxLocal': [0, 0, 10, 10],
-        'properties': <String, dynamic>{},
+        'properties': <String, dynamic>{
+          if (type.endsWith('Button'))
+            'buttonType': type == 'filledButton' ? 'filled' :
+                type.substring(0, type.length - 'Button'.length),
+        },
         'characters': '',
         'children': <String>[],
-        'rowColumnType': 'column',
+        if (type == 'row' || type == 'column') 'rowColumnType': type,
       });
       expect(node?.type, type);
       expect(node!.positioningMode, isNotNull);

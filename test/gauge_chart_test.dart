@@ -132,7 +132,6 @@ void main() {
       'switch',
       'checkbox',
       'textField',
-      'button',
       'chip',
       'badge',
       'divider',

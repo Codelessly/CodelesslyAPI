@@ -103,30 +103,27 @@ List<BaseNode> sampleNodes() {
   PaintModel solid(String id, ColorRGB color) =>
       PaintModel.solid(id: id, color: color);
   return [
-    RowColumnNode(
+    ColumnNode(
       id: 'column',
       name: 'Column',
       basicBoxLocal: box,
       children: ['a', 'b'],
-      rowColumnType: RowColumnType.column,
     ),
-    RowColumnNode(
+    RowNode(
       id: 'row',
       name: 'Row',
       basicBoxLocal: box,
       children: ['a'],
-      rowColumnType: RowColumnType.row,
       mainAxisAlignment: MainAxisAlignmentC.spaceBetween,
       horizontalFit: SizeFit.expanded,
       verticalFit: SizeFit.shrinkWrap,
       padding: const EdgeInsetsModel.all(8),
     ),
-    RowColumnNode(
+    RowNode(
       id: 'wrapRow',
       name: 'Wrap Row',
       basicBoxLocal: box,
       children: ['a', 'b'],
-      rowColumnType: RowColumnType.row,
       mainAxisAlignment: MainAxisAlignmentC.start,
       verticalFit: SizeFit.shrinkWrap,
       wrap: true,
@@ -179,7 +176,7 @@ List<BaseNode> sampleNodes() {
     ),
     omittedDefaultModels()['VarianceNode']!() as BaseNode,
     BadgeNode.empty(),
-    ButtonNode.empty(),
+    ElevatedButtonNode.empty(),
     CheckboxNode.empty(),
     SignatureNode.empty(),
     SignatureNormalizedNode.empty(),

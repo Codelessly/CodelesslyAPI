@@ -295,8 +295,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             )
       ..transition = json['transition'] == null
           ? null
-          : NodeTransition.fromJson(json['transition'] as Map)
-      ..type = json['type'] as String;
+          : NodeTransition.fromJson(json['transition'] as Map);
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -371,7 +370,6 @@ Map<String, dynamic> _$RowColumnNodeToJson(
           .keyboardDismissBehavior]!,
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
-  'type': instance.type,
 };
 
 const _$RowColumnTypeEnumMap = {
