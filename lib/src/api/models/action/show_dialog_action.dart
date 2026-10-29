@@ -65,7 +65,19 @@ enum DialogPlacement {
   leftCenter,
 
   /// Left of the trigger, bottom edges lined up.
-  leftEnd;
+  leftEnd,
+
+  /// PR42 centered placement, persisted under `placement`.
+  center,
+
+  /// PR42 bottom sheet placement.
+  bottomSheet,
+
+  /// PR42 adaptive placement.
+  adaptive,
+
+  /// PR42 anchored placement below the trigger.
+  anchored;
 
   /// Whether the dialog opens below or above the trigger, rather than beside
   /// it.
@@ -85,6 +97,10 @@ enum DialogPlacement {
     DialogPlacement.leftStart => 'Left, top',
     DialogPlacement.leftCenter => 'Left, center',
     DialogPlacement.leftEnd => 'Left, bottom',
+    DialogPlacement.center => 'Center',
+    DialogPlacement.bottomSheet => 'Bottom sheet',
+    DialogPlacement.adaptive => 'Sheet on mobile',
+    DialogPlacement.anchored => 'Below trigger',
   };
 }
 
@@ -227,12 +243,63 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   );
 
   /// Creates a new [ShowDialogAction] instance from a JSON data.
-  factory ShowDialogAction.fromJson(Map json) =>
-      _$ShowDialogActionFromJson(json);
+  factory ShowDialogAction.fromJson(Map json) {
+    final placement = json['placement'];
+    if (placement == 'center' ||
+        placement == 'bottomSheet' ||
+        placement == 'adaptive' ||
+        placement == 'anchored') {
+      final expectedPresentation = switch (placement) {
+        'bottomSheet' => 'bottomSheet',
+        'adaptive' => 'adaptive',
+        _ => 'dialog',
+      };
+      if ((json['presentation'] != null &&
+              json['presentation'] != expectedPresentation) ||
+          (json['anchor'] != null &&
+              json['anchor'] !=
+                  (placement == 'anchored' ? 'trigger' : 'none'))) {
+        throw FormatException(
+          'Conflicting dialog placement and presentation: $json',
+        );
+      }
+      // PR42 used placement for the overlay mode. In the combined wire
+      // contract presentation controls its mode, while placement locates an
+      // anchored dialog relative to its trigger.
+      return _$ShowDialogActionFromJson({
+        ...json,
+        'presentation': expectedPresentation,
+        'anchor':
+            json['anchor'] ?? (placement == 'anchored' ? 'trigger' : 'none'),
+        'placement': 'belowStart',
+      });
+    }
+    return _$ShowDialogActionFromJson(json);
+  }
 
   @override
-  Map toJson() =>
-      _$ShowDialogActionOmitDefaults(this, _$ShowDialogActionToJson(this));
+  Map toJson() {
+    final json = _$ShowDialogActionOmitDefaults(
+      this,
+      _$ShowDialogActionToJson(this),
+    );
+    // The combined writer uses presentation for the overlay mode and anchor
+    // for a popover. PR42's modal placements remain accepted as constructor
+    // inputs, but are never emitted as ambiguous placement wire values.
+    if (placement == DialogPlacement.center ||
+        placement == DialogPlacement.bottomSheet ||
+        placement == DialogPlacement.adaptive ||
+        placement == DialogPlacement.anchored) {
+      json['presentation'] = switch (placement) {
+        DialogPlacement.bottomSheet => 'bottomSheet',
+        DialogPlacement.adaptive => 'adaptive',
+        _ => 'dialog',
+      };
+      if (placement == DialogPlacement.anchored) json['anchor'] = 'trigger';
+      json.remove('placement');
+    }
+    return json;
+  }
 
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowDialogAction(this);

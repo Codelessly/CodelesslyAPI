@@ -45,6 +45,15 @@ const ColorRGBA kSliderDefaultInactiveTrackColor = ColorRGBA(
 /// Default opacity of slider's overlay.
 const double kSliderDefaultOverlayOpacity = 0.12;
 
+/// How a slider draws the marks at its divisions.
+enum SliderTickMarkStyle {
+  /// Dots on the track.
+  dot,
+
+  /// Short lines below the track, longer at every fifth mark.
+  notch,
+}
+
 /// Slider is a widget that lets the user select a value from a given range.
 /// Refer to [Slider](https://api.flutter.dev/flutter/material/Slider-class.html)
 /// in Flutter for more details.
@@ -55,6 +64,11 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
 
   /// Currently selected value of slider.
   double value;
+
+  /// Where a thin marker sits on the track, e.g. the current reading next
+  /// to an alarm limit the slider sets. No marker when null. Bindable as
+  /// `markerValue`.
+  double? markerValue;
 
   /// Holds configurable properties of the slider.
   @override
@@ -85,6 +99,7 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
     required super.name,
     required super.basicBoxLocal,
     required this.value,
+    this.markerValue,
     super.outerBoxLocal,
     super.retainedOuterBoxLocal,
     super.visible,
@@ -123,6 +138,7 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
   List<TriggerType> get triggerTypes => [
     TriggerType.changed,
     TriggerType.doubleTap,
+    TriggerType.changeEnd,
   ];
 
   @override
@@ -131,6 +147,8 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
     DoubleValue(name: 'value', value: value),
     DoubleValue(name: 'min', value: properties.min),
     DoubleValue(name: 'max', value: properties.max),
+    DoubleValue(name: 'markerValue', value: markerValue ?? 0),
+    ColorValue(name: 'activeTrackColor', value: properties.activeTrackColor),
   ];
 
   /// Creates a [SliderNode] instance from a JSON object.
@@ -278,6 +296,34 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Width of the stroke around the slider's thumb, drawn inside the thumb.
   double thumbStrokeWidth;
 
+  /// Whether the active track runs from the thumb to the end instead of
+  /// from the start to the thumb, e.g. to shade the "above the limit" zone.
+  bool fillFromEnd;
+
+  /// How division marks are drawn.
+  SliderTickMarkStyle tickMarkStyle;
+
+  /// Draw a notch only at every this many divisions, e.g. 2 for a notch
+  /// every 10% on a slider that snaps every 5%. Every fifth notch drawn is a
+  /// long one.
+  int notchEvery;
+
+  /// Color of the [SliderNode.markerValue] marker.
+  ColorRGBA markerColor;
+
+  /// Width of the marker.
+  double markerWidth;
+
+  /// Height of the marker, centered on the track.
+  double markerHeight;
+
+  /// The lowest value the thumb can be dragged to, when the track's range
+  /// ([min] to [max]) is wider than what may be picked. Null for [min].
+  double? selectableMin;
+
+  /// The highest value the thumb can be dragged to. Null for [max].
+  double? selectableMax;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -320,6 +366,14 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.inverted = false,
     this.thumbStrokeColor,
     this.thumbStrokeWidth = 0,
+    this.fillFromEnd = false,
+    this.tickMarkStyle = SliderTickMarkStyle.dot,
+    this.notchEvery = 1,
+    this.markerColor = ColorRGBA.white,
+    this.markerWidth = 2,
+    this.markerHeight = 14,
+    this.selectableMin,
+    this.selectableMax,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -365,6 +419,14 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? thumbBorderColor,
     double? thumbBorderWidth,
     ColorRGBA? thumbGripColor,
+    bool? fillFromEnd,
+    SliderTickMarkStyle? tickMarkStyle,
+    int? notchEvery,
+    ColorRGBA? markerColor,
+    double? markerWidth,
+    double? markerHeight,
+    double? selectableMin,
+    double? selectableMax,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -413,6 +475,14 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       thumbBorderColor: thumbBorderColor ?? this.thumbBorderColor,
       thumbBorderWidth: thumbBorderWidth ?? this.thumbBorderWidth,
       thumbGripColor: thumbGripColor ?? this.thumbGripColor,
+      fillFromEnd: fillFromEnd ?? this.fillFromEnd,
+      tickMarkStyle: tickMarkStyle ?? this.tickMarkStyle,
+      notchEvery: notchEvery ?? this.notchEvery,
+      markerColor: markerColor ?? this.markerColor,
+      markerWidth: markerWidth ?? this.markerWidth,
+      markerHeight: markerHeight ?? this.markerHeight,
+      selectableMin: selectableMin ?? this.selectableMin,
+      selectableMax: selectableMax ?? this.selectableMax,
     );
   }
 
@@ -733,6 +803,14 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     thumbBorderColor,
     thumbBorderWidth,
     thumbGripColor,
+    fillFromEnd,
+    tickMarkStyle,
+    notchEvery,
+    markerColor,
+    markerWidth,
+    markerHeight,
+    selectableMin,
+    selectableMax,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.

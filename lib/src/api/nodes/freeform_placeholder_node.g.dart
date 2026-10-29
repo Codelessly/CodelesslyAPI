@@ -221,6 +221,9 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
@@ -238,13 +241,13 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'alignment': instance.alignment.toJson(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
   'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
   'componentVersion': instance.componentVersion,
   'componentSchema': instance.componentSchema,
-  'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -266,6 +269,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
   'pulse': ?instance.pulse?.toJson(),
+  'transition': ?instance.transition?.toJson(),
   'fills': instance.fills.map((e) => e.toJson()).toList(),
   'strokes': instance.strokes.map((e) => e.toJson()).toList(),
   'strokeWeight': instance.strokeWeight,

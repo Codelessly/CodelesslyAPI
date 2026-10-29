@@ -102,6 +102,8 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
     json.remove('safeArea');
   if (isJsonDefault(instance.brightness, BrightnessModel.system))
     json.remove('brightness');
+  if (isJsonDefault(instance.previewParams, const {}))
+    json.remove('previewParams');
   return json;
 }
 
@@ -304,6 +306,9 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -352,6 +357,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
   'pulse': ?instance.pulse?.toJson(),
+  'transition': ?instance.transition?.toJson(),
   'fills': instance.fills.map((e) => e.toJson()).toList(),
   'strokes': instance.strokes.map((e) => e.toJson()).toList(),
   'strokeWeight': instance.strokeWeight,
@@ -526,6 +532,11 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
       BrightnessModel.system,
   signInRedirectId: json['signInRedirectId'] as String?,
   path: json['path'] as String?,
+  previewParams:
+      (json['previewParams'] as Map?)?.map(
+        (k, e) => MapEntry(k as String, e),
+      ) ??
+      const {},
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -538,6 +549,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'brightness': _$BrightnessModelEnumMap[instance.brightness]!,
       'signInRedirectId': ?instance.signInRedirectId,
       'path': ?instance.path,
+      'previewParams': instance.previewParams,
     };
 
 const _$BrightnessModelEnumMap = {
