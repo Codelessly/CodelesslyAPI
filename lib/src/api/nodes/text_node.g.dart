@@ -17,6 +17,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
   TextNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.tabularFigures, false))
+    json.remove('tabularFigures');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -44,6 +46,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -190,6 +194,7 @@ TextNode _$TextNodeFromJson(Map json) =>
             : InkWellModel.fromJson(
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
+        tabularFigures: json['tabularFigures'] as bool? ?? false,
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -221,12 +226,14 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
-      ..motion = json['motion'] == null
-          ? null
-          : MotionModel.fromJson(json['motion'] as Map)
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -234,13 +241,11 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -258,8 +263,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
@@ -276,6 +283,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
   'opacity': instance.opacity,
@@ -283,9 +293,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
-  'pulse': ?instance.pulse?.toJson(),
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
+  'tabularFigures': instance.tabularFigures,
 };
 
 const _$SizeFitEnumMap = {

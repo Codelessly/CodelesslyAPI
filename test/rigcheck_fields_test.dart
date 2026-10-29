@@ -19,7 +19,7 @@ void main() {
       ConfirmAction.fromJson({
         'type': 'confirm',
         'title': 'x',
-        'presentation': 'popover',
+        'presentation': 'unrecognized-mode',
       }).presentation,
       DialogPresentation.dialog,
     );

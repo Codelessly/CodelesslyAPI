@@ -407,6 +407,20 @@ abstract class BaseNode
   /// See [LoopAnimation].
   LoopAnimation? loopAnimation;
 
+  /// Milliseconds a change to this node's opacity, draw scale or solid fill
+  /// takes to ease in; 0 changes at once.
+  @JsonKey(defaultValue: 0)
+  int transitionMs = 0;
+
+  /// Size multiplier the node is drawn at, around its center; layout is
+  /// unchanged. Bindable as `drawScale`.
+  @JsonKey(defaultValue: 1.0)
+  double drawScale = 1;
+
+  /// A looping relative-opacity fade or absolute opacity/scale motion.
+  /// Available on all nodes, including nodes without blend properties.
+  PulseModel? pulse;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.

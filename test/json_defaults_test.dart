@@ -410,7 +410,10 @@ void main() {
       });
       expect(rect.pulse, const PulseModel(durationMillis: 600));
       expect(rect.pulse!.minOpacity, 0.45);
-      expect(rect.toJson()['pulse'], {'durationMillis': 600});
+      expect(rect.toJson()['pulse'], {
+        'pulseKind': 'relative',
+        'durationMillis': 600,
+      });
       expect(
         RectangleNode.fromJson(rect.toJson()).pulse,
         const PulseModel(durationMillis: 600),

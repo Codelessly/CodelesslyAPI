@@ -131,6 +131,32 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
 
   @override
   BaseNode? fromJson(Map json) {
+    final pulse = json['pulse'];
+    if (pulse is Map) {
+      const relativeKeys = {'minOpacity', 'durationMillis'};
+      const motionKeys = {
+        'periodMs',
+        'reverse',
+        'opacityFrom',
+        'opacityTo',
+        'scaleFrom',
+        'scaleTo',
+      };
+      final relative = pulse.keys.any(relativeKeys.contains);
+      final motion = pulse.keys.any(motionKeys.contains);
+      final kind = pulse['pulseKind'];
+      if (kind != null && kind != 'relative' && kind != 'motion') {
+        throw UnresolvedNodeSchema('unknown-pulse-kind', json);
+      }
+      if (relative && motion ||
+          kind == 'relative' && motion ||
+          kind == 'motion' && relative) {
+        throw UnresolvedNodeSchema('conflicting-pulse-schema', json);
+      }
+      if (kind == null && !relative && !motion) {
+        throw UnresolvedNodeSchema('ambiguous-pulse-schema', json);
+      }
+    }
     if (json['type'] == 'gauge') {
       final properties = json['properties'];
       final Set<dynamic> keys = properties is Map

@@ -68,11 +68,8 @@ class GridViewNode extends SinglePlaceholderNode
     bool clipsContent = true,
     this.statusVariable,
 
-    // A grid always scrolls its items (see [isScrollingEnforced]) and never
-    // uses a Flutter ListView, so neither has to be in its JSON.
-    bool isScrollable = true,
-    bool useFlutterListView = false,
-
+    // A grid always scrolls its items and never uses a Flutter ListView.
+    // Their defaults are shared with the ScrollableMixin parameters below.
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,
     String? collectionPath,
@@ -81,6 +78,8 @@ class GridViewNode extends SinglePlaceholderNode
     List<OrderByQueryFilter>? orderByFilters,
 
     // [ScrollableMixin] properties.
+    bool isScrollable = true,
+    bool useFlutterListView = false,
     AxisC scrollDirection = AxisC.vertical,
     bool reverse = false,
     ScrollPhysicsC physics = ScrollPhysicsC.platformDependent,

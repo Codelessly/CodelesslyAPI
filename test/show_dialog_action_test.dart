@@ -58,7 +58,7 @@ void main() {
     final action = ActionModel.fromJson({
       'type': 'showDialog',
       'destinationId': 'x',
-      'presentation': 'popover',
+      'presentation': 'unrecognized-mode',
     }) as ShowDialogAction;
     expect(action.presentation, DialogPresentation.dialog);
     expect(DialogPresentation.bottomSheet.prettify, 'Bottom Sheet');
