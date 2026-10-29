@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../node_json_converter.dart';
@@ -50,6 +51,7 @@ enum GaugeLimitStyle {
 /// blocks. Optional scale ticks and a limit marker (e.g. an alarm
 /// threshold) sit on top. [value], the fill [GaugeMeterProperties.color] and the
 /// [limit] can be bound to variables or formulas.
+@FlutterNode('CodelesslyGaugeMeter', family: 'codelessly', nodeType: 'gaugeMeter')
 @JsonSerializable()
 class GaugeMeterNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
@@ -61,6 +63,7 @@ class GaugeMeterNode extends SceneNode
 
   /// The current value, between [GaugeMeterProperties.min] and
   /// [GaugeMeterProperties.max].
+  @FlutterProp('value', type: 'number', group: 'State', control: 'number', bindable: true)
   double value;
 
   /// Where the limit marker sits, in the same units as [value]. No marker

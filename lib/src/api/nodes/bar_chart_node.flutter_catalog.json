@@ -1,0 +1,70 @@
+{
+  "BarChartNode": {
+    "widget": "CodelesslyBarChart",
+    "family": "codelessly",
+    "nodeType": "barChart",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "highlight": {
+          "type": "integer"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "barChart",
+        "flutterName": "highlight",
+        "fieldPath": "highlight",
+        "group": "Selection",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyBarChart": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyBarChart"
+                },
+                "highlight": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "highlight",
+        "field": "highlight",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
