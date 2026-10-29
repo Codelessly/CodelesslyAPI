@@ -1,0 +1,230 @@
+{
+  "DropdownNode": {
+    "widget": "DropdownButton",
+    "family": "material",
+    "nodeType": "dropdown",
+    "drift": [
+      {
+        "flutterName": "isDense",
+        "fieldPath": "properties.dense"
+      },
+      {
+        "flutterName": "isExpanded",
+        "fieldPath": "properties.expanded"
+      },
+      {
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autoFocus"
+      },
+      {
+        "flutterName": "enableFeedback",
+        "fieldPath": "properties.enableFeedback"
+      },
+      {
+        "flutterName": "iconSize",
+        "fieldPath": "properties.iconSize"
+      },
+      {
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "dense": {
+              "type": "boolean"
+            },
+            "expanded": {
+              "type": "boolean"
+            },
+            "autoFocus": {
+              "type": "boolean"
+            },
+            "enableFeedback": {
+              "type": "boolean"
+            },
+            "iconSize": {
+              "type": "number"
+            },
+            "elevation": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "dropdown",
+        "flutterName": "isDense",
+        "fieldPath": "properties.dense",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dropdown",
+        "flutterName": "isExpanded",
+        "fieldPath": "properties.expanded",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dropdown",
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autoFocus",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dropdown",
+        "flutterName": "enableFeedback",
+        "fieldPath": "properties.enableFeedback",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dropdown",
+        "flutterName": "iconSize",
+        "fieldPath": "properties.iconSize",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dropdown",
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "DropdownButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "DropdownButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "dense": {
+                      "type": "boolean"
+                    },
+                    "expanded": {
+                      "type": "boolean"
+                    },
+                    "autoFocus": {
+                      "type": "boolean"
+                    },
+                    "enableFeedback": {
+                      "type": "boolean"
+                    },
+                    "iconSize": {
+                      "type": "number"
+                    },
+                    "elevation": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "isDense",
+        "field": "properties.dense",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "isExpanded",
+        "field": "properties.expanded",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "autofocus",
+        "field": "properties.autoFocus",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "enableFeedback",
+        "field": "properties.enableFeedback",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "iconSize",
+        "field": "properties.iconSize",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "elevation",
+        "field": "properties.elevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

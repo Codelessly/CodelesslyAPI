@@ -1,0 +1,143 @@
+{
+  "SegmentedButtonNode": {
+    "widget": "SegmentedButton",
+    "family": "material",
+    "nodeType": "segmentedButton",
+    "drift": [
+      {
+        "flutterName": "multiSelectionEnabled",
+        "fieldPath": "properties.multiSelectionEnabled"
+      },
+      {
+        "flutterName": "emptySelectionAllowed",
+        "fieldPath": "properties.emptySelectionAllowed"
+      },
+      {
+        "flutterName": "showSelectedIcon",
+        "fieldPath": "properties.showSelectedIcon"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "multiSelectionEnabled": {
+              "type": "boolean"
+            },
+            "emptySelectionAllowed": {
+              "type": "boolean"
+            },
+            "showSelectedIcon": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "segmentedButton",
+        "flutterName": "multiSelectionEnabled",
+        "fieldPath": "properties.multiSelectionEnabled",
+        "group": "Selection",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "segmentedButton",
+        "flutterName": "emptySelectionAllowed",
+        "fieldPath": "properties.emptySelectionAllowed",
+        "group": "Selection",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "segmentedButton",
+        "flutterName": "showSelectedIcon",
+        "fieldPath": "properties.showSelectedIcon",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "SegmentedButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "SegmentedButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "multiSelectionEnabled": {
+                      "type": "boolean"
+                    },
+                    "emptySelectionAllowed": {
+                      "type": "boolean"
+                    },
+                    "showSelectedIcon": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "multiSelectionEnabled",
+        "field": "properties.multiSelectionEnabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "emptySelectionAllowed",
+        "field": "properties.emptySelectionAllowed",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "showSelectedIcon",
+        "field": "properties.showSelectedIcon",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}
