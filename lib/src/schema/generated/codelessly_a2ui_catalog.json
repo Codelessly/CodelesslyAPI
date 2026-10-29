@@ -138,6 +138,46 @@
       ],
       "unevaluatedProperties": false
     },
+    "ChoiceChip": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "ChoiceChip"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "selected": {
+                  "type": "boolean"
+                },
+                "showCheckmark": {
+                  "type": "boolean"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "tooltip": {
+                  "type": "string"
+                },
+                "autofocus": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "properties.selected"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Divider": {
       "allOf": [
         {
@@ -163,6 +203,48 @@
                 },
                 "thickness": {
                   "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "DropdownButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "DropdownButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "dense": {
+                  "type": "boolean"
+                },
+                "expanded": {
+                  "type": "boolean"
+                },
+                "autoFocus": {
+                  "type": "boolean"
+                },
+                "enableFeedback": {
+                  "type": "boolean"
+                },
+                "iconSize": {
+                  "type": "number"
+                },
+                "elevation": {
+                  "type": "integer"
                 }
               }
             }
@@ -296,6 +378,46 @@
       ],
       "unevaluatedProperties": false
     },
+    "Radio": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Radio"
+            },
+            "value": {
+              "type": "string"
+            },
+            "groupValue": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "splashRadius": {
+                  "type": "number"
+                },
+                "autofocus": {
+                  "type": "boolean"
+                },
+                "toggleable": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Row": {
       "allOf": [
         {
@@ -333,6 +455,39 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "SegmentedButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "SegmentedButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "multiSelectionEnabled": {
+                  "type": "boolean"
+                },
+                "emptySelectionAllowed": {
+                  "type": "boolean"
+                },
+                "showSelectedIcon": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
@@ -410,6 +565,54 @@
           "required": [
             "component",
             "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "TextField": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "TextField"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "obscureText": {
+                  "type": "boolean"
+                },
+                "readOnly": {
+                  "type": "boolean"
+                },
+                "showCursor": {
+                  "type": "boolean"
+                },
+                "cursorHeight": {
+                  "type": "number"
+                },
+                "cursorWidth": {
+                  "type": "number"
+                },
+                "obscuringCharacter": {
+                  "type": "string"
+                },
+                "expands": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -15,6 +16,7 @@ const double kRadioDefaultSize = 32;
 /// restricts the user to select only a single option.
 /// Refer to [Radio](https://api.flutter.dev/flutter/material/Radio-class.html)
 /// in Flutter for more details.
+@FlutterNode('Radio', family: 'material', nodeType: 'radio')
 @JsonSerializable()
 class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   @override
@@ -31,6 +33,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   double get defaultHeight => kRadioDefaultSize;
 
   /// Value of the radio button (an option in the radio group).
+  @FlutterProp('value', type: 'string', group: 'State', control: 'text', required: true)
   String value = '';
 
   /// Currently selected option in the radio group.
@@ -38,6 +41,7 @@ class RadioNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   /// Radios that share a group value form a group. Render them under a
   /// Flutter `RadioGroup` with this value; `Radio.groupValue` and
   /// `Radio.onChanged` are deprecated.
+  @FlutterProp('groupValue', type: 'string', group: 'State', control: 'text')
   String? groupValue;
 
   /// Creates a mock radio preview.
@@ -129,12 +133,15 @@ class RadioProperties extends CustomProperties with FieldsHolder {
   late ColorRGBA focusColor;
 
   /// Splash radius of the circular ink response.
+  @FlutterProp('splashRadius', type: 'number', group: 'Appearance', control: 'number', field: 'properties.splashRadius')
   late double splashRadius;
 
   /// Whether to focus the radio automatically.
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   late bool autofocus;
 
   /// Whether the button's value can be toggled on tap.
+  @FlutterProp('toggleable', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.toggleable')
   late bool toggleable;
 
   /// Outline of the radio's circle. When null, Flutter draws it in the fill

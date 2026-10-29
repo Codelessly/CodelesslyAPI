@@ -1,0 +1,194 @@
+{
+  "RadioNode": {
+    "widget": "Radio",
+    "family": "material",
+    "nodeType": "radio",
+    "drift": [
+      {
+        "flutterName": "splashRadius",
+        "fieldPath": "properties.splashRadius"
+      },
+      {
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus"
+      },
+      {
+        "flutterName": "toggleable",
+        "fieldPath": "properties.toggleable"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "groupValue": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "splashRadius": {
+              "type": "number"
+            },
+            "autofocus": {
+              "type": "boolean"
+            },
+            "toggleable": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "radio",
+        "flutterName": "value",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "radio",
+        "flutterName": "groupValue",
+        "fieldPath": "groupValue",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "radio",
+        "flutterName": "splashRadius",
+        "fieldPath": "properties.splashRadius",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "radio",
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "radio",
+        "flutterName": "toggleable",
+        "fieldPath": "properties.toggleable",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Radio": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Radio"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "groupValue": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "splashRadius": {
+                      "type": "number"
+                    },
+                    "autofocus": {
+                      "type": "boolean"
+                    },
+                    "toggleable": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "value"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "value",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "groupValue",
+        "field": "groupValue",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "splashRadius",
+        "field": "properties.splashRadius",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "autofocus",
+        "field": "properties.autofocus",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "toggleable",
+        "field": "properties.toggleable",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}
