@@ -1,0 +1,116 @@
+{
+  "ListViewNode": {
+    "widget": "ListView",
+    "family": "widgets",
+    "nodeType": "listView",
+    "drift": [
+      {
+        "flutterName": "itemExtent",
+        "fieldPath": "properties.itemExtent"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "itemExtent": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "listView",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listView",
+        "flutterName": "itemExtent",
+        "fieldPath": "properties.itemExtent",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "ListView": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "ListView"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "itemExtent": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "itemExtent",
+        "field": "properties.itemExtent",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
