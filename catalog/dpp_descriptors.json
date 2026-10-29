@@ -1,0 +1,146 @@
+{
+  "descriptors": [
+    {
+      "nodeType": "button",
+      "flutterName": "child",
+      "fieldPath": "properties.label",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "color",
+      "fieldPath": "properties.color",
+      "group": "Appearance",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "indent",
+      "fieldPath": "properties.indent",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "endIndent",
+      "fieldPath": "properties.endIndent",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "thickness",
+      "fieldPath": "properties.thickness",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "rowColumn",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "rowColumn",
+      "flutterName": "mainAxisAlignment",
+      "fieldPath": "mainAxisAlignment",
+      "group": "Layout",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": "MainAxisAlignment.center",
+      "bindable": false
+    },
+    {
+      "nodeType": "rowColumn",
+      "flutterName": "crossAxisAlignment",
+      "fieldPath": "crossAxisAlignment",
+      "group": "Layout",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": "CrossAxisAlignment.center",
+      "bindable": false
+    },
+    {
+      "nodeType": "text",
+      "flutterName": "data",
+      "fieldPath": "characters",
+      "group": "Text",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "text",
+      "flutterName": "maxLines",
+      "fieldPath": "maxLines",
+      "group": "Text",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "text",
+      "flutterName": "softWrap",
+      "fieldPath": "softWrap",
+      "group": "Text",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": "true",
+      "bindable": false
+    }
+  ],
+  "drift": [
+    {
+      "nodeType": "button",
+      "flutterName": "child",
+      "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "color",
+      "fieldPath": "properties.color"
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "indent",
+      "fieldPath": "properties.indent"
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "endIndent",
+      "fieldPath": "properties.endIndent"
+    },
+    {
+      "nodeType": "divider",
+      "flutterName": "thickness",
+      "fieldPath": "properties.thickness"
+    },
+    {
+      "nodeType": "text",
+      "flutterName": "data",
+      "fieldPath": "characters"
+    }
+  ]
+}

@@ -2,73 +2,94 @@
   "RowColumnNode": {
     "widget": "Row",
     "family": "widgets",
+    "nodeType": "rowColumn",
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "additionalProperties": false,
       "properties": {
         "children": {
           "type": "array",
-          "description": "Layout: children"
+          "items": {
+            "type": "string"
+          }
         },
         "mainAxisAlignment": {
-          "type": "string",
-          "description": "Layout: mainAxisAlignment"
+          "type": "string"
         },
         "crossAxisAlignment": {
-          "type": "string",
-          "description": "Layout: crossAxisAlignment"
+          "type": "string"
         }
-      },
-      "required": [
-        "children"
-      ]
+      }
     },
     "dpp": [
       {
-        "name": "children",
-        "field": "children",
+        "nodeType": "rowColumn",
+        "flutterName": "children",
+        "fieldPath": "children",
         "group": "Layout",
         "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
         "bindable": false
       },
       {
-        "name": "mainAxisAlignment",
-        "field": "mainAxisAlignment",
+        "nodeType": "rowColumn",
+        "flutterName": "mainAxisAlignment",
+        "fieldPath": "mainAxisAlignment",
         "group": "Layout",
         "control": "enum",
+        "schemaType": "string",
+        "defaultSource": "MainAxisAlignment.center",
         "bindable": false
       },
       {
-        "name": "crossAxisAlignment",
-        "field": "crossAxisAlignment",
+        "nodeType": "rowColumn",
+        "flutterName": "crossAxisAlignment",
+        "fieldPath": "crossAxisAlignment",
         "group": "Layout",
         "control": "enum",
+        "schemaType": "string",
+        "defaultSource": "CrossAxisAlignment.center",
         "bindable": false
       }
     ],
     "a2ui": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://codelessly.com/a2ui/catalog/widgets/Row",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
       "components": {
         "Row": {
-          "type": "object",
-          "properties": {
-            "children": {
-              "type": "array",
-              "description": "Layout: children"
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
             },
-            "mainAxisAlignment": {
-              "type": "string",
-              "description": "Layout: mainAxisAlignment"
-            },
-            "crossAxisAlignment": {
-              "type": "string",
-              "description": "Layout: crossAxisAlignment"
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Row"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                },
+                "mainAxisAlignment": {
+                  "type": "string"
+                },
+                "crossAxisAlignment": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
             }
-          }
+          ],
+          "unevaluatedProperties": false
         }
-      }
+      },
+      "functions": {}
     },
     "testMatrix": [
       {

@@ -4,8 +4,10 @@ class FlutterNode {
   final String widget;
   /// Source widget library family.
   final String family;
+  /// The node wire type emitted in serialized JSON.
+  final String nodeType;
   /// Identifies the Flutter widget that this node models.
-  const FlutterNode(this.widget, {required this.family});
+  const FlutterNode(this.widget, {required this.family, required this.nodeType});
 }
 
 /// A Flutter constructor parameter's Codelessly wire metadata.

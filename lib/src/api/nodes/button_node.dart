@@ -76,9 +76,7 @@ enum ButtonTypeEnum {
 /// A material button.
 /// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for
 /// more details.
-@FlutterNode('ElevatedButton', family: 'material')
-@FlutterProp('onPressed', type: 'string', group: 'Interaction', control: 'action', field: 'reactions')
-@FlutterProp('child', type: 'string', group: 'Content', control: 'text', field: 'properties.label')
+@FlutterNode('ElevatedButton', family: 'material', nodeType: 'button')
 @JsonSerializable()
 class ButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -237,6 +235,7 @@ class ButtonProperties extends CustomProperties
   // Label properties.
 
   /// Text to display in the button.
+  @FlutterProp('child', type: 'string', group: 'Content', control: 'text', field: 'properties.label')
   late String label;
 
   /// Alignment of the label.

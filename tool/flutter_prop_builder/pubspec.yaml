@@ -5,3 +5,4 @@ environment:
 dependencies:
   analyzer: ^14.0.0
   build: ^4.0.0
+  source_gen: ^4.0.0

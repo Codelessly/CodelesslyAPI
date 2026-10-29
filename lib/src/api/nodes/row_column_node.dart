@@ -9,10 +9,7 @@ part 'row_column_node.g.dart';
 
 /// A node that can lay out its children in a row or column.
 /// Typically referred to [Row] and [Column] widgets in Flutter.
-@FlutterNode('Row', family: 'widgets')
-@FlutterProp('children', type: 'array', group: 'Layout', control: 'children', required: true)
-@FlutterProp('mainAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'MainAxisAlignment.center')
-@FlutterProp('crossAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'CrossAxisAlignment.center')
+@FlutterNode('Row', family: 'widgets', nodeType: 'rowColumn')
 @JsonSerializable()
 class RowColumnNode extends ParentNode
     with RowColumnMixin, ScrollableMixin, CornerMixin {

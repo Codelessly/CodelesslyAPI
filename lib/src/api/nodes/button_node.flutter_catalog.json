@@ -2,67 +2,75 @@
   "ButtonNode": {
     "widget": "ElevatedButton",
     "family": "material",
+    "nodeType": "button",
+    "drift": [
+      {
+        "flutterName": "child",
+        "fieldPath": "properties.label"
+      }
+    ],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "additionalProperties": false,
       "properties": {
-        "onPressed": {
-          "type": "string",
-          "description": "Interaction: reactions"
-        },
-        "child": {
-          "type": "string",
-          "description": "Content: properties.label"
-        }
-      },
-      "required": []
-    },
-    "dpp": [
-      {
-        "name": "onPressed",
-        "field": "reactions",
-        "group": "Interaction",
-        "control": "action",
-        "bindable": false
-      },
-      {
-        "name": "child",
-        "field": "properties.label",
-        "group": "Content",
-        "control": "text",
-        "bindable": false
-      }
-    ],
-    "a2ui": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$id": "https://codelessly.com/a2ui/catalog/material/ElevatedButton",
-      "components": {
-        "ElevatedButton": {
+        "properties": {
           "type": "object",
           "properties": {
-            "onPressed": {
-              "type": "string",
-              "description": "Interaction: reactions"
-            },
-            "child": {
-              "type": "string",
-              "description": "Content: properties.label"
+            "label": {
+              "type": "string"
             }
           }
         }
       }
     },
-    "testMatrix": [
+    "dpp": [
       {
-        "parameter": "onPressed",
-        "field": "reactions",
+        "nodeType": "button",
+        "flutterName": "child",
+        "fieldPath": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
         "defaultSource": null,
-        "testValues": [
-          "",
-          "sample"
-        ]
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "ElevatedButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "ElevatedButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
       },
+      "functions": {}
+    },
+    "testMatrix": [
       {
         "parameter": "child",
         "field": "properties.label",
