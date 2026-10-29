@@ -277,6 +277,9 @@ mixin BlendMixin on BaseNode {
   /// Whether to use ink well on this node, along with its properties.
   late InkWellModel? inkWell;
 
+  /// A looping fade of the node's opacity, or null for none.
+  PulseModel? pulse;
+
   /// Sets the blend properties of the node.
   void setBlendMixin({
     required double opacity,
@@ -567,14 +570,18 @@ enum SliderThumbShapeEnum {
   /// A circle of the slider's thumb radius.
   circle,
 
-  /// A rectangle of the slider's thumb width and height with rounded
-  /// corners, like a fader cap.
-  roundedRect;
+  /// A rounded rectangle, historically serialized as `roundedRect`.
+  roundedRect,
+
+  /// A rounded rectangle with optional border and grip line, serialized as
+  /// `rectangle` for PR48 documents.
+  rectangle;
 
   /// Display-able string representation of the enum.
   String get prettify => switch (this) {
     SliderThumbShapeEnum.circle => 'Circle',
     SliderThumbShapeEnum.roundedRect => 'Rectangle',
+    SliderThumbShapeEnum.rectangle => 'Rectangle',
   };
 }
 
@@ -1335,6 +1342,7 @@ mixin ScrollableMixin on BaseNode {
   bool get isScrollingEnforced => false;
 
   /// Whether the scrolling is enabled.
+  @JsonKey(defaultValue: false)
   late bool isScrollable;
 
   /// Direction in which the scrolling is allowed.
@@ -1357,6 +1365,7 @@ mixin ScrollableMixin on BaseNode {
 
   /// Whether to use a [ListView] instead of [SingleChildScrollView] in flutter
   /// code-gen and transformers.
+  @JsonKey(defaultValue: false)
   late bool useFlutterListView;
 
   /// Whether to use AlwaysScrollableScrollPhysics or not.

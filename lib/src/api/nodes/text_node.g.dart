@@ -224,11 +224,21 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -246,14 +256,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
@@ -277,6 +280,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
+  'pulse': ?instance.pulse?.toJson(),
   'type': instance.type,
 };
 

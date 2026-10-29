@@ -50,6 +50,8 @@ Map<String, dynamic> _$TabBarNodeOmitDefaults(
   if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.physics, ScrollPhysicsC.platformDependent))
     json.remove('physics');
+  if (isJsonDefault(instance.useFlutterListView, false))
+    json.remove('useFlutterListView');
   if (isJsonDefault(instance.shouldAlwaysScroll, true))
     json.remove('shouldAlwaysScroll');
   return json;
@@ -220,7 +222,7 @@ TabBarNode _$TabBarNodeFromJson(Map json) =>
         _$ScrollViewKeyboardDismissBehaviorCEnumMap,
         json['keyboardDismissBehavior'],
       )
-      ..useFlutterListView = json['useFlutterListView'] as bool
+      ..useFlutterListView = json['useFlutterListView'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TabBarNodeToJson(TabBarNode instance) =>

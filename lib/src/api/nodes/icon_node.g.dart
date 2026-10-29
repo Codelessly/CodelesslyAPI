@@ -180,6 +180,9 @@ IconNode _$IconNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
@@ -221,6 +224,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
+  'pulse': ?instance.pulse?.toJson(),
   'properties': instance.properties.toJson(),
   'type': instance.type,
 };

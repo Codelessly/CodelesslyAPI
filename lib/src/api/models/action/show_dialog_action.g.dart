@@ -24,6 +24,11 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('maxHeightFactor');
   if (isJsonDefault(instance.showDragHandle, false))
     json.remove('showDragHandle');
+  if (isJsonDefault(instance.anchor, DialogAnchor.none)) json.remove('anchor');
+  if (isJsonDefault(instance.placement, DialogPlacement.belowStart))
+    json.remove('placement');
+  if (isJsonDefault(instance.anchorGap, 4)) json.remove('anchorGap');
+  if (isJsonDefault(instance.anchorOffset, 0)) json.remove('anchorOffset');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -56,6 +61,22 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   showDragHandle: json['showDragHandle'] as bool? ?? false,
+  anchor:
+      $enumDecodeNullable(
+        _$DialogAnchorEnumMap,
+        json['anchor'],
+        unknownValue: DialogAnchor.none,
+      ) ??
+      DialogAnchor.none,
+  placement:
+      $enumDecodeNullable(
+        _$DialogPlacementEnumMap,
+        json['placement'],
+        unknownValue: DialogPlacement.belowStart,
+      ) ??
+      DialogPlacement.belowStart,
+  anchorGap: (json['anchorGap'] as num?)?.toDouble() ?? 4,
+  anchorOffset: (json['anchorOffset'] as num?)?.toDouble() ?? 0,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -75,6 +96,10 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
+      'anchor': _$DialogAnchorEnumMap[instance.anchor]!,
+      'placement': _$DialogPlacementEnumMap[instance.placement]!,
+      'anchorGap': instance.anchorGap,
+      'anchorOffset': instance.anchorOffset,
     };
 
 const _$DialogPresentationEnumMap = {
@@ -82,6 +107,26 @@ const _$DialogPresentationEnumMap = {
   DialogPresentation.bottomSheet: 'bottomSheet',
   DialogPresentation.adaptive: 'adaptive',
   DialogPresentation.sideSheet: 'sideSheet',
+};
+
+const _$DialogAnchorEnumMap = {
+  DialogAnchor.none: 'none',
+  DialogAnchor.trigger: 'trigger',
+};
+
+const _$DialogPlacementEnumMap = {
+  DialogPlacement.belowStart: 'belowStart',
+  DialogPlacement.belowCenter: 'belowCenter',
+  DialogPlacement.belowEnd: 'belowEnd',
+  DialogPlacement.aboveStart: 'aboveStart',
+  DialogPlacement.aboveCenter: 'aboveCenter',
+  DialogPlacement.aboveEnd: 'aboveEnd',
+  DialogPlacement.rightStart: 'rightStart',
+  DialogPlacement.rightCenter: 'rightCenter',
+  DialogPlacement.rightEnd: 'rightEnd',
+  DialogPlacement.leftStart: 'leftStart',
+  DialogPlacement.leftCenter: 'leftCenter',
+  DialogPlacement.leftEnd: 'leftEnd',
 };
 
 const _$ActionTypeEnumMap = {
