@@ -9,6 +9,7 @@ targets:
           - lib/src/api/nodes/divider_node.dart
           - lib/src/api/nodes/badge_node.dart
           - lib/src/api/nodes/app_bar_node.dart
+          - lib/src/api/nodes/checkbox_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.
