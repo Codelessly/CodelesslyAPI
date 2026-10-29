@@ -101,6 +101,43 @@
       ],
       "unevaluatedProperties": false
     },
+    "Checkbox": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Checkbox"
+            },
+            "value": {
+              "type": "boolean"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "splashRadius": {
+                  "type": "number"
+                },
+                "autofocus": {
+                  "type": "boolean"
+                },
+                "tristate": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Divider": {
       "allOf": [
         {

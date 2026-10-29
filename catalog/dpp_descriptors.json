@@ -81,6 +81,46 @@
       "bindable": false
     },
     {
+      "nodeType": "checkbox",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "tristate",
+      "fieldPath": "properties.tristate",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "divider",
       "flutterName": "color",
       "fieldPath": "properties.color",
@@ -221,6 +261,21 @@
       "nodeType": "button",
       "flutterName": "child",
       "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius"
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "checkbox",
+      "flutterName": "tristate",
+      "fieldPath": "properties.tristate"
     },
     {
       "nodeType": "divider",
