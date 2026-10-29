@@ -122,6 +122,7 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
+  ActionType.paywall: 'paywall',
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(
