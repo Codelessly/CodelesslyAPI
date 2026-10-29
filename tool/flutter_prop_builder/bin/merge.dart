@@ -50,6 +50,29 @@ void main(List<String> args) {
       }
     }
   }
+  // Basic A2UI names are permanent alongside Flutter widget names. Only
+  // properties consumed by the typed GenUI bridge are exposed here.
+  Map<String, dynamic> basic(String name, Map<String, dynamic> properties, List<String> required) => {
+    'allOf': [
+      {'\$ref': 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ComponentCommon'},
+      {'type': 'object', 'properties': {'component': {'const': name}, ...properties}, 'required': ['component', ...required]},
+    ],
+    'unevaluatedProperties': false,
+  };
+  const childList = 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ChildList';
+  const componentId = 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ComponentId';
+  const action = 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/Action';
+  components['Text'] = basic('Text', {'text': {'type': 'string'}}, ['text']);
+  components['Button'] = basic('Button', {'child': {'\$ref': componentId}, 'label': {'type': 'string'}, 'action': {'\$ref': action}, 'variant': {'enum': ['primary', 'secondary', 'tertiary']}}, ['child', 'action']);
+  final flexProps = <String, dynamic>{
+    'children': {'\$ref': childList},
+    'justify': {'enum': ['start', 'center', 'end', 'spaceBetween', 'spaceAround', 'spaceEvenly']},
+    'align': {'enum': ['start', 'center', 'end', 'stretch', 'baseline']},
+  };
+  components['Row'] = basic('Row', flexProps, ['children']);
+  components['Column'] = basic('Column', flexProps, ['children']);
+  // ListView is the Flutter-named component; List is its basic counterpart.
+  components['List'] = basic('List', {'children': {'\$ref': childList}}, ['children']);
   final catalog = {
     '\$schema':'https://json-schema.org/draft/2020-12/schema',
     '\$id':catalogId,
@@ -59,9 +82,9 @@ void main(List<String> args) {
     'components':components,
     'functions':<String, dynamic>{},
   };
-  final out = Directory('catalog')..createSync(recursive: true);
+  final out = Directory('lib/src/schema/generated')..createSync(recursive: true);
   void write(String name, dynamic data) => File('${out.path}/$name').writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(data)}\n');
-  write('codelessly_catalog_v1.json', catalog);
+  write('codelessly_a2ui_catalog.json', catalog);
   write('dpp_descriptors.json', {'descriptors':descriptors, 'drift':drift});
   stdout.writeln('${components.length} components, ${descriptors.length} descriptors, ${drift.length} naming drifts');
 }
