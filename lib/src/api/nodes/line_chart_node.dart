@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -57,6 +58,7 @@ const double kLineChartDefaultHeight = 240;
 /// - Any color property, e.g. `lineColor`, can be bound too.
 ///
 /// Colors in the lists are hex strings (`#RRGGBB` or `#AARRGGBB`).
+@FlutterNode('CodelesslyLineChart', family: 'codelessly', nodeType: 'lineChart')
 @JsonSerializable()
 class LineChartNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -195,6 +197,7 @@ class LineChartProperties extends CustomProperties with FieldsHolder {
 
   /// Whether the curve is a Catmull-Rom spline through the points instead
   /// of a polyline.
+  @FlutterProp('smooth', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.smooth')
   bool smooth;
 
   /// Color of the curve, marker outlines and curve dots.

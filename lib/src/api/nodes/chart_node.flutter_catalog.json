@@ -1,0 +1,70 @@
+{
+  "ChartNode": {
+    "widget": "CodelesslyChartSeries",
+    "family": "codelessly",
+    "nodeType": "chartSeries",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "selectedIndex": {
+          "type": "integer"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "chartSeries",
+        "flutterName": "selectedIndex",
+        "fieldPath": "selectedIndex",
+        "group": "Selection",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyChartSeries": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyChartSeries"
+                },
+                "selectedIndex": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "selectedIndex",
+        "field": "selectedIndex",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

@@ -71,12 +71,32 @@
       "bindable": false
     },
     {
+      "nodeType": "barChart",
+      "flutterName": "highlight",
+      "fieldPath": "highlight",
+      "group": "Selection",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "button",
       "flutterName": "child",
       "fieldPath": "properties.label",
       "group": "Content",
       "control": "text",
       "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chartSeries",
+      "flutterName": "selectedIndex",
+      "fieldPath": "selectedIndex",
+      "group": "Selection",
+      "control": "number",
+      "schemaType": "integer",
       "defaultSource": null,
       "bindable": false
     },
@@ -361,6 +381,26 @@
       "bindable": false
     },
     {
+      "nodeType": "gaugeMeter",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "gaugeRadial",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
       "nodeType": "gridView",
       "flutterName": "children",
       "fieldPath": "children",
@@ -377,6 +417,16 @@
       "group": "Layout",
       "control": "number",
       "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "lineChart",
+      "flutterName": "smooth",
+      "fieldPath": "properties.smooth",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
       "defaultSource": null,
       "bindable": false
     },
@@ -517,6 +567,16 @@
       "group": "Interaction",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chartPlot",
+      "flutterName": "selectedX",
+      "fieldPath": "selectedX",
+      "group": "Selection",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -1011,6 +1071,11 @@
       "nodeType": "gridView",
       "flutterName": "cacheExtent",
       "fieldPath": "properties.cacheExtent"
+    },
+    {
+      "nodeType": "lineChart",
+      "flutterName": "smooth",
+      "fieldPath": "properties.smooth"
     },
     {
       "nodeType": "listTile",
