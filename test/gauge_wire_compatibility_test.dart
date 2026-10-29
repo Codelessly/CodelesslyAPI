@@ -95,7 +95,12 @@ void main() {
       fail('ambiguous gauge must reject the canvases map');
     } on UnresolvedDocumentSchema catch (error) {
       expect(error.reason, 'ambiguous-gauge-schema');
+      expect(error.nodeKey, 'ambiguous');
       expect(error.raw, input);
+      expect(error.raw.keys, ['a', 'b']);
+      ((input['b'] as Map)['ambiguous'] as Map)['name'] = 'Changed';
+      expect(((error.raw['b'] as Map)['ambiguous'] as Map)['name'], 'Gauge');
+      expect((error.raw['a'] as Map).keys, ['good']);
     }
   });
 }
