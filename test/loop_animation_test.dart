@@ -121,7 +121,7 @@ void main() {
           id: 't',
           name: 'T',
           basicBoxLocal: NodeBox(0, 0, 1, 1),
-          characters: 'Hi',
+          data: 'Hi',
         ),
       ];
       for (final ReactionMixin node in nodes) {

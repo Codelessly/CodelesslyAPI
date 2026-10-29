@@ -48,7 +48,7 @@ void main() {
             'buttonType': type == 'filledButton' ? 'filled' :
                 type.substring(0, type.length - 'Button'.length),
         },
-        'characters': '',
+        'data': '',
         'children': <String>[],
         if (type == 'row' || type == 'column') 'rowColumnType': type,
       });

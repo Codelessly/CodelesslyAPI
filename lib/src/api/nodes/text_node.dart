@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
@@ -109,7 +110,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.parentID,
     super.reactions,
     // [TextMixin] properties.
-    required String characters,
+    required String data,
     List<StartEndProp> textMixedProps = const [],
     double paragraphIndent = 0,
     double paragraphSpacing = 0,
@@ -130,7 +131,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     this.tabularFigures = false,
   }) {
     setTextMixin(
-      characters: characters,
+      data: data,
       textMixedProps: textMixedProps,
       textAlignHorizontal: textAlignHorizontal,
       textAlignVertical: textAlignVertical,
@@ -167,7 +168,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
-    StringValue(name: 'characters', value: characters),
+    StringValue(name: 'data', value: data),
     // Overrides the color of every span; set by a binding or condition.
     const ColorValue(name: 'textColor', value: null),
   ];
@@ -176,7 +177,12 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   String toString() => 'TextNode';
 
   /// Creates a [TextNode] instance from a JSON object.
-  factory TextNode.fromJson(Map json) => _$TextNodeFromJson(json);
+  factory TextNode.fromJson(Map json) {
+    if (json.containsKey('characters')) {
+      throw const FormatException('Unsupported TextNode key: characters');
+    }
+    return _$TextNodeFromJson(json);
+  }
 
   @override
   Map toJson() => _$TextNodeOmitDefaults(this, _$TextNodeToJson(this));
@@ -184,13 +190,21 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
 /// [TextNode] specific properties.
 mixin TextMixin {
-  /// Text characters.
-  @FlutterProp('data', type: 'string', group: 'Text', control: 'text', field: 'characters', required: true, bindable: true)
-  late String characters;
+  /// Text data.
+  @FlutterProp(
+    'data',
+    type: 'string',
+    group: 'Text',
+    control: 'text',
+    field: 'data',
+    required: true,
+    bindable: true,
+  )
+  late String data;
 
   /// List of mixed text properties.
   /// Each [StartEndProp] has a [start] and [end] point that defines the index
-  /// of characters for which the properties should be applied to.
+  /// of data for which the properties should be applied to.
   late List<StartEndProp> textMixedProps;
 
   /// Horizontal alignment applied to text.
@@ -214,7 +228,13 @@ mixin TextMixin {
 
   /// Whether the text breaks at soft line breaks. When false, it is laid out
   /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
-  @FlutterProp('softWrap', type: 'boolean', group: 'Text', control: 'switch', defaultSource: 'true')
+  @FlutterProp(
+    'softWrap',
+    type: 'boolean',
+    group: 'Text',
+    control: 'switch',
+    defaultSource: 'true',
+  )
   late bool softWrap;
 
   /// Factor by which to scale the font size, on top of the platform's text
@@ -223,7 +243,7 @@ mixin TextMixin {
 
   /// Set text properties.
   void setTextMixin({
-    required String characters,
+    required String data,
     required List<StartEndProp> textMixedProps,
     required TextAlignHorizontalEnum textAlignHorizontal,
     required TextAlignVerticalEnum textAlignVertical,
@@ -234,7 +254,7 @@ mixin TextMixin {
     bool softWrap = true,
     double? textScaleFactor,
   }) {
-    this.characters = characters;
+    this.data = data;
     this.textMixedProps = textMixedProps;
     this.textAlignHorizontal = textAlignHorizontal;
     this.textAlignVertical = textAlignVertical;
