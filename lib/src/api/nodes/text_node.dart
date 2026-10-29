@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -43,6 +44,7 @@ class WidthRange with SerializableMixin implements Equatable {
 /// be displayed on the same line depending on the layout constraints.
 /// Refer to [Text](https://api.flutter.dev/flutter/widgets/Text-class.html) in
 /// Flutter for more details.
+@FlutterNode('Text', family: 'widgets', nodeType: 'text')
 @JsonSerializable()
 class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   @override
@@ -183,6 +185,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 /// [TextNode] specific properties.
 mixin TextMixin {
   /// Text characters.
+  @FlutterProp('data', type: 'string', group: 'Text', control: 'text', field: 'characters', required: true, bindable: true)
   late String characters;
 
   /// List of mixed text properties.
@@ -203,6 +206,7 @@ mixin TextMixin {
   late double paragraphSpacing;
 
   /// Maximum number of lines that the text can spread across when wrapped.
+  @FlutterProp('maxLines', type: 'integer', group: 'Text', control: 'number')
   late int? maxLines;
 
   /// Defines how the text would clip when it overflows the available space.
@@ -210,6 +214,7 @@ mixin TextMixin {
 
   /// Whether the text breaks at soft line breaks. When false, it is laid out
   /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
+  @FlutterProp('softWrap', type: 'boolean', group: 'Text', control: 'switch', defaultSource: 'true')
   late bool softWrap;
 
   /// Factor by which to scale the font size, on top of the platform's text
