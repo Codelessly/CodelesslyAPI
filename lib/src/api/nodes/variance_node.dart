@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
@@ -12,6 +13,7 @@ part 'variance_node.g.dart';
 /// [VarianceNode] allows the user to create different variants of the same node
 /// and switch them based on certain conditions. For example, it can be used to
 /// create success and error states of a widget.
+@FlutterNode('CodelesslyVariance', family: 'codelessly', nodeType: 'variance')
 @JsonSerializable()
 class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   @override
@@ -104,6 +106,7 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   }
 
   /// Currently loaded variant's ID.
+  @FlutterProp('currentVariantId', type: 'string', group: 'State', control: 'text')
   late String currentVariantId;
 
   /// Currently loaded variant.
