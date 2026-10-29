@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -6,6 +7,7 @@ import '../models/models.dart';
 part 'frame_node.g.dart';
 
 /// A node that represents a frame that behaves like a stack.
+@FlutterNode('Stack', family: 'widgets', nodeType: 'frame')
 @JsonSerializable()
 class FrameNode extends DefaultShapeNode
     with CornerMixin, ClipMixin, ChildrenMixin, ScrollableMixin, PortalMixin {

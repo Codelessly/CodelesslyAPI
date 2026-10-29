@@ -161,6 +161,36 @@
       "bindable": false
     },
     {
+      "nodeType": "frame",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "gridView",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "gridView",
+      "flutterName": "cacheExtent",
+      "fieldPath": "properties.cacheExtent",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "listView",
       "flutterName": "children",
       "fieldPath": "children",
@@ -177,6 +207,46 @@
       "group": "Layout",
       "control": "number",
       "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "pageSnapping",
+      "fieldPath": "properties.pageSnapping",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "padEnds",
+      "fieldPath": "properties.padEnds",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "allowImplicitScrolling",
+      "fieldPath": "properties.allowImplicitScrolling",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
       "defaultSource": null,
       "bindable": false
     },
@@ -408,9 +478,29 @@
       "fieldPath": "properties.thickness"
     },
     {
+      "nodeType": "gridView",
+      "flutterName": "cacheExtent",
+      "fieldPath": "properties.cacheExtent"
+    },
+    {
       "nodeType": "listView",
       "flutterName": "itemExtent",
       "fieldPath": "properties.itemExtent"
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "pageSnapping",
+      "fieldPath": "properties.pageSnapping"
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "padEnds",
+      "fieldPath": "properties.padEnds"
+    },
+    {
+      "nodeType": "pageView",
+      "flutterName": "allowImplicitScrolling",
+      "fieldPath": "properties.allowImplicitScrolling"
     },
     {
       "nodeType": "slider",
