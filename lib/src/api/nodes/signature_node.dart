@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../node_json_converter.dart';
 import 'nodes.dart';
 
 part 'signature_node.g.dart';
@@ -165,7 +166,10 @@ class SignatureNode extends SceneNode with CustomPropertiesMixin {
   ];
 
   /// Creates a [SignatureNode] from a JSON data.
-  factory SignatureNode.fromJson(Map json) => _$SignatureNodeFromJson(json);
+  factory SignatureNode.fromJson(Map json) {
+    NodeJsonConverter.validateSignatureWire(json, expectedType: 'signature');
+    return _$SignatureNodeFromJson(json);
+  }
 
   @override
   Map toJson() => {
