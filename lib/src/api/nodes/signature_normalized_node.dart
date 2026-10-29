@@ -25,11 +25,11 @@ const double kSignatureNormalizedDefaultHeight = 120;
 ///
 /// The box paints only the ink: put it in a frame for a background and
 /// border, with a watermark or signing line behind it.
-@FlutterNode('CodelesslyNormalizedSignature', family: 'codelessly', nodeType: 'signatureNormalized')
+@FlutterNode('CodelesslyNormalizedSignature', family: 'codelessly', nodeType: 'signature', variant: 'normalized')
 @JsonSerializable()
 class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
   @override
-  final String type = 'signatureNormalized';
+  final String type = 'signature';
 
   /// The strokes shown when `value` isn't bound.
   @FlutterProp('strokes', type: 'array', group: 'State', control: 'strokes', bindable: true)
@@ -108,13 +108,9 @@ class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
   factory SignatureNormalizedNode.fromJson(Map json) {
     NodeJsonConverter.validateSignatureWire(
       json,
-      expectedType: 'signatureNormalized',
+      expectedType: 'normalized',
     );
-    return _$SignatureNormalizedNodeFromJson(
-      json['type'] == 'signature'
-          ? {...json, 'type': 'signatureNormalized'}
-          : json,
-    );
+    return _$SignatureNormalizedNodeFromJson(json);
   }
 
   @override
@@ -123,6 +119,7 @@ class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
       this,
       _$SignatureNormalizedNodeToJson(this),
     ),
+    'type': 'signature',
     'signatureKind': 'normalized',
   };
 }

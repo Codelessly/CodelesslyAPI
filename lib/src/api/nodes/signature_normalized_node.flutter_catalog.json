@@ -2,7 +2,8 @@
   "SignatureNormalizedNode": {
     "widget": "CodelesslyNormalizedSignature",
     "family": "codelessly",
-    "nodeType": "signatureNormalized",
+    "nodeType": "signature",
+    "variant": "normalized",
     "drift": [
       {
         "flutterName": "strokeWidth",
@@ -17,6 +18,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "signatureKind": {
+          "const": "normalized"
+        },
         "strokes": {
           "type": "array",
           "items": {
@@ -40,11 +44,15 @@
             }
           }
         }
-      }
+      },
+      "required": [
+        "signatureKind"
+      ]
     },
     "dpp": [
       {
-        "nodeType": "signatureNormalized",
+        "nodeType": "signature",
+        "variant": "normalized",
         "flutterName": "strokes",
         "fieldPath": "strokes",
         "group": "State",
@@ -54,7 +62,8 @@
         "bindable": true
       },
       {
-        "nodeType": "signatureNormalized",
+        "nodeType": "signature",
+        "variant": "normalized",
         "flutterName": "strokeWidth",
         "fieldPath": "properties.strokeWidth",
         "group": "Appearance",
@@ -64,7 +73,8 @@
         "bindable": false
       },
       {
-        "nodeType": "signatureNormalized",
+        "nodeType": "signature",
+        "variant": "normalized",
         "flutterName": "readOnly",
         "fieldPath": "properties.readOnly",
         "group": "Interaction",
@@ -89,6 +99,9 @@
               "properties": {
                 "component": {
                   "const": "CodelesslyNormalizedSignature"
+                },
+                "signatureKind": {
+                  "const": "normalized"
                 },
                 "strokes": {
                   "type": "array",
@@ -115,7 +128,8 @@
                 }
               },
               "required": [
-                "component"
+                "component",
+                "signatureKind"
               ]
             }
           ],

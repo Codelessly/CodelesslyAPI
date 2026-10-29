@@ -2,20 +2,28 @@
   "PlotChartNode": {
     "widget": "CodelesslyPlotChart",
     "family": "codelessly",
-    "nodeType": "chartPlot",
+    "nodeType": "chart",
+    "variant": "plot",
     "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "chartKind": {
+          "const": "plot"
+        },
         "selectedX": {
           "type": "number"
         }
-      }
+      },
+      "required": [
+        "chartKind"
+      ]
     },
     "dpp": [
       {
-        "nodeType": "chartPlot",
+        "nodeType": "chart",
+        "variant": "plot",
         "flutterName": "selectedX",
         "fieldPath": "selectedX",
         "group": "Selection",
@@ -41,12 +49,16 @@
                 "component": {
                   "const": "CodelesslyPlotChart"
                 },
+                "chartKind": {
+                  "const": "plot"
+                },
                 "selectedX": {
                   "type": "number"
                 }
               },
               "required": [
-                "component"
+                "component",
+                "chartKind"
               ]
             }
           ],

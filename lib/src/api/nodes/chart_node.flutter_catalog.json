@@ -2,20 +2,28 @@
   "ChartNode": {
     "widget": "CodelesslyChartSeries",
     "family": "codelessly",
-    "nodeType": "chartSeries",
+    "nodeType": "chart",
+    "variant": "series",
     "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "chartKind": {
+          "const": "series"
+        },
         "selectedIndex": {
           "type": "integer"
         }
-      }
+      },
+      "required": [
+        "chartKind"
+      ]
     },
     "dpp": [
       {
-        "nodeType": "chartSeries",
+        "nodeType": "chart",
+        "variant": "series",
         "flutterName": "selectedIndex",
         "fieldPath": "selectedIndex",
         "group": "Selection",
@@ -41,12 +49,16 @@
                 "component": {
                   "const": "CodelesslyChartSeries"
                 },
+                "chartKind": {
+                  "const": "series"
+                },
                 "selectedIndex": {
                   "type": "integer"
                 }
               },
               "required": [
-                "component"
+                "component",
+                "chartKind"
               ]
             }
           ],
