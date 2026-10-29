@@ -109,11 +109,10 @@ void main() {
       expect(((((flex['allOf'] as List)[1] as Map)['properties'] as Map)).keys, containsAll(['children', 'justify', 'align']));
     }
   });
-  test('Text data points at actual characters storage', () {
+  test('Text data points at canonical data storage without naming drift', () {
     final node = (jsonDecode(File('lib/src/api/nodes/text_node.flutter_catalog.json').readAsStringSync()) as Map)['TextNode'] as Map;
-    expect(((node['dpp'] as List).first as Map)['fieldPath'], 'characters');
-    expect(((node['jsonSchema'] as Map)['properties'] as Map).keys, contains('characters'));
-    expect(((node['drift'] as List).first as Map)['flutterName'], 'data');
-    expect(((node['drift'] as List).first as Map)['fieldPath'], 'characters');
+    expect(((node['dpp'] as List).first as Map)['fieldPath'], 'data');
+    expect(((node['jsonSchema'] as Map)['properties'] as Map).keys, contains('data'));
+    expect(node['drift'], isEmpty);
   });
 }

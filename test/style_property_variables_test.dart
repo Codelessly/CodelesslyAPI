@@ -35,7 +35,7 @@ void main() {
       id: 'text',
       name: 'Text',
       basicBoxLocal: NodeBox(0, 0, 80, 20),
-      characters: 'Oat',
+      data: 'Oat',
       textMixedProps: [
         StartEndProp(
           start: 0,

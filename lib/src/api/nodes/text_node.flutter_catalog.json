@@ -3,17 +3,12 @@
     "widget": "Text",
     "family": "widgets",
     "nodeType": "text",
-    "drift": [
-      {
-        "flutterName": "data",
-        "fieldPath": "characters"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "characters": {
+        "data": {
           "type": "string"
         },
         "maxLines": {
@@ -28,7 +23,7 @@
       {
         "nodeType": "text",
         "flutterName": "data",
-        "fieldPath": "characters",
+        "fieldPath": "data",
         "group": "Text",
         "control": "text",
         "schemaType": "string",
@@ -72,7 +67,7 @@
                 "component": {
                   "const": "Text"
                 },
-                "characters": {
+                "data": {
                   "type": "string"
                 },
                 "maxLines": {
@@ -84,7 +79,7 @@
               },
               "required": [
                 "component",
-                "characters"
+                "data"
               ]
             }
           ],
@@ -96,7 +91,7 @@
     "testMatrix": [
       {
         "parameter": "data",
-        "field": "characters",
+        "field": "data",
         "defaultSource": null,
         "testValues": [
           "",

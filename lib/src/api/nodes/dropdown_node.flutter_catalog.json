@@ -6,15 +6,15 @@
     "drift": [
       {
         "flutterName": "isDense",
-        "fieldPath": "properties.dense"
+        "fieldPath": "properties.isDense"
       },
       {
         "flutterName": "isExpanded",
-        "fieldPath": "properties.expanded"
+        "fieldPath": "properties.isExpanded"
       },
       {
         "flutterName": "autofocus",
-        "fieldPath": "properties.autoFocus"
+        "fieldPath": "properties.autofocus"
       },
       {
         "flutterName": "enableFeedback",
@@ -36,13 +36,13 @@
         "properties": {
           "type": "object",
           "properties": {
-            "dense": {
+            "isDense": {
               "type": "boolean"
             },
-            "expanded": {
+            "isExpanded": {
               "type": "boolean"
             },
-            "autoFocus": {
+            "autofocus": {
               "type": "boolean"
             },
             "enableFeedback": {
@@ -62,7 +62,7 @@
       {
         "nodeType": "dropdown",
         "flutterName": "isDense",
-        "fieldPath": "properties.dense",
+        "fieldPath": "properties.isDense",
         "group": "Layout",
         "control": "switch",
         "schemaType": "boolean",
@@ -72,7 +72,7 @@
       {
         "nodeType": "dropdown",
         "flutterName": "isExpanded",
-        "fieldPath": "properties.expanded",
+        "fieldPath": "properties.isExpanded",
         "group": "Layout",
         "control": "switch",
         "schemaType": "boolean",
@@ -82,7 +82,7 @@
       {
         "nodeType": "dropdown",
         "flutterName": "autofocus",
-        "fieldPath": "properties.autoFocus",
+        "fieldPath": "properties.autofocus",
         "group": "Interaction",
         "control": "switch",
         "schemaType": "boolean",
@@ -139,13 +139,13 @@
                 "properties": {
                   "type": "object",
                   "properties": {
-                    "dense": {
+                    "isDense": {
                       "type": "boolean"
                     },
-                    "expanded": {
+                    "isExpanded": {
                       "type": "boolean"
                     },
-                    "autoFocus": {
+                    "autofocus": {
                       "type": "boolean"
                     },
                     "enableFeedback": {
@@ -173,7 +173,7 @@
     "testMatrix": [
       {
         "parameter": "isDense",
-        "field": "properties.dense",
+        "field": "properties.isDense",
         "defaultSource": null,
         "testValues": [
           false,
@@ -182,7 +182,7 @@
       },
       {
         "parameter": "isExpanded",
-        "field": "properties.expanded",
+        "field": "properties.isExpanded",
         "defaultSource": null,
         "testValues": [
           false,
@@ -191,7 +191,7 @@
       },
       {
         "parameter": "autofocus",
-        "field": "properties.autoFocus",
+        "field": "properties.autofocus",
         "defaultSource": null,
         "testValues": [
           false,
