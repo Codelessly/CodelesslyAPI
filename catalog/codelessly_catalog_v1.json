@@ -5,6 +5,42 @@
   "title": "Codelessly generated v1 catalog",
   "description": "Generated from annotated API node wire fields for A2UI v0.9.1.",
   "components": {
+    "AppBar": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "AppBar"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "centerTitle": {
+                  "type": "boolean"
+                },
+                "elevation": {
+                  "type": "number"
+                },
+                "automaticallyImplyLeading": {
+                  "type": "boolean"
+                },
+                "titleSpacing": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Badge": {
       "allOf": [
         {
