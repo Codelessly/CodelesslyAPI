@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:json_annotation/json_annotation.dart';
@@ -7,6 +8,24 @@ import 'nodes/nodes.dart';
 /// A deserializer function that takes a map as input and deserializes it into
 /// a [BaseNode].
 typedef JsonNodeDeserializer = BaseNode? Function(Map<dynamic, dynamic> json);
+
+/// An undecidable or conflicting legacy wire payload. The caller must keep
+/// [raw] unchanged (rather than re-serializing a guessed node) until its
+/// provenance is resolved.
+class UnresolvedNodeSchema implements Exception {
+  /// Keeps the undecidable source payload for a caller to store unchanged.
+  UnresolvedNodeSchema(this.reason, Map json)
+    : raw = jsonDecode(jsonEncode(json)) as Map;
+
+  /// Machine-readable reason for refusing to choose a wire schema.
+  final String reason;
+
+  /// Original top-level JSON, before normalizing any node properties.
+  final Map raw;
+
+  @override
+  String toString() => 'UnresolvedNodeSchema: $reason';
+}
 
 /// [NodeJsonConverter] deserializes JSON and converts it into nodes.
 ///
@@ -57,6 +76,8 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'switch': SwitchNode.fromJson,
       'radio': RadioNode.fromJson,
       'slider': SliderNode.fromJson,
+      'signature': SignatureNode.fromJson,
+      'signatureNormalized': SignatureNormalizedNode.fromJson,
       'expansionTile': ExpansionTileNode.fromJson,
       'accordion': AccordionNode.fromJson,
       'listTile': ListTileNode.fromJson,
@@ -75,7 +96,6 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'badge': BadgeNode.fromJson,
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,
-      'signature': SignatureNode.fromJson,
       'external': ExternalComponentNode.fromJson,
       'gauge': GaugeNode.fromJson,
       'chart': ChartNode.fromJson,
@@ -108,6 +128,71 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
 
   @override
   BaseNode? fromJson(Map json) {
+    if (json['type'] == 'signature') {
+      final properties = json['properties'];
+      final Set<dynamic> propertyKeys = properties is Map
+          ? properties.keys.toSet()
+          : <dynamic>{};
+      final kind = json['signatureKind'];
+      if (kind != null && kind != 'pixel' && kind != 'normalized') {
+        throw UnresolvedNodeSchema('unknown-signature-kind', json);
+      }
+      final pixel =
+          kind == 'pixel' ||
+          json.containsKey('value') ||
+          propertyKeys.intersection(const {
+            'inkWidth',
+            'backgroundColor',
+            'borderColor',
+            'borderWidth',
+            'errorBorderColor',
+            'errorBorderWidth',
+            'cornerRadius',
+            'placeholder',
+            'placeholderColor',
+            'placeholderFontSize',
+            'showSignLine',
+            'signLineColor',
+            'error',
+            'enabled',
+          }).isNotEmpty;
+      final normalized =
+          kind == 'normalized' ||
+          json.containsKey('strokes') ||
+          propertyKeys.intersection(const {
+            'strokeWidth',
+            'readOnly',
+          }).isNotEmpty;
+      if (pixel && normalized) {
+        throw UnresolvedNodeSchema('conflicting-signature-schema', json);
+      }
+      if (normalized) {
+        return SignatureNormalizedNode.fromJson({
+          ...json,
+          'type': 'signatureNormalized',
+          if (properties == null) 'properties': const {},
+        });
+      }
+      if (!pixel) {
+        throw UnresolvedNodeSchema('ambiguous-signature-schema', json);
+      }
+    }
+    if (json['type'] == 'signatureNormalized' &&
+        (json['signatureKind'] != null &&
+                json['signatureKind'] != 'normalized' ||
+            json.containsKey('value') ||
+            (json['properties'] is Map &&
+                (json['properties'] as Map).keys.any(
+                  const {
+                    'inkWidth',
+                    'backgroundColor',
+                    'placeholder',
+                    'error',
+                    'enabled',
+                  }.contains,
+                )))) {
+      throw UnresolvedNodeSchema('conflicting-signature-schema', json);
+    }
     if (json['type'] == null || _registry[json['type']] == null) {
       throw UnsupportedError('Unsupported node type: ${json["type"]}\n$json');
     }

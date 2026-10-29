@@ -109,6 +109,17 @@ class IconNode extends SceneNode
     TriggerType.cursorExit,
   ];
 
+  /// Besides the shared style properties, an icon's color and which icon it
+  /// shows can be bound, set by a condition or changed by an action:
+  /// `iconName` is a Material Symbols name such as `wb_sunny` (the node's
+  /// style is kept), so one icon node can show the icon its data asks for.
+  @override
+  late final List<ValueModel> propertyVariables = [
+    ...super.propertyVariables,
+    ColorValue(name: 'iconColor', value: properties.icon.color),
+    StringValue(name: 'iconName', value: properties.icon.icon?.name ?? ''),
+  ];
+
   /// Creates an [IconNode] from a JSON data.
   factory IconNode.fromJson(Map json) {
     // backwards compatibility: before properties were added to IconNode.

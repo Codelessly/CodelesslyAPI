@@ -186,7 +186,6 @@ IconNode _$IconNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -204,6 +203,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
