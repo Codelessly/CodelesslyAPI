@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -18,6 +19,7 @@ const MaterialIcon defaultIcon = MaterialIcon(
 );
 
 /// A node that displays an icon.
+@FlutterNode('CodelesslyIcon', family: 'codelessly', nodeType: 'icon')
 @JsonSerializable()
 class IconNode extends SceneNode
     with BlendMixin, FixedAspectRatioMixin, CustomPropertiesMixin {
@@ -157,6 +159,7 @@ class IconNode extends SceneNode
 @JsonSerializable()
 class IconProperties extends CustomProperties with FieldsHolder {
   /// The icon to display.
+  @FlutterProp('icon', type: 'object', group: 'Appearance', control: 'icon', field: 'properties.icon')
   MultiSourceIconModel icon;
 
   /// Creates [IconProperties] with the given data.

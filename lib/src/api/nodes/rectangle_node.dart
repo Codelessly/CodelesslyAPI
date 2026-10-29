@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -7,6 +8,7 @@ part 'rectangle_node.g.dart';
 
 /// Represents a rectangular node with decoration that cannot have any children.
 /// Typically a box with color or gradient, or an image.
+@FlutterNode('CodelesslyRectangle', family: 'codelessly', nodeType: 'rectangle')
 @JsonSerializable()
 class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
   @override
