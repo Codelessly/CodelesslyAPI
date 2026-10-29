@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 import 'package:equatable/equatable.dart';
 
 import '../extensions.dart';
@@ -17,6 +18,7 @@ const double kDefaultAppBarHeight = 56;
 /// A Material Design app bar.
 /// Refer to [AppBar](https://api.flutter.dev/flutter/material/AppBar-class.html)
 /// in Flutter for more details.
+@FlutterNode('AppBar', family: 'material', nodeType: 'appBar')
 @JsonSerializable()
 class AppBarNode extends SceneNode
     with CustomPropertiesMixin, ParentReactionMixin, FieldsHolder {
@@ -139,15 +141,18 @@ class AppBarNode extends SceneNode
 @JsonSerializable()
 class AppBarProperties extends CustomProperties with FieldsHolder {
   /// Whether to align the title text in center.
+  @FlutterProp('centerTitle', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.centerTitle')
   late bool centerTitle;
 
   /// Elevation of the app bar.
+  @FlutterProp('elevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.elevation')
   late double elevation;
 
   /// Leading icon of the app bar.
   late IconAppBarActionItem leading;
 
   /// Whether to automatically show/hide leading icon based on the route.
+  @FlutterProp('automaticallyImplyLeading', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.automaticallyImplyLeading')
   late bool automaticallyImplyLeading;
 
   /// Style of the title text.
@@ -160,6 +165,7 @@ class AppBarProperties extends CustomProperties with FieldsHolder {
   late String title;
 
   /// Spacing between the leading icon (if given) and the title text.
+  @FlutterProp('titleSpacing', type: 'number', group: 'Layout', control: 'number', field: 'properties.titleSpacing')
   late double titleSpacing;
 
   /// Actions of the app bar.
