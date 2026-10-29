@@ -161,6 +161,26 @@
       "bindable": false
     },
     {
+      "nodeType": "listView",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listView",
+      "flutterName": "itemExtent",
+      "fieldPath": "properties.itemExtent",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "rowColumn",
       "flutterName": "children",
       "fieldPath": "children",
@@ -346,6 +366,11 @@
       "nodeType": "divider",
       "flutterName": "thickness",
       "fieldPath": "properties.thickness"
+    },
+    {
+      "nodeType": "listView",
+      "flutterName": "itemExtent",
+      "fieldPath": "properties.itemExtent"
     },
     {
       "nodeType": "slider",

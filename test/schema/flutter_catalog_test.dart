@@ -13,6 +13,7 @@ void main() {
     'app_bar_node': ('AppBarNode', 'AppBar', 4),
     'checkbox_node': ('CheckboxNode', 'Checkbox', 4),
     'slider_node': ('SliderNode', 'Slider', 5),
+    'list_view_node': ('ListViewNode', 'ListView', 2),
   }.entries) {
     test('${entry.key} metadata has four consistent projections', () {
       final output = jsonDecode(File('lib/src/api/nodes/${entry.key}.flutter_catalog.json').readAsStringSync()) as Map;
@@ -33,7 +34,7 @@ void main() {
     final raw = jsonDecode(File('catalog/codelessly_catalog_v1.json').readAsStringSync()) as Map<String, dynamic>;
     final catalog = Catalog.fromJson(raw);
     expect(catalog.id, 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json');
-    expect(catalog.components.keys, containsAll(['Text', 'Row', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider']));
+    expect(catalog.components.keys, containsAll(['Text', 'Row', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView']));
   });
   test('Text data points at actual characters storage', () {
     final node = (jsonDecode(File('lib/src/api/nodes/text_node.flutter_catalog.json').readAsStringSync()) as Map)['TextNode'] as Map;
