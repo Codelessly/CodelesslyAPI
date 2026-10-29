@@ -1,10 +1,17 @@
 import 'dart:convert';
-import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/dart/analysis/utilities.dart';
-import 'package:build/build.dart';
 
-/// Builds node metadata projections from [FlutterProp] annotations.
+import 'package:analyzer/dart/element/element.dart';
+import 'package:analyzer/dart/element/type.dart';
+import 'package:build/build.dart';
+import 'package:source_gen/source_gen.dart';
+
+/// Generate wire-field schemas and A2UI/DPP metadata for annotated API nodes.
 Builder flutterPropsBuilder(BuilderOptions options) => _FlutterPropsBuilder();
+
+/// Stable v1 A2UI catalog identifier.
+const catalogId = 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json';
+/// Published v0.9.1 A2UI common type definitions.
+const common = 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/';
 
 class _FlutterPropsBuilder implements Builder {
   @override
@@ -13,50 +20,130 @@ class _FlutterPropsBuilder implements Builder {
   @override
   Future<void> build(BuildStep step) async {
     if (!step.inputId.path.contains('/nodes/') || step.inputId.path.endsWith('.g.dart')) return;
-    final unit = parseString(content: await step.readAsString(step.inputId), throwIfDiagnostics: false).unit;
+    final library = await step.resolver.libraryFor(step.inputId);
     final output = <String, dynamic>{};
-    for (final cls in unit.declarations.whereType<ClassDeclaration>()) {
-      final tag = cls.metadata.where((a) => a.name.name == 'FlutterNode').firstOrNull;
-      if (tag == null) continue;
-      final args = tag.arguments?.arguments;
-      if (args == null || args.isEmpty) continue;
-      String str(AstNode e) => e.toSource().replaceAll("'", '').replaceAll('"', '');
-      String? named(NodeList<Argument> expressions, String key) {
-        for (final e in expressions.whereType<NamedArgument>()) {
-          if (e.name.lexeme == key) return str(e.argumentExpression);
+    for (final cls in library.classes) {
+      final nodeTag = _annotation(cls.metadata.annotations, 'FlutterNode');
+      if (nodeTag == null) continue;
+      final widget = nodeTag.read('widget').stringValue;
+      final family = nodeTag.read('family').stringValue;
+      final nodeType = nodeTag.read('nodeType').stringValue;
+      final wireTypes = <String, DartType>{};
+      final annotated = <String, (FieldElement, ConstantReader)>{};
+      void include(InterfaceElement element, {String prefix = ''}) {
+        for (final field in element.fields.where((field) => !field.isStatic)) {
+          final name = '$prefix${field.name}';
+          wireTypes[name] = field.type;
+          final tag = _annotation(field.metadata.annotations, 'FlutterProp');
+          if (tag != null) annotated[name] = (field, tag);
         }
-        return null;
       }
-      final widget = str(args.first);
-      final family = named(args, 'family') ?? 'widgets';
-      final props = <String, dynamic>{};
-      for (final annotation in cls.metadata.where((a) => a.name.name == 'FlutterProp')) {
-        final a = annotation.arguments?.arguments;
-        if (a == null || a.isEmpty) continue;
-        final name = str(a.first);
-        props[name] = {
-          'type': named(a, 'type') ?? 'string',
-          'group': named(a, 'group') ?? 'Widget',
-          'control': named(a, 'control') ?? 'text',
-          'field': named(a, 'field') ?? name,
-          'defaultSource': named(a, 'defaultSource'),
-          'required': named(a, 'required') == 'true',
-          'bindable': named(a, 'bindable') == 'true',
-        };
+      include(cls);
+      for (final ancestor in cls.allSupertypes) {
+        include(ancestor.element);
       }
-      final schemaProps = {for (final entry in props.entries) entry.key: {
-        'type': entry.value['type'],
-        'description': '${entry.value['group']}: ${entry.value['field']}',
-      }};
-      output[cls.namePart.toSource()] = {
-        'widget': widget, 'family': family,
-        'jsonSchema': {'\$schema': 'https://json-schema.org/draft/2020-12/schema', 'type': 'object', 'additionalProperties': false, 'properties': schemaProps,
-          'required': [for (final entry in props.entries) if (entry.value['required'] == true) entry.key]},
-        'dpp': [for (final entry in props.entries) {'name':entry.key, 'field':entry.value['field'], 'group':entry.value['group'], 'control':entry.value['control'], 'bindable':entry.value['bindable']}],
-        'a2ui': {'\$schema': 'https://json-schema.org/draft/2020-12/schema', '\$id': 'https://codelessly.com/a2ui/catalog/$family/$widget', 'components': {widget: {'type':'object', 'properties': schemaProps}}},
-        'testMatrix': [for (final entry in props.entries) {'parameter':entry.key, 'field':entry.value['field'], 'defaultSource':entry.value['defaultSource'], 'testValues':entry.value['type'] == 'boolean' ? [false,true] : ['number', 'integer'].contains(entry.value['type']) ? [0,1] : entry.value['type'] == 'array' ? [[], ['sample']] : ['', 'sample']}],
+      // Nested custom properties live in their own class in the same library.
+      final propertyField = cls.fields.where((f) => f.name == 'properties').firstOrNull;
+      final nestedElement = propertyField?.type.element;
+      if (nestedElement is InterfaceElement) include(nestedElement, prefix: 'properties.');
+      final schemaFields = <String, dynamic>{};
+      final controls = <Map<String, dynamic>>[];
+      final matrix = <Map<String, dynamic>>[];
+      final a2uiFields = <String, dynamic>{'component': {'const': widget}};
+      final required = <String>['component'];
+      final drift = <Map<String, String>>[];
+      for (final entry in annotated.entries) {
+        final field = entry.value.$1;
+        final tag = entry.value.$2;
+        final flutterName = tag.read('name').stringValue;
+        final mapped = tag.peek('field')?.stringValue ?? entry.key;
+        if (mapped != entry.key || !wireTypes.containsKey(mapped)) {
+          throw InvalidGenerationSourceError('FlutterProp($flutterName): field $mapped does not identify its annotated declaration ${entry.key}', element: field);
+        }
+        final type = tag.read('type').stringValue;
+        final schemaType = _type(field.type, type);
+        final group = tag.read('group').stringValue;
+        final control = tag.read('control').stringValue;
+        final defaultSource = tag.peek('defaultSource')?.stringValue;
+        final bindable = tag.read('bindable').boolValue;
+        final isRequired = tag.read('required').boolValue;
+        if (schemaFields.containsKey(mapped)) throw InvalidGenerationSourceError('Duplicate FlutterProp field $mapped', element: field);
+        _putNested(schemaFields, mapped, schemaType);
+        final a2uiName = switch (control) {'action' => 'action', 'children' => 'children', _ => mapped};
+        _putNested(a2uiFields, a2uiName, switch (control) {
+          'action' => {'\$ref': '${common}Action'},
+          'children' => {'\$ref': '${common}ChildList'},
+          'child' => {'\$ref': '${common}ComponentId'},
+          _ => schemaType,
+        });
+        if (isRequired) required.add(a2uiName);
+        if (flutterName != mapped) drift.add({'flutterName': flutterName, 'fieldPath': mapped});
+        controls.add({'nodeType':nodeType, 'flutterName':flutterName, 'fieldPath':mapped, 'group':group, 'control':control, 'schemaType':type, 'defaultSource':defaultSource, 'bindable':bindable});
+        matrix.add({'parameter':flutterName, 'field':mapped, 'defaultSource':defaultSource, 'testValues':_testValues(type)});
+      }
+      if (annotated.isEmpty) throw InvalidGenerationSourceError('$widget has no annotated wire fields', element: cls);
+      output[cls.name!] = {
+        'widget': widget, 'family': family, 'nodeType': nodeType, 'drift': drift,
+        'jsonSchema': {'\$schema':'https://json-schema.org/draft/2020-12/schema', 'type':'object', 'properties':schemaFields},
+        'dpp': controls,
+        'a2ui': {'\$schema':'https://json-schema.org/draft/2020-12/schema', '\$id':catalogId, 'catalogId':catalogId,
+          'components': {widget: {
+            'allOf': [{'\$ref': '${common}ComponentCommon'}, {'type':'object', 'properties':a2uiFields, 'required':required}],
+            'unevaluatedProperties': false,
+          }}, 'functions': <String, dynamic>{}},
+        'testMatrix': matrix,
       };
     }
     if (output.isNotEmpty) await step.writeAsString(step.inputId.changeExtension('.flutter_catalog.json'), '${const JsonEncoder.withIndent('  ').convert(output)}\n');
   }
 }
+
+void _putNested(Map<String, dynamic> fields, String path, Map<String, dynamic> schema) {
+  final parts = path.split('.');
+  var current = fields;
+  for (final part in parts.take(parts.length - 1)) {
+    final parent = current.putIfAbsent(part, () => <String, dynamic>{'type':'object'}) as Map<String, dynamic>;
+    parent.putIfAbsent('properties', () => <String, dynamic>{});
+    current = parent['properties'] as Map<String, dynamic>;
+  }
+  current[parts.last] = schema;
+}
+
+ConstantReader? _annotation(List<ElementAnnotation> annotations, String name) {
+  for (final annotation in annotations) {
+    final constant = annotation.computeConstantValue();
+    if (constant?.type?.element?.name == name) return ConstantReader(constant);
+  }
+  return null;
+}
+
+Map<String, dynamic> _type(DartType actual, String schemaType) {
+  if (!{'string','number','integer','boolean','array','object'}.contains(schemaType)) {
+    throw InvalidGenerationSourceError('Unsupported JSON Schema type $schemaType on $actual');
+  }
+  if (schemaType == 'array') {
+    if (actual is! InterfaceType || actual.element.name != 'List') {
+      throw InvalidGenerationSourceError('Declared array but field has type $actual');
+    }
+    final item = actual.typeArguments.first;
+    return {'type':'array', 'items': _type(item, _inferredType(item))};
+  }
+  return {'type':schemaType};
+}
+
+String _inferredType(DartType type) {
+  final name = type.getDisplayString();
+  if (name == 'String' || name == 'String?') return 'string';
+  if (name == 'int' || name == 'int?') return 'integer';
+  if (name == 'double' || name == 'double?' || name == 'num' || name == 'num?') return 'number';
+  if (name == 'bool' || name == 'bool?') return 'boolean';
+  if (type is InterfaceType && type.element.name == 'List') return 'array';
+  return 'object';
+}
+
+List<Object> _testValues(String type) => switch(type) {
+  'boolean' => [false,true],
+  'number' || 'integer' => [0,1],
+  'array' => [<Object>[], <Object>['sample']],
+  _ => ['', 'sample'],
+};
