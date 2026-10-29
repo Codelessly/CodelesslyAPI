@@ -139,12 +139,6 @@ class VariableData
           .firstOrNull ??
       value;
 
-  /// Whether this is a computed variable: its value is a formula,
-  /// `${= ...}`, that the runtime evaluates whenever the variable is read,
-  /// e.g. `${= sum(filter(events, e => e.machineId == 'PR-102'), 'minutes')}`.
-  /// Anything bound to it updates when a variable the formula reads changes.
-  bool get isComputed => isFormulaValue(value);
-
   /// Type of the variable. This is used to determine how to parse the value.
   @JsonKey(unknownEnumValue: VariableType.text)
   final VariableType type;
@@ -153,6 +147,17 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
+  /// A separate formula expression (what goes inside `${= ...}`) that computes
+  /// this variable's value from other variables, e.g. `fresh < freshLimit`.
+  /// A formula may also be stored directly in [value]. A computed variable
+  /// is read-only:
+  /// actions that set it are ignored, and it changes whenever a variable its
+  /// formula reads changes.
+  final String formula;
+
+  /// Whether this variable has a separate [formula] or a formula in [value].
+  bool get isComputed => formula.trim().isNotEmpty || isFormulaValue(value);
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
@@ -160,6 +165,7 @@ class VariableData
     Object? value = '',
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
+    this.formula = '',
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
        extra = extra ?? {};
 
@@ -172,6 +178,7 @@ class VariableData
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -182,11 +189,12 @@ class VariableData
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, value, type];
+  List<Object?> get props => [id, name, value, type, formula];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -208,6 +216,7 @@ class VariableData
     value: value,
     type: type,
     extra: extra,
+    formula: formula,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -238,12 +247,12 @@ bool isFormulaValue(String value) {
   return trimmed.startsWith(r'${=') && trimmed.endsWith('}');
 }
 
-/// [json] with a `formula` (how computed variables were stored for a while)
-/// moved into `value`, where a computed variable keeps its formula.
+/// Legacy whole-formula values stored under `formula` are read into `value`;
+/// PR42's separate expression formulas remain in `formula` for round-tripping.
 Map<String, dynamic> withFormulaAsValue(Map<String, dynamic> json) {
   final Object? formula = json['formula'];
-  if (formula is! String || formula.trim().isEmpty) return json;
-  return <String, dynamic>{...json, 'value': formula}..remove('formula');
+  if (formula is! String || !isFormulaValue(formula)) return json;
+  return <String, dynamic>{...json, 'value': formula.trim()}..remove('formula');
 }
 
 /// Returns the value converted to the appropriate type according to [type].
@@ -310,6 +319,7 @@ class CanvasVariableData extends VariableData {
     super.type,
     super.value,
     super.extra,
+    super.formula,
   });
 
   @override
@@ -322,6 +332,7 @@ class CanvasVariableData extends VariableData {
     String? canvasId,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -333,6 +344,7 @@ class CanvasVariableData extends VariableData {
       id: id ?? this.id,
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 
@@ -368,6 +380,7 @@ class RuntimeVariableData extends VariableData {
     super.value = '',
     super.type = VariableType.text,
     super.extra,
+    super.formula,
   }) : super(id: id ?? generateId());
 
   @override
@@ -379,6 +392,7 @@ class RuntimeVariableData extends VariableData {
     bool? isUsed,
     Set<String>? nodes,
     Map<String, dynamic>? extra,
+    String? formula,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -389,6 +403,7 @@ class RuntimeVariableData extends VariableData {
       value: sanitizedValue ?? this.value,
       type: type ?? this.type,
       extra: extra ?? this.extra,
+      formula: formula ?? this.formula,
     );
   }
 }

@@ -118,13 +118,23 @@ class CornerRadius extends Equatable with DynamicSerializableMixin {
 
   /// Factory constructor for creating a new [CornerRadius] instance from
   /// JSON data.
+  ///
+  /// Besides the forms [toJson] writes, a number rounds every corner by it
+  /// and four numbers round the corners top-left, top-right, bottom-right
+  /// and bottom-left, as a `cornerRadius` binding gives them:
+  /// `${= screen.isMobile ? [6, 6, 0, 0] : 6}`.
   factory CornerRadius.fromJson(dynamic json) {
-    // A bare number is the same circular radius on every corner, the way
-    // padding accepts a single number.
+    // A bare number rounds all corners without changing the default link flag.
     if (json is num) {
-      return CornerRadius.all(
-        RadiusModel.circular(json.toDouble()),
-        linked: true,
+      return CornerRadius.all(RadiusModel.circular(json.toDouble()));
+    }
+    if (json case [num tl, num tr, num br, num bl]) {
+      return CornerRadius(
+        tl: RadiusModel.circular(tl.toDouble()),
+        tr: RadiusModel.circular(tr.toDouble()),
+        br: RadiusModel.circular(br.toDouble()),
+        bl: RadiusModel.circular(bl.toDouble()),
+        linked: tl == tr && tr == br && br == bl,
       );
     }
     if (json case [num radius, bool linked, String type]) {

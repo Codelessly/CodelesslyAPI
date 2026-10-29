@@ -48,6 +48,29 @@ enum ToastPosition {
   };
 }
 
+/// Where a toast sits across the screen.
+enum ToastAlignment {
+  /// Centered, as wide as its content.
+  center,
+
+  /// Against the left margin.
+  start,
+
+  /// Against the right margin.
+  end,
+
+  /// As wide as the space between the margins.
+  stretch;
+
+  /// Label for the editor.
+  String get prettify => switch (this) {
+    ToastAlignment.center => 'Center',
+    ToastAlignment.start => 'Left',
+    ToastAlignment.end => 'Right',
+    ToastAlignment.stretch => 'Stretch',
+  };
+}
+
 /// An action that shows a short message near the bottom or top of the screen,
 /// then hides it. The toast can carry a button, e.g. Undo, that runs
 /// [actions].
@@ -150,6 +173,19 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// app's font.
   final String? fontFamily;
 
+  /// Where the toast sits across the screen.
+  @JsonKey(unknownEnumValue: ToastAlignment.center)
+  final ToastAlignment alignment;
+
+  /// Space between the toast and the screen's sides.
+  final double sideMargin;
+
+  /// PR42's close-button key; [showClose] is the master key.
+  final bool showCloseButton;
+
+  /// PR42's explicit message font size; [messageStyle] is the master style.
+  final double fontSize;
+
   /// Creates a new [ShowToastAction].
   ShowToastAction({
     required this.message,
@@ -178,7 +214,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.accentWidth = 4,
     this.iconColor,
     this.fontFamily,
-
+    this.alignment = ToastAlignment.center,
+    this.sideMargin = 16,
+    this.showCloseButton = false,
+    this.fontSize = 14,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -220,6 +259,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     accentWidth,
     iconColor,
     fontFamily,
+    alignment,
+    sideMargin,
+    showCloseButton,
+    fontSize,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -264,6 +307,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     bool clearIconColor = false,
     String? fontFamily,
     bool clearFontFamily = false,
+    ToastAlignment? alignment,
+    double? sideMargin,
+    bool? showCloseButton,
+    double? fontSize,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -293,7 +340,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     accentWidth: accentWidth ?? this.accentWidth,
     iconColor: clearIconColor ? null : iconColor ?? this.iconColor,
     fontFamily: clearFontFamily ? null : fontFamily ?? this.fontFamily,
-
+    alignment: alignment ?? this.alignment,
+    sideMargin: sideMargin ?? this.sideMargin,
+    showCloseButton: showCloseButton ?? this.showCloseButton,
+    fontSize: fontSize ?? this.fontSize,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
