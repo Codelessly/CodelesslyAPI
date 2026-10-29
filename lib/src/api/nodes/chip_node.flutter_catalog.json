@@ -1,0 +1,202 @@
+{
+  "ChipNode": {
+    "widget": "ChoiceChip",
+    "family": "material",
+    "nodeType": "chip",
+    "drift": [
+      {
+        "flutterName": "selected",
+        "fieldPath": "properties.selected"
+      },
+      {
+        "flutterName": "showCheckmark",
+        "fieldPath": "properties.showCheckmark"
+      },
+      {
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation"
+      },
+      {
+        "flutterName": "tooltip",
+        "fieldPath": "properties.tooltip"
+      },
+      {
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "selected": {
+              "type": "boolean"
+            },
+            "showCheckmark": {
+              "type": "boolean"
+            },
+            "elevation": {
+              "type": "number"
+            },
+            "tooltip": {
+              "type": "string"
+            },
+            "autofocus": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "chip",
+        "flutterName": "selected",
+        "fieldPath": "properties.selected",
+        "group": "State",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "chip",
+        "flutterName": "showCheckmark",
+        "fieldPath": "properties.showCheckmark",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "chip",
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "chip",
+        "flutterName": "tooltip",
+        "fieldPath": "properties.tooltip",
+        "group": "Interaction",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "chip",
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "ChoiceChip": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "ChoiceChip"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "showCheckmark": {
+                      "type": "boolean"
+                    },
+                    "elevation": {
+                      "type": "number"
+                    },
+                    "tooltip": {
+                      "type": "string"
+                    },
+                    "autofocus": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "properties.selected"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "selected",
+        "field": "properties.selected",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "showCheckmark",
+        "field": "properties.showCheckmark",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "elevation",
+        "field": "properties.elevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "tooltip",
+        "field": "properties.tooltip",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "autofocus",
+        "field": "properties.autofocus",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

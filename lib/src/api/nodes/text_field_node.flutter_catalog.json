@@ -1,0 +1,288 @@
+{
+  "TextFieldNode": {
+    "widget": "TextField",
+    "family": "material",
+    "nodeType": "textField",
+    "drift": [
+      {
+        "flutterName": "enabled",
+        "fieldPath": "properties.enabled"
+      },
+      {
+        "flutterName": "obscureText",
+        "fieldPath": "properties.obscureText"
+      },
+      {
+        "flutterName": "readOnly",
+        "fieldPath": "properties.readOnly"
+      },
+      {
+        "flutterName": "showCursor",
+        "fieldPath": "properties.showCursor"
+      },
+      {
+        "flutterName": "cursorHeight",
+        "fieldPath": "properties.cursorHeight"
+      },
+      {
+        "flutterName": "cursorWidth",
+        "fieldPath": "properties.cursorWidth"
+      },
+      {
+        "flutterName": "obscuringCharacter",
+        "fieldPath": "properties.obscuringCharacter"
+      },
+      {
+        "flutterName": "expands",
+        "fieldPath": "properties.expands"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "obscureText": {
+              "type": "boolean"
+            },
+            "readOnly": {
+              "type": "boolean"
+            },
+            "showCursor": {
+              "type": "boolean"
+            },
+            "cursorHeight": {
+              "type": "number"
+            },
+            "cursorWidth": {
+              "type": "number"
+            },
+            "obscuringCharacter": {
+              "type": "string"
+            },
+            "expands": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "textField",
+        "flutterName": "enabled",
+        "fieldPath": "properties.enabled",
+        "group": "Input",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "obscureText",
+        "fieldPath": "properties.obscureText",
+        "group": "Input",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "readOnly",
+        "fieldPath": "properties.readOnly",
+        "group": "Input",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "showCursor",
+        "fieldPath": "properties.showCursor",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "cursorHeight",
+        "fieldPath": "properties.cursorHeight",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "cursorWidth",
+        "fieldPath": "properties.cursorWidth",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "obscuringCharacter",
+        "fieldPath": "properties.obscuringCharacter",
+        "group": "Input",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textField",
+        "flutterName": "expands",
+        "fieldPath": "properties.expands",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "TextField": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "TextField"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "obscureText": {
+                      "type": "boolean"
+                    },
+                    "readOnly": {
+                      "type": "boolean"
+                    },
+                    "showCursor": {
+                      "type": "boolean"
+                    },
+                    "cursorHeight": {
+                      "type": "number"
+                    },
+                    "cursorWidth": {
+                      "type": "number"
+                    },
+                    "obscuringCharacter": {
+                      "type": "string"
+                    },
+                    "expands": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "enabled",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "obscureText",
+        "field": "properties.obscureText",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "readOnly",
+        "field": "properties.readOnly",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "showCursor",
+        "field": "properties.showCursor",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "cursorHeight",
+        "field": "properties.cursorHeight",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "cursorWidth",
+        "field": "properties.cursorWidth",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "obscuringCharacter",
+        "field": "properties.obscuringCharacter",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "expands",
+        "field": "properties.expands",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

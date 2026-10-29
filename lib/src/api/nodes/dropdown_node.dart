@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -12,6 +13,7 @@ part 'dropdown_node.g.dart';
 /// options when pressed.
 /// Refer to [DropdownButton](https://api.flutter.dev/flutter/material/DropdownButton-class.html)
 /// in Flutter for more details.
+@FlutterNode('DropdownButton', family: 'material', nodeType: 'dropdown')
 @JsonSerializable()
 class DropdownNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
@@ -91,16 +93,20 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   bool enabled;
 
   /// Whether to reduce dropdown button's height.
+  @FlutterProp('isDense', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.dense')
   bool dense;
 
   /// Whether to expand the dropdown button's width.
+  @FlutterProp('isExpanded', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.expanded')
   bool expanded;
 
   /// Whether to automatically focus the dropdown button.
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autoFocus')
   bool autoFocus;
 
   /// Whether to enable device-specific haptic feedback when dropdown button is
   /// tapped or long pressed.
+  @FlutterProp('enableFeedback', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.enableFeedback')
   bool enableFeedback;
 
   /// Dropdown options.
@@ -132,6 +138,7 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   ColorRGBA iconEnabledColor;
 
   /// Icon size in dropdown button.
+  @FlutterProp('iconSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.iconSize')
   double iconSize;
 
   /// Dropdown button's icon.
@@ -150,6 +157,7 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   ColorRGBA? splashColor;
 
   /// The z-coordinate of the dropdown overlay.
+  @FlutterProp('elevation', type: 'integer', group: 'Appearance', control: 'number', field: 'properties.elevation')
   int elevation;
 
   /// Corner radii of the dropdown overlay.

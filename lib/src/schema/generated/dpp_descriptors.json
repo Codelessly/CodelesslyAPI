@@ -121,6 +121,56 @@
       "bindable": false
     },
     {
+      "nodeType": "chip",
+      "flutterName": "selected",
+      "fieldPath": "properties.selected",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "showCheckmark",
+      "fieldPath": "properties.showCheckmark",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "tooltip",
+      "fieldPath": "properties.tooltip",
+      "group": "Interaction",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "divider",
       "flutterName": "color",
       "fieldPath": "properties.color",
@@ -157,6 +207,66 @@
       "group": "Layout",
       "control": "number",
       "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "isDense",
+      "fieldPath": "properties.dense",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "isExpanded",
+      "fieldPath": "properties.expanded",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autoFocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "enableFeedback",
+      "fieldPath": "properties.enableFeedback",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "iconSize",
+      "fieldPath": "properties.iconSize",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "integer",
       "defaultSource": null,
       "bindable": false
     },
@@ -251,6 +361,56 @@
       "bindable": false
     },
     {
+      "nodeType": "radio",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "groupValue",
+      "fieldPath": "groupValue",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "toggleable",
+      "fieldPath": "properties.toggleable",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "rowColumn",
       "flutterName": "children",
       "fieldPath": "children",
@@ -278,6 +438,36 @@
       "control": "enum",
       "schemaType": "string",
       "defaultSource": "CrossAxisAlignment.center",
+      "bindable": false
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "multiSelectionEnabled",
+      "fieldPath": "properties.multiSelectionEnabled",
+      "group": "Selection",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "emptySelectionAllowed",
+      "fieldPath": "properties.emptySelectionAllowed",
+      "group": "Selection",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "showSelectedIcon",
+      "fieldPath": "properties.showSelectedIcon",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
       "bindable": false
     },
     {
@@ -371,6 +561,86 @@
       "bindable": false
     },
     {
+      "nodeType": "textField",
+      "flutterName": "enabled",
+      "fieldPath": "properties.enabled",
+      "group": "Input",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "obscureText",
+      "fieldPath": "properties.obscureText",
+      "group": "Input",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "readOnly",
+      "fieldPath": "properties.readOnly",
+      "group": "Input",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "showCursor",
+      "fieldPath": "properties.showCursor",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "cursorHeight",
+      "fieldPath": "properties.cursorHeight",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "cursorWidth",
+      "fieldPath": "properties.cursorWidth",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "obscuringCharacter",
+      "fieldPath": "properties.obscuringCharacter",
+      "group": "Input",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "expands",
+      "fieldPath": "properties.expands",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "text",
       "flutterName": "data",
       "fieldPath": "characters",
@@ -458,6 +728,31 @@
       "fieldPath": "properties.tristate"
     },
     {
+      "nodeType": "chip",
+      "flutterName": "selected",
+      "fieldPath": "properties.selected"
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "showCheckmark",
+      "fieldPath": "properties.showCheckmark"
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation"
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "tooltip",
+      "fieldPath": "properties.tooltip"
+    },
+    {
+      "nodeType": "chip",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
       "nodeType": "divider",
       "flutterName": "color",
       "fieldPath": "properties.color"
@@ -476,6 +771,36 @@
       "nodeType": "divider",
       "flutterName": "thickness",
       "fieldPath": "properties.thickness"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "isDense",
+      "fieldPath": "properties.dense"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "isExpanded",
+      "fieldPath": "properties.expanded"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autoFocus"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "enableFeedback",
+      "fieldPath": "properties.enableFeedback"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "iconSize",
+      "fieldPath": "properties.iconSize"
+    },
+    {
+      "nodeType": "dropdown",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation"
     },
     {
       "nodeType": "gridView",
@@ -501,6 +826,36 @@
       "nodeType": "pageView",
       "flutterName": "allowImplicitScrolling",
       "fieldPath": "properties.allowImplicitScrolling"
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius"
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "radio",
+      "flutterName": "toggleable",
+      "fieldPath": "properties.toggleable"
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "multiSelectionEnabled",
+      "fieldPath": "properties.multiSelectionEnabled"
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "emptySelectionAllowed",
+      "fieldPath": "properties.emptySelectionAllowed"
+    },
+    {
+      "nodeType": "segmentedButton",
+      "flutterName": "showSelectedIcon",
+      "fieldPath": "properties.showSelectedIcon"
     },
     {
       "nodeType": "slider",
@@ -536,6 +891,46 @@
       "nodeType": "switch",
       "flutterName": "trackOutlineWidth",
       "fieldPath": "properties.trackOutlineWidth"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "enabled",
+      "fieldPath": "properties.enabled"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "obscureText",
+      "fieldPath": "properties.obscureText"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "readOnly",
+      "fieldPath": "properties.readOnly"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "showCursor",
+      "fieldPath": "properties.showCursor"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "cursorHeight",
+      "fieldPath": "properties.cursorHeight"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "cursorWidth",
+      "fieldPath": "properties.cursorWidth"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "obscuringCharacter",
+      "fieldPath": "properties.obscuringCharacter"
+    },
+    {
+      "nodeType": "textField",
+      "flutterName": "expands",
+      "fieldPath": "properties.expands"
     },
     {
       "nodeType": "text",
