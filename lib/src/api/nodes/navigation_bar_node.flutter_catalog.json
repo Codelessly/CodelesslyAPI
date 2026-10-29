@@ -1,0 +1,75 @@
+{
+  "NavigationBarNode": {
+    "widget": "NavigationBar",
+    "family": "material",
+    "nodeType": "navigationBar",
+    "drift": [
+      {
+        "flutterName": "selectedIndex",
+        "fieldPath": "currentIndex"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "currentIndex": {
+          "type": "integer"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "navigationBar",
+        "flutterName": "selectedIndex",
+        "fieldPath": "currentIndex",
+        "group": "Selection",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "NavigationBar": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "NavigationBar"
+                },
+                "currentIndex": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "selectedIndex",
+        "field": "currentIndex",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

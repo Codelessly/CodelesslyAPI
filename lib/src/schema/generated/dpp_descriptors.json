@@ -521,6 +521,16 @@
       "bindable": false
     },
     {
+      "nodeType": "icon",
+      "flutterName": "icon",
+      "fieldPath": "properties.icon",
+      "group": "Appearance",
+      "control": "icon",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "lineChart",
       "flutterName": "smooth",
       "fieldPath": "properties.smooth",
@@ -627,6 +637,26 @@
       "group": "Layout",
       "control": "number",
       "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "loadingIndicator",
+      "flutterName": "type",
+      "fieldPath": "properties.type",
+      "group": "Variant",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "navigationBar",
+      "flutterName": "selectedIndex",
+      "fieldPath": "currentIndex",
+      "group": "Selection",
+      "control": "number",
+      "schemaType": "integer",
       "defaultSource": null,
       "bindable": false
     },
@@ -767,6 +797,16 @@
       "group": "Interaction",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "rectangle",
+      "flutterName": "opacity",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -958,6 +998,16 @@
       "control": "number",
       "schemaType": "number",
       "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "spacer",
+      "flutterName": "flex",
+      "fieldPath": "flex",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": "1",
       "bindable": false
     },
     {
@@ -1348,6 +1398,11 @@
       "fieldPath": "properties.cacheExtent"
     },
     {
+      "nodeType": "icon",
+      "flutterName": "icon",
+      "fieldPath": "properties.icon"
+    },
+    {
       "nodeType": "lineChart",
       "flutterName": "smooth",
       "fieldPath": "properties.smooth"
@@ -1396,6 +1451,16 @@
       "nodeType": "listView",
       "flutterName": "itemExtent",
       "fieldPath": "properties.itemExtent"
+    },
+    {
+      "nodeType": "loadingIndicator",
+      "flutterName": "type",
+      "fieldPath": "properties.type"
+    },
+    {
+      "nodeType": "navigationBar",
+      "flutterName": "selectedIndex",
+      "fieldPath": "currentIndex"
     },
     {
       "nodeType": "pageView",

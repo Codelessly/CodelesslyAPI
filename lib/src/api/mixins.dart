@@ -264,6 +264,7 @@ mixin SingleColorMixin on BaseNode {
 /// Adds blend properties to the node.
 mixin BlendMixin on BaseNode {
   /// Overall opacity of the node.
+  @FlutterProp('opacity', type: 'number', group: 'Appearance', control: 'number')
   late double opacity;
 
   /// Type of blending applied to the node.

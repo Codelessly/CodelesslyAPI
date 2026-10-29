@@ -1,0 +1,85 @@
+{
+  "IconNode": {
+    "widget": "CodelesslyIcon",
+    "family": "codelessly",
+    "nodeType": "icon",
+    "drift": [
+      {
+        "flutterName": "icon",
+        "fieldPath": "properties.icon"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "icon": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "icon",
+        "flutterName": "icon",
+        "fieldPath": "properties.icon",
+        "group": "Appearance",
+        "control": "icon",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyIcon": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyIcon"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "icon": {
+                      "type": "object"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "icon",
+        "field": "properties.icon",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}

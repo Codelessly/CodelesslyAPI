@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -9,6 +10,7 @@ part 'spacer_node.g.dart';
 /// A node that can be used to create space between other nodes inside a row or
 /// column or any other flexible spaces.
 // TODO: SpacerNode should extend BaseNode, not SceneNode. Reactions should not be allowed on this.
+@FlutterNode('Spacer', family: 'widgets', nodeType: 'spacer')
 @JsonSerializable()
 class SpacerNode extends SceneNode {
   @override
