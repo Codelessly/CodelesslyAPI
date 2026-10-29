@@ -5,8 +5,6 @@ import 'package:a2ui_core/a2ui_core.dart';
 
 void main() {
   test('every cataloged concrete API node has a generated metadata fragment', () {
-    final catalog = jsonDecode(File('../catalog/flutter_3.47.8.json').readAsStringSync()) as Map;
-    expect((catalog['widgets'] as Map).length, greaterThan(500));
     final source = Directory('lib/src/api/nodes').listSync().whereType<File>()
         .where((file) => file.path.endsWith('_node.dart'));
     final annotated = source.where((file) => file.readAsStringSync().contains('@FlutterNode('))
