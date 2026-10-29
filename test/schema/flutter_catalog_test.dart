@@ -4,6 +4,18 @@ import 'package:test/test.dart';
 import 'package:a2ui_core/a2ui_core.dart';
 
 void main() {
+  test('every cataloged concrete API node has a generated metadata fragment', () {
+    final catalog = jsonDecode(File('../catalog/flutter_3.47.8.json').readAsStringSync()) as Map;
+    expect((catalog['widgets'] as Map).length, greaterThan(500));
+    final source = Directory('lib/src/api/nodes').listSync().whereType<File>()
+        .where((file) => file.path.endsWith('_node.dart'));
+    final annotated = source.where((file) => file.readAsStringSync().contains('@FlutterNode('))
+        .map((file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'));
+    expect(annotated.length, 47);
+    for (final path in annotated) {
+      expect(File(path).existsSync(), isTrue, reason: path);
+    }
+  });
   for (final entry in {
     'text_node': ('TextNode', 'Text', 3),
     'button_node': ('ButtonNode', 'ElevatedButton', 1),
