@@ -139,7 +139,7 @@ class NavigationBarNode extends SceneNode
 
   /// Index of currently selected item.
   @FlutterProp('selectedIndex', type: 'integer', group: 'Selection', control: 'number')
-  int currentIndex;
+  int selectedIndex;
 
   /// Holds configurable properties of the navigation bar.
   @override
@@ -167,7 +167,7 @@ class NavigationBarNode extends SceneNode
     super.edgePins,
     super.aspectRatioLock,
     super.positioningMode,
-    this.currentIndex = 0,
+    this.selectedIndex = 0,
     required this.properties,
     super.variables,
     super.multipleVariables,
