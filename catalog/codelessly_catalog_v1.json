@@ -5,6 +5,39 @@
   "title": "Codelessly generated v1 catalog",
   "description": "Generated from annotated API node wire fields for A2UI v0.9.1.",
   "components": {
+    "Badge": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Badge"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "isLabelVisible": {
+                  "type": "boolean"
+                },
+                "smallSize": {
+                  "type": "number"
+                },
+                "largeSize": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "ElevatedButton": {
       "allOf": [
         {
