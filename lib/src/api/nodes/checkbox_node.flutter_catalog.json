@@ -1,0 +1,169 @@
+{
+  "CheckboxNode": {
+    "widget": "Checkbox",
+    "family": "material",
+    "nodeType": "checkbox",
+    "drift": [
+      {
+        "flutterName": "splashRadius",
+        "fieldPath": "properties.splashRadius"
+      },
+      {
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus"
+      },
+      {
+        "flutterName": "tristate",
+        "fieldPath": "properties.tristate"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "boolean"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "splashRadius": {
+              "type": "number"
+            },
+            "autofocus": {
+              "type": "boolean"
+            },
+            "tristate": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "checkbox",
+        "flutterName": "value",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "checkbox",
+        "flutterName": "splashRadius",
+        "fieldPath": "properties.splashRadius",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "checkbox",
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "checkbox",
+        "flutterName": "tristate",
+        "fieldPath": "properties.tristate",
+        "group": "State",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Checkbox": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Checkbox"
+                },
+                "value": {
+                  "type": "boolean"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "splashRadius": {
+                      "type": "number"
+                    },
+                    "autofocus": {
+                      "type": "boolean"
+                    },
+                    "tristate": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "value"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "value",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "splashRadius",
+        "field": "properties.splashRadius",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "autofocus",
+        "field": "properties.autofocus",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "tristate",
+        "field": "properties.tristate",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

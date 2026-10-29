@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -23,6 +24,7 @@ const double kCheckboxDefaultSize = 40;
 /// null, it shows a dash instead of a checkmark.
 /// Refer to [Checkbox](https://api.flutter.dev/flutter/material/Checkbox-class.html)
 /// in Flutter for more details.
+@FlutterNode('Checkbox', family: 'material', nodeType: 'checkbox')
 @JsonSerializable()
 class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   @override
@@ -39,6 +41,7 @@ class CheckboxNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   covariant CheckboxProperties properties;
 
   /// Value of the checkbox.
+  @FlutterProp('value', type: 'boolean', group: 'State', control: 'switch', required: true, bindable: true)
   bool? value;
 
   /// Strictly used for previews. e.g in components panel.
@@ -154,12 +157,15 @@ class CheckboxProperties extends CustomProperties with FieldsHolder {
   late ColorRGBA focusColor;
 
   /// Overlay radius.
+  @FlutterProp('splashRadius', type: 'number', group: 'Appearance', control: 'number', field: 'properties.splashRadius')
   late double splashRadius;
 
   /// Whether to automatically focus the checkbox.
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   late bool autofocus;
 
   /// Whether the checkbox is tristate.
+  @FlutterProp('tristate', type: 'boolean', group: 'State', control: 'switch', field: 'properties.tristate')
   late bool tristate;
 
   /// Border width for the checkbox.
