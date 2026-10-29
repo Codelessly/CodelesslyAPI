@@ -277,9 +277,6 @@ mixin BlendMixin on BaseNode {
   /// Whether to use ink well on this node, along with its properties.
   late InkWellModel? inkWell;
 
-  /// A looping fade of the node's opacity, or null for none.
-  PulseModel? pulse;
-
   /// How the node animates when its style changes at runtime. Null jumps.
   NodeTransition? transition;
 
@@ -1079,6 +1076,7 @@ mixin PropertyVariableMixin on BaseNode {
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
     IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    DoubleValue(name: 'drawScale', value: drawScale),
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
       PaintValue(name: 'stroke', value: geometry.strokes.firstOrNull),
