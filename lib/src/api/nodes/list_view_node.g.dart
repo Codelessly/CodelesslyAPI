@@ -97,6 +97,7 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
     json.remove('wrapAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
+  if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
   return json;
 }
 
@@ -392,6 +393,9 @@ const _$QueryPagingEnumMap = {
 };
 
 ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
+  layout:
+      $enumDecodeNullable(_$ListLayoutEnumMap, json['layout']) ??
+      ListLayout.list,
   itemCount: (json['itemCount'] as num?)?.toInt(),
   itemExtent: (json['itemExtent'] as num?)?.toDouble(),
   cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
@@ -428,7 +432,13 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapRunSpacing': instance.wrapRunSpacing,
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
       'runSpacing': instance.runSpacing,
+      'layout': _$ListLayoutEnumMap[instance.layout]!,
     };
+
+const _$ListLayoutEnumMap = {
+  ListLayout.list: 'list',
+  ListLayout.stack: 'stack',
+};
 
 const _$ListItemSeparatorEnumMap = {
   ListItemSeparator.divider: 'divider',
