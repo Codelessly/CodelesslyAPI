@@ -16,6 +16,11 @@ dependencies:
   intl: ^0.20.3
   path: ^1.9.1
 
+flutter:
+  assets:
+    - lib/src/schema/generated/codelessly_a2ui_catalog.json
+    - lib/src/schema/generated/dpp_descriptors.json
+
 dev_dependencies:
   json_serializable: ^6.14.1
   json_defaults_builder:
