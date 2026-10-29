@@ -168,8 +168,10 @@ class SignatureNode extends SceneNode with CustomPropertiesMixin {
   factory SignatureNode.fromJson(Map json) => _$SignatureNodeFromJson(json);
 
   @override
-  Map toJson() =>
-      _$SignatureNodeOmitDefaults(this, _$SignatureNodeToJson(this));
+  Map toJson() => {
+    ..._$SignatureNodeOmitDefaults(this, _$SignatureNodeToJson(this)),
+    'signatureKind': 'pixel',
+  };
 }
 
 /// Reads strokes from JSON: a list of strokes, each a list of `[x, y]`

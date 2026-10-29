@@ -77,7 +77,13 @@ enum TriggerType {
   /// Triggered when the user taps the target twice in quick succession.
   /// A node with a double tap reaction delays its single taps ([click]) by
   /// the double tap timeout (300ms), the way Flutter tells the two apart.
-  doubleTap;
+  doubleTap,
+
+  /// Triggered when the user presses and holds the target for the trigger's
+  /// [TriggerModel.duration]. Releasing early cancels it. While held, the
+  /// target's descendants can read the progress, 0 to 1, as `${hold}`, for
+  /// example to fill a hold-to-confirm button.
+  hold;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -142,9 +148,15 @@ enum TriggerType {
         return 'Swipe Down';
       case TriggerType.doubleTap:
         return 'Double Tap';
+      case TriggerType.hold:
+        return 'Hold to Confirm';
     }
   }
 }
+
+/// How long a [TriggerType.hold] trigger is held by default, in
+/// milliseconds.
+const int kDefaultHoldDuration = 1200;
 
 /// A model representing a trigger event data.
 @JsonSerializable()
@@ -168,6 +180,11 @@ class TriggerModel with Equatable, SerializableMixin {
   /// (`Arrow Right`, `Enter`, `Space`, `A`).
   final String? key;
 
+  /// How long, in milliseconds, a [TriggerType.hold] trigger must be held
+  /// before it fires.
+  @JsonKey(defaultValue: kDefaultHoldDuration)
+  final int duration;
+
   /// Creates a [TriggerModel] with given data.
   TriggerModel({
     required this.type,
@@ -175,13 +192,21 @@ class TriggerModel with Equatable, SerializableMixin {
     this.variable,
     this.intervalMs,
     this.key,
+    this.duration = kDefaultHoldDuration,
   });
 
   /// The interval of a timer trigger; one second when unset.
   int get effectiveIntervalMs => (intervalMs ?? 1000).clamp(16, 86400000);
 
   @override
-  List<Object?> get props => [type, debounceMs, variable, intervalMs, key];
+  List<Object?> get props => [
+    type,
+    debounceMs,
+    variable,
+    intervalMs,
+    key,
+    duration,
+  ];
 
   /// Duplicate this [TriggerModel] with given data overrides.
   TriggerModel copyWith({
@@ -190,12 +215,14 @@ class TriggerModel with Equatable, SerializableMixin {
     String? variable,
     int? intervalMs,
     String? key,
+    int? duration,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
     variable: variable ?? this.variable,
     intervalMs: intervalMs ?? this.intervalMs,
     key: key ?? this.key,
+    duration: duration ?? this.duration,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from

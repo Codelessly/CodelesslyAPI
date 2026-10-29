@@ -1069,7 +1069,7 @@ mixin PropertyVariableMixin on BaseNode {
   /// an action.
   ///
   /// Style properties (fill, stroke, opacity, width, height, effectsVisible,
-  /// strokeWeight, cornerRadius; a text's fill is its color, and its
+  /// strokeWeight, cornerRadius, flex; a text's fill is its color, and its
   /// fontWeight a number from 100 to 900) can be set by
   /// conditions, bound to variables or formulas, or changed by a set value
   /// action, on any node that has them.
@@ -1106,6 +1106,9 @@ mixin PropertyVariableMixin on BaseNode {
       DoubleValue(name: 'cornerRadius', value: corner.cornerRadius.tl.x),
     DoubleValue(name: 'width', value: basicBoxLocal.width),
     DoubleValue(name: 'height', value: basicBoxLocal.height),
+    // A child's share of its row or column's free space when it expands,
+    // e.g. the bars of a gauge sized by data.
+    IntValue(name: 'flex', value: flex),
   ];
 }
 

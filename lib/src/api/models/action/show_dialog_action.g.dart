@@ -107,6 +107,7 @@ const _$DialogPresentationEnumMap = {
   DialogPresentation.bottomSheet: 'bottomSheet',
   DialogPresentation.adaptive: 'adaptive',
   DialogPresentation.sideSheet: 'sideSheet',
+  DialogPresentation.fullScreen: 'fullScreen',
 };
 
 const _$DialogAnchorEnumMap = {

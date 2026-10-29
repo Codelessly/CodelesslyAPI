@@ -32,6 +32,8 @@ enum NavigationType {
   }
 }
 
+Object? _readDestinationId(Map json, String key) => json[key] ?? '';
+
 /// An action that navigates to a new page.
 @JsonSerializable()
 class NavigationAction extends ActionModel with Equatable, SerializableMixin {
@@ -39,9 +41,10 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   final NavigationType navigationType;
 
   /// Destination canvas node's ID. For a pop it's optional: where to go
-  /// instead when there is no previous screen to go back to.
-  // Always written: SDKs before the '' default require the key.
+  /// instead when there is no previous screen to go back to. Empty when no
+  /// fallback is provided; always written for older readers that require it.
   @JsonLegacyDefault(null)
+  @JsonKey(readValue: _readDestinationId)
   final String destinationId;
 
   /// Parameters to pass to the destination page.
