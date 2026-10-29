@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../node_json_converter.dart';
 import 'nodes.dart';
 
 part 'gauge_node.g.dart';
@@ -113,10 +114,16 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Creates a [GaugeNode] from JSON.
   /// A missing `properties` key means default properties, so hand-written
-  /// JSON (e.g. nodes.insertTree) can leave it out.
-  factory GaugeNode.fromJson(Map json) => _$GaugeNodeFromJson(
-    json['properties'] == null ? {...json, 'properties': const {}} : json,
-  );
+  /// JSON (e.g. nodes.insertTree) can leave it out. Validate the raw wire
+  /// before applying defaults so ambiguous legacy gauges cannot become radial.
+  factory GaugeNode.fromJson(Map json) {
+    NodeJsonConverter.validateGaugeWire(json, expectedType: 'gaugeRadial');
+    return _$GaugeNodeFromJson({
+      ...json,
+      if (json['type'] == 'gauge') 'type': 'gaugeRadial',
+      if (json['properties'] == null) 'properties': const {},
+    });
+  }
 
   @override
   Map toJson() =>
