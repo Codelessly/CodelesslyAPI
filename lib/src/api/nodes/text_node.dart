@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -43,6 +44,10 @@ class WidthRange with SerializableMixin implements Equatable {
 /// be displayed on the same line depending on the layout constraints.
 /// Refer to [Text](https://api.flutter.dev/flutter/widgets/Text-class.html) in
 /// Flutter for more details.
+@FlutterNode('Text', family: 'widgets')
+@FlutterProp('data', type: 'string', group: 'Text', control: 'text', field: 'characters', required: true, bindable: true)
+@FlutterProp('maxLines', type: 'integer', group: 'Text', control: 'number')
+@FlutterProp('softWrap', type: 'boolean', group: 'Text', control: 'switch', defaultSource: 'true')
 @JsonSerializable()
 class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   @override

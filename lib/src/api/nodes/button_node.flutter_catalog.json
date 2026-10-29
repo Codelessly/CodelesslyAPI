@@ -1,0 +1,77 @@
+{
+  "ButtonNode": {
+    "widget": "ElevatedButton",
+    "family": "material",
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "onPressed": {
+          "type": "string",
+          "description": "Interaction: reactions"
+        },
+        "child": {
+          "type": "string",
+          "description": "Content: properties.label"
+        }
+      },
+      "required": []
+    },
+    "dpp": [
+      {
+        "name": "onPressed",
+        "field": "reactions",
+        "group": "Interaction",
+        "control": "action",
+        "bindable": false
+      },
+      {
+        "name": "child",
+        "field": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalog/material/ElevatedButton",
+      "components": {
+        "ElevatedButton": {
+          "type": "object",
+          "properties": {
+            "onPressed": {
+              "type": "string",
+              "description": "Interaction: reactions"
+            },
+            "child": {
+              "type": "string",
+              "description": "Content: properties.label"
+            }
+          }
+        }
+      }
+    },
+    "testMatrix": [
+      {
+        "parameter": "onPressed",
+        "field": "reactions",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "child",
+        "field": "properties.label",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "RowColumnNode": {
+    "widget": "Row",
+    "family": "widgets",
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "children": {
+          "type": "array",
+          "description": "Layout: children"
+        },
+        "mainAxisAlignment": {
+          "type": "string",
+          "description": "Layout: mainAxisAlignment"
+        },
+        "crossAxisAlignment": {
+          "type": "string",
+          "description": "Layout: crossAxisAlignment"
+        }
+      },
+      "required": [
+        "children"
+      ]
+    },
+    "dpp": [
+      {
+        "name": "children",
+        "field": "children",
+        "group": "Layout",
+        "control": "children",
+        "bindable": false
+      },
+      {
+        "name": "mainAxisAlignment",
+        "field": "mainAxisAlignment",
+        "group": "Layout",
+        "control": "enum",
+        "bindable": false
+      },
+      {
+        "name": "crossAxisAlignment",
+        "field": "crossAxisAlignment",
+        "group": "Layout",
+        "control": "enum",
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalog/widgets/Row",
+      "components": {
+        "Row": {
+          "type": "object",
+          "properties": {
+            "children": {
+              "type": "array",
+              "description": "Layout: children"
+            },
+            "mainAxisAlignment": {
+              "type": "string",
+              "description": "Layout: mainAxisAlignment"
+            },
+            "crossAxisAlignment": {
+              "type": "string",
+              "description": "Layout: crossAxisAlignment"
+            }
+          }
+        }
+      }
+    },
+    "testMatrix": [
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "mainAxisAlignment",
+        "field": "mainAxisAlignment",
+        "defaultSource": "MainAxisAlignment.center",
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "crossAxisAlignment",
+        "field": "crossAxisAlignment",
+        "defaultSource": "CrossAxisAlignment.center",
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}

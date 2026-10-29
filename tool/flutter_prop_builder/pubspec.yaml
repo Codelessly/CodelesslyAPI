@@ -1,0 +1,7 @@
+name: flutter_prop_builder
+publish_to: none
+environment:
+  sdk: ^3.13.0
+dependencies:
+  analyzer: ^14.0.0
+  build: ^4.0.0
