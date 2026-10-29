@@ -240,9 +240,7 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
-  'characters': instance.characters,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -261,6 +259,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
+  'characters': instance.characters,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'textAlignVertical':
@@ -270,8 +270,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,
