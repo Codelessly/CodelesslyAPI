@@ -41,6 +41,32 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyAutoPlaceholder": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyAutoPlaceholder"
+            },
+            "ephemeral": {
+              "type": "boolean"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Badge": {
       "allOf": [
         {
@@ -367,6 +393,33 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyExternalComponent": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyExternalComponent"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "builderID": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "FloatingActionButton": {
       "allOf": [
         {
@@ -413,6 +466,29 @@
           "properties": {
             "component": {
               "const": "Stack"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyFreeformPlaceholder": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyFreeformPlaceholder"
             },
             "children": {
               "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
@@ -644,6 +720,31 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyPlaceholder": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyPlaceholder"
+            },
+            "leadingAsset": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyPlotChart": {
       "allOf": [
         {
@@ -862,6 +963,32 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslySinglePlaceholder": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslySinglePlaceholder"
+            },
+            "ephemeral": {
+              "type": "boolean"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Slider": {
       "allOf": [
         {
@@ -1032,6 +1159,32 @@
           "required": [
             "component",
             "text"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyVariance": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyVariance"
+            },
+            "currentVariantId": {
+              "type": "string"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children"
           ]
         }
       ],
