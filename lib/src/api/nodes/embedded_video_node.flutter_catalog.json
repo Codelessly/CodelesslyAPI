@@ -1,0 +1,114 @@
+{
+  "EmbeddedVideoNode": {
+    "widget": "CodelesslyEmbeddedVideo",
+    "family": "codelessly",
+    "nodeType": "embeddedVideo",
+    "drift": [
+      {
+        "flutterName": "url",
+        "fieldPath": "properties.url"
+      },
+      {
+        "flutterName": "autoPlay",
+        "fieldPath": "properties.autoPlay"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "autoPlay": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "embeddedVideo",
+        "flutterName": "url",
+        "fieldPath": "properties.url",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "embeddedVideo",
+        "flutterName": "autoPlay",
+        "fieldPath": "properties.autoPlay",
+        "group": "Playback",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyEmbeddedVideo": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyEmbeddedVideo"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "autoPlay": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "url",
+        "field": "properties.url",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "autoPlay",
+        "field": "properties.autoPlay",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

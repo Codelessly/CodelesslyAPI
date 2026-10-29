@@ -1,0 +1,159 @@
+{
+  "SignatureNormalizedNode": {
+    "widget": "CodelesslyNormalizedSignature",
+    "family": "codelessly",
+    "nodeType": "signatureNormalized",
+    "drift": [
+      {
+        "flutterName": "strokeWidth",
+        "fieldPath": "properties.strokeWidth"
+      },
+      {
+        "flutterName": "readOnly",
+        "fieldPath": "properties.readOnly"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "strokes": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "strokeWidth": {
+              "type": "number"
+            },
+            "readOnly": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "signatureNormalized",
+        "flutterName": "strokes",
+        "fieldPath": "strokes",
+        "group": "State",
+        "control": "strokes",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "signatureNormalized",
+        "flutterName": "strokeWidth",
+        "fieldPath": "properties.strokeWidth",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "signatureNormalized",
+        "flutterName": "readOnly",
+        "fieldPath": "properties.readOnly",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyNormalizedSignature": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyNormalizedSignature"
+                },
+                "strokes": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "strokeWidth": {
+                      "type": "number"
+                    },
+                    "readOnly": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "strokes",
+        "field": "strokes",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "strokeWidth",
+        "field": "properties.strokeWidth",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "readOnly",
+        "field": "properties.readOnly",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

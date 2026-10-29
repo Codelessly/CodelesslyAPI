@@ -1,0 +1,130 @@
+{
+  "SignatureNode": {
+    "widget": "CodelesslySignature",
+    "family": "codelessly",
+    "nodeType": "signature",
+    "drift": [
+      {
+        "flutterName": "inkWidth",
+        "fieldPath": "properties.inkWidth"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "inkWidth": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "signature",
+        "flutterName": "value",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "strokes",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "signature",
+        "flutterName": "inkWidth",
+        "fieldPath": "properties.inkWidth",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslySignature": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslySignature"
+                },
+                "value": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "inkWidth": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "value",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "inkWidth",
+        "field": "properties.inkWidth",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
