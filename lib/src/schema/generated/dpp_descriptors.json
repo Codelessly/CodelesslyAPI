@@ -291,6 +291,26 @@
       "bindable": false
     },
     {
+      "nodeType": "embeddedVideo",
+      "flutterName": "url",
+      "fieldPath": "properties.url",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "embeddedVideo",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "expansionTile",
       "flutterName": "children",
       "fieldPath": "children",
@@ -691,6 +711,56 @@
       "bindable": false
     },
     {
+      "nodeType": "signature",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "strokes",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "signature",
+      "flutterName": "inkWidth",
+      "fieldPath": "properties.inkWidth",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "signatureNormalized",
+      "flutterName": "strokes",
+      "fieldPath": "strokes",
+      "group": "State",
+      "control": "strokes",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "signatureNormalized",
+      "flutterName": "strokeWidth",
+      "fieldPath": "properties.strokeWidth",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "signatureNormalized",
+      "flutterName": "readOnly",
+      "fieldPath": "properties.readOnly",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "slider",
       "flutterName": "value",
       "fieldPath": "value",
@@ -899,6 +969,16 @@
       "schemaType": "boolean",
       "defaultSource": "true",
       "bindable": false
+    },
+    {
+      "nodeType": "webView",
+      "flutterName": "src",
+      "fieldPath": "properties.src",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
     }
   ],
   "drift": [
@@ -1031,6 +1111,16 @@
       "nodeType": "dropdown",
       "flutterName": "elevation",
       "fieldPath": "properties.elevation"
+    },
+    {
+      "nodeType": "embeddedVideo",
+      "flutterName": "url",
+      "fieldPath": "properties.url"
+    },
+    {
+      "nodeType": "embeddedVideo",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay"
     },
     {
       "nodeType": "expansionTile",
@@ -1168,6 +1258,21 @@
       "fieldPath": "properties.showSelectedIcon"
     },
     {
+      "nodeType": "signature",
+      "flutterName": "inkWidth",
+      "fieldPath": "properties.inkWidth"
+    },
+    {
+      "nodeType": "signatureNormalized",
+      "flutterName": "strokeWidth",
+      "fieldPath": "properties.strokeWidth"
+    },
+    {
+      "nodeType": "signatureNormalized",
+      "flutterName": "readOnly",
+      "fieldPath": "properties.readOnly"
+    },
+    {
       "nodeType": "slider",
       "flutterName": "autofocus",
       "fieldPath": "properties.autofocus"
@@ -1251,6 +1356,11 @@
       "nodeType": "text",
       "flutterName": "data",
       "fieldPath": "characters"
+    },
+    {
+      "nodeType": "webView",
+      "flutterName": "src",
+      "fieldPath": "properties.src"
     }
   ]
 }
