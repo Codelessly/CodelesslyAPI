@@ -133,6 +133,15 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
 
   @override
   BaseNode? fromJson(Map json) {
+    // Centered legacy deck stacking and bound-x/y positional stacking are
+    // different layouts. Reject their collision before either generated
+    // decoder can apply defaults or a document map can be partially parsed.
+    if (json['type'] == 'listView' && json['properties'] is Map) {
+      final properties = json['properties'] as Map;
+      if (properties['stacked'] == true && properties['layout'] == 'stack') {
+        throw UnresolvedNodeSchema('conflicting-list-layout-schema', json);
+      }
+    }
     final pulse = json['pulse'];
     if (pulse is Map) {
       const relativeKeys = {'minOpacity', 'durationMillis'};
