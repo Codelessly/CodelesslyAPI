@@ -810,7 +810,7 @@
             "component": {
               "const": "NavigationBar"
             },
-            "currentIndex": {
+            "selectedIndex": {
               "type": "integer"
             }
           },

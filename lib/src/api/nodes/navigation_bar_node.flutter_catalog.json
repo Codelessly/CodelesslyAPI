@@ -3,17 +3,12 @@
     "widget": "NavigationBar",
     "family": "material",
     "nodeType": "navigationBar",
-    "drift": [
-      {
-        "flutterName": "selectedIndex",
-        "fieldPath": "currentIndex"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
-        "currentIndex": {
+        "selectedIndex": {
           "type": "integer"
         }
       }
@@ -22,7 +17,7 @@
       {
         "nodeType": "navigationBar",
         "flutterName": "selectedIndex",
-        "fieldPath": "currentIndex",
+        "fieldPath": "selectedIndex",
         "group": "Selection",
         "control": "number",
         "schemaType": "integer",
@@ -46,7 +41,7 @@
                 "component": {
                   "const": "NavigationBar"
                 },
-                "currentIndex": {
+                "selectedIndex": {
                   "type": "integer"
                 }
               },
@@ -63,7 +58,7 @@
     "testMatrix": [
       {
         "parameter": "selectedIndex",
-        "field": "currentIndex",
+        "field": "selectedIndex",
         "defaultSource": null,
         "testValues": [
           0,

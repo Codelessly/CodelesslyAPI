@@ -653,7 +653,7 @@
     {
       "nodeType": "navigationBar",
       "flutterName": "selectedIndex",
-      "fieldPath": "currentIndex",
+      "fieldPath": "selectedIndex",
       "group": "Selection",
       "control": "number",
       "schemaType": "integer",
@@ -1456,11 +1456,6 @@
       "nodeType": "loadingIndicator",
       "flutterName": "type",
       "fieldPath": "properties.type"
-    },
-    {
-      "nodeType": "navigationBar",
-      "flutterName": "selectedIndex",
-      "fieldPath": "currentIndex"
     },
     {
       "nodeType": "pageView",
