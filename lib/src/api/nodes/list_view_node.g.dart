@@ -96,6 +96,7 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.wrapRunSpacing, 0)) json.remove('wrapRunSpacing');
   if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
     json.remove('wrapAlignment');
+  if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   return json;
 }
 
@@ -406,6 +407,7 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
   wrapAlignment:
       $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
       MainAxisAlignmentC.start,
+  runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -425,6 +427,7 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapSpacing': instance.wrapSpacing,
       'wrapRunSpacing': instance.wrapRunSpacing,
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
+      'runSpacing': instance.runSpacing,
     };
 
 const _$ListItemSeparatorEnumMap = {

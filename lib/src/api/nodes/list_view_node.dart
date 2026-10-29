@@ -232,6 +232,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// Whether this list wraps its items: [wrap] is on and [stacked] is off.
   bool get isWrapping => wrap && !stacked;
 
+  /// PR43 run-gap value, retained for existing serialized lists. New lists
+  /// can use [wrapRunSpacing]; consumers of both wire formats should honor
+  /// [runSpacing] when [wrapRunSpacing] is zero.
+  double runSpacing;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.itemCount,
@@ -245,6 +250,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapSpacing = 0,
     this.wrapRunSpacing = 0,
     this.wrapAlignment = MainAxisAlignmentC.start,
+    this.runSpacing = 0,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties();
 
@@ -270,6 +276,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? wrapRunSpacing,
     MainAxisAlignmentC? wrapAlignment,
     DividerProperties? dividerProperties,
+    double? runSpacing,
   }) {
     return ListViewProperties(
       stacked: stacked ?? this.stacked,
@@ -284,6 +291,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       separatorSpacing: separatorSpacing ?? this.separatorSpacing,
       hasSeparator: hasSeparator ?? this.hasSeparator,
       dividerProperties: dividerProperties ?? this.dividerProperties,
+      runSpacing: runSpacing ?? this.runSpacing,
     );
   }
 
@@ -359,6 +367,14 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       (value) => dividerProperties = value,
       requiresLayout: true,
     ),
+    'runSpacing': NumFieldAccess<double>(
+      'Run Gap',
+      'The gap between runs when the items wrap.',
+      () => runSpacing,
+      (value) => runSpacing = value,
+      defaultValue: () => 0,
+      requiresLayout: true,
+    ),
   };
 
   @override
@@ -383,5 +399,6 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     wrapRunSpacing,
     wrapAlignment,
     dividerProperties,
+    runSpacing,
   ];
 }

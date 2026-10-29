@@ -194,6 +194,8 @@ List<BaseNode> sampleNodes() {
     LineChartNode.empty(),
     GaugeMeterNode.empty(),
     BarChartNode.empty(),
+    ChartNode.empty(),
+    PlotChartNode.empty(),
     RadioNode.empty(),
     SegmentedButtonNode.empty(),
     SliderNode.empty(),

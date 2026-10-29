@@ -131,16 +131,13 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   final DialogPresentation presentation;
 
   /// Where a dialog sits on the screen, e.g. top right for a menu. Center by
-  /// default. Bottom sheets always sit at the bottom.
+  /// default. Bottom sheets always sit at the bottom and side sheets at the
+  /// right edge.
   final AlignmentModel alignment;
 
   /// Width of a [DialogPresentation.sideSheet], in logical pixels. Null takes
   /// the destination canvas's width.
   final double? sheetWidth;
-
-  /// The most of the screen's height a bottom sheet takes, from 0 to 1. A
-  /// taller canvas scrolls within it.
-  final double maxHeightFactor;
 
   /// Whether a bottom sheet shows a grab handle at its top.
   final bool showDragHandle;
@@ -164,6 +161,15 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// placements (right in a left-to-right app), down for the others.
   final double anchorOffset;
 
+  /// Space kept between the overlay and the screen edges: a dialog placed
+  /// in a corner stays this far from it, a side sheet is inset by it.
+  final EdgeInsetsModel insets;
+
+  /// The most of the screen height a dialog or bottom sheet may take, as a
+  /// share of it (e.g. 0.9); content scrolls beyond. The existing default
+  /// is 1 (no additional cap), including when omitted from legacy JSON.
+  final double maxHeightFactor;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -174,12 +180,13 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.presentation = DialogPresentation.dialog,
     this.alignment = AlignmentModel.center,
     this.sheetWidth,
-    this.maxHeightFactor = 1,
     this.showDragHandle = false,
     this.anchor = DialogAnchor.none,
     this.placement = DialogPlacement.belowStart,
     this.anchorGap = 4,
     this.anchorOffset = 0,
+    this.insets = EdgeInsetsModel.zero,
+    this.maxHeightFactor = 1,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -195,17 +202,19 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     presentation,
     alignment,
     sheetWidth,
-    maxHeightFactor,
     showDragHandle,
     anchor,
     placement,
     anchorGap,
     anchorOffset,
+    insets,
+    maxHeightFactor,
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
   bool get isAnchored =>
-      presentation == DialogPresentation.popover || anchor == DialogAnchor.trigger;
+      presentation == DialogPresentation.popover ||
+      anchor == DialogAnchor.trigger;
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
@@ -218,12 +227,13 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     AlignmentModel? alignment,
     double? sheetWidth,
     bool clearSheetWidth = false,
-    double? maxHeightFactor,
     bool? showDragHandle,
     DialogAnchor? anchor,
     DialogPlacement? placement,
     double? anchorGap,
     double? anchorOffset,
+    EdgeInsetsModel? insets,
+    double? maxHeightFactor,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -233,12 +243,13 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     presentation: presentation ?? this.presentation,
     alignment: alignment ?? this.alignment,
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
-    maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
     anchor: anchor ?? this.anchor,
     placement: placement ?? this.placement,
     anchorGap: anchorGap ?? this.anchorGap,
     anchorOffset: anchorOffset ?? this.anchorOffset,
+    insets: insets ?? this.insets,
+    maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -309,7 +320,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
         DialogPlacement.bottomSheet => 'bottomSheet',
         DialogPlacement.adaptive => 'adaptive',
         DialogPlacement.anchored
-            when presentation == DialogPresentation.popover => 'popover',
+            when presentation == DialogPresentation.popover =>
+          'popover',
         _ => 'dialog',
       };
       if (placement == DialogPlacement.anchored) json['anchor'] = 'trigger';
@@ -333,8 +345,8 @@ enum DialogPresentation {
   /// A bottom sheet on phones (narrower than 600 px), a dialog otherwise.
   adaptive,
 
-  /// Anchored to the right edge, as tall as the screen and
-  /// [ShowDialogAction.sheetWidth] wide. Slides in from the right.
+  /// A sheet that slides in from the right edge, inset from the screen.
+  /// [ShowDialogAction.sheetWidth] sets its width when provided.
   sideSheet,
 
   /// Covers the whole screen, like a photo viewer.

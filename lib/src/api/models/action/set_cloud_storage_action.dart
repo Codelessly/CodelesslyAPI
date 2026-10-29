@@ -15,13 +15,23 @@ enum SetCloudStorageOperation {
   updateDocument,
 
   /// Removes an existing document from the collection.
-  removeDocument;
+  removeDocument,
+
+  /// Removes many documents of a collection in one write: all of them, those
+  /// matching where filters, or those with the given ids.
+  removeDocuments,
+
+  /// Writes a list of documents to a collection in one write, e.g. restoring
+  /// seed data from a list variable.
+  setDocuments;
 
   /// Displayable string representation of the [StorageOperation].
   String get label => switch (this) {
     SetCloudStorageOperation.addDocument => 'Add Document',
     SetCloudStorageOperation.updateDocument => 'Update Document',
     SetCloudStorageOperation.removeDocument => 'Remove Document',
+    SetCloudStorageOperation.removeDocuments => 'Remove Documents',
+    SetCloudStorageOperation.setDocuments => 'Set Documents',
   };
 
   /// Whether this [StorageOperation] is [addDocument].
@@ -32,6 +42,15 @@ enum SetCloudStorageOperation {
 
   /// Whether this [StorageOperation] is [removeDocument].
   bool get isRemoveDocument => this == removeDocument;
+
+  /// Whether this [StorageOperation] is [removeDocuments].
+  bool get isRemoveDocuments => this == removeDocuments;
+
+  /// Whether this [StorageOperation] is [setDocuments].
+  bool get isSetDocuments => this == setDocuments;
+
+  /// Whether this operation writes many documents at once.
+  bool get isBatch => this == removeDocuments || this == setDocuments;
 }
 
 /// An action that changes data in cloud storage.
@@ -39,7 +58,8 @@ enum SetCloudStorageOperation {
 class SetCloudStorageAction extends ActionModel
     with Equatable, SerializableMixin {
   /// The sub action to perform. This can be one of [AddDocumentSubAction],
-  /// [UpdateDocumentSubAction] or [RemoveDocumentSubAction].
+  /// [UpdateDocumentSubAction], [RemoveDocumentSubAction],
+  /// [RemoveDocumentsSubAction] or [SetDocumentsSubAction].
   final SetCloudStorageSubAction subAction;
 
   /// Creates a new [SetCloudStorageAction].
@@ -91,6 +111,11 @@ sealed class SetCloudStorageSubAction with Equatable, SerializableMixin {
         UpdateDocumentSubAction.fromJson(json),
       SetCloudStorageOperation.removeDocument =>
         RemoveDocumentSubAction.fromJson(json),
+      SetCloudStorageOperation.removeDocuments =>
+        RemoveDocumentsSubAction.fromJson(json),
+      SetCloudStorageOperation.setDocuments => SetDocumentsSubAction.fromJson(
+        json,
+      ),
     };
   }
 }
@@ -378,5 +403,127 @@ class UpdateDocumentSubAction extends SetCloudStorageSubAction
     toggled,
     useRawValue,
     numberOperation,
+  ];
+}
+
+/// Represents a sub action that removes many documents of a collection in
+/// cloud storage in one write (Firestore batches of up to 500 deletes).
+///
+/// Removes the documents whose ids [documentIds] gives, or, when it is
+/// empty, the documents matching [whereFilters]: every document of the
+/// collection when there are none. In a collection only the owner can read,
+/// only the signed-in user's documents are removed.
+@JsonSerializable()
+class RemoveDocumentsSubAction extends SetCloudStorageSubAction {
+  /// Path to the collection, as in [RemoveDocumentSubAction.path].
+  final String path;
+
+  /// The ids of the documents to remove: a `${...}` path or formula giving a
+  /// list of ids (or of documents, whose `id` is used), a JSON list, or ids
+  /// separated by commas. Empty to remove by [whereFilters] instead.
+  final String documentIds;
+
+  /// The filters documents must pass to be removed when [documentIds] is
+  /// empty. No filters removes every document of the collection.
+  @JsonKey(defaultValue: [])
+  final List<WhereQueryFilter> whereFilters;
+
+  /// Creates a new [RemoveDocumentsSubAction].
+  const RemoveDocumentsSubAction({
+    this.path = '',
+    this.documentIds = '',
+    this.whereFilters = const [],
+  }) : super(operation: SetCloudStorageOperation.removeDocuments);
+
+  /// Duplicates this [RemoveDocumentsSubAction] with given data overrides.
+  RemoveDocumentsSubAction copyWith({
+    String? path,
+    String? documentIds,
+    List<WhereQueryFilter>? whereFilters,
+  }) => RemoveDocumentsSubAction(
+    path: path ?? this.path,
+    documentIds: documentIds ?? this.documentIds,
+    whereFilters: whereFilters ?? this.whereFilters,
+  );
+
+  /// Creates a new [RemoveDocumentsSubAction] instance from a JSON data.
+  factory RemoveDocumentsSubAction.fromJson(Map json) =>
+      _$RemoveDocumentsSubActionFromJson(json);
+
+  @override
+  Map toJson() => _$RemoveDocumentsSubActionOmitDefaults(
+    this,
+    _$RemoveDocumentsSubActionToJson(this),
+  )..['operation'] = operation.name;
+
+  @override
+  List<Object?> get props => [path, documentIds, whereFilters];
+}
+
+/// Represents a sub action that writes a list of documents to a collection
+/// in cloud storage in one write (Firestore batches of up to 500 writes).
+@JsonSerializable()
+class SetDocumentsSubAction extends SetCloudStorageSubAction {
+  /// Path to the collection, as in [AddDocumentSubAction.path].
+  final String path;
+
+  /// The documents to write: a `${...}` path or formula giving a list of
+  /// maps, or a JSON list of objects (which may hold `${...}` paths).
+  final String documents;
+
+  /// The field of each document that holds its id. A document without one
+  /// gets a generated id.
+  final String idField;
+
+  /// Whether to merge each document into the stored one instead of
+  /// replacing it.
+  final bool merge;
+
+  /// Whether to also remove the collection's documents that are not in the
+  /// list, so the collection holds exactly [documents] (restoring seed
+  /// data).
+  final bool replaceCollection;
+
+  /// Creates a new [SetDocumentsSubAction].
+  const SetDocumentsSubAction({
+    this.path = '',
+    this.documents = '',
+    this.idField = 'id',
+    this.merge = false,
+    this.replaceCollection = false,
+  }) : super(operation: SetCloudStorageOperation.setDocuments);
+
+  /// Duplicates this [SetDocumentsSubAction] with given data overrides.
+  SetDocumentsSubAction copyWith({
+    String? path,
+    String? documents,
+    String? idField,
+    bool? merge,
+    bool? replaceCollection,
+  }) => SetDocumentsSubAction(
+    path: path ?? this.path,
+    documents: documents ?? this.documents,
+    idField: idField ?? this.idField,
+    merge: merge ?? this.merge,
+    replaceCollection: replaceCollection ?? this.replaceCollection,
+  );
+
+  /// Creates a new [SetDocumentsSubAction] instance from a JSON data.
+  factory SetDocumentsSubAction.fromJson(Map json) =>
+      _$SetDocumentsSubActionFromJson(json);
+
+  @override
+  Map toJson() => _$SetDocumentsSubActionOmitDefaults(
+    this,
+    _$SetDocumentsSubActionToJson(this),
+  )..['operation'] = operation.name;
+
+  @override
+  List<Object?> get props => [
+    path,
+    documents,
+    idField,
+    merge,
+    replaceCollection,
   ];
 }
