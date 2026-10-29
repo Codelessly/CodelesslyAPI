@@ -1,6 +1,36 @@
 {
   "descriptors": [
     {
+      "nodeType": "badge",
+      "flutterName": "isLabelVisible",
+      "fieldPath": "properties.isLabelVisible",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "badge",
+      "flutterName": "smallSize",
+      "fieldPath": "properties.smallSize",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "badge",
+      "flutterName": "largeSize",
+      "fieldPath": "properties.largeSize",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "button",
       "flutterName": "child",
       "fieldPath": "properties.label",
@@ -112,6 +142,21 @@
     }
   ],
   "drift": [
+    {
+      "nodeType": "badge",
+      "flutterName": "isLabelVisible",
+      "fieldPath": "properties.isLabelVisible"
+    },
+    {
+      "nodeType": "badge",
+      "flutterName": "smallSize",
+      "fieldPath": "properties.smallSize"
+    },
+    {
+      "nodeType": "badge",
+      "flutterName": "largeSize",
+      "fieldPath": "properties.largeSize"
+    },
     {
       "nodeType": "button",
       "flutterName": "child",
