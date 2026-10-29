@@ -278,6 +278,7 @@ List<BaseNode> sampleNodes() {
       _node('accordion', {'rowColumnType': 'column', 'properties': {}}),
       _node('external', {'properties': {}}),
       _node('gauge', {
+        'gaugeKind': 'radial',
         'value': 72.6,
         'properties': {
           'segments': 0,
@@ -291,6 +292,7 @@ List<BaseNode> sampleNodes() {
         },
       }),
       _node('chart', {
+        'chartKind': 'series',
         'selectedIndex': 2,
         'properties': {
           'chartType': 'line',

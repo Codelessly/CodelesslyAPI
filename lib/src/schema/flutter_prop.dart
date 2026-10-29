@@ -6,8 +6,10 @@ class FlutterNode {
   final String family;
   /// The node wire type emitted in serialized JSON.
   final String nodeType;
+  /// Required kind when several models share one canonical wire type.
+  final String? variant;
   /// Identifies the Flutter widget that this node models.
-  const FlutterNode(this.widget, {required this.family, required this.nodeType});
+  const FlutterNode(this.widget, {required this.family, required this.nodeType, this.variant});
 }
 
 /// A published paywall action/model field. This never grants an untrusted

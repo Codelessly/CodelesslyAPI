@@ -222,12 +222,16 @@
             "component": {
               "const": "CodelesslyChartSeries"
             },
+            "chartKind": {
+              "const": "series"
+            },
             "selectedIndex": {
               "type": "integer"
             }
           },
           "required": [
-            "component"
+            "component",
+            "chartKind"
           ]
         }
       ],
@@ -575,12 +579,16 @@
             "component": {
               "const": "CodelesslyGaugeMeter"
             },
+            "gaugeKind": {
+              "const": "meter"
+            },
             "value": {
               "type": "number"
             }
           },
           "required": [
-            "component"
+            "component",
+            "gaugeKind"
           ]
         }
       ],
@@ -597,12 +605,16 @@
             "component": {
               "const": "CodelesslyRadialGauge"
             },
+            "gaugeKind": {
+              "const": "radial"
+            },
             "value": {
               "type": "number"
             }
           },
           "required": [
-            "component"
+            "component",
+            "gaugeKind"
           ]
         }
       ],
@@ -894,12 +906,16 @@
             "component": {
               "const": "CodelesslyPlotChart"
             },
+            "chartKind": {
+              "const": "plot"
+            },
             "selectedX": {
               "type": "number"
             }
           },
           "required": [
-            "component"
+            "component",
+            "chartKind"
           ]
         }
       ],
@@ -1106,6 +1122,9 @@
             "component": {
               "const": "CodelesslySignature"
             },
+            "signatureKind": {
+              "const": "strokes"
+            },
             "value": {
               "type": "array",
               "items": {
@@ -1128,7 +1147,8 @@
             }
           },
           "required": [
-            "component"
+            "component",
+            "signatureKind"
           ]
         }
       ],
@@ -1144,6 +1164,9 @@
           "properties": {
             "component": {
               "const": "CodelesslyNormalizedSignature"
+            },
+            "signatureKind": {
+              "const": "normalized"
             },
             "strokes": {
               "type": "array",
@@ -1170,7 +1193,8 @@
             }
           },
           "required": [
-            "component"
+            "component",
+            "signatureKind"
           ]
         }
       ],

@@ -20,11 +20,11 @@ const double kGaugeDefaultHeight = 185;
 /// labels, a value arc (continuous or in segments), a target notch and a
 /// needle. The value is bindable (`variables: {"value": "${...}"}`), so a
 /// readout is usually a text node placed over the dial.
-@FlutterNode('CodelesslyRadialGauge', family: 'codelessly', nodeType: 'gaugeRadial')
+@FlutterNode('CodelesslyRadialGauge', family: 'codelessly', nodeType: 'gauge', variant: 'radial')
 @JsonSerializable()
 class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
-  final String type = 'gaugeRadial';
+  final String type = 'gauge';
 
   /// Configurable properties of the gauge.
   @override
@@ -117,20 +117,20 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Creates a [GaugeNode] from JSON.
   /// A missing `properties` key means default properties, so hand-written
-  /// JSON (e.g. nodes.insertTree) can leave it out. Validate the raw wire
-  /// before applying defaults so ambiguous legacy gauges cannot become radial.
+  /// JSON (e.g. nodes.insertTree) can leave it out. Validate the explicit
+  /// wire kind before applying property defaults.
   factory GaugeNode.fromJson(Map json) {
-    NodeJsonConverter.validateGaugeWire(json, expectedType: 'gaugeRadial');
+    NodeJsonConverter.validateGaugeWire(json, expectedType: 'radial');
     return _$GaugeNodeFromJson({
       ...json,
-      if (json['type'] == 'gauge') 'type': 'gaugeRadial',
       if (json['properties'] == null) 'properties': const {},
     });
   }
 
   @override
-  Map toJson() =>
-      _$GaugeNodeOmitDefaults(this, _$GaugeNodeToJson(this))..['type'] = type;
+  Map toJson() => _$GaugeNodeOmitDefaults(this, _$GaugeNodeToJson(this))
+    ..['type'] = type
+    ..['gaugeKind'] = 'radial';
 }
 
 /// A colored band of the gauge, from [from] to [to] in value units.

@@ -28,6 +28,16 @@ class _FlutterPropsBuilder implements Builder {
       final widget = nodeTag.read('widget').stringValue;
       final family = nodeTag.read('family').stringValue;
       final nodeType = nodeTag.read('nodeType').stringValue;
+      final variant = nodeTag.peek('variant')?.stringValue;
+      final kindKey = switch (nodeType) {
+        'chart' => 'chartKind',
+        'gauge' => 'gaugeKind',
+        'signature' => 'signatureKind',
+        _ => null,
+      };
+      if ((variant == null) != (kindKey == null)) {
+        throw InvalidGenerationSourceError('Variant required exactly for canonical chart, gauge and signature nodes', element: cls);
+      }
       final wireTypes = <String, DartType>{};
       final annotated = <String, (FieldElement, ConstantReader)>{};
       void include(InterfaceElement element, {String prefix = ''}) {
@@ -56,6 +66,11 @@ class _FlutterPropsBuilder implements Builder {
       final matrix = <Map<String, dynamic>>[];
       final a2uiFields = <String, dynamic>{'component': {'const': widget}};
       final required = <String>['component'];
+      if (kindKey != null) {
+        schemaFields[kindKey] = {'const': variant};
+        a2uiFields[kindKey] = {'const': variant};
+        required.add(kindKey);
+      }
       final drift = <Map<String, String>>[];
       for (final entry in annotated.entries) {
         // Only the RowColumn component consumes the axis-alignment fields of
@@ -95,13 +110,15 @@ class _FlutterPropsBuilder implements Builder {
         });
         if (isRequired) required.add(a2uiName);
         if (flutterName != mapped) drift.add({'flutterName': flutterName, 'fieldPath': mapped});
-        controls.add({'nodeType':nodeType, 'flutterName':flutterName, 'fieldPath':mapped, 'group':group, 'control':control, 'schemaType':type, 'defaultSource':defaultSource, 'bindable':bindable});
+        controls.add({'nodeType':nodeType, if (variant != null) 'variant':variant, 'flutterName':flutterName, 'fieldPath':mapped, 'group':group, 'control':control, 'schemaType':type, 'defaultSource':defaultSource, 'bindable':bindable});
         matrix.add({'parameter':flutterName, 'field':mapped, 'defaultSource':defaultSource, 'testValues':_testValues(type)});
       }
       if (annotated.isEmpty) throw InvalidGenerationSourceError('$widget has no annotated wire fields', element: cls);
       output[cls.name!] = {
-        'widget': widget, 'family': family, 'nodeType': nodeType, 'drift': drift,
-        'jsonSchema': {'\$schema':'https://json-schema.org/draft/2020-12/schema', 'type':'object', 'properties':schemaFields},
+        'widget': widget, 'family': family, 'nodeType': nodeType,
+        if (variant != null) 'variant': variant,
+        'drift': drift,
+        'jsonSchema': {'\$schema':'https://json-schema.org/draft/2020-12/schema', 'type':'object', 'properties':schemaFields, if (kindKey != null) 'required': [kindKey]},
         'dpp': controls,
         'a2ui': {'\$schema':'https://json-schema.org/draft/2020-12/schema', '\$id':catalogId, 'catalogId':catalogId,
           'components': {widget: {

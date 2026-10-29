@@ -178,11 +178,11 @@ class ChartReferenceLine with Equatable, SerializableMixin {
 ///
 /// Tapping a category fires the node's `changed` reactions with the
 /// category index as `${value}`; bind `selectedIndex` to show a selection.
-@FlutterNode('CodelesslyChartSeries', family: 'codelessly', nodeType: 'chartSeries')
+@FlutterNode('CodelesslyChartSeries', family: 'codelessly', nodeType: 'chart', variant: 'series')
 @JsonSerializable()
 class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
-  final String type = 'chartSeries';
+  final String type = 'chart';
 
   /// Configurable properties of the chart.
   @override
@@ -277,16 +277,19 @@ class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   /// A missing `properties` key means default properties, so hand-written
   /// JSON (e.g. nodes.insertTree) can leave it out.
   factory ChartNode.fromJson(Map json) {
-    NodeJsonConverter.validateChartWire(json, expectedType: 'chartSeries');
+    NodeJsonConverter.validateChartWire(json, expectedType: 'series');
     return _$ChartNodeFromJson({
       ...json,
-      if (json['type'] == 'chart') 'type': 'chartSeries',
       if (json['properties'] == null) 'properties': const {},
     });
   }
 
   @override
-  Map toJson() => _$ChartNodeOmitDefaults(this, _$ChartNodeToJson(this));
+  Map toJson() => {
+    ..._$ChartNodeOmitDefaults(this, _$ChartNodeToJson(this)),
+    'type': 'chart',
+    'chartKind': 'series',
+  };
 }
 
 /// Default sample data: six hours of output against a plan.

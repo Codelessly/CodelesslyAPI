@@ -17,7 +17,8 @@ void main() {
         properties: GaugeMeterProperties(),
       );
       final json = node.toJson();
-      expect(json['type'], 'gaugeMeter');
+      expect(json['type'], 'gauge');
+      expect(json['gaugeKind'], 'meter');
       expect(json['properties'], isEmpty);
       expect(json.containsKey('value'), isFalse);
       expect(json.containsKey('limit'), isFalse);

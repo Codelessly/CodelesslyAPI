@@ -47,11 +47,11 @@ const ColorRGBA kPlotChartDefaultReferenceColor = ColorRGBA(
 /// bind the data, the markers and the selection to variables. Selecting an
 /// x value writes it to the bound `selectedX` variable and fires
 /// [TriggerType.changed] with it.
-@FlutterNode('CodelesslyPlotChart', family: 'codelessly', nodeType: 'chartPlot')
+@FlutterNode('CodelesslyPlotChart', family: 'codelessly', nodeType: 'chart', variant: 'plot')
 @JsonSerializable()
 class PlotChartNode extends SceneNode with CustomPropertiesMixin {
   @override
-  final String type = 'chartPlot';
+  final String type = 'chart';
 
   /// Holds configurable properties of the chart.
   @override
@@ -155,15 +155,16 @@ class PlotChartNode extends SceneNode with CustomPropertiesMixin {
 
   /// Creates a [PlotChartNode] from JSON data.
   factory PlotChartNode.fromJson(Map json) {
-    NodeJsonConverter.validateChartWire(json, expectedType: 'chartPlot');
-    return _$PlotChartNodeFromJson(
-      json['type'] == 'chart' ? {...json, 'type': 'chartPlot'} : json,
-    );
+    NodeJsonConverter.validateChartWire(json, expectedType: 'plot');
+    return _$PlotChartNodeFromJson(json);
   }
 
   @override
-  Map toJson() =>
-      _$PlotChartNodeOmitDefaults(this, _$PlotChartNodeToJson(this));
+  Map toJson() => {
+    ..._$PlotChartNodeOmitDefaults(this, _$PlotChartNodeToJson(this)),
+    'type': 'chart',
+    'chartKind': 'plot',
+  };
 }
 
 /// Where a marker's label sits relative to its dot.
