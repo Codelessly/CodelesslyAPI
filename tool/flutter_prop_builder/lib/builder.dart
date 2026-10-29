@@ -121,6 +121,12 @@ Map<String, dynamic> _type(DartType actual, String schemaType) {
   if (!{'string','number','integer','boolean','array','object'}.contains(schemaType)) {
     throw InvalidGenerationSourceError('Unsupported JSON Schema type $schemaType on $actual');
   }
+  if (schemaType != 'array' && schemaType != 'object') {
+    final inferred = _inferredType(actual);
+    if (inferred != 'object' && inferred != schemaType) {
+      throw InvalidGenerationSourceError('Declared $schemaType but field has $actual (expected $inferred)');
+    }
+  }
   if (schemaType == 'array') {
     if (actual is! InterfaceType || actual.element.name != 'List') {
       throw InvalidGenerationSourceError('Declared array but field has type $actual');
