@@ -241,11 +241,8 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'characters': instance.characters,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -263,8 +260,11 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,

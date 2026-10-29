@@ -125,6 +125,10 @@ class FrameNode extends DefaultShapeNode
     TriggerType.cursorEnter,
     TriggerType.cursorExit,
     TriggerType.hold,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.pointerDown,
+    TriggerType.pointerUp,
   ];
 
   /// Creates a [FrameNode] from a JSON data.
