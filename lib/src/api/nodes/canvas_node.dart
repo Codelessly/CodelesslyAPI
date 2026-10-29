@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../converters.dart';
 import '../mixins.dart';
@@ -8,6 +9,7 @@ import 'nodes.dart';
 part 'canvas_node.g.dart';
 
 /// Represents a canvas or a screen.
+@FlutterNode('CodelesslyCanvas', family: 'codelessly', nodeType: 'canvas')
 @JsonSerializable()
 class CanvasNode extends ParentNode
     with
@@ -180,6 +182,7 @@ class CanvasNode extends ParentNode
 @JsonSerializable()
 class CanvasProperties extends CustomProperties {
   /// ID of the body node.
+  @FlutterProp('bodyId', type: 'string', group: 'Structure', control: 'text', field: 'properties.bodyId')
   String bodyId;
 
   /// ID of the navigation bar placeholder node.
