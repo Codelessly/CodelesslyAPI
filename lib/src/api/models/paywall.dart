@@ -1,5 +1,3 @@
-import 'action/call_function_action.dart';
-
 /// A stable product identity independent of the store SKU and locale.
 class ProductSlot {
   /// Slot key used in paywall bindings.
@@ -65,37 +63,4 @@ class PaywallPlacement {
     'layoutId': layoutId,
     'productSlots': productSlots,
   };
-}
-
-/// Typed operations encoded in the published callFunction wire format.
-enum PaywallOperation {
-  /// Purchase the selected or specified slot.
-  purchase,
-
-  /// Restore verified store purchases.
-  restore,
-
-  /// Select a slot without purchasing it.
-  selectProduct,
-
-  /// Close without a purchase.
-  closePaywall,
-}
-
-/// Typed action wrapper compatible with the existing action visitor.
-class PaywallAction {
-  /// Operation for the SDK to execute.
-  final PaywallOperation operation;
-
-  /// Optional selected product slot.
-  final String? slot;
-
-  /// Creates an action with an optional slot.
-  const PaywallAction(this.operation, {this.slot});
-
-  /// Emits an action handled by the existing functions dispatcher.
-  CallFunctionAction toAction() => CallFunctionAction(
-    name: 'paywall.${operation.name}',
-    params: slot == null ? {} : {'slot': slot},
-  );
 }
