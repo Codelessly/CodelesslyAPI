@@ -203,6 +203,46 @@
       ],
       "unevaluatedProperties": false
     },
+    "Slider": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Slider"
+            },
+            "value": {
+              "type": "number"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "autofocus": {
+                  "type": "boolean"
+                },
+                "divisions": {
+                  "type": "integer"
+                },
+                "min": {
+                  "type": "number"
+                },
+                "max": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Text": {
       "allOf": [
         {

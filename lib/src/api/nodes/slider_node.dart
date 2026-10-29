@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -57,12 +58,14 @@ enum SliderTickMarkStyle {
 /// Slider is a widget that lets the user select a value from a given range.
 /// Refer to [Slider](https://api.flutter.dev/flutter/material/Slider-class.html)
 /// in Flutter for more details.
+@FlutterNode('Slider', family: 'material', nodeType: 'slider')
 @JsonSerializable()
 class SliderNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'slider';
 
   /// Currently selected value of slider.
+  @FlutterProp('value', type: 'number', group: 'State', control: 'number', required: true, bindable: true)
   double value;
 
   /// Where a thin marker sits on the track, e.g. the current reading next
@@ -174,15 +177,19 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   ColorRGBA thumbColor;
 
   /// Whether to focus on slider automatically.
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   bool autofocus;
 
   /// Number of divisions in slider.
+  @FlutterProp('divisions', type: 'integer', group: 'Appearance', control: 'number', field: 'properties.divisions')
   int? divisions;
 
   /// Minimum value of slider.
+  @FlutterProp('min', type: 'number', group: 'Range', control: 'number', field: 'properties.min')
   double min;
 
   /// Maximum value of slider.
+  @FlutterProp('max', type: 'number', group: 'Range', control: 'number', field: 'properties.max')
   double max;
 
   /// Height of slider's track.
