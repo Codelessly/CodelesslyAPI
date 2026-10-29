@@ -41,6 +41,10 @@ targets:
           - lib/src/api/nodes/single_placeholder_node.dart
           - lib/src/api/nodes/external_component_node.dart
           - lib/src/api/nodes/variance_node.dart
+          - lib/src/api/nodes/accordion_node.dart
+          - lib/src/api/nodes/canvas_node.dart
+          - lib/src/api/nodes/progressbar_node.dart
+          - lib/src/api/nodes/root_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.

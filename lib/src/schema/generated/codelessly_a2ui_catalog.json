@@ -5,6 +5,37 @@
   "title": "Codelessly generated v1 catalog",
   "description": "Generated from annotated API node wire fields for A2UI v0.9.1.",
   "components": {
+    "CodelesslyAccordion": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyAccordion"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "isExpanded": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "AppBar": {
       "allOf": [
         {
@@ -144,6 +175,37 @@
           },
           "required": [
             "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyCanvas": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyCanvas"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "bodyId": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "children"
           ]
         }
       ],
@@ -767,6 +829,36 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyProgressBar": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyProgressBar"
+            },
+            "currentValue": {
+              "type": "number"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "maxValue": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Radio": {
       "allOf": [
         {
@@ -802,6 +894,29 @@
           "required": [
             "component",
             "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyRoot": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyRoot"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children"
           ]
         }
       ],

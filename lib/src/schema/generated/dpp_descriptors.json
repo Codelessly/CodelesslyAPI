@@ -1,6 +1,26 @@
 {
   "descriptors": [
     {
+      "nodeType": "accordion",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "accordion",
+      "flutterName": "isExpanded",
+      "fieldPath": "properties.isExpanded",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "appBar",
       "flutterName": "centerTitle",
       "fieldPath": "properties.centerTitle",
@@ -105,6 +125,26 @@
       "flutterName": "child",
       "fieldPath": "properties.label",
       "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "canvas",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "canvas",
+      "flutterName": "bodyId",
+      "fieldPath": "properties.bodyId",
+      "group": "Structure",
       "control": "text",
       "schemaType": "string",
       "defaultSource": null,
@@ -661,6 +701,26 @@
       "bindable": false
     },
     {
+      "nodeType": "progressBar",
+      "flutterName": "currentValue",
+      "fieldPath": "currentValue",
+      "group": "State",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "progressBar",
+      "flutterName": "maxValue",
+      "fieldPath": "properties.maxValue",
+      "group": "Range",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "radio",
       "flutterName": "value",
       "fieldPath": "value",
@@ -707,6 +767,16 @@
       "group": "Interaction",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "root",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
       "defaultSource": null,
       "bindable": false
     },
@@ -1083,6 +1153,11 @@
   ],
   "drift": [
     {
+      "nodeType": "accordion",
+      "flutterName": "isExpanded",
+      "fieldPath": "properties.isExpanded"
+    },
+    {
       "nodeType": "appBar",
       "flutterName": "centerTitle",
       "fieldPath": "properties.centerTitle"
@@ -1121,6 +1196,11 @@
       "nodeType": "button",
       "flutterName": "child",
       "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "canvas",
+      "flutterName": "bodyId",
+      "fieldPath": "properties.bodyId"
     },
     {
       "nodeType": "checkbox",
@@ -1331,6 +1411,11 @@
       "nodeType": "pageView",
       "flutterName": "allowImplicitScrolling",
       "fieldPath": "properties.allowImplicitScrolling"
+    },
+    {
+      "nodeType": "progressBar",
+      "flutterName": "maxValue",
+      "fieldPath": "properties.maxValue"
     },
     {
       "nodeType": "radio",

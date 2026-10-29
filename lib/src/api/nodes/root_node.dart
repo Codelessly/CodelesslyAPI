@@ -1,4 +1,5 @@
 import '../constants.dart';
+import '../../schema/flutter_prop.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 
@@ -7,6 +8,7 @@ import '../models/models.dart';
 /// This is not JSON Serializable to avoid setting [BaseNode].
 /// It needs to extend [BaseNode] since every other method depends on
 /// [BaseNode].
+@FlutterNode('CodelesslyRoot', family: 'codelessly', nodeType: 'root')
 class RootNode extends ParentNode with ChildrenMixin {
   @override
   final String type = 'root';

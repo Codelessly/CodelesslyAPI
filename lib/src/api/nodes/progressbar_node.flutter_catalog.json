@@ -1,0 +1,110 @@
+{
+  "ProgressBarNode": {
+    "widget": "CodelesslyProgressBar",
+    "family": "codelessly",
+    "nodeType": "progressBar",
+    "drift": [
+      {
+        "flutterName": "maxValue",
+        "fieldPath": "properties.maxValue"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "currentValue": {
+          "type": "number"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "maxValue": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "progressBar",
+        "flutterName": "currentValue",
+        "fieldPath": "currentValue",
+        "group": "State",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "progressBar",
+        "flutterName": "maxValue",
+        "fieldPath": "properties.maxValue",
+        "group": "Range",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyProgressBar": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyProgressBar"
+                },
+                "currentValue": {
+                  "type": "number"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "maxValue": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "currentValue",
+        "field": "currentValue",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "maxValue",
+        "field": "properties.maxValue",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
