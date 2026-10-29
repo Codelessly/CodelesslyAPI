@@ -180,6 +180,115 @@
       ],
       "unevaluatedProperties": false
     },
+    "TextButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "TextButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "OutlinedButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "OutlinedButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "IconButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "IconButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "icon": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "properties.icon"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "FilledButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "FilledButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyCanvas": {
       "allOf": [
         {
@@ -1078,6 +1187,48 @@
       ],
       "unevaluatedProperties": false
     },
+    "Column": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Column"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "justify": {
+              "enum": [
+                "start",
+                "center",
+                "end",
+                "spaceBetween",
+                "spaceAround",
+                "spaceEvenly"
+              ]
+            },
+            "align": {
+              "enum": [
+                "start",
+                "center",
+                "end",
+                "stretch",
+                "baseline"
+              ]
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "SegmentedButton": {
       "allOf": [
         {
@@ -1508,48 +1659,6 @@
             "component",
             "child",
             "action"
-          ]
-        }
-      ],
-      "unevaluatedProperties": false
-    },
-    "Column": {
-      "allOf": [
-        {
-          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "component": {
-              "const": "Column"
-            },
-            "children": {
-              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
-            },
-            "justify": {
-              "enum": [
-                "start",
-                "center",
-                "end",
-                "spaceBetween",
-                "spaceAround",
-                "spaceEvenly"
-              ]
-            },
-            "align": {
-              "enum": [
-                "start",
-                "center",
-                "end",
-                "stretch",
-                "baseline"
-              ]
-            }
-          },
-          "required": [
-            "component",
-            "children"
           ]
         }
       ],

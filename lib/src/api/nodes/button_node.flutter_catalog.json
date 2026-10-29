@@ -1,8 +1,8 @@
 {
-  "ButtonNode": {
+  "ElevatedButtonNode": {
     "widget": "ElevatedButton",
     "family": "material",
-    "nodeType": "button",
+    "nodeType": "elevatedButton",
     "drift": [
       {
         "flutterName": "child",
@@ -25,7 +25,7 @@
     },
     "dpp": [
       {
-        "nodeType": "button",
+        "nodeType": "elevatedButton",
         "flutterName": "child",
         "fieldPath": "properties.label",
         "group": "Content",
@@ -50,6 +50,339 @@
               "properties": {
                 "component": {
                   "const": "ElevatedButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "child",
+        "field": "properties.label",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  },
+  "TextButtonNode": {
+    "widget": "TextButton",
+    "family": "material",
+    "nodeType": "textButton",
+    "drift": [
+      {
+        "flutterName": "child",
+        "fieldPath": "properties.label"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "textButton",
+        "flutterName": "child",
+        "fieldPath": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "TextButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "TextButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "child",
+        "field": "properties.label",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  },
+  "OutlinedButtonNode": {
+    "widget": "OutlinedButton",
+    "family": "material",
+    "nodeType": "outlinedButton",
+    "drift": [
+      {
+        "flutterName": "child",
+        "fieldPath": "properties.label"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": "child",
+        "fieldPath": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "OutlinedButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "OutlinedButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "child",
+        "field": "properties.label",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  },
+  "IconButtonNode": {
+    "widget": "IconButton",
+    "family": "material",
+    "nodeType": "iconButton",
+    "drift": [
+      {
+        "flutterName": "icon",
+        "fieldPath": "properties.icon"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "icon": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "iconButton",
+        "flutterName": "icon",
+        "fieldPath": "properties.icon",
+        "group": "Content",
+        "control": "icon",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "IconButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "IconButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "icon": {
+                      "type": "object"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "properties.icon"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "icon",
+        "field": "properties.icon",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  },
+  "FilledButtonNode": {
+    "widget": "FilledButton",
+    "family": "material",
+    "nodeType": "filledButton",
+    "drift": [
+      {
+        "flutterName": "child",
+        "fieldPath": "properties.label"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "filledButton",
+        "flutterName": "child",
+        "fieldPath": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "FilledButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "FilledButton"
                 },
                 "properties": {
                   "type": "object",

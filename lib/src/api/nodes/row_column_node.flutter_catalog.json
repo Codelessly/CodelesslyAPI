@@ -1,8 +1,8 @@
 {
-  "RowColumnNode": {
+  "RowNode": {
     "widget": "Row",
     "family": "widgets",
-    "nodeType": "rowColumn",
+    "nodeType": "row",
     "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -24,7 +24,7 @@
     },
     "dpp": [
       {
-        "nodeType": "rowColumn",
+        "nodeType": "row",
         "flutterName": "children",
         "fieldPath": "children",
         "group": "Layout",
@@ -34,7 +34,7 @@
         "bindable": false
       },
       {
-        "nodeType": "rowColumn",
+        "nodeType": "row",
         "flutterName": "mainAxisAlignment",
         "fieldPath": "mainAxisAlignment",
         "group": "Layout",
@@ -44,7 +44,7 @@
         "bindable": false
       },
       {
-        "nodeType": "rowColumn",
+        "nodeType": "row",
         "flutterName": "crossAxisAlignment",
         "fieldPath": "crossAxisAlignment",
         "group": "Layout",
@@ -69,6 +69,130 @@
               "properties": {
                 "component": {
                   "const": "Row"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                },
+                "mainAxisAlignment": {
+                  "type": "string"
+                },
+                "crossAxisAlignment": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "mainAxisAlignment",
+        "field": "mainAxisAlignment",
+        "defaultSource": "MainAxisAlignment.center",
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "crossAxisAlignment",
+        "field": "crossAxisAlignment",
+        "defaultSource": "CrossAxisAlignment.center",
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  },
+  "ColumnNode": {
+    "widget": "Column",
+    "family": "widgets",
+    "nodeType": "column",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainAxisAlignment": {
+          "type": "string"
+        },
+        "crossAxisAlignment": {
+          "type": "string"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "column",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "column",
+        "flutterName": "mainAxisAlignment",
+        "fieldPath": "mainAxisAlignment",
+        "group": "Layout",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": "MainAxisAlignment.center",
+        "bindable": false
+      },
+      {
+        "nodeType": "column",
+        "flutterName": "crossAxisAlignment",
+        "fieldPath": "crossAxisAlignment",
+        "group": "Layout",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": "CrossAxisAlignment.center",
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Column": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Column"
                 },
                 "children": {
                   "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
