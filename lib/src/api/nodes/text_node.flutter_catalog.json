@@ -1,0 +1,126 @@
+{
+  "TextNode": {
+    "widget": "Text",
+    "family": "widgets",
+    "nodeType": "text",
+    "drift": [
+      {
+        "flutterName": "data",
+        "fieldPath": "characters"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "characters": {
+          "type": "string"
+        },
+        "maxLines": {
+          "type": "integer"
+        },
+        "softWrap": {
+          "type": "boolean"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "text",
+        "flutterName": "data",
+        "fieldPath": "characters",
+        "group": "Text",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "text",
+        "flutterName": "maxLines",
+        "fieldPath": "maxLines",
+        "group": "Text",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": "softWrap",
+        "fieldPath": "softWrap",
+        "group": "Text",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": "true",
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Text": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Text"
+                },
+                "characters": {
+                  "type": "string"
+                },
+                "maxLines": {
+                  "type": "integer"
+                },
+                "softWrap": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "component",
+                "characters"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "data",
+        "field": "characters",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "maxLines",
+        "field": "maxLines",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "softWrap",
+        "field": "softWrap",
+        "defaultSource": "true",
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

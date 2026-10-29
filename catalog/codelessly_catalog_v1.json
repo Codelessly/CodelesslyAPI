@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+  "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+  "title": "Codelessly generated v1 catalog",
+  "description": "Generated from annotated API node wire fields for A2UI v0.9.1.",
+  "components": {
+    "ElevatedButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "ElevatedButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "Divider": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Divider"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "color": {
+                  "type": "object"
+                },
+                "indent": {
+                  "type": "number"
+                },
+                "endIndent": {
+                  "type": "number"
+                },
+                "thickness": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "Row": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Row"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "mainAxisAlignment": {
+              "type": "string"
+            },
+            "crossAxisAlignment": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "Text": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Text"
+            },
+            "characters": {
+              "type": "string"
+            },
+            "maxLines": {
+              "type": "integer"
+            },
+            "softWrap": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "component",
+            "characters"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  },
+  "functions": {}
+}

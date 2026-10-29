@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -8,6 +9,7 @@ part 'row_column_node.g.dart';
 
 /// A node that can lay out its children in a row or column.
 /// Typically referred to [Row] and [Column] widgets in Flutter.
+@FlutterNode('Row', family: 'widgets', nodeType: 'rowColumn')
 @JsonSerializable()
 class RowColumnNode extends ParentNode
     with RowColumnMixin, ScrollableMixin, CornerMixin {
