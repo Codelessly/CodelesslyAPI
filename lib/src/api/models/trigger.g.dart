@@ -13,6 +13,8 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
   if (isJsonDefault(instance.debounceMs, 0)) json.remove('debounceMs');
   if (isJsonDefault(instance.duration, kDefaultHoldDuration))
     json.remove('duration');
+  if (isJsonDefault(instance.intervalMillis, 1000))
+    json.remove('intervalMillis');
   return json;
 }
 
@@ -27,6 +29,7 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   intervalMs: (json['intervalMs'] as num?)?.toInt(),
   key: json['key'] as String?,
   duration: (json['duration'] as num?)?.toInt() ?? 1200,
+  intervalMillis: (json['intervalMillis'] as num?)?.toInt() ?? 1000,
 );
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
@@ -37,6 +40,7 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'intervalMs': ?instance.intervalMs,
       'key': ?instance.key,
       'duration': instance.duration,
+      'intervalMillis': instance.intervalMillis,
     };
 
 const _$TriggerTypeEnumMap = {
@@ -61,4 +65,6 @@ const _$TriggerTypeEnumMap = {
   TriggerType.swipeDown: 'swipeDown',
   TriggerType.doubleTap: 'doubleTap',
   TriggerType.hold: 'hold',
+  TriggerType.changeEnd: 'changeEnd',
+  TriggerType.interval: 'interval',
 };

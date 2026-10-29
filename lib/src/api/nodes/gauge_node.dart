@@ -21,7 +21,7 @@ const double kGaugeDefaultHeight = 185;
 @JsonSerializable()
 class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
-  final String type = 'gauge';
+  final String type = 'gaugeRadial';
 
   /// Configurable properties of the gauge.
   @override
@@ -38,7 +38,7 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
     : properties = GaugeProperties(),
       value = 72,
       super(
-        id: 'gauge',
+        id: 'gaugeRadial',
         name: 'Gauge',
         basicBoxLocal: NodeBox(0, 0, kGaugeDefaultWidth, kGaugeDefaultHeight),
       );
@@ -119,7 +119,8 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   );
 
   @override
-  Map toJson() => _$GaugeNodeOmitDefaults(this, _$GaugeNodeToJson(this));
+  Map toJson() =>
+      _$GaugeNodeOmitDefaults(this, _$GaugeNodeToJson(this))..['type'] = type;
 }
 
 /// A colored band of the gauge, from [from] to [to] in value units.

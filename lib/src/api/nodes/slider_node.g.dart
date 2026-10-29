@@ -121,6 +121,14 @@ Map<String, dynamic> _$SliderPropertiesOmitDefaults(
   if (isJsonDefault(instance.inverted, false)) json.remove('inverted');
   if (isJsonDefault(instance.thumbStrokeWidth, 0))
     json.remove('thumbStrokeWidth');
+  if (isJsonDefault(instance.fillFromEnd, false)) json.remove('fillFromEnd');
+  if (isJsonDefault(instance.tickMarkStyle, SliderTickMarkStyle.dot))
+    json.remove('tickMarkStyle');
+  if (isJsonDefault(instance.notchEvery, 1)) json.remove('notchEvery');
+  if (isJsonDefault(instance.markerColor, ColorRGBA.white))
+    json.remove('markerColor');
+  if (isJsonDefault(instance.markerWidth, 2)) json.remove('markerWidth');
+  if (isJsonDefault(instance.markerHeight, 14)) json.remove('markerHeight');
   return json;
 }
 
@@ -134,6 +142,7 @@ SliderNode _$SliderNodeFromJson(Map json) =>
         name: json['name'] as String,
         basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
         value: (json['value'] as num).toDouble(),
+        markerValue: (json['markerValue'] as num?)?.toDouble(),
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         alignment: json['alignment'] == null
@@ -262,6 +271,7 @@ Map<String, dynamic> _$SliderNodeToJson(SliderNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'type': instance.type,
       'value': instance.value,
+      'markerValue': ?instance.markerValue,
       'properties': instance.properties.toJson(),
     };
 
@@ -384,6 +394,21 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       ? null
       : ColorRGBA.fromJson(json['thumbStrokeColor']),
   thumbStrokeWidth: (json['thumbStrokeWidth'] as num?)?.toDouble() ?? 0,
+  fillFromEnd: json['fillFromEnd'] as bool? ?? false,
+  tickMarkStyle:
+      $enumDecodeNullable(
+        _$SliderTickMarkStyleEnumMap,
+        json['tickMarkStyle'],
+      ) ??
+      SliderTickMarkStyle.dot,
+  notchEvery: (json['notchEvery'] as num?)?.toInt() ?? 1,
+  markerColor: json['markerColor'] == null
+      ? ColorRGBA.white
+      : ColorRGBA.fromJson(json['markerColor']),
+  markerWidth: (json['markerWidth'] as num?)?.toDouble() ?? 2,
+  markerHeight: (json['markerHeight'] as num?)?.toDouble() ?? 14,
+  selectableMin: (json['selectableMin'] as num?)?.toDouble(),
+  selectableMax: (json['selectableMax'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$SliderPropertiesToJson(
@@ -431,6 +456,14 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'inverted': instance.inverted,
   'thumbStrokeColor': ?instance.thumbStrokeColor?.toJson(),
   'thumbStrokeWidth': instance.thumbStrokeWidth,
+  'fillFromEnd': instance.fillFromEnd,
+  'tickMarkStyle': _$SliderTickMarkStyleEnumMap[instance.tickMarkStyle]!,
+  'notchEvery': instance.notchEvery,
+  'markerColor': instance.markerColor.toJson(),
+  'markerWidth': instance.markerWidth,
+  'markerHeight': instance.markerHeight,
+  'selectableMin': ?instance.selectableMin,
+  'selectableMax': ?instance.selectableMax,
 };
 
 const _$SliderThumbShapeEnumEnumMap = {
@@ -463,4 +496,9 @@ const _$ShowValueIndicatorCEnumMap = {
 const _$AxisCEnumMap = {
   AxisC.horizontal: 'horizontal',
   AxisC.vertical: 'vertical',
+};
+
+const _$SliderTickMarkStyleEnumMap = {
+  SliderTickMarkStyle.dot: 'dot',
+  SliderTickMarkStyle.notch: 'notch',
 };

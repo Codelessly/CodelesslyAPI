@@ -22,6 +22,12 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
+  if (isJsonDefault(instance.alignment, ToastAlignment.center))
+    json.remove('alignment');
+  if (isJsonDefault(instance.sideMargin, 16)) json.remove('sideMargin');
+  if (isJsonDefault(instance.showCloseButton, false))
+    json.remove('showCloseButton');
+  if (isJsonDefault(instance.fontSize, 14)) json.remove('fontSize');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -101,6 +107,16 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : ColorRGBA.fromJson(json['iconColor']),
   fontFamily: json['fontFamily'] as String?,
+  alignment:
+      $enumDecodeNullable(
+        _$ToastAlignmentEnumMap,
+        json['alignment'],
+        unknownValue: ToastAlignment.center,
+      ) ??
+      ToastAlignment.center,
+  sideMargin: (json['sideMargin'] as num?)?.toDouble() ?? 16,
+  showCloseButton: json['showCloseButton'] as bool? ?? false,
+  fontSize: (json['fontSize'] as num?)?.toDouble() ?? 14,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -138,6 +154,10 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'accentWidth': instance.accentWidth,
       'iconColor': ?instance.iconColor?.toJson(),
       'fontFamily': ?instance.fontFamily,
+      'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
+      'sideMargin': instance.sideMargin,
+      'showCloseButton': instance.showCloseButton,
+      'fontSize': instance.fontSize,
     };
 
 const _$ToastStyleEnumMap = {
@@ -157,6 +177,13 @@ const _$ScreenBreakpointEnumMap = {
   ScreenBreakpoint.mobile: 'mobile',
   ScreenBreakpoint.tablet: 'tablet',
   ScreenBreakpoint.desktop: 'desktop',
+};
+
+const _$ToastAlignmentEnumMap = {
+  ToastAlignment.center: 'center',
+  ToastAlignment.start: 'start',
+  ToastAlignment.end: 'end',
+  ToastAlignment.stretch: 'stretch',
 };
 
 const _$ActionTypeEnumMap = {

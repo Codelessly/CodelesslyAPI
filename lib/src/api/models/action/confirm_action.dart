@@ -130,6 +130,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// top.
   final bool showDragHandle;
 
+  /// PR42's persisted placement. For new dialogs use [presentation] and,
+  /// when anchored, the trigger-relative placement on [ShowDialogAction].
+  @JsonKey(unknownEnumValue: DialogPlacement.belowStart)
+  final DialogPlacement placement;
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -181,6 +186,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.sheetWidth,
     this.maxHeightFactor = 1,
     this.showDragHandle = false,
+    this.placement = DialogPlacement.belowStart,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -238,6 +244,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearSheetWidth = false,
     double? maxHeightFactor,
     bool? showDragHandle,
+    DialogPlacement? placement,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -277,6 +284,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
+    placement: placement ?? this.placement,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -313,6 +321,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     sheetWidth,
     maxHeightFactor,
     showDragHandle,
+    placement,
   ];
 
   /// Creates an instance from a JSON object.

@@ -280,6 +280,9 @@ mixin BlendMixin on BaseNode {
   /// A looping fade of the node's opacity, or null for none.
   PulseModel? pulse;
 
+  /// How the node animates when its style changes at runtime. Null jumps.
+  NodeTransition? transition;
+
   /// Sets the blend properties of the node.
   void setBlendMixin({
     required double opacity,

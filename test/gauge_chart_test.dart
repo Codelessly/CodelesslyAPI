@@ -108,7 +108,7 @@ void main() {
     final gauge = NodeJsonConverter().fromJson({
       'id': 'g',
       'name': 'G',
-      'type': 'gauge',
+      'type': 'gaugeRadial',
       'basicBoxLocal': [0, 0, 220, 185],
     });
     final chart = NodeJsonConverter().fromJson({
@@ -141,7 +141,8 @@ void main() {
       'radio',
       'floatingActionButton',
       'accordion',
-      'gauge',
+      'gaugeRadial',
+      'gaugeMeter',
       'chart',
     ]) {
       final node = NodeJsonConverter().fromJson({

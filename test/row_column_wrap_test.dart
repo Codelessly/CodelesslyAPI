@@ -50,6 +50,7 @@ void main() {
       final Map<String, dynamic> json = _encodeDecode(
         _row(wrap: true, spacing: 8, runSpacing: 6).toJson(),
       );
+
       expect(json['wrap'], isTrue);
       expect(json['spacing'], 8);
       expect(json['runSpacing'], 6);
@@ -90,6 +91,16 @@ void main() {
       expect(node.wrap, isTrue);
       expect(node.spacing, 12.0);
       expect(node.runSpacing, 3.0);
+    });
+
+    test('round-trips PR42 runSpacing', () {
+      final json = _encodeDecode(
+        _row(wrap: true, spacing: 8, runSpacing: 12).toJson(),
+      );
+      final node = RowColumnNode.fromJson(json);
+      expect(node.wrap, isTrue);
+      expect(node.runSpacing, 12.0);
+      expect(node.spacing, 8.0);
     });
 
     test('wrap fields require layout and preserve main-axis spacing', () {

@@ -5,7 +5,8 @@ void main() {
   group('CornerRadius.fromJson', () {
     test('a bare number is a circular radius on every corner', () {
       final CornerRadius r = CornerRadius.fromJson(4);
-      expect(r, const CornerRadius.all(RadiusModel.circular(4), linked: true));
+      expect(r, const CornerRadius.all(RadiusModel.circular(4)));
+      expect(r.linked, isFalse);
       expect(CornerRadius.fromJson(2.5).tl, const RadiusModel.circular(2.5));
     });
 

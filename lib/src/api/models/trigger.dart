@@ -83,7 +83,15 @@ enum TriggerType {
   /// [TriggerModel.duration]. Releasing early cancels it. While held, the
   /// target's descendants can read the progress, 0 to 1, as `${hold}`, for
   /// example to fill a hold-to-confirm button.
-  hold;
+  hold,
+
+  /// Triggered when the user lets go of a slider after changing it, with
+  /// the final value. [changed] fires on every step of the drag.
+  changeEnd,
+
+  /// Triggered repeatedly while the canvas is shown, every
+  /// [TriggerModel.intervalMillis] milliseconds.
+  interval;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -150,6 +158,10 @@ enum TriggerType {
         return 'Double Tap';
       case TriggerType.hold:
         return 'Hold to Confirm';
+      case TriggerType.interval:
+        return 'Interval';
+      case TriggerType.changeEnd:
+        return 'Change End';
     }
   }
 }
@@ -185,6 +197,13 @@ class TriggerModel with Equatable, SerializableMixin {
   @JsonKey(defaultValue: kDefaultHoldDuration)
   final int duration;
 
+  /// How often a [TriggerType.interval] trigger fires, in milliseconds.
+  /// Ignored by other triggers.
+  final int intervalMillis;
+
+  /// The shortest interval allowed, so a typo can't flood the app.
+  static const int minIntervalMillis = 100;
+
   /// Creates a [TriggerModel] with given data.
   TriggerModel({
     required this.type,
@@ -193,10 +212,15 @@ class TriggerModel with Equatable, SerializableMixin {
     this.intervalMs,
     this.key,
     this.duration = kDefaultHoldDuration,
+    this.intervalMillis = 1000,
   });
 
   /// The interval of a timer trigger; one second when unset.
   int get effectiveIntervalMs => (intervalMs ?? 1000).clamp(16, 86400000);
+
+  /// [intervalMillis], no shorter than [minIntervalMillis].
+  int get effectiveIntervalMillis =>
+      intervalMillis < minIntervalMillis ? minIntervalMillis : intervalMillis;
 
   @override
   List<Object?> get props => [
@@ -206,6 +230,7 @@ class TriggerModel with Equatable, SerializableMixin {
     intervalMs,
     key,
     duration,
+    intervalMillis,
   ];
 
   /// Duplicate this [TriggerModel] with given data overrides.
@@ -216,6 +241,7 @@ class TriggerModel with Equatable, SerializableMixin {
     int? intervalMs,
     String? key,
     int? duration,
+    int? intervalMillis,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
@@ -223,6 +249,7 @@ class TriggerModel with Equatable, SerializableMixin {
     intervalMs: intervalMs ?? this.intervalMs,
     key: key ?? this.key,
     duration: duration ?? this.duration,
+    intervalMillis: intervalMillis ?? this.intervalMillis,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from

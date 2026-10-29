@@ -27,6 +27,8 @@ export 'navigation_bar_node.dart';
 export 'page_view_node.dart';
 export 'placeholder_node.dart';
 export 'progressbar_node.dart';
+export 'gauge_meter_node.dart';
+export 'bar_chart_node.dart';
 export 'radio_node.dart';
 export 'rectangle_node.dart';
 export 'root_node.dart';
