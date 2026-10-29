@@ -26,7 +26,7 @@ void main(List<String> args) {
       final widget = record['widget'] as String;
       final type = record['nodeType'] as String;
       if (!nodeTypes.add(type)) throw StateError('Duplicate node wire type $type');
-      if (flutterWidgets != null) {
+      if (flutterWidgets != null && record['family'] != 'codelessly') {
         final flutter = flutterWidgets[widget] as Map?;
         if (flutter == null) throw StateError('Unknown Flutter widget $widget on $type');
         final constructors = flutter['constructors'] as Map;

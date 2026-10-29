@@ -74,6 +74,28 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyBarChart": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyBarChart"
+            },
+            "highlight": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "ElevatedButton": {
       "allOf": [
         {
@@ -92,6 +114,28 @@
                   "type": "string"
                 }
               }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyChartSeries": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyChartSeries"
+            },
+            "selectedIndex": {
+              "type": "integer"
             }
           },
           "required": [
@@ -352,6 +396,50 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyGaugeMeter": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyGaugeMeter"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyRadialGauge": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyRadialGauge"
+            },
+            "value": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "GridView": {
       "allOf": [
         {
@@ -378,6 +466,33 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyLineChart": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyLineChart"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "smooth": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
@@ -494,6 +609,28 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyPlotChart": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyPlotChart"
+            },
+            "selectedX": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
