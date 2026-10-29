@@ -42,6 +42,8 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -191,8 +193,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
-        isScrollable: json['isScrollable'] as bool? ?? false,
-        useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -210,6 +210,8 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
               ),
             )
             .toList(),
+        isScrollable: json['isScrollable'] as bool? ?? false,
+        useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         scrollDirection:
             $enumDecodeNullable(_$AxisCEnumMap, json['scrollDirection']) ??
             AxisC.vertical,
@@ -260,9 +262,19 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..allowedTypes =
+          (json['allowedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..deniedTypes =
           (json['deniedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -272,11 +284,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes =
-          (json['allowedTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          []
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -320,14 +327,17 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
+      'transitionMs': instance.transitionMs,
+      'drawScale': instance.drawScale,
+      'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'children': instance.children,
+      'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
       'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,
-      'allowedTypes': instance.allowedTypes,
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,

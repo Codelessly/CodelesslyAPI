@@ -93,12 +93,17 @@ class LoadingIndicatorNode extends SceneNode
   }
 
   @override
+  /// Room for the part of the stroke that falls outside the indicator's
+  /// circle: half of it when centered on the circle (the default), none
+  /// when inside it (`strokeAlign` -1), all of it when outside (1).
   EdgeInsetsModel minimumPadding() {
-    final double stroke = (properties is MaterialLoadingIndicatorProperties
-        ? (properties as MaterialLoadingIndicatorProperties).strokeWidth / 2
-        : 0);
-
-    return EdgeInsetsModel.all(stroke);
+    if (properties is! MaterialLoadingIndicatorProperties) {
+      return EdgeInsetsModel.zero;
+    }
+    final MaterialLoadingIndicatorProperties material =
+        properties as MaterialLoadingIndicatorProperties;
+    final double align = (material.strokeAlign ?? 0).clamp(-1, 1).toDouble();
+    return EdgeInsetsModel.all(material.strokeWidth / 2 * (1 + align));
   }
 }
 
@@ -171,6 +176,19 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
   /// `CircularProgressIndicator.trackGap`.
   double? trackGap;
 
+  /// Where the ring starts, in degrees clockwise from 3 o'clock. The default
+  /// -90 starts at 12 o'clock like `CircularProgressIndicator`.
+  double startAngle;
+
+  /// How much of the circle the ring spans, in degrees. Less than 360 makes
+  /// an arc: a gauge (180 from 180), a dial segment. A determinate [value]
+  /// fills that fraction of the arc, and the track covers the whole arc.
+  double sweepAngle;
+
+  /// Whether this draws an arc instead of a full circle starting at 12
+  /// o'clock.
+  bool get isArc => startAngle != -90 || sweepAngle != 360;
+
   /// Creates a new [MaterialLoadingIndicatorProperties].
   MaterialLoadingIndicatorProperties({
     required this.color,
@@ -180,6 +198,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     this.strokeCap = StrokeCapEnum.square,
     this.strokeAlign,
     this.trackGap,
+    this.startAngle = -90,
+    this.sweepAngle = 360,
   });
 
   /// Duplicates this [MaterialLoadingIndicatorProperties] with given data
@@ -192,6 +212,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     StrokeCapEnum? strokeCap,
     double? strokeAlign,
     double? trackGap,
+    double? startAngle,
+    double? sweepAngle,
   }) {
     return MaterialLoadingIndicatorProperties(
       color: color ?? this.color,
@@ -201,6 +223,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
       strokeCap: strokeCap ?? this.strokeCap,
       strokeAlign: strokeAlign ?? this.strokeAlign,
       trackGap: trackGap ?? this.trackGap,
+      startAngle: startAngle ?? this.startAngle,
+      sweepAngle: sweepAngle ?? this.sweepAngle,
     );
   }
 
@@ -245,6 +269,18 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
       () => trackGap,
       (value) => trackGap = value,
     ),
+    'startAngle': NumFieldAccess<double>(
+      'Start Angle',
+      "Where the ring starts, in degrees clockwise from 3 o'clock.",
+      () => startAngle,
+      (value) => startAngle = value,
+    ),
+    'sweepAngle': NumFieldAccess<double>(
+      'Sweep Angle',
+      'How much of the circle the ring spans, in degrees.',
+      () => sweepAngle,
+      (value) => sweepAngle = value,
+    ),
   };
 
   @override
@@ -257,6 +293,8 @@ class MaterialLoadingIndicatorProperties extends LoadingIndicatorProperties
     strokeCap,
     strokeAlign,
     trackGap,
+    startAngle,
+    sweepAngle,
   ];
 
   @override

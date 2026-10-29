@@ -37,6 +37,8 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
+  if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
+  if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
@@ -171,6 +173,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             : CornerRadius.fromJson(json['cornerRadius']),
         clipsContent: json['clipsContent'] as bool? ?? true,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -195,7 +198,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -214,6 +216,11 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..loopAnimation = json['loopAnimation'] == null
           ? null
           : LoopAnimation.fromJson(json['loopAnimation'] as Map)
+      ..transitionMs = (json['transitionMs'] as num?)?.toInt() ?? 0
+      ..drawScale = (json['drawScale'] as num?)?.toDouble() ?? 1.0
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -222,9 +229,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
-      ..pulse = json['pulse'] == null
-          ? null
-          : PulseModel.fromJson(json['pulse'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -232,12 +236,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
     <String, dynamic>{
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
       'id': instance.id,
       'name': instance.name,
       'visible': instance.visible,
@@ -250,6 +248,12 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -263,6 +267,9 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'tooltip': instance.tooltip,
       'zoomable': instance.zoomable,
       'loopAnimation': ?instance.loopAnimation?.toJson(),
+      'transitionMs': instance.transitionMs,
+      'drawScale': instance.drawScale,
+      'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'opacity': instance.opacity,
@@ -270,7 +277,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'isMask': instance.isMask,
       'effects': instance.effects.map((e) => e.toJson()).toList(),
       'inkWell': ?instance.inkWell?.toJson(),
-      'pulse': ?instance.pulse?.toJson(),
       'transition': ?instance.transition?.toJson(),
       'fills': instance.fills.map((e) => e.toJson()).toList(),
       'strokes': instance.strokes.map((e) => e.toJson()).toList(),

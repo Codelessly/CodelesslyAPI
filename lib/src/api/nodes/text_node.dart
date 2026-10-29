@@ -48,6 +48,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   @override
   final String type = 'text';
 
+  /// Whether every digit takes the same width (tabular figures), so a
+  /// clock, counter or column of numbers doesn't shift as its digits change.
+  bool tabularFigures;
+
   /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -121,6 +125,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.variables,
     super.multipleVariables,
     InkWellModel? inkWell,
+    this.tabularFigures = false,
   }) {
     setTextMixin(
       characters: characters,
