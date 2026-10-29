@@ -191,6 +191,56 @@
       "bindable": false
     },
     {
+      "nodeType": "slider",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "divisions",
+      "fieldPath": "properties.divisions",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "min",
+      "fieldPath": "properties.min",
+      "group": "Range",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "max",
+      "fieldPath": "properties.max",
+      "group": "Range",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "text",
       "flutterName": "data",
       "fieldPath": "characters",
@@ -296,6 +346,26 @@
       "nodeType": "divider",
       "flutterName": "thickness",
       "fieldPath": "properties.thickness"
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "divisions",
+      "fieldPath": "properties.divisions"
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "min",
+      "fieldPath": "properties.min"
+    },
+    {
+      "nodeType": "slider",
+      "flutterName": "max",
+      "fieldPath": "properties.max"
     },
     {
       "nodeType": "text",
