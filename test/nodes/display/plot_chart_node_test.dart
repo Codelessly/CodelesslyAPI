@@ -13,8 +13,9 @@ void main() {
   final Map tide = jsonDecode(
     File('test/fixtures/chart_tide.json').readAsStringSync(),
   ) as Map;
-  // The plot model uses a distinct discriminator; leave the PR43 fixture intact.
-  final Map plotTide = {...tide, 'type': 'chartPlot'};
+  // The fixture is new-wire chartPlot; the old chart spelling is classified
+  // only from exclusive keys before the plot decoder supplies defaults.
+  final Map plotTide = tide;
 
   group('PlotChartNode JSON', () {
     test('reads every property of the tide chart', () {
@@ -49,6 +50,14 @@ void main() {
       expect(props.referenceDashed, isTrue);
       expect(props.selectionMin, 5);
       expect(props.selectionMax, 20);
+    });
+
+    test('legacy unmarked tide chart routes from exclusive plot keys', () {
+      final oldWire = {...tide, 'type': 'chart'};
+      final node = NodeJsonConverter().fromJson(oldWire);
+      expect(node, isA<PlotChartNode>());
+      expect((node! as PlotChartNode).properties.points, hasLength(97));
+      expect(node.toJson()['type'], 'chartPlot');
     });
 
     test('round-trips the tide chart', () {

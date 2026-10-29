@@ -1,7 +1,7 @@
 {
   "id": "tide",
   "name": "Tide chart",
-  "type": "chart",
+  "type": "chartPlot",
   "basicBoxLocal": [
     0,
     0,
