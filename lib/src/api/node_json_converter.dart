@@ -101,7 +101,9 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'gaugeRadial': GaugeNode.fromJson,
       'gaugeMeter': GaugeMeterNode.fromJson,
       'gauge': GaugeNode.fromJson, // Legacy alias, classified before lookup.
-      'chart': ChartNode.fromJson,
+      'chartSeries': ChartNode.fromJson,
+      'chartPlot': PlotChartNode.fromJson,
+      'chart': ChartNode.fromJson, // Legacy alias; classified before lookup.
     };
   }
 
@@ -156,6 +158,63 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       if (kind == null && !relative && !motion) {
         throw UnresolvedNodeSchema('ambiguous-pulse-schema', json);
       }
+    }
+    if (json['type'] == 'chart') {
+      final properties = json['properties'];
+      final propertyKeys = properties is Map
+          ? properties.keys.toSet()
+          : <dynamic>{};
+      final variables = json['variables'];
+      final variableKeys = variables is Map
+          ? variables.keys.toSet()
+          : <dynamic>{};
+      final series =
+          json.containsKey('selectedIndex') ||
+          propertyKeys.any(
+            const {
+              'chartType',
+              'series',
+              'sampleData',
+              'labelField',
+              'xSlots',
+              'referenceLines',
+              'gridLines',
+              'barWidthFraction',
+              'domainMin',
+            }.contains,
+          ) ||
+          variableKeys.any(const {'data', 'selectedIndex'}.contains);
+      final plot =
+          json.containsKey('selectedX') ||
+          propertyKeys.any(
+            const {
+              'points',
+              'xMin',
+              'xMax',
+              'gridStepX',
+              'markers',
+              'ranges',
+              'referenceX',
+              'selectionStep',
+              'lineWidth',
+              'fillColor',
+            }.contains,
+          ) ||
+          variableKeys.any(const {'points', 'markers', 'selectedX'}.contains);
+      if (series && plot) {
+        throw UnresolvedNodeSchema('conflicting-chart-schema', json);
+      }
+      if (!series && !plot) {
+        throw UnresolvedNodeSchema('ambiguous-chart-schema', json);
+      }
+      final migrated = {
+        ...json,
+        'type': series ? 'chartSeries' : 'chartPlot',
+        if (properties == null) 'properties': const {},
+      };
+      return series
+          ? ChartNode.fromJson(migrated)
+          : PlotChartNode.fromJson(migrated);
     }
     if (json['type'] == 'gauge') {
       final properties = json['properties'];

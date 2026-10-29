@@ -56,7 +56,7 @@ void main() {
       final node = ChartNode.fromJson({
         'id': 'c',
         'name': 'Hourly',
-        'type': 'chart',
+        'type': 'chartSeries',
         'basicBoxLocal': [0, 0, 400, 220],
         'variables': {
           'data': r'${hourly}',
@@ -114,7 +114,7 @@ void main() {
     final chart = NodeJsonConverter().fromJson({
       'id': 'c',
       'name': 'C',
-      'type': 'chart',
+      'type': 'chartSeries',
       'basicBoxLocal': [0, 0, 300, 200],
     });
     expect((gauge! as GaugeNode).properties, GaugeProperties());
@@ -143,7 +143,8 @@ void main() {
       'accordion',
       'gaugeRadial',
       'gaugeMeter',
-      'chart',
+      'chartSeries',
+      'chartPlot',
     ]) {
       final node = NodeJsonConverter().fromJson({
         'id': type,

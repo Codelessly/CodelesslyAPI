@@ -77,10 +77,10 @@ enum ToastAlignment {
 ///
 /// Its colors come from [style] and the app's theme unless [backgroundColor]
 /// or [textColor] are set. Its font is the app's unless [fontFamily],
-/// [messageStyle] or [actionStyle] set one. An [accentColor] draws a bar
-/// down its left edge, and [iconColor] colors its [icon]. [cornerRadius],
-/// [border], [shadows], [padding] and [maxWidth] shape the toast;
-/// [showClose] adds a dismiss (×) button.
+/// [fontSize], [fontWeight], [messageStyle] or [actionStyle] set one.
+/// [accentColor] draws a bar down its left edge, and [iconColor] colors
+/// its [icon]. [border], [shadows], [padding] and [maxWidth] shape the toast;
+/// [showClose] adds a dismiss button.
 @JsonSerializable()
 class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The message. Supports variables and formulas, e.g.
@@ -183,8 +183,16 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// PR42's close-button key; [showClose] is the master key.
   final bool showCloseButton;
 
-  /// PR42's explicit message font size; [messageStyle] is the master style.
-  final double fontSize;
+  /// Message font size. Null lets the renderer use its default (14).
+  /// [messageStyle] takes precedence when it specifies a size.
+  final double? fontSize;
+
+  /// Weight of the message's text. Null is the app's.
+  final FontWeightNumeric? fontWeight;
+
+  /// Distance from the screen edge, as a variable or formula. When it gives
+  /// a number it overrides [bottomOffset] and [bottomOffsets].
+  final String offset;
 
   /// Creates a new [ShowToastAction].
   ShowToastAction({
@@ -217,7 +225,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.alignment = ToastAlignment.center,
     this.sideMargin = 16,
     this.showCloseButton = false,
-    this.fontSize = 14,
+    this.fontSize,
+    this.fontWeight,
+    this.offset = '',
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -263,6 +273,8 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     sideMargin,
     showCloseButton,
     fontSize,
+    fontWeight,
+    offset,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -311,6 +323,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     double? sideMargin,
     bool? showCloseButton,
     double? fontSize,
+    bool clearFontSize = false,
+    FontWeightNumeric? fontWeight,
+    bool clearFontWeight = false,
+    String? offset,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -343,7 +359,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     alignment: alignment ?? this.alignment,
     sideMargin: sideMargin ?? this.sideMargin,
     showCloseButton: showCloseButton ?? this.showCloseButton,
-    fontSize: fontSize ?? this.fontSize,
+    fontSize: clearFontSize ? null : fontSize ?? this.fontSize,
+    fontWeight: clearFontWeight ? null : fontWeight ?? this.fontWeight,
+    offset: offset ?? this.offset,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
