@@ -10,7 +10,7 @@ Map<String, dynamic> _$NavigationBarNodeOmitDefaults(
   NavigationBarNode instance,
   Map<String, dynamic> json,
 ) {
-  if (isJsonDefault(instance.currentIndex, 0)) json.remove('currentIndex');
+  if (isJsonDefault(instance.selectedIndex, 0)) json.remove('selectedIndex');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -147,7 +147,7 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) =>
               json['positioningMode'],
             ) ??
             PositioningMode.align,
-        currentIndex: (json['currentIndex'] as num?)?.toInt() ?? 0,
+        selectedIndex: (json['selectedIndex'] as num?)?.toInt() ?? 0,
         properties: navigationBarPropertiesFromJson(json['properties'] as Map),
         variables:
             (json['variables'] as Map?)?.map(
@@ -242,7 +242,7 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'type': instance.type,
-      'currentIndex': instance.currentIndex,
+      'selectedIndex': instance.selectedIndex,
       'properties': instance.properties.toJson(),
     };
 
