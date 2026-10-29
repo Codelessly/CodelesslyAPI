@@ -1,4 +1,11 @@
-## Unreleased
+## 6.3.0
+
+This candidate includes the changes documented below for 6.2.0, which has
+not been published on pub.dev. The 6.3.0 changes below also include the
+post-merge compatibility guards: ambiguous legacy gauge, chart and signature
+payloads fail closed without discarding the original document JSON; direct
+node decoding rejects contradictory variant signatures; and list stack modes
+cannot both be enabled in a document.
 
 ### PR49 additions (not published)
 
