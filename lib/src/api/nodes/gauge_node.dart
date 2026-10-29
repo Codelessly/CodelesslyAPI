@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -19,6 +20,7 @@ const double kGaugeDefaultHeight = 185;
 /// labels, a value arc (continuous or in segments), a target notch and a
 /// needle. The value is bindable (`variables: {"value": "${...}"}`), so a
 /// readout is usually a text node placed over the dial.
+@FlutterNode('CodelesslyRadialGauge', family: 'codelessly', nodeType: 'gaugeRadial')
 @JsonSerializable()
 class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
@@ -29,6 +31,7 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   covariant GaugeProperties properties;
 
   /// Current value, between [GaugeProperties.min] and [GaugeProperties.max].
+  @FlutterProp('value', type: 'number', group: 'State', control: 'number', bindable: true)
   double value;
 
   @override

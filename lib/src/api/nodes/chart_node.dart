@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -177,6 +178,7 @@ class ChartReferenceLine with Equatable, SerializableMixin {
 ///
 /// Tapping a category fires the node's `changed` reactions with the
 /// category index as `${value}`; bind `selectedIndex` to show a selection.
+@FlutterNode('CodelesslyChartSeries', family: 'codelessly', nodeType: 'chartSeries')
 @JsonSerializable()
 class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
@@ -187,6 +189,7 @@ class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   covariant ChartProperties properties;
 
   /// Index of the highlighted category, or -1 for none. Bindable.
+  @FlutterProp('selectedIndex', type: 'integer', group: 'Selection', control: 'number')
   int selectedIndex;
 
   @override

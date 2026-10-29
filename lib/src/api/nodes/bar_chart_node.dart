@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -22,6 +23,7 @@ const double kBarChartDefaultHeight = 160;
 ///
 /// [values], [labels] and [highlight] can be bound to variables or formulas
 /// (`values`, `labels`, `highlight`).
+@FlutterNode('CodelesslyBarChart', family: 'codelessly', nodeType: 'barChart')
 @JsonSerializable()
 class BarChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
@@ -38,6 +40,7 @@ class BarChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Index of the highlighted bar, or null to draw every bar at full
   /// strength.
+  @FlutterProp('highlight', type: 'integer', group: 'Selection', control: 'number')
   int? highlight;
 
   @override

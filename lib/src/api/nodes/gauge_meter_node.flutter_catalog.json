@@ -1,0 +1,70 @@
+{
+  "GaugeMeterNode": {
+    "widget": "CodelesslyGaugeMeter",
+    "family": "codelessly",
+    "nodeType": "gaugeMeter",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "gaugeMeter",
+        "flutterName": "value",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": true
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyGaugeMeter": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyGaugeMeter"
+                },
+                "value": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "value",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
