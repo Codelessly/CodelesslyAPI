@@ -156,7 +156,10 @@ class PlotChartNode extends SceneNode with CustomPropertiesMixin {
   /// Creates a [PlotChartNode] from JSON data.
   factory PlotChartNode.fromJson(Map json) {
     NodeJsonConverter.validateChartWire(json, expectedType: 'plot');
-    return _$PlotChartNodeFromJson(json);
+    return _$PlotChartNodeFromJson({
+      ...json,
+      if (json['properties'] == null) 'properties': const {},
+    });
   }
 
   @override
