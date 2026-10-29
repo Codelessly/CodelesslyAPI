@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../../../codelessly_api.dart';
 
@@ -7,6 +8,7 @@ part 'list_view_node.g.dart';
 /// A material design [ListView].
 /// Refer to [ListView](https://api.flutter.dev/flutter/widgets/ListView-class.html)
 /// in Flutter for more details.
+@FlutterNode('ListView', family: 'widgets', nodeType: 'listView')
 @JsonSerializable()
 class ListViewNode extends SinglePlaceholderNode
     with
@@ -189,6 +191,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   int? itemCount;
 
   /// The forced-size of each item in the list view in the scroll axis.
+  @FlutterProp('itemExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.itemExtent')
   double? itemExtent;
 
   /// The number of pixels by which to allow pre-rendering of items outside
