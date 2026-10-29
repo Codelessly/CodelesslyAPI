@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../node_json_converter.dart';
 import 'nodes.dart';
 
 part 'plot_chart_node.g.dart';
@@ -150,7 +151,12 @@ class PlotChartNode extends SceneNode with CustomPropertiesMixin {
   ];
 
   /// Creates a [PlotChartNode] from JSON data.
-  factory PlotChartNode.fromJson(Map json) => _$PlotChartNodeFromJson(json);
+  factory PlotChartNode.fromJson(Map json) {
+    NodeJsonConverter.validateChartWire(json, expectedType: 'chartPlot');
+    return _$PlotChartNodeFromJson(
+      json['type'] == 'chart' ? {...json, 'type': 'chartPlot'} : json,
+    );
+  }
 
   @override
   Map toJson() =>

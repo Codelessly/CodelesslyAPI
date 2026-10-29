@@ -3,6 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../node_json_converter.dart';
 import 'nodes.dart';
 
 part 'signature_normalized_node.g.dart';
@@ -101,8 +102,17 @@ class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
   ];
 
   /// Creates a [SignatureNormalizedNode] from JSON.
-  factory SignatureNormalizedNode.fromJson(Map json) =>
-      _$SignatureNormalizedNodeFromJson(json);
+  factory SignatureNormalizedNode.fromJson(Map json) {
+    NodeJsonConverter.validateSignatureWire(
+      json,
+      expectedType: 'signatureNormalized',
+    );
+    return _$SignatureNormalizedNodeFromJson(
+      json['type'] == 'signature'
+          ? {...json, 'type': 'signatureNormalized'}
+          : json,
+    );
+  }
 
   @override
   Map toJson() => {
