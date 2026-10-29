@@ -21,6 +21,7 @@ export 'action/set_variable_action.dart';
 export 'action/set_variant_action.dart';
 export 'action/show_dialog_action.dart';
 export 'action/submit_action.dart';
+export 'paywall.dart';
 export 'alignment.dart';
 export 'axis.dart';
 export 'axis_alignments.dart';
