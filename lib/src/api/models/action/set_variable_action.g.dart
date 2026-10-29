@@ -113,4 +113,5 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
+  ActionType.paywall: 'paywall',
 };
