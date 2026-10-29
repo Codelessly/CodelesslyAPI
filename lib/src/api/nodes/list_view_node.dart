@@ -168,6 +168,19 @@ enum ListItemSeparator {
   space,
 }
 
+/// How a [ListViewNode] arranges its items.
+enum ListLayout {
+  /// Items follow one another along the scroll direction (a normal list).
+  list,
+
+  /// Items are layered on top of each other in the list's box, each placed
+  /// by its item's `x` and `y` (bound with `BaseNode.variables`, evaluated
+  /// for that item) relative to the list's padded box, or by its design
+  /// offset when not bound. Nothing scrolls. Use it to draw data as a
+  /// diagram, such as furniture on a floor plan or pins on a map.
+  stack,
+}
+
 /// The properties of a [ListViewNode].
 @JsonSerializable()
 class ListViewProperties extends CustomProperties with FieldsHolder {
@@ -198,11 +211,9 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// items, if enabled.
   DividerProperties dividerProperties;
 
-  /// Whether the items are stacked on top of each other, like a deck of
-  /// cards or records in a crate, instead of laid out one after another.
-  /// The first item is drawn on top. A stacked list doesn't scroll; items
-  /// are placed at the top center of the list and are usually moved apart
-  /// with motion bound to their index (see [MotionModel]).
+  /// Legacy deck stacking: items overlap centered, first on top, and can
+  /// move apart by motion bound to their index. Unlike [ListLayout.stack],
+  /// this does not position items by bound x/y coordinates.
   bool stacked;
 
   /// Whether the items flow onto further lines (runs) when they don't fit,
@@ -229,16 +240,20 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// is true. Maps to Flutter's [WrapAlignment] by name.
   MainAxisAlignmentC wrapAlignment;
 
-  /// Whether this list wraps its items: [wrap] is on and [stacked] is off.
-  bool get isWrapping => wrap && !stacked;
+  /// Whether this list wraps its items instead of using either stack mode.
+  bool get isWrapping => wrap && !stacked && layout == ListLayout.list;
 
   /// PR43 run-gap value, retained for existing serialized lists. New lists
   /// can use [wrapRunSpacing]; consumers of both wire formats should honor
   /// [runSpacing] when [wrapRunSpacing] is zero.
   double runSpacing;
 
+  /// Position-based layout added by PR49, distinct from centered [stacked].
+  ListLayout layout;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
+    this.layout = ListLayout.list,
     this.itemCount,
     this.itemExtent,
     this.cacheExtent,
@@ -252,7 +267,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapAlignment = MainAxisAlignmentC.start,
     this.runSpacing = 0,
     DividerProperties? dividerProperties,
-  }) : dividerProperties = dividerProperties ?? DividerProperties();
+  }) : dividerProperties = dividerProperties ?? DividerProperties() {
+    if (stacked && layout == ListLayout.stack) {
+      throw ArgumentError('Conflicting centered and positional stack modes');
+    }
+  }
 
   /// Creates a copy of this [ListViewProperties] instance with the given value
   /// overrides.
@@ -277,8 +296,10 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     MainAxisAlignmentC? wrapAlignment,
     DividerProperties? dividerProperties,
     double? runSpacing,
+    ListLayout? layout,
   }) {
     return ListViewProperties(
+      layout: layout ?? this.layout,
       stacked: stacked ?? this.stacked,
       wrap: wrap ?? this.wrap,
       wrapSpacing: wrapSpacing ?? this.wrapSpacing,
@@ -360,6 +381,15 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       options: () => ListItemSeparator.values,
       requiresLayout: true,
     ),
+    'layout': EnumFieldAccess<ListLayout>(
+      'Layout',
+      'List: items follow one another. Stack: items are layered and placed by their bound x and y.',
+      () => layout,
+      (value) => layout = value,
+      defaultValue: () => ListLayout.list,
+      options: () => ListLayout.values,
+      requiresLayout: true,
+    ),
     'dividerProperties': ObjectFieldAccess<DividerProperties>(
       'Divider Properties',
       'The properties of the divider to use as a separator between list view items, if enabled.',
@@ -378,12 +408,30 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   };
 
   @override
-  Map<String, dynamic> toJson() =>
-      _$ListViewPropertiesOmitDefaults(this, _$ListViewPropertiesToJson(this));
+  Map<String, dynamic> toJson() {
+    if (stacked && layout == ListLayout.stack) {
+      throw StateError('Conflicting centered and positional stack modes');
+    }
+    final json = _$ListViewPropertiesOmitDefaults(
+      this,
+      _$ListViewPropertiesToJson(this),
+    );
+    if (!stacked) json.remove('stacked');
+    if (layout == ListLayout.list) json.remove('layout');
+    return json;
+  }
 
   /// Creates a [ListViewProperties] from a JSON object.
-  factory ListViewProperties.fromJson(Map json) =>
-      _$ListViewPropertiesFromJson(json);
+  factory ListViewProperties.fromJson(Map json) {
+    // Old centered deck stacking and new x/y positional stacking have
+    // different rendering semantics. Never convert one wire key to the other.
+    if (json['stacked'] == true && json['layout'] == 'stack') {
+      throw const FormatException(
+        'Conflicting centered and positional stack modes',
+      );
+    }
+    return _$ListViewPropertiesFromJson(json);
+  }
 
   @override
   List<Object?> get props => [
@@ -400,5 +448,6 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     wrapAlignment,
     dividerProperties,
     runSpacing,
+    layout,
   ];
 }

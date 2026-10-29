@@ -170,6 +170,11 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// is 1 (no additional cap), including when omitted from legacy JSON.
   final double maxHeightFactor;
 
+  /// For a bottom sheet: fill its available height with the canvas, so the
+  /// canvas scrolls its content. Otherwise the sheet wraps the canvas and
+  /// scrolls as one, subject to [maxHeightFactor].
+  final bool fullHeight;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -187,6 +192,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.anchorOffset = 0,
     this.insets = EdgeInsetsModel.zero,
     this.maxHeightFactor = 1,
+    this.fullHeight = false,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -209,6 +215,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     anchorOffset,
     insets,
     maxHeightFactor,
+    fullHeight,
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
@@ -234,6 +241,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     double? anchorOffset,
     EdgeInsetsModel? insets,
     double? maxHeightFactor,
+    bool? fullHeight,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -250,6 +258,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     anchorOffset: anchorOffset ?? this.anchorOffset,
     insets: insets ?? this.insets,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
+    fullHeight: fullHeight ?? this.fullHeight,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );

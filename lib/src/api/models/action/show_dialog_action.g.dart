@@ -31,6 +31,7 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('insets');
   if (isJsonDefault(instance.maxHeightFactor, 1))
     json.remove('maxHeightFactor');
+  if (isJsonDefault(instance.fullHeight, false)) json.remove('fullHeight');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -82,6 +83,7 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       ? EdgeInsetsModel.zero
       : EdgeInsetsModel.fromJson(json['insets']),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
+  fullHeight: json['fullHeight'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -106,6 +108,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'anchorOffset': instance.anchorOffset,
       'insets': instance.insets.toJson(),
       'maxHeightFactor': instance.maxHeightFactor,
+      'fullHeight': instance.fullHeight,
     };
 
 const _$DialogPresentationEnumMap = {
@@ -163,4 +166,5 @@ const _$ActionTypeEnumMap = {
   ActionType.delay: 'delay',
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
+  ActionType.copyToClipboard: 'copyToClipboard',
 };
