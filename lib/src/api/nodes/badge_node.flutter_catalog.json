@@ -1,0 +1,143 @@
+{
+  "BadgeNode": {
+    "widget": "Badge",
+    "family": "material",
+    "nodeType": "badge",
+    "drift": [
+      {
+        "flutterName": "isLabelVisible",
+        "fieldPath": "properties.isLabelVisible"
+      },
+      {
+        "flutterName": "smallSize",
+        "fieldPath": "properties.smallSize"
+      },
+      {
+        "flutterName": "largeSize",
+        "fieldPath": "properties.largeSize"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "isLabelVisible": {
+              "type": "boolean"
+            },
+            "smallSize": {
+              "type": "number"
+            },
+            "largeSize": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "badge",
+        "flutterName": "isLabelVisible",
+        "fieldPath": "properties.isLabelVisible",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": "smallSize",
+        "fieldPath": "properties.smallSize",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": "largeSize",
+        "fieldPath": "properties.largeSize",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Badge": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Badge"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "isLabelVisible": {
+                      "type": "boolean"
+                    },
+                    "smallSize": {
+                      "type": "number"
+                    },
+                    "largeSize": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "isLabelVisible",
+        "field": "properties.isLabelVisible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "smallSize",
+        "field": "properties.smallSize",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "largeSize",
+        "field": "properties.largeSize",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
