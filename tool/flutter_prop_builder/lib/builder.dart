@@ -60,6 +60,9 @@ class _FlutterPropsBuilder implements Builder {
           continue;
         }
         if (cls.name == 'ListTileNode' && entry.key == 'children') continue;
+        if (entry.key == 'ephemeral' &&
+            cls.name != 'SinglePlaceholderNode' &&
+            cls.name != 'AutoPlaceholderNode') continue;
         final field = entry.value.$1;
         final tag = entry.value.$2;
         final flutterName = tag.read('name').stringValue;

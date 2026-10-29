@@ -41,6 +41,26 @@
       "bindable": false
     },
     {
+      "nodeType": "autoPlaceholder",
+      "flutterName": "ephemeral",
+      "fieldPath": "ephemeral",
+      "group": "Behavior",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "autoPlaceholder",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "badge",
       "flutterName": "isLabelVisible",
       "fieldPath": "properties.isLabelVisible",
@@ -351,6 +371,16 @@
       "bindable": false
     },
     {
+      "nodeType": "external",
+      "flutterName": "builderID",
+      "fieldPath": "properties.builderID",
+      "group": "Source",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "floatingActionButton",
       "flutterName": "elevation",
       "fieldPath": "properties.elevation",
@@ -392,6 +422,16 @@
     },
     {
       "nodeType": "frame",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "freeformPlaceholder",
       "flutterName": "children",
       "fieldPath": "children",
       "group": "Layout",
@@ -591,6 +631,26 @@
       "bindable": false
     },
     {
+      "nodeType": "placeholder",
+      "flutterName": "leadingAsset",
+      "fieldPath": "leadingAsset",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "placeholder",
+      "flutterName": "text",
+      "fieldPath": "text",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "chartPlot",
       "flutterName": "selectedX",
       "fieldPath": "selectedX",
@@ -757,6 +817,26 @@
       "group": "Interaction",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "singlePlaceholder",
+      "flutterName": "ephemeral",
+      "fieldPath": "ephemeral",
+      "group": "Behavior",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "singlePlaceholder",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
       "defaultSource": null,
       "bindable": false
     },
@@ -971,6 +1051,26 @@
       "bindable": false
     },
     {
+      "nodeType": "variance",
+      "flutterName": "currentVariantId",
+      "fieldPath": "currentVariantId",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "variance",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "webView",
       "flutterName": "src",
       "fieldPath": "properties.src",
@@ -1136,6 +1236,11 @@
       "nodeType": "expansionTile",
       "flutterName": "showTrailingIcon",
       "fieldPath": "properties.showTrailingIcon"
+    },
+    {
+      "nodeType": "external",
+      "flutterName": "builderID",
+      "fieldPath": "properties.builderID"
     },
     {
       "nodeType": "floatingActionButton",
