@@ -1,0 +1,103 @@
+{
+  "TextNode": {
+    "widget": "Text",
+    "family": "widgets",
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "type": "string",
+          "description": "Text: characters"
+        },
+        "maxLines": {
+          "type": "integer",
+          "description": "Text: maxLines"
+        },
+        "softWrap": {
+          "type": "boolean",
+          "description": "Text: softWrap"
+        }
+      },
+      "required": [
+        "data"
+      ]
+    },
+    "dpp": [
+      {
+        "name": "data",
+        "field": "characters",
+        "group": "Text",
+        "control": "text",
+        "bindable": true
+      },
+      {
+        "name": "maxLines",
+        "field": "maxLines",
+        "group": "Text",
+        "control": "number",
+        "bindable": false
+      },
+      {
+        "name": "softWrap",
+        "field": "softWrap",
+        "group": "Text",
+        "control": "switch",
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalog/widgets/Text",
+      "components": {
+        "Text": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "Text: characters"
+            },
+            "maxLines": {
+              "type": "integer",
+              "description": "Text: maxLines"
+            },
+            "softWrap": {
+              "type": "boolean",
+              "description": "Text: softWrap"
+            }
+          }
+        }
+      }
+    },
+    "testMatrix": [
+      {
+        "parameter": "data",
+        "field": "characters",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "maxLines",
+        "field": "maxLines",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "softWrap",
+        "field": "softWrap",
+        "defaultSource": "true",
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}
