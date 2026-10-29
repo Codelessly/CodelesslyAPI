@@ -30,6 +30,62 @@ void expectUnresolved(Map<String, dynamic> input, String reason) {
 }
 
 void main() {
+  group('direct GaugeMeterNode.fromJson wire guard', () {
+    test('unmarked legacy gauge with no exclusive keys remains unresolved', () {
+      final input = gaugeWire('gauge', properties: {'startAngle': 135});
+      expect(
+        () => GaugeMeterNode.fromJson(input),
+        throwsA(
+          isA<UnresolvedNodeSchema>()
+              .having((e) => e.reason, 'reason', 'ambiguous-gauge-schema')
+              .having((e) => e.raw, 'raw', input),
+        ),
+      );
+    });
+
+    test('radial-exclusive keys cannot be decoded as meter', () {
+      for (final input in [
+        gaugeWire('gauge', properties: {'showNeedle': true}),
+        gaugeWire('gaugeMeter', properties: {'zones': []}),
+        gaugeWire('gaugeMeter', properties: {'shape': 'bar', 'zones': []}),
+      ]) {
+        try {
+          GaugeMeterNode.fromJson(input);
+          fail('radial fields cannot become meter fields');
+        } on UnresolvedNodeSchema catch (error) {
+          expect(error.reason, 'conflicting-gauge-schema');
+          expect(error.raw, input);
+          (input['properties'] as Map)['zones'] = [42];
+          expect(error.raw['name'], 'Gauge');
+        }
+      }
+    });
+
+    test('exclusive old meter and default new meter remain decodable', () {
+      final old = GaugeMeterNode.fromJson(
+        gaugeWire('gauge', properties: {'shape': 'bar'}),
+      );
+      expect(old.type, 'gaugeMeter');
+      expect(old.toJson()['type'], 'gaugeMeter');
+      final generated = GaugeMeterNode.empty().toJson();
+      expect(GaugeMeterNode.fromJson(generated).toJson(), generated);
+      expect(
+        GaugeMeterNode.fromJson(gaugeWire('gaugeMeter')).type,
+        'gaugeMeter',
+      );
+    });
+
+    test('arbitrary future metadata does not imply radial fields', () {
+      final input = gaugeWire(
+        'gaugeMeter',
+        properties: {
+          'futureMeterSetting': {'note': 'retain raw in caller'},
+        },
+      )..['futureMetadata'] = {'source': 'test'};
+      expect(GaugeMeterNode.fromJson(input).type, 'gaugeMeter');
+    });
+  });
+
   group('direct GaugeNode.fromJson wire guard', () {
     test('ambiguous legacy gauge is not assigned radial defaults', () {
       expectUnresolved(gaugeWire('gauge'), 'ambiguous-gauge-schema');
