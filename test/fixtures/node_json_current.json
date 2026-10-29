@@ -8,7 +8,7 @@
       100,
       30
     ],
-    "type": "button",
+    "type": "elevatedButton",
     "properties": {
       "shape": "stadium",
       "labelStyle": {

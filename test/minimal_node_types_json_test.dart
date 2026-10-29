@@ -44,9 +44,7 @@ void main() {
         'type': type,
         'basicBoxLocal': [0, 0, 10, 10],
         'properties': <String, dynamic>{
-          if (type.endsWith('Button'))
-            'buttonType': type == 'filledButton' ? 'filled' :
-                type.substring(0, type.length - 'Button'.length),
+          if (type == 'filledButton') 'variant': 'filled',
         },
         'data': '',
         'children': <String>[],
