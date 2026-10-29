@@ -1,0 +1,174 @@
+{
+  "PageViewNode": {
+    "widget": "PageView",
+    "family": "widgets",
+    "nodeType": "pageView",
+    "drift": [
+      {
+        "flutterName": "pageSnapping",
+        "fieldPath": "properties.pageSnapping"
+      },
+      {
+        "flutterName": "padEnds",
+        "fieldPath": "properties.padEnds"
+      },
+      {
+        "flutterName": "allowImplicitScrolling",
+        "fieldPath": "properties.allowImplicitScrolling"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "pageSnapping": {
+              "type": "boolean"
+            },
+            "padEnds": {
+              "type": "boolean"
+            },
+            "allowImplicitScrolling": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "pageView",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "pageView",
+        "flutterName": "pageSnapping",
+        "fieldPath": "properties.pageSnapping",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "pageView",
+        "flutterName": "padEnds",
+        "fieldPath": "properties.padEnds",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "pageView",
+        "flutterName": "allowImplicitScrolling",
+        "fieldPath": "properties.allowImplicitScrolling",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "PageView": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "PageView"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "pageSnapping": {
+                      "type": "boolean"
+                    },
+                    "padEnds": {
+                      "type": "boolean"
+                    },
+                    "allowImplicitScrolling": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "pageSnapping",
+        "field": "properties.pageSnapping",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "padEnds",
+        "field": "properties.padEnds",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "allowImplicitScrolling",
+        "field": "properties.allowImplicitScrolling",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}
