@@ -473,13 +473,13 @@
             "properties": {
               "type": "object",
               "properties": {
-                "dense": {
+                "isDense": {
                   "type": "boolean"
                 },
-                "expanded": {
+                "isExpanded": {
                   "type": "boolean"
                 },
-                "autoFocus": {
+                "autofocus": {
                   "type": "boolean"
                 },
                 "enableFeedback": {

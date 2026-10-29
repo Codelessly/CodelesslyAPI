@@ -143,7 +143,7 @@ List<BaseNode> sampleNodes() {
       id: 'text',
       name: 'Text',
       basicBoxLocal: NodeBox(0, 0, 80, 20),
-      characters: 'Hello world',
+      data: 'Hello world',
       textMixedProps: [
         StartEndProp(
           start: 0,
@@ -463,7 +463,7 @@ void main() {
         id: 't',
         name: 'T',
         basicBoxLocal: NodeBox(0, 0, 10, 10),
-        characters: 'a',
+        data: 'a',
         horizontalFit: SizeFit.shrinkWrap,
       );
       expect(node().toJson(), isNot(contains('squeezable')));

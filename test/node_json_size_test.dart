@@ -43,7 +43,7 @@ void main() {
         id: 'a1b2c3d4e5f6g7h8i9j0',
         name: 'Title',
         basicBoxLocal: box,
-        characters: r'Unit ${vehicle.unit}',
+        data: r'Unit ${vehicle.unit}',
         horizontalFit: SizeFit.shrinkWrap,
         verticalFit: SizeFit.shrinkWrap,
         textMixedProps: [

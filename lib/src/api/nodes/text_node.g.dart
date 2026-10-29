@@ -136,7 +136,7 @@ TextNode _$TextNodeFromJson(Map json) =>
                 ?.map((e) => Reaction.fromJson(e as Map))
                 .toList() ??
             const [],
-        characters: json['characters'] as String,
+        data: json['data'] as String,
         textMixedProps:
             (json['textMixedProps'] as List<dynamic>?)
                 ?.map((e) => StartEndProp.fromJson(e as Map))
@@ -241,7 +241,7 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'characters': instance.characters,
+  'data': instance.data,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -270,8 +270,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,

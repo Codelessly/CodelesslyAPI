@@ -26,6 +26,49 @@ void main() {
     });
   });
 
+  group('DropdownProperties wire keys', () {
+    test('new names round-trip and field access uses new names', () {
+      final properties = DropdownProperties(
+        items: const ['a'],
+        isDense: true,
+        isExpanded: true,
+        autofocus: true,
+      );
+      final json = properties.toJson();
+      expect(json, containsPair('isDense', true));
+      expect(json, containsPair('isExpanded', true));
+      expect(json, containsPair('autofocus', true));
+      for (final key in ['dense', 'expanded', 'autoFocus']) {
+        expect(json, isNot(contains(key)));
+        expect(properties.generateFields(), isNot(contains(key)));
+      }
+      expect(
+        properties.generateFields().keys,
+        containsAll(['isDense', 'isExpanded', 'autofocus']),
+      );
+      final decoded = DropdownProperties.fromJson(json);
+      expect(decoded.isDense, isTrue);
+      expect(decoded.isExpanded, isTrue);
+      expect(decoded.autofocus, isTrue);
+    });
+
+    test('legacy keys fail decoding even when new keys are present', () {
+      for (final oldKey in ['dense', 'expanded', 'autoFocus']) {
+        expect(
+          () => DropdownProperties.fromJson({
+            'items': <String>[],
+            'isDense': true,
+            'isExpanded': true,
+            'autofocus': true,
+            oldKey: false,
+          }),
+          throwsA(isA<FormatException>()),
+          reason: oldKey,
+        );
+      }
+    });
+  });
+
   group('copyWith keeps every field', () {
     test('DividerProperties', () {
       final copy = DividerProperties(thickness: 3).copyWith(indent: 2);
@@ -36,15 +79,15 @@ void main() {
       final copy = DropdownProperties(
         items: const ['a'],
         enabled: false,
-        dense: true,
-        expanded: true,
-        autoFocus: true,
+        isDense: true,
+        isExpanded: true,
+        autofocus: true,
         enableFeedback: false,
       ).copyWith(hint: 'x');
       expect(copy.enabled, isFalse);
-      expect(copy.dense, isTrue);
-      expect(copy.expanded, isTrue);
-      expect(copy.autoFocus, isTrue);
+      expect(copy.isDense, isTrue);
+      expect(copy.isExpanded, isTrue);
+      expect(copy.autofocus, isTrue);
       expect(copy.enableFeedback, isFalse);
       expect(copy.hint, 'x');
     });
@@ -254,7 +297,7 @@ void main() {
         id: 'text',
         name: 'Text',
         basicBoxLocal: NodeBox(0, 0, 100, 20),
-        characters: 'Hello',
+        data: 'Hello',
         softWrap: softWrap,
       );
       expect(text(true).toJson(), isNot(contains('softWrap')));

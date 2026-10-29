@@ -208,7 +208,7 @@
   "text": {
     "id": "text",
     "name": "Text",
-    "characters": "Hello",
+    "data": "Hello",
     "basicBoxLocal": [
       0,
       0,
