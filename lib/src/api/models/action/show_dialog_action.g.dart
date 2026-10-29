@@ -128,6 +128,10 @@ const _$DialogPlacementEnumMap = {
   DialogPlacement.leftStart: 'leftStart',
   DialogPlacement.leftCenter: 'leftCenter',
   DialogPlacement.leftEnd: 'leftEnd',
+  DialogPlacement.center: 'center',
+  DialogPlacement.bottomSheet: 'bottomSheet',
+  DialogPlacement.adaptive: 'adaptive',
+  DialogPlacement.anchored: 'anchored',
 };
 
 const _$ActionTypeEnumMap = {

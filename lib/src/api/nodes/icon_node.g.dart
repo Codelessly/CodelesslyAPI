@@ -183,9 +183,13 @@ IconNode _$IconNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -203,7 +207,6 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -225,6 +228,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
   'pulse': ?instance.pulse?.toJson(),
+  'transition': ?instance.transition?.toJson(),
   'properties': instance.properties.toJson(),
   'type': instance.type,
 };

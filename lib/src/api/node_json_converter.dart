@@ -88,6 +88,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'dropdown': DropdownNode.fromJson,
       'progressBar': ProgressBarNode.fromJson,
       'lineChart': LineChartNode.fromJson,
+      'barChart': BarChartNode.fromJson,
       'variance': VarianceNode.fromJson,
       'listView': ListViewNode.fromJson,
       'gridView': GridViewNode.fromJson,
@@ -97,7 +98,9 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,
       'external': ExternalComponentNode.fromJson,
-      'gauge': GaugeNode.fromJson,
+      'gaugeRadial': GaugeNode.fromJson,
+      'gaugeMeter': GaugeMeterNode.fromJson,
+      'gauge': GaugeNode.fromJson, // Legacy alias, classified before lookup.
       'chart': ChartNode.fromJson,
     };
   }
@@ -128,6 +131,68 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
 
   @override
   BaseNode? fromJson(Map json) {
+    if (json['type'] == 'gauge') {
+      final properties = json['properties'];
+      final Set<dynamic> keys = properties is Map
+          ? properties.keys.toSet()
+          : <dynamic>{};
+      final radial = keys.intersection(const {
+        'valueColor',
+        'colorByZone',
+        'zones',
+        'zoneThickness',
+        'zoneOpacity',
+        'majorTicks',
+        'minorTicks',
+        'labels',
+        'labelColor',
+        'labelFontSize',
+        'labelFontFamily',
+        'showTarget',
+        'target',
+        'targetColor',
+        'showNeedle',
+        'needleColor',
+        'needleClearance',
+      }).isNotEmpty;
+      final meter =
+          json.containsKey('limit') ||
+          (json['variables'] is Map &&
+              (json['variables'] as Map).keys.any(
+                const {'limit', 'color', 'limitColor'}.contains,
+              )) ||
+          keys.intersection(const {
+            'shape',
+            'color',
+            'fillStartOpacity',
+            'backgroundColor',
+            'borderColor',
+            'inset',
+            'edgeWidth',
+            'edgeColor',
+            'ticks',
+            'majorTickEvery',
+            'limitColor',
+            'limitWidth',
+            'limitStyle',
+            'limitPointer',
+            'cornerRadius',
+          }).isNotEmpty;
+      if (radial && meter) {
+        throw UnresolvedNodeSchema('conflicting-gauge-schema', json);
+      }
+      if (!radial && !meter) {
+        throw UnresolvedNodeSchema('ambiguous-gauge-schema', json);
+      }
+      final migrated = <dynamic, dynamic>{
+        ...json,
+        'type': radial ? 'gaugeRadial' : 'gaugeMeter',
+        if (properties == null) 'properties': const {},
+      };
+      return radial
+          ? GaugeNode.fromJson(migrated)
+          : GaugeMeterNode.fromJson(migrated);
+    }
     if (json['type'] == 'signature') {
       final properties = json['properties'];
       final Set<dynamic> propertyKeys = properties is Map

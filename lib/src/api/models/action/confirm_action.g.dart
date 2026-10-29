@@ -25,6 +25,8 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
     json.remove('maxHeightFactor');
   if (isJsonDefault(instance.showDragHandle, false))
     json.remove('showDragHandle');
+  if (isJsonDefault(instance.placement, DialogPlacement.belowStart))
+    json.remove('placement');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -103,6 +105,13 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   showDragHandle: json['showDragHandle'] as bool? ?? false,
+  placement:
+      $enumDecodeNullable(
+        _$DialogPlacementEnumMap,
+        json['placement'],
+        unknownValue: DialogPlacement.belowStart,
+      ) ??
+      DialogPlacement.belowStart,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -142,6 +151,7 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
+      'placement': _$DialogPlacementEnumMap[instance.placement]!,
     };
 
 const _$DialogPresentationEnumMap = {
@@ -150,6 +160,25 @@ const _$DialogPresentationEnumMap = {
   DialogPresentation.adaptive: 'adaptive',
   DialogPresentation.sideSheet: 'sideSheet',
   DialogPresentation.fullScreen: 'fullScreen',
+};
+
+const _$DialogPlacementEnumMap = {
+  DialogPlacement.belowStart: 'belowStart',
+  DialogPlacement.belowCenter: 'belowCenter',
+  DialogPlacement.belowEnd: 'belowEnd',
+  DialogPlacement.aboveStart: 'aboveStart',
+  DialogPlacement.aboveCenter: 'aboveCenter',
+  DialogPlacement.aboveEnd: 'aboveEnd',
+  DialogPlacement.rightStart: 'rightStart',
+  DialogPlacement.rightCenter: 'rightCenter',
+  DialogPlacement.rightEnd: 'rightEnd',
+  DialogPlacement.leftStart: 'leftStart',
+  DialogPlacement.leftCenter: 'leftCenter',
+  DialogPlacement.leftEnd: 'leftEnd',
+  DialogPlacement.center: 'center',
+  DialogPlacement.bottomSheet: 'bottomSheet',
+  DialogPlacement.adaptive: 'adaptive',
+  DialogPlacement.anchored: 'anchored',
 };
 
 const _$ActionTypeEnumMap = {

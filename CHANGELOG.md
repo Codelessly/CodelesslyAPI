@@ -173,8 +173,8 @@
 
 ### Data
 
-- A variable whose value is a `${= ...}` formula keeps it for every type
-  (computed variables).
+- `VariableData.formula` stores a separate computed expression and survives
+  JSON round-trips alongside formula values stored directly in `value`.
 
 ### Nodes
 
