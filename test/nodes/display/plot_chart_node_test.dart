@@ -13,8 +13,7 @@ void main() {
   final Map tide = jsonDecode(
     File('test/fixtures/chart_tide.json').readAsStringSync(),
   ) as Map;
-  // The fixture is new-wire chartPlot; the old chart spelling is classified
-  // only from exclusive keys before the plot decoder supplies defaults.
+  // The fixture uses the canonical chart type with explicit plot kind.
   final Map plotTide = tide;
 
   group('PlotChartNode JSON', () {
@@ -22,7 +21,7 @@ void main() {
       final node = PlotChartNode.fromJson(plotTide);
       final props = node.properties;
 
-      expect(node.type, 'chartPlot');
+      expect(node.type, 'chart');
       expect(node.selectedX, 7);
       expect(node.variables['points'], r'${tideCurve}');
       expect(node.variables['selectedX'], r'${selectedHour}');
@@ -52,14 +51,6 @@ void main() {
       expect(props.selectionMax, 20);
     });
 
-    test('legacy unmarked tide chart routes from exclusive plot keys', () {
-      final oldWire = {...tide, 'type': 'chart'};
-      final node = NodeJsonConverter().fromJson(oldWire);
-      expect(node, isA<PlotChartNode>());
-      expect((node! as PlotChartNode).properties.points, hasLength(97));
-      expect(node.toJson()['type'], 'chartPlot');
-    });
-
     test('round-trips the tide chart', () {
       final node = PlotChartNode.fromJson(plotTide);
       final json = encodeDecode(node.toJson()) as Map;
@@ -86,7 +77,8 @@ void main() {
         'id': 'c',
         'name': 'Chart',
         'basicBoxLocal': [0, 0, 100, 50],
-        'type': 'chartPlot',
+        'type': 'chart',
+        'chartKind': 'plot',
         'properties': {
           'points': [1, 2, 3],
         },

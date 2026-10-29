@@ -51,12 +51,12 @@ enum GaugeLimitStyle {
 /// blocks. Optional scale ticks and a limit marker (e.g. an alarm
 /// threshold) sit on top. [value], the fill [GaugeMeterProperties.color] and the
 /// [limit] can be bound to variables or formulas.
-@FlutterNode('CodelesslyGaugeMeter', family: 'codelessly', nodeType: 'gaugeMeter')
+@FlutterNode('CodelesslyGaugeMeter', family: 'codelessly', nodeType: 'gauge', variant: 'meter')
 @JsonSerializable()
 class GaugeMeterNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
   @override
-  final String type = 'gaugeMeter';
+  final String type = 'gauge';
 
   @override
   covariant GaugeMeterProperties properties;
@@ -164,10 +164,9 @@ class GaugeMeterNode extends SceneNode
   /// Creates a [GaugeMeterNode] from validated meter wire data.
   /// Raw variant keys are checked before generated defaults are applied.
   factory GaugeMeterNode.fromJson(Map json) {
-    NodeJsonConverter.validateGaugeWire(json, expectedType: 'gaugeMeter');
+    NodeJsonConverter.validateGaugeWire(json, expectedType: 'meter');
     return _$GaugeMeterNodeFromJson({
       ...json,
-      if (json['type'] == 'gauge') 'type': 'gaugeMeter',
       if (json['properties'] == null) 'properties': const {},
     });
   }
@@ -175,7 +174,8 @@ class GaugeMeterNode extends SceneNode
   @override
   Map toJson() =>
       _$GaugeMeterNodeOmitDefaults(this, _$GaugeMeterNodeToJson(this))
-        ..['type'] = type;
+        ..['type'] = type
+        ..['gaugeKind'] = 'meter';
 }
 
 /// Configurable properties of a [GaugeMeterNode].

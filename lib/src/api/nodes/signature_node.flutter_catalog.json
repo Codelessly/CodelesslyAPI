@@ -3,6 +3,7 @@
     "widget": "CodelesslySignature",
     "family": "codelessly",
     "nodeType": "signature",
+    "variant": "strokes",
     "drift": [
       {
         "flutterName": "inkWidth",
@@ -13,6 +14,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "signatureKind": {
+          "const": "strokes"
+        },
         "value": {
           "type": "array",
           "items": {
@@ -33,11 +37,15 @@
             }
           }
         }
-      }
+      },
+      "required": [
+        "signatureKind"
+      ]
     },
     "dpp": [
       {
         "nodeType": "signature",
+        "variant": "strokes",
         "flutterName": "value",
         "fieldPath": "value",
         "group": "State",
@@ -48,6 +56,7 @@
       },
       {
         "nodeType": "signature",
+        "variant": "strokes",
         "flutterName": "inkWidth",
         "fieldPath": "properties.inkWidth",
         "group": "Appearance",
@@ -73,6 +82,9 @@
                 "component": {
                   "const": "CodelesslySignature"
                 },
+                "signatureKind": {
+                  "const": "strokes"
+                },
                 "value": {
                   "type": "array",
                   "items": {
@@ -95,7 +107,8 @@
                 }
               },
               "required": [
-                "component"
+                "component",
+                "signatureKind"
               ]
             }
           ],

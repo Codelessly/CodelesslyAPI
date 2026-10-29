@@ -25,7 +25,11 @@ void main(List<String> args) {
       final record = node.value as Map;
       final widget = record['widget'] as String;
       final type = record['nodeType'] as String;
-      if (!nodeTypes.add(type)) throw StateError('Duplicate node wire type $type');
+      final variant = record['variant'] as String?;
+      if (!nodeTypes.add('$type:${variant ?? ''}')) throw StateError('Duplicate node wire variant $type/$variant');
+      if (const {'chart', 'gauge', 'signature'}.contains(type) != (variant != null)) {
+        throw StateError('Invalid family discriminator $type/$variant');
+      }
       if (flutterWidgets != null && record['family'] != 'codelessly') {
         final flutter = flutterWidgets[widget] as Map?;
         if (flutter == null) throw StateError('Unknown Flutter widget $widget on $type');
@@ -46,7 +50,7 @@ void main(List<String> args) {
       components[widget] = schema[widget];
       descriptors.addAll((record['dpp'] as List).map((e) => Map<String, dynamic>.from(e as Map)));
       for (final mismatch in record['drift'] as List) {
-        drift.add({'nodeType':type, ...Map<String, dynamic>.from(mismatch as Map)});
+        drift.add({'nodeType':type, if (variant != null) 'variant':variant, ...Map<String, dynamic>.from(mismatch as Map)});
       }
     }
   }
