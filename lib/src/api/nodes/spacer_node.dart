@@ -39,10 +39,12 @@ class SpacerNode extends SceneNode {
     super.enabled,
     super.flex,
     super.edgePins,
+    super.aspectRatioLock,
+    super.positioningMode,
     super.parentID,
     super.constraints,
-    super.positioningMode,
-    super.aspectRatioLock,
+    super.variables,
+    super.multipleVariables,
     super.reactions,
   });
 

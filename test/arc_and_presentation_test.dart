@@ -1,0 +1,85 @@
+import 'package:codelessly_api/codelessly_api.dart';
+import 'package:test/test.dart';
+
+void main() {
+  test('a material indicator is a full circle from 12 by default', () {
+    final MaterialLoadingIndicatorProperties props =
+        MaterialLoadingIndicatorProperties.fromJson({
+          'type': 'material',
+          'color': '#FF3F6B4F',
+        });
+    expect(props.startAngle, -90);
+    expect(props.sweepAngle, 360);
+    expect(props.isArc, isFalse);
+    expect(props.toJson().containsKey('startAngle'), isFalse);
+    expect(props.toJson().containsKey('sweepAngle'), isFalse);
+  });
+
+  test('an arc keeps its start and sweep through JSON', () {
+    final MaterialLoadingIndicatorProperties gauge =
+        MaterialLoadingIndicatorProperties(
+          color: ColorRGBA.white,
+          value: 0.71,
+          startAngle: 180,
+          sweepAngle: 180,
+        );
+    expect(gauge.isArc, isTrue);
+    final MaterialLoadingIndicatorProperties back =
+        MaterialLoadingIndicatorProperties.fromJson(gauge.toJson());
+    expect(back.startAngle, 180);
+    expect(back.sweepAngle, 180);
+    expect(back, gauge);
+    expect(gauge.copyWith(sweepAngle: 90).sweepAngle, 90);
+  });
+
+  test('only the stroke outside the circle pads the indicator', () {
+    EdgeInsetsModel padding(double? align) => LoadingIndicatorNode(
+      id: 'gauge',
+      name: 'Gauge',
+      basicBoxLocal: NodeBox(0, 0, 132, 132),
+      properties: MaterialLoadingIndicatorProperties(
+        color: ColorRGBA.black,
+        strokeWidth: 12,
+        strokeAlign: align,
+      ),
+    ).minimumPadding();
+    expect(padding(null), const EdgeInsetsModel.all(6));
+    expect(padding(0), const EdgeInsetsModel.all(6));
+    expect(padding(-1), EdgeInsetsModel.zero);
+    expect(padding(1), const EdgeInsetsModel.all(12));
+  });
+
+  test('showDialog presentation defaults to dialog and round-trips', () {
+    final ShowDialogAction plain = ShowDialogAction.fromJson({
+      'type': 'showDialog',
+      'destinationId': 'c',
+    });
+    expect(plain.presentation, DialogPresentation.dialog);
+    expect(plain.toJson().containsKey('presentation'), isFalse);
+
+    final ShowDialogAction sheet = ShowDialogAction(
+      destinationId: 'c',
+      presentation: DialogPresentation.adaptive,
+    );
+    final ActionModel back = ActionModel.fromJson(sheet.toJson());
+    expect(
+      (back as ShowDialogAction).presentation,
+      DialogPresentation.adaptive,
+    );
+    expect(
+      sheet.copyWith(presentation: DialogPresentation.popover).presentation,
+      DialogPresentation.popover,
+    );
+  });
+
+  test('a back navigation needs no destination', () {
+    final ActionModel pop = ActionModel.fromJson({
+      'type': 'navigation',
+      'navigationType': 'pop',
+    });
+    expect(pop, isA<NavigationAction>());
+    expect((pop as NavigationAction).destinationId, '');
+    // Older navigation readers require the key even for a back action.
+    expect(pop.toJson()['destinationId'], '');
+  });
+}

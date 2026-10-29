@@ -104,7 +104,7 @@ enum DialogPlacement {
   };
 }
 
-/// Shows a canvas as a dialog, bottom sheet, or side sheet ([presentation]).
+/// Shows a canvas as a dialog, sheet, or popover ([presentation]).
 /// A dialog may be centered or anchored to the triggering node ([anchor]).
 /// It closes when its barrier is tapped (if [barrierDismissible]) or with a
 /// "Navigate back" action inside it.
@@ -125,8 +125,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether to show a close button on the dialog.
   final bool showCloseButton;
 
-  /// How the canvas opens: a dialog, a bottom sheet, or adaptive (a bottom
-  /// sheet on phones, below 600 px wide, and a dialog otherwise).
+  /// How the canvas opens: dialog, bottom sheet, adaptive, side sheet,
+  /// full screen, or a trigger-anchored popover.
   @JsonKey(unknownEnumValue: DialogPresentation.dialog)
   final DialogPresentation presentation;
 
@@ -204,7 +204,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
-  bool get isAnchored => anchor == DialogAnchor.trigger;
+  bool get isAnchored =>
+      presentation == DialogPresentation.popover || anchor == DialogAnchor.trigger;
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
@@ -245,6 +246,19 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Creates a new [ShowDialogAction] instance from a JSON data.
   factory ShowDialogAction.fromJson(Map json) {
     final placement = json['placement'];
+    // Legacy PR47 encoded a popover solely as presentation. Normalize it
+    // without replacing an explicitly supplied anchor or placement.
+    if (json['presentation'] == 'popover') {
+      if (json['anchor'] != null && json['anchor'] != 'trigger') {
+        throw FormatException('Popover conflicts with explicit anchor: $json');
+      }
+      if (json['placement'] == 'center' ||
+          json['placement'] == 'bottomSheet' ||
+          json['placement'] == 'adaptive') {
+        throw FormatException('Popover conflicts with modal placement: $json');
+      }
+      json = {...json, 'anchor': 'trigger'};
+    }
     if (placement == 'center' ||
         placement == 'bottomSheet' ||
         placement == 'adaptive' ||
@@ -252,6 +266,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
       final expectedPresentation = switch (placement) {
         'bottomSheet' => 'bottomSheet',
         'adaptive' => 'adaptive',
+        'anchored' when json['presentation'] == 'popover' => 'popover',
         _ => 'dialog',
       };
       if ((json['presentation'] != null &&
@@ -284,7 +299,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
       _$ShowDialogActionToJson(this),
     );
     // The combined writer uses presentation for the overlay mode and anchor
-    // for a popover. PR42's modal placements remain accepted as constructor
+    // for the trigger location. PR42's modal placements remain accepted as constructor
     // inputs, but are never emitted as ambiguous placement wire values.
     if (placement == DialogPlacement.center ||
         placement == DialogPlacement.bottomSheet ||
@@ -293,6 +308,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
       json['presentation'] = switch (placement) {
         DialogPlacement.bottomSheet => 'bottomSheet',
         DialogPlacement.adaptive => 'adaptive',
+        DialogPlacement.anchored
+            when presentation == DialogPresentation.popover => 'popover',
         _ => 'dialog',
       };
       if (placement == DialogPlacement.anchored) json['anchor'] = 'trigger';
@@ -321,7 +338,10 @@ enum DialogPresentation {
   sideSheet,
 
   /// Covers the whole screen, like a photo viewer.
-  fullScreen;
+  fullScreen,
+
+  /// A trigger-anchored, non-modal popover.
+  popover;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -330,5 +350,6 @@ enum DialogPresentation {
     DialogPresentation.adaptive => 'Adaptive',
     DialogPresentation.sideSheet => 'Side Sheet',
     DialogPresentation.fullScreen => 'Full Screen',
+    DialogPresentation.popover => 'Popover',
   };
 }

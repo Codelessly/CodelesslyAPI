@@ -138,6 +138,10 @@
   of the JSON): a node that wraps its content (`SizeFit.shrinkWrap`) on its
   Row/Column's main axis may shrink below it when the Row/Column runs out of
   space, like `Flexible(fit: FlexFit.loose)` around a shrink-wrapped child.
+- `DialogPresentation.popover` is a distinct trigger-anchored presentation;
+  legacy `presentation: 'popover'` preserves explicit anchor placement,
+  gap and offset, and rejects contradictory modal anchor settings.
+- `SpacerNode` accepts `variables` and `multipleVariables` in its constructor.
 
 ### Fixes
 
@@ -212,6 +216,25 @@
 - List, grid, page and tab views and spacers parse from minimal node JSON:
   fields with constructor defaults (`isScrollable`, `useFlutterListView`,
   `allowedTypes`, `deniedTypes`, ...) may be left out.
+
+### Indicators and dialogs
+
+- Circular loading indicators take `startAngle` and `sweepAngle`, so one can
+  draw an arc or a gauge; `minimumPadding` counts only the part of the
+  stroke outside the circle.
+- `ShowDialogAction.presentation` also accepts `popover`, distinct from a
+  dialog, bottom sheet or adaptive sheet.
+
+### Text
+
+- `TextNode.tabularFigures`: digits of equal width for clocks and counters.
+
+### Motion
+
+- `BaseNode.transitionMs`: opacity, draw scale and solid fill changes ease in.
+- `BaseNode.drawScale` (bindable as `drawScale`): draw a node larger or
+  smaller around its center without changing layout.
+- `BaseNode.pulse` (`PulseModel`): a looping opacity and scale animation.
 
 ## 6.1.0
 
