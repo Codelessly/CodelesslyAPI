@@ -2,20 +2,28 @@
   "GaugeMeterNode": {
     "widget": "CodelesslyGaugeMeter",
     "family": "codelessly",
-    "nodeType": "gaugeMeter",
+    "nodeType": "gauge",
+    "variant": "meter",
     "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "gaugeKind": {
+          "const": "meter"
+        },
         "value": {
           "type": "number"
         }
-      }
+      },
+      "required": [
+        "gaugeKind"
+      ]
     },
     "dpp": [
       {
-        "nodeType": "gaugeMeter",
+        "nodeType": "gauge",
+        "variant": "meter",
         "flutterName": "value",
         "fieldPath": "value",
         "group": "State",
@@ -41,12 +49,16 @@
                 "component": {
                   "const": "CodelesslyGaugeMeter"
                 },
+                "gaugeKind": {
+                  "const": "meter"
+                },
                 "value": {
                   "type": "number"
                 }
               },
               "required": [
-                "component"
+                "component",
+                "gaugeKind"
               ]
             }
           ],

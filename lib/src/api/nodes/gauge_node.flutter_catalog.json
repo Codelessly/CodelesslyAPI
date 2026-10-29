@@ -2,20 +2,28 @@
   "GaugeNode": {
     "widget": "CodelesslyRadialGauge",
     "family": "codelessly",
-    "nodeType": "gaugeRadial",
+    "nodeType": "gauge",
+    "variant": "radial",
     "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "gaugeKind": {
+          "const": "radial"
+        },
         "value": {
           "type": "number"
         }
-      }
+      },
+      "required": [
+        "gaugeKind"
+      ]
     },
     "dpp": [
       {
-        "nodeType": "gaugeRadial",
+        "nodeType": "gauge",
+        "variant": "radial",
         "flutterName": "value",
         "fieldPath": "value",
         "group": "State",
@@ -41,12 +49,16 @@
                 "component": {
                   "const": "CodelesslyRadialGauge"
                 },
+                "gaugeKind": {
+                  "const": "radial"
+                },
                 "value": {
                   "type": "number"
                 }
               },
               "required": [
-                "component"
+                "component",
+                "gaugeKind"
               ]
             }
           ],

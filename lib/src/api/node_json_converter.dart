@@ -9,51 +9,37 @@ import 'nodes/nodes.dart';
 /// a [BaseNode].
 typedef JsonNodeDeserializer = BaseNode? Function(Map<dynamic, dynamic> json);
 
-/// An undecidable or conflicting legacy wire payload. The caller must keep
-/// [raw] unchanged (rather than re-serializing a guessed node) until its
-/// provenance is resolved.
+/// A malformed or unsupported wire payload. The caller keeps [raw] unchanged.
 class UnresolvedNodeSchema implements Exception {
-  /// Keeps the undecidable source payload for a caller to store unchanged.
+  /// Captures the source payload before applying defaults.
   UnresolvedNodeSchema(this.reason, Map json)
     : raw = jsonDecode(jsonEncode(json)) as Map;
 
-  /// Machine-readable reason for refusing to choose a wire schema.
+  /// Machine-readable reason for refusing the wire schema.
   final String reason;
 
-  /// Original top-level JSON, before normalizing any node properties.
+  /// Original top-level JSON.
   final Map raw;
 
   @override
   String toString() => 'UnresolvedNodeSchema: $reason';
 }
 
-/// [NodeJsonConverter] deserializes JSON and converts it into nodes.
-///
-/// It is a singleton class, so creating an instance will always return the same
-/// object.
-///
-/// This contains a registry of all the node types supported by Codelessly.
-/// To add custom nodes, use the [registerNode] method.
-///
-/// If node type is not found in the registry while deserializing, it will
-/// throw an [UnsupportedError].
+/// Converts between registered node types and their JSON representations.
 class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
   NodeJsonConverter._() {
     _registerDeserializers();
   }
 
-  /// Singleton instance of this class.
+  /// Singleton instance.
   static final NodeJsonConverter instance = NodeJsonConverter._();
 
-  /// A factory constructor that returns the singleton instance of this class.
+  /// Returns the singleton instance.
   factory NodeJsonConverter() => instance;
 
-  /// A map of node type to its deserializer.
   late final Map<String, JsonNodeDeserializer> _registry;
 
-  /// Populates registry with all the nodes supported by Codelessly.
   void _registerDeserializers() {
-    // Default registry.
     _registry = {
       'root': RootNode.fromJson,
       'frame': FrameNode.fromJson,
@@ -76,8 +62,6 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'switch': SwitchNode.fromJson,
       'radio': RadioNode.fromJson,
       'slider': SliderNode.fromJson,
-      'signature': SignatureNode.fromJson,
-      'signatureNormalized': SignatureNormalizedNode.fromJson,
       'expansionTile': ExpansionTileNode.fromJson,
       'accordion': AccordionNode.fromJson,
       'listTile': ListTileNode.fromJson,
@@ -98,233 +82,60 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,
       'external': ExternalComponentNode.fromJson,
-      'gaugeRadial': GaugeNode.fromJson,
-      'gaugeMeter': GaugeMeterNode.fromJson,
-      'gauge': GaugeNode.fromJson, // Legacy alias, classified before lookup.
-      'chartSeries': ChartNode.fromJson,
-      'chartPlot': PlotChartNode.fromJson,
-      'chart': ChartNode.fromJson, // Legacy alias; classified before lookup.
     };
   }
 
-  /// Registers a new deserializer for a specific node type. If a deserializer
-  /// for the given type already exists, it will be overwritten.
-  /// [type] is the type of the node to be deserialized. This must be same as
-  /// [BaseNode.type] field.
-  ///
-  /// Example:
-  ///
-  ///   NodeJsonConverter.registerNode('myCustomNode', MyCustomNode.fromJson);
-  ///
-  /// When deserializing a JSON object, if the `type` property is
-  /// `myCustomNode`, the `MyCustomNode.fromJson` method will be called.
+  /// Register or replace one custom node deserializer.
   static void registerNode(String type, JsonNodeDeserializer deserializer) {
-    if (type.isEmpty) {
-      throw ArgumentError('Type cannot be empty.');
-    }
+    if (type.isEmpty) throw ArgumentError('Type cannot be empty.');
     if (instance._registry[type] != null) {
       log('A deserializer for type "$type" already exists. Overwriting...');
     }
     instance._registry[type] = deserializer;
   }
 
-  /// Checks whether given [type] is available in the registry.
-  static bool isNodeRegistered(String type) => instance._registry[type] != null;
+  /// Whether a node type has a decoder.
+  static bool isNodeRegistered(String type) =>
+      const {'chart', 'gauge', 'signature'}.contains(type) ||
+      instance._registry[type] != null;
 
-  /// Determines whether a chart's exclusive raw fields agree with its model.
-  /// Never invokes a node factory, so direct factories can use it safely.
-  static String validateChartWire(Map json, {required String expectedType}) {
-    final type = json['type'];
-    final properties = json['properties'];
-    final propertyKeys = properties is Map
-        ? properties.keys.toSet()
-        : <dynamic>{};
-    final variables = json['variables'];
-    final variableKeys = variables is Map
-        ? variables.keys.toSet()
-        : <dynamic>{};
-    final series =
-        json.containsKey('selectedIndex') ||
-        propertyKeys.any(
-          const {
-            'chartType',
-            'series',
-            'sampleData',
-            'labelField',
-            'xSlots',
-            'referenceLines',
-            'gridLines',
-            'barWidthFraction',
-            'domainMin',
-          }.contains,
-        ) ||
-        variableKeys.any(const {'data', 'selectedIndex'}.contains);
-    final plot =
-        json.containsKey('selectedX') ||
-        propertyKeys.any(
-          const {
-            'points',
-            'xMin',
-            'xMax',
-            'gridStepX',
-            'markers',
-            'ranges',
-            'referenceX',
-            'selectionStep',
-            'lineWidth',
-            'fillColor',
-          }.contains,
-        ) ||
-        variableKeys.any(const {'points', 'markers', 'selectedX'}.contains);
-    if (series && plot ||
-        type == 'chartSeries' && plot ||
-        type == 'chartPlot' && series ||
-        expectedType == 'chartSeries' && plot ||
-        expectedType == 'chartPlot' && series) {
-      throw UnresolvedNodeSchema('conflicting-chart-schema', json);
+  static String _requireKind(
+    Map json,
+    String family,
+    String key,
+    Set<String> allowed,
+    String expected,
+  ) {
+    if (json['type'] != family) {
+      throw UnresolvedNodeSchema('invalid-$family-type', json);
     }
-    if (type == 'chart' && !series && !plot) {
-      throw UnresolvedNodeSchema('ambiguous-chart-schema', json);
+    final kind = json[key];
+    if (kind == null) throw UnresolvedNodeSchema('missing-$key', json);
+    if (!allowed.contains(kind)) {
+      throw UnresolvedNodeSchema('unknown-$key', json);
     }
-    final resolved = type == 'chart'
-        ? (series ? 'chartSeries' : 'chartPlot')
-        : type;
-    if (expectedType.isNotEmpty && resolved != expectedType) {
-      throw UnresolvedNodeSchema('conflicting-chart-schema', json);
+    if (expected.isNotEmpty && kind != expected) {
+      throw UnresolvedNodeSchema('conflicting-$family-kind', json);
     }
-    return resolved as String;
+    return kind as String;
   }
 
-  static String _chartLegacyType(Map json) =>
-      validateChartWire(json, expectedType: '');
+  /// Validates the canonical chart discriminator without reading shape keys.
+  static String validateChartWire(Map json, {required String expectedType}) =>
+      _requireKind(json, 'chart', 'chartKind', const {'series', 'plot'}, expectedType);
 
-  /// Checks legacy and explicit gauge identities before generated decoding.
-  /// Unknown future keys are not mistaken for the other gauge variant.
-  static String validateGaugeWire(Map json, {required String expectedType}) {
-    final type = json['type'];
-    final properties = json['properties'];
-    final keys = properties is Map ? properties.keys.toSet() : <dynamic>{};
-    final radial = keys.intersection(const {
-      'valueColor',
-      'colorByZone',
-      'zones',
-      'zoneThickness',
-      'zoneOpacity',
-      'majorTicks',
-      'minorTicks',
-      'labels',
-      'labelColor',
-      'labelFontSize',
-      'labelFontFamily',
-      'showTarget',
-      'target',
-      'targetColor',
-      'showNeedle',
-      'needleColor',
-      'needleClearance',
-    }).isNotEmpty;
-    final meter =
-        json.containsKey('limit') ||
-        (json['variables'] is Map &&
-            (json['variables'] as Map).keys.any(
-              const {'limit', 'color', 'limitColor'}.contains,
-            )) ||
-        keys.intersection(const {
-          'shape',
-          'color',
-          'fillStartOpacity',
-          'backgroundColor',
-          'borderColor',
-          'inset',
-          'edgeWidth',
-          'edgeColor',
-          'ticks',
-          'majorTickEvery',
-          'limitColor',
-          'limitWidth',
-          'limitStyle',
-          'limitPointer',
-          'cornerRadius',
-        }).isNotEmpty;
-    if (radial && meter ||
-        type == 'gaugeRadial' && meter ||
-        type == 'gaugeMeter' && radial ||
-        expectedType == 'gaugeRadial' && meter ||
-        expectedType == 'gaugeMeter' && radial) {
-      throw UnresolvedNodeSchema('conflicting-gauge-schema', json);
-    }
-    if (type == 'gauge' && !radial && !meter) {
-      throw UnresolvedNodeSchema('ambiguous-gauge-schema', json);
-    }
-    final resolved = type == 'gauge'
-        ? (radial ? 'gaugeRadial' : 'gaugeMeter')
-        : type;
-    if (expectedType.isNotEmpty && resolved != expectedType) {
-      throw UnresolvedNodeSchema('conflicting-gauge-schema', json);
-    }
-    return resolved as String;
-  }
+  /// Validates the canonical gauge discriminator without reading shape keys.
+  static String validateGaugeWire(Map json, {required String expectedType}) =>
+      _requireKind(json, 'gauge', 'gaugeKind', const {'radial', 'meter'}, expectedType);
 
-  /// Validates pixel and normalized signatures using only exclusive raw keys.
-  /// The pixel wire type stays `signature`; `signatureKind` distinguishes new
-  /// default-only pixel writes from ambiguous old unmarked signatures.
-  static String validateSignatureWire(
-    Map json, {
-    required String expectedType,
-  }) {
-    final type = json['type'];
-    final properties = json['properties'];
-    final keys = properties is Map ? properties.keys.toSet() : <dynamic>{};
-    final kind = json['signatureKind'];
-    if (kind != null && kind != 'pixel' && kind != 'normalized') {
-      throw UnresolvedNodeSchema('unknown-signature-kind', json);
-    }
-    final pixel =
-        kind == 'pixel' ||
-        json.containsKey('value') ||
-        keys.intersection(const {
-          'inkWidth',
-          'backgroundColor',
-          'borderColor',
-          'borderWidth',
-          'errorBorderColor',
-          'errorBorderWidth',
-          'cornerRadius',
-          'placeholder',
-          'placeholderColor',
-          'placeholderFontSize',
-          'showSignLine',
-          'signLineColor',
-          'error',
-          'enabled',
-        }).isNotEmpty;
-    final normalized =
-        kind == 'normalized' ||
-        json.containsKey('strokes') ||
-        keys.intersection(const {'strokeWidth', 'readOnly'}).isNotEmpty;
-    if (pixel && normalized ||
-        type == 'signatureNormalized' && pixel ||
-        expectedType == 'signature' && normalized ||
-        expectedType == 'signatureNormalized' && pixel) {
-      throw UnresolvedNodeSchema('conflicting-signature-schema', json);
-    }
-    if (type == 'signature' && !pixel && !normalized) {
-      throw UnresolvedNodeSchema('ambiguous-signature-schema', json);
-    }
-    final resolved = type == 'signature' && normalized
-        ? 'signatureNormalized'
-        : type;
-    if (expectedType.isNotEmpty && resolved != expectedType) {
-      throw UnresolvedNodeSchema('conflicting-signature-schema', json);
-    }
-    return resolved as String;
-  }
+  /// Validates the canonical signature coordinate mode without shape guessing.
+  static String validateSignatureWire(Map json, {required String expectedType}) =>
+      _requireKind(json, 'signature', 'signatureKind',
+          const {'strokes', 'normalized'}, expectedType);
 
   @override
   BaseNode? fromJson(Map json) {
-    // Centered legacy deck stacking and bound-x/y positional stacking are
-    // different layouts. Reject their collision before either generated
-    // decoder can apply defaults or a document map can be partially parsed.
+    // Keep independent layout/pulse format validation fail-closed.
     if (json['type'] == 'listView' && json['properties'] is Map) {
       final properties = json['properties'] as Map;
       if (properties['stacked'] == true && properties['layout'] == 'stack') {
@@ -335,12 +146,8 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
     if (pulse is Map) {
       const relativeKeys = {'minOpacity', 'durationMillis'};
       const motionKeys = {
-        'periodMs',
-        'reverse',
-        'opacityFrom',
-        'opacityTo',
-        'scaleFrom',
-        'scaleTo',
+        'periodMs', 'reverse', 'opacityFrom', 'opacityTo',
+        'scaleFrom', 'scaleTo',
       };
       final relative = pulse.keys.any(relativeKeys.contains);
       final motion = pulse.keys.any(motionKeys.contains);
@@ -357,62 +164,29 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
         throw UnresolvedNodeSchema('ambiguous-pulse-schema', json);
       }
     }
-    if (json['type'] == 'chart') {
-      final properties = json['properties'];
-      // Determine the route without decoding or supplying defaults first.
-      final type = _chartLegacyType(json);
-      final migrated = {
-        ...json,
-        'type': type,
-        if (properties == null) 'properties': const {},
-      };
-      return type == 'chartSeries'
-          ? ChartNode.fromJson(migrated)
-          : PlotChartNode.fromJson(migrated);
-    }
-    if (json['type'] == 'chartSeries') {
-      validateChartWire(json, expectedType: 'chartSeries');
-    }
-    if (json['type'] == 'chartPlot') {
-      validateChartWire(json, expectedType: 'chartPlot');
-    }
-    if (json['type'] == 'gauge') {
-      final properties = json['properties'];
-      final type = validateGaugeWire(json, expectedType: '');
-      final migrated = <dynamic, dynamic>{
-        ...json,
-        'type': type,
-        if (properties == null) 'properties': const {},
-      };
-      return type == 'gaugeRadial'
-          ? GaugeNode.fromJson(migrated)
-          : GaugeMeterNode.fromJson(migrated);
-    }
-    if (json['type'] == 'gaugeRadial') {
-      validateGaugeWire(json, expectedType: 'gaugeRadial');
-    }
-    if (json['type'] == 'gaugeMeter') {
-      validateGaugeWire(json, expectedType: 'gaugeMeter');
-    }
-    if (json['type'] == 'signature') {
-      final type = validateSignatureWire(json, expectedType: '');
-      if (type == 'signatureNormalized') {
-        return SignatureNormalizedNode.fromJson({
-          ...json,
-          'type': 'signatureNormalized',
-          if (json['properties'] == null) 'properties': const {},
-        });
-      }
-    }
-    if (json['type'] == 'signatureNormalized') {
-      validateSignatureWire(json, expectedType: 'signatureNormalized');
+    switch (json['type']) {
+      case 'chart':
+        return switch (validateChartWire(json, expectedType: '')) {
+          'series' => ChartNode.fromJson(json),
+          'plot' => PlotChartNode.fromJson(json),
+          _ => throw StateError('Unreachable chart kind'),
+        };
+      case 'gauge':
+        return switch (validateGaugeWire(json, expectedType: '')) {
+          'radial' => GaugeNode.fromJson(json),
+          'meter' => GaugeMeterNode.fromJson(json),
+          _ => throw StateError('Unreachable gauge kind'),
+        };
+      case 'signature':
+        return switch (validateSignatureWire(json, expectedType: '')) {
+          'strokes' => SignatureNode.fromJson(json),
+          'normalized' => SignatureNormalizedNode.fromJson(json),
+          _ => throw StateError('Unreachable signature kind'),
+        };
     }
     if (json['type'] == null || _registry[json['type']] == null) {
       throw UnsupportedError('Unsupported node type: ${json["type"]}\n$json');
     }
-    // Hand-written JSON (e.g. nodes.insertTree) leaves out default
-    // properties; nodes with custom properties read a missing key as all
-    // defaults. Nodes without properties ignore the key.
     return _registry[json['type']]!(
       json['properties'] == null ? {...json, 'properties': const {}} : json,
     );

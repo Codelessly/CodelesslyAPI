@@ -151,7 +151,8 @@
       "bindable": false
     },
     {
-      "nodeType": "chartSeries",
+      "nodeType": "chart",
+      "variant": "series",
       "flutterName": "selectedIndex",
       "fieldPath": "selectedIndex",
       "group": "Selection",
@@ -481,7 +482,8 @@
       "bindable": false
     },
     {
-      "nodeType": "gaugeMeter",
+      "nodeType": "gauge",
+      "variant": "meter",
       "flutterName": "value",
       "fieldPath": "value",
       "group": "State",
@@ -491,7 +493,8 @@
       "bindable": true
     },
     {
-      "nodeType": "gaugeRadial",
+      "nodeType": "gauge",
+      "variant": "radial",
       "flutterName": "value",
       "fieldPath": "value",
       "group": "State",
@@ -721,7 +724,8 @@
       "bindable": false
     },
     {
-      "nodeType": "chartPlot",
+      "nodeType": "chart",
+      "variant": "plot",
       "flutterName": "selectedX",
       "fieldPath": "selectedX",
       "group": "Selection",
@@ -882,6 +886,7 @@
     },
     {
       "nodeType": "signature",
+      "variant": "strokes",
       "flutterName": "value",
       "fieldPath": "value",
       "group": "State",
@@ -892,6 +897,7 @@
     },
     {
       "nodeType": "signature",
+      "variant": "strokes",
       "flutterName": "inkWidth",
       "fieldPath": "properties.inkWidth",
       "group": "Appearance",
@@ -901,7 +907,8 @@
       "bindable": false
     },
     {
-      "nodeType": "signatureNormalized",
+      "nodeType": "signature",
+      "variant": "normalized",
       "flutterName": "strokes",
       "fieldPath": "strokes",
       "group": "State",
@@ -911,7 +918,8 @@
       "bindable": true
     },
     {
-      "nodeType": "signatureNormalized",
+      "nodeType": "signature",
+      "variant": "normalized",
       "flutterName": "strokeWidth",
       "fieldPath": "properties.strokeWidth",
       "group": "Appearance",
@@ -921,7 +929,8 @@
       "bindable": false
     },
     {
-      "nodeType": "signatureNormalized",
+      "nodeType": "signature",
+      "variant": "normalized",
       "flutterName": "readOnly",
       "fieldPath": "properties.readOnly",
       "group": "Interaction",
@@ -1509,16 +1518,19 @@
     },
     {
       "nodeType": "signature",
+      "variant": "strokes",
       "flutterName": "inkWidth",
       "fieldPath": "properties.inkWidth"
     },
     {
-      "nodeType": "signatureNormalized",
+      "nodeType": "signature",
+      "variant": "normalized",
       "flutterName": "strokeWidth",
       "fieldPath": "properties.strokeWidth"
     },
     {
-      "nodeType": "signatureNormalized",
+      "nodeType": "signature",
+      "variant": "normalized",
       "flutterName": "readOnly",
       "fieldPath": "properties.readOnly"
     },

@@ -59,7 +59,7 @@ const String kSignatureDefaultPlaceholder = 'SIGN HERE';
 /// (`${signature.isEmpty}`, `${= length(signature) > 0}`) and to clear it
 /// (set the variable to `[]`). [TriggerType.changed] fires when a stroke
 /// ends, with the strokes as its value.
-@FlutterNode('CodelesslySignature', family: 'codelessly', nodeType: 'signature')
+@FlutterNode('CodelesslySignature', family: 'codelessly', nodeType: 'signature', variant: 'strokes')
 @JsonSerializable()
 class SignatureNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -170,14 +170,15 @@ class SignatureNode extends SceneNode with CustomPropertiesMixin {
 
   /// Creates a [SignatureNode] from a JSON data.
   factory SignatureNode.fromJson(Map json) {
-    NodeJsonConverter.validateSignatureWire(json, expectedType: 'signature');
+    NodeJsonConverter.validateSignatureWire(json, expectedType: 'strokes');
     return _$SignatureNodeFromJson(json);
   }
 
   @override
   Map toJson() => {
     ..._$SignatureNodeOmitDefaults(this, _$SignatureNodeToJson(this)),
-    'signatureKind': 'pixel',
+    'type': 'signature',
+    'signatureKind': 'strokes',
   };
 }
 
