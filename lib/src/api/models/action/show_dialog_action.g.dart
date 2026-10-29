@@ -20,8 +20,6 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('presentation');
   if (isJsonDefault(instance.alignment, AlignmentModel.center))
     json.remove('alignment');
-  if (isJsonDefault(instance.maxHeightFactor, 1))
-    json.remove('maxHeightFactor');
   if (isJsonDefault(instance.showDragHandle, false))
     json.remove('showDragHandle');
   if (isJsonDefault(instance.anchor, DialogAnchor.none)) json.remove('anchor');
@@ -29,6 +27,10 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
     json.remove('placement');
   if (isJsonDefault(instance.anchorGap, 4)) json.remove('anchorGap');
   if (isJsonDefault(instance.anchorOffset, 0)) json.remove('anchorOffset');
+  if (isJsonDefault(instance.insets, EdgeInsetsModel.zero))
+    json.remove('insets');
+  if (isJsonDefault(instance.maxHeightFactor, 1))
+    json.remove('maxHeightFactor');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -59,7 +61,6 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       ? AlignmentModel.center
       : AlignmentModel.fromJson(json['alignment'] as Map),
   sheetWidth: (json['sheetWidth'] as num?)?.toDouble(),
-  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   showDragHandle: json['showDragHandle'] as bool? ?? false,
   anchor:
       $enumDecodeNullable(
@@ -77,6 +78,10 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       DialogPlacement.belowStart,
   anchorGap: (json['anchorGap'] as num?)?.toDouble() ?? 4,
   anchorOffset: (json['anchorOffset'] as num?)?.toDouble() ?? 0,
+  insets: json['insets'] == null
+      ? EdgeInsetsModel.zero
+      : EdgeInsetsModel.fromJson(json['insets']),
+  maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -94,12 +99,13 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
       'alignment': instance.alignment.toJson(),
       'sheetWidth': ?instance.sheetWidth,
-      'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
       'anchor': _$DialogAnchorEnumMap[instance.anchor]!,
       'placement': _$DialogPlacementEnumMap[instance.placement]!,
       'anchorGap': instance.anchorGap,
       'anchorOffset': instance.anchorOffset,
+      'insets': instance.insets.toJson(),
+      'maxHeightFactor': instance.maxHeightFactor,
     };
 
 const _$DialogPresentationEnumMap = {

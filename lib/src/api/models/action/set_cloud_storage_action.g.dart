@@ -64,6 +64,29 @@ Map<String, dynamic> _$UpdateDocumentSubActionOmitDefaults(
   return json;
 }
 
+Map<String, dynamic> _$RemoveDocumentsSubActionOmitDefaults(
+  RemoveDocumentsSubAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.path, '')) json.remove('path');
+  if (isJsonDefault(instance.documentIds, '')) json.remove('documentIds');
+  if (isJsonDefault(instance.whereFilters, [])) json.remove('whereFilters');
+  return json;
+}
+
+Map<String, dynamic> _$SetDocumentsSubActionOmitDefaults(
+  SetDocumentsSubAction instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.path, '')) json.remove('path');
+  if (isJsonDefault(instance.documents, '')) json.remove('documents');
+  if (isJsonDefault(instance.idField, 'id')) json.remove('idField');
+  if (isJsonDefault(instance.merge, false)) json.remove('merge');
+  if (isJsonDefault(instance.replaceCollection, false))
+    json.remove('replaceCollection');
+  return json;
+}
+
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
@@ -226,4 +249,46 @@ const _$NumberOperationEnumMap = {
   NumberOperation.set: 'set',
   NumberOperation.add: 'add',
   NumberOperation.subtract: 'subtract',
+};
+
+RemoveDocumentsSubAction _$RemoveDocumentsSubActionFromJson(Map json) =>
+    RemoveDocumentsSubAction(
+      path: json['path'] as String? ?? '',
+      documentIds: json['documentIds'] as String? ?? '',
+      whereFilters:
+          (json['whereFilters'] as List<dynamic>?)
+              ?.map(
+                (e) => WhereQueryFilter.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ),
+              )
+              .toList() ??
+          [],
+    );
+
+Map<String, dynamic> _$RemoveDocumentsSubActionToJson(
+  RemoveDocumentsSubAction instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'documentIds': instance.documentIds,
+  'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
+};
+
+SetDocumentsSubAction _$SetDocumentsSubActionFromJson(Map json) =>
+    SetDocumentsSubAction(
+      path: json['path'] as String? ?? '',
+      documents: json['documents'] as String? ?? '',
+      idField: json['idField'] as String? ?? 'id',
+      merge: json['merge'] as bool? ?? false,
+      replaceCollection: json['replaceCollection'] as bool? ?? false,
+    );
+
+Map<String, dynamic> _$SetDocumentsSubActionToJson(
+  SetDocumentsSubAction instance,
+) => <String, dynamic>{
+  'path': instance.path,
+  'documents': instance.documents,
+  'idField': instance.idField,
+  'merge': instance.merge,
+  'replaceCollection': instance.replaceCollection,
 };

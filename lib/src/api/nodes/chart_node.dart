@@ -179,7 +179,7 @@ class ChartReferenceLine with Equatable, SerializableMixin {
 @JsonSerializable()
 class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   @override
-  final String type = 'chart';
+  final String type = 'chartSeries';
 
   /// Configurable properties of the chart.
   @override

@@ -174,6 +174,12 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// Whether to show counter text.
   final bool showCounter;
 
+  /// The padding around the text inside the field, between it and the
+  /// field's border or edge. Null uses the node's padding, as before; zero
+  /// puts the text flush with the field's edges (with [isCollapsed] and no
+  /// border, a bare text input).
+  final EdgeInsetsModel? contentPadding;
+
   /// Creates [InputDecorationModel] with given data.
   InputDecorationModel({
     this.icon = const MultiSourceIconModel(),
@@ -227,6 +233,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.semanticCounterText,
     this.alignLabelWithHint = true,
     this.constraints = const BoxConstraintsModel(),
+    this.contentPadding,
   }) : labelStyle = labelStyle ?? TextProp(fontSize: 14),
        floatingLabelStyle =
            floatingLabelStyle ??
@@ -298,6 +305,8 @@ class InputDecorationModel with Equatable, SerializableMixin {
     bool? alignLabelWithHint,
     BoxConstraintsModel? constraints,
     bool? showCounter,
+    EdgeInsetsModel? contentPadding,
+    bool clearContentPadding = false,
     bool forceCounterText = false,
   }) => InputDecorationModel(
     icon: icon ?? this.icon,
@@ -343,6 +352,9 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint: alignLabelWithHint ?? this.alignLabelWithHint,
     constraints: constraints ?? this.constraints,
     showCounter: showCounter ?? this.showCounter,
+    contentPadding: clearContentPadding
+        ? null
+        : contentPadding ?? this.contentPadding,
   );
 
   @override
@@ -388,6 +400,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     alignLabelWithHint,
     constraints,
     showCounter,
+    contentPadding,
   ];
 
   /// Factory constructor for creating a new [InputDecorationModel] instance

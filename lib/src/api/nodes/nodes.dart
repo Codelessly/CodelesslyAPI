@@ -6,6 +6,7 @@ export 'base_node.dart';
 export 'button_node.dart';
 export 'canvas_node.dart';
 export 'chart_node.dart';
+export 'plot_chart_node.dart';
 export 'checkbox_node.dart';
 export 'chip_node.dart';
 export 'divider_node.dart';

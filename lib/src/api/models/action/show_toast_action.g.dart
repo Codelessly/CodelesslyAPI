@@ -27,7 +27,7 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.sideMargin, 16)) json.remove('sideMargin');
   if (isJsonDefault(instance.showCloseButton, false))
     json.remove('showCloseButton');
-  if (isJsonDefault(instance.fontSize, 14)) json.remove('fontSize');
+  if (isJsonDefault(instance.offset, '')) json.remove('offset');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -116,7 +116,12 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ToastAlignment.center,
   sideMargin: (json['sideMargin'] as num?)?.toDouble() ?? 16,
   showCloseButton: json['showCloseButton'] as bool? ?? false,
-  fontSize: (json['fontSize'] as num?)?.toDouble() ?? 14,
+  fontSize: (json['fontSize'] as num?)?.toDouble(),
+  fontWeight: $enumDecodeNullable(
+    _$FontWeightNumericEnumMap,
+    json['fontWeight'],
+  ),
+  offset: json['offset'] as String? ?? '',
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -157,7 +162,9 @@ Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
       'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
       'sideMargin': instance.sideMargin,
       'showCloseButton': instance.showCloseButton,
-      'fontSize': instance.fontSize,
+      'fontSize': ?instance.fontSize,
+      'fontWeight': ?_$FontWeightNumericEnumMap[instance.fontWeight],
+      'offset': instance.offset,
     };
 
 const _$ToastStyleEnumMap = {
@@ -184,6 +191,18 @@ const _$ToastAlignmentEnumMap = {
   ToastAlignment.start: 'start',
   ToastAlignment.end: 'end',
   ToastAlignment.stretch: 'stretch',
+};
+
+const _$FontWeightNumericEnumMap = {
+  FontWeightNumeric.w100: 'w100',
+  FontWeightNumeric.w200: 'w200',
+  FontWeightNumeric.w300: 'w300',
+  FontWeightNumeric.w400: 'w400',
+  FontWeightNumeric.w500: 'w500',
+  FontWeightNumeric.w600: 'w600',
+  FontWeightNumeric.w700: 'w700',
+  FontWeightNumeric.w800: 'w800',
+  FontWeightNumeric.w900: 'w900',
 };
 
 const _$ActionTypeEnumMap = {
