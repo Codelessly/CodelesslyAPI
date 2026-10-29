@@ -1,0 +1,172 @@
+{
+  "DividerNode": {
+    "widget": "Divider",
+    "family": "material",
+    "nodeType": "divider",
+    "drift": [
+      {
+        "flutterName": "color",
+        "fieldPath": "properties.color"
+      },
+      {
+        "flutterName": "indent",
+        "fieldPath": "properties.indent"
+      },
+      {
+        "flutterName": "endIndent",
+        "fieldPath": "properties.endIndent"
+      },
+      {
+        "flutterName": "thickness",
+        "fieldPath": "properties.thickness"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "object"
+            },
+            "indent": {
+              "type": "number"
+            },
+            "endIndent": {
+              "type": "number"
+            },
+            "thickness": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "divider",
+        "flutterName": "color",
+        "fieldPath": "properties.color",
+        "group": "Appearance",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": "indent",
+        "fieldPath": "properties.indent",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": "endIndent",
+        "fieldPath": "properties.endIndent",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": "thickness",
+        "fieldPath": "properties.thickness",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "Divider": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "Divider"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "color": {
+                      "type": "object"
+                    },
+                    "indent": {
+                      "type": "number"
+                    },
+                    "endIndent": {
+                      "type": "number"
+                    },
+                    "thickness": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "color",
+        "field": "properties.color",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "indent",
+        "field": "properties.indent",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "endIndent",
+        "field": "properties.endIndent",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "thickness",
+        "field": "properties.thickness",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
