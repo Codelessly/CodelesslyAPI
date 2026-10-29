@@ -139,6 +139,12 @@ class VariableData
           .firstOrNull ??
       value;
 
+  /// Whether this is a computed variable: its value is a formula,
+  /// `${= ...}`, that the runtime evaluates whenever the variable is read,
+  /// e.g. `${= sum(filter(events, e => e.machineId == 'PR-102'), 'minutes')}`.
+  /// Anything bound to it updates when a variable the formula reads changes.
+  bool get isComputed => isFormulaValue(value);
+
   /// Type of the variable. This is used to determine how to parse the value.
   @JsonKey(unknownEnumValue: VariableType.text)
   final VariableType type;
@@ -146,15 +152,6 @@ class VariableData
   /// Extra information that can be stored with the variable. This can be
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
-
-  /// Whether this is a computed variable: its [value] is a `${= ...}`
-  /// formula over other variables, e.g.
-  /// `${= filter(records, r => r.crate == crateId)}`, worked out whenever it
-  /// is read.
-  bool get isComputed {
-    final String text = value.trim();
-    return text.startsWith(r'${=') && text.endsWith('}');
-  }
 
   /// Creates a new [VariableData].
   VariableData({
@@ -217,16 +214,28 @@ class VariableData
   ///
   /// A text variable returns its value as is, so one holding an empty string
   /// stays an empty string and compares equal to `''` in conditions.
-  Object? getValue() => switch (type) {
-    VariableType.text || VariableType.choice => value,
-    VariableType.image => value.isEmpty ? null : value,
-    VariableType.integer => num.tryParse(value).toInt(),
-    VariableType.decimal => num.tryParse(value).toDouble(),
-    VariableType.boolean => bool.tryParse(value, caseSensitive: false),
-    VariableType.color => ColorRGBA.fromHex(value),
-    VariableType.map => tryJsonDecode(value),
-    VariableType.list => value.toList(),
-  };
+  ///
+  /// A computed variable ([isComputed]) has no value of its own here; the
+  /// runtime evaluates its formula, so this returns null.
+  Object? getValue() => isComputed
+      ? null
+      : switch (type) {
+          VariableType.text || VariableType.choice => value,
+          VariableType.image => value.isEmpty ? null : value,
+          VariableType.integer => num.tryParse(value).toInt(),
+          VariableType.decimal => num.tryParse(value).toDouble(),
+          VariableType.boolean => bool.tryParse(value, caseSensitive: false),
+          VariableType.color => ColorRGBA.fromHex(value),
+          VariableType.map => tryJsonDecode(value),
+          VariableType.list => value.toList(),
+        };
+}
+
+/// Whether [value] is exactly one formula, `${= ...}`: a computed
+/// variable's value.
+bool isFormulaValue(String value) {
+  final String trimmed = value.trim();
+  return trimmed.startsWith(r'${=') && trimmed.endsWith('}');
 }
 
 /// [json] with a `formula` (how computed variables were stored for a while)
@@ -246,8 +255,10 @@ Map<String, dynamic> withFormulaAsValue(Map<String, dynamic> json) {
 String? sanitizeValueForVariableType(Object? value, VariableType type) {
   if (value == null) return null;
   // if (value.isEmpty) return '';
-  // Do not sanitize if the value contains a variable path or a formula: a
-  // computed variable's value is a `${= ...}` formula whatever its type.
+  // Whole formulas are computed values of any type; normalize outer whitespace.
+  if (value is String && isFormulaValue(value)) return value.trim();
+  // Preserve existing bindings and embedded formulas without coercing them to
+  // the declared type (only whole formulas are computed variables).
   if (value.toString().contains(variablePathPattern) ||
       value.toString().contains(r'${=')) {
     return value.toString();

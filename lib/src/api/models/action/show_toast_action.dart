@@ -178,6 +178,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.accentWidth = 4,
     this.iconColor,
     this.fontFamily,
+
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -292,6 +293,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     accentWidth: accentWidth ?? this.accentWidth,
     iconColor: clearIconColor ? null : iconColor ?? this.iconColor,
     fontFamily: clearFontFamily ? null : fontFamily ?? this.fontFamily,
+
     nonBlocking: nonBlocking,
     enabled: enabled,
   );

@@ -301,6 +301,9 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -348,6 +351,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'isMask': instance.isMask,
   'effects': instance.effects.map((e) => e.toJson()).toList(),
   'inkWell': ?instance.inkWell?.toJson(),
+  'pulse': ?instance.pulse?.toJson(),
   'fills': instance.fills.map((e) => e.toJson()).toList(),
   'strokes': instance.strokes.map((e) => e.toJson()).toList(),
   'strokeWeight': instance.strokeWeight,

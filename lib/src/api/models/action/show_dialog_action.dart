@@ -6,9 +6,92 @@ import '../models.dart';
 
 part 'show_dialog_action.g.dart';
 
-/// An action that shows a canvas over the current page, as a dialog, a
-/// bottom sheet or a side sheet (see [presentation]). A "Navigate back"
-/// action in the canvas closes it.
+/// Where a [ShowDialogAction] shows its canvas.
+enum DialogAnchor {
+  /// Centered on the screen.
+  none,
+
+  /// Next to the node that ran the action, like a popover or menu, at the
+  /// action's [ShowDialogAction.placement].
+  trigger;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DialogAnchor.none => 'Center of screen',
+    DialogAnchor.trigger => 'Anchor to trigger',
+  };
+}
+
+/// The side of the trigger an anchored [ShowDialogAction] opens on, and how
+/// it lines up with the trigger along that side.
+///
+/// Start and end follow the reading direction for [below] and [above]
+/// placements (start is the left edge in a left-to-right app) and are the top
+/// and bottom edges for [right] and [left] placements. When the dialog does
+/// not fit on its side, it opens on the opposite side if there is more room
+/// there.
+enum DialogPlacement {
+  /// Below the trigger, start edges lined up.
+  belowStart,
+
+  /// Below the trigger, centered on it.
+  belowCenter,
+
+  /// Below the trigger, end edges lined up.
+  belowEnd,
+
+  /// Above the trigger, start edges lined up.
+  aboveStart,
+
+  /// Above the trigger, centered on it.
+  aboveCenter,
+
+  /// Above the trigger, end edges lined up.
+  aboveEnd,
+
+  /// Right of the trigger, top edges lined up.
+  rightStart,
+
+  /// Right of the trigger, centered on it.
+  rightCenter,
+
+  /// Right of the trigger, bottom edges lined up.
+  rightEnd,
+
+  /// Left of the trigger, top edges lined up.
+  leftStart,
+
+  /// Left of the trigger, centered on it.
+  leftCenter,
+
+  /// Left of the trigger, bottom edges lined up.
+  leftEnd;
+
+  /// Whether the dialog opens below or above the trigger, rather than beside
+  /// it.
+  bool get isVertical => index <= DialogPlacement.aboveEnd.index;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DialogPlacement.belowStart => 'Below, start',
+    DialogPlacement.belowCenter => 'Below, center',
+    DialogPlacement.belowEnd => 'Below, end',
+    DialogPlacement.aboveStart => 'Above, start',
+    DialogPlacement.aboveCenter => 'Above, center',
+    DialogPlacement.aboveEnd => 'Above, end',
+    DialogPlacement.rightStart => 'Right, top',
+    DialogPlacement.rightCenter => 'Right, center',
+    DialogPlacement.rightEnd => 'Right, bottom',
+    DialogPlacement.leftStart => 'Left, top',
+    DialogPlacement.leftCenter => 'Left, center',
+    DialogPlacement.leftEnd => 'Left, bottom',
+  };
+}
+
+/// Shows a canvas as a dialog, bottom sheet, or side sheet ([presentation]).
+/// A dialog may be centered or anchored to the triggering node ([anchor]).
+/// It closes when its barrier is tapped (if [barrierDismissible]) or with a
+/// "Navigate back" action inside it.
 @JsonSerializable()
 class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Destination canvas node's ID.
@@ -46,6 +129,25 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether a bottom sheet shows a grab handle at its top.
   final bool showDragHandle;
 
+  /// Where the dialog shows: centered, or next to the node that ran the
+  /// action.
+  @JsonKey(unknownEnumValue: DialogAnchor.none)
+  final DialogAnchor anchor;
+
+  /// The side of the trigger an anchored dialog opens on. Only used when
+  /// [anchor] is [DialogAnchor.trigger].
+  @JsonKey(unknownEnumValue: DialogPlacement.belowStart)
+  final DialogPlacement placement;
+
+  /// The space between the trigger and an anchored dialog, in logical
+  /// pixels.
+  final double anchorGap;
+
+  /// How far an anchored dialog is shifted along the trigger's edge, in
+  /// logical pixels: toward the end for [DialogPlacement.isVertical]
+  /// placements (right in a left-to-right app), down for the others.
+  final double anchorOffset;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -58,6 +160,10 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.sheetWidth,
     this.maxHeightFactor = 1,
     this.showDragHandle = false,
+    this.anchor = DialogAnchor.none,
+    this.placement = DialogPlacement.belowStart,
+    this.anchorGap = 4,
+    this.anchorOffset = 0,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -75,7 +181,14 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     sheetWidth,
     maxHeightFactor,
     showDragHandle,
+    anchor,
+    placement,
+    anchorGap,
+    anchorOffset,
   ];
+
+  /// Whether the dialog opens next to the node that ran the action.
+  bool get isAnchored => anchor == DialogAnchor.trigger;
 
   /// Duplicates this [ShowDialogAction] with given data overrides.
   ShowDialogAction copyWith({
@@ -90,6 +203,10 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool clearSheetWidth = false,
     double? maxHeightFactor,
     bool? showDragHandle,
+    DialogAnchor? anchor,
+    DialogPlacement? placement,
+    double? anchorGap,
+    double? anchorOffset,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -101,6 +218,10 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
+    anchor: anchor ?? this.anchor,
+    placement: placement ?? this.placement,
+    anchorGap: anchorGap ?? this.anchorGap,
+    anchorOffset: anchorOffset ?? this.anchorOffset,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );

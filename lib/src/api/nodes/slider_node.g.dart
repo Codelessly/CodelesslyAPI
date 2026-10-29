@@ -101,6 +101,8 @@ Map<String, dynamic> _$SliderPropertiesOmitDefaults(
   ))
     json.remove('thumbCornerRadius');
   if (isJsonDefault(instance.showThumb, true)) json.remove('showThumb');
+  if (isJsonDefault(instance.thumbBorderWidth, 2))
+    json.remove('thumbBorderWidth');
   if (isJsonDefault(instance.trackShape, SliderTrackShapeEnum.roundedRectangle))
     json.remove('trackShape');
   if (isJsonDefault(instance.tickMarkRadius, kSliderDefaultTickMarkRadius))
@@ -339,6 +341,13 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
       (json['thumbCornerRadius'] as num?)?.toDouble() ??
       kSliderDefaultThumbCornerRadius,
   showThumb: json['showThumb'] as bool? ?? true,
+  thumbBorderColor: json['thumbBorderColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['thumbBorderColor']),
+  thumbBorderWidth: (json['thumbBorderWidth'] as num?)?.toDouble() ?? 2,
+  thumbGripColor: json['thumbGripColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['thumbGripColor']),
   trackShape:
       $enumDecodeNullable(_$SliderTrackShapeEnumEnumMap, json['trackShape']) ??
       SliderTrackShapeEnum.roundedRectangle,
@@ -404,6 +413,9 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'thumbHeight': instance.thumbHeight,
   'thumbCornerRadius': instance.thumbCornerRadius,
   'showThumb': instance.showThumb,
+  'thumbBorderColor': ?instance.thumbBorderColor?.toJson(),
+  'thumbBorderWidth': instance.thumbBorderWidth,
+  'thumbGripColor': ?instance.thumbGripColor?.toJson(),
   'trackShape': _$SliderTrackShapeEnumEnumMap[instance.trackShape]!,
   'tickMarkRadius': instance.tickMarkRadius,
   'valueIndicatorShape':
@@ -424,6 +436,7 @@ Map<String, dynamic> _$SliderPropertiesToJson(
 const _$SliderThumbShapeEnumEnumMap = {
   SliderThumbShapeEnum.circle: 'circle',
   SliderThumbShapeEnum.roundedRect: 'roundedRect',
+  SliderThumbShapeEnum.rectangle: 'rectangle',
 };
 
 const _$SliderTrackShapeEnumEnumMap = {
