@@ -256,6 +256,79 @@
       ],
       "unevaluatedProperties": false
     },
+    "ExpansionTile": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "ExpansionTile"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "initiallyExpanded": {
+                  "type": "boolean"
+                },
+                "maintainState": {
+                  "type": "boolean"
+                },
+                "showTrailingIcon": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "FloatingActionButton": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "FloatingActionButton"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "elevation": {
+                  "type": "number"
+                },
+                "focusElevation": {
+                  "type": "number"
+                },
+                "hoverElevation": {
+                  "type": "number"
+                },
+                "highlightElevation": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Stack": {
       "allOf": [
         {
@@ -305,6 +378,54 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ListTile": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "ListTile"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "dense": {
+                  "type": "boolean"
+                },
+                "enabled": {
+                  "type": "boolean"
+                },
+                "selected": {
+                  "type": "boolean"
+                },
+                "autofocus": {
+                  "type": "boolean"
+                },
+                "horizontalTitleGap": {
+                  "type": "number"
+                },
+                "minVerticalPadding": {
+                  "type": "number"
+                },
+                "minLeadingWidth": {
+                  "type": "number"
+                },
+                "minTileHeight": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
@@ -565,6 +686,33 @@
           "required": [
             "component",
             "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "TabBar": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "TabBar"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "indicatorWeight": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],

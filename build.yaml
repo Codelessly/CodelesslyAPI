@@ -21,6 +21,10 @@ targets:
           - lib/src/api/nodes/text_field_node.dart
           - lib/src/api/nodes/dropdown_node.dart
           - lib/src/api/nodes/segmented_button_node.dart
+          - lib/src/api/nodes/tab_bar_node.dart
+          - lib/src/api/nodes/list_tile_node.dart
+          - lib/src/api/nodes/expansion_tile_node.dart
+          - lib/src/api/nodes/floating_action_button_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.

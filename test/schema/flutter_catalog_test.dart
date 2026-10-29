@@ -23,6 +23,10 @@ void main() {
     'text_field_node': ('TextFieldNode', 'TextField', 8),
     'dropdown_node': ('DropdownNode', 'DropdownButton', 6),
     'segmented_button_node': ('SegmentedButtonNode', 'SegmentedButton', 3),
+    'tab_bar_node': ('TabBarNode', 'TabBar', 1),
+    'list_tile_node': ('ListTileNode', 'ListTile', 8),
+    'expansion_tile_node': ('ExpansionTileNode', 'ExpansionTile', 4),
+    'floating_action_button_node': ('FloatingActionButtonNode', 'FloatingActionButton', 4),
   }.entries) {
     test('${entry.key} metadata has four consistent projections', () {
       final output = jsonDecode(File('lib/src/api/nodes/${entry.key}.flutter_catalog.json').readAsStringSync()) as Map;
@@ -43,7 +47,7 @@ void main() {
     final raw = jsonDecode(File('lib/src/schema/generated/codelessly_a2ui_catalog.json').readAsStringSync()) as Map<String, dynamic>;
     final catalog = Catalog.fromJson(raw);
     expect(catalog.id, 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json');
-    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView', 'ChoiceChip', 'Radio', 'TextField', 'DropdownButton', 'SegmentedButton']));
+    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView', 'ChoiceChip', 'Radio', 'TextField', 'DropdownButton', 'SegmentedButton', 'TabBar', 'ListTile', 'ExpansionTile', 'FloatingActionButton']));
     final text = (raw['components'] as Map)['Text'] as Map;
     final textProps = ((text['allOf'] as List)[1] as Map)['properties'] as Map;
     expect(textProps.keys, contains('text'));

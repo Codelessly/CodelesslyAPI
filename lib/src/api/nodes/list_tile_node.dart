@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -37,6 +38,7 @@ const EdgeInsetsModel kDefaultListTileContentPadding = EdgeInsetsModel.only(
 /// leading or trailing icon.
 /// Refer to [ListTile](https://api.flutter.dev/flutter/material/ListTile-class.html)
 /// in Flutter for more details.
+@FlutterNode('ListTile', family: 'material', nodeType: 'listTile')
 @JsonSerializable()
 class ListTileNode extends SceneNode
     with ChildrenMixin, CustomPropertiesMixin, FieldsHolder {
@@ -192,6 +194,7 @@ class ListTileProperties extends CustomProperties
   bool isThreeLine;
 
   /// Whether the list tile layout is densely cramped together.
+  @FlutterProp('dense', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.dense')
   bool dense;
 
   /// The default for visual densities is zero for both vertical and horizontal
@@ -218,9 +221,11 @@ class ListTileProperties extends CustomProperties
   EdgeInsetsModel contentPadding;
 
   /// Whether this list tile is interactive.
+  @FlutterProp('enabled', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.enabled')
   bool enabled;
 
   /// Whether this list tile is selected.
+  @FlutterProp('selected', type: 'boolean', group: 'State', control: 'switch', field: 'properties.selected')
   bool selected;
 
   /// The color for the tile's [Material] when it has the input focus.
@@ -230,6 +235,7 @@ class ListTileProperties extends CustomProperties
   ColorRGBA? hoverColor;
 
   /// Whether to automatically focus the tile.
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   bool autofocus;
 
   /// Defines the background color of `ListTile` when [selected] is false.
@@ -258,6 +264,7 @@ class ListTileProperties extends CustomProperties
   ///
   /// If null, then the value of [ListTileTheme.horizontalTitleGap] is used. If
   /// that is also null, then a default value of 16 is used.
+  @FlutterProp('horizontalTitleGap', type: 'number', group: 'Layout', control: 'number', field: 'properties.horizontalTitleGap')
   double? horizontalTitleGap;
 
   /// The minimum padding on the top and bottom of the title and subtitle
@@ -265,12 +272,14 @@ class ListTileProperties extends CustomProperties
   ///
   /// If null, then the value of [ListTileTheme.minVerticalPadding] is used. If
   /// that is also null, then a default value of 4 is used.
+  @FlutterProp('minVerticalPadding', type: 'number', group: 'Layout', control: 'number', field: 'properties.minVerticalPadding')
   double? minVerticalPadding;
 
   /// The minimum width allocated for the [ListTile.leading] widget.
   ///
   /// If null, then the value of [ListTileTheme.minLeadingWidth] is used. If
   /// that is also null, then a default value of 40 is used.
+  @FlutterProp('minLeadingWidth', type: 'number', group: 'Layout', control: 'number', field: 'properties.minLeadingWidth')
   double? minLeadingWidth;
 
   /// Whether to show the leading widget.
@@ -287,6 +296,7 @@ class ListTileProperties extends CustomProperties
 
   /// Minimum height of the tile. When null, Flutter derives it from the number
   /// of lines and [visualDensity]. Mirrors `ListTile.minTileHeight`.
+  @FlutterProp('minTileHeight', type: 'number', group: 'Layout', control: 'number', field: 'properties.minTileHeight')
   double? minTileHeight;
 
   /// How the leading and trailing widgets align with the title. When null,

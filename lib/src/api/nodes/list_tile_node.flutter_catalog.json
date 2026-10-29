@@ -1,0 +1,288 @@
+{
+  "ListTileNode": {
+    "widget": "ListTile",
+    "family": "material",
+    "nodeType": "listTile",
+    "drift": [
+      {
+        "flutterName": "dense",
+        "fieldPath": "properties.dense"
+      },
+      {
+        "flutterName": "enabled",
+        "fieldPath": "properties.enabled"
+      },
+      {
+        "flutterName": "selected",
+        "fieldPath": "properties.selected"
+      },
+      {
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus"
+      },
+      {
+        "flutterName": "horizontalTitleGap",
+        "fieldPath": "properties.horizontalTitleGap"
+      },
+      {
+        "flutterName": "minVerticalPadding",
+        "fieldPath": "properties.minVerticalPadding"
+      },
+      {
+        "flutterName": "minLeadingWidth",
+        "fieldPath": "properties.minLeadingWidth"
+      },
+      {
+        "flutterName": "minTileHeight",
+        "fieldPath": "properties.minTileHeight"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "dense": {
+              "type": "boolean"
+            },
+            "enabled": {
+              "type": "boolean"
+            },
+            "selected": {
+              "type": "boolean"
+            },
+            "autofocus": {
+              "type": "boolean"
+            },
+            "horizontalTitleGap": {
+              "type": "number"
+            },
+            "minVerticalPadding": {
+              "type": "number"
+            },
+            "minLeadingWidth": {
+              "type": "number"
+            },
+            "minTileHeight": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "listTile",
+        "flutterName": "dense",
+        "fieldPath": "properties.dense",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "enabled",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "selected",
+        "fieldPath": "properties.selected",
+        "group": "State",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "autofocus",
+        "fieldPath": "properties.autofocus",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "horizontalTitleGap",
+        "fieldPath": "properties.horizontalTitleGap",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "minVerticalPadding",
+        "fieldPath": "properties.minVerticalPadding",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "minLeadingWidth",
+        "fieldPath": "properties.minLeadingWidth",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "listTile",
+        "flutterName": "minTileHeight",
+        "fieldPath": "properties.minTileHeight",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "ListTile": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "ListTile"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "dense": {
+                      "type": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "selected": {
+                      "type": "boolean"
+                    },
+                    "autofocus": {
+                      "type": "boolean"
+                    },
+                    "horizontalTitleGap": {
+                      "type": "number"
+                    },
+                    "minVerticalPadding": {
+                      "type": "number"
+                    },
+                    "minLeadingWidth": {
+                      "type": "number"
+                    },
+                    "minTileHeight": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "dense",
+        "field": "properties.dense",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "enabled",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "selected",
+        "field": "properties.selected",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "autofocus",
+        "field": "properties.autofocus",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "horizontalTitleGap",
+        "field": "properties.horizontalTitleGap",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "minVerticalPadding",
+        "field": "properties.minVerticalPadding",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "minLeadingWidth",
+        "field": "properties.minLeadingWidth",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "minTileHeight",
+        "field": "properties.minTileHeight",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

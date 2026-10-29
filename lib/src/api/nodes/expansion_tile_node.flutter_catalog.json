@@ -1,0 +1,174 @@
+{
+  "ExpansionTileNode": {
+    "widget": "ExpansionTile",
+    "family": "material",
+    "nodeType": "expansionTile",
+    "drift": [
+      {
+        "flutterName": "initiallyExpanded",
+        "fieldPath": "properties.initiallyExpanded"
+      },
+      {
+        "flutterName": "maintainState",
+        "fieldPath": "properties.maintainState"
+      },
+      {
+        "flutterName": "showTrailingIcon",
+        "fieldPath": "properties.showTrailingIcon"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "initiallyExpanded": {
+              "type": "boolean"
+            },
+            "maintainState": {
+              "type": "boolean"
+            },
+            "showTrailingIcon": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "expansionTile",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "expansionTile",
+        "flutterName": "initiallyExpanded",
+        "fieldPath": "properties.initiallyExpanded",
+        "group": "State",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "expansionTile",
+        "flutterName": "maintainState",
+        "fieldPath": "properties.maintainState",
+        "group": "Behavior",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "expansionTile",
+        "flutterName": "showTrailingIcon",
+        "fieldPath": "properties.showTrailingIcon",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "ExpansionTile": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "ExpansionTile"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "initiallyExpanded": {
+                      "type": "boolean"
+                    },
+                    "maintainState": {
+                      "type": "boolean"
+                    },
+                    "showTrailingIcon": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "initiallyExpanded",
+        "field": "properties.initiallyExpanded",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "maintainState",
+        "field": "properties.maintainState",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "showTrailingIcon",
+        "field": "properties.showTrailingIcon",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      }
+    ]
+  }
+}

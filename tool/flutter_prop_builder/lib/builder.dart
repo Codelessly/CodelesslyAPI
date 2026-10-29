@@ -53,6 +53,13 @@ class _FlutterPropsBuilder implements Builder {
       final required = <String>['component'];
       final drift = <Map<String, String>>[];
       for (final entry in annotated.entries) {
+        // Only the RowColumn component consumes the axis-alignment fields of
+        // this shared mixin; other consumers have their own Flutter contract.
+        if (cls.name != 'RowColumnNode' &&
+            (entry.key == 'mainAxisAlignment' || entry.key == 'crossAxisAlignment')) {
+          continue;
+        }
+        if (cls.name == 'ListTileNode' && entry.key == 'children') continue;
         final field = entry.value.$1;
         final tag = entry.value.$2;
         final flutterName = tag.read('name').stringValue;
