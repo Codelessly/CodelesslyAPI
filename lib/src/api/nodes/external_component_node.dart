@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
 import '../models/models.dart';
@@ -8,6 +9,7 @@ part 'external_component_node.g.dart';
 
 /// An inert node that does nothing.
 /// This is populated dynamically through the Codelessly SDK.
+@FlutterNode('CodelesslyExternalComponent', family: 'codelessly', nodeType: 'external')
 @JsonSerializable()
 class ExternalComponentNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -75,6 +77,7 @@ class ExternalComponentProperties extends CustomProperties {
   /// names for their dynamic nodes instead of arbitrarily-generated IDs.
   /// Another reason is that the ID can be used more than once to map multiple
   /// nodes to the same widget builder.
+  @FlutterProp('builderID', type: 'string', group: 'Source', control: 'text', field: 'properties.builderID')
   String? builderID;
 
   /// Creates [ExternalComponentProperties] with the given data.

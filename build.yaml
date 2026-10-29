@@ -35,6 +35,12 @@ targets:
           - lib/src/api/nodes/signature_normalized_node.dart
           - lib/src/api/nodes/web_view_node.dart
           - lib/src/api/nodes/embedded_video_node.dart
+          - lib/src/api/nodes/auto_placeholder_node.dart
+          - lib/src/api/nodes/freeform_placeholder_node.dart
+          - lib/src/api/nodes/placeholder_node.dart
+          - lib/src/api/nodes/single_placeholder_node.dart
+          - lib/src/api/nodes/external_component_node.dart
+          - lib/src/api/nodes/variance_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.

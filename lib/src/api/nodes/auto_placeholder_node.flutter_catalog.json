@@ -1,0 +1,101 @@
+{
+  "AutoPlaceholderNode": {
+    "widget": "CodelesslyAutoPlaceholder",
+    "family": "codelessly",
+    "nodeType": "autoPlaceholder",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "ephemeral": {
+          "type": "boolean"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": "ephemeral",
+        "fieldPath": "ephemeral",
+        "group": "Behavior",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyAutoPlaceholder": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyAutoPlaceholder"
+                },
+                "ephemeral": {
+                  "type": "boolean"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "ephemeral",
+        "field": "ephemeral",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "VarianceNode": {
+    "widget": "CodelesslyVariance",
+    "family": "codelessly",
+    "nodeType": "variance",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "currentVariantId": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "variance",
+        "flutterName": "currentVariantId",
+        "fieldPath": "currentVariantId",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "variance",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyVariance": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyVariance"
+                },
+                "currentVariantId": {
+                  "type": "string"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                }
+              },
+              "required": [
+                "component",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "currentVariantId",
+        "field": "currentVariantId",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      }
+    ]
+  }
+}

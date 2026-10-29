@@ -1,0 +1,85 @@
+{
+  "ExternalComponentNode": {
+    "widget": "CodelesslyExternalComponent",
+    "family": "codelessly",
+    "nodeType": "external",
+    "drift": [
+      {
+        "flutterName": "builderID",
+        "fieldPath": "properties.builderID"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "builderID": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "external",
+        "flutterName": "builderID",
+        "fieldPath": "properties.builderID",
+        "group": "Source",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyExternalComponent": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyExternalComponent"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "builderID": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "builderID",
+        "field": "properties.builderID",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}
