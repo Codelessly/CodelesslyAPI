@@ -1,4 +1,5 @@
 import '../../mixins.dart';
+import '../../../schema/flutter_prop.dart';
 import '../condition.dart';
 import 'action.dart';
 
@@ -23,12 +24,15 @@ enum PaywallOperation {
 /// A store-safe authored action, dispatched only within a paywall surface.
 class PaywallAction extends ActionModel with SerializableMixin {
   /// Action performed by this paywall control.
+  @PaywallWireField('operation', 'string', required: true)
   final PaywallOperation operation;
 
   /// Stable slot for purchase or product selection.
+  @PaywallWireField('slot', 'string')
   final String? slot;
 
   /// Published URL for terms or privacy; must pass URL compliance validation.
+  @PaywallWireField('url', 'string')
   final String? url;
 
   /// Creates a native paywall action.
