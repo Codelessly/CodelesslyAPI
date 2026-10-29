@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import '../../codelessly_api.dart';
+import '../schema/flutter_prop.dart';
 
 /// Excludes [BoxConstraintsModel] from the json if it's technically doing
 /// nothing.
@@ -233,6 +234,7 @@ mixin ParentReactionMixin {
 /// [ChildrenMixin.setChildrenMixin] method in the constructor of the node.
 mixin ChildrenMixin on BaseNode {
   /// A list of node ids that are children of this node.
+  @FlutterProp('children', type: 'array', group: 'Layout', control: 'children', required: true)
   @JsonKey(defaultValue: [])
   late List<String> children;
 
@@ -1147,11 +1149,13 @@ mixin RowColumnMixin on BaseNode {
   /// Represents the alignment of the children along the main axis which is
   /// horizontal for rows and vertical for columns. See [MainAxisAlignmentC]
   /// for details on available alignments.
+  @FlutterProp('mainAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'MainAxisAlignment.center')
   late MainAxisAlignmentC mainAxisAlignment;
 
   /// Represents the alignment of the children along the cross axis which is
   /// vertical for rows and horizontal for columns. See [CrossAxisAlignmentC]
   /// for details on available alignments.
+  @FlutterProp('crossAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'CrossAxisAlignment.center')
   late CrossAxisAlignmentC crossAxisAlignment;
 
   /// The gap between consecutive children along the main axis, in logical
