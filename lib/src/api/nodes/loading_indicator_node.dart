@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -8,6 +9,7 @@ import 'nodes.dart';
 part 'loading_indicator_node.g.dart';
 
 /// A node that displays a loading indicator.
+@FlutterNode('CodelesslyLoadingIndicator', family: 'codelessly', nodeType: 'loadingIndicator')
 @JsonSerializable()
 class LoadingIndicatorNode extends SceneNode
     with CustomPropertiesMixin, FixedAspectRatioMixin, FieldsHolder {
@@ -112,6 +114,7 @@ abstract class LoadingIndicatorProperties extends CustomProperties
     with FieldsHolder {
   /// Type of the loading indicator
   // TODO: how to support this for dynamic settings?
+  @FlutterProp('type', type: 'string', group: 'Variant', control: 'enum', field: 'properties.type')
   late final String type;
 
   /// Creates a [LoadingIndicatorProperties].

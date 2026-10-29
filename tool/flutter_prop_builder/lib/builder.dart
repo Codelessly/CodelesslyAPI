@@ -45,7 +45,12 @@ class _FlutterPropsBuilder implements Builder {
       // Nested custom properties live in their own class in the same library.
       final propertyField = cls.fields.where((f) => f.name == 'properties').firstOrNull;
       final nestedElement = propertyField?.type.element;
-      if (nestedElement is InterfaceElement) include(nestedElement, prefix: 'properties.');
+      if (nestedElement is InterfaceElement) {
+        include(nestedElement, prefix: 'properties.');
+        for (final ancestor in nestedElement.allSupertypes) {
+          include(ancestor.element, prefix: 'properties.');
+        }
+      }
       final schemaFields = <String, dynamic>{};
       final controls = <Map<String, dynamic>>[];
       final matrix = <Map<String, dynamic>>[];
@@ -63,6 +68,8 @@ class _FlutterPropsBuilder implements Builder {
         if (entry.key == 'ephemeral' &&
             cls.name != 'SinglePlaceholderNode' &&
             cls.name != 'AutoPlaceholderNode') continue;
+        if (entry.key == 'flex' && cls.name != 'SpacerNode') continue;
+        if (entry.key == 'opacity' && cls.name != 'RectangleNode') continue;
         final field = entry.value.$1;
         final tag = entry.value.$2;
         final flutterName = tag.read('name').stringValue;

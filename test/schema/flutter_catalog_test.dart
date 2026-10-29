@@ -47,6 +47,11 @@ void main() {
     'canvas_node': ('CanvasNode', 'CodelesslyCanvas', 2),
     'progressbar_node': ('ProgressBarNode', 'CodelesslyProgressBar', 2),
     'root_node': ('RootNode', 'CodelesslyRoot', 1),
+    'icon_node': ('IconNode', 'CodelesslyIcon', 1),
+    'loading_indicator_node': ('LoadingIndicatorNode', 'CodelesslyLoadingIndicator', 1),
+    'navigation_bar_node': ('NavigationBarNode', 'NavigationBar', 1),
+    'rectangle_node': ('RectangleNode', 'CodelesslyRectangle', 1),
+    'spacer_node': ('SpacerNode', 'Spacer', 1),
   }.entries) {
     test('${entry.key} metadata has four consistent projections', () {
       final output = jsonDecode(File('lib/src/api/nodes/${entry.key}.flutter_catalog.json').readAsStringSync()) as Map;
@@ -67,7 +72,7 @@ void main() {
     final raw = jsonDecode(File('lib/src/schema/generated/codelessly_a2ui_catalog.json').readAsStringSync()) as Map<String, dynamic>;
     final catalog = Catalog.fromJson(raw);
     expect(catalog.id, 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json');
-    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView', 'ChoiceChip', 'Radio', 'TextField', 'DropdownButton', 'SegmentedButton', 'TabBar', 'ListTile', 'ExpansionTile', 'FloatingActionButton', 'CodelesslyChartSeries', 'CodelesslyBarChart', 'CodelesslyLineChart', 'CodelesslyPlotChart', 'CodelesslyRadialGauge', 'CodelesslyGaugeMeter', 'CodelesslySignature', 'CodelesslyNormalizedSignature', 'CodelesslyWebView', 'CodelesslyEmbeddedVideo', 'CodelesslyAutoPlaceholder', 'CodelesslyFreeformPlaceholder', 'CodelesslyPlaceholder', 'CodelesslySinglePlaceholder', 'CodelesslyExternalComponent', 'CodelesslyVariance', 'CodelesslyAccordion', 'CodelesslyCanvas', 'CodelesslyProgressBar', 'CodelesslyRoot']));
+    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView', 'ChoiceChip', 'Radio', 'TextField', 'DropdownButton', 'SegmentedButton', 'TabBar', 'ListTile', 'ExpansionTile', 'FloatingActionButton', 'CodelesslyChartSeries', 'CodelesslyBarChart', 'CodelesslyLineChart', 'CodelesslyPlotChart', 'CodelesslyRadialGauge', 'CodelesslyGaugeMeter', 'CodelesslySignature', 'CodelesslyNormalizedSignature', 'CodelesslyWebView', 'CodelesslyEmbeddedVideo', 'CodelesslyAutoPlaceholder', 'CodelesslyFreeformPlaceholder', 'CodelesslyPlaceholder', 'CodelesslySinglePlaceholder', 'CodelesslyExternalComponent', 'CodelesslyVariance', 'CodelesslyAccordion', 'CodelesslyCanvas', 'CodelesslyProgressBar', 'CodelesslyRoot', 'CodelesslyIcon', 'CodelesslyLoadingIndicator', 'NavigationBar', 'CodelesslyRectangle', 'Spacer']));
     final text = (raw['components'] as Map)['Text'] as Map;
     final textProps = ((text['allOf'] as List)[1] as Map)['properties'] as Map;
     expect(textProps.keys, contains('text'));

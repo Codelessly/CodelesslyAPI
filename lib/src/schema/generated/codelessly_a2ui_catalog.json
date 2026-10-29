@@ -639,6 +639,33 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyIcon": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyIcon"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "icon": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyLineChart": {
       "allOf": [
         {
@@ -740,6 +767,55 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyLoadingIndicator": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyLoadingIndicator"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "NavigationBar": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "NavigationBar"
+            },
+            "currentIndex": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
@@ -894,6 +970,28 @@
           "required": [
             "component",
             "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyRectangle": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyRectangle"
+            },
+            "opacity": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
@@ -1139,6 +1237,28 @@
           "required": [
             "component",
             "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "Spacer": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Spacer"
+            },
+            "flex": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
