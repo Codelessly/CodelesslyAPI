@@ -1,0 +1,172 @@
+{
+  "FloatingActionButtonNode": {
+    "widget": "FloatingActionButton",
+    "family": "material",
+    "nodeType": "floatingActionButton",
+    "drift": [
+      {
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation"
+      },
+      {
+        "flutterName": "focusElevation",
+        "fieldPath": "properties.focusElevation"
+      },
+      {
+        "flutterName": "hoverElevation",
+        "fieldPath": "properties.hoverElevation"
+      },
+      {
+        "flutterName": "highlightElevation",
+        "fieldPath": "properties.highlightElevation"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "elevation": {
+              "type": "number"
+            },
+            "focusElevation": {
+              "type": "number"
+            },
+            "hoverElevation": {
+              "type": "number"
+            },
+            "highlightElevation": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": "focusElevation",
+        "fieldPath": "properties.focusElevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": "hoverElevation",
+        "fieldPath": "properties.hoverElevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": "highlightElevation",
+        "fieldPath": "properties.highlightElevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "FloatingActionButton": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "FloatingActionButton"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "elevation": {
+                      "type": "number"
+                    },
+                    "focusElevation": {
+                      "type": "number"
+                    },
+                    "hoverElevation": {
+                      "type": "number"
+                    },
+                    "highlightElevation": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "elevation",
+        "field": "properties.elevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "focusElevation",
+        "field": "properties.focusElevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "hoverElevation",
+        "field": "properties.hoverElevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "highlightElevation",
+        "field": "properties.highlightElevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

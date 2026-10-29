@@ -271,6 +271,86 @@
       "bindable": false
     },
     {
+      "nodeType": "expansionTile",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "expansionTile",
+      "flutterName": "initiallyExpanded",
+      "fieldPath": "properties.initiallyExpanded",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "expansionTile",
+      "flutterName": "maintainState",
+      "fieldPath": "properties.maintainState",
+      "group": "Behavior",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "expansionTile",
+      "flutterName": "showTrailingIcon",
+      "fieldPath": "properties.showTrailingIcon",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "focusElevation",
+      "fieldPath": "properties.focusElevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "hoverElevation",
+      "fieldPath": "properties.hoverElevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "highlightElevation",
+      "fieldPath": "properties.highlightElevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "frame",
       "flutterName": "children",
       "fieldPath": "children",
@@ -294,6 +374,86 @@
       "nodeType": "gridView",
       "flutterName": "cacheExtent",
       "fieldPath": "properties.cacheExtent",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "dense",
+      "fieldPath": "properties.dense",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "enabled",
+      "fieldPath": "properties.enabled",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "selected",
+      "fieldPath": "properties.selected",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "horizontalTitleGap",
+      "fieldPath": "properties.horizontalTitleGap",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minVerticalPadding",
+      "fieldPath": "properties.minVerticalPadding",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minLeadingWidth",
+      "fieldPath": "properties.minLeadingWidth",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minTileHeight",
+      "fieldPath": "properties.minTileHeight",
       "group": "Layout",
       "control": "number",
       "schemaType": "number",
@@ -561,6 +721,16 @@
       "bindable": false
     },
     {
+      "nodeType": "tabBar",
+      "flutterName": "indicatorWeight",
+      "fieldPath": "properties.indicatorWeight",
+      "group": "Indicator",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "textField",
       "flutterName": "enabled",
       "fieldPath": "properties.enabled",
@@ -803,9 +973,84 @@
       "fieldPath": "properties.elevation"
     },
     {
+      "nodeType": "expansionTile",
+      "flutterName": "initiallyExpanded",
+      "fieldPath": "properties.initiallyExpanded"
+    },
+    {
+      "nodeType": "expansionTile",
+      "flutterName": "maintainState",
+      "fieldPath": "properties.maintainState"
+    },
+    {
+      "nodeType": "expansionTile",
+      "flutterName": "showTrailingIcon",
+      "fieldPath": "properties.showTrailingIcon"
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation"
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "focusElevation",
+      "fieldPath": "properties.focusElevation"
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "hoverElevation",
+      "fieldPath": "properties.hoverElevation"
+    },
+    {
+      "nodeType": "floatingActionButton",
+      "flutterName": "highlightElevation",
+      "fieldPath": "properties.highlightElevation"
+    },
+    {
       "nodeType": "gridView",
       "flutterName": "cacheExtent",
       "fieldPath": "properties.cacheExtent"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "dense",
+      "fieldPath": "properties.dense"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "enabled",
+      "fieldPath": "properties.enabled"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "selected",
+      "fieldPath": "properties.selected"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "horizontalTitleGap",
+      "fieldPath": "properties.horizontalTitleGap"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minVerticalPadding",
+      "fieldPath": "properties.minVerticalPadding"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minLeadingWidth",
+      "fieldPath": "properties.minLeadingWidth"
+    },
+    {
+      "nodeType": "listTile",
+      "flutterName": "minTileHeight",
+      "fieldPath": "properties.minTileHeight"
     },
     {
       "nodeType": "listView",
@@ -891,6 +1136,11 @@
       "nodeType": "switch",
       "flutterName": "trackOutlineWidth",
       "fieldPath": "properties.trackOutlineWidth"
+    },
+    {
+      "nodeType": "tabBar",
+      "flutterName": "indicatorWeight",
+      "fieldPath": "properties.indicatorWeight"
     },
     {
       "nodeType": "textField",
