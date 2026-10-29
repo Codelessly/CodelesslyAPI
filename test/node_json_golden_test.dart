@@ -83,18 +83,7 @@ void main() {
     test('${node.type} "${node.id}" serializes as pinned', () {
       expect(
         withoutPaintIds(encodeDecode(node.toJson())),
-        withoutPaintIds(
-          node is ButtonNode
-              ? {
-                  ...?current[node.id],
-                  'type': 'elevatedButton',
-                  'properties': {
-                    ...?current[node.id]?['properties'],
-                    'buttonType': 'elevated',
-                  },
-                }
-              : current[node.id],
-        ),
+        withoutPaintIds(current[node.id]),
       );
     });
 

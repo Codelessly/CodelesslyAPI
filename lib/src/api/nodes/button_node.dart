@@ -80,10 +80,13 @@ enum ButtonTypeEnum {
 @JsonSerializable(constructor: '_forJson')
 abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
-  @JsonKey(includeFromJson: false)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   String get type;
 
   ButtonTypeEnum get buttonType;
+
+  @JsonKey(name: 'type', includeToJson: false)
+  String get wireType => type;
 
   void validateButtonType() {
     if (properties.buttonType != buttonType) {
@@ -137,6 +140,7 @@ abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
     required String name,
     required NodeBox basicBoxLocal,
     required ButtonProperties properties,
+    @JsonKey(name: 'type') required String wireType,
     bool visible = true,
     bool enabled = true,
     AlignmentModel alignment = AlignmentModel.none,
@@ -154,13 +158,27 @@ abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
     Map<String, String> variables = const {},
     Map<String, List<String>> multipleVariables = const {},
   }) => _buttonNodeForJson(
-    id: id, name: name, basicBoxLocal: basicBoxLocal, properties: properties,
-    visible: visible, enabled: enabled, alignment: alignment, padding: padding,
-    margin: margin, rotationDegrees: rotationDegrees, reactions: reactions,
-    horizontalFit: horizontalFit, verticalFit: verticalFit, flex: flex,
-    constraints: constraints, aspectRatioLock: aspectRatioLock,
-    edgePins: edgePins, positioningMode: positioningMode,
-    variables: variables, multipleVariables: multipleVariables,
+    id: id,
+    name: name,
+    basicBoxLocal: basicBoxLocal,
+    properties: properties,
+    wireType: wireType,
+    visible: visible,
+    enabled: enabled,
+    alignment: alignment,
+    padding: padding,
+    margin: margin,
+    rotationDegrees: rotationDegrees,
+    reactions: reactions,
+    horizontalFit: horizontalFit,
+    verticalFit: verticalFit,
+    flex: flex,
+    constraints: constraints,
+    aspectRatioLock: aspectRatioLock,
+    edgePins: edgePins,
+    positioningMode: positioningMode,
+    variables: variables,
+    multipleVariables: multipleVariables,
   );
 
   /// Creates a [ButtonNode] with given data.
@@ -239,16 +257,20 @@ abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
     final rawProperties = json['properties'];
     if (rawProperties is! Map)
       throw const FormatException('Missing button properties');
-    final expected = kind == ButtonTypeEnum.filled
-        ? {ButtonTypeEnum.filled.name, ButtonTypeEnum.filledTonal.name}
-        : {kind.name};
-    if ((rawProperties['buttonType'] == null &&
-            kind != ButtonTypeEnum.elevated) ||
-        (rawProperties['buttonType'] != null &&
-            !expected.contains(rawProperties['buttonType']))) {
-      throw FormatException(
-        'Button type ${json['type']} requires buttonType $expected',
+    if (rawProperties.containsKey('buttonType')) {
+      throw const FormatException(
+        'Legacy properties.buttonType is not supported',
       );
+    }
+    if (kind == ButtonTypeEnum.filled) {
+      if (rawProperties['variant'] != 'filled' &&
+          rawProperties['variant'] != 'tonal') {
+        throw const FormatException(
+          'Filled button requires variant filled or tonal',
+        );
+      }
+    } else if (rawProperties.containsKey('variant')) {
+      throw FormatException('Unexpected variant for ${json['type']}');
     }
     return _$ButtonNodeFromJson(json);
   }
@@ -257,7 +279,12 @@ abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
   Map toJson() {
     validateButtonType();
     final json = _$ButtonNodeOmitDefaults(this, _$ButtonNodeToJson(this));
-    (json['properties'] as Map)['buttonType'] = properties.buttonType.name;
+    if (type == 'filledButton') {
+      (json['properties'] as Map)['variant'] =
+          properties.buttonType == ButtonTypeEnum.filledTonal
+          ? 'tonal'
+          : 'filled';
+    }
     json['type'] = type;
     return json;
   }
@@ -289,10 +316,22 @@ ButtonNode _buttonNodeForJson({
   EdgePinsModel edgePins = EdgePinsModel.standard,
   PositioningMode positioningMode = PositioningMode.align,
   required ButtonProperties properties,
+  required String wireType,
   Map<String, String> variables = const {},
   Map<String, List<String>> multipleVariables = const {},
 }) {
-  final kind = properties.buttonType;
+  final kind = switch (wireType) {
+    'elevatedButton' => ButtonTypeEnum.elevated,
+    'textButton' => ButtonTypeEnum.text,
+    'outlinedButton' => ButtonTypeEnum.outlined,
+    'iconButton' => ButtonTypeEnum.icon,
+    'filledButton' =>
+      properties.buttonType == ButtonTypeEnum.filledTonal
+          ? ButtonTypeEnum.filledTonal
+          : ButtonTypeEnum.filled,
+    _ => throw FormatException('Unknown button wire type: $wireType'),
+  };
+  properties.buttonType = kind;
   final constructor = switch (kind) {
     ButtonTypeEnum.elevated => ElevatedButtonNode.new,
     ButtonTypeEnum.text => TextButtonNode.new,
@@ -527,7 +566,8 @@ class ButtonProperties extends CustomProperties
 
   // Button properties.
 
-  /// Type of the button.
+  /// Runtime button kind; the wire uses the node type and filled variant.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   late ButtonTypeEnum buttonType;
 
   /// Background color of the button, or null for the button type's default
@@ -573,8 +613,14 @@ class ButtonProperties extends CustomProperties
   late double gap;
 
   /// Icon to display in the button.
-  @FlutterProp('icon', type: 'object', group: 'Content', control: 'icon',
-    field: 'properties.icon', required: true)
+  @FlutterProp(
+    'icon',
+    type: 'object',
+    group: 'Content',
+    control: 'icon',
+    field: 'properties.icon',
+    required: true,
+  )
   late MultiSourceIconModel icon;
 
   /// Creates a [ButtonProperties] with given data.
@@ -768,8 +814,15 @@ class ButtonProperties extends CustomProperties
   };
 
   /// Creates a [ButtonProperties] from a JSON data.
-  factory ButtonProperties.fromJson(Map json) =>
-      _$ButtonPropertiesFromJson(json);
+  factory ButtonProperties.fromJson(Map json) {
+    final properties = _$ButtonPropertiesFromJson(json);
+    properties.buttonType = switch (json['variant']) {
+      'tonal' => ButtonTypeEnum.filledTonal,
+      'filled' => ButtonTypeEnum.filled,
+      _ => ButtonTypeEnum.elevated,
+    };
+    return properties;
+  }
 
   @override
   Map<String, dynamic> toJson() =>

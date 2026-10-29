@@ -57,8 +57,6 @@ Map<String, dynamic> _$ButtonPropertiesOmitDefaults(
 ) {
   if (isJsonDefault(instance.shape, CShapeBorder.roundedRectangle))
     json.remove('shape');
-  if (isJsonDefault(instance.buttonType, ButtonTypeEnum.elevated))
-    json.remove('buttonType');
   if (isJsonDefault(
     instance.shadowColor,
     const ColorRGBA(r: 0.65, g: 0.65, b: 0.65, a: 1),
@@ -95,6 +93,7 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
         name: json['name'] as String,
         basicBoxLocal: NodeBox.fromJson(json['basicBoxLocal']),
         properties: ButtonProperties.fromJson(json['properties'] as Map),
+        wireType: json['type'] as String,
         visible: json['visible'] as bool? ?? true,
         enabled: json['enabled'] as bool? ?? true,
         alignment: json['alignment'] == null
@@ -257,9 +256,6 @@ const _$InteractionStateEnumMap = {
 };
 
 ButtonProperties _$ButtonPropertiesFromJson(Map json) => ButtonProperties(
-  buttonType:
-      $enumDecodeNullable(_$ButtonTypeEnumEnumMap, json['buttonType']) ??
-      ButtonTypeEnum.elevated,
   buttonColor: json['buttonColor'] == null
       ? null
       : ColorRGBA.fromJson(json['buttonColor']),
@@ -304,7 +300,6 @@ Map<String, dynamic> _$ButtonPropertiesToJson(
   'borderWidth': ?instance.borderWidth,
   'borderColor': ?instance.borderColor?.toJson(),
   'shape': _$CShapeBorderEnumMap[instance.shape]!,
-  'buttonType': _$ButtonTypeEnumEnumMap[instance.buttonType]!,
   'buttonColor': ?instance.buttonColor?.toJson(),
   'shadowColor': instance.shadowColor.toJson(),
   'elevation': instance.elevation,
@@ -315,15 +310,6 @@ Map<String, dynamic> _$ButtonPropertiesToJson(
   'placement': _$IconPlacementEnumEnumMap[instance.placement]!,
   'gap': instance.gap,
   'icon': instance.icon.toJson(),
-};
-
-const _$ButtonTypeEnumEnumMap = {
-  ButtonTypeEnum.elevated: 'elevated',
-  ButtonTypeEnum.text: 'text',
-  ButtonTypeEnum.outlined: 'outlined',
-  ButtonTypeEnum.icon: 'icon',
-  ButtonTypeEnum.filled: 'filled',
-  ButtonTypeEnum.filledTonal: 'filledTonal',
 };
 
 const _$TextAlignHorizontalEnumEnumMap = {
