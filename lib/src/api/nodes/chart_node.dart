@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
+import '../node_json_converter.dart';
 import 'nodes.dart';
 
 part 'chart_node.g.dart';
@@ -272,9 +273,14 @@ class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   /// Creates a [ChartNode] from JSON.
   /// A missing `properties` key means default properties, so hand-written
   /// JSON (e.g. nodes.insertTree) can leave it out.
-  factory ChartNode.fromJson(Map json) => _$ChartNodeFromJson(
-    json['properties'] == null ? {...json, 'properties': const {}} : json,
-  );
+  factory ChartNode.fromJson(Map json) {
+    NodeJsonConverter.validateChartWire(json, expectedType: 'chartSeries');
+    return _$ChartNodeFromJson({
+      ...json,
+      if (json['type'] == 'chart') 'type': 'chartSeries',
+      if (json['properties'] == null) 'properties': const {},
+    });
+  }
 
   @override
   Map toJson() => _$ChartNodeOmitDefaults(this, _$ChartNodeToJson(this));

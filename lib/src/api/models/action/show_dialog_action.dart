@@ -196,7 +196,39 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
-       super(type: ActionType.showDialog);
+       super(type: ActionType.showDialog) {
+    _validateLegacyPlacement();
+  }
+
+  /// PR42 placement values select an overlay mode, not a trigger-relative
+  /// position. The default dialog presentation is compatible with a legacy
+  /// sheet placement; an explicitly different mode is not.
+  void _validateLegacyPlacement() {
+    final legacyPresentation = switch (placement) {
+      DialogPlacement.center => DialogPresentation.dialog,
+      DialogPlacement.bottomSheet => DialogPresentation.bottomSheet,
+      DialogPlacement.adaptive => DialogPresentation.adaptive,
+      DialogPlacement.anchored => DialogPresentation.dialog,
+      _ => null,
+    };
+    if (legacyPresentation == null) return;
+
+    final incompatiblePresentation =
+        presentation != legacyPresentation &&
+        !(presentation == DialogPresentation.dialog &&
+            (placement == DialogPlacement.bottomSheet ||
+                placement == DialogPlacement.adaptive)) &&
+        !(placement == DialogPlacement.anchored &&
+            presentation == DialogPresentation.popover);
+    final incompatibleAnchor =
+        anchor == DialogAnchor.trigger && placement != DialogPlacement.anchored;
+    if (incompatiblePresentation || incompatibleAnchor) {
+      throw ArgumentError(
+        'Conflicting dialog presentation, anchor and legacy placement: '
+        '$presentation, $anchor, $placement',
+      );
+    }
+  }
 
   @override
   List<Object?> get props => [
@@ -290,7 +322,9 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
         _ => 'dialog',
       };
       if ((json['presentation'] != null &&
-              json['presentation'] != expectedPresentation) ||
+              json['presentation'] != expectedPresentation &&
+              !(json['presentation'] == 'dialog' &&
+                  (placement == 'bottomSheet' || placement == 'adaptive'))) ||
           (json['anchor'] != null &&
               json['anchor'] !=
                   (placement == 'anchored' ? 'trigger' : 'none'))) {
@@ -314,6 +348,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
 
   @override
   Map toJson() {
+    _validateLegacyPlacement();
     final json = _$ShowDialogActionOmitDefaults(
       this,
       _$ShowDialogActionToJson(this),
