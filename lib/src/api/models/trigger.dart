@@ -91,7 +91,18 @@ enum TriggerType {
 
   /// Triggered repeatedly while the canvas is shown, every
   /// [TriggerModel.intervalMillis] milliseconds.
-  interval;
+  interval,
+
+  /// Triggered once when the user lifts the pointer after dragging the
+  /// target (see [drag], which fires on every move).
+  dragEnd,
+
+  /// Triggered when a key is pressed while the screen it is set on shows
+  /// and no text field has focus. The actions read `${result.key}` (the
+  /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
+  /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
+  /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
+  keyDown;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -162,6 +173,10 @@ enum TriggerType {
         return 'Interval';
       case TriggerType.changeEnd:
         return 'Change End';
+      case TriggerType.dragEnd:
+        return 'Drag End';
+      case TriggerType.keyDown:
+        return 'Key Down';
     }
   }
 }
@@ -188,8 +203,9 @@ class TriggerModel with Equatable, SerializableMixin {
   /// How often a [TriggerType.timer] fires, in milliseconds.
   final int? intervalMs;
 
-  /// The key a [TriggerType.keyPress] listens for, as a logical key label
-  /// (`Arrow Right`, `Enter`, `Space`, `A`).
+  /// The key a [TriggerType.keyPress] or [TriggerType.keyDown] listens for.
+  /// Key down labels (e.g. `ArrowLeft`) are case-insensitive; null listens
+  /// for every key.
   final String? key;
 
   /// How long, in milliseconds, a [TriggerType.hold] trigger must be held

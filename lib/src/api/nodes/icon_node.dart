@@ -107,6 +107,10 @@ class IconNode extends SceneNode
     TriggerType.doubleTap,
     TriggerType.cursorEnter,
     TriggerType.cursorExit,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.pointerDown,
+    TriggerType.pointerUp,
   ];
 
   /// Besides the shared style properties, an icon's color and which icon it

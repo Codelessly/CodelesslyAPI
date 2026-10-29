@@ -1,5 +1,16 @@
 ## Unreleased
 
+### PR49 additions (not published)
+
+- `CopyToClipboardAction` copies formula/bound text; new `dragEnd` and
+  `keyDown` triggers and drag/pointer support coexist with prior triggers.
+- `ShowDialogAction.fullHeight` controls full-height bottom sheets without
+  replacing existing popover, placement, insets or height-factor behavior.
+- New list `layout: stack` positions items by bound x/y; older `stacked:
+  true` remains a separate centered deck mode. Enabling both is rejected
+  instead of silently reinterpreting saved lists. Variable `extra` metadata
+  and spacer construction options remain available.
+
 ### PR43 additions (not published)
 
 - The #43 numeric/area plot is `PlotChartNode` (`chartPlot`), separate from

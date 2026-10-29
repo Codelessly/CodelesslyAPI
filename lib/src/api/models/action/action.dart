@@ -64,7 +64,10 @@ enum ActionType {
   cloudData,
 
   /// Write several cloud documents together.
-  cloudBatch;
+  cloudBatch,
+
+  /// Copy a text to the clipboard.
+  copyToClipboard;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -111,6 +114,8 @@ enum ActionType {
         return 'Cloud Data';
       case ActionType.cloudBatch:
         return 'Cloud Batch';
+      case ActionType.copyToClipboard:
+        return 'Copy to Clipboard';
     }
   }
 }
@@ -202,6 +207,8 @@ abstract class ActionModel with SerializableMixin {
         return CloudDataAction.fromJson(json);
       case ActionType.cloudBatch:
         return CloudBatchAction.fromJson(json);
+      case ActionType.copyToClipboard:
+        return CopyToClipboardAction.fromJson(json);
     }
   }
 

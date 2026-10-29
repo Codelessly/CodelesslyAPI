@@ -194,7 +194,8 @@ class VariableData
   }
 
   @override
-  List<Object?> get props => [id, name, value, type, formula];
+  // Changes to either the formula or metadata change the variable.
+  List<Object?> get props => [id, name, value, type, formula, extra];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
