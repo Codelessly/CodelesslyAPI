@@ -16,7 +16,7 @@ void main() {
     final Map json = {
       'id': 'f',
       'name': 'f',
-      'type': 'rowColumn',
+      'type': 'column',
       'rowColumnType': 'column',
       'basicBoxLocal': [0, 0, 10, 10],
       'transition': {'durationMillis': 1100, 'curve': 'easeInOut'},

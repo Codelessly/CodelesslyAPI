@@ -121,7 +121,47 @@
       "bindable": false
     },
     {
-      "nodeType": "button",
+      "nodeType": "elevatedButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "textButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "outlinedButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "iconButton",
+      "flutterName": "icon",
+      "fieldPath": "properties.icon",
+      "group": "Content",
+      "control": "icon",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "filledButton",
       "flutterName": "child",
       "fieldPath": "properties.label",
       "group": "Content",
@@ -825,7 +865,7 @@
       "bindable": false
     },
     {
-      "nodeType": "rowColumn",
+      "nodeType": "row",
       "flutterName": "children",
       "fieldPath": "children",
       "group": "Layout",
@@ -835,7 +875,7 @@
       "bindable": false
     },
     {
-      "nodeType": "rowColumn",
+      "nodeType": "row",
       "flutterName": "mainAxisAlignment",
       "fieldPath": "mainAxisAlignment",
       "group": "Layout",
@@ -845,7 +885,37 @@
       "bindable": false
     },
     {
-      "nodeType": "rowColumn",
+      "nodeType": "row",
+      "flutterName": "crossAxisAlignment",
+      "fieldPath": "crossAxisAlignment",
+      "group": "Layout",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": "CrossAxisAlignment.center",
+      "bindable": false
+    },
+    {
+      "nodeType": "column",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "column",
+      "flutterName": "mainAxisAlignment",
+      "fieldPath": "mainAxisAlignment",
+      "group": "Layout",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": "MainAxisAlignment.center",
+      "bindable": false
+    },
+    {
+      "nodeType": "column",
       "flutterName": "crossAxisAlignment",
       "fieldPath": "crossAxisAlignment",
       "group": "Layout",
@@ -1252,7 +1322,27 @@
       "fieldPath": "properties.largeSize"
     },
     {
-      "nodeType": "button",
+      "nodeType": "elevatedButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "textButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "outlinedButton",
+      "flutterName": "child",
+      "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "iconButton",
+      "flutterName": "icon",
+      "fieldPath": "properties.icon"
+    },
+    {
+      "nodeType": "filledButton",
       "flutterName": "child",
       "fieldPath": "properties.label"
     },

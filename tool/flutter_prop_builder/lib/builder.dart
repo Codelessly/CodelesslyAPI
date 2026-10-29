@@ -52,8 +52,11 @@ class _FlutterPropsBuilder implements Builder {
       for (final ancestor in cls.allSupertypes) {
         include(ancestor.element);
       }
-      // Nested custom properties live in their own class in the same library.
-      final propertyField = cls.fields.where((f) => f.name == 'properties').firstOrNull;
+      // Nested properties may be declared on a shared abstract node base.
+      final propertyField = [cls, ...cls.allSupertypes.map((t) => t.element)]
+          .expand((element) => element.fields)
+          .where((field) => field.name == 'properties')
+          .firstOrNull;
       final nestedElement = propertyField?.type.element;
       if (nestedElement is InterfaceElement) {
         include(nestedElement, prefix: 'properties.');
@@ -73,9 +76,13 @@ class _FlutterPropsBuilder implements Builder {
       }
       final drift = <Map<String, String>>[];
       for (final entry in annotated.entries) {
+        // IconButton has an icon parameter, not a child widget.
+        if (cls.name == 'IconButtonNode' && entry.key == 'properties.label') continue;
+        if (cls.name != 'IconButtonNode' && cls.name != 'IconNode' &&
+            entry.key == 'properties.icon') continue;
         // Only the RowColumn component consumes the axis-alignment fields of
         // this shared mixin; other consumers have their own Flutter contract.
-        if (cls.name != 'RowColumnNode' &&
+        if (cls.name != 'RowNode' && cls.name != 'ColumnNode' &&
             (entry.key == 'mainAxisAlignment' || entry.key == 'crossAxisAlignment')) {
           continue;
         }

@@ -42,7 +42,7 @@ void main() {
 
   test('wrap and runSpacing read from minimal JSON', () {
     final RowColumnNode node = RowColumnNode.fromJson({
-      'type': 'rowColumn',
+      'type': 'column',
       'id': 'col',
       'name': 'Column',
       'basicBoxLocal': [0, 0, 100, 300],
