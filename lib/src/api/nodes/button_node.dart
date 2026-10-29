@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../extensions.dart';
 import '../field_access.dart';
@@ -75,6 +76,9 @@ enum ButtonTypeEnum {
 /// A material button.
 /// Refer to [Material 2 Buttons](https://m2.material.io/components/buttons) for
 /// more details.
+@FlutterNode('ElevatedButton', family: 'material')
+@FlutterProp('onPressed', type: 'string', group: 'Interaction', control: 'action', field: 'reactions')
+@FlutterProp('child', type: 'string', group: 'Content', control: 'text', field: 'properties.label')
 @JsonSerializable()
 class ButtonNode extends SceneNode with CustomPropertiesMixin {
   @override
