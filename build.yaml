@@ -13,6 +13,9 @@ targets:
           - lib/src/api/nodes/slider_node.dart
           - lib/src/api/nodes/list_view_node.dart
           - lib/src/api/nodes/switch_node.dart
+          - lib/src/api/nodes/grid_view_node.dart
+          - lib/src/api/nodes/page_view_node.dart
+          - lib/src/api/nodes/frame_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.

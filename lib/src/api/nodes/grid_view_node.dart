@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -10,6 +11,7 @@ part 'grid_view_node.g.dart';
 /// A material design [GridView].
 /// Refer to [GridView](https://api.flutter.dev/flutter/widgets/GridView-class.html)
 /// in Flutter for more details.
+@FlutterNode('GridView', family: 'widgets', nodeType: 'gridView')
 @JsonSerializable()
 class GridViewNode extends SinglePlaceholderNode
     with
@@ -252,6 +254,7 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
   ///
   /// Render with `scrollCacheExtent: ScrollCacheExtent.pixels(cacheExtent)`;
   /// the `cacheExtent` parameter of Flutter's scroll views is deprecated.
+  @FlutterProp('cacheExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.cacheExtent')
   double? cacheExtent;
 
   /// Properties of the grid delegate that controls the layout of the grid.

@@ -15,6 +15,9 @@ void main() {
     'slider_node': ('SliderNode', 'Slider', 5),
     'list_view_node': ('ListViewNode', 'ListView', 2),
     'switch_node': ('SwitchNode', 'Switch', 4),
+    'frame_node': ('FrameNode', 'Stack', 1),
+    'grid_view_node': ('GridViewNode', 'GridView', 2),
+    'page_view_node': ('PageViewNode', 'PageView', 4),
   }.entries) {
     test('${entry.key} metadata has four consistent projections', () {
       final output = jsonDecode(File('lib/src/api/nodes/${entry.key}.flutter_catalog.json').readAsStringSync()) as Map;
@@ -32,10 +35,20 @@ void main() {
     });
   }
   test('a2ui_core accepts merged catalog identifier and components', () {
-    final raw = jsonDecode(File('catalog/codelessly_catalog_v1.json').readAsStringSync()) as Map<String, dynamic>;
+    final raw = jsonDecode(File('lib/src/schema/generated/codelessly_a2ui_catalog.json').readAsStringSync()) as Map<String, dynamic>;
     final catalog = Catalog.fromJson(raw);
     expect(catalog.id, 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json');
-    expect(catalog.components.keys, containsAll(['Text', 'Row', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch']));
+    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView']));
+    final text = (raw['components'] as Map)['Text'] as Map;
+    final textProps = ((text['allOf'] as List)[1] as Map)['properties'] as Map;
+    expect(textProps.keys, contains('text'));
+    expect(textProps.keys, isNot(contains('characters')));
+    final button = (raw['components'] as Map)['Button'] as Map;
+    expect((((button['allOf'] as List)[1] as Map)['properties'] as Map).keys, containsAll(['child', 'action', 'variant']));
+    for (final name in ['Row', 'Column']) {
+      final flex = (raw['components'] as Map)[name] as Map;
+      expect(((((flex['allOf'] as List)[1] as Map)['properties'] as Map)).keys, containsAll(['children', 'justify', 'align']));
+    }
   });
   test('Text data points at actual characters storage', () {
     final node = (jsonDecode(File('lib/src/api/nodes/text_node.flutter_catalog.json').readAsStringSync()) as Map)['TextNode'] as Map;
