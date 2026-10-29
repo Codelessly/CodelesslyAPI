@@ -1,6 +1,46 @@
 {
   "descriptors": [
     {
+      "nodeType": "appBar",
+      "flutterName": "centerTitle",
+      "fieldPath": "properties.centerTitle",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "automaticallyImplyLeading",
+      "fieldPath": "properties.automaticallyImplyLeading",
+      "group": "Layout",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "titleSpacing",
+      "fieldPath": "properties.titleSpacing",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "badge",
       "flutterName": "isLabelVisible",
       "fieldPath": "properties.isLabelVisible",
@@ -142,6 +182,26 @@
     }
   ],
   "drift": [
+    {
+      "nodeType": "appBar",
+      "flutterName": "centerTitle",
+      "fieldPath": "properties.centerTitle"
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "elevation",
+      "fieldPath": "properties.elevation"
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "automaticallyImplyLeading",
+      "fieldPath": "properties.automaticallyImplyLeading"
+    },
+    {
+      "nodeType": "appBar",
+      "flutterName": "titleSpacing",
+      "fieldPath": "properties.titleSpacing"
+    },
     {
       "nodeType": "badge",
       "flutterName": "isLabelVisible",

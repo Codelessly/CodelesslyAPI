@@ -1,0 +1,172 @@
+{
+  "AppBarNode": {
+    "widget": "AppBar",
+    "family": "material",
+    "nodeType": "appBar",
+    "drift": [
+      {
+        "flutterName": "centerTitle",
+        "fieldPath": "properties.centerTitle"
+      },
+      {
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation"
+      },
+      {
+        "flutterName": "automaticallyImplyLeading",
+        "fieldPath": "properties.automaticallyImplyLeading"
+      },
+      {
+        "flutterName": "titleSpacing",
+        "fieldPath": "properties.titleSpacing"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "centerTitle": {
+              "type": "boolean"
+            },
+            "elevation": {
+              "type": "number"
+            },
+            "automaticallyImplyLeading": {
+              "type": "boolean"
+            },
+            "titleSpacing": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "appBar",
+        "flutterName": "centerTitle",
+        "fieldPath": "properties.centerTitle",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "appBar",
+        "flutterName": "elevation",
+        "fieldPath": "properties.elevation",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "appBar",
+        "flutterName": "automaticallyImplyLeading",
+        "fieldPath": "properties.automaticallyImplyLeading",
+        "group": "Layout",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "appBar",
+        "flutterName": "titleSpacing",
+        "fieldPath": "properties.titleSpacing",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "AppBar": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "AppBar"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "centerTitle": {
+                      "type": "boolean"
+                    },
+                    "elevation": {
+                      "type": "number"
+                    },
+                    "automaticallyImplyLeading": {
+                      "type": "boolean"
+                    },
+                    "titleSpacing": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "centerTitle",
+        "field": "properties.centerTitle",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "elevation",
+        "field": "properties.elevation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "automaticallyImplyLeading",
+        "field": "properties.automaticallyImplyLeading",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "titleSpacing",
+        "field": "properties.titleSpacing",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}
