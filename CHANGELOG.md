@@ -1,5 +1,16 @@
 ## Unreleased
 
+### PR43 additions (not published)
+
+- The #43 numeric/area plot is `PlotChartNode` (`chartPlot`), separate from
+  #48's categorical `ChartNode` (`chartSeries`). Untagged `chart` documents
+  require exclusive raw keys; empty/shared-only and mixed signatures stay
+  unresolved without discarding their original JSON.
+- ListView wrap and run spacing, input decoration content padding, typed
+  corner radius and edge insets bindings, batch cloud storage operations,
+  toast font weight and bindable offset, and dialog insets/height limit.
+- Navigation pop keeps the older empty destination ID compatibility key.
+
 ### PR48 additions
 
 - `gauge` node (`GaugeNode`, `GaugeProperties`, `GaugeZone`): a dial with a

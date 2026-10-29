@@ -40,9 +40,8 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Defines how the navigation should be performed.
   final NavigationType navigationType;
 
-  /// Destination canvas node's ID. For a pop it's optional: where to go
-  /// instead when there is no previous screen to go back to. Empty when no
-  /// fallback is provided; always written for older readers that require it.
+  /// Destination canvas node's ID. For a pop it is an optional fallback.
+  /// Empty when no fallback is provided; written for older readers.
   @JsonLegacyDefault(null)
   @JsonKey(readValue: _readDestinationId)
   final String destinationId;
