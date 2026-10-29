@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 
 import '../field_access.dart';
+import '../node_json_converter.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'nodes.dart';
@@ -157,8 +158,16 @@ class GaugeMeterNode extends SceneNode
     ColorValue(name: 'limitColor', value: properties.limitColor),
   ];
 
-  /// Creates a [GaugeMeterNode] from a JSON object.
-  factory GaugeMeterNode.fromJson(Map json) => _$GaugeMeterNodeFromJson(json);
+  /// Creates a [GaugeMeterNode] from validated meter wire data.
+  /// Raw variant keys are checked before generated defaults are applied.
+  factory GaugeMeterNode.fromJson(Map json) {
+    NodeJsonConverter.validateGaugeWire(json, expectedType: 'gaugeMeter');
+    return _$GaugeMeterNodeFromJson({
+      ...json,
+      if (json['type'] == 'gauge') 'type': 'gaugeMeter',
+      if (json['properties'] == null) 'properties': const {},
+    });
+  }
 
   @override
   Map toJson() =>
