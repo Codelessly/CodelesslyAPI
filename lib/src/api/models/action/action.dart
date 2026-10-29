@@ -67,7 +67,10 @@ enum ActionType {
   cloudBatch,
 
   /// Copy a text to the clipboard.
-  copyToClipboard;
+  copyToClipboard,
+
+  /// Perform a native store-safe paywall interaction.
+  paywall;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -116,6 +119,8 @@ enum ActionType {
         return 'Cloud Batch';
       case ActionType.copyToClipboard:
         return 'Copy to Clipboard';
+      case ActionType.paywall:
+        return 'Paywall';
     }
   }
 }
@@ -209,6 +214,8 @@ abstract class ActionModel with SerializableMixin {
         return CloudBatchAction.fromJson(json);
       case ActionType.copyToClipboard:
         return CopyToClipboardAction.fromJson(json);
+      case ActionType.paywall:
+        return PaywallAction.fromJson(json);
     }
   }
 

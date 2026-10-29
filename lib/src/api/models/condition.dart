@@ -785,6 +785,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [CopyToClipboardAction].
   R? visitCopyToClipboardAction(CopyToClipboardAction action);
 
+  /// Visits a native [PaywallAction].
+  R? visitPaywallAction(PaywallAction action);
+
   /// Visits a [CloudDataAction].
   R? visitCloudDataAction(CloudDataAction action);
 
