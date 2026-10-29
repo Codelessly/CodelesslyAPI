@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -11,6 +12,7 @@ part 'accordion_node.g.dart';
 /// top of one another. When clicked on (or triggered by a keyboard interaction
 /// or screen reader), these headers will either reveal or hide associated
 /// content.
+@FlutterNode('CodelesslyAccordion', family: 'codelessly', nodeType: 'accordion')
 @JsonSerializable()
 class AccordionNode extends SceneNode
     with ChildrenMixin, RowColumnMixin, CustomPropertiesMixin, FieldsHolder {
@@ -83,6 +85,7 @@ class AccordionNode extends SceneNode
 @JsonSerializable()
 class AccordionProperties extends CustomProperties with FieldsHolder {
   /// Whether the accordion is expanded or collapsed.
+  @FlutterProp('isExpanded', type: 'boolean', group: 'State', control: 'switch', field: 'properties.isExpanded')
   bool isExpanded;
 
   /// Creates a new [AccordionProperties] instance.
