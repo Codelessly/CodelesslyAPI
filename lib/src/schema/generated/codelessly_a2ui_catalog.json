@@ -300,6 +300,36 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyEmbeddedVideo": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyEmbeddedVideo"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "autoPlay": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "ExpansionTile": {
       "allOf": [
         {
@@ -751,6 +781,87 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslySignature": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslySignature"
+            },
+            "value": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "inkWidth": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyNormalizedSignature": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyNormalizedSignature"
+            },
+            "strokes": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "strokeWidth": {
+                  "type": "number"
+                },
+                "readOnly": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Slider": {
       "allOf": [
         {
@@ -921,6 +1032,33 @@
           "required": [
             "component",
             "text"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyWebView": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyWebView"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "src": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
           ]
         }
       ],
