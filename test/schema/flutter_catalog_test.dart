@@ -16,8 +16,8 @@ void main() {
   });
   for (final entry in {
     'text_node': ('TextNode', 'Text', 3),
-    'button_node': ('ButtonNode', 'ElevatedButton', 1),
-    'row_column_node': ('RowColumnNode', 'Row', 3),
+    'button_node': ('ElevatedButtonNode', 'ElevatedButton', 1),
+    'row_column_node': ('RowNode', 'Row', 3),
     'divider_node': ('DividerNode', 'Divider', 4),
     'badge_node': ('BadgeNode', 'Badge', 3),
     'app_bar_node': ('AppBarNode', 'AppBar', 4),
@@ -72,6 +72,21 @@ void main() {
       expect(properties, isNotEmpty);
       if (entry.key == 'button_node') {
         expect((((properties['properties'] as Map)['properties'] as Map)).keys, contains('label'));
+        for (final (className, widget, field) in [
+          ('TextButtonNode', 'TextButton', 'label'),
+          ('OutlinedButtonNode', 'OutlinedButton', 'label'),
+          ('FilledButtonNode', 'FilledButton', 'label'),
+          ('IconButtonNode', 'IconButton', 'icon'),
+        ]) {
+          final variant = output[className] as Map;
+          expect(variant['widget'], widget);
+          expect((((variant['jsonSchema'] as Map)['properties'] as Map)['properties'] as Map)['properties'], contains(field));
+          expect((variant['dpp'] as List), isNotEmpty);
+        }
+      }
+      if (entry.key == 'row_column_node') {
+        expect((output['ColumnNode'] as Map)['widget'], 'Column');
+        expect(((output['ColumnNode'] as Map)['dpp'] as List).length, 3);
       }
       expect(((node['a2ui'] as Map)['components'] as Map).keys, contains(entry.value.$2));
       expect((node['testMatrix'] as List).length, entry.value.$3);
