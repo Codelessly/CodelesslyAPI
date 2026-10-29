@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
 import '../constants.dart';
+import '../../schema/flutter_prop.dart';
 import '../field_access.dart';
 import '../math_helper.dart';
 import '../mixins.dart';
@@ -114,6 +115,7 @@ abstract class BaseNode
   /// It replicates the behavior of Flutter's flex factors and takes effect only
   /// if two or more nodes have a [SizeFit] of [SizeFit.expanded] or
   /// [SizeFit.flexible] in the given [RowColumnNode].
+  @FlutterProp('flex', type: 'integer', group: 'Layout', control: 'number', defaultSource: '1')
   int flex;
 
   /// Whether a node that wraps its content ([SizeFit.shrinkWrap]) on its

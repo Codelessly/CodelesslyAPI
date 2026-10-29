@@ -1,0 +1,85 @@
+{
+  "LoadingIndicatorNode": {
+    "widget": "CodelesslyLoadingIndicator",
+    "family": "codelessly",
+    "nodeType": "loadingIndicator",
+    "drift": [
+      {
+        "flutterName": "type",
+        "fieldPath": "properties.type"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "properties": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "loadingIndicator",
+        "flutterName": "type",
+        "fieldPath": "properties.type",
+        "group": "Variant",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyLoadingIndicator": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyLoadingIndicator"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "type",
+        "field": "properties.type",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}

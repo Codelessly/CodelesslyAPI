@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
 import '../mixins.dart';
@@ -129,6 +130,7 @@ const double kDefaultNavigationBarHeight = 80;
 /// tapping on any of its items. The items are laid out in a row and the bar
 /// itself is typically located at the bottom of the screen.
 /// Inspired from: https://m3.material.io/components/navigation-bar.
+@FlutterNode('NavigationBar', family: 'material', nodeType: 'navigationBar')
 @JsonSerializable()
 class NavigationBarNode extends SceneNode
     with CustomPropertiesMixin, ParentReactionMixin, FieldsHolder {
@@ -136,6 +138,7 @@ class NavigationBarNode extends SceneNode
   final String type = 'navigationBar';
 
   /// Index of currently selected item.
+  @FlutterProp('selectedIndex', type: 'integer', group: 'Selection', control: 'number')
   int currentIndex;
 
   /// Holds configurable properties of the navigation bar.
