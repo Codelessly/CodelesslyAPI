@@ -58,6 +58,7 @@ export 'loop_animation.dart';
 export 'navigation_bar_item.dart';
 export 'node_box.dart';
 export 'paint.dart';
+export 'pulse.dart';
 export 'paint_type.dart';
 export 'pins_model.dart';
 export 'property_overrides.dart';

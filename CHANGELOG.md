@@ -1,5 +1,38 @@
 ## Unreleased
 
+### PR48 additions
+
+- `gauge` node (`GaugeNode`, `GaugeProperties`, `GaugeZone`): a dial with a
+  bindable `value`, zone bands, LED segments, ticks and labels, a target
+  notch, a needle and value animation.
+- `chart` node (`ChartNode`, `ChartProperties`, `ChartSeries`,
+  `ChartReferenceLine`): bar, line and timeline charts bound to a list
+  through `variables.data`; bar, line, area and tick series with stacks,
+  per-item colors, dashes, end dots and fill-between; reference lines;
+  bindable `selectedIndex` and a `changed` trigger; a timeline's `nowColor`
+  colors its now marker.
+- `PaintModel.gradientTileMode` (clamp, repeated, mirror) for repeating
+  gradients such as stripes.
+- `BlendMixin.pulse` (`PulseModel`): a looping fade of a node's opacity.
+- Rows can wrap: `RowColumnNode.wrap`, `spacing` and `runSpacing` lay a
+  row's children out in lines like Flutter's `Wrap`.
+- `ShowDialogAction.anchor` (`DialogAnchor.trigger`), `placement`,
+  `anchorGap` and `anchorOffset`: a dialog can open as a popover next to
+  the node that ran it. `copyWith` keeps `nonBlocking` and `enabled`.
+- `ShowToastAction.accentColor` (a 4 px leading edge), `cornerRadius` and
+  `maxWidth`.
+- Slider thumbs can be rectangles: `SliderProperties.thumbShape`,
+  `thumbWidth`, `thumbHeight`, `thumbCornerRadius`, `thumbBorderColor`,
+  `thumbBorderWidth` and `thumbGripColor`.
+- `MaterialIcon.fromJson` reads a Flutter-style name with a style suffix
+  (`home_outlined`) as the base name in that style, so it draws.
+- `VariableData.isComputed` and `isFormulaValue`: a variable whose value is
+  a `${= ...}` formula is computed; `getValue()` returns null for it.
+- Gauge and chart nodes read JSON without `properties`; grid delegates,
+  scroll settings and placeholder type lists default when left out; a
+  spacer reads JSON without its positioning mode, aspect lock and
+  reactions.
+
 ### Motion
 
 - `MotionModel` on every node (`BaseNode.motion`): offset, scale, opacity,

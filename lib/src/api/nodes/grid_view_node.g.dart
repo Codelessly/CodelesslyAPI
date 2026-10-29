@@ -11,6 +11,10 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.allowedTypes, <String>[]))
+    json.remove('allowedTypes');
+  if (isJsonDefault(instance.deniedTypes, <String>[]))
+    json.remove('deniedTypes');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -48,7 +52,7 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('componentSchema');
   if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
   if (isJsonDefault(instance.children, [])) json.remove('children');
-  if (isJsonDefault(instance.isScrollable, true)) json.remove('isScrollable');
+  if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
   if (isJsonDefault(instance.scrollDirection, AxisC.vertical))
     json.remove('scrollDirection');
   if (isJsonDefault(instance.reverse, false)) json.remove('reverse');
@@ -187,7 +191,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
-        isScrollable: json['isScrollable'] as bool? ?? true,
+        isScrollable: json['isScrollable'] as bool? ?? false,
         useFlutterListView: json['useFlutterListView'] as bool? ?? false,
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
@@ -259,16 +263,20 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
-      ..deniedTypes = (json['deniedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
+      ..deniedTypes =
+          (json['deniedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes = (json['allowedTypes'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList()
+      ..allowedTypes =
+          (json['allowedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -394,7 +402,9 @@ const _$QueryPagingEnumMap = {
 GridViewProperties _$GridViewPropertiesFromJson(Map json) => GridViewProperties(
   itemCount: (json['itemCount'] as num?)?.toInt(),
   cacheExtent: (json['cacheExtent'] as num?)?.toDouble(),
-  gridDelegate: GridDelegateProperties.fromJson(json['gridDelegate'] as Map),
+  gridDelegate: GridDelegateProperties.fromJson(
+    _readGridDelegate(json, 'gridDelegate') as Map,
+  ),
 );
 
 Map<String, dynamic> _$GridViewPropertiesToJson(GridViewProperties instance) =>

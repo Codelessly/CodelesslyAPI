@@ -259,6 +259,43 @@ List<BaseNode> sampleNodes() {
       _node('placeholder'),
       _node('accordion', {'rowColumnType': 'column', 'properties': {}}),
       _node('external', {'properties': {}}),
+      _node('gauge', {
+        'value': 72.6,
+        'properties': {
+          'segments': 0,
+          'target': 90,
+          'labels': [0, 100],
+          'labelFontFamily': 'JetBrains Mono',
+          'zones': [
+            {'from': 0, 'to': 50, 'color': '#FF4A3D'},
+            {'from': 50, 'to': 100, 'color': '#2FD17A'},
+          ],
+        },
+      }),
+      _node('chart', {
+        'selectedIndex': 2,
+        'properties': {
+          'chartType': 'line',
+          'xSlots': 8,
+          'nowValue': 342,
+          'series': [
+            {
+              'field': 'actual',
+              'kind': 'area',
+              'fillTo': 'plan',
+              'endDot': true,
+            },
+            {'field': 'plan', 'kind': 'line', 'dashed': true},
+          ],
+          'referenceLines': [
+            {'value': 85, 'color': '#2FD17A'},
+          ],
+          'sampleData': [
+            {'label': '14', 'actual': 0, 'plan': 0},
+            {'label': '15', 'actual': 700, 'plan': 800},
+          ],
+        },
+      }),
     ])
       NodeJsonConverter().fromJson(json)!,
   ];
@@ -300,7 +337,18 @@ void main() {
         if (expected['type'] == 'checkbox' && expected['value'] == null) {
           expected['value'] = false;
         }
-        expect(encodeDecode(back.toJson()), expected);
+        // Master retains legacy-required list/grid/page keys on serialization.
+        // They may be absent in older input JSON, but their defaults must be
+        // restored without changing any keys supplied by that input.
+        final roundTrip = encodeDecode(back.toJson()) as Map;
+        if (const {'listView', 'gridView', 'pageView'}.contains(node.type)) {
+          for (final key in ['deniedTypes', 'useFlutterListView']) {
+            if (!expected.containsKey(key) && roundTrip.containsKey(key)) {
+              roundTrip.remove(key);
+            }
+          }
+        }
+        expect(roundTrip, expected);
       });
     }
   });
@@ -335,6 +383,40 @@ void main() {
         );
       });
     }
+
+    test('a pulse round-trips and is left out when unset', () {
+      final RectangleNode rect = RectangleNode.fromJson({
+        'id': 'r',
+        'name': 'Skeleton',
+        'type': 'rectangle',
+        'basicBoxLocal': [0, 0, 100, 12],
+        'pulse': {'durationMillis': 600},
+      });
+      expect(rect.pulse, const PulseModel(durationMillis: 600));
+      expect(rect.pulse!.minOpacity, 0.45);
+      expect(rect.toJson()['pulse'], {'durationMillis': 600});
+      expect(
+        RectangleNode.fromJson(rect.toJson()).pulse,
+        const PulseModel(durationMillis: 600),
+      );
+      rect.pulse = null;
+      expect(rect.toJson(), isNot(contains('pulse')));
+    });
+
+    test('a spacer reads JSON that leaves out its defaults', () {
+      final SpacerNode spacer = SpacerNode.fromJson({
+        'id': 's',
+        'name': 'Spacer',
+        'type': 'spacer',
+        'basicBoxLocal': [0, 0, 1, 1],
+        'flex': 2,
+      });
+      expect(spacer.positioningMode, PositioningMode.align);
+      expect(spacer.aspectRatioLock, isFalse);
+      expect(spacer.reactions, isEmpty);
+      // Master deliberately writes this key for SDKs <= 6.0.0.
+      expect(spacer.toJson()['positioningMode'], 'align');
+    });
 
     test('empty action lists, maps and sets are left out', () {
       expect(

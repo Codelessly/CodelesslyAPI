@@ -29,6 +29,11 @@ class RowColumnNode extends ParentNode
   @override
   set scrollDirection(AxisC value) {}
 
+  /// Whether this node wraps its children into runs: [wrap] is on and it is
+  /// a row.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get wrapsChildren => wrap && rowColumnType == RowColumnType.row;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -115,21 +120,21 @@ class RowColumnNode extends ParentNode
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),
-    'spacing': NumFieldAccess<double>(
-      'Spacing',
-      'Gap between consecutive children along the main axis.',
-      () => spacing,
-      (value) => spacing = value,
-      defaultValue: () => 0,
-      min: 0,
-      requiresLayout: true,
-    ),
     'wrap': BoolFieldAccess(
       'Wrap',
-      'Whether children wrap onto further runs when they do not fit.',
+      'Whether a row starts a new line when its children do not fit.',
       () => wrap,
       (value) => wrap = value,
       defaultValue: () => false,
+      requiresLayout: true,
+    ),
+    'spacing': NumFieldAccess<double>(
+      'Spacing',
+      'Gap between consecutive children along the main axis; between children of a run when wrapping.',
+      () => spacing,
+      (value) => spacing = value,
+      min: 0,
+      defaultValue: () => 0,
       requiresLayout: true,
     ),
     'runSpacing': NumFieldAccess<double>(
@@ -137,8 +142,8 @@ class RowColumnNode extends ParentNode
       'Gap between runs along the cross axis when wrapping.',
       () => runSpacing,
       (value) => runSpacing = value,
-      defaultValue: () => 0,
       min: 0,
+      defaultValue: () => 0,
       requiresLayout: true,
     ),
   };

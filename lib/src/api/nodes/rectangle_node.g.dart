@@ -171,7 +171,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             : CornerRadius.fromJson(json['cornerRadius']),
         clipsContent: json['clipsContent'] as bool? ?? true,
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -196,6 +195,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -222,10 +222,19 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
           : InkWellModel.fromJson(
               Map<String, dynamic>.from(json['inkWell'] as Map),
             )
+      ..pulse = json['pulse'] == null
+          ? null
+          : PulseModel.fromJson(json['pulse'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
     <String, dynamic>{
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
       'id': instance.id,
       'name': instance.name,
       'visible': instance.visible,
@@ -238,12 +247,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -264,6 +267,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'isMask': instance.isMask,
       'effects': instance.effects.map((e) => e.toJson()).toList(),
       'inkWell': ?instance.inkWell?.toJson(),
+      'pulse': ?instance.pulse?.toJson(),
       'fills': instance.fills.map((e) => e.toJson()).toList(),
       'strokes': instance.strokes.map((e) => e.toJson()).toList(),
       'strokeWeight': instance.strokeWeight,

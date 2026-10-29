@@ -77,6 +77,8 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'segmentedButton': SegmentedButtonNode.fromJson,
       'signature': SignatureNode.fromJson,
       'external': ExternalComponentNode.fromJson,
+      'gauge': GaugeNode.fromJson,
+      'chart': ChartNode.fromJson,
     };
   }
 
@@ -109,7 +111,12 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
     if (json['type'] == null || _registry[json['type']] == null) {
       throw UnsupportedError('Unsupported node type: ${json["type"]}\n$json');
     }
-    return _registry[json['type']]!(json);
+    // Hand-written JSON (e.g. nodes.insertTree) leaves out default
+    // properties; nodes with custom properties read a missing key as all
+    // defaults. Nodes without properties ignore the key.
+    return _registry[json['type']]!(
+      json['properties'] == null ? {...json, 'properties': const {}} : json,
+    );
   }
 
   @override

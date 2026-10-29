@@ -29,6 +29,27 @@ enum ImageRepeatEnum {
   final String label;
 }
 
+/// How a gradient paints outside the span between its first and last
+/// handle.
+enum GradientTileMode {
+  /// The edge colors extend outward (Flutter's default).
+  clamp,
+
+  /// The gradient repeats, e.g. stripes from a short gradient with hard
+  /// stops.
+  repeated,
+
+  /// The gradient repeats, mirrored every other time.
+  mirror;
+
+  /// Display name.
+  String get prettify => switch (this) {
+    GradientTileMode.clamp => 'Clamp',
+    GradientTileMode.repeated => 'Repeat',
+    GradientTileMode.mirror => 'Mirror',
+  };
+}
+
 /// Generates a random id if the given [json] does not contain a value for the
 /// given [key]. Required for backwards compatibility.
 Object? _readId(Map json, String key) => json[key] ?? generateId();
@@ -94,6 +115,10 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// e.g. 45° hazard stripes: stops `[a 0, a .5, b .5, b 1]` repeating every
   /// 16 px. Null (the default) stretches the gradient across the box.
   final double? gradientRepeatEvery;
+
+  /// How the gradient paints beyond its handles. [GradientTileMode.repeated]
+  /// with hard stops makes stripes (hazard tape, hatching).
+  final GradientTileMode gradientTileMode;
 
   // For image paint:
 
@@ -265,6 +290,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageHash = null,
        gradientTransform = null,
        gradientStops = null,
+       gradientTileMode = GradientTileMode.clamp,
        imageTransform = null,
        imageName = null,
        fit = Fit.none,
@@ -308,7 +334,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientTransform = null,
        gradientStops = null,
        color = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientTileMode = GradientTileMode.clamp;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -318,6 +345,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientRepeatEvery,
+    this.gradientTileMode = GradientTileMode.clamp,
+
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientLinear,
        color = null,
@@ -345,6 +374,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
+    this.gradientTileMode = GradientTileMode.clamp,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientRadial,
        color = null,
@@ -373,6 +403,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.opacity = 1,
     this.gradientTransform,
     this.gradientStops,
+    this.gradientTileMode = GradientTileMode.clamp,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientAngular,
        color = null,
@@ -405,6 +436,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientRepeatEvery,
+    this.gradientTileMode = GradientTileMode.clamp,
+
     this.imageTransform,
     this.hasImageBytes = false,
     this.downloadUrl,
@@ -434,6 +467,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     List<ColorStop>? gradientStops,
     double? gradientRepeatEvery,
     bool clearGradientRepeat = false,
+    GradientTileMode? gradientTileMode,
+
     List<List<num>>? imageTransform,
     double? scalingFactor,
     String? downloadUrl,
@@ -466,6 +501,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientRepeatEvery: clearGradientRepeat
         ? null
         : gradientRepeatEvery ?? this.gradientRepeatEvery,
+    gradientTileMode: gradientTileMode ?? this.gradientTileMode,
+
     imageTransform: imageTransform ?? this.imageTransform,
     hasImageBytes: hasImageBytes ?? this.hasImageBytes,
     downloadUrl: downloadUrl ?? this.downloadUrl,
@@ -518,6 +555,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           gradientStops: gradientStops,
           gradientTransform: gradientTransform,
           gradientRepeatEvery: gradientRepeatEvery,
+          gradientTileMode: gradientTileMode,
         );
       case PaintType.image:
         return PaintModel.image(
@@ -559,6 +597,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (gradientTransform != other.gradientTransform) return false;
     if (gradientStops != other.gradientStops) return false;
     if (gradientRepeatEvery != other.gradientRepeatEvery) return false;
+    if (gradientTileMode != other.gradientTileMode) return false;
     if (imageTransform != other.imageTransform) return false;
     if (hasImageBytes != other.hasImageBytes) return false;
     if (downloadUrl != other.downloadUrl) return false;
@@ -589,6 +628,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientTransform,
     gradientStops,
     gradientRepeatEvery,
+    gradientTileMode,
+
     imageTransform,
     hasImageBytes,
     downloadUrl,

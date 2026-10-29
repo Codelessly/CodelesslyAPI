@@ -220,6 +220,16 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// Whether to show slider's thumb.
   bool showThumb;
 
+  /// Border color of a rectangular thumb, or null for no border.
+  ColorRGBA? thumbBorderColor;
+
+  /// Border width of a rectangular thumb.
+  double thumbBorderWidth;
+
+  /// Color of a vertical grip line in the middle of a rectangular thumb, or
+  /// null for none.
+  ColorRGBA? thumbGripColor;
+
   /// Shape of slider's track.
   SliderTrackShapeEnum trackShape;
 
@@ -294,6 +304,9 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.thumbHeight = kSliderDefaultThumbSize,
     this.thumbCornerRadius = kSliderDefaultThumbCornerRadius,
     this.showThumb = true,
+    this.thumbBorderColor,
+    this.thumbBorderWidth = 2,
+    this.thumbGripColor,
     this.trackShape = SliderTrackShapeEnum.roundedRectangle,
     this.tickMarkRadius = kSliderDefaultTickMarkRadius,
     this.valueIndicatorShape = SliderValueIndicatorShape.rectangle,
@@ -349,6 +362,9 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     bool? inverted,
     ColorRGBA? thumbStrokeColor,
     double? thumbStrokeWidth,
+    ColorRGBA? thumbBorderColor,
+    double? thumbBorderWidth,
+    ColorRGBA? thumbGripColor,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -394,6 +410,9 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       inverted: inverted ?? this.inverted,
       thumbStrokeColor: thumbStrokeColor ?? this.thumbStrokeColor,
       thumbStrokeWidth: thumbStrokeWidth ?? this.thumbStrokeWidth,
+      thumbBorderColor: thumbBorderColor ?? this.thumbBorderColor,
+      thumbBorderWidth: thumbBorderWidth ?? this.thumbBorderWidth,
+      thumbGripColor: thumbGripColor ?? this.thumbGripColor,
     );
   }
 
@@ -541,6 +560,53 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       (bool value) => showThumb = value,
       requiresLayout: true,
     ),
+    'thumbShape': EnumFieldAccess<SliderThumbShapeEnum>(
+      'Thumb Shape',
+      'Shape of slider\'s thumb.',
+      () => thumbShape,
+      (SliderThumbShapeEnum value) => thumbShape = value,
+      defaultValue: () => SliderThumbShapeEnum.circle,
+      options: () => SliderThumbShapeEnum.values,
+      requiresLayout: true,
+    ),
+    'thumbWidth': NumFieldAccess<double>(
+      'Thumb Width',
+      'Width of a rectangular thumb.',
+      () => thumbWidth,
+      (double value) => thumbWidth = value,
+      requiresLayout: true,
+    ),
+    'thumbHeight': NumFieldAccess<double>(
+      'Thumb Height',
+      'Height of a rectangular thumb.',
+      () => thumbHeight,
+      (double value) => thumbHeight = value,
+      requiresLayout: true,
+    ),
+    'thumbCornerRadius': NumFieldAccess<double>(
+      'Thumb Corner Radius',
+      'Corner radius of a rectangular thumb.',
+      () => thumbCornerRadius,
+      (double value) => thumbCornerRadius = value,
+    ),
+    'thumbBorderColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Border Color',
+      'Border color of a rectangular thumb.',
+      () => thumbBorderColor,
+      (value) => thumbBorderColor = value,
+    ),
+    'thumbBorderWidth': NumFieldAccess<double>(
+      'Thumb Border Width',
+      'Border width of a rectangular thumb.',
+      () => thumbBorderWidth,
+      (double value) => thumbBorderWidth = value,
+    ),
+    'thumbGripColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Grip Color',
+      'Color of the grip line in a rectangular thumb.',
+      () => thumbGripColor,
+      (value) => thumbGripColor = value,
+    ),
     'trackShape': EnumFieldAccess<SliderTrackShapeEnum>(
       'Track Shape',
       'Shape of slider\'s track.',
@@ -623,32 +689,6 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       () => thumbStrokeWidth,
       (double value) => thumbStrokeWidth = value,
     ),
-    'thumbShape': EnumFieldAccess<SliderThumbShapeEnum>(
-      'Thumb Shape',
-      'Shape of slider\'s thumb: a circle or a rounded rectangle.',
-      () => thumbShape,
-      (SliderThumbShapeEnum value) => thumbShape = value,
-      defaultValue: () => SliderThumbShapeEnum.circle,
-      options: () => SliderThumbShapeEnum.values,
-    ),
-    'thumbWidth': NumFieldAccess<double>(
-      'Thumb Width',
-      'Width of slider\'s rectangular thumb.',
-      () => thumbWidth,
-      (double value) => thumbWidth = value,
-    ),
-    'thumbHeight': NumFieldAccess<double>(
-      'Thumb Height',
-      'Height of slider\'s rectangular thumb.',
-      () => thumbHeight,
-      (double value) => thumbHeight = value,
-    ),
-    'thumbCornerRadius': NumFieldAccess<double>(
-      'Thumb Corner Radius',
-      'Corner radius of slider\'s rectangular thumb.',
-      () => thumbCornerRadius,
-      (double value) => thumbCornerRadius = value,
-    ),
   };
 
   @override
@@ -690,6 +730,9 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     inverted,
     thumbStrokeColor,
     thumbStrokeWidth,
+    thumbBorderColor,
+    thumbBorderWidth,
+    thumbGripColor,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.
