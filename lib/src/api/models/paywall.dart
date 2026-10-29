@@ -1,12 +1,17 @@
+import '../../schema/flutter_prop.dart';
+
 /// A stable product identity independent of the store SKU and locale.
 class ProductSlot {
   /// Slot key used in paywall bindings.
+  @PaywallWireField('id', 'string', required: true)
   final String id;
 
   /// Apple App Store product identifier.
+  @PaywallWireField('iosProductId', 'string', required: true)
   final String iosProductId;
 
   /// Google Play product identifier.
+  @PaywallWireField('androidProductId', 'string', required: true)
   final String androidProductId;
 
   /// Defines a cross-platform product slot.
@@ -34,12 +39,15 @@ class ProductSlot {
 /// A named entry point resolved to a published layout by the host application.
 class PaywallPlacement {
   /// Key supplied by the host app.
+  @PaywallWireField('id', 'string', required: true)
   final String id;
 
   /// ID of the published layout.
+  @PaywallWireField('layoutId', 'string', required: true)
   final String layoutId;
 
   /// Named product slots displayed in the layout.
+  @PaywallWireField('productSlots', 'array', required: true)
   final List<String> productSlots;
 
   /// Defines a published placement.
