@@ -19,9 +19,18 @@ void main() {
     test('${node.runtimeType} has strict wire identity', () {
       final json = node.toJson();
       expect(json['type'], node.type);
-      expect(json['properties']['buttonType'], node.properties.buttonType.name);
+      expect(json['properties'].containsKey('buttonType'), isFalse);
+      expect(
+        json['properties']['variant'],
+        node.type == 'filledButton'
+            ? (node.properties.buttonType == ButtonTypeEnum.filledTonal
+                  ? 'tonal'
+                  : 'filled')
+            : isNull,
+      );
       final restored = ButtonNode.fromJson(json);
       expect(restored.runtimeType, node.runtimeType);
+      expect(restored.properties.buttonType, node.properties.buttonType);
       expect(restored.toJson()['type'], node.type);
       expect(
         () => ButtonNode.fromJson({...json, 'type': 'button'}),
@@ -31,13 +40,37 @@ void main() {
         () => ButtonNode.fromJson({...json, 'type': 'anotherButton'}),
         throwsFormatException,
       );
+      for (final legacy in [node.properties.buttonType.name, 'incorrect']) {
+        expect(
+          () => ButtonNode.fromJson({
+            ...json,
+            'properties': {...json['properties'], 'buttonType': legacy},
+          }),
+          throwsFormatException,
+        );
+      }
+      final properties = Map<String, dynamic>.from(json['properties'] as Map);
+      properties.remove('variant');
+      expect(
+        () => ButtonNode.fromJson({...json, 'properties': properties}),
+        node.type == 'filledButton' ? throwsFormatException : returnsNormally,
+      );
       expect(
         () => ButtonNode.fromJson({
           ...json,
-          'properties': {...json['properties'], 'buttonType': 'incorrect'},
+          'properties': {...properties, 'variant': 'invalid'},
         }),
         throwsFormatException,
       );
+      if (node.type != 'filledButton') {
+        expect(
+          () => ButtonNode.fromJson({
+            ...json,
+            'properties': {...properties, 'variant': 'filled'},
+          }),
+          throwsFormatException,
+        );
+      }
     });
   }
 
