@@ -251,7 +251,10 @@ enum DialogPresentation {
 
   /// Anchored to the right edge, as tall as the screen and
   /// [ShowDialogAction.sheetWidth] wide. Slides in from the right.
-  sideSheet;
+  sideSheet,
+
+  /// Covers the whole screen, like a photo viewer.
+  fullScreen;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -259,5 +262,6 @@ enum DialogPresentation {
     DialogPresentation.bottomSheet => 'Bottom Sheet',
     DialogPresentation.adaptive => 'Adaptive',
     DialogPresentation.sideSheet => 'Side Sheet',
+    DialogPresentation.fullScreen => 'Full Screen',
   };
 }

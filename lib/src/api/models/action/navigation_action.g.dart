@@ -26,7 +26,7 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
   navigationType:
       $enumDecodeNullable(_$NavigationTypeEnumMap, json['navigationType']) ??
       NavigationType.push,
-  destinationId: json['destinationId'] as String? ?? '',
+  destinationId: _readDestinationId(json, 'destinationId') as String? ?? '',
   params: (json['params'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
