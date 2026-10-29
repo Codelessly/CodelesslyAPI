@@ -1,6 +1,12 @@
 targets:
   $default:
     builders:
+      flutter_prop_builder:flutter_props:
+        generate_for:
+          - lib/src/api/nodes/text_node.dart
+          - lib/src/api/nodes/button_node.dart
+          - lib/src/api/nodes/row_column_node.dart
+          - lib/src/api/nodes/divider_node.dart
       json_serializable:
         options:
           # explicit_to_json must be true for nested models (like a Paint inside a Frame) to serialize.

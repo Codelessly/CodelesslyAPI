@@ -1,0 +1,7 @@
+builders:
+  flutter_props:
+    import: 'package:flutter_prop_builder/builder.dart'
+    builder_factories: ['flutterPropsBuilder']
+    build_extensions: {'.dart': ['.flutter_catalog.json']}
+    auto_apply: dependents
+    build_to: source
