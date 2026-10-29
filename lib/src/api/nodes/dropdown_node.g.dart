@@ -56,9 +56,9 @@ Map<String, dynamic> _$DropdownPropertiesOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
-  if (isJsonDefault(instance.dense, false)) json.remove('dense');
-  if (isJsonDefault(instance.expanded, false)) json.remove('expanded');
-  if (isJsonDefault(instance.autoFocus, false)) json.remove('autoFocus');
+  if (isJsonDefault(instance.isDense, false)) json.remove('isDense');
+  if (isJsonDefault(instance.isExpanded, false)) json.remove('isExpanded');
+  if (isJsonDefault(instance.autofocus, false)) json.remove('autofocus');
   if (isJsonDefault(instance.enableFeedback, true))
     json.remove('enableFeedback');
   if (isJsonDefault(instance.itemAlignment, AlignmentModel.centerLeft))
@@ -271,9 +271,9 @@ const _$InteractionStateEnumMap = {
 
 DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
   enabled: json['enabled'] as bool? ?? true,
-  dense: json['dense'] as bool? ?? false,
-  expanded: json['expanded'] as bool? ?? false,
-  autoFocus: json['autoFocus'] as bool? ?? false,
+  isDense: json['isDense'] as bool? ?? false,
+  isExpanded: json['isExpanded'] as bool? ?? false,
+  autofocus: json['autofocus'] as bool? ?? false,
   enableFeedback: json['enableFeedback'] as bool? ?? true,
   items: (json['items'] as List<dynamic>).map((e) => e as String).toList(),
   itemTextStyle: json['itemTextStyle'] == null
@@ -332,9 +332,9 @@ DropdownProperties _$DropdownPropertiesFromJson(Map json) => DropdownProperties(
 Map<String, dynamic> _$DropdownPropertiesToJson(DropdownProperties instance) =>
     <String, dynamic>{
       'enabled': instance.enabled,
-      'dense': instance.dense,
-      'expanded': instance.expanded,
-      'autoFocus': instance.autoFocus,
+      'isDense': instance.isDense,
+      'isExpanded': instance.isExpanded,
+      'autofocus': instance.autofocus,
       'enableFeedback': instance.enableFeedback,
       'items': instance.items,
       'itemTextStyle': instance.itemTextStyle.toJson(),

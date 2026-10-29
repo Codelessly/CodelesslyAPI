@@ -334,7 +334,7 @@
     {
       "nodeType": "dropdown",
       "flutterName": "isDense",
-      "fieldPath": "properties.dense",
+      "fieldPath": "properties.isDense",
       "group": "Layout",
       "control": "switch",
       "schemaType": "boolean",
@@ -344,7 +344,7 @@
     {
       "nodeType": "dropdown",
       "flutterName": "isExpanded",
-      "fieldPath": "properties.expanded",
+      "fieldPath": "properties.isExpanded",
       "group": "Layout",
       "control": "switch",
       "schemaType": "boolean",
@@ -354,7 +354,7 @@
     {
       "nodeType": "dropdown",
       "flutterName": "autofocus",
-      "fieldPath": "properties.autoFocus",
+      "fieldPath": "properties.autofocus",
       "group": "Interaction",
       "control": "switch",
       "schemaType": "boolean",
@@ -1222,7 +1222,7 @@
     {
       "nodeType": "text",
       "flutterName": "data",
-      "fieldPath": "characters",
+      "fieldPath": "data",
       "group": "Text",
       "control": "text",
       "schemaType": "string",
@@ -1414,17 +1414,17 @@
     {
       "nodeType": "dropdown",
       "flutterName": "isDense",
-      "fieldPath": "properties.dense"
+      "fieldPath": "properties.isDense"
     },
     {
       "nodeType": "dropdown",
       "flutterName": "isExpanded",
-      "fieldPath": "properties.expanded"
+      "fieldPath": "properties.isExpanded"
     },
     {
       "nodeType": "dropdown",
       "flutterName": "autofocus",
-      "fieldPath": "properties.autoFocus"
+      "fieldPath": "properties.autofocus"
     },
     {
       "nodeType": "dropdown",
@@ -1703,11 +1703,6 @@
       "nodeType": "textField",
       "flutterName": "expands",
       "fieldPath": "properties.expands"
-    },
-    {
-      "nodeType": "text",
-      "flutterName": "data",
-      "fieldPath": "characters"
     },
     {
       "nodeType": "webView",

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -93,20 +94,44 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   bool enabled;
 
   /// Whether to reduce dropdown button's height.
-  @FlutterProp('isDense', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.dense')
-  bool dense;
+  @FlutterProp(
+    'isDense',
+    type: 'boolean',
+    group: 'Layout',
+    control: 'switch',
+    field: 'properties.isDense',
+  )
+  bool isDense;
 
   /// Whether to expand the dropdown button's width.
-  @FlutterProp('isExpanded', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.expanded')
-  bool expanded;
+  @FlutterProp(
+    'isExpanded',
+    type: 'boolean',
+    group: 'Layout',
+    control: 'switch',
+    field: 'properties.isExpanded',
+  )
+  bool isExpanded;
 
   /// Whether to automatically focus the dropdown button.
-  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autoFocus')
-  bool autoFocus;
+  @FlutterProp(
+    'autofocus',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.autofocus',
+  )
+  bool autofocus;
 
   /// Whether to enable device-specific haptic feedback when dropdown button is
   /// tapped or long pressed.
-  @FlutterProp('enableFeedback', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.enableFeedback')
+  @FlutterProp(
+    'enableFeedback',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.enableFeedback',
+  )
   bool enableFeedback;
 
   /// Dropdown options.
@@ -138,7 +163,13 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   ColorRGBA iconEnabledColor;
 
   /// Icon size in dropdown button.
-  @FlutterProp('iconSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.iconSize')
+  @FlutterProp(
+    'iconSize',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.iconSize',
+  )
   double iconSize;
 
   /// Dropdown button's icon.
@@ -157,7 +188,13 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   ColorRGBA? splashColor;
 
   /// The z-coordinate of the dropdown overlay.
-  @FlutterProp('elevation', type: 'integer', group: 'Appearance', control: 'number', field: 'properties.elevation')
+  @FlutterProp(
+    'elevation',
+    type: 'integer',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.elevation',
+  )
   int elevation;
 
   /// Corner radii of the dropdown overlay.
@@ -190,9 +227,9 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   /// Creates a [DropdownProperties] instance with the given data.
   DropdownProperties({
     this.enabled = true,
-    this.dense = false,
-    this.expanded = false,
-    this.autoFocus = false,
+    this.isDense = false,
+    this.isExpanded = false,
+    this.autofocus = false,
     this.enableFeedback = true,
     required this.items,
     TextProp? itemTextStyle,
@@ -264,9 +301,9 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     bool? useDataSource,
     String? itemLabel,
     bool? enabled,
-    bool? dense,
-    bool? expanded,
-    bool? autoFocus,
+    bool? isDense,
+    bool? isExpanded,
+    bool? autofocus,
     bool? enableFeedback,
     DropdownMenuStyleModel? menuStyle,
     bool clearMenuStyle = false,
@@ -298,9 +335,9 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       useDataSource: useDataSource ?? this.useDataSource,
       itemLabel: itemLabel ?? this.itemLabel,
       enabled: enabled ?? this.enabled,
-      dense: dense ?? this.dense,
-      expanded: expanded ?? this.expanded,
-      autoFocus: autoFocus ?? this.autoFocus,
+      isDense: isDense ?? this.isDense,
+      isExpanded: isExpanded ?? this.isExpanded,
+      autofocus: autofocus ?? this.autofocus,
       enableFeedback: enableFeedback ?? this.enableFeedback,
       menuStyle: clearMenuStyle ? null : menuStyle ?? this.menuStyle,
       itemImage: itemImage ?? this.itemImage,
@@ -318,25 +355,25 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
       () => enabled,
       (value) => enabled = value,
     ),
-    'dense': BoolFieldAccess(
+    'isDense': BoolFieldAccess(
       'Dense',
       'Whether to reduce dropdown button\'s height.',
-      () => dense,
-      (value) => dense = value,
+      () => isDense,
+      (value) => isDense = value,
       requiresLayout: true,
     ),
-    'expanded': BoolFieldAccess(
+    'isExpanded': BoolFieldAccess(
       'Expanded',
       'Whether to expand the dropdown button\'s width.',
-      () => expanded,
-      (value) => expanded = value,
+      () => isExpanded,
+      (value) => isExpanded = value,
       requiresLayout: true,
     ),
-    'autoFocus': BoolFieldAccess(
+    'autofocus': BoolFieldAccess(
       'Auto Focus',
       'Whether to automatically focus the dropdown button.',
-      () => autoFocus,
-      (value) => autoFocus = value,
+      () => autofocus,
+      (value) => autofocus = value,
     ),
     'enableFeedback': BoolFieldAccess(
       'Enable Feedback',
@@ -507,9 +544,9 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
     useDataSource,
     itemLabel,
     enabled,
-    dense,
-    expanded,
-    autoFocus,
+    isDense,
+    isExpanded,
+    autofocus,
     enableFeedback,
     menuStyle,
     itemImage,
@@ -518,8 +555,14 @@ class DropdownProperties extends CustomProperties with FieldsHolder {
   ];
 
   /// Creates a [DropdownProperties] instance from a JSON object.
-  factory DropdownProperties.fromJson(Map json) =>
-      _$DropdownPropertiesFromJson(json);
+  factory DropdownProperties.fromJson(Map json) {
+    for (final key in const ['dense', 'expanded', 'autoFocus']) {
+      if (json.containsKey(key)) {
+        throw FormatException('Unsupported DropdownProperties key: $key');
+      }
+    }
+    return _$DropdownPropertiesFromJson(json);
+  }
 
   @override
   Map<String, dynamic> toJson() =>

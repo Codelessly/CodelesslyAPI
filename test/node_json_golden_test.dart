@@ -47,7 +47,7 @@ List<BaseNode> goldenNodes() {
       id: 'text',
       name: 'Text',
       basicBoxLocal: NodeBox(0, 0, 100, 20),
-      characters: 'Hello',
+      data: 'Hello',
       textMixedProps: [],
     ),
   ];
