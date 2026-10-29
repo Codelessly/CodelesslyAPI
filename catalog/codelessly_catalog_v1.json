@@ -274,6 +274,43 @@
       ],
       "unevaluatedProperties": false
     },
+    "Switch": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "Switch"
+            },
+            "value": {
+              "type": "boolean"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "splashRadius": {
+                  "type": "number"
+                },
+                "autofocus": {
+                  "type": "boolean"
+                },
+                "trackOutlineWidth": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Text": {
       "allOf": [
         {

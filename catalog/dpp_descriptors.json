@@ -261,6 +261,46 @@
       "bindable": false
     },
     {
+      "nodeType": "switch",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus",
+      "group": "Interaction",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "trackOutlineWidth",
+      "fieldPath": "properties.trackOutlineWidth",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "text",
       "flutterName": "data",
       "fieldPath": "characters",
@@ -391,6 +431,21 @@
       "nodeType": "slider",
       "flutterName": "max",
       "fieldPath": "properties.max"
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "splashRadius",
+      "fieldPath": "properties.splashRadius"
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "autofocus",
+      "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": "trackOutlineWidth",
+      "fieldPath": "properties.trackOutlineWidth"
     },
     {
       "nodeType": "text",
