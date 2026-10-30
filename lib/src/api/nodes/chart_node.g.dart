@@ -134,6 +134,12 @@ Map<String, dynamic> _$ChartPropertiesOmitDefaults(
   ))
     json.remove('trackColor');
   if (isJsonDefault(instance.divisions, 8)) json.remove('divisions');
+  if (isJsonDefault(instance.donutThickness, 0.15))
+    json.remove('donutThickness');
+  if (isJsonDefault(instance.sliceGap, 1.5)) json.remove('sliceGap');
+  if (isJsonDefault(instance.startAngle, 0)) json.remove('startAngle');
+  if (isJsonDefault(instance.selectOnHover, false))
+    json.remove('selectOnHover');
   return json;
 }
 
@@ -425,6 +431,10 @@ ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(
       ? const ColorRGBA(r: 18 / 255, g: 19 / 255, b: 22 / 255, a: 1)
       : ColorRGBA.fromJson(json['trackColor']),
   divisions: (json['divisions'] as num?)?.toInt() ?? 8,
+  donutThickness: (json['donutThickness'] as num?)?.toDouble() ?? 0.15,
+  sliceGap: (json['sliceGap'] as num?)?.toDouble() ?? 1.5,
+  startAngle: (json['startAngle'] as num?)?.toDouble() ?? 0,
+  selectOnHover: json['selectOnHover'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
@@ -461,10 +471,15 @@ Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
       'nowColor': ?instance.nowColor?.toJson(),
       'trackColor': instance.trackColor.toJson(),
       'divisions': instance.divisions,
+      'donutThickness': instance.donutThickness,
+      'sliceGap': instance.sliceGap,
+      'startAngle': instance.startAngle,
+      'selectOnHover': instance.selectOnHover,
     };
 
 const _$ChartTypeEnumMap = {
   ChartType.bar: 'bar',
   ChartType.line: 'line',
   ChartType.timeline: 'timeline',
+  ChartType.donut: 'donut',
 };

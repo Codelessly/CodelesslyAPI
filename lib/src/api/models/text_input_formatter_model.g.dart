@@ -41,6 +41,7 @@ Map<String, dynamic> _$NoneTextInputFormatterModelToJson(
 const _$TextInputFormatterTypeEnumMap = {
   TextInputFormatterType.none: 'none',
   TextInputFormatterType.regex: 'regex',
+  TextInputFormatterType.currency: 'currency',
 };
 
 RegexTextInputFormatterModel _$RegexTextInputFormatterModelFromJson(Map json) =>

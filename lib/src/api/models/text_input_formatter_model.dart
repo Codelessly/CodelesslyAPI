@@ -12,6 +12,9 @@ enum TextInputFormatterType {
 
   /// A formatter that uses a regular expression to match the text.
   regex,
+
+  /// Groups an amount as it is typed, in a currency's format.
+  currency,
 }
 
 /// Text formatters that can be applied to the text field input to restrict the
@@ -37,6 +40,8 @@ sealed class TextInputFormatterModel with Equatable, SerializableMixin {
       TextInputFormatterType.regex => RegexTextInputFormatterModel.fromJson(
         json,
       ),
+      TextInputFormatterType.currency =>
+        CurrencyTextInputFormatterModel.fromJson(json),
     };
   }
 
@@ -44,6 +49,7 @@ sealed class TextInputFormatterModel with Equatable, SerializableMixin {
   static const List<TextInputFormatterModel> formatters = [
     NoneTextInputFormatterModel(),
     ...RegexTextInputFormatterModel.formatters,
+    CurrencyTextInputFormatterModel(),
   ];
 
   /// A list of all available text field formatter names.
@@ -201,4 +207,38 @@ class RegexTextInputFormatterModel extends TextInputFormatterModel {
     replacementString,
     allow,
   ];
+}
+
+
+/// Formats an amount while it is typed, the way [currencyCode] writes
+/// money: digits grouped (`12,345.6`, `12.345,6` for EUR), decimals capped
+/// at the currency's (none for JPY), "." accepted as the decimal mark of a
+/// comma currency. [currencyCode] may be a variable or formula
+/// (`${account.currency}`), so the field follows the selected account.
+class CurrencyTextInputFormatterModel extends TextInputFormatterModel {
+  /// ISO code, e.g. USD, EUR, GBP, JPY; or a `${...}` binding.
+  final String currencyCode;
+
+  const CurrencyTextInputFormatterModel({this.currencyCode = 'USD'})
+    : super(name: 'Currency Amount', type: TextInputFormatterType.currency);
+
+  CurrencyTextInputFormatterModel copyWith({String? currencyCode}) =>
+      CurrencyTextInputFormatterModel(
+        currencyCode: currencyCode ?? this.currencyCode,
+      );
+
+  factory CurrencyTextInputFormatterModel.fromJson(Map json) =>
+      CurrencyTextInputFormatterModel(
+        currencyCode: json['currencyCode'] as String? ?? 'USD',
+      );
+
+  @override
+  Map toJson() => {
+    'name': name,
+    'type': type.name,
+    if (currencyCode != 'USD') 'currencyCode': currencyCode,
+  };
+
+  @override
+  List<Object?> get props => [...super.props, currencyCode];
 }

@@ -27,13 +27,18 @@ enum ChartType {
 
   /// One horizontal band of colored segments over a numeric domain, e.g. a
   /// machine's states across a shift.
-  timeline;
+  timeline,
+
+  /// A ring of slices, one per data item, sized by the first series' field
+  /// and colored by its colorField (e.g. spending by category).
+  donut;
 
   /// Display name.
   String get prettify => switch (this) {
     ChartType.bar => 'Bar',
     ChartType.line => 'Line',
     ChartType.timeline => 'Timeline',
+    ChartType.donut => 'Donut',
   };
 }
 
@@ -420,6 +425,21 @@ class ChartProperties extends CustomProperties with FieldsHolder {
   /// Timeline: divisions marked with ticks (e.g. hours).
   int divisions;
 
+  /// Donut: ring width as a fraction of the chart's diameter.
+  double donutThickness;
+
+  /// Donut: gap between slices, in degrees.
+  double sliceGap;
+
+  /// Donut: where the first slice starts, in degrees clockwise from 12
+  /// o'clock.
+  double startAngle;
+
+  /// Hovering a category (bar group, line point or slice) selects it, as a
+  /// tap does, and leaving the chart clears the selection (-1); bind
+  /// selectedIndex to show what is under the pointer.
+  bool selectOnHover;
+
   /// Creates [ChartProperties].
   ChartProperties({
     this.chartType = ChartType.bar,
@@ -469,6 +489,10 @@ class ChartProperties extends CustomProperties with FieldsHolder {
       a: 1,
     ),
     this.divisions = 8,
+    this.donutThickness = 0.15,
+    this.sliceGap = 1.5,
+    this.startAngle = 0,
+    this.selectOnHover = false,
   });
 
   /// Duplicates these properties with the given overrides.
@@ -505,6 +529,10 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? nowColor,
     ColorRGBA? trackColor,
     int? divisions,
+    double? donutThickness,
+    double? sliceGap,
+    double? startAngle,
+    bool? selectOnHover,
   }) => ChartProperties(
     chartType: chartType ?? this.chartType,
     series: series ?? this.series,
@@ -538,11 +566,33 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     nowColor: nowColor ?? this.nowColor,
     trackColor: trackColor ?? this.trackColor,
     divisions: divisions ?? this.divisions,
+    donutThickness: donutThickness ?? this.donutThickness,
+    sliceGap: sliceGap ?? this.sliceGap,
+    startAngle: startAngle ?? this.startAngle,
+    selectOnHover: selectOnHover ?? this.selectOnHover,
   );
 
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),
+    'donutThickness': NumFieldAccess<double>(
+      'Ring Width',
+      'Donut ring width as a fraction of the diameter',
+      () => donutThickness,
+      (v) => donutThickness = v,
+    ),
+    'sliceGap': NumFieldAccess<double>(
+      'Slice Gap',
+      'Gap between donut slices in degrees',
+      () => sliceGap,
+      (v) => sliceGap = v,
+    ),
+    'selectOnHover': BoolFieldAccess(
+      'Select On Hover',
+      'Hovering a category selects it',
+      () => selectOnHover,
+      (v) => selectOnHover = v,
+    ),
     'labelField': StringFieldAccess(
       'Label Field',
       'Field holding x-axis labels',
@@ -627,6 +677,10 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     nowColor,
     trackColor,
     divisions,
+    donutThickness,
+    sliceGap,
+    startAngle,
+    selectOnHover,
   ];
 
   /// Creates [ChartProperties] from JSON.
