@@ -19,6 +19,9 @@ Map<String, dynamic> _$TabsNodeOmitDefaults(
 ) {
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
@@ -99,6 +102,8 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..verticalFit = $enumDecode(_$SizeFitEnumMap, json['verticalFit'])
       ..flex = (json['flex'] as num).toInt()
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..aspectRatioLock = json['aspectRatioLock'] as bool
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
@@ -151,6 +156,8 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'widthFactor': ?instance.widthFactor,

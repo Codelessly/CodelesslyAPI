@@ -13,6 +13,10 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.translateX, 0)) json.remove('translateX');
   if (isJsonDefault(instance.translateY, 0)) json.remove('translateY');
   if (isJsonDefault(instance.scale, 1)) json.remove('scale');
+  if (isJsonDefault(instance.shiftX, 0)) json.remove('shiftX');
+  if (isJsonDefault(instance.shiftY, 0)) json.remove('shiftY');
+  if (isJsonDefault(instance.scaleX, 1)) json.remove('scaleX');
+  if (isJsonDefault(instance.scaleY, 1)) json.remove('scaleY');
   if (isJsonDefault(instance.opacity, 1)) json.remove('opacity');
   if (isJsonDefault(instance.rotate, 0)) json.remove('rotate');
   if (isJsonDefault(instance.rotateX, 0)) json.remove('rotateX');
@@ -26,6 +30,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.spin, 0)) json.remove('spin');
   if (isJsonDefault(instance.spinRampMs, 800)) json.remove('spinRampMs');
   if (isJsonDefault(instance.loop, MotionLoop.none)) json.remove('loop');
+  if (isJsonDefault(instance.repeat, 0)) json.remove('repeat');
   if (isJsonDefault(instance.enter, false)) json.remove('enter');
   if (isJsonDefault(instance.delayMs, 0)) json.remove('delayMs');
   return json;
@@ -39,6 +44,10 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   translateX: (json['translateX'] as num?)?.toDouble() ?? 0,
   translateY: (json['translateY'] as num?)?.toDouble() ?? 0,
   scale: (json['scale'] as num?)?.toDouble() ?? 1,
+  shiftX: (json['shiftX'] as num?)?.toDouble() ?? 0,
+  shiftY: (json['shiftY'] as num?)?.toDouble() ?? 0,
+  scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
+  scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
   opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
   rotate: (json['rotate'] as num?)?.toDouble() ?? 0,
   rotateX: (json['rotateX'] as num?)?.toDouble() ?? 0,
@@ -54,6 +63,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   spinRampMs: (json['spinRampMs'] as num?)?.toInt() ?? 800,
   loop:
       $enumDecodeNullable(_$MotionLoopEnumMap, json['loop']) ?? MotionLoop.none,
+  repeat: (json['repeat'] as num?)?.toInt() ?? 0,
   enter: json['enter'] as bool? ?? false,
   enterFrom: json['enterFrom'] == null
       ? null
@@ -67,6 +77,10 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'translateX': instance.translateX,
       'translateY': instance.translateY,
       'scale': instance.scale,
+      'shiftX': instance.shiftX,
+      'shiftY': instance.shiftY,
+      'scaleX': instance.scaleX,
+      'scaleY': instance.scaleY,
       'opacity': instance.opacity,
       'rotate': instance.rotate,
       'rotateX': instance.rotateX,
@@ -79,6 +93,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'spin': instance.spin,
       'spinRampMs': instance.spinRampMs,
       'loop': _$MotionLoopEnumMap[instance.loop]!,
+      'repeat': instance.repeat,
       'enter': instance.enter,
       'enterFrom': ?instance.enterFrom?.toJson(),
       'replayKey': ?instance.replayKey,

@@ -326,47 +326,51 @@ extension ConversionExt on Object? {
       list = this as List;
     } else if (this is String) {
       final decoded = tryJsonDecode(this as String);
-      if (decoded is List) {
-        list = decoded.map((e) => e is String ? e.parsedValue() : e).toList();
-      }
+      // JSON items keep their types: "" stays an empty string and "02134"
+      // stays text, they aren't re-read as null or a number.
+      if (decoded is List) list = decoded;
     }
     if (list == null) return null;
+    // Typed lists read text items as their values ("1" as 1).
+    final List<Object?> items = [
+      for (final e in list) e is String ? e.parsedValue() : e,
+    ];
 
     if (R == List<int?>) {
-      return list.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
+      return items.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
     }
     if (R == List<int>) {
-      return list.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
+      return items.map<int?>((e) => e?.toInt()).toList().tryCast<R>();
     }
     if (R == List<double>) {
-      return list.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
+      return items.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
     }
     if (R == List<double?>) {
-      return list.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
+      return items.map<double?>((e) => e.toDouble()).toList().tryCast<R>();
     }
     if (R == List<num>) {
-      return list.map<num?>((e) => e.toNum()).toList().tryCast<R>();
+      return items.map<num?>((e) => e.toNum()).toList().tryCast<R>();
     }
     if (R == List<num?>) {
-      return list.map<num?>((e) => e.toNum()).toList().tryCast<R>();
+      return items.map<num?>((e) => e.toNum()).toList().tryCast<R>();
     }
     if (R == List<bool>) {
-      return list.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
+      return items.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
     }
     if (R == List<bool?>) {
-      return list.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
+      return items.map<bool?>((e) => e.toBool()).toList().tryCast<R>();
     }
     if (R == List<String>) {
-      return list.map<String?>((e) => e.toString()).toList().tryCast<R>();
+      return items.map<String?>((e) => e.toString()).toList().tryCast<R>();
     }
     if (R == List<String?>) {
-      return list.map<String?>((e) => e.toString()).toList().tryCast<R>();
+      return items.map<String?>((e) => e.toString()).toList().tryCast<R>();
     }
     if (R == List<Map>) {
-      return list.map<Map?>((e) => e.toMap()).toList().tryCast<R>();
+      return items.map<Map?>((e) => e.toMap()).toList().tryCast<R>();
     }
     if (R == List<Map?>) {
-      return list.map<Map?>((e) => e.toMap()).toList().tryCast<R>();
+      return items.map<Map?>((e) => e.toMap()).toList().tryCast<R>();
     }
 
     return list.tryCast<R>();
@@ -380,9 +384,7 @@ extension ConversionExt on Object? {
       set = this as Set;
     } else if (this is String) {
       final decoded = tryJsonDecode(this as String);
-      if (decoded is List) {
-        set = decoded.map((e) => e is String ? e.parsedValue() : e).toSet();
-      }
+      if (decoded is List) set = decoded.toSet();
     }
     if (set == null) return null;
 
