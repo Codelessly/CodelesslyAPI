@@ -152,7 +152,6 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['properties'] as Map),
               ),
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -164,6 +163,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -205,6 +205,12 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
           ? null
           : ParticleEmitter.fromJson(json['particles'] as Map)
       ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -221,8 +227,8 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
 Map<String, dynamic> _$VarianceNodeToJson(
   VarianceNode instance,
 ) => <String, dynamic>{
-  'squeezable': instance.squeezable,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'aspectRatioLock': instance.aspectRatioLock,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -238,7 +244,7 @@ Map<String, dynamic> _$VarianceNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'aspectRatioLock': instance.aspectRatioLock,
+  'squeezable': instance.squeezable,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -262,6 +268,8 @@ Map<String, dynamic> _$VarianceNodeToJson(
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
   'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,

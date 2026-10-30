@@ -505,6 +505,14 @@ abstract class BaseNode
   @JsonKey(defaultValue: '')
   String flightKey = '';
 
+  /// A line drawn through points in the node's box, behind its children
+  /// (a dotted trail, a connector). Null for none. See [StrokePath].
+  StrokePath? strokePath;
+
+  /// Scrolls the node into view when it appears (or when `reveal.when`
+  /// turns true). Null for none. See [RevealModel].
+  RevealModel? reveal;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

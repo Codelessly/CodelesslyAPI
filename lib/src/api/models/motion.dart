@@ -208,6 +208,11 @@ class MotionModel with Equatable, SerializableMixin {
     'spin',
   ];
 
+  /// The name of the binding that sets [delayMs], e.g.
+  /// `motion.delayMs: ${= 1500 + index * 120}` to stagger the entrance of
+  /// list items.
+  static const String delayProperty = 'delayMs';
+
   /// The name of the binding that replays the entrance when its value
   /// changes; see [replayKey].
   static const String replayKeyProperty = 'replayKey';
