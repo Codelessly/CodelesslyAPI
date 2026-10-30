@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../converters.dart';
@@ -182,7 +183,13 @@ class CanvasNode extends ParentNode
 @JsonSerializable()
 class CanvasProperties extends CustomProperties {
   /// ID of the body node.
-  @FlutterProp('bodyId', type: 'string', group: 'Structure', control: 'text', field: 'properties.bodyId')
+  @FlutterProp(
+    'bodyId',
+    type: 'string',
+    group: 'Structure',
+    control: 'text',
+    field: 'properties.bodyId',
+  )
   String bodyId;
 
   /// ID of the navigation bar placeholder node.

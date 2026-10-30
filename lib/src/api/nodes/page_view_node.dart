@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../../../codelessly_api.dart';
@@ -134,11 +135,23 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   int? itemCount;
 
   /// Set to false to disable page snapping, useful for custom scroll behavior.
-  @FlutterProp('pageSnapping', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.pageSnapping')
+  @FlutterProp(
+    'pageSnapping',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.pageSnapping',
+  )
   bool pageSnapping;
 
   /// Whether to add padding to both ends of the list.
-  @FlutterProp('padEnds', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.padEnds')
+  @FlutterProp(
+    'padEnds',
+    type: 'boolean',
+    group: 'Layout',
+    control: 'switch',
+    field: 'properties.padEnds',
+  )
   bool padEnds;
 
   /// Keep current page in memory and restore it when the page is recreated.
@@ -152,7 +165,13 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
 
   /// Whether to lay out the pages next to the visible one, so accessibility
   /// focus can move to them. Mirrors `PageView.allowImplicitScrolling`.
-  @FlutterProp('allowImplicitScrolling', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.allowImplicitScrolling')
+  @FlutterProp(
+    'allowImplicitScrolling',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.allowImplicitScrolling',
+  )
   bool allowImplicitScrolling;
 
   /// Creates a [PageViewProperties].

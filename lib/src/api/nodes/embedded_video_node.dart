@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
+
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -20,7 +22,11 @@ enum EmbeddedVideoSource {
 
 /// This creates a WebView with an embedded video.
 /// Source of the video can be any one of the [EmbeddedVideoSource] values.
-@FlutterNode('CodelesslyEmbeddedVideo', family: 'codelessly', nodeType: 'embeddedVideo')
+@FlutterNode(
+  'CodelesslyEmbeddedVideo',
+  family: 'codelessly',
+  nodeType: 'embeddedVideo',
+)
 @JsonSerializable()
 class EmbeddedVideoNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
@@ -98,14 +104,26 @@ class EmbeddedVideoNode extends SceneNode
 abstract class EmbeddedVideoProperties extends CustomProperties
     with FieldsHolder {
   /// Video's source URL.
-  @FlutterProp('url', type: 'string', group: 'Content', control: 'text', field: 'properties.url')
+  @FlutterProp(
+    'url',
+    type: 'string',
+    group: 'Content',
+    control: 'text',
+    field: 'properties.url',
+  )
   String? url;
 
   /// Video's ID extracted from the URL.
   String? videoId;
 
   /// Whether to play the video automatically.
-  @FlutterProp('autoPlay', type: 'boolean', group: 'Playback', control: 'switch', field: 'properties.autoPlay')
+  @FlutterProp(
+    'autoPlay',
+    type: 'boolean',
+    group: 'Playback',
+    control: 'switch',
+    field: 'properties.autoPlay',
+  )
   bool autoPlay;
 
   /// Source of the video, i.e., youtube, vimeo, etc.

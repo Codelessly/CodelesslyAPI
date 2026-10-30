@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -108,7 +109,13 @@ abstract class WebViewProperties extends CustomProperties with FieldsHolder {
   /// The [src] holds the actual content of the webview. It can be either a URL,
   /// an actual HTML string, an asset path, etc.
   @Base64JsonConverter()
-  @FlutterProp('src', type: 'string', group: 'Content', control: 'text', field: 'properties.src')
+  @FlutterProp(
+    'src',
+    type: 'string',
+    group: 'Content',
+    control: 'text',
+    field: 'properties.src',
+  )
   String? src;
 
   /// The type of webview this instance of [WebViewProperties] is.

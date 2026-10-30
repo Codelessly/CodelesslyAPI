@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
+
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -17,7 +19,11 @@ const double kProgressBarDefaultHeight = 10;
 
 /// Progress bar is a widget that displays the current progress of an ongoing
 /// process. For example, an image being downloaded.
-@FlutterNode('CodelesslyProgressBar', family: 'codelessly', nodeType: 'progressBar')
+@FlutterNode(
+  'CodelesslyProgressBar',
+  family: 'codelessly',
+  nodeType: 'progressBar',
+)
 @JsonSerializable()
 class ProgressBarNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
@@ -29,7 +35,13 @@ class ProgressBarNode extends SceneNode
   covariant ProgressBarProperties properties;
 
   /// Current progress value of the progress bar.
-  @FlutterProp('currentValue', type: 'number', group: 'State', control: 'number', bindable: true)
+  @FlutterProp(
+    'currentValue',
+    type: 'number',
+    group: 'State',
+    control: 'number',
+    bindable: true,
+  )
   double currentValue = 0;
 
   @override
@@ -135,7 +147,13 @@ class ProgressBarNode extends SceneNode
 @JsonSerializable()
 class ProgressBarProperties extends CustomProperties with FieldsHolder {
   /// Maximum value of the progress bar, i.e., when the progress is complete.
-  @FlutterProp('maxValue', type: 'number', group: 'Range', control: 'number', field: 'properties.maxValue')
+  @FlutterProp(
+    'maxValue',
+    type: 'number',
+    group: 'Range',
+    control: 'number',
+    field: 'properties.maxValue',
+  )
   double maxValue;
 
   /// Color of progress bar's background.

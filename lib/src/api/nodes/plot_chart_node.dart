@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -47,7 +48,12 @@ const ColorRGBA kPlotChartDefaultReferenceColor = ColorRGBA(
 /// bind the data, the markers and the selection to variables. Selecting an
 /// x value writes it to the bound `selectedX` variable and fires
 /// [TriggerType.changed] with it.
-@FlutterNode('CodelesslyPlotChart', family: 'codelessly', nodeType: 'chart', variant: 'plot')
+@FlutterNode(
+  'CodelesslyPlotChart',
+  family: 'codelessly',
+  nodeType: 'chart',
+  variant: 'plot',
+)
 @JsonSerializable()
 class PlotChartNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -59,7 +65,12 @@ class PlotChartNode extends SceneNode with CustomPropertiesMixin {
 
   /// The selected x value: the start of the selection band, which is
   /// [PlotChartProperties.selectionStep] wide. Null shows no selection.
-  @FlutterProp('selectedX', type: 'number', group: 'Selection', control: 'number')
+  @FlutterProp(
+    'selectedX',
+    type: 'number',
+    group: 'Selection',
+    control: 'number',
+  )
   double? selectedX;
 
   /// Creates a chart with sample data, for previews.

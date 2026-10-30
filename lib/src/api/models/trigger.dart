@@ -14,11 +14,12 @@ enum TriggerType {
   /// Triggered when text is changed inside a text input field.
   changed,
 
-  /// Triggered when text editing is completed on a text input field and
-  /// it is about to submit.
+  /// Triggered when a text field loses focus (the user clicked or tabbed
+  /// elsewhere), e.g. to save an inline edit.
   editingComplete,
 
-  /// Triggered when a text field is submitted.
+  /// Triggered when the user submits a text field from the keyboard (Enter
+  /// on a one-line field, the keyboard's done/go key).
   submitted,
 
   /// Triggered when the user long presses on a target.
@@ -98,8 +99,8 @@ enum TriggerType {
   dragEnd,
 
   /// Triggered when a key is pressed while the screen it is set on shows
-  /// and no text field has focus (Escape also fires while typing, with
-  /// `${result.typing}` true, so it can leave the field). The actions read
+  /// and no text field has focus (Escape and Command/Control shortcuts such
+  /// as ⌘↵ also fire while typing, with `${result.typing}` true). The actions read
   /// `${result.key}` (the key's label: `a`, `ArrowLeft`, `Delete`,
   /// `Escape`, ...), `${result.shift}`, `${result.alt}` and `${result.meta}`
   /// (Command on macOS, Control elsewhere). [TriggerModel.key] limits it to

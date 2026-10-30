@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -138,7 +139,12 @@ class NavigationBarNode extends SceneNode
   final String type = 'navigationBar';
 
   /// Index of currently selected item.
-  @FlutterProp('selectedIndex', type: 'integer', group: 'Selection', control: 'number')
+  @FlutterProp(
+    'selectedIndex',
+    type: 'integer',
+    group: 'Selection',
+    control: 'number',
+  )
   int selectedIndex;
 
   /// Holds configurable properties of the navigation bar.
