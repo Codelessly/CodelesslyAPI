@@ -25,6 +25,9 @@
         "enabled": {
           "type": "boolean"
         },
+        "opacity": {
+          "type": "number"
+        },
         "clipsContent": {
           "type": "boolean"
         },
@@ -153,6 +156,18 @@
         "group": "Visibility",
         "control": "switch",
         "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+        "fieldPath": "opacity",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": true
       },
@@ -459,6 +474,16 @@
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+        "field": "opacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       },
       {
