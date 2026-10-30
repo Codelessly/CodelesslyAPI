@@ -55,7 +55,7 @@ class _FlutterPropsBuilder implements Builder {
           final name = '$prefix${field.name}';
           wireTypes[name] = field.type;
           final tag = _annotation(field.metadata.annotations, 'FlutterProp');
-          if (tag != null) annotated[name] = (field, tag);
+          if (tag != null) annotated.putIfAbsent(name, () => (field, tag));
         }
       }
 
@@ -73,6 +73,27 @@ class _FlutterPropsBuilder implements Builder {
         include(nestedElement, prefix: 'properties.');
         for (final ancestor in nestedElement.allSupertypes) {
           include(ancestor.element, prefix: 'properties.');
+        }
+      }
+      // BlendMixin owns InkWellModel?; only nodes that actually inherit that
+      // field receive nested InkWell descriptors. Keep the declaration in the
+      // model as the source of truth, not a fabricated InkWell node type.
+      final inkWellField = [cls, ...cls.allSupertypes.map((t) => t.element)]
+          .expand((element) => element.fields)
+          .where((field) => field.name == 'inkWell')
+          .firstOrNull;
+      final inkWellElement = inkWellField?.type.element;
+      if (inkWellElement is InterfaceElement) {
+        include(inkWellElement, prefix: 'inkWell.');
+      }
+      for (final nestedName in const ['transition', 'pulse']) {
+        final nestedField = [cls, ...cls.allSupertypes.map((t) => t.element)]
+            .expand((element) => element.fields)
+            .where((field) => field.name == nestedName)
+            .firstOrNull;
+        final nestedType = nestedField?.type.element;
+        if (nestedType is InterfaceElement) {
+          include(nestedType, prefix: '$nestedName.');
         }
       }
       final schemaFields = <String, dynamic>{};

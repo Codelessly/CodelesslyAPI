@@ -13,6 +13,18 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "children": {
           "type": "array",
           "items": {
@@ -43,6 +55,9 @@
         "shouldAlwaysScroll": {
           "type": "boolean"
         },
+        "clipsContent": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
@@ -50,10 +65,69 @@
               "type": "number"
             }
           }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
+            }
+          }
         }
       }
     },
     "dpp": [
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
       {
         "nodeType": "gridView",
         "flutterName": "children",
@@ -162,11 +236,47 @@
       },
       {
         "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly child clip toggle, not a Stack constructor parameter.",
+        "fieldPath": "clipsContent",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
         "flutterName": "cacheExtent",
         "fieldPath": "properties.cacheExtent",
         "group": "Layout",
         "control": "number",
         "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -211,6 +321,46 @@
       "functions": {}
     },
     "testMatrix": [
+      {
+        "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
       {
         "parameter": "children",
         "field": "children",
@@ -303,8 +453,38 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Codelessly child clip toggle, not a Stack constructor parameter.",
+        "field": "clipsContent",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
         "parameter": "cacheExtent",
         "field": "properties.cacheExtent",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
         "defaultSource": null,
         "testValues": [
           0,

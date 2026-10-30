@@ -54,6 +54,16 @@ abstract class BaseNode
   String name;
 
   /// Whether this node is visible or not.
+  @FlutterProp(
+    'visible',
+    type: 'boolean',
+    group: 'Visibility',
+    control: 'switch',
+    bindable: true,
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly node visibility; Flutter parent widget constructors differ.',
+  )
   bool visible;
 
   /// Determines whether this node supports visibility or not.
@@ -101,12 +111,31 @@ abstract class BaseNode
   /// out on the horizontal axis.
   ///
   /// See [SizeFit] for more info.
+  @FlutterProp(
+    'horizontalFit',
+    type: 'string',
+    group: 'Fit',
+    control: 'fitChips',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly horizontal layout fit, not a Flutter constructor parameter.',
+  )
   SizeFit horizontalFit;
 
   /// The vertical fit of a node determines how this node gets its box laid out
   /// on the vertical axis.
   ///
   /// See [SizeFit] for more info.
+  @FlutterProp(
+    'verticalFit',
+    type: 'string',
+    group: 'Fit',
+    control: 'fitChips',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Codelessly vertical layout fit, not a Flutter constructor parameter.',
+  )
   SizeFit verticalFit;
 
   /// The flex factor to use when this node's [SizeFit] is set to
@@ -115,7 +144,13 @@ abstract class BaseNode
   /// It replicates the behavior of Flutter's flex factors and takes effect only
   /// if two or more nodes have a [SizeFit] of [SizeFit.expanded] or
   /// [SizeFit.flexible] in the given [RowColumnNode].
-  @FlutterProp('flex', type: 'integer', group: 'Layout', control: 'number', defaultSource: '1')
+  @FlutterProp(
+    'flex',
+    type: 'integer',
+    group: 'Layout',
+    control: 'number',
+    defaultSource: '1',
+  )
   int flex;
 
   /// Whether a node that wraps its content ([SizeFit.shrinkWrap]) on its
@@ -426,6 +461,16 @@ abstract class BaseNode
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
+  @FlutterProp(
+    'enabled',
+    type: 'boolean',
+    group: 'Visibility',
+    control: 'switch',
+    bindable: true,
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly node enablement; Flutter parent widget constructors differ.',
+  )
   bool enabled;
 
   /// How the node moves: a transform drawn over its layout, transitions and

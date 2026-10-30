@@ -11,10 +11,61 @@
         "ephemeral": {
           "type": "boolean"
         },
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "children": {
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "inkWell": {
+          "type": "object",
+          "properties": {
+            "overlayColor": {
+              "type": "object"
+            },
+            "highlightColor": {
+              "type": "object"
+            },
+            "splashColor": {
+              "type": "object"
+            },
+            "hoverColor": {
+              "type": "object"
+            },
+            "focusColor": {
+              "type": "object"
+            }
+          }
+        },
+        "transition": {
+          "type": "object",
+          "properties": {
+            "durationMillis": {
+              "type": "integer"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
+            }
           }
         }
       }
@@ -32,11 +83,155 @@
       },
       {
         "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "autoPlaceholder",
         "flutterName": "children",
         "fieldPath": "children",
         "group": "Layout",
         "control": "children",
         "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.overlayColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.highlightColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.splashColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.hoverColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.focusColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
+        "fieldPath": "transition.durationMillis",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -86,6 +281,46 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
         "parameter": "children",
         "field": "children",
         "defaultSource": null,
@@ -94,6 +329,86 @@
           [
             "sample"
           ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.overlayColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.highlightColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.splashColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.hoverColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.focusColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
+        "field": "transition.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]

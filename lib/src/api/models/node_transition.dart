@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'node_transition.g.dart';
 
@@ -41,6 +42,16 @@ enum TransitionCurve {
 @JsonSerializable()
 class NodeTransition with Equatable, SerializableMixin {
   /// How long a change takes.
+  @FlutterProp(
+    'durationMillis',
+    type: 'integer',
+    group: 'Appearance',
+    control: 'number',
+    field: 'transition.durationMillis',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly opacity transition timing, not a parent widget constructor parameter.',
+  )
   final int durationMillis;
 
   /// The easing of the change.
