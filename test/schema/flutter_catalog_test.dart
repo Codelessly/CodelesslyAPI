@@ -106,6 +106,94 @@ void main() {
     );
   });
 
+  test(
+    'migrated inspector descriptor paths stay canonical and editor-only',
+    () {
+      final registry = jsonDecode(
+        File('lib/src/schema/generated/dpp_descriptors.json')
+            .readAsStringSync(),
+      ) as Map;
+      final descriptors = (registry['descriptors'] as List).cast<Map>();
+      final pairs = {
+        for (final descriptor in descriptors)
+          (descriptor['nodeType'] as String, descriptor['fieldPath'] as String),
+      };
+      for (final buttonType in const {
+        'elevatedButton',
+        'filledButton',
+        'outlinedButton',
+        'textButton',
+        'iconButton',
+      }) {
+        expect(pairs, contains((buttonType, 'properties.enabled')));
+        final field = descriptors.singleWhere(
+          (descriptor) =>
+              descriptor['nodeType'] == buttonType &&
+              descriptor['fieldPath'] == 'properties.enabled',
+        );
+        expect(field['flutterName'], isNull);
+      }
+      for (final path in const {
+        'fills',
+        'strokes',
+        'strokeWeight',
+        'dashPattern',
+        'cornerRadius',
+        'cornerSmoothing',
+        'margin',
+        'padding',
+        'effects',
+      }) {
+        expect(pairs, contains(('frame', path)), reason: path);
+      }
+      for (final path in const {
+        'textMixedProps',
+        'textAlignHorizontal',
+        'overflow',
+        'tabularFigures',
+      }) {
+        expect(pairs, contains(('text', path)), reason: path);
+      }
+      for (final path in const {
+        'fontSize',
+        'fontFamily',
+        'textAlign',
+        'rotationDegrees',
+        'rootColor',
+        'basicBoxLocal.width',
+        'fills.imageTransform',
+        'cornerRadius.tl',
+      }) {
+        expect(
+          pairs.where((pair) => pair.$2 == path),
+          isEmpty,
+          reason:
+              'No invented alias, editor geometry, or array-item path: $path',
+        );
+      }
+      final catalog = jsonDecode(
+        File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
+            .readAsStringSync(),
+      ) as Map;
+      final stack = catalog['components']['Stack'] as Map;
+      final fields =
+          ((stack['allOf'] as List).last as Map)['properties'] as Map;
+      for (final path in const {
+        'margin',
+        'padding',
+        'fills',
+        'strokes',
+        'effects',
+      }) {
+        expect(
+          fields.containsKey(path),
+          isFalse,
+          reason: 'No new BASIC Stack field $path',
+        );
+      }
+    },
+  );
+
   test('editor-only scrolling metadata leaves BASIC Stack wire unchanged', () {
     final catalog = jsonDecode(
       File('lib/src/schema/generated/codelessly_a2ui_catalog.json')

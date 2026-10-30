@@ -349,6 +349,15 @@ abstract class BaseNode
   /// The margin applied outside the node.
   ///
   /// Replicates the behavior of Flutter's [Padding] widget.
+  @FlutterProp(
+    'margin',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized margin object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get margin => _margin;
 
   EdgeInsetsModel _padding;
@@ -357,6 +366,15 @@ abstract class BaseNode
   ///
   /// Replicates the behavior of [padding] property of Flutter's [Container]
   /// widget.
+  @FlutterProp(
+    'padding',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized padding object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
