@@ -56,7 +56,7 @@ void main() {
     expect(() => properties.toJson(), throwsFormatException);
   });
 
-  test('generated schema and BASIC mapping advertise partial bridge only', () {
+  test('generated schema and BASIC mapping advertise verified bridge', () {
     final schema = jsonDecode(
       File('lib/src/api/nodes/audio_player_node.flutter_catalog.json')
           .readAsStringSync(),
@@ -73,7 +73,7 @@ void main() {
     ) as Map;
     expect((mapping['mappings'] as Map)['AudioPlayer'], {
       'nodeType': 'audioPlayer',
-      'bridgeStatus': 'partial',
+      'bridgeStatus': 'ready',
     });
   });
 }

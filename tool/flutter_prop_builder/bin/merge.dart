@@ -157,7 +157,14 @@ void main(List<String> args) {
       for (final entry in basicNodeTypes.entries)
         entry.key: {
           'nodeType': entry.value,
-          'bridgeStatus': (entry.key == 'Video' || entry.key == 'DateTimeInput')
+          'bridgeStatus':
+              const {
+                'Video',
+                'AudioPlayer',
+                'Modal',
+                'Tabs',
+                'DateTimeInput',
+              }.contains(entry.key)
               ? 'ready'
               : entry.value == null
               ? 'deferred'
