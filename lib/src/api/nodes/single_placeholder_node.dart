@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
@@ -8,7 +9,11 @@ import 'nodes.dart';
 part 'single_placeholder_node.g.dart';
 
 /// An unselectable node that serves as a placeholder for a single node.
-@FlutterNode('CodelesslySinglePlaceholder', family: 'codelessly', nodeType: 'singlePlaceholder')
+@FlutterNode(
+  'CodelesslySinglePlaceholder',
+  family: 'codelessly',
+  nodeType: 'singlePlaceholder',
+)
 @JsonSerializable()
 class SinglePlaceholderNode extends SceneNode
     with ChildrenMixin, PlaceholderMixin {
@@ -20,7 +25,12 @@ class SinglePlaceholderNode extends SceneNode
 
   /// Whether the placeholder is only meant to exist for a short period of time.
   @JsonKey(defaultValue: false)
-  @FlutterProp('ephemeral', type: 'boolean', group: 'Behavior', control: 'switch')
+  @FlutterProp(
+    'ephemeral',
+    type: 'boolean',
+    group: 'Behavior',
+    control: 'switch',
+  )
   bool ephemeral;
 
   @override

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -142,7 +143,13 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
 
   /// Specifies if the list tile is initially expanded or collapsed (false, by
   /// default).
-  @FlutterProp('initiallyExpanded', type: 'boolean', group: 'State', control: 'switch', field: 'properties.initiallyExpanded')
+  @FlutterProp(
+    'initiallyExpanded',
+    type: 'boolean',
+    group: 'State',
+    control: 'switch',
+    field: 'properties.initiallyExpanded',
+  )
   bool initiallyExpanded;
 
   /// Specifies whether the state of the children is maintained when the tile
@@ -151,7 +158,13 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
   /// When true, the children are kept in the tree while the tile is collapsed.
   /// When false (default), the children are removed from the tree when the tile
   /// is collapsed and recreated upon expansion.
-  @FlutterProp('maintainState', type: 'boolean', group: 'Behavior', control: 'switch', field: 'properties.maintainState')
+  @FlutterProp(
+    'maintainState',
+    type: 'boolean',
+    group: 'Behavior',
+    control: 'switch',
+    field: 'properties.maintainState',
+  )
   bool maintainState;
 
   /// Specifies padding for the [ListTile].
@@ -232,7 +245,13 @@ class ExpansionTileProperties extends CustomProperties with FieldsHolder {
 
   /// Whether to show the expansion arrow. Mirrors
   /// `ExpansionTile.showTrailingIcon`.
-  @FlutterProp('showTrailingIcon', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.showTrailingIcon')
+  @FlutterProp(
+    'showTrailingIcon',
+    type: 'boolean',
+    group: 'Appearance',
+    control: 'switch',
+    field: 'properties.showTrailingIcon',
+  )
   bool showTrailingIcon;
 
   /// Border shape of the tile when expanded. When set, it replaces the

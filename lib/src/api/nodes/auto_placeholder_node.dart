@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
@@ -10,7 +11,11 @@ part 'auto_placeholder_node.g.dart';
 /// An unselectable node that serves as a placeholder for Auto nodes.
 /// Its interaction and layout behavior is same as [AutoCanvasNode].
 /// Related: [FreeformPlaceholderNode].
-@FlutterNode('CodelesslyAutoPlaceholder', family: 'codelessly', nodeType: 'autoPlaceholder')
+@FlutterNode(
+  'CodelesslyAutoPlaceholder',
+  family: 'codelessly',
+  nodeType: 'autoPlaceholder',
+)
 @JsonSerializable()
 class AutoPlaceholderNode extends DefaultShapeNode
     with ChildrenMixin, RowColumnMixin, PlaceholderMixin, IsolatedMixin {
@@ -26,7 +31,12 @@ class AutoPlaceholderNode extends DefaultShapeNode
   /// Whether the placeholder is only meant to exist for a short period of time.
   /// This is used to determine whether the placeholder should be removed when
   /// the user inserts anything into it.
-  @FlutterProp('ephemeral', type: 'boolean', group: 'Behavior', control: 'switch')
+  @FlutterProp(
+    'ephemeral',
+    type: 'boolean',
+    group: 'Behavior',
+    control: 'switch',
+  )
   bool ephemeral = false;
 
   /// Creates a new [AutoPlaceholderNode] instance.

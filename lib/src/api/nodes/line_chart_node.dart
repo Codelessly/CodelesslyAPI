@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -197,7 +198,13 @@ class LineChartProperties extends CustomProperties with FieldsHolder {
 
   /// Whether the curve is a Catmull-Rom spline through the points instead
   /// of a polyline.
-  @FlutterProp('smooth', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.smooth')
+  @FlutterProp(
+    'smooth',
+    type: 'boolean',
+    group: 'Appearance',
+    control: 'switch',
+    field: 'properties.smooth',
+  )
   bool smooth;
 
   /// Color of the curve, marker outlines and curve dots.
