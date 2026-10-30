@@ -121,4 +121,20 @@ void main() {
     expect(ActionModel.fromJson(FocusFieldAction(unfocus: true).toJson()),
         FocusFieldAction(unfocus: true));
   });
+
+  test('ScrollToAction round-trips and omits defaults', () {
+    expect(ScrollToAction(nodeId: 'calendar').toJson(),
+        {'type': 'scrollTo', 'nodeId': 'calendar'});
+    final action = ScrollToAction(
+      nodeId: 'calendar',
+      durationMs: 0,
+      curve: MotionCurve.easeOut,
+      alignment: 0.5,
+      offset: -16,
+    );
+    expect(ActionModel.fromJson(action.toJson()), action);
+    expect(ActionModel.fromJson({'type': 'scrollTo', 'nodeId': 'x'}),
+        ScrollToAction(nodeId: 'x'));
+    expect(ActionType.scrollTo.prettify, 'Scroll To');
+  });
 }
