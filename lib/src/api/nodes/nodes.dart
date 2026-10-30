@@ -1,4 +1,5 @@
 export 'accordion_node.dart';
+export 'audio_player_node.dart';
 export 'app_bar_node.dart';
 export 'auto_placeholder_node.dart';
 export 'badge_node.dart';

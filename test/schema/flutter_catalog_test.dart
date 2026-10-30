@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 50);
+      expect(annotated.length, 51);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -240,7 +240,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 67);
+    expect(catalog.components.length, 68);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,
@@ -267,7 +267,9 @@ void main() {
     );
     expect((mappings['mappings'] as Map)['Video']['nodeType'], 'video');
     expect((mappings['mappings'] as Map)['Video']['bridgeStatus'], 'ready');
-    for (final name in ['Tabs', 'DateTimeInput', 'AudioPlayer', 'Modal']) {
+    expect((mappings['mappings'] as Map)['AudioPlayer']['nodeType'], 'audioPlayer');
+    expect((mappings['mappings'] as Map)['AudioPlayer']['bridgeStatus'], 'partial');
+    for (final name in ['Tabs', 'DateTimeInput', 'Modal']) {
       expect(
         (mappings['mappings'] as Map)[name]['nodeType'],
         isNull,

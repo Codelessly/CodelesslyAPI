@@ -175,6 +175,15 @@ List<BaseNode> sampleNodes() {
       ),
     ),
     omittedDefaultModels()['VarianceNode']!() as BaseNode,
+    AudioPlayerNode(
+      id: 'audioPlayer',
+      name: 'Audio Player',
+      basicBoxLocal: box,
+      properties: AudioPlayerProperties(
+        url: 'https://media.example.com/intro.mp3',
+        description: 'Introduction',
+      ),
+    ),
     BadgeNode.empty(),
     ElevatedButtonNode.empty(),
     CheckboxNode.empty(),

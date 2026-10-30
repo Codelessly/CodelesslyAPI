@@ -111,7 +111,7 @@ void main(List<String> args) {
     'Video': 'video',
     'Tabs': null,
     'DateTimeInput': null,
-    'AudioPlayer': null,
+    'AudioPlayer': 'audioPlayer',
     'Modal': null,
   };
   if (basicNodeTypes.keys
