@@ -55,6 +55,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// clock, counter or column of numbers doesn't shift as its digits change.
   bool tabularFigures;
 
+  /// Renders the text as Markdown with this style (bold, italic, code,
+  /// links, mentions, lists, paragraphs); null shows it as plain text.
+  MarkdownStyle? markdown;
+
   /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -129,6 +133,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.multipleVariables,
     InkWellModel? inkWell,
     this.tabularFigures = false,
+    this.markdown,
   }) {
     setTextMixin(
       data: data,

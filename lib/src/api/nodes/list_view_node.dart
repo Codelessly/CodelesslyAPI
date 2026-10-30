@@ -27,6 +27,9 @@ class ListViewNode extends SinglePlaceholderNode
   bool get isScrollingEnforced => true;
 
   @override
+  List<TriggerType> get triggerTypes => [TriggerType.scrollEnd];
+
+  @override
   bool get canBeMarked => true;
 
   /// The properties of the [ListView].
