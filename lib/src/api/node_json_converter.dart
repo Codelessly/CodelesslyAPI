@@ -88,6 +88,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'gridView': GridViewNode.fromJson,
       'pageView': PageViewNode.fromJson,
       'tabBar': TabBarNode.fromJson,
+      'tabs': TabsNode.fromJson,
       'badge': BadgeNode.fromJson,
       'chip': ChipNode.fromJson,
       'segmentedButton': SegmentedButtonNode.fromJson,

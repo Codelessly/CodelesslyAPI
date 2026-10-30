@@ -5,6 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'node_json_converter.dart';
 import 'nodes/base_node.dart';
 import 'nodes/modal_node.dart';
+import 'nodes/tabs_node.dart';
 
 /// A document whose node schema cannot be determined safely. No parsed tree
 /// is returned: the caller must retain [raw] outside the typed node map and
@@ -94,6 +95,10 @@ class NodesMapConverter
     }
     for (final entry in result.entries) {
       final node = entry.value;
+      if (node is TabsNode &&
+          node.tabs.any((tab) => !result.containsKey(tab.child))) {
+        throw UnresolvedDocumentSchema('unknown-tabs-child', entry.key, value);
+      }
       if (node is ModalNode &&
           (!result.containsKey(node.trigger) ||
               !result.containsKey(node.content))) {
