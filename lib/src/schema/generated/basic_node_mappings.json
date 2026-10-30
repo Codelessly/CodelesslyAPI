@@ -71,8 +71,8 @@
       "bridgeStatus": "partial"
     },
     "Modal": {
-      "nodeType": null,
-      "bridgeStatus": "deferred"
+      "nodeType": "modal",
+      "bridgeStatus": "partial"
     }
   }
 }

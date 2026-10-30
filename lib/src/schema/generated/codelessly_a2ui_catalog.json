@@ -986,6 +986,37 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyModal": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyModal"
+            },
+            "trigger": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentId"
+            },
+            "content": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentId"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "trigger",
+            "content",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "NavigationBar": {
       "allOf": [
         {
@@ -3091,6 +3122,9 @@
         },
         {
           "$ref": "#/components/CodelesslyLoadingIndicator"
+        },
+        {
+          "$ref": "#/components/CodelesslyModal"
         },
         {
           "$ref": "#/components/NavigationBar"

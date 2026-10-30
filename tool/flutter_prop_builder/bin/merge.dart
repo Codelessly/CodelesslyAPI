@@ -112,7 +112,7 @@ void main(List<String> args) {
     'Tabs': null,
     'DateTimeInput': null,
     'AudioPlayer': 'audioPlayer',
-    'Modal': null,
+    'Modal': 'modal',
   };
   if (basicNodeTypes.keys
           .toSet()
