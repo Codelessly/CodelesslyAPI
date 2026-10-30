@@ -477,6 +477,34 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// Makes the node draggable onto drop targets. Null for a node that
+  /// can't be dragged. See [DraggableModel].
+  DraggableModel? draggable;
+
+  /// Makes the node a place draggable nodes can be dropped on. Null for a
+  /// node that takes no drops. See [DropTargetModel].
+  DropTargetModel? dropTarget;
+
+  /// One-shot effects the node plays on cue (shake, bounce, pop, ...).
+  /// See [EffectAnimation].
+  @JsonKey(defaultValue: [])
+  List<EffectAnimation> effectAnimations = [];
+
+  /// Confetti or stars the node bursts with on cue. Null for none. See
+  /// [ParticleEmitter].
+  ParticleEmitter? particles;
+
+  /// Flies the node into place from where another node with the same key
+  /// just was, like a shared element: a letter tile tapped in the tray
+  /// disappears there and the slot's tile, with the same key, appears
+  /// flying from the tray into the slot. A draggable node's key also
+  /// remembers where it was let go, so dropped content flies in from the
+  /// drop point. Bindable as `flightKey` (e.g. `tile-${item.id}`); empty
+  /// for none. The flight uses the node's [MotionModel] spring settings
+  /// when it has them.
+  @JsonKey(defaultValue: '')
+  String flightKey = '';
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

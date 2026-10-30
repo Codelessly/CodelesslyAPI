@@ -129,6 +129,8 @@ class FrameNode extends DefaultShapeNode
     TriggerType.hold,
     TriggerType.drag,
     TriggerType.dragEnd,
+    ...TriggerType.draggableTriggers,
+    ...TriggerType.dropTargetTriggers,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
   ];
