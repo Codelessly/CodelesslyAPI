@@ -72,4 +72,5 @@ const _$ActionTypeEnumMap = {
   ActionType.paywall: 'paywall',
   ActionType.controlDrag: 'controlDrag',
   ActionType.speak: 'speak',
+  ActionType.playSound: 'playSound',
 };
