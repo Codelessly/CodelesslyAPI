@@ -87,6 +87,9 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
       ImageRepeatEnum.noRepeat,
   saturation: (json['saturation'] as num?)?.toDouble() ?? 1,
+  imageTint: json['imageTint'] == null
+      ? null
+      : ColorRGBA.fromJson(json['imageTint']),
 );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
@@ -116,6 +119,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'sourceHeight': ?instance.sourceHeight,
       'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
       'saturation': instance.saturation,
+      'imageTint': ?instance.imageTint?.toJson(),
     };
 
 const _$PaintTypeEnumMap = {
