@@ -67,8 +67,8 @@ class VideoNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   Map toJson() => _$VideoNodeOmitDefaults(this, _$VideoNodeToJson(this));
 }
 
-/// A URL is a candidate only; GenUI must independently enforce its host allowlist
-/// before fetching, including redirect targets and DNS resolution.
+/// A URL is a candidate only; GenUI may enforce an app-supplied host policy.
+/// Redirect handling and DNS resolution belong to the platform player and OS.
 bool isRemoteMp4Url(String url) {
   if (url.trim() != url || url.contains('\\') || url.contains(RegExp(r'\s')))
     return false;
