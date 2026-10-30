@@ -25,8 +25,41 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "opacity": {
           "type": "number"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "fills": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "strokes": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "strokeWeight": {
+          "type": "number"
+        },
+        "dashPattern": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
         },
         "clipsContent": {
           "type": "boolean"
@@ -163,6 +196,30 @@
         "nodeType": "canvas",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "fieldPath": "opacity",
         "group": "Appearance",
@@ -170,6 +227,66 @@
         "schemaType": "number",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "fieldPath": "effects",
+        "group": "Effects",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized paints; image crop/transform fields live in list items.",
+        "fieldPath": "fills",
+        "group": "Fill",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized stroke paints; item color is not a top-level field.",
+        "fieldPath": "strokes",
+        "group": "Stroke",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node stroke width, not a Flutter constructor argument.",
+        "fieldPath": "strokeWeight",
+        "group": "Stroke",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "canvas",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly stroke dash/gap sequence, serialized as a number array.",
+        "fieldPath": "dashPattern",
+        "group": "Stroke",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "canvas",
@@ -478,12 +595,90 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "field": "opacity",
         "defaultSource": null,
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "field": "effects",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized paints; image crop/transform fields live in list items.",
+        "field": "fills",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized stroke paints; item color is not a top-level field.",
+        "field": "strokes",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node stroke width, not a Flutter constructor argument.",
+        "field": "strokeWeight",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly stroke dash/gap sequence, serialized as a number array.",
+        "field": "dashPattern",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
         ]
       },
       {

@@ -20,9 +20,18 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "properties": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "label": {
               "type": "string"
             }
@@ -89,6 +98,42 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "elevatedButton",
@@ -205,6 +250,36 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
@@ -256,9 +331,18 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "properties": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "label": {
               "type": "string"
             }
@@ -325,6 +409,42 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "textButton",
@@ -441,6 +561,36 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
@@ -492,9 +642,18 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "properties": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "label": {
               "type": "string"
             }
@@ -561,6 +720,42 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "outlinedButton",
@@ -677,6 +872,36 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
@@ -733,9 +958,18 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "properties": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "icon": {
               "type": "object"
             }
@@ -802,6 +1036,42 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "iconButton",
@@ -916,6 +1186,36 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "field": "properties.enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
         "parameter": "icon",
         "field": "properties.icon",
         "defaultSource": null,
@@ -967,9 +1267,18 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "properties": {
           "type": "object",
           "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
             "label": {
               "type": "string"
             }
@@ -1036,6 +1345,42 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "fieldPath": "properties.enabled",
+        "group": "Interaction",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "filledButton",
@@ -1144,6 +1489,36 @@
         "parameter": null,
         "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
         "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly button property, distinct from node-level enabled.",
+        "field": "properties.enabled",
         "defaultSource": null,
         "testValues": [
           false,

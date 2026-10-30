@@ -49,13 +49,26 @@ class _FlutterPropsBuilder implements Builder {
         );
       }
       final wireTypes = <String, DartType>{};
-      final annotated = <String, (FieldElement, ConstantReader)>{};
+      final annotated = <String, (DartType, Element, ConstantReader)>{};
       void include(InterfaceElement element, {String prefix = ''}) {
         for (final field in element.fields.where((field) => !field.isStatic)) {
           final name = '$prefix${field.name}';
           wireTypes[name] = field.type;
           final tag = _annotation(field.metadata.annotations, 'FlutterProp');
-          if (tag != null) annotated.putIfAbsent(name, () => (field, tag));
+          if (tag != null) {
+            annotated.putIfAbsent(name, () => (field.type, field, tag));
+          }
+        }
+        // Getter-backed persisted properties (BaseNode.margin / padding)
+        // are not FieldElements; inspect explicit annotated declarations only.
+        for (final getter in element.getters.where(
+          (getter) => !getter.isStatic,
+        )) {
+          final tag = _annotation(getter.metadata.annotations, 'FlutterProp');
+          if (tag == null) continue;
+          final name = '$prefix${getter.name}';
+          wireTypes[name] = getter.returnType;
+          annotated.putIfAbsent(name, () => (getter.returnType, getter, tag));
         }
       }
 
@@ -131,8 +144,9 @@ class _FlutterPropsBuilder implements Builder {
             cls.name != 'AutoPlaceholderNode')
           continue;
         if (entry.key == 'flex' && cls.name != 'SpacerNode') continue;
-        final field = entry.value.$1;
-        final tag = entry.value.$2;
+        final actualType = entry.value.$1;
+        final field = entry.value.$2;
+        final tag = entry.value.$3;
         final flutterName = tag.read('name').stringValue;
         final isFlutterParam = tag.peek('flutterParam')?.boolValue ?? true;
         final isA2ui =
@@ -153,7 +167,7 @@ class _FlutterPropsBuilder implements Builder {
           );
         }
         final type = tag.read('type').stringValue;
-        final schemaType = _type(field.type, type);
+        final schemaType = _type(actualType, type);
         final group = tag.read('group').stringValue;
         final control = tag.read('control').stringValue;
         final defaultSource = tag.peek('defaultSource')?.stringValue;
