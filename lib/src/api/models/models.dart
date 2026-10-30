@@ -60,6 +60,7 @@ export 'input_decoration.dart';
 export 'letter_spacing.dart';
 export 'line_height.dart';
 export 'drag.dart';
+export 'drag_track.dart';
 export 'motion.dart';
 export 'list_tile_control_affinity.dart';
 export 'loop_animation.dart';

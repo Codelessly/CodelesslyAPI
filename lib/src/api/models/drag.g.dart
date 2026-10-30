@@ -70,6 +70,9 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   flyOutMs: (json['flyOutMs'] as num?)?.toInt() ?? 320,
   enabled: json['enabled'] as bool? ?? true,
   shakeWhenDisabled: json['shakeWhenDisabled'] as bool? ?? false,
+  track: json['track'] == null
+      ? null
+      : DragTrackModel.fromJson(json['track'] as Map),
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -89,6 +92,7 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'flyOutMs': instance.flyOutMs,
   'enabled': instance.enabled,
   'shakeWhenDisabled': instance.shakeWhenDisabled,
+  'track': ?instance.track?.toJson(),
 };
 
 const _$DragAxisEnumMap = {
