@@ -42,6 +42,7 @@ Map<String, dynamic> _$BarChartNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -177,6 +178,7 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
             ) ??
             {},
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -188,7 +190,6 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -215,12 +216,13 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
     <String, dynamic>{
+      'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'aspectRatioLock': instance.aspectRatioLock,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -236,7 +238,7 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
-      'squeezable': instance.squeezable,
+      'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -255,6 +257,7 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'floating': instance.floating,
       'type': instance.type,
       'properties': instance.properties.toJson(),
       'values': instance.values,
