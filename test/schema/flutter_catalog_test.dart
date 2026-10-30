@@ -143,6 +143,19 @@ void main() {
         'margin',
         'padding',
         'effects',
+        'rotation',
+        'edgePins',
+        'edgePins.left',
+        'edgePins.top',
+        'edgePins.right',
+        'edgePins.bottom',
+        'fills[].imageTransform',
+        'fills[].fit',
+        'fills[].alignment',
+        'fills[].scaleX',
+        'fills[].scaleY',
+        'fills[].cropData',
+        'fills[].imageRepeat',
       }) {
         expect(pairs, contains(('frame', path)), reason: path);
       }
@@ -151,6 +164,13 @@ void main() {
         'textAlignHorizontal',
         'overflow',
         'tabularFigures',
+        'textMixedProps[].fontSize',
+        'textMixedProps[].fontName',
+        'textMixedProps[].lineHeight',
+        'textMixedProps[].letterSpacing',
+        'textMixedProps[].textDecoration',
+        'textMixedProps[].fills',
+        'textMixedProps[].link',
       }) {
         expect(pairs, contains(('text', path)), reason: path);
       }
@@ -159,6 +179,7 @@ void main() {
         'fontFamily',
         'textAlign',
         'rotationDegrees',
+        'textMixedProps[].props.fontSize',
         'rootColor',
         'basicBoxLocal.width',
         'fills.imageTransform',
