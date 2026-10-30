@@ -23,26 +23,101 @@ void main() {
       }
     },
   );
+  test('shared scrolling descriptors retain actual mixin fields on applicable nodes', () {
+    final catalog = jsonDecode(
+      File('lib/src/schema/generated/dpp_descriptors.json').readAsStringSync(),
+    ) as Map;
+    final descriptors = (catalog['descriptors'] as List).cast<Map>();
+    const fields = {
+      'isScrollable',
+      'scrollDirection',
+      'reverse',
+      'primary',
+      'physics',
+      'keyboardDismissBehavior',
+      'useFlutterListView',
+      'shouldAlwaysScroll',
+    };
+    for (final nodeType in {
+      'canvas',
+      'frame',
+      'gridView',
+      'listView',
+      'pageView',
+      'row',
+      'column',
+      'tabBar',
+    }) {
+      final scrolling = descriptors
+          .where(
+            (descriptor) =>
+                descriptor['nodeType'] == nodeType &&
+                fields.contains(descriptor['fieldPath']),
+          )
+          .toList();
+      expect(
+        scrolling.map((descriptor) => descriptor['fieldPath']).toSet(),
+        fields,
+      );
+      expect(
+        scrolling.every((descriptor) => descriptor['group'] == 'Scrolling'),
+        isTrue,
+      );
+      expect(
+        scrolling.every((descriptor) => descriptor['flutterName'] == null),
+        isTrue,
+      );
+    }
+    expect(
+      descriptors
+          .where((descriptor) => descriptor['nodeType'] == 'spacer')
+          .map((descriptor) => descriptor['fieldPath']),
+      ['flex'],
+    );
+  });
+
+  test('editor-only scrolling metadata leaves BASIC Stack wire unchanged', () {
+    final catalog = jsonDecode(
+      File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
+          .readAsStringSync(),
+    ) as Map;
+    final components = catalog['components'] as Map;
+    final stack = components['Stack'] as Map;
+    final shape = (stack['allOf'] as List).last as Map;
+    final fields = shape['properties'] as Map;
+    expect(fields.keys, containsAll(['component', 'children']));
+    expect(fields.keys, isNot(contains('isScrollable')));
+    expect(fields.keys, isNot(contains('scrollDirection')));
+  });
+
+  test('DateTimeInput is correctly cataloged as a custom widget', () {
+    final fragments = jsonDecode(
+      File('lib/src/api/nodes/date_time_input_node.flutter_catalog.json')
+          .readAsStringSync(),
+    ) as Map;
+    expect((fragments['DateTimeInputNode'] as Map)['family'], 'codelessly');
+  });
+
   for (final entry in {
     'text_node': ('TextNode', 'Text', 3),
     'button_node': ('ElevatedButtonNode', 'ElevatedButton', 1),
-    'row_column_node': ('RowNode', 'Row', 3),
+    'row_column_node': ('RowNode', 'Row', 11),
     'divider_node': ('DividerNode', 'Divider', 4),
     'badge_node': ('BadgeNode', 'Badge', 3),
     'app_bar_node': ('AppBarNode', 'AppBar', 4),
     'checkbox_node': ('CheckboxNode', 'Checkbox', 4),
     'slider_node': ('SliderNode', 'Slider', 5),
-    'list_view_node': ('ListViewNode', 'ListView', 2),
+    'list_view_node': ('ListViewNode', 'ListView', 10),
     'switch_node': ('SwitchNode', 'Switch', 4),
-    'frame_node': ('FrameNode', 'Stack', 1),
-    'grid_view_node': ('GridViewNode', 'GridView', 2),
-    'page_view_node': ('PageViewNode', 'PageView', 4),
+    'frame_node': ('FrameNode', 'Stack', 9),
+    'grid_view_node': ('GridViewNode', 'GridView', 10),
+    'page_view_node': ('PageViewNode', 'PageView', 12),
     'chip_node': ('ChipNode', 'ChoiceChip', 5),
     'radio_node': ('RadioNode', 'Radio', 5),
     'text_field_node': ('TextFieldNode', 'TextField', 8),
     'dropdown_node': ('DropdownNode', 'DropdownButton', 6),
     'segmented_button_node': ('SegmentedButtonNode', 'SegmentedButton', 3),
-    'tab_bar_node': ('TabBarNode', 'TabBar', 1),
+    'tab_bar_node': ('TabBarNode', 'TabBar', 9),
     'list_tile_node': ('ListTileNode', 'ListTile', 8),
     'expansion_tile_node': ('ExpansionTileNode', 'ExpansionTile', 4),
     'floating_action_button_node': (
@@ -93,7 +168,7 @@ void main() {
     'accordion_node': ('AccordionNode', 'CodelesslyAccordion', 2),
     'modal_node': ('ModalNode', 'CodelesslyModal', 3),
     'tabs_node': ('TabsNode', 'CodelesslyTabs', 2),
-    'canvas_node': ('CanvasNode', 'CodelesslyCanvas', 2),
+    'canvas_node': ('CanvasNode', 'CodelesslyCanvas', 10),
     'progressbar_node': ('ProgressBarNode', 'CodelesslyProgressBar', 2),
     'root_node': ('RootNode', 'CodelesslyRoot', 1),
     'icon_node': ('IconNode', 'CodelesslyIcon', 1),
@@ -154,7 +229,7 @@ void main() {
       }
       if (entry.key == 'row_column_node') {
         expect((output['ColumnNode'] as Map)['widget'], 'Column');
-        expect(((output['ColumnNode'] as Map)['dpp'] as List).length, 3);
+        expect(((output['ColumnNode'] as Map)['dpp'] as List).length, 11);
       }
       expect(
         ((node['a2ui'] as Map)['components'] as Map).keys,

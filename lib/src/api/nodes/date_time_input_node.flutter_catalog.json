@@ -1,7 +1,7 @@
 {
   "DateTimeInputNode": {
     "widget": "DateTimeInput",
-    "family": "material",
+    "family": "codelessly",
     "nodeType": "dateTimeInput",
     "drift": [
       {

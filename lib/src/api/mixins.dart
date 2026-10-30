@@ -234,7 +234,13 @@ mixin ParentReactionMixin {
 /// [ChildrenMixin.setChildrenMixin] method in the constructor of the node.
 mixin ChildrenMixin on BaseNode {
   /// A list of node ids that are children of this node.
-  @FlutterProp('children', type: 'array', group: 'Layout', control: 'children', required: true)
+  @FlutterProp(
+    'children',
+    type: 'array',
+    group: 'Layout',
+    control: 'children',
+    required: true,
+  )
   @JsonKey(defaultValue: [])
   late List<String> children;
 
@@ -264,7 +270,12 @@ mixin SingleColorMixin on BaseNode {
 /// Adds blend properties to the node.
 mixin BlendMixin on BaseNode {
   /// Overall opacity of the node.
-  @FlutterProp('opacity', type: 'number', group: 'Appearance', control: 'number')
+  @FlutterProp(
+    'opacity',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+  )
   late double opacity;
 
   /// Type of blending applied to the node.
@@ -1150,13 +1161,25 @@ mixin RowColumnMixin on BaseNode {
   /// Represents the alignment of the children along the main axis which is
   /// horizontal for rows and vertical for columns. See [MainAxisAlignmentC]
   /// for details on available alignments.
-  @FlutterProp('mainAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'MainAxisAlignment.center')
+  @FlutterProp(
+    'mainAxisAlignment',
+    type: 'string',
+    group: 'Layout',
+    control: 'enum',
+    defaultSource: 'MainAxisAlignment.center',
+  )
   late MainAxisAlignmentC mainAxisAlignment;
 
   /// Represents the alignment of the children along the cross axis which is
   /// vertical for rows and horizontal for columns. See [CrossAxisAlignmentC]
   /// for details on available alignments.
-  @FlutterProp('crossAxisAlignment', type: 'string', group: 'Layout', control: 'enum', defaultSource: 'CrossAxisAlignment.center')
+  @FlutterProp(
+    'crossAxisAlignment',
+    type: 'string',
+    group: 'Layout',
+    control: 'enum',
+    defaultSource: 'CrossAxisAlignment.center',
+  )
   late CrossAxisAlignmentC crossAxisAlignment;
 
   /// The gap between consecutive children along the main axis, in logical
@@ -1351,33 +1374,105 @@ mixin ScrollableMixin on BaseNode {
   bool get isScrollingEnforced => false;
 
   /// Whether the scrolling is enabled.
+  @FlutterProp(
+    'isScrollable',
+    type: 'boolean',
+    group: 'Scrolling',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly scroll enablement; individual Flutter widgets have different scroll controls.',
+  )
   @JsonKey(defaultValue: false)
   late bool isScrollable;
 
   /// Direction in which the scrolling is allowed.
+  @FlutterProp(
+    'scrollDirection',
+    type: 'string',
+    group: 'Scrolling',
+    control: 'enum',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly scroll axis; the Flutter mapping depends on the concrete node widget.',
+  )
   late AxisC scrollDirection;
 
   /// Whether the scrolling is reversed to be bottom-to-top instead of
   /// top-to-bottom.
+  @FlutterProp(
+    'reverse',
+    type: 'boolean',
+    group: 'Scrolling',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly scroll reverse option; applicability differs between node widgets.',
+  )
   late bool reverse;
 
   /// Whether this is the primary scrollable in the screen/layout. Only one
   /// scrollable can be primary in a layout.
+  @FlutterProp(
+    'primary',
+    type: 'boolean',
+    group: 'Scrolling',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly primary scrolling option; applicability differs between node widgets.',
+  )
   late bool primary;
 
   /// Physics to use for the scrollable.
+  @FlutterProp(
+    'physics',
+    type: 'string',
+    group: 'Scrolling',
+    control: 'enum',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly scroll physics enum; Flutter constructs its physics object per concrete widget.',
+  )
   @JsonKey(unknownEnumValue: ScrollPhysicsC.platformDependent)
   late ScrollPhysicsC physics;
 
   /// Defines how a [ScrollView] should dismiss the on-screen keyboard.
+  @FlutterProp(
+    'keyboardDismissBehavior',
+    type: 'string',
+    group: 'Scrolling',
+    control: 'enum',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly scroll keyboard dismissal; supported by individual scroll views.',
+  )
   late ScrollViewKeyboardDismissBehaviorC keyboardDismissBehavior;
 
   /// Whether to use a [ListView] instead of [SingleChildScrollView] in flutter
   /// code-gen and transformers.
+  @FlutterProp(
+    'useFlutterListView',
+    type: 'boolean',
+    group: 'Scrolling',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly renderer strategy, not a Flutter widget constructor argument.',
+  )
   @JsonKey(defaultValue: false)
   late bool useFlutterListView;
 
   /// Whether to use AlwaysScrollableScrollPhysics or not.
+  @FlutterProp(
+    'shouldAlwaysScroll',
+    type: 'boolean',
+    group: 'Scrolling',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly renderer physics strategy, not a Flutter widget constructor argument.',
+  )
   late bool shouldAlwaysScroll;
 
   /// Sets the properties of this mixin.

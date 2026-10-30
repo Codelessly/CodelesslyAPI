@@ -19,6 +19,30 @@
             "type": "string"
           }
         },
+        "isScrollable": {
+          "type": "boolean"
+        },
+        "scrollDirection": {
+          "type": "string"
+        },
+        "reverse": {
+          "type": "boolean"
+        },
+        "primary": {
+          "type": "boolean"
+        },
+        "physics": {
+          "type": "string"
+        },
+        "keyboardDismissBehavior": {
+          "type": "string"
+        },
+        "useFlutterListView": {
+          "type": "boolean"
+        },
+        "shouldAlwaysScroll": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
@@ -37,6 +61,102 @@
         "group": "Layout",
         "control": "children",
         "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly scroll enablement; individual Flutter widgets have different scroll controls.",
+        "fieldPath": "isScrollable",
+        "group": "Scrolling",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly scroll axis; the Flutter mapping depends on the concrete node widget.",
+        "fieldPath": "scrollDirection",
+        "group": "Scrolling",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly scroll reverse option; applicability differs between node widgets.",
+        "fieldPath": "reverse",
+        "group": "Scrolling",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly primary scrolling option; applicability differs between node widgets.",
+        "fieldPath": "primary",
+        "group": "Scrolling",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly scroll physics enum; Flutter constructs its physics object per concrete widget.",
+        "fieldPath": "physics",
+        "group": "Scrolling",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly scroll keyboard dismissal; supported by individual scroll views.",
+        "fieldPath": "keyboardDismissBehavior",
+        "group": "Scrolling",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly renderer strategy, not a Flutter widget constructor argument.",
+        "fieldPath": "useFlutterListView",
+        "group": "Scrolling",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "gridView",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly renderer physics strategy, not a Flutter widget constructor argument.",
+        "fieldPath": "shouldAlwaysScroll",
+        "group": "Scrolling",
+        "control": "switch",
+        "schemaType": "boolean",
         "defaultSource": null,
         "bindable": false
       },
@@ -100,6 +220,86 @@
           [
             "sample"
           ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly scroll enablement; individual Flutter widgets have different scroll controls.",
+        "field": "isScrollable",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly scroll axis; the Flutter mapping depends on the concrete node widget.",
+        "field": "scrollDirection",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly scroll reverse option; applicability differs between node widgets.",
+        "field": "reverse",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly primary scrolling option; applicability differs between node widgets.",
+        "field": "primary",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly scroll physics enum; Flutter constructs its physics object per concrete widget.",
+        "field": "physics",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly scroll keyboard dismissal; supported by individual scroll views.",
+        "field": "keyboardDismissBehavior",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly renderer strategy, not a Flutter widget constructor argument.",
+        "field": "useFlutterListView",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly renderer physics strategy, not a Flutter widget constructor argument.",
+        "field": "shouldAlwaysScroll",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
         ]
       },
       {
