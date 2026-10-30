@@ -70,6 +70,8 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
   if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
   if (isJsonDefault(instance.textCapitalization, TextCapitalizationC.none))
     json.remove('textCapitalization');
+  if (isJsonDefault(instance.submitOnUnfocus, true))
+    json.remove('submitOnUnfocus');
   if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
   if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
   if (isJsonDefault(instance.showDecimalKey, false))
@@ -329,6 +331,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
         json['textCapitalization'],
       ) ??
       TextCapitalizationC.none,
+  submitOnUnfocus: json['submitOnUnfocus'] as bool? ?? true,
   readOnly: json['readOnly'] as bool? ?? false,
   showCursor: json['showCursor'] as bool? ?? true,
   keyboardType:
@@ -417,6 +420,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
   'obscureText': instance.obscureText,
   'textCapitalization':
       _$TextCapitalizationCEnumMap[instance.textCapitalization]!,
+  'submitOnUnfocus': instance.submitOnUnfocus,
   'readOnly': instance.readOnly,
   'showCursor': instance.showCursor,
   'showDecimalKey': instance.showDecimalKey,
