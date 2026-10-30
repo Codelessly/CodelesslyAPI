@@ -168,6 +168,11 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   @FlutterProp('obscureText', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.obscureText')
   bool obscureText;
 
+  /// Which letters the on-screen keyboard capitalizes by default: none,
+  /// the first of each word (names), of each sentence, or every letter.
+  @JsonKey(defaultValue: TextCapitalizationC.none)
+  TextCapitalizationC textCapitalization;
+
   /// Whether the field is read-only.
   @FlutterProp('readOnly', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.readOnly')
   bool readOnly;
@@ -274,6 +279,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.enableInteractiveSelection = true,
     this.enabled = true,
     this.obscureText = false,
+    this.textCapitalization = TextCapitalizationC.none,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -312,6 +318,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     bool? enableInteractiveSelection,
     bool? enabled,
     bool? obscureText,
+    TextCapitalizationC? textCapitalization,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -345,6 +352,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
+      textCapitalization: textCapitalization ?? this.textCapitalization,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -567,6 +575,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   @override
   List<Object?> get props => [
+    textCapitalization,
     autoCorrect,
     autoFocus,
     enableInteractiveSelection,
@@ -614,3 +623,19 @@ int? _maxLinesFromJson(Object? value) => value is num ? value.toInt() : null;
 /// Marks an explicit `null` (unlimited lines) between [_readMaxLines] and
 /// [_maxLinesFromJson].
 const String _unlimitedLines = 'unlimited';
+
+/// Which letters the keyboard capitalizes by default; mirrors Flutter's
+/// `TextCapitalization`.
+enum TextCapitalizationC {
+  /// No automatic capitalization.
+  none,
+
+  /// The first letter of each word: names.
+  words,
+
+  /// The first letter of each sentence.
+  sentences,
+
+  /// Every letter.
+  characters,
+}

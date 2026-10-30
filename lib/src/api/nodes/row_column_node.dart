@@ -324,6 +324,13 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.drawScale = source.drawScale;
   target.pulse = source.pulse;
   target.motion = source.motion;
+  target.draggable = source.draggable;
+  target.dropTarget = source.dropTarget;
+  target.effectAnimations = source.effectAnimations;
+  target.particles = source.particles;
+  target.flightKey = source.flightKey;
+  target.strokePath = source.strokePath;
+  target.reveal = source.reveal;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
 }

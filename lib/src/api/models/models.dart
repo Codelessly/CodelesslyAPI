@@ -62,6 +62,7 @@ export 'line_height.dart';
 export 'motion.dart';
 export 'drag_drop.dart';
 export 'effect_animation.dart';
+export 'stroke_path.dart';
 export 'list_tile_control_affinity.dart';
 export 'loop_animation.dart';
 export 'navigation_bar_item.dart';

@@ -68,6 +68,8 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
     json.remove('enableInteractiveSelection');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
+  if (isJsonDefault(instance.textCapitalization, TextCapitalizationC.none))
+    json.remove('textCapitalization');
   if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
   if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
   if (isJsonDefault(instance.showDecimalKey, false))
@@ -227,6 +229,12 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
           ? null
           : ParticleEmitter.fromJson(json['particles'] as Map)
       ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextFieldNodeToJson(
@@ -273,6 +281,8 @@ Map<String, dynamic> _$TextFieldNodeToJson(
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'initialText': instance.initialText,
@@ -313,6 +323,12 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
       json['enableInteractiveSelection'] as bool? ?? true,
   enabled: json['enabled'] as bool? ?? true,
   obscureText: json['obscureText'] as bool? ?? false,
+  textCapitalization:
+      $enumDecodeNullable(
+        _$TextCapitalizationCEnumMap,
+        json['textCapitalization'],
+      ) ??
+      TextCapitalizationC.none,
   readOnly: json['readOnly'] as bool? ?? false,
   showCursor: json['showCursor'] as bool? ?? true,
   keyboardType:
@@ -399,6 +415,8 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
   'enableInteractiveSelection': instance.enableInteractiveSelection,
   'enabled': instance.enabled,
   'obscureText': instance.obscureText,
+  'textCapitalization':
+      _$TextCapitalizationCEnumMap[instance.textCapitalization]!,
   'readOnly': instance.readOnly,
   'showCursor': instance.showCursor,
   'showDecimalKey': instance.showDecimalKey,
@@ -429,6 +447,13 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
       .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
       .toList(),
   'textInputAction': _$TextInputActionCEnumMap[instance.textInputAction]!,
+};
+
+const _$TextCapitalizationCEnumMap = {
+  TextCapitalizationC.none: 'none',
+  TextCapitalizationC.words: 'words',
+  TextCapitalizationC.sentences: 'sentences',
+  TextCapitalizationC.characters: 'characters',
 };
 
 const _$TextInputTypeEnumEnumMap = {

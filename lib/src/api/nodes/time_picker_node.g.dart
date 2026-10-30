@@ -180,6 +180,12 @@ TimePickerNode _$TimePickerNodeFromJson(Map json) =>
           ? null
           : ParticleEmitter.fromJson(json['particles'] as Map)
       ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TimePickerNodeToJson(
@@ -226,6 +232,8 @@ Map<String, dynamic> _$TimePickerNodeToJson(
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
   'type': instance.type,
   'value': validateClockTime(instance.value),
   'properties': instance.properties.toJson(),
