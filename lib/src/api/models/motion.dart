@@ -23,7 +23,11 @@ enum MotionCurve {
   easeOutBack,
 
   /// A fast cubic deceleration.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// A cubic ease in and out: slow at both ends, fast in the middle, as a
+  /// card turning over.
+  easeInOutCubic;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -33,6 +37,7 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.easeInOutCubic => 'Ease in out (cubic)',
   };
 }
 
@@ -152,6 +157,12 @@ class MotionModel with Equatable, SerializableMixin {
   /// loop starts, so motions can be staggered.
   final int delayMs;
 
+  /// Whether the node is hidden while its back faces the viewer: tilted
+  /// (rotateX / rotateY) past 90°, like CSS `backface-visibility: hidden`.
+  /// A card's front (tilt 0 → 180) and back (tilt -180 → 0) with this on
+  /// turn over together and swap exactly when the card is edge-on.
+  final bool hideBackface;
+
   /// Creates a [MotionModel].
   const MotionModel({
     this.translateX = 0,
@@ -175,6 +186,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.enterFrom,
     this.replayKey,
     this.delayMs = 0,
+    this.hideBackface = false,
   });
 
   /// No motion at all.
@@ -274,6 +286,7 @@ class MotionModel with Equatable, SerializableMixin {
     String? replayKey,
     bool clearReplayKey = false,
     int? delayMs,
+    bool? hideBackface,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -296,6 +309,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
+    hideBackface: hideBackface ?? this.hideBackface,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -349,6 +363,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom,
     replayKey,
     delayMs,
+    hideBackface,
   ];
 
   /// Creates a [MotionModel] from JSON.
