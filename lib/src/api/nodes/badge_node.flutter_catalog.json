@@ -10,7 +10,7 @@
       },
       {
         "flutterName": "smallSize",
-        "fieldPath": "properties.smallSize"
+        "fieldPath": "properties.dotSize"
       },
       {
         "flutterName": "largeSize",
@@ -77,7 +77,7 @@
             "isLabelVisible": {
               "type": "boolean"
             },
-            "smallSize": {
+            "dotSize": {
               "type": "number"
             },
             "largeSize": {
@@ -256,7 +256,7 @@
       {
         "nodeType": "badge",
         "flutterName": "smallSize",
-        "fieldPath": "properties.smallSize",
+        "fieldPath": "properties.dotSize",
         "group": "Appearance",
         "control": "number",
         "schemaType": "number",
@@ -368,7 +368,7 @@
                     "isLabelVisible": {
                       "type": "boolean"
                     },
-                    "smallSize": {
+                    "dotSize": {
                       "type": "number"
                     },
                     "largeSize": {
@@ -519,7 +519,7 @@
       },
       {
         "parameter": "smallSize",
-        "field": "properties.smallSize",
+        "field": "properties.dotSize",
         "defaultSource": null,
         "testValues": [
           0,
