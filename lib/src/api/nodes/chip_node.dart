@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -189,24 +188,11 @@ class ChipProperties extends CustomProperties with FieldsHolder {
   ColorRGBA? deleteIconColor;
 
   /// Whether a choice or filter chip is selected.
-  @FlutterProp(
-    'selected',
-    type: 'boolean',
-    group: 'State',
-    control: 'switch',
-    field: 'properties.selected',
-    required: true,
-  )
+  @FlutterProp('selected', type: 'boolean', group: 'State', control: 'switch', field: 'properties.selected', required: true)
   bool selected;
 
   /// Whether a selected filter chip shows a checkmark.
-  @FlutterProp(
-    'showCheckmark',
-    type: 'boolean',
-    group: 'Appearance',
-    control: 'switch',
-    field: 'properties.showCheckmark',
-  )
+  @FlutterProp('showCheckmark', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.showCheckmark')
   bool showCheckmark;
 
   /// Color of the checkmark of a selected filter chip.
@@ -228,13 +214,7 @@ class ChipProperties extends CustomProperties with FieldsHolder {
   double cornerRadius;
 
   /// Elevation.
-  @FlutterProp(
-    'elevation',
-    type: 'number',
-    group: 'Appearance',
-    control: 'number',
-    field: 'properties.elevation',
-  )
+  @FlutterProp('elevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.elevation')
   double elevation;
 
   /// Shadow color.
@@ -247,23 +227,11 @@ class ChipProperties extends CustomProperties with FieldsHolder {
   EdgeInsetsModel labelPadding;
 
   /// Tooltip shown on long press or hover.
-  @FlutterProp(
-    'tooltip',
-    type: 'string',
-    group: 'Interaction',
-    control: 'text',
-    field: 'properties.tooltip',
-  )
+  @FlutterProp('tooltip', type: 'string', group: 'Interaction', control: 'text', field: 'properties.tooltip')
   String? tooltip;
 
   /// Whether the chip is focused automatically.
-  @FlutterProp(
-    'autofocus',
-    type: 'boolean',
-    group: 'Interaction',
-    control: 'switch',
-    field: 'properties.autofocus',
-  )
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   bool autofocus;
 
   /// Creates a [ChipProperties] with the given data.

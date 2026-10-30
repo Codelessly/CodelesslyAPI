@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -86,13 +85,7 @@ class AccordionNode extends SceneNode
 @JsonSerializable()
 class AccordionProperties extends CustomProperties with FieldsHolder {
   /// Whether the accordion is expanded or collapsed.
-  @FlutterProp(
-    'isExpanded',
-    type: 'boolean',
-    group: 'State',
-    control: 'switch',
-    field: 'properties.isExpanded',
-  )
+  @FlutterProp('isExpanded', type: 'boolean', group: 'State', control: 'switch', field: 'properties.isExpanded')
   bool isExpanded;
 
   /// Creates a new [AccordionProperties] instance.

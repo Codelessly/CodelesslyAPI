@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../../../codelessly_api.dart';
@@ -213,13 +212,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   int? itemCount;
 
   /// The forced-size of each item in the list view in the scroll axis.
-  @FlutterProp(
-    'itemExtent',
-    type: 'number',
-    group: 'Layout',
-    control: 'number',
-    field: 'properties.itemExtent',
-  )
+  @FlutterProp('itemExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.itemExtent')
   double? itemExtent;
 
   /// The number of pixels by which to allow pre-rendering of items outside
