@@ -35,6 +35,9 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.shakeWhenDisabled, false))
     json.remove('shakeWhenDisabled');
+  if (isJsonDefault(instance.disabledFollow, 0)) json.remove('disabledFollow');
+  if (isJsonDefault(instance.flyOutRotate, 0)) json.remove('flyOutRotate');
+  if (isJsonDefault(instance.shareAs, '')) json.remove('shareAs');
   return json;
 }
 
@@ -70,6 +73,9 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   flyOutMs: (json['flyOutMs'] as num?)?.toInt() ?? 320,
   enabled: json['enabled'] as bool? ?? true,
   shakeWhenDisabled: json['shakeWhenDisabled'] as bool? ?? false,
+  disabledFollow: (json['disabledFollow'] as num?)?.toDouble() ?? 0,
+  flyOutRotate: (json['flyOutRotate'] as num?)?.toDouble() ?? 0,
+  shareAs: json['shareAs'] as String? ?? '',
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -89,6 +95,9 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'flyOutMs': instance.flyOutMs,
   'enabled': instance.enabled,
   'shakeWhenDisabled': instance.shakeWhenDisabled,
+  'disabledFollow': instance.disabledFollow,
+  'flyOutRotate': instance.flyOutRotate,
+  'shareAs': instance.shareAs,
 };
 
 const _$DragAxisEnumMap = {
