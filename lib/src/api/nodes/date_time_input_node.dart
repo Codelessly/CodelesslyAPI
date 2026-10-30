@@ -5,7 +5,6 @@ import '../field_access.dart';
 import '../mixins.dart';
 import '../models/models.dart';
 import 'date_picker_node.dart';
-import 'time_picker_node.dart';
 import 'nodes.dart';
 
 part 'date_time_input_node.g.dart';
@@ -30,12 +29,39 @@ String validateIsoDateTime(String value) {
   return value;
 }
 
+String validateDateTimeBound(String mode, String value) {
+  if (mode == 'time') {
+    if (!RegExp(r'^([01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$').hasMatch(value)) {
+      throw FormatException('Expected HH:mm or HH:mm:ss', value);
+    }
+    return value;
+  }
+  return validateDateTimeInputValue(mode, value);
+}
+
+int compareDateTimeBounds(String mode, String a, String b) {
+  if (mode == 'dateTime') {
+    return DateTime.parse(a).toUtc().compareTo(DateTime.parse(b).toUtc());
+  }
+  if (mode == 'time') {
+    int seconds(String value) {
+      final parts = value.split(':').map(int.parse).toList();
+      return parts[0] * 3600 +
+          parts[1] * 60 +
+          (parts.length == 3 ? parts[2] : 0);
+    }
+
+    return seconds(a).compareTo(seconds(b));
+  }
+  return a.compareTo(b);
+}
+
 String validateDateTimeInputValue(String mode, String value) {
   switch (validateDateTimeMode(mode)) {
     case 'date':
       return validateIsoDate(value);
     case 'time':
-      return validateClockTime(value);
+      return validateDateTimeBound('time', value);
     case 'dateTime':
       return validateIsoDateTime(value);
   }
@@ -157,6 +183,10 @@ class DateTimeInputNode extends SceneNode
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     StringValue(name: 'value', value: value),
+    if (properties.min != null)
+      StringValue(name: 'min', value: properties.min!),
+    if (properties.max != null)
+      StringValue(name: 'max', value: properties.max!),
   ];
 
   factory DateTimeInputNode.fromJson(Map json) {
@@ -204,9 +234,34 @@ class DateTimeInputProperties extends CustomProperties with FieldsHolder {
   )
   String? lastDate;
 
-  DateTimeInputProperties({this.label, String? firstDate, String? lastDate})
-    : firstDate = validateOptionalIsoDate(firstDate),
-      lastDate = validateOptionalIsoDate(lastDate) {
+  @FlutterProp(
+    'min',
+    type: 'string',
+    group: 'Bounds',
+    control: 'text',
+    bindable: true,
+    field: 'properties.min',
+  )
+  String? min;
+
+  @FlutterProp(
+    'max',
+    type: 'string',
+    group: 'Bounds',
+    control: 'text',
+    bindable: true,
+    field: 'properties.max',
+  )
+  String? max;
+
+  DateTimeInputProperties({
+    this.label,
+    String? firstDate,
+    String? lastDate,
+    this.min,
+    this.max,
+  }) : firstDate = validateOptionalIsoDate(firstDate),
+       lastDate = validateOptionalIsoDate(lastDate) {
     validate();
   }
 
@@ -215,6 +270,22 @@ class DateTimeInputProperties extends CustomProperties with FieldsHolder {
     final last = validateOptionalIsoDate(lastDate);
     if (first != null && last != null && first.compareTo(last) > 0) {
       throw FormatException('Invalid firstDate/lastDate range');
+    }
+    if (mode != null) {
+      final lower = min == null ? null : validateDateTimeBound(mode, min!);
+      final upper = max == null ? null : validateDateTimeBound(mode, max!);
+      if (lower != null &&
+          upper != null &&
+          compareDateTimeBounds(mode, lower, upper) > 0) {
+        throw FormatException('Invalid min/max range');
+      }
+      if (value != null) {
+        validateDateTimeInputValue(mode, value);
+        if ((lower != null && compareDateTimeBounds(mode, value, lower) < 0) ||
+            (upper != null && compareDateTimeBounds(mode, value, upper) > 0)) {
+          throw FormatException('Value outside min/max bounds', value);
+        }
+      }
     }
     if (mode == 'time' && (first != null || last != null)) {
       throw FormatException('Date bounds do not apply to time mode');
@@ -242,6 +313,36 @@ class DateTimeInputProperties extends CustomProperties with FieldsHolder {
       'Input label',
       () => label ?? '',
       (v) => label = v.isEmpty ? null : v,
+    ),
+    'min': StringFieldAccess(
+      'Min',
+      'Inclusive mode-dependent lower bound',
+      () => min ?? '',
+      (v) {
+        final old = min;
+        min = v.isEmpty ? null : v;
+        try {
+          validate();
+        } catch (_) {
+          min = old;
+          rethrow;
+        }
+      },
+    ),
+    'max': StringFieldAccess(
+      'Max',
+      'Inclusive mode-dependent upper bound',
+      () => max ?? '',
+      (v) {
+        final old = max;
+        max = v.isEmpty ? null : v;
+        try {
+          validate();
+        } catch (_) {
+          max = old;
+          rethrow;
+        }
+      },
     ),
     'firstDate': StringFieldAccess(
       'First Date',
@@ -276,7 +377,7 @@ class DateTimeInputProperties extends CustomProperties with FieldsHolder {
   };
 
   @override
-  List<Object?> get props => [label, firstDate, lastDate];
+  List<Object?> get props => [label, firstDate, lastDate, min, max];
 
   factory DateTimeInputProperties.fromJson(Map json) {
     final properties = _$DateTimeInputPropertiesFromJson(json);

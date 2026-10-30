@@ -240,6 +240,8 @@ DateTimeInputProperties _$DateTimeInputPropertiesFromJson(Map json) =>
       label: json['label'] as String?,
       firstDate: validateOptionalIsoDate(json['firstDate'] as String?),
       lastDate: validateOptionalIsoDate(json['lastDate'] as String?),
+      min: json['min'] as String?,
+      max: json['max'] as String?,
     );
 
 Map<String, dynamic> _$DateTimeInputPropertiesToJson(
@@ -248,4 +250,6 @@ Map<String, dynamic> _$DateTimeInputPropertiesToJson(
   'label': ?instance.label,
   'firstDate': ?validateOptionalIsoDate(instance.firstDate),
   'lastDate': ?validateOptionalIsoDate(instance.lastDate),
+  'min': ?instance.min,
+  'max': ?instance.max,
 };
