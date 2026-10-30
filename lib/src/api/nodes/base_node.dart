@@ -477,6 +477,21 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// Tag that makes this node a shared element (a Flutter `Hero`): when a
+  /// navigation pushes or pops a screen that has a node with the same tag,
+  /// this node flies between its place on both screens while the route
+  /// transition plays.
+  ///
+  /// Null or empty for none. Bindable through `variables['heroTag']`, e.g.
+  /// `pass-${item.id}` in a list item; a binding that resolves to an empty
+  /// string turns the shared element off for that node (for example on every
+  /// list item but the front one). Tags must be unique on a screen.
+  String? heroTag;
+
+  /// How this shared element flies when [heroTag] is set. Null flies the
+  /// standard way ([HeroFlight.standard]).
+  HeroFlight? heroFlight;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

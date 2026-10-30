@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 54);
+      expect(annotated.length, 55);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -135,6 +135,7 @@ void main() {
     'row_column_node': ('RowNode', 'Row', 11),
     'divider_node': ('DividerNode', 'Divider', 4),
     'badge_node': ('BadgeNode', 'Badge', 3),
+    'barcode_node': ('BarcodeNode', 'CodelesslyBarcode', 6),
     'app_bar_node': ('AppBarNode', 'AppBar', 4),
     'checkbox_node': ('CheckboxNode', 'Checkbox', 4),
     'slider_node': ('SliderNode', 'Slider', 5),
@@ -358,7 +359,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 70);
+    expect(catalog.components.length, 71);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,

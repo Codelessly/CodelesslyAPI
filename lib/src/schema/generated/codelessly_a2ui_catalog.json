@@ -189,6 +189,49 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyBarcode": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyBarcode"
+            },
+            "data": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "symbology": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "object"
+                },
+                "backgroundColor": {
+                  "type": "object"
+                },
+                "errorCorrection": {
+                  "type": "string"
+                },
+                "drawText": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "data"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "ElevatedButton": {
       "allOf": [
         {
@@ -3068,6 +3111,9 @@
         },
         {
           "$ref": "#/components/CodelesslyBarChart"
+        },
+        {
+          "$ref": "#/components/CodelesslyBarcode"
         },
         {
           "$ref": "#/components/ElevatedButton"

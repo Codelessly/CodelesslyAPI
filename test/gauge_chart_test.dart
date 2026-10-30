@@ -134,6 +134,7 @@ void main() {
       'textField',
       'chip',
       'badge',
+      'barcode',
       'divider',
       'segmentedButton',
       'listTile',

@@ -53,11 +53,13 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     // [CornerMixin] properties.
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     // [ClipMixin] properties.
     bool clipsContent = true,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
