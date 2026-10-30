@@ -71,6 +71,10 @@ class FlutterProp {
   /// Whether the corresponding Flutter parameter is required.
   final bool required;
 
+  /// Whether this property belongs in the A2UI agent wire schema.
+  /// Editor-only DPP fields remain in the node JSON schema and descriptors.
+  final bool a2ui;
+
   /// Whether a data binding is permitted.
   final bool bindable;
 
@@ -85,6 +89,7 @@ class FlutterProp {
     this.required = false,
     this.bindable = false,
     this.flutterParam = true,
+    this.a2ui = true,
     this.note,
   });
 }
