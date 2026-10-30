@@ -102,7 +102,36 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  keyDown,
+
+  /// Triggered when the user right-clicks the target (or taps it with two
+  /// fingers on a trackpad). `${result.x}` and `${result.y}` are where, in
+  /// screen coordinates, e.g. to open a context menu there.
+  secondaryClick,
+
+  /// Triggered on a draggable node when the user picks it up. The actions
+  /// read the payload as `${drag.data}`.
+  dragStart,
+
+  /// Triggered on a draggable node when its drag ends without a drop (let go
+  /// outside every target, on a target that refused it, or cancelled).
+  dragCancel,
+
+  /// Triggered on a drop target when a drag it accepts is dropped on it.
+  /// `${result}` (and `${drag}`) hold `data`, `group`, `count`, `key`,
+  /// `beforeId`, `before` (the item it lands before), `index` and
+  /// `accepted`. A drop its `acceptIf` refuses doesn't fire it.
+  drop,
+
+  /// Triggered on a drop target when a drag it accepts moves onto it.
+  dragEnter,
+
+  /// Triggered on a drop target when a drag leaves it without dropping.
+  dragExit,
+
+  /// Triggered on a drop target when a drag has stayed over it for its
+  /// `hoverDelayMs`, e.g. to switch to the tab or page it stands for.
+  dragHover;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -115,6 +144,20 @@ enum TriggerType {
     'hoverEnter': 'cursorEnter',
     'hoverExit': 'cursorExit',
   };
+
+  /// The triggers of a draggable node.
+  static const List<TriggerType> dragSource = [
+    TriggerType.dragStart,
+    TriggerType.dragCancel,
+  ];
+
+  /// The triggers of a drop target.
+  static const List<TriggerType> dropTarget = [
+    TriggerType.drop,
+    TriggerType.dragEnter,
+    TriggerType.dragExit,
+    TriggerType.dragHover,
+  ];
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [
@@ -177,6 +220,20 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.secondaryClick:
+        return 'Right Click';
+      case TriggerType.dragStart:
+        return 'Drag Start';
+      case TriggerType.dragCancel:
+        return 'Drag Cancel';
+      case TriggerType.drop:
+        return 'Drop';
+      case TriggerType.dragEnter:
+        return 'Drag Enter';
+      case TriggerType.dragExit:
+        return 'Drag Exit';
+      case TriggerType.dragHover:
+        return 'Drag Hover';
     }
   }
 }
