@@ -268,23 +268,24 @@ class MotionModel with Equatable, SerializableMixin {
   /// Whether the node animates in when it first appears.
   bool get hasEntrance => enter || enterFrom != null;
 
-  /// Where the entrance starts: these settings with the transform of
-  /// [enterFrom], or at rest when there is none.
-  MotionModel get entranceStart => switch (enterFrom) {
-    null => atRest,
-    MotionModel from => copyWith(
-      translateX: from.translateX,
-      translateY: from.translateY,
-      scale: from.scale,
-      scaleX: from.scaleX,
-      scaleY: from.scaleY,
-      opacity: from.opacity,
-      rotate: from.rotate,
-      rotateX: from.rotateX,
-      rotateY: from.rotateY,
-      pathProgress: from.pathProgress,
-    ),
-  };
+  /// Where the entrance starts: these settings with the values [enterFrom]
+  /// names, or at rest when there is none. A value [enterFrom] leaves at
+  /// rest (its default) keeps this motion's own value, so a node tilted 8°
+  /// that enters from `{"opacity": 0}` fades in tilted instead of turning
+  /// from 0°.
+  MotionModel get entranceStart {
+    final MotionModel? from = enterFrom;
+    if (from == null) return atRest;
+    MotionModel start = this;
+    for (final String property in properties) {
+      if (property == 'spin') continue;
+      final double value = from.valueOf(property);
+      if (value != none.valueOf(property)) {
+        start = start.withValue(property, value);
+      }
+    }
+    return start;
+  }
 
   /// The value of [property] in this model.
   double valueOf(String property) => switch (property) {
