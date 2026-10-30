@@ -66,7 +66,7 @@ void main() {
     'embedded_video_node': ('EmbeddedVideoNode', 'CodelesslyEmbeddedVideo', 2),
     'video_node': ('VideoNode', 'CodelesslyVideo', 3),
     'date_picker_node': ('DatePickerNode', 'CalendarDatePicker', 3),
-    'date_time_input_node': ('DateTimeInputNode', 'DateTimeInput', 5),
+    'date_time_input_node': ('DateTimeInputNode', 'DateTimeInput', 7),
     'time_picker_node': ('TimePickerNode', 'TimePickerDialog', 1),
     'auto_placeholder_node': (
       'AutoPlaceholderNode',
@@ -282,8 +282,14 @@ void main() {
     expect((mappings['mappings'] as Map)['Modal']['bridgeStatus'], 'partial');
     expect((mappings['mappings'] as Map)['Tabs']['nodeType'], 'tabs');
     expect((mappings['mappings'] as Map)['Tabs']['bridgeStatus'], 'partial');
-    expect((mappings['mappings'] as Map)['DateTimeInput']['nodeType'], 'dateTimeInput');
-    expect((mappings['mappings'] as Map)['DateTimeInput']['bridgeStatus'], 'partial');
+    expect(
+      (mappings['mappings'] as Map)['DateTimeInput']['nodeType'],
+      'dateTimeInput',
+    );
+    expect(
+      (mappings['mappings'] as Map)['DateTimeInput']['bridgeStatus'],
+      'ready',
+    );
     final text = generated['Text'] as Map;
     final textProps =
         ((text['allOf'] as List).last as Map)['properties'] as Map;

@@ -157,7 +157,7 @@ void main(List<String> args) {
       for (final entry in basicNodeTypes.entries)
         entry.key: {
           'nodeType': entry.value,
-          'bridgeStatus': entry.key == 'Video'
+          'bridgeStatus': (entry.key == 'Video' || entry.key == 'DateTimeInput')
               ? 'ready'
               : entry.value == null
               ? 'deferred'
