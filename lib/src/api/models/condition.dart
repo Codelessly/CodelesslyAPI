@@ -803,6 +803,9 @@ abstract interface class ActionVisitor<R> {
   /// Evaluates the action and returns the result.
   R? visitShowDialogAction(ShowDialogAction action);
 
+  /// Evaluates closing the active modal dialog.
+  R? visitCloseModalAction(CloseModalAction action);
+
   /// Evaluates the action and returns the result.
   R? visitSetCloudStorageAction(SetCloudStorageAction action);
 
