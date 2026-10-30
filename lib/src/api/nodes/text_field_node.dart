@@ -90,6 +90,9 @@ class TextFieldNode extends SceneNode
     TriggerType.changed,
     // TriggerType.editingComplete,
     TriggerType.submitted,
+    TriggerType.focusGained,
+    TriggerType.focusLost,
+    TriggerType.keyDown,
   ];
 
   @override
