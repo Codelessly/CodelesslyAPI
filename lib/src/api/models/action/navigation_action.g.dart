@@ -51,6 +51,7 @@ const _$NavigationTypeEnumMap = {
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
   ActionType.showDialog: 'showDialog',
+  ActionType.closeModal: 'closeModal',
   ActionType.link: 'link',
   ActionType.submit: 'submit',
   ActionType.setValue: 'setValue',
