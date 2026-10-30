@@ -28,6 +28,23 @@
         "visible": {
           "type": "boolean"
         },
+        "edgePins": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "number"
+            },
+            "top": {
+              "type": "number"
+            },
+            "right": {
+              "type": "number"
+            },
+            "bottom": {
+              "type": "number"
+            }
+          }
+        },
         "horizontalFit": {
           "type": "string"
         },
@@ -42,6 +59,9 @@
         },
         "padding": {
           "type": "object"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "properties": {
           "type": "object",
@@ -85,6 +105,18 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "fieldPath": "edgePins",
+        "group": "Position",
+        "control": "edgePins",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "divider",
@@ -148,6 +180,18 @@
       },
       {
         "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "fieldPath": "rotation",
+        "group": "Transform",
+        "control": "angle",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
         "flutterName": "color",
         "fieldPath": "properties.color",
         "group": "Appearance",
@@ -181,6 +225,54 @@
         "flutterName": "thickness",
         "fieldPath": "properties.thickness",
         "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent left edge.",
+        "fieldPath": "edgePins.left",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent top edge.",
+        "fieldPath": "edgePins.top",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent right edge.",
+        "fieldPath": "edgePins.right",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "divider",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "fieldPath": "edgePins.bottom",
+        "group": "Position",
         "control": "number",
         "schemaType": "number",
         "defaultSource": null,
@@ -268,6 +360,16 @@
       },
       {
         "parameter": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "field": "edgePins",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
         "field": "horizontalFit",
         "defaultSource": null,
@@ -317,6 +419,16 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "field": "rotation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
         "parameter": "color",
         "field": "properties.color",
         "defaultSource": null,
@@ -346,6 +458,46 @@
       {
         "parameter": "thickness",
         "field": "properties.thickness",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent left edge.",
+        "field": "edgePins.left",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent top edge.",
+        "field": "edgePins.top",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent right edge.",
+        "field": "edgePins.right",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "field": "edgePins.bottom",
         "defaultSource": null,
         "testValues": [
           0,
