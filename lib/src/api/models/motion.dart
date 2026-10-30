@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -70,6 +72,152 @@ enum MotionLoop {
     MotionLoop.restart => 'Loop',
     MotionLoop.reverse => 'Back and forth',
   };
+}
+
+/// One moment of a [MotionModel]'s keyframes: the values a transition
+/// passes through at [t], a share of its time from 0 (start) to 1 (end).
+///
+/// A value left null isn't keyed here. A value keyed in any keyframe
+/// follows a smooth curve from where the transition starts, through each
+/// keyframe that names it, to where it ends; the others follow the
+/// motion's curve as usual. `[{"t": 0.5, "scale": 1.25}]` swells a node
+/// to 1.25 halfway through and settles it back.
+@JsonSerializable()
+class MotionKeyframe with Equatable, SerializableMixin {
+  /// When this keyframe is reached, as a share of the transition's time
+  /// (before its curve), between 0 and 1. Keyframes at 0 or 1 or beyond are
+  /// ignored: a transition always starts and ends at its own values.
+  final double t;
+
+  /// See [MotionModel.translateX].
+  final double? translateX;
+
+  /// See [MotionModel.translateY].
+  final double? translateY;
+
+  /// See [MotionModel.scale].
+  final double? scale;
+
+  /// See [MotionModel.scaleX].
+  final double? scaleX;
+
+  /// See [MotionModel.scaleY].
+  final double? scaleY;
+
+  /// See [MotionModel.opacity].
+  final double? opacity;
+
+  /// See [MotionModel.rotate].
+  final double? rotate;
+
+  /// See [MotionModel.rotateX].
+  final double? rotateX;
+
+  /// See [MotionModel.rotateY].
+  final double? rotateY;
+
+  /// See [MotionModel.pathProgress].
+  final double? pathProgress;
+
+  /// Creates a [MotionKeyframe].
+  const MotionKeyframe({
+    required this.t,
+    this.translateX,
+    this.translateY,
+    this.scale,
+    this.scaleX,
+    this.scaleY,
+    this.opacity,
+    this.rotate,
+    this.rotateX,
+    this.rotateY,
+    this.pathProgress,
+  });
+
+  /// The names of the values a keyframe can key.
+  static const List<String> properties = [
+    'translateX',
+    'translateY',
+    'scale',
+    'scaleX',
+    'scaleY',
+    'opacity',
+    'rotate',
+    'rotateX',
+    'rotateY',
+    'pathProgress',
+  ];
+
+  /// The value this keyframe gives [property], or null when it doesn't key
+  /// it.
+  double? valueOf(String property) => switch (property) {
+    'translateX' => translateX,
+    'translateY' => translateY,
+    'scale' => scale,
+    'scaleX' => scaleX,
+    'scaleY' => scaleY,
+    'opacity' => opacity,
+    'rotate' => rotate,
+    'rotateX' => rotateX,
+    'rotateY' => rotateY,
+    'pathProgress' => pathProgress,
+    _ => null,
+  };
+
+  /// Returns a copy keyed at [t] instead.
+  MotionKeyframe atTime(double t) => withValues(t, values);
+
+  /// The values this keyframe keys, by property name.
+  Map<String, double> get values => {
+    for (final String p in properties)
+      if (valueOf(p) case final double value) p: value,
+  };
+
+  /// Returns a copy with [property] keyed to [value], or no longer keyed
+  /// when [value] is null.
+  MotionKeyframe withValue(String property, double? value) {
+    final Map<String, double> next = values..remove(property);
+    if (value != null) next[property] = value;
+    return withValues(t, next);
+  }
+
+  /// A keyframe at [t] keying [values] by property name.
+  static MotionKeyframe withValues(double t, Map<String, double> values) =>
+      MotionKeyframe(
+        t: t,
+        translateX: values['translateX'],
+        translateY: values['translateY'],
+        scale: values['scale'],
+        scaleX: values['scaleX'],
+        scaleY: values['scaleY'],
+        opacity: values['opacity'],
+        rotate: values['rotate'],
+        rotateX: values['rotateX'],
+        rotateY: values['rotateY'],
+        pathProgress: values['pathProgress'],
+      );
+
+  @override
+  List<Object?> get props => [
+    t,
+    translateX,
+    translateY,
+    scale,
+    scaleX,
+    scaleY,
+    opacity,
+    rotate,
+    rotateX,
+    rotateY,
+    pathProgress,
+  ];
+
+  /// Creates a [MotionKeyframe] from JSON.
+  factory MotionKeyframe.fromJson(Map json) => _$MotionKeyframeFromJson(json);
+
+  @override
+  Map toJson() =>
+      _$MotionKeyframeOmitDefaults(this, _$MotionKeyframeToJson(this));
 }
 
 /// How a node moves: a transform drawn on top of its layout (it never changes
@@ -176,8 +324,12 @@ class MotionModel with Equatable, SerializableMixin {
   final bool backfaceHidden;
 
   /// A path the node moves along, as SVG path data in logical pixels
-  /// relative to the node's rest position (`M0 0 C 80 -160 240 -200 300 -40`).
-  /// [pathProgress] says how far along it the node is. Null for none.
+  /// (`M0 0 C 80 -160 240 -200 300 -40`). Its coordinates aren't absolute:
+  /// the node is moved by the offset of the point at [pathProgress] from the
+  /// path's first point (its first `M`), on top of its laid-out position and
+  /// [translateX]/[translateY]. So at progress 0 the node sits where it
+  /// rests, and a path is easiest to read starting at `M0 0`;
+  /// `M100 100 L200 100` moves it exactly like `M0 0 L100 0`. Null for none.
   final String? path;
 
   /// How far along [path] the node is, from 0 (its start) to 1 (its end),
@@ -188,6 +340,20 @@ class MotionModel with Equatable, SerializableMixin {
   /// Turns the node to follow the direction of [path] at [pathProgress],
   /// added to [rotate].
   final bool orientToPath;
+
+  /// Values the node passes through during every transition (a value
+  /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
+  /// a share of the transition's time: a card flip that swells at the
+  /// halfway point, `[{"t": 0.5, "scale": 1.08}]`, or a sticker whose scale
+  /// rises and falls over its flight. Empty for none.
+  final List<MotionKeyframe> keyframes;
+
+  /// Plays the [keyframes] once, over [durationMs], from where the node is
+  /// back to where it is, whenever this changes: a counter that bumps
+  /// (`[{"t": 0.4, "scale": 1.25}]`) each time its value changes. Meant to
+  /// be bound through `motion.pulseKey` in [BaseNode.variables], e.g. to
+  /// `${count}`.
+  final String? pulseKey;
 
   /// Creates a [MotionModel].
   const MotionModel({
@@ -216,6 +382,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.path,
     this.pathProgress = 0,
     this.orientToPath = false,
+    this.keyframes = const [],
+    this.pulseKey,
   });
 
   /// No motion at all.
@@ -241,6 +409,18 @@ class MotionModel with Equatable, SerializableMixin {
   /// changes; see [replayKey].
   static const String replayKeyProperty = 'replayKey';
 
+  /// The name of the binding that plays the [keyframes] once when its value
+  /// changes; see [pulseKey].
+  static const String pulseKeyProperty = 'pulseKey';
+
+  /// The names of the settings of the transition that can be bound to
+  /// variables, as `motion.<name>` keys of [BaseNode.variables]:
+  /// [durationMs] and [delayMs] (numbers) and [curve] (a [MotionCurve]
+  /// name such as `elasticOut`), so a node can open with a slow spring and
+  /// close quickly: `variables['motion.durationMs'] = '${= open ? 380 :
+  /// 160}'`. See [withSetting].
+  static const List<String> settings = ['durationMs', 'delayMs', 'curve'];
+
   /// The name of the binding that gives [path] from a variable or formula
   /// (text), e.g. a curve built from the screen's width.
   static const String pathProperty = 'path';
@@ -265,6 +445,9 @@ class MotionModel with Equatable, SerializableMixin {
   /// Whether the node moves along a [path].
   bool get hasPath => path != null && path!.trim().isNotEmpty;
 
+  /// Whether transitions pass through [keyframes].
+  bool get hasKeyframes => keyframes.isNotEmpty;
+
   /// Whether the node animates in when it first appears.
   bool get hasEntrance => enter || enterFrom != null;
 
@@ -273,6 +456,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// rest (its default) keeps this motion's own value, so a node tilted 8°
   /// that enters from `{"opacity": 0}` fades in tilted instead of turning
   /// from 0°.
+  ///
+  /// [pathProgress] is the exception: a node on a [path] always enters from
+  /// [enterFrom]'s progress, 0 (the path's start) unless it names another,
+  /// so a star flies along its path to `pathProgress: 1` from
+  /// `{"pathProgress": 0}`.
   MotionModel get entranceStart {
     final MotionModel? from = enterFrom;
     if (from == null) return atRest;
@@ -280,7 +468,8 @@ class MotionModel with Equatable, SerializableMixin {
     for (final String property in properties) {
       if (property == 'spin') continue;
       final double value = from.valueOf(property);
-      if (value != none.valueOf(property)) {
+      if (value != none.valueOf(property) ||
+          property == 'pathProgress' && hasPath) {
         start = start.withValue(property, value);
       }
     }
@@ -333,6 +522,9 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPath = false,
     double? pathProgress,
     bool? orientToPath,
+    List<MotionKeyframe>? keyframes,
+    String? pulseKey,
+    bool clearPulseKey = false,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -359,6 +551,8 @@ class MotionModel with Equatable, SerializableMixin {
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
+    keyframes: keyframes ?? this.keyframes,
+    pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -391,6 +585,130 @@ class MotionModel with Equatable, SerializableMixin {
     _ => throw ArgumentError.value(property, 'property'),
   };
 
+  /// Returns a copy with the setting [property] (one of [settings]) given by
+  /// [value], a bound variable's value: a number (or numeric text) of
+  /// milliseconds for [durationMs] and [delayMs], a [MotionCurve] name for
+  /// [curve]. Returns this unchanged when [value] doesn't name one.
+  MotionModel withSetting(String property, Object? value) {
+    switch (property) {
+      case 'durationMs' || 'delayMs':
+        final double? number = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        if (number == null || !number.isFinite) return this;
+        final int ms = number.round() < 0 ? 0 : number.round();
+        return property == 'durationMs'
+            ? copyWith(durationMs: ms)
+            : copyWith(delayMs: ms);
+      case 'curve':
+        final MotionCurve? curve = parseCurve(value);
+        return curve == null ? this : copyWith(curve: curve);
+      default:
+        throw ArgumentError.value(property, 'property');
+    }
+  }
+
+  /// The curve [value] names: a [MotionCurve] name (`elasticOut`), in any
+  /// case and with spaces, dashes or underscores, or its displayed name
+  /// (`Elastic`, `Overshoot`). Null when it names none.
+  static MotionCurve? parseCurve(Object? value) {
+    if (value is MotionCurve) return value;
+    if (value == null) return null;
+    String simple(String text) =>
+        text.toLowerCase().replaceAll(RegExp(r'[\s_,-]'), '');
+    final String text = simple(value.toString());
+    if (text.isEmpty) return null;
+    for (final MotionCurve curve in MotionCurve.values) {
+      if (simple(curve.name) == text || simple(curve.prettify) == text) {
+        return curve;
+      }
+    }
+    return null;
+  }
+
+  /// The value [property] has at [t] (0 to 1, a share of the transition's
+  /// time before its curve) in a transition from [from] to [to] that passes
+  /// through [keyframes], or null when no keyframe keys [property] (it then
+  /// follows the transition's curve).
+  ///
+  /// The value follows a smooth curve through the start, each keyframe and
+  /// the end that doesn't overshoot between them (monotone cubic), so a
+  /// single keyframe at 0.5 makes a hump like sin(πt).
+  static double? keyframedValue(
+    List<MotionKeyframe> keyframes,
+    String property,
+    double from,
+    double to,
+    double t,
+  ) {
+    if (keyframes.isEmpty) return null;
+    final List<(double, double)> points = [(0, from)];
+    final List<MotionKeyframe> sorted =
+        keyframes.where((k) => k.t > 0 && k.t < 1).toList()
+          ..sort((a, b) => a.t.compareTo(b.t));
+    for (final MotionKeyframe keyframe in sorted) {
+      final double? value = keyframe.valueOf(property);
+      if (value == null || !value.isFinite) continue;
+      if (keyframe.t == points.last.$1) {
+        points[points.length - 1] = (keyframe.t, value);
+      } else {
+        points.add((keyframe.t, value));
+      }
+    }
+    if (points.length == 1) return null;
+    points.add((1, to));
+    if (t <= 0) return from;
+    if (t >= 1) return to;
+
+    final int n = points.length;
+    // Slopes of each segment, then a tangent at each point that is flat at a
+    // peak or a valley so the curve never overshoots a keyframe.
+    final List<double> slopes = [
+      for (int i = 0; i < n - 1; i++)
+        (points[i + 1].$2 - points[i].$2) / (points[i + 1].$1 - points[i].$1),
+    ];
+    final List<double> tangents = List.filled(n, 0);
+    tangents[0] = slopes.first;
+    tangents[n - 1] = slopes.last;
+    for (int i = 1; i < n - 1; i++) {
+      final double a = slopes[i - 1];
+      final double b = slopes[i];
+      tangents[i] = a * b <= 0 ? 0 : (a + b) / 2;
+    }
+    for (int i = 0; i < n - 1; i++) {
+      if (slopes[i] == 0) {
+        tangents[i] = 0;
+        tangents[i + 1] = 0;
+        continue;
+      }
+      final double alpha = tangents[i] / slopes[i];
+      final double beta = tangents[i + 1] / slopes[i];
+      final double sum = alpha * alpha + beta * beta;
+      if (sum > 9) {
+        final double tau = 3 / math.sqrt(sum);
+        tangents[i] = tau * alpha * slopes[i];
+        tangents[i + 1] = tau * beta * slopes[i];
+      }
+    }
+
+    int i = 0;
+    while (i < n - 2 && t > points[i + 1].$1) {
+      i++;
+    }
+    final (double t0, double v0) = points[i];
+    final (double t1, double v1) = points[i + 1];
+    final double h = t1 - t0;
+    final double s = (t - t0) / h;
+    final double s2 = s * s;
+    final double s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * v0 +
+        (s3 - 2 * s2 + s) * h * tangents[i] +
+        (-2 * s3 + 3 * s2) * v1 +
+        (s3 - s2) * h * tangents[i + 1];
+  }
+
   @override
   List<Object?> get props => [
     translateX,
@@ -418,11 +736,25 @@ class MotionModel with Equatable, SerializableMixin {
     path,
     pathProgress,
     orientToPath,
+    keyframes,
+    pulseKey,
   ];
 
   /// Creates a [MotionModel] from JSON.
   factory MotionModel.fromJson(Map json) => _$MotionModelFromJson(json);
 
   @override
-  Map toJson() => _$MotionModelOmitDefaults(this, _$MotionModelToJson(this));
+  Map toJson() {
+    final Map json = _$MotionModelOmitDefaults(this, _$MotionModelToJson(this));
+    // A node on a path enters from enterFrom's progress even when it is 0
+    // (see entranceStart): spell it out so the JSON reads as it plays.
+    final MotionModel? from = enterFrom;
+    if (from != null && hasPath && json['enterFrom'] is Map) {
+      json['enterFrom'] = {
+        ...json['enterFrom'] as Map,
+        'pathProgress': from.pathProgress,
+      };
+    }
+    return json;
+  }
 }
