@@ -86,6 +86,8 @@ Map<String, dynamic> _$PageViewPropertiesOmitDefaults(
     json.remove('viewportFraction');
   if (isJsonDefault(instance.allowImplicitScrolling, false))
     json.remove('allowImplicitScrolling');
+  if (isJsonDefault(instance.animationDurationMs, 0))
+    json.remove('animationDurationMs');
   return json;
 }
 
@@ -345,6 +347,7 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   initialPage: (json['initialPage'] as num?)?.toInt() ?? 0,
   viewportFraction: (json['viewportFraction'] as num?)?.toDouble() ?? 1,
   allowImplicitScrolling: json['allowImplicitScrolling'] as bool? ?? false,
+  animationDurationMs: (json['animationDurationMs'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -356,4 +359,5 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'initialPage': instance.initialPage,
       'viewportFraction': instance.viewportFraction,
       'allowImplicitScrolling': instance.allowImplicitScrolling,
+      'animationDurationMs': instance.animationDurationMs,
     };
