@@ -69,7 +69,7 @@ String validateDateTimeInputValue(String mode, String value) {
 }
 
 @JsonSerializable()
-@FlutterNode('DateTimeInput', family: 'material', nodeType: 'dateTimeInput')
+@FlutterNode('DateTimeInput', family: 'codelessly', nodeType: 'dateTimeInput')
 class DateTimeInputNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
   @override

@@ -115,6 +115,7 @@ class _FlutterPropsBuilder implements Builder {
         final tag = entry.value.$2;
         final flutterName = tag.read('name').stringValue;
         final isFlutterParam = tag.peek('flutterParam')?.boolValue ?? true;
+        final isA2ui = tag.peek('a2ui')?.boolValue ?? true;
         final note = tag.peek('note')?.stringValue;
         if (!isFlutterParam && (note == null || note.isEmpty)) {
           throw InvalidGenerationSourceError(
@@ -147,13 +148,15 @@ class _FlutterPropsBuilder implements Builder {
           'children' => 'children',
           _ => mapped,
         };
-        _putNested(a2uiFields, a2uiName, switch (control) {
-          'action' => {'\$ref': '${common}Action'},
-          'children' => {'\$ref': '${common}ChildList'},
-          'child' => {'\$ref': '${common}ComponentId'},
-          _ => schemaType,
-        });
-        if (isRequired) required.add(a2uiName);
+        if (isA2ui) {
+          _putNested(a2uiFields, a2uiName, switch (control) {
+            'action' => {'\$ref': '${common}Action'},
+            'children' => {'\$ref': '${common}ChildList'},
+            'child' => {'\$ref': '${common}ComponentId'},
+            _ => schemaType,
+          });
+          if (isRequired) required.add(a2uiName);
+        }
         if (isFlutterParam && flutterName != mapped)
           drift.add({'flutterName': flutterName, 'fieldPath': mapped});
         controls.add({
