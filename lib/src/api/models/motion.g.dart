@@ -30,6 +30,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.loop, MotionLoop.none)) json.remove('loop');
   if (isJsonDefault(instance.enter, false)) json.remove('enter');
   if (isJsonDefault(instance.delayMs, 0)) json.remove('delayMs');
+  if (isJsonDefault(instance.hideBackface, false)) json.remove('hideBackface');
   return json;
 }
 
@@ -64,6 +65,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
       : MotionModel.fromJson(json['enterFrom'] as Map),
   replayKey: json['replayKey'] as String?,
   delayMs: (json['delayMs'] as num?)?.toInt() ?? 0,
+  hideBackface: json['hideBackface'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -89,6 +91,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'enterFrom': ?instance.enterFrom?.toJson(),
       'replayKey': ?instance.replayKey,
       'delayMs': instance.delayMs,
+      'hideBackface': instance.hideBackface,
     };
 
 const _$MotionCurveEnumMap = {
@@ -98,6 +101,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
 };
 
 const _$MotionLoopEnumMap = {
