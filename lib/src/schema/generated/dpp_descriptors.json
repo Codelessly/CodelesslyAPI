@@ -122,7 +122,9 @@
     },
     {
       "nodeType": "elevatedButton",
-      "flutterName": "child",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "label text rendered as the button's child Text",
       "fieldPath": "properties.label",
       "group": "Content",
       "control": "text",
@@ -132,7 +134,9 @@
     },
     {
       "nodeType": "textButton",
-      "flutterName": "child",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "label text rendered as the button's child Text",
       "fieldPath": "properties.label",
       "group": "Content",
       "control": "text",
@@ -142,7 +146,9 @@
     },
     {
       "nodeType": "outlinedButton",
-      "flutterName": "child",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "label text rendered as the button's child Text",
       "fieldPath": "properties.label",
       "group": "Content",
       "control": "text",
@@ -162,7 +168,9 @@
     },
     {
       "nodeType": "filledButton",
-      "flutterName": "child",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "label text rendered as the button's child Text",
       "fieldPath": "properties.label",
       "group": "Content",
       "control": "text",
@@ -1322,29 +1330,9 @@
       "fieldPath": "properties.largeSize"
     },
     {
-      "nodeType": "elevatedButton",
-      "flutterName": "child",
-      "fieldPath": "properties.label"
-    },
-    {
-      "nodeType": "textButton",
-      "flutterName": "child",
-      "fieldPath": "properties.label"
-    },
-    {
-      "nodeType": "outlinedButton",
-      "flutterName": "child",
-      "fieldPath": "properties.label"
-    },
-    {
       "nodeType": "iconButton",
       "flutterName": "icon",
       "fieldPath": "properties.icon"
-    },
-    {
-      "nodeType": "filledButton",
-      "flutterName": "child",
-      "fieldPath": "properties.label"
     },
     {
       "nodeType": "canvas",

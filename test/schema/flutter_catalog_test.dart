@@ -1,19 +1,28 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:test/test.dart';
 import 'package:a2ui_core/a2ui_core.dart';
 
 void main() {
-  test('every cataloged concrete API node has a generated metadata fragment', () {
-    final source = Directory('lib/src/api/nodes').listSync().whereType<File>()
-        .where((file) => file.path.endsWith('_node.dart'));
-    final annotated = source.where((file) => file.readAsStringSync().contains('@FlutterNode('))
-        .map((file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'));
-    expect(annotated.length, 47);
-    for (final path in annotated) {
-      expect(File(path).existsSync(), isTrue, reason: path);
-    }
-  });
+  test(
+    'every cataloged concrete API node has a generated metadata fragment',
+    () {
+      final source = Directory('lib/src/api/nodes')
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.endsWith('_node.dart'));
+      final annotated = source
+          .where((file) => file.readAsStringSync().contains('@FlutterNode('))
+          .map(
+            (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
+          );
+      expect(annotated.length, 47);
+      for (final path in annotated) {
+        expect(File(path).existsSync(), isTrue, reason: path);
+      }
+    },
+  );
   for (final entry in {
     'text_node': ('TextNode', 'Text', 3),
     'button_node': ('ElevatedButtonNode', 'ElevatedButton', 1),
@@ -36,7 +45,11 @@ void main() {
     'tab_bar_node': ('TabBarNode', 'TabBar', 1),
     'list_tile_node': ('ListTileNode', 'ListTile', 8),
     'expansion_tile_node': ('ExpansionTileNode', 'ExpansionTile', 4),
-    'floating_action_button_node': ('FloatingActionButtonNode', 'FloatingActionButton', 4),
+    'floating_action_button_node': (
+      'FloatingActionButtonNode',
+      'FloatingActionButton',
+      4,
+    ),
     'chart_node': ('ChartNode', 'CodelesslyChartSeries', 1),
     'bar_chart_node': ('BarChartNode', 'CodelesslyBarChart', 1),
     'line_chart_node': ('LineChartNode', 'CodelesslyLineChart', 1),
@@ -44,34 +57,79 @@ void main() {
     'gauge_node': ('GaugeNode', 'CodelesslyRadialGauge', 1),
     'gauge_meter_node': ('GaugeMeterNode', 'CodelesslyGaugeMeter', 1),
     'signature_node': ('SignatureNode', 'CodelesslySignature', 2),
-    'signature_normalized_node': ('SignatureNormalizedNode', 'CodelesslyNormalizedSignature', 3),
+    'signature_normalized_node': (
+      'SignatureNormalizedNode',
+      'CodelesslyNormalizedSignature',
+      3,
+    ),
     'web_view_node': ('WebViewNode', 'CodelesslyWebView', 1),
     'embedded_video_node': ('EmbeddedVideoNode', 'CodelesslyEmbeddedVideo', 2),
-    'auto_placeholder_node': ('AutoPlaceholderNode', 'CodelesslyAutoPlaceholder', 2),
-    'freeform_placeholder_node': ('FreeformPlaceholderNode', 'CodelesslyFreeformPlaceholder', 1),
+    'auto_placeholder_node': (
+      'AutoPlaceholderNode',
+      'CodelesslyAutoPlaceholder',
+      2,
+    ),
+    'freeform_placeholder_node': (
+      'FreeformPlaceholderNode',
+      'CodelesslyFreeformPlaceholder',
+      1,
+    ),
     'placeholder_node': ('PlaceholderNode', 'CodelesslyPlaceholder', 2),
-    'single_placeholder_node': ('SinglePlaceholderNode', 'CodelesslySinglePlaceholder', 2),
-    'external_component_node': ('ExternalComponentNode', 'CodelesslyExternalComponent', 1),
+    'single_placeholder_node': (
+      'SinglePlaceholderNode',
+      'CodelesslySinglePlaceholder',
+      2,
+    ),
+    'external_component_node': (
+      'ExternalComponentNode',
+      'CodelesslyExternalComponent',
+      1,
+    ),
     'variance_node': ('VarianceNode', 'CodelesslyVariance', 2),
     'accordion_node': ('AccordionNode', 'CodelesslyAccordion', 2),
     'canvas_node': ('CanvasNode', 'CodelesslyCanvas', 2),
     'progressbar_node': ('ProgressBarNode', 'CodelesslyProgressBar', 2),
     'root_node': ('RootNode', 'CodelesslyRoot', 1),
     'icon_node': ('IconNode', 'CodelesslyIcon', 1),
-    'loading_indicator_node': ('LoadingIndicatorNode', 'CodelesslyLoadingIndicator', 1),
+    'loading_indicator_node': (
+      'LoadingIndicatorNode',
+      'CodelesslyLoadingIndicator',
+      1,
+    ),
     'navigation_bar_node': ('NavigationBarNode', 'NavigationBar', 1),
     'rectangle_node': ('RectangleNode', 'CodelesslyRectangle', 1),
     'spacer_node': ('SpacerNode', 'Spacer', 1),
   }.entries) {
     test('${entry.key} metadata has four consistent projections', () {
-      final output = jsonDecode(File('lib/src/api/nodes/${entry.key}.flutter_catalog.json').readAsStringSync()) as Map;
+      final output = jsonDecode(
+        File('lib/src/api/nodes/${entry.key}.flutter_catalog.json')
+            .readAsStringSync(),
+      ) as Map;
       final node = output[entry.value.$1] as Map;
       expect(node['widget'], entry.value.$2);
       final properties = (node['jsonSchema'] as Map)['properties'] as Map;
       expect((node['dpp'] as List).length, entry.value.$3);
       expect(properties, isNotEmpty);
       if (entry.key == 'button_node') {
-        expect((((properties['properties'] as Map)['properties'] as Map)).keys, contains('label'));
+        expect(
+          (((properties['properties'] as Map)['properties'] as Map)).keys,
+          contains('label'),
+        );
+        final label = (node['dpp'] as List).cast<Map>().singleWhere(
+          (descriptor) => descriptor['fieldPath'] == 'properties.label',
+        );
+        expect(label['flutterParam'], isNull);
+        expect(label['flutterName'], isNull);
+        expect(label['note'], "label text rendered as the button's child Text");
+        final component =
+            ((node['a2ui'] as Map)['components'] as Map)['ElevatedButton']
+                as Map;
+        final fields =
+            (((component['allOf'] as List)[1] as Map)['properties']
+                    as Map)['properties']
+                as Map;
+        expect(fields['properties'], contains('label'));
+        expect(fields['properties'], isNot(contains('child')));
         for (final (className, widget, field) in [
           ('TextButtonNode', 'TextButton', 'label'),
           ('OutlinedButtonNode', 'OutlinedButton', 'label'),
@@ -80,7 +138,11 @@ void main() {
         ]) {
           final variant = output[className] as Map;
           expect(variant['widget'], widget);
-          expect((((variant['jsonSchema'] as Map)['properties'] as Map)['properties'] as Map)['properties'], contains(field));
+          expect(
+            (((variant['jsonSchema'] as Map)['properties'] as Map)['properties']
+                as Map)['properties'],
+            contains(field),
+          );
           expect((variant['dpp'] as List), isNotEmpty);
         }
       }
@@ -88,31 +150,111 @@ void main() {
         expect((output['ColumnNode'] as Map)['widget'], 'Column');
         expect(((output['ColumnNode'] as Map)['dpp'] as List).length, 3);
       }
-      expect(((node['a2ui'] as Map)['components'] as Map).keys, contains(entry.value.$2));
+      expect(
+        ((node['a2ui'] as Map)['components'] as Map).keys,
+        contains(entry.value.$2),
+      );
       expect((node['testMatrix'] as List).length, entry.value.$3);
-      expect((node['jsonSchema'] as Map)['\$schema'], 'https://json-schema.org/draft/2020-12/schema');
+      expect(
+        (node['jsonSchema'] as Map)['\$schema'],
+        'https://json-schema.org/draft/2020-12/schema',
+      );
     });
   }
   test('a2ui_core accepts merged catalog identifier and components', () {
-    final raw = jsonDecode(File('lib/src/schema/generated/codelessly_a2ui_catalog.json').readAsStringSync()) as Map<String, dynamic>;
+    final raw = jsonDecode(
+      File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
+          .readAsStringSync(),
+    ) as Map<String, dynamic>;
     final catalog = Catalog.fromJson(raw);
-    expect(catalog.id, 'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json');
-    expect(catalog.components.keys, containsAll(['Text', 'Button', 'Row', 'Column', 'List', 'ElevatedButton', 'Divider', 'Badge', 'AppBar', 'Checkbox', 'Slider', 'ListView', 'Switch', 'Stack', 'GridView', 'PageView', 'ChoiceChip', 'Radio', 'TextField', 'DropdownButton', 'SegmentedButton', 'TabBar', 'ListTile', 'ExpansionTile', 'FloatingActionButton', 'CodelesslyChartSeries', 'CodelesslyBarChart', 'CodelesslyLineChart', 'CodelesslyPlotChart', 'CodelesslyRadialGauge', 'CodelesslyGaugeMeter', 'CodelesslySignature', 'CodelesslyNormalizedSignature', 'CodelesslyWebView', 'CodelesslyEmbeddedVideo', 'CodelesslyAutoPlaceholder', 'CodelesslyFreeformPlaceholder', 'CodelesslyPlaceholder', 'CodelesslySinglePlaceholder', 'CodelesslyExternalComponent', 'CodelesslyVariance', 'CodelesslyAccordion', 'CodelesslyCanvas', 'CodelesslyProgressBar', 'CodelesslyRoot', 'CodelesslyIcon', 'CodelesslyLoadingIndicator', 'NavigationBar', 'CodelesslyRectangle', 'Spacer']));
+    expect(
+      catalog.id,
+      'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json',
+    );
+    expect(
+      catalog.components.keys,
+      containsAll([
+        'Text',
+        'Button',
+        'Row',
+        'Column',
+        'List',
+        'ElevatedButton',
+        'Divider',
+        'Badge',
+        'AppBar',
+        'Checkbox',
+        'Slider',
+        'ListView',
+        'Switch',
+        'Stack',
+        'GridView',
+        'PageView',
+        'ChoiceChip',
+        'Radio',
+        'TextField',
+        'DropdownButton',
+        'SegmentedButton',
+        'TabBar',
+        'ListTile',
+        'ExpansionTile',
+        'FloatingActionButton',
+        'CodelesslyChartSeries',
+        'CodelesslyBarChart',
+        'CodelesslyLineChart',
+        'CodelesslyPlotChart',
+        'CodelesslyRadialGauge',
+        'CodelesslyGaugeMeter',
+        'CodelesslySignature',
+        'CodelesslyNormalizedSignature',
+        'CodelesslyWebView',
+        'CodelesslyEmbeddedVideo',
+        'CodelesslyAutoPlaceholder',
+        'CodelesslyFreeformPlaceholder',
+        'CodelesslyPlaceholder',
+        'CodelesslySinglePlaceholder',
+        'CodelesslyExternalComponent',
+        'CodelesslyVariance',
+        'CodelesslyAccordion',
+        'CodelesslyCanvas',
+        'CodelesslyProgressBar',
+        'CodelesslyRoot',
+        'CodelesslyIcon',
+        'CodelesslyLoadingIndicator',
+        'NavigationBar',
+        'CodelesslyRectangle',
+        'Spacer',
+      ]),
+    );
     final text = (raw['components'] as Map)['Text'] as Map;
     final textProps = ((text['allOf'] as List)[1] as Map)['properties'] as Map;
     expect(textProps.keys, contains('text'));
     expect(textProps.keys, isNot(contains('characters')));
     final button = (raw['components'] as Map)['Button'] as Map;
-    expect((((button['allOf'] as List)[1] as Map)['properties'] as Map).keys, containsAll(['child', 'action', 'variant']));
+    expect(
+      (((button['allOf'] as List)[1] as Map)['properties'] as Map).keys,
+      containsAll(['child', 'action', 'variant']),
+    );
     for (final name in ['Row', 'Column']) {
       final flex = (raw['components'] as Map)[name] as Map;
-      expect(((((flex['allOf'] as List)[1] as Map)['properties'] as Map)).keys, containsAll(['children', 'justify', 'align']));
+      expect(
+        ((((flex['allOf'] as List)[1] as Map)['properties'] as Map)).keys,
+        containsAll(['children', 'justify', 'align']),
+      );
     }
   });
   test('Text data points at canonical data storage without naming drift', () {
-    final node = (jsonDecode(File('lib/src/api/nodes/text_node.flutter_catalog.json').readAsStringSync()) as Map)['TextNode'] as Map;
+    final node =
+        (jsonDecode(
+              File('lib/src/api/nodes/text_node.flutter_catalog.json')
+                  .readAsStringSync(),
+            ) as Map)['TextNode']
+            as Map;
     expect(((node['dpp'] as List).first as Map)['fieldPath'], 'data');
-    expect(((node['jsonSchema'] as Map)['properties'] as Map).keys, contains('data'));
+    expect(
+      ((node['jsonSchema'] as Map)['properties'] as Map).keys,
+      contains('data'),
+    );
     expect(node['drift'], isEmpty);
   });
 }
