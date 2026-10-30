@@ -193,6 +193,9 @@ ListTileNode _$ListTileNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
@@ -233,6 +236,7 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'children': instance.children,
       'type': instance.type,
       'leading': ?instance.leading,

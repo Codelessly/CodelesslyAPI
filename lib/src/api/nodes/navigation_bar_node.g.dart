@@ -201,6 +201,9 @@ NavigationBarNode _$NavigationBarNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
@@ -241,6 +244,7 @@ Map<String, dynamic> _$NavigationBarNodeToJson(NavigationBarNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'type': instance.type,
       'selectedIndex': instance.selectedIndex,
       'properties': instance.properties.toJson(),

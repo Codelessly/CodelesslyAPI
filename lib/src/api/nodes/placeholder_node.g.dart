@@ -155,6 +155,9 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) =>
@@ -195,6 +198,7 @@ Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'type': instance.type,
       'leadingAsset': ?instance.leadingAsset,
       'text': ?instance.text,
