@@ -73,7 +73,10 @@ enum ActionType {
   copyToClipboard,
 
   /// Perform a native store-safe paywall interaction.
-  paywall;
+  paywall,
+
+  /// Scroll the nearest scrollable to bring a node into view.
+  scrollTo;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -126,6 +129,8 @@ enum ActionType {
         return 'Copy to Clipboard';
       case ActionType.paywall:
         return 'Paywall';
+      case ActionType.scrollTo:
+        return 'Scroll To';
     }
   }
 }
@@ -223,6 +228,8 @@ abstract class ActionModel with SerializableMixin {
         return CopyToClipboardAction.fromJson(json);
       case ActionType.paywall:
         return PaywallAction.fromJson(json);
+      case ActionType.scrollTo:
+        return ScrollToAction.fromJson(json);
     }
   }
 
