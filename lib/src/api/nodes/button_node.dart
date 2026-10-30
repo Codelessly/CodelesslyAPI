@@ -590,11 +590,13 @@ class ButtonProperties extends CustomProperties
 
   /// Text to display in the button.
   @FlutterProp(
-    'child',
+    'label',
     type: 'string',
     group: 'Content',
     control: 'text',
     field: 'properties.label',
+    flutterParam: false,
+    note: "label text rendered as the button's child Text",
   )
   late String label;
 
