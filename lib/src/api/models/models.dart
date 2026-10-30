@@ -11,6 +11,7 @@ export 'action/for_each_action.dart';
 export 'action/call_function_action.dart';
 export 'action/link_action.dart';
 export 'action/show_toast_action.dart';
+export 'action/speak_action.dart';
 export 'action/confirm_action.dart';
 export 'action/delay_action.dart';
 export 'action/cloud_data_action.dart';
