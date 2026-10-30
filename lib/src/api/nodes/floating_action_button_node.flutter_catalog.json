@@ -77,6 +77,15 @@
             },
             "highlightElevation": {
               "type": "number"
+            },
+            "cornerRadius": {
+              "type": "object"
+            },
+            "borderWidth": {
+              "type": "number"
+            },
+            "borderColor": {
+              "type": "object"
             }
           }
         },
@@ -227,6 +236,42 @@
         "group": "Appearance",
         "control": "number",
         "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted property border corner-radius object.",
+        "fieldPath": "properties.cornerRadius",
+        "group": "Appearance",
+        "control": "radius",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Optional persisted property border width.",
+        "fieldPath": "properties.borderWidth",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "floatingActionButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Optional persisted property border color.",
+        "fieldPath": "properties.borderColor",
+        "group": "Appearance",
+        "control": "color",
+        "schemaType": "object",
         "defaultSource": null,
         "bindable": false
       },
@@ -462,6 +507,36 @@
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted property border corner-radius object.",
+        "field": "properties.cornerRadius",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Optional persisted property border width.",
+        "field": "properties.borderWidth",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Optional persisted property border color.",
+        "field": "properties.borderColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
         ]
       },
       {
