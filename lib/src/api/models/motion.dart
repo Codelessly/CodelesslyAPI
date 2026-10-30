@@ -79,6 +79,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// [translateX]: 1 moves it one width right. Lets a layout move by its
   /// own size whatever size it gets, e.g. a chess piece moved `file` squares
   /// across a board that stretches to the screen.
+  ///
+  /// Like [translateX] it moves what is painted, not the layout: taps still
+  /// go to the place the node was laid out, so a node that must be tapped
+  /// where it shows (a list or grid item moved off its own cell) has to be
+  /// laid out there instead.
   final double shiftX;
 
   /// Vertical offset in multiples of the node's own height; see [shiftX].
