@@ -75,6 +75,13 @@ class MotionModel with Equatable, SerializableMixin {
   /// Uniform scale; 1 is the node's own size.
   final double scale;
 
+  /// Horizontal scale, on top of [scale]; 1 keeps the width.
+  final double scaleX;
+
+  /// Vertical scale, on top of [scale]; 1 keeps the height, e.g. a level
+  /// meter's bar stretching while it plays.
+  final double scaleY;
+
   /// Opacity from 0 (invisible) to 1, animated like the other values, on
   /// top of the node's own opacity.
   final double opacity;
@@ -150,6 +157,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.translateX = 0,
     this.translateY = 0,
     this.scale = 1,
+    this.scaleX = 1,
+    this.scaleY = 1,
     this.opacity = 1,
     this.rotate = 0,
     this.rotateX = 0,
@@ -177,6 +186,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX',
     'translateY',
     'scale',
+    'scaleX',
+    'scaleY',
     'opacity',
     'rotate',
     'rotateX',
@@ -196,6 +207,8 @@ class MotionModel with Equatable, SerializableMixin {
       translateX != 0 ||
       translateY != 0 ||
       scale != 1 ||
+      scaleX != 1 ||
+      scaleY != 1 ||
       opacity != 1 ||
       rotate != 0 ||
       rotateX != 0 ||
@@ -212,6 +225,8 @@ class MotionModel with Equatable, SerializableMixin {
       translateX: from.translateX,
       translateY: from.translateY,
       scale: from.scale,
+      scaleX: from.scaleX,
+      scaleY: from.scaleY,
       opacity: from.opacity,
       rotate: from.rotate,
       rotateX: from.rotateX,
@@ -224,6 +239,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX' => translateX,
     'translateY' => translateY,
     'scale' => scale,
+    'scaleX' => scaleX,
+    'scaleY' => scaleY,
     'opacity' => opacity,
     'rotate' => rotate,
     'rotateX' => rotateX,
@@ -237,6 +254,8 @@ class MotionModel with Equatable, SerializableMixin {
     double? translateX,
     double? translateY,
     double? scale,
+    double? scaleX,
+    double? scaleY,
     double? opacity,
     double? rotate,
     double? rotateX,
@@ -259,6 +278,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
     scale: scale ?? this.scale,
+    scaleX: scaleX ?? this.scaleX,
+    scaleY: scaleY ?? this.scaleY,
     opacity: opacity ?? this.opacity,
     rotate: rotate ?? this.rotate,
     rotateX: rotateX ?? this.rotateX,
@@ -282,6 +303,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX: 0,
     translateY: 0,
     scale: 1,
+    scaleX: 1,
+    scaleY: 1,
     opacity: 1,
     rotate: 0,
     rotateX: 0,
@@ -293,6 +316,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX' => copyWith(translateX: value),
     'translateY' => copyWith(translateY: value),
     'scale' => copyWith(scale: value),
+    'scaleX' => copyWith(scaleX: value),
+    'scaleY' => copyWith(scaleY: value),
     'opacity' => copyWith(opacity: value.clamp(0, 1).toDouble()),
     'rotate' => copyWith(rotate: value),
     'rotateX' => copyWith(rotateX: value),
@@ -306,6 +331,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX,
     translateY,
     scale,
+    scaleX,
+    scaleY,
     opacity,
     rotate,
     rotateX,
