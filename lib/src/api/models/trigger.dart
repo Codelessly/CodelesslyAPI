@@ -102,7 +102,30 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  keyDown,
+
+  /// Triggered when the mouse wheel or a trackpad scrolls over the target.
+  /// The actions read `${result.deltaX}` and `${result.deltaY}` (how far it
+  /// scrolled, positive down and right), `${result.x}` and `${result.y}`
+  /// (the pointer, relative to the target's top-left) and
+  /// `${result.ctrl}` (Control or Command held: browsers send trackpad
+  /// pinches as Control + wheel), `${result.shift}` and `${result.trackpad}`.
+  /// The scroll doesn't also scroll the page.
+  wheel,
+
+  /// Triggered on every step of a two-finger pinch (or trackpad pinch) on
+  /// the target. The actions read `${result.scale}` (the zoom since the
+  /// previous step: above 1 spreads, below 1 pinches), `${result.totalScale}`
+  /// (since the pinch started), `${result.x}`, `${result.y}` (the point
+  /// between the fingers, relative to the target) and `${result.deltaX}`,
+  /// `${result.deltaY}` (how far that point moved). A one-finger drag on a
+  /// target with pinch reactions still runs its [drag] reactions.
+  pinch,
+
+  /// Triggered when a key is released while the screen it is set on shows
+  /// and no text field has focus, with the same `${result}` as [keyDown]:
+  /// together they track a held key (Space to pan).
+  keyUp;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -177,6 +200,12 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.wheel:
+        return 'Wheel';
+      case TriggerType.pinch:
+        return 'Pinch';
+      case TriggerType.keyUp:
+        return 'Key Up';
     }
   }
 }
@@ -203,7 +232,8 @@ class TriggerModel with Equatable, SerializableMixin {
   /// How often a [TriggerType.timer] fires, in milliseconds.
   final int? intervalMs;
 
-  /// The key a [TriggerType.keyPress] or [TriggerType.keyDown] listens for.
+  /// The key a [TriggerType.keyPress], [TriggerType.keyDown] or
+  /// [TriggerType.keyUp] listens for.
   /// Key down labels (e.g. `ArrowLeft`) are case-insensitive; null listens
   /// for every key.
   final String? key;

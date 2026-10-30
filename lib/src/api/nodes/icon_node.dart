@@ -111,6 +111,8 @@ class IconNode extends SceneNode
     TriggerType.cursorExit,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
   ];

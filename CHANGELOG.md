@@ -1,3 +1,10 @@
+## Unreleased
+
+- New `wheel` (mouse wheel / trackpad scroll, with deltas, pointer position
+  and modifiers), `pinch` (two-finger zoom, with step and total scale and
+  the focal point) and `keyUp` (screen key releases) triggers, for pan and
+  zoom canvases and held keys.
+
 ## 6.3.0
 
 This candidate includes the changes documented below for 6.2.0, which has
