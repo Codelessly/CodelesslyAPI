@@ -155,6 +155,24 @@ class DragModel with Equatable, SerializableMixin {
   /// When a disabled node is dragged, shakes it sideways once as a hint.
   final bool shakeWhenDisabled;
 
+  /// How much a disabled node still follows the pointer, from 0 (not at
+  /// all) to 1: 0.3 lets a card that can't be graded yet move a little
+  /// before it springs back. Its drag end reactions then get
+  /// `result.blocked` true, e.g. to show a "flip me first" hint.
+  final double disabledFollow;
+
+  /// Extra turn, in degrees, a node takes as it flies off: clockwise when
+  /// it leaves right (or down), counter-clockwise when it leaves left (or
+  /// up).
+  final double flyOutRotate;
+
+  /// The name of a variable that mirrors the live drag (the same map as the
+  /// `drag` variable inside the node: dx, dy, left, right, up, down,
+  /// progress, direction, dragging), so nodes outside the dragged one can
+  /// follow it too: a background that tints as a card is dragged. Empty for
+  /// none.
+  final String shareAs;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -176,6 +194,9 @@ class DragModel with Equatable, SerializableMixin {
     this.flyOutMs = 320,
     this.enabled = true,
     this.shakeWhenDisabled = false,
+    this.disabledFollow = 0,
+    this.flyOutRotate = 0,
+    this.shareAs = '',
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
@@ -223,6 +244,9 @@ class DragModel with Equatable, SerializableMixin {
     int? flyOutMs,
     bool? enabled,
     bool? shakeWhenDisabled,
+    double? disabledFollow,
+    double? flyOutRotate,
+    String? shareAs,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
@@ -238,6 +262,9 @@ class DragModel with Equatable, SerializableMixin {
     flyOutMs: flyOutMs ?? this.flyOutMs,
     enabled: enabled ?? this.enabled,
     shakeWhenDisabled: shakeWhenDisabled ?? this.shakeWhenDisabled,
+    disabledFollow: disabledFollow ?? this.disabledFollow,
+    flyOutRotate: flyOutRotate ?? this.flyOutRotate,
+    shareAs: shareAs ?? this.shareAs,
   );
 
   @override
@@ -256,6 +283,9 @@ class DragModel with Equatable, SerializableMixin {
     flyOutMs,
     enabled,
     shakeWhenDisabled,
+    disabledFollow,
+    flyOutRotate,
+    shareAs,
   ];
 
   /// Creates a [DragModel] from JSON.
