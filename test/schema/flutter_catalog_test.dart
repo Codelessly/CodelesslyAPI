@@ -226,19 +226,68 @@ void main() {
         'Spacer',
       ]),
     );
-    final text = (raw['components'] as Map)['Text'] as Map;
-    final textProps = ((text['allOf'] as List)[1] as Map)['properties'] as Map;
+    final basic = BasicCatalog.v0_9().toJson()['components'] as Map;
+    final generated = raw['components'] as Map;
+    expect(basic.length, 18);
+    for (final entry in basic.entries) {
+      expect(
+        generated[entry.key],
+        entry.value,
+        reason: '${entry.key} must retain every official BASIC property',
+      );
+    }
+    expect(catalog.components.length, 64);
+    expect(
+      ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
+      catalog.components.length,
+    );
+    for (final name in ['TextField', 'Button']) {
+      final schema = generated[name] as Map;
+      expect(
+        (schema['allOf'] as List).whereType<Map>().any(
+          (part) => (part[r'$ref'] as String?)?.endsWith('/Checkable') ?? false,
+        ),
+        isTrue,
+        reason: '$name must include BASIC checks',
+      );
+    }
+    final mappings = jsonDecode(
+      File('lib/src/schema/generated/basic_node_mappings.json')
+          .readAsStringSync(),
+    ) as Map;
+    expect((mappings['mappings'] as Map).keys.toSet(), basic.keys.toSet());
+    expect((mappings['mappings'] as Map)['Text']['nodeType'], 'text');
+    expect(
+      (mappings['mappings'] as Map)['ChoicePicker']['nodeType'],
+      'segmentedButton',
+    );
+    for (final name in [
+      'Video',
+      'Tabs',
+      'DateTimeInput',
+      'AudioPlayer',
+      'Modal',
+    ]) {
+      expect(
+        (mappings['mappings'] as Map)[name]['nodeType'],
+        isNull,
+        reason: '$name needs W3 renderer before runtime advertisement',
+      );
+    }
+    final text = generated['Text'] as Map;
+    final textProps =
+        ((text['allOf'] as List).last as Map)['properties'] as Map;
     expect(textProps.keys, contains('text'));
     expect(textProps.keys, isNot(contains('characters')));
-    final button = (raw['components'] as Map)['Button'] as Map;
+    final button = generated['Button'] as Map;
     expect(
-      (((button['allOf'] as List)[1] as Map)['properties'] as Map).keys,
+      (((button['allOf'] as List).last as Map)['properties'] as Map).keys,
       containsAll(['child', 'action', 'variant']),
     );
     for (final name in ['Row', 'Column']) {
-      final flex = (raw['components'] as Map)[name] as Map;
+      final flex = generated[name] as Map;
       expect(
-        ((((flex['allOf'] as List)[1] as Map)['properties'] as Map)).keys,
+        (((flex['allOf'] as List).last as Map)['properties'] as Map).keys,
         containsAll(['children', 'justify', 'align']),
       );
     }

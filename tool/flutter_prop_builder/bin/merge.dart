@@ -6,6 +6,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:a2ui_core/a2ui_core.dart';
+
 const catalogId =
     'https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json';
 void main(List<String> args) {
@@ -78,88 +80,67 @@ void main(List<String> args) {
       }
     }
   }
-  // Basic A2UI names are permanent alongside Flutter widget names. Only
-  // properties consumed by the typed GenUI bridge are exposed here.
-  Map<String, dynamic> basic(
-    String name,
-    Map<String, dynamic> properties,
-    List<String> required,
-  ) => {
-    'allOf': [
-      {
-        '\$ref': 'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ComponentCommon',
-      },
-      {
-        'type': 'object',
-        'properties': {
-          'component': {'const': name},
-          ...properties,
-        },
-        'required': ['component', ...required],
-      },
-    ],
-    'unevaluatedProperties': false,
+  // The dependency ships schema generated from A2UI's pinned v0.9 BASIC
+  // catalog, including Dynamic* bindings, Checkable and the full vocabulary.
+  // Merge official BASIC names over colliding Flutter metadata names (e.g.
+  // TextField/Slider/Divider); DPP keeps the Flutter-field projections.
+  final officialBasic = BasicCatalog.v0_9().toJson();
+  final basicComponents = officialBasic['components'] as Map;
+  for (final entry in basicComponents.entries) {
+    components[entry.key as String] = entry.value;
+  }
+  // Mapping describes the current node bridge, not permission to advertise
+  // every schema in a live store. Partial entries require typed field guards;
+  // null means W3 has no correct renderer yet.
+  const basicNodeTypes = <String, String?>{
+    'Text': 'text',
+    'Button': 'textButton',
+    'Row': 'row',
+    'Column': 'column',
+    'List': 'listView',
+    'Card': 'frame',
+    'Image': 'rectangle',
+    'Icon': 'icon',
+    'Divider': 'divider',
+    'TextField': 'textField',
+    'CheckBox': 'checkbox',
+    'Slider': 'slider',
+    'ChoicePicker': 'segmentedButton',
+    'Video': null,
+    'Tabs': null,
+    'DateTimeInput': null,
+    'AudioPlayer': null,
+    'Modal': null,
   };
-  const childList =
-      'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ChildList';
-  const componentId =
-      'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/ComponentId';
-  const action =
-      'https://a2ui.org/specification/v0_9_1/common_types.json#/\$defs/Action';
-  components['Text'] = basic(
-    'Text',
-    {
-      'text': {'type': 'string'},
-    },
-    ['text'],
-  );
-  components['Button'] = basic(
-    'Button',
-    {
-      'child': {'\$ref': componentId},
-      'label': {'type': 'string'},
-      'action': {'\$ref': action},
-      'variant': {
-        'enum': ['primary', 'secondary', 'tertiary'],
-      },
-    },
-    ['child', 'action'],
-  );
-  final flexProps = <String, dynamic>{
-    'children': {'\$ref': childList},
-    'justify': {
-      'enum': [
-        'start',
-        'center',
-        'end',
-        'spaceBetween',
-        'spaceAround',
-        'spaceEvenly',
-      ],
-    },
-    'align': {
-      'enum': ['start', 'center', 'end', 'stretch', 'baseline'],
-    },
-  };
-  components['Row'] = basic('Row', flexProps, ['children']);
-  components['Column'] = basic('Column', flexProps, ['children']);
-  // ListView is the Flutter-named component; List is its basic counterpart.
-  components['List'] = basic(
-    'List',
-    {
-      'children': {'\$ref': childList},
-    },
-    ['children'],
-  );
+  if (basicNodeTypes.keys
+          .toSet()
+          .difference(basicComponents.keys.toSet())
+          .isNotEmpty ||
+      basicComponents.keys
+          .toSet()
+          .difference(basicNodeTypes.keys.toSet())
+          .isNotEmpty) {
+    throw StateError(
+      'BASIC mapping registry does not match pinned A2UI catalog',
+    );
+  }
   final catalog = {
-    '\$schema': 'https://json-schema.org/draft/2020-12/schema',
-    '\$id': catalogId,
+    r'$schema': 'https://json-schema.org/draft/2020-12/schema',
+    r'$id': catalogId,
     'catalogId': catalogId,
     'title': 'Codelessly generated v1 catalog',
-    'description':
-        'Generated from annotated API node wire fields for A2UI v0.9.1.',
+    'description': 'Generated Flutter node metadata plus pinned A2UI v0.9 BASIC vocabulary; schema presence does not imply a typed renderer.',
     'components': components,
-    'functions': <String, dynamic>{},
+    'functions': officialBasic['functions'],
+    r'$defs': {
+      ...(officialBasic[r'$defs'] as Map),
+      'anyComponent': {
+        'oneOf': [
+          for (final name in components.keys) {r'$ref': '#/components/$name'},
+        ],
+        'discriminator': {'propertyName': 'component'},
+      },
+    },
   };
   final out = Directory('lib/src/schema/generated')
     ..createSync(recursive: true);
@@ -167,6 +148,17 @@ void main(List<String> args) {
     '${out.path}/$name',
   ).writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(data)}\n');
   write('codelessly_a2ui_catalog.json', catalog);
+  write('basic_node_mappings.json', {
+    'sourceCatalogId': officialBasic['catalogId'],
+    'catalogId': catalogId,
+    'mappings': {
+      for (final entry in basicNodeTypes.entries)
+        entry.key: {
+          'nodeType': entry.value,
+          'bridgeStatus': entry.value == null ? 'deferred' : 'partial',
+        },
+    },
+  });
   write('dpp_descriptors.json', {'descriptors': descriptors, 'drift': drift});
   stdout.writeln(
     '${components.length} components, ${descriptors.length} descriptors, ${drift.length} naming drifts',
