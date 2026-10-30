@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
@@ -10,11 +9,7 @@ part 'placeholder_node.g.dart';
 
 /// [PlaceholderNode] holds the place for another node until the other node
 /// replaces it.
-@FlutterNode(
-  'CodelesslyPlaceholder',
-  family: 'codelessly',
-  nodeType: 'placeholder',
-)
+@FlutterNode('CodelesslyPlaceholder', family: 'codelessly', nodeType: 'placeholder')
 @JsonSerializable()
 class PlaceholderNode extends SceneNode with PlaceholderMixin {
   @override
@@ -24,12 +19,7 @@ class PlaceholderNode extends SceneNode with PlaceholderMixin {
   final bool supportsPadding = true;
 
   /// Image asset displayed in the placeholder.
-  @FlutterProp(
-    'leadingAsset',
-    type: 'string',
-    group: 'Content',
-    control: 'text',
-  )
+  @FlutterProp('leadingAsset', type: 'string', group: 'Content', control: 'text')
   String? leadingAsset;
 
   /// Text displayed in the placeholder.

@@ -56,8 +56,7 @@ void main() {
       final node = ChartNode.fromJson({
         'id': 'c',
         'name': 'Hourly',
-        'type': 'chart',
-        'chartKind': 'series',
+        'type': 'chart', 'chartKind': 'series',
         'basicBoxLocal': [0, 0, 400, 220],
         'variables': {
           'data': r'${hourly}',
@@ -109,15 +108,13 @@ void main() {
     final gauge = NodeJsonConverter().fromJson({
       'id': 'g',
       'name': 'G',
-      'type': 'gauge',
-      'gaugeKind': 'radial',
+      'type': 'gauge', 'gaugeKind': 'radial',
       'basicBoxLocal': [0, 0, 220, 185],
     });
     final chart = NodeJsonConverter().fromJson({
       'id': 'c',
       'name': 'C',
-      'type': 'chart',
-      'chartKind': 'series',
+      'type': 'chart', 'chartKind': 'series',
       'basicBoxLocal': [0, 0, 300, 200],
     });
     expect((gauge! as GaugeNode).properties, GaugeProperties());
@@ -158,13 +155,8 @@ void main() {
       });
       expect(node?.type, type.split(':').first, reason: type);
       if (type.contains(':')) {
-        expect(
-          node?.toJson()[type.split(':').first == 'chart'
-              ? 'chartKind'
-              : 'gaugeKind'],
-          type.split(':').last,
-          reason: type,
-        );
+        expect(node?.toJson()[type.split(':').first == 'chart' ? 'chartKind' : 'gaugeKind'],
+            type.split(':').last, reason: type);
       }
     }
   });

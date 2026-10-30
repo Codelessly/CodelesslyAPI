@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -60,12 +59,7 @@ const String kSignatureDefaultPlaceholder = 'SIGN HERE';
 /// (`${signature.isEmpty}`, `${= length(signature) > 0}`) and to clear it
 /// (set the variable to `[]`). [TriggerType.changed] fires when a stroke
 /// ends, with the strokes as its value.
-@FlutterNode(
-  'CodelesslySignature',
-  family: 'codelessly',
-  nodeType: 'signature',
-  variant: 'strokes',
-)
+@FlutterNode('CodelesslySignature', family: 'codelessly', nodeType: 'signature', variant: 'strokes')
 @JsonSerializable()
 class SignatureNode extends SceneNode with CustomPropertiesMixin {
   @override
@@ -78,13 +72,7 @@ class SignatureNode extends SceneNode with CustomPropertiesMixin {
   /// The strokes drawn on the pad: each stroke is a list of `[x, y]` points.
   /// Empty when the pad is not signed.
   @JsonKey(fromJson: strokesFromJson)
-  @FlutterProp(
-    'value',
-    type: 'array',
-    group: 'State',
-    control: 'strokes',
-    bindable: true,
-  )
+  @FlutterProp('value', type: 'array', group: 'State', control: 'strokes', bindable: true)
   List<List<List<double>>> value;
 
   /// Strictly used for previews. e.g in components panel.
@@ -219,13 +207,7 @@ class SignatureProperties extends CustomProperties with FieldsHolder {
   ColorRGBA inkColor;
 
   /// Width of the ink line.
-  @FlutterProp(
-    'inkWidth',
-    type: 'number',
-    group: 'Appearance',
-    control: 'number',
-    field: 'properties.inkWidth',
-  )
+  @FlutterProp('inkWidth', type: 'number', group: 'Appearance', control: 'number', field: 'properties.inkWidth')
   double inkWidth;
 
   /// Background color of the pad.

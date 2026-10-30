@@ -1,9 +1,7 @@
 import 'dart:math';
 
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
-
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
@@ -267,13 +265,7 @@ class GridViewProperties extends CustomProperties with FieldsHolder {
   ///
   /// Render with `scrollCacheExtent: ScrollCacheExtent.pixels(cacheExtent)`;
   /// the `cacheExtent` parameter of Flutter's scroll views is deprecated.
-  @FlutterProp(
-    'cacheExtent',
-    type: 'number',
-    group: 'Layout',
-    control: 'number',
-    field: 'properties.cacheExtent',
-  )
+  @FlutterProp('cacheExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.cacheExtent')
   double? cacheExtent;
 
   /// Properties of the grid delegate that controls the layout of the grid.

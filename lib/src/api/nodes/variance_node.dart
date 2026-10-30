@@ -1,7 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
-
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 
@@ -108,12 +106,7 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   }
 
   /// Currently loaded variant's ID.
-  @FlutterProp(
-    'currentVariantId',
-    type: 'string',
-    group: 'State',
-    control: 'text',
-  )
+  @FlutterProp('currentVariantId', type: 'string', group: 'State', control: 'text')
   late String currentVariantId;
 
   /// Currently loaded variant.
