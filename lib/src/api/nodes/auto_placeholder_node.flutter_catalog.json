@@ -14,6 +14,23 @@
         "visible": {
           "type": "boolean"
         },
+        "edgePins": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "number"
+            },
+            "top": {
+              "type": "number"
+            },
+            "right": {
+              "type": "number"
+            },
+            "bottom": {
+              "type": "number"
+            }
+          }
+        },
         "horizontalFit": {
           "type": "string"
         },
@@ -29,6 +46,9 @@
         "padding": {
           "type": "object"
         },
+        "rotation": {
+          "type": "integer"
+        },
         "opacity": {
           "type": "number"
         },
@@ -41,7 +61,36 @@
         "fills": {
           "type": "array",
           "items": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+              "imageTransform": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "fit": {
+                "type": "string"
+              },
+              "alignment": {
+                "type": "object"
+              },
+              "scaleX": {
+                "type": "number"
+              },
+              "scaleY": {
+                "type": "number"
+              },
+              "cropData": {
+                "type": "object"
+              },
+              "imageRepeat": {
+                "type": "string"
+              }
+            }
           }
         },
         "strokes": {
@@ -133,6 +182,18 @@
         "nodeType": "autoPlaceholder",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "fieldPath": "edgePins",
+        "group": "Position",
+        "control": "edgePins",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
         "fieldPath": "horizontalFit",
         "group": "Fit",
@@ -186,6 +247,18 @@
         "group": "Spacing",
         "control": "edgeInsets",
         "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "fieldPath": "rotation",
+        "group": "Transform",
+        "control": "angle",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       },
@@ -335,6 +408,138 @@
         "nodeType": "autoPlaceholder",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Nullable distance from the parent left edge.",
+        "fieldPath": "edgePins.left",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent top edge.",
+        "fieldPath": "edgePins.top",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent right edge.",
+        "fieldPath": "edgePins.right",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "fieldPath": "edgePins.bottom",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Optional persisted affine image transform in a paint item.",
+        "fieldPath": "fills[].imageTransform",
+        "group": "Image Fill",
+        "control": "matrix",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted image fill fit mode in a paint item.",
+        "fieldPath": "fills[].fit",
+        "group": "Image Fill",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted image alignment object in a paint item.",
+        "fieldPath": "fills[].alignment",
+        "group": "Image Fill",
+        "control": "alignment",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted horizontal image scale or flip sign in a paint item.",
+        "fieldPath": "fills[].scaleX",
+        "group": "Image Fill",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted vertical image scale or flip sign in a paint item.",
+        "fieldPath": "fills[].scaleY",
+        "group": "Image Fill",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Optional persisted crop object in a paint item.",
+        "fieldPath": "fills[].cropData",
+        "group": "Image Fill",
+        "control": "crop",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted repeat mode for an image paint item.",
+        "fieldPath": "fills[].imageRepeat",
+        "group": "Image Fill",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "autoPlaceholder",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
         "fieldPath": "transition.durationMillis",
         "group": "Appearance",
@@ -424,6 +629,16 @@
       },
       {
         "parameter": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "field": "edgePins",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
         "field": "horizontalFit",
         "defaultSource": null,
@@ -470,6 +685,16 @@
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "field": "rotation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       },
       {
@@ -595,6 +820,118 @@
         "parameter": null,
         "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
         "field": "inkWell.focusColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent left edge.",
+        "field": "edgePins.left",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent top edge.",
+        "field": "edgePins.top",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent right edge.",
+        "field": "edgePins.right",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "field": "edgePins.bottom",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Optional persisted affine image transform in a paint item.",
+        "field": "fills[].imageTransform",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted image fill fit mode in a paint item.",
+        "field": "fills[].fit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted image alignment object in a paint item.",
+        "field": "fills[].alignment",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted horizontal image scale or flip sign in a paint item.",
+        "field": "fills[].scaleX",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted vertical image scale or flip sign in a paint item.",
+        "field": "fills[].scaleY",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Optional persisted crop object in a paint item.",
+        "field": "fills[].cropData",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted repeat mode for an image paint item.",
+        "field": "fills[].imageRepeat",
         "defaultSource": null,
         "testValues": [
           "",
