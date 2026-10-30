@@ -38,6 +38,8 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.disabledFollow, 0)) json.remove('disabledFollow');
   if (isJsonDefault(instance.flyOutRotate, 0)) json.remove('flyOutRotate');
   if (isJsonDefault(instance.shareAs, '')) json.remove('shareAs');
+  if (isJsonDefault(instance.restX, 0)) json.remove('restX');
+  if (isJsonDefault(instance.restY, 0)) json.remove('restY');
   return json;
 }
 
@@ -61,6 +63,7 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
         DragDirection.down,
       ],
   distanceThreshold: (json['distanceThreshold'] as num?)?.toDouble() ?? 0.35,
+  verticalThreshold: (json['verticalThreshold'] as num?)?.toDouble(),
   velocityThreshold: (json['velocityThreshold'] as num?)?.toDouble() ?? 800,
   rotateFactor: (json['rotateFactor'] as num?)?.toDouble() ?? 0,
   originX: (json['originX'] as num?)?.toDouble() ?? 0,
@@ -76,6 +79,8 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   disabledFollow: (json['disabledFollow'] as num?)?.toDouble() ?? 0,
   flyOutRotate: (json['flyOutRotate'] as num?)?.toDouble() ?? 0,
   shareAs: json['shareAs'] as String? ?? '',
+  restX: (json['restX'] as num?)?.toDouble() ?? 0,
+  restY: (json['restY'] as num?)?.toDouble() ?? 0,
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -85,6 +90,7 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
       .map((e) => _$DragDirectionEnumMap[e]!)
       .toList(),
   'distanceThreshold': instance.distanceThreshold,
+  'verticalThreshold': ?instance.verticalThreshold,
   'velocityThreshold': instance.velocityThreshold,
   'rotateFactor': instance.rotateFactor,
   'originX': instance.originX,
@@ -98,6 +104,8 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'disabledFollow': instance.disabledFollow,
   'flyOutRotate': instance.flyOutRotate,
   'shareAs': instance.shareAs,
+  'restX': instance.restX,
+  'restY': instance.restY,
 };
 
 const _$DragAxisEnumMap = {

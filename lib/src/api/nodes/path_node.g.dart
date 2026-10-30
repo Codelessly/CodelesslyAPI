@@ -13,6 +13,8 @@ Map<String, dynamic> _$PathNodeOmitDefaults(
   if (isJsonDefault(instance.pathData, '')) json.remove('pathData');
   if (isJsonDefault(instance.trimStart, 0)) json.remove('trimStart');
   if (isJsonDefault(instance.trimEnd, 1)) json.remove('trimEnd');
+  if (isJsonDefault(instance.strokeJoin, StrokeJoinEnum.round))
+    json.remove('strokeJoin');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -165,6 +167,9 @@ PathNode _$PathNodeFromJson(Map json) =>
         viewBoxHeight: (json['viewBoxHeight'] as num?)?.toDouble(),
         trimStart: (json['trimStart'] as num?)?.toDouble() ?? 0,
         trimEnd: (json['trimEnd'] as num?)?.toDouble() ?? 1,
+        strokeJoin:
+            $enumDecodeNullable(_$StrokeJoinEnumEnumMap, json['strokeJoin']) ??
+            StrokeJoinEnum.round,
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -287,6 +292,7 @@ Map<String, dynamic> _$PathNodeToJson(PathNode instance) => <String, dynamic>{
   'viewBoxHeight': ?instance.viewBoxHeight,
   'trimStart': instance.trimStart,
   'trimEnd': instance.trimEnd,
+  'strokeJoin': _$StrokeJoinEnumEnumMap[instance.strokeJoin]!,
 };
 
 const _$BlendModeCEnumMap = {
@@ -352,6 +358,12 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$StrokeJoinEnumEnumMap = {
+  StrokeJoinEnum.miter: 'miter',
+  StrokeJoinEnum.round: 'round',
+  StrokeJoinEnum.bevel: 'bevel',
 };
 
 const _$ComponentMarkerTypeEnumMap = {

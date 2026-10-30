@@ -18,13 +18,17 @@ enum DragCommand {
   returnFrom,
 
   /// Springs the node back to where it rests.
-  reset;
+  reset,
+
+  /// Wiggles the node sideways once, as a hint that it can't go yet.
+  shake;
 
   /// Displayable name.
   String get prettify => switch (this) {
     DragCommand.fling => 'Fling (swipe)',
     DragCommand.returnFrom => 'Return from',
     DragCommand.reset => 'Reset',
+    DragCommand.shake => 'Shake',
   };
 }
 
