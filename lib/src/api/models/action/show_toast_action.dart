@@ -81,11 +81,70 @@ enum ToastAlignment {
 /// [accentColor] draws a bar down its left edge, and [iconColor] colors
 /// its [icon]. [border], [shadows], [padding] and [maxWidth] shape the toast;
 /// [showClose] adds a dismiss button.
+///
+/// A toast with a [title] is a card: the bold title with [message] as a body
+/// line under it, e.g. "Gate change" over "MR 88 now boards at A11".
+/// [iconDiscColor] puts the [icon] in a filled circle.
+///
+/// The colors can follow data: [variables] maps a color field's name (see
+/// [bindableColors]) to a variable path or formula giving a color, e.g.
+/// `{"backgroundColor": "${pal.surface}",
+/// "iconDiscColor": "${= alpha(alert.color, 0.18)}"}`. A binding that gives
+/// a color wins over the field; one that gives nothing keeps the field.
 @JsonSerializable()
 class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The message. Supports variables and formulas, e.g.
-  /// `Added ${storage.drink.name} to your order`.
+  /// `Added ${storage.drink.name} to your order`. Under a [title] it is the
+  /// body line. JSON may name it `body`.
+  @JsonKey(readValue: _readMessage)
   final String message;
+
+  /// Bold line above [message]. Supports variables and formulas. Empty (the
+  /// default) shows the message alone.
+  final String title;
+
+  /// Font, size and color of the [title]. Unset values follow the message,
+  /// in bold.
+  final TextStyleModel? titleStyle;
+
+  /// Color of [message]. Null takes the text color, a little faded under a
+  /// [title].
+  final ColorRGBA? messageColor;
+
+  /// Fill of a circle behind the [icon], e.g. the accent at 18% opacity.
+  /// Null draws the icon without one.
+  final ColorRGBA? iconDiscColor;
+
+  /// Diameter of the [iconDiscColor] circle.
+  final double iconDiscSize;
+
+  /// [alignment] per screen size, e.g. `{"mobile": "stretch"}` with
+  /// alignment `end` for a full-width toast on phones and one at the right
+  /// elsewhere. A screen size without an entry uses [alignment].
+  final Map<ScreenBreakpoint, ToastAlignment> alignments;
+
+  /// [sideMargin] per screen size. A screen size without an entry uses
+  /// [sideMargin].
+  final Map<ScreenBreakpoint, double> sideMargins;
+
+  /// Color bindings: a color field's name (one of [bindableColors]) to a
+  /// variable path or formula that gives a color, e.g. `${pal.surface}` or
+  /// `${= alpha(pal.gold, 0.5)}`.
+  final Map<String, String> variables;
+
+  /// The color fields [variables] can bind. `borderColor` colors the
+  /// [border] (a 1px one when there is none).
+  static const List<String> bindableColors = <String>[
+    'backgroundColor',
+    'textColor',
+    'messageColor',
+    'accentColor',
+    'iconColor',
+    'iconDiscColor',
+    'actionColor',
+    'closeColor',
+    'borderColor',
+  ];
 
   /// How long the message stays on screen, in milliseconds.
   final int duration;
@@ -228,10 +287,21 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.fontSize,
     this.fontWeight,
     this.offset = '',
+    this.title = '',
+    this.titleStyle,
+    this.messageColor,
+    this.iconDiscColor,
+    this.iconDiscSize = 36,
+    Map<ScreenBreakpoint, ToastAlignment>? alignments,
+    Map<ScreenBreakpoint, double>? sideMargins,
+    Map<String, String>? variables,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
        bottomOffsets = bottomOffsets ?? {},
+       alignments = alignments ?? {},
+       sideMargins = sideMargins ?? {},
+       variables = variables ?? {},
        super(type: ActionType.showToast);
 
   /// Whether the toast shows a button.
@@ -240,6 +310,17 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The distance from the bottom of a screen [width] wide.
   double bottomOffsetFor(double width) =>
       bottomOffsets[ScreenBreakpoint.forWidth(width)] ?? bottomOffset;
+
+  /// Where the toast sits across a screen [width] wide.
+  ToastAlignment alignmentFor(double width) =>
+      alignments[ScreenBreakpoint.forWidth(width)] ?? alignment;
+
+  /// The space between the toast and the sides of a screen [width] wide.
+  double sideMarginFor(double width) =>
+      sideMargins[ScreenBreakpoint.forWidth(width)] ?? sideMargin;
+
+  /// Whether the toast shows a [title] line.
+  bool get hasTitle => title.trim().isNotEmpty;
 
   @override
   List<Object?> get props => [
@@ -275,6 +356,14 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     fontSize,
     fontWeight,
     offset,
+    title,
+    titleStyle,
+    messageColor,
+    iconDiscColor,
+    iconDiscSize,
+    alignments,
+    sideMargins,
+    variables,
   ];
 
   /// Duplicates this [ShowToastAction] with given data overrides.
@@ -327,6 +416,17 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     FontWeightNumeric? fontWeight,
     bool clearFontWeight = false,
     String? offset,
+    String? title,
+    TextStyleModel? titleStyle,
+    bool clearTitleStyle = false,
+    ColorRGBA? messageColor,
+    bool clearMessageColor = false,
+    ColorRGBA? iconDiscColor,
+    bool clearIconDiscColor = false,
+    double? iconDiscSize,
+    Map<ScreenBreakpoint, ToastAlignment>? alignments,
+    Map<ScreenBreakpoint, double>? sideMargins,
+    Map<String, String>? variables,
   }) => ShowToastAction(
     message: message ?? this.message,
     duration: duration ?? this.duration,
@@ -362,6 +462,16 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     fontSize: clearFontSize ? null : fontSize ?? this.fontSize,
     fontWeight: clearFontWeight ? null : fontWeight ?? this.fontWeight,
     offset: offset ?? this.offset,
+    title: title ?? this.title,
+    titleStyle: clearTitleStyle ? null : titleStyle ?? this.titleStyle,
+    messageColor: clearMessageColor ? null : messageColor ?? this.messageColor,
+    iconDiscColor: clearIconDiscColor
+        ? null
+        : iconDiscColor ?? this.iconDiscColor,
+    iconDiscSize: iconDiscSize ?? this.iconDiscSize,
+    alignments: alignments ?? this.alignments,
+    sideMargins: sideMargins ?? this.sideMargins,
+    variables: variables ?? this.variables,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -376,3 +486,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   @override
   R? accept<R>(ActionVisitor<R> visitor) => visitor.visitShowToastAction(this);
 }
+
+/// [ShowToastAction.message], or its `body` alias, or empty.
+Object? _readMessage(Map json, String key) =>
+    json[key] ?? json['body'] ?? '';
