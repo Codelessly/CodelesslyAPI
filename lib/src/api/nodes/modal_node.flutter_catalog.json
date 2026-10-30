@@ -49,9 +49,6 @@
         "padding": {
           "type": "object"
         },
-        "rotation": {
-          "type": "integer"
-        },
         "children": {
           "type": "array",
           "items": {
@@ -177,18 +174,6 @@
         "group": "Spacing",
         "control": "edgeInsets",
         "schemaType": "object",
-        "defaultSource": null,
-        "bindable": false
-      },
-      {
-        "nodeType": "modal",
-        "flutterName": null,
-        "flutterParam": null,
-        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
-        "fieldPath": "rotation",
-        "group": "Transform",
-        "control": "angle",
-        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       },
@@ -403,16 +388,6 @@
         "testValues": [
           "",
           "sample"
-        ]
-      },
-      {
-        "parameter": null,
-        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
-        "field": "rotation",
-        "defaultSource": null,
-        "testValues": [
-          0,
-          1
         ]
       },
       {
