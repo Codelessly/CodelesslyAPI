@@ -1252,6 +1252,28 @@
       "bindable": false
     },
     {
+      "nodeType": "tabs",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Ordered static titles and scene child IDs.",
+      "fieldPath": "tabs",
+      "group": "Content",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tabs",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "textField",
       "flutterName": "enabled",
       "fieldPath": "properties.enabled",

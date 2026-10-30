@@ -109,7 +109,7 @@ void main(List<String> args) {
     'Slider': 'slider',
     'ChoicePicker': 'segmentedButton',
     'Video': 'video',
-    'Tabs': null,
+    'Tabs': 'tabs',
     'DateTimeInput': null,
     'AudioPlayer': 'audioPlayer',
     'Modal': 'modal',

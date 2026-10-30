@@ -48,6 +48,7 @@ export 'slider_node.dart';
 export 'spacer_node.dart';
 export 'switch_node.dart';
 export 'tab_bar_node.dart';
+export 'tabs_node.dart';
 export 'text_field_node.dart';
 export 'text_node.dart';
 export 'variance_node.dart';
