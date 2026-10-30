@@ -113,6 +113,7 @@ class IconNode extends SceneNode
     TriggerType.dragEnd,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   /// Besides the shared style properties, an icon's color and which icon it

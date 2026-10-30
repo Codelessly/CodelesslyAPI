@@ -19,6 +19,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.tabularFigures, false))
     json.remove('tabularFigures');
+  if (isJsonDefault(instance.codeLanguage, SyntaxLanguage.none))
+    json.remove('codeLanguage');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -195,6 +197,15 @@ TextNode _$TextNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
         tabularFigures: json['tabularFigures'] as bool? ?? false,
+        codeLanguage:
+            $enumDecodeNullable(
+              _$SyntaxLanguageEnumMap,
+              json['codeLanguage'],
+            ) ??
+            SyntaxLanguage.none,
+        codeTheme: json['codeTheme'] == null
+            ? null
+            : CodeThemeModel.fromJson(json['codeTheme'] as Map),
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -241,14 +252,6 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'data': instance.data,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -266,12 +269,20 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
+  'data': instance.data,
+  'alignment': instance.alignment.toJson(),
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'alignment': instance.alignment.toJson(),
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,
@@ -296,6 +307,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
+  'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
+  'codeTheme': ?instance.codeTheme?.toJson(),
 };
 
 const _$SizeFitEnumMap = {
@@ -363,6 +376,18 @@ const _$BlendModeCEnumMap = {
   BlendModeC.saturation: 'saturation',
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
+};
+
+const _$SyntaxLanguageEnumMap = {
+  SyntaxLanguage.none: 'none',
+  SyntaxLanguage.bash: 'bash',
+  SyntaxLanguage.shell: 'shell',
+  SyntaxLanguage.javascript: 'javascript',
+  SyntaxLanguage.typescript: 'typescript',
+  SyntaxLanguage.python: 'python',
+  SyntaxLanguage.go: 'go',
+  SyntaxLanguage.ruby: 'ruby',
+  SyntaxLanguage.json: 'json',
 };
 
 const _$ComponentMarkerTypeEnumMap = {

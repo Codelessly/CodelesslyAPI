@@ -126,6 +126,10 @@ class PageViewNode extends SinglePlaceholderNode
   }
 }
 
+/// How long a page view slides to a page set through its index, by
+/// default, in milliseconds.
+const int kDefaultPageAnimationDurationMs = 400;
+
 /// The properties of a [PageViewNode].
 @JsonSerializable()
 class PageViewProperties extends CustomProperties with FieldsHolder {
@@ -155,6 +159,14 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   @FlutterProp('allowImplicitScrolling', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.allowImplicitScrolling')
   bool allowImplicitScrolling;
 
+  /// How long the page view takes to slide to a page when its bound
+  /// `indexValue` changes (a dot or arrow of a carousel setting it), in
+  /// milliseconds. 0 jumps straight there.
+  int animationDurationMs;
+
+  /// The easing of the slide to a page set through `indexValue`.
+  MotionCurve animationCurve;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -164,6 +176,8 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.initialPage = 0,
     this.viewportFraction = 1,
     this.allowImplicitScrolling = false,
+    this.animationDurationMs = kDefaultPageAnimationDurationMs,
+    this.animationCurve = MotionCurve.easeInOut,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -175,6 +189,8 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     int? initialPage,
     double? viewportFraction,
     bool? allowImplicitScrolling,
+    int? animationDurationMs,
+    MotionCurve? animationCurve,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -185,6 +201,8 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       viewportFraction: viewportFraction ?? this.viewportFraction,
       allowImplicitScrolling:
           allowImplicitScrolling ?? this.allowImplicitScrolling,
+      animationDurationMs: animationDurationMs ?? this.animationDurationMs,
+      animationCurve: animationCurve ?? this.animationCurve,
     );
   }
 
@@ -223,6 +241,13 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       () => allowImplicitScrolling,
       (value) => allowImplicitScrolling = value,
     ),
+    'animationDurationMs': NumFieldAccess<int>(
+      'Animation Duration',
+      'How long the page view slides to a page set through its index, in '
+          'milliseconds. 0 jumps.',
+      () => animationDurationMs,
+      (value) => animationDurationMs = value,
+    ),
   };
 
   @override
@@ -234,6 +259,8 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     initialPage,
     viewportFraction,
     allowImplicitScrolling,
+    animationDurationMs,
+    animationCurve,
   ];
 
   @override

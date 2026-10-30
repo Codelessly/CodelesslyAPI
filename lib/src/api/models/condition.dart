@@ -788,6 +788,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);
 
+  /// Visits a [ScrollToAction].
+  R? visitScrollToAction(ScrollToAction action);
+
   /// Visits a [CloudDataAction].
   R? visitCloudDataAction(CloudDataAction action);
 
