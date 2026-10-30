@@ -120,17 +120,92 @@ void main() {
     },
   );
 
-  test(
-    'combined BASIC DateTimeInput stays deferred without a faithful bridge',
-    () {
-      final mappings = jsonDecode(
-        File('lib/src/schema/generated/basic_node_mappings.json')
-            .readAsStringSync(),
-      ) as Map;
-      expect((mappings['mappings'] as Map)['DateTimeInput'], {
-        'nodeType': null,
-        'bridgeStatus': 'deferred',
-      });
-    },
-  );
+  test('combined input round trips all modes and exposes value binding', () {
+    for (final entry in {
+      'date': '2024-02-29',
+      'time': '23:59',
+      'dateTime': '2024-02-29T23:59:00Z',
+    }.entries) {
+      final node = DateTimeInputNode(
+        id: 'dt',
+        name: 'Input',
+        basicBoxLocal: NodeBox(0, 0, 320, 320),
+        mode: entry.key,
+        value: entry.value,
+        properties: DateTimeInputProperties(
+          label: 'When',
+          firstDate: entry.key == 'time' ? null : '2024-01-01',
+          lastDate: entry.key == 'time' ? null : '2024-12-31',
+        ),
+      );
+      final wire = node.toJson();
+      expect(wire['type'], 'dateTimeInput');
+      expect(wire['mode'], entry.key);
+      expect(wire['value'], entry.value);
+      expect(
+        (NodeJsonConverter.instance.fromJson(wire) as DateTimeInputNode)
+            .toJson(),
+        wire,
+      );
+      expect(node.propertyVariables.any((v) => v.name == 'value'), isTrue);
+    }
+  });
+
+  test('combined input rejects malformed modes, values and date bounds', () {
+    final wire = DateTimeInputNode.empty().toJson();
+    for (final pair in [
+      ('date', '2024-02-30'),
+      ('time', '24:00'),
+      ('dateTime', '2024-02-29T12:00:00'),
+      ('dateTime', '2024-02-30T12:00:00Z'),
+      ('other', '2024-01-01'),
+    ]) {
+      expect(
+        () => DateTimeInputNode.fromJson({
+          ...wire,
+          'mode': pair.$1,
+          'value': pair.$2,
+        }),
+        throwsFormatException,
+      );
+    }
+    expect(
+      () => DateTimeInputProperties(
+        firstDate: '2025-01-01',
+        lastDate: '2024-01-01',
+      ),
+      throwsFormatException,
+    );
+    expect(
+      () => DateTimeInputNode.fromJson({
+        ...wire,
+        'mode': 'time',
+        'value': '12:00',
+        'properties': {'firstDate': '2024-01-01'},
+      }),
+      throwsFormatException,
+    );
+    expect(
+      () => DateTimeInputNode.fromJson({
+        ...wire,
+        'mode': 'dateTime',
+        'value': '2024-01-01T12:00:00Z',
+        'properties': {'firstDate': '2024-01-02'},
+      }),
+      throwsFormatException,
+    );
+    final node = DateTimeInputNode.empty()..mode = 'time';
+    expect(() => node.toJson(), throwsFormatException);
+  });
+
+  test('combined BASIC DateTimeInput maps to the distinct partial bridge', () {
+    final mappings = jsonDecode(
+      File('lib/src/schema/generated/basic_node_mappings.json')
+          .readAsStringSync(),
+    ) as Map;
+    expect((mappings['mappings'] as Map)['DateTimeInput'], {
+      'nodeType': 'dateTimeInput',
+      'bridgeStatus': 'partial',
+    });
+  });
 }

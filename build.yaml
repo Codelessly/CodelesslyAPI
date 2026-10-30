@@ -37,6 +37,7 @@ targets:
           - lib/src/api/nodes/embedded_video_node.dart
           - lib/src/api/nodes/video_node.dart
           - lib/src/api/nodes/audio_player_node.dart
+          - lib/src/api/nodes/date_time_input_node.dart
           - lib/src/api/nodes/date_picker_node.dart
           - lib/src/api/nodes/time_picker_node.dart
           - lib/src/api/nodes/auto_placeholder_node.dart

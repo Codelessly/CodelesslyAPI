@@ -110,7 +110,7 @@ void main(List<String> args) {
     'ChoicePicker': 'segmentedButton',
     'Video': 'video',
     'Tabs': 'tabs',
-    'DateTimeInput': null,
+    'DateTimeInput': 'dateTimeInput',
     'AudioPlayer': 'audioPlayer',
     'Modal': 'modal',
   };

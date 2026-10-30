@@ -370,6 +370,56 @@
       "bindable": false
     },
     {
+      "nodeType": "dateTimeInput",
+      "flutterName": "mode",
+      "fieldPath": "mode",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "value",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "label",
+      "fieldPath": "properties.label",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "firstDate",
+      "fieldPath": "properties.firstDate",
+      "group": "Bounds",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "lastDate",
+      "fieldPath": "properties.lastDate",
+      "group": "Bounds",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "divider",
       "flutterName": "color",
       "fieldPath": "properties.color",
@@ -1577,6 +1627,21 @@
     },
     {
       "nodeType": "datePicker",
+      "flutterName": "lastDate",
+      "fieldPath": "properties.lastDate"
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "label",
+      "fieldPath": "properties.label"
+    },
+    {
+      "nodeType": "dateTimeInput",
+      "flutterName": "firstDate",
+      "fieldPath": "properties.firstDate"
+    },
+    {
+      "nodeType": "dateTimeInput",
       "flutterName": "lastDate",
       "fieldPath": "properties.lastDate"
     },
