@@ -98,10 +98,12 @@ enum TriggerType {
   dragEnd,
 
   /// Triggered when a key is pressed while the screen it is set on shows
-  /// and no text field has focus. The actions read `${result.key}` (the
-  /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
-  /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
-  /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
+  /// and no text field has focus (Escape also fires while typing, with
+  /// `${result.typing}` true, so it can leave the field). The actions read
+  /// `${result.key}` (the key's label: `a`, `ArrowLeft`, `Delete`,
+  /// `Escape`, ...), `${result.shift}`, `${result.alt}` and `${result.meta}`
+  /// (Command on macOS, Control elsewhere). [TriggerModel.key] limits it to
+  /// one key.
   keyDown,
 
   /// Triggered when the user right-clicks the target (or taps it with two
