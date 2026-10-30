@@ -203,6 +203,12 @@ LineChartNode _$LineChartNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -244,6 +250,8 @@ Map<String, dynamic> _$LineChartNodeToJson(LineChartNode instance) =>
       'transitionMs': instance.transitionMs,
       'drawScale': instance.drawScale,
       'pulse': ?instance.pulse?.toJson(),
+      'draggable': ?instance.draggable?.toJson(),
+      'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'type': instance.type,

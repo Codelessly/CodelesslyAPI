@@ -141,7 +141,6 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
             ) ??
             {},
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -153,6 +152,7 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -176,13 +176,18 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
-  'squeezable': instance.squeezable,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
@@ -199,6 +204,7 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
+  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -216,6 +222,8 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   'transitionMs': instance.transitionMs,
   'drawScale': instance.drawScale,
   'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
   'type': instance.type,
