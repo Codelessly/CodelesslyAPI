@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 53);
+      expect(annotated.length, 54);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -66,6 +66,7 @@ void main() {
     'embedded_video_node': ('EmbeddedVideoNode', 'CodelesslyEmbeddedVideo', 2),
     'video_node': ('VideoNode', 'CodelesslyVideo', 3),
     'date_picker_node': ('DatePickerNode', 'CalendarDatePicker', 3),
+    'date_time_input_node': ('DateTimeInputNode', 'DateTimeInput', 5),
     'time_picker_node': ('TimePickerNode', 'TimePickerDialog', 1),
     'auto_placeholder_node': (
       'AutoPlaceholderNode',
@@ -281,13 +282,8 @@ void main() {
     expect((mappings['mappings'] as Map)['Modal']['bridgeStatus'], 'partial');
     expect((mappings['mappings'] as Map)['Tabs']['nodeType'], 'tabs');
     expect((mappings['mappings'] as Map)['Tabs']['bridgeStatus'], 'partial');
-    for (final name in ['DateTimeInput']) {
-      expect(
-        (mappings['mappings'] as Map)[name]['nodeType'],
-        isNull,
-        reason: '$name needs W3 renderer before runtime advertisement',
-      );
-    }
+    expect((mappings['mappings'] as Map)['DateTimeInput']['nodeType'], 'dateTimeInput');
+    expect((mappings['mappings'] as Map)['DateTimeInput']['bridgeStatus'], 'partial');
     final text = generated['Text'] as Map;
     final textProps =
         ((text['allOf'] as List).last as Map)['properties'] as Map;

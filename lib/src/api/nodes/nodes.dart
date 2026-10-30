@@ -16,6 +16,7 @@ export 'dropdown_node.dart';
 export 'embedded_video_node.dart';
 export 'video_node.dart';
 export 'date_picker_node.dart';
+export 'date_time_input_node.dart';
 export 'time_picker_node.dart';
 export 'expansion_tile_node.dart';
 export 'external_component_node.dart';
