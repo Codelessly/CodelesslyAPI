@@ -102,7 +102,48 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  keyDown,
+
+  /// A draggable node ([DraggableModel]) was picked up.
+  dragStart,
+
+  /// A draggable node was dropped on a target that accepted it.
+  dragCompleted,
+
+  /// A draggable node was let go without a target accepting it.
+  dragCanceled,
+
+  /// Something draggable was dragged over this drop target
+  /// ([DropTargetModel]). The actions read `${drop.data}`.
+  dragEnter,
+
+  /// Something draggable was dragged off this drop target, or let go.
+  dragExit,
+
+  /// This drop target accepted a drop. The actions read `${drop.data}`
+  /// (what was dropped) and `${drop.dx}`, `${drop.dy}` (where its top left
+  /// was, from this node's top left).
+  drop,
+
+  /// Something was let go over this drop target but its accept condition
+  /// failed: a wrong answer. The actions read the same as [drop]; the
+  /// draggable springs back.
+  dropRejected;
+
+  /// The triggers of a draggable node.
+  static const List<TriggerType> draggableTriggers = [
+    TriggerType.dragStart,
+    TriggerType.dragCompleted,
+    TriggerType.dragCanceled,
+  ];
+
+  /// The triggers of a drop target.
+  static const List<TriggerType> dropTargetTriggers = [
+    TriggerType.dragEnter,
+    TriggerType.dragExit,
+    TriggerType.drop,
+    TriggerType.dropRejected,
+  ];
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -177,6 +218,20 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.dragStart:
+        return 'Drag Start';
+      case TriggerType.dragCompleted:
+        return 'Drag Completed';
+      case TriggerType.dragCanceled:
+        return 'Drag Canceled';
+      case TriggerType.dragEnter:
+        return 'Drag Enter';
+      case TriggerType.dragExit:
+        return 'Drag Exit';
+      case TriggerType.drop:
+        return 'Drop';
+      case TriggerType.dropRejected:
+        return 'Drop Rejected';
     }
   }
 }

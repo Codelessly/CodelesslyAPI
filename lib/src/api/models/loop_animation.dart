@@ -23,7 +23,15 @@ enum LoopAnimationType {
 
   /// Rotates the node by [LoopAnimation.turns] full turns each cycle: a
   /// spinner.
-  spin;
+  spin,
+
+  /// Hops up [LoopAnimation.distance] pixels and lands, over and over: a
+  /// bouncing ball, letters doing a wave.
+  bob,
+
+  /// Rocks [LoopAnimation.angle] degrees either way and back, like a
+  /// pendulum.
+  sway;
 
   /// Displayable string representation of the type.
   String get prettify => switch (this) {
@@ -31,6 +39,8 @@ enum LoopAnimationType {
     LoopAnimationType.fade => 'Fade',
     LoopAnimationType.scale => 'Scale',
     LoopAnimationType.spin => 'Spin',
+    LoopAnimationType.bob => 'Bob',
+    LoopAnimationType.sway => 'Sway',
   };
 
   /// Whether this type animates the node's scale.
@@ -127,6 +137,14 @@ class LoopAnimation with Equatable, SerializableMixin {
   /// [LoopAnimationType.spin]. Negative turns rotate counterclockwise.
   final double turns;
 
+  /// How high the node hops each cycle, in logical pixels, for
+  /// [LoopAnimationType.bob].
+  final double distance;
+
+  /// How far the node rocks either way, in degrees, for
+  /// [LoopAnimationType.sway].
+  final double angle;
+
   /// Creates a [LoopAnimation].
   const LoopAnimation({
     required this.type,
@@ -140,6 +158,8 @@ class LoopAnimation with Equatable, SerializableMixin {
     this.opacityFrom = 1,
     this.opacityTo = 1,
     this.turns = 1,
+    this.distance = 10,
+    this.angle = 4,
   });
 
   /// A [LoopAnimation] of [type] with values that show it off: a halo that
@@ -172,6 +192,14 @@ class LoopAnimation with Equatable, SerializableMixin {
       scaleTo: 1.1,
     ),
     LoopAnimationType.spin => const LoopAnimation(type: LoopAnimationType.spin),
+    LoopAnimationType.bob => const LoopAnimation(
+      type: LoopAnimationType.bob,
+      durationMs: 1600,
+    ),
+    LoopAnimationType.sway => const LoopAnimation(
+      type: LoopAnimationType.sway,
+      durationMs: 2600,
+    ),
   };
 
   /// Duplicates this instance with the given data overrides.
@@ -187,6 +215,8 @@ class LoopAnimation with Equatable, SerializableMixin {
     double? opacityFrom,
     double? opacityTo,
     double? turns,
+    double? distance,
+    double? angle,
   }) => LoopAnimation(
     type: type ?? this.type,
     enabled: enabled ?? this.enabled,
@@ -199,6 +229,8 @@ class LoopAnimation with Equatable, SerializableMixin {
     opacityFrom: opacityFrom ?? this.opacityFrom,
     opacityTo: opacityTo ?? this.opacityTo,
     turns: turns ?? this.turns,
+    distance: distance ?? this.distance,
+    angle: angle ?? this.angle,
   );
 
   @override
@@ -214,6 +246,8 @@ class LoopAnimation with Equatable, SerializableMixin {
     opacityFrom,
     opacityTo,
     turns,
+    distance,
+    angle,
   ];
 
   /// Creates a [LoopAnimation] from JSON data.
