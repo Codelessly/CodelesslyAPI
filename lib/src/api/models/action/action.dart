@@ -9,6 +9,9 @@ enum ActionType {
   /// Show a dialog.
   showDialog,
 
+  /// Close the active modal dialog.
+  closeModal,
+
   /// Open a link.
   link,
 
@@ -95,6 +98,8 @@ enum ActionType {
         return 'Set Storage';
       case ActionType.showDialog:
         return 'Show Dialog';
+      case ActionType.closeModal:
+        return 'Close Modal';
       case ActionType.setCloudStorage:
         return 'Set Cloud Storage';
       case ActionType.loadFromCloudStorage:
@@ -190,6 +195,8 @@ abstract class ActionModel with SerializableMixin {
         return SetStorageAction.fromJson(json);
       case ActionType.showDialog:
         return ShowDialogAction.fromJson(json);
+      case ActionType.closeModal:
+        return CloseModalAction.fromJson(json);
       case ActionType.setCloudStorage:
         return SetCloudStorageAction.fromJson(json);
       case ActionType.loadFromCloudStorage:
