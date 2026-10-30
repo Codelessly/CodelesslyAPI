@@ -114,7 +114,13 @@ enum TriggerType {
   /// (the tick's time on the audio clock, for a Play Sound action's `at`)
   /// and `${result.waitMs}` (how long until it's due, for a Delay that
   /// lines visuals up with the sound). Set on a canvas.
-  clock;
+  clock,
+
+  /// Triggered when a row of a data list has been dragged to a new place by
+  /// this node, its reorder handle ([DragModel.reorder]). The actions read
+  /// `${result.from}` and `${result.to}`: the row's old index and its index
+  /// in the new order.
+  reorder;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -191,6 +197,8 @@ enum TriggerType {
         return 'Key Down';
       case TriggerType.clock:
         return 'Beat Clock';
+      case TriggerType.reorder:
+        return 'Reorder';
     }
   }
 }

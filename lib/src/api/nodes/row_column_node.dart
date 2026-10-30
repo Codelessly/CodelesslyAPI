@@ -128,6 +128,10 @@ class RowColumnNode extends ParentNode
     TriggerType.click,
     TriggerType.longPress,
     TriggerType.hold,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
   ];
 
   @override
