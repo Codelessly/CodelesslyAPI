@@ -63,8 +63,8 @@
       "bridgeStatus": "partial"
     },
     "DateTimeInput": {
-      "nodeType": null,
-      "bridgeStatus": "deferred"
+      "nodeType": "dateTimeInput",
+      "bridgeStatus": "partial"
     },
     "AudioPlayer": {
       "nodeType": "audioPlayer",

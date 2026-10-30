@@ -1,0 +1,195 @@
+{
+  "DateTimeInputNode": {
+    "widget": "DateTimeInput",
+    "family": "material",
+    "nodeType": "dateTimeInput",
+    "drift": [
+      {
+        "flutterName": "label",
+        "fieldPath": "properties.label"
+      },
+      {
+        "flutterName": "firstDate",
+        "fieldPath": "properties.firstDate"
+      },
+      {
+        "flutterName": "lastDate",
+        "fieldPath": "properties.lastDate"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "firstDate": {
+              "type": "string"
+            },
+            "lastDate": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "mode",
+        "fieldPath": "mode",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "value",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "label",
+        "fieldPath": "properties.label",
+        "group": "Content",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "firstDate",
+        "fieldPath": "properties.firstDate",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "lastDate",
+        "fieldPath": "properties.lastDate",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "DateTimeInput": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "DateTimeInput"
+                },
+                "mode": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "firstDate": {
+                      "type": "string"
+                    },
+                    "lastDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "mode",
+                "value"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "mode",
+        "field": "mode",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "value",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "label",
+        "field": "properties.label",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "firstDate",
+        "field": "properties.firstDate",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "lastDate",
+        "field": "properties.lastDate",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}
