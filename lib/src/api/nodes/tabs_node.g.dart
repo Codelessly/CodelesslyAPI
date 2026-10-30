@@ -25,6 +25,7 @@ Map<String, dynamic> _$TabsNodeOmitDefaults(
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -127,6 +128,7 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -166,6 +168,7 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'floating': instance.floating,
   'children': instance.children,
   'type': instance.type,
   'tabs': instance.tabs.map((e) => e.toJson()).toList(),
