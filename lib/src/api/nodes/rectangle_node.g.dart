@@ -173,7 +173,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             : CornerRadius.fromJson(json['cornerRadius']),
         clipsContent: json['clipsContent'] as bool? ?? true,
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -198,6 +197,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -245,7 +245,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
-      'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
@@ -253,6 +252,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
       'componentVersion': instance.componentVersion,
       'componentSchema': instance.componentSchema,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
