@@ -90,6 +90,17 @@ class _FlutterPropsBuilder implements Builder {
         for (final ancestor in nestedElement.allSupertypes) {
           include(ancestor.element, prefix: 'properties.');
         }
+        // Button label styling is a concrete persisted TextProp, not the
+        // flattened TextNode.textMixedProps[] run representation.
+        if (nestedElement.name == 'ButtonProperties') {
+          final labelStyle = nestedElement.fields
+              .where((field) => field.name == 'labelStyle')
+              .firstOrNull;
+          final styleType = labelStyle?.type.element;
+          if (styleType is InterfaceElement && styleType.name == 'TextProp') {
+            include(styleType, prefix: 'properties.labelStyle.');
+          }
+        }
       }
       // BlendMixin owns InkWellModel?; only nodes that actually inherit that
       // field receive nested InkWell descriptors. Keep the declaration in the

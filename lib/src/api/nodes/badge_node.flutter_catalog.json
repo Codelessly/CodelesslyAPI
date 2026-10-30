@@ -62,6 +62,18 @@
         "properties": {
           "type": "object",
           "properties": {
+            "badgeType": {
+              "type": "string"
+            },
+            "maxCount": {
+              "type": "integer"
+            },
+            "offsetX": {
+              "type": "number"
+            },
+            "offsetY": {
+              "type": "number"
+            },
             "isLabelVisible": {
               "type": "boolean"
             },
@@ -180,6 +192,54 @@
         "group": "Transform",
         "control": "angle",
         "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted badge kind selected by the editor.",
+        "fieldPath": "properties.badgeType",
+        "group": "Appearance",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted count threshold for a count badge.",
+        "fieldPath": "properties.maxCount",
+        "group": "Content",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted horizontal badge offset.",
+        "fieldPath": "properties.offsetX",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "badge",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted vertical badge offset.",
+        "fieldPath": "properties.offsetY",
+        "group": "Layout",
+        "control": "number",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": false
       },
@@ -402,6 +462,46 @@
         "parameter": null,
         "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
         "field": "rotation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted badge kind selected by the editor.",
+        "field": "properties.badgeType",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted count threshold for a count badge.",
+        "field": "properties.maxCount",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted horizontal badge offset.",
+        "field": "properties.offsetX",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted vertical badge offset.",
+        "field": "properties.offsetY",
         "defaultSource": null,
         "testValues": [
           0,

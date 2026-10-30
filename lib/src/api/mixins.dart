@@ -898,12 +898,42 @@ mixin ShapeBorderMixin {
   late CShapeBorder shape;
 
   /// Radius of the corners of the border.
+  @FlutterProp(
+    'cornerRadius',
+    type: 'object',
+    group: 'Appearance',
+    control: 'radius',
+    field: 'properties.cornerRadius',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted property border corner-radius object.',
+  )
   late CornerRadius cornerRadius;
 
   /// Thickness of the border.
+  @FlutterProp(
+    'borderWidth',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.borderWidth',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border width.',
+  )
   double? borderWidth;
 
   /// Color of the border.
+  @FlutterProp(
+    'borderColor',
+    type: 'object',
+    group: 'Appearance',
+    control: 'color',
+    field: 'properties.borderColor',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border color.',
+  )
   ColorRGBA? borderColor;
 
   /// Sets the properties of this mixin.
