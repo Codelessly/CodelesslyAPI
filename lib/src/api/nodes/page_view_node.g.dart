@@ -45,6 +45,7 @@ Map<String, dynamic> _$PageViewNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -219,6 +220,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -273,6 +275,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'floating': instance.floating,
       'children': instance.children,
       'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,

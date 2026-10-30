@@ -40,6 +40,7 @@ Map<String, dynamic> _$EmbeddedVideoNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -203,6 +204,7 @@ EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) =>
@@ -243,6 +245,7 @@ Map<String, dynamic> _$EmbeddedVideoNodeToJson(EmbeddedVideoNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'floating': instance.floating,
       'type': instance.type,
       'properties': instance.properties.toJson(),
     };

@@ -477,6 +477,15 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// Whether the node floats above the screen at runtime: drawn where its
+  /// layout puts it, but over every other node, not clipped by its parents,
+  /// and tappable even outside them, like a menu attached to a field (a
+  /// type-ahead's matches under its text field). It still takes its place
+  /// in the layout, so put it in a stack (frame) next to what it hangs from
+  /// to keep it out of the flow. The design canvas draws it in place.
+  @JsonKey(defaultValue: false, includeIfNull: false)
+  bool floating = false;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 
