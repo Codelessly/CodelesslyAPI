@@ -40,6 +40,7 @@ Map<String, dynamic> _$AccordionNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -197,6 +198,7 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -205,7 +207,6 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
 Map<String, dynamic> _$AccordionNodeToJson(
   AccordionNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -222,6 +223,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -241,6 +243,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'floating': instance.floating,
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
