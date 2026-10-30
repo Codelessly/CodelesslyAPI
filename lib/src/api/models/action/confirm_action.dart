@@ -22,6 +22,12 @@ part 'confirm_action.g.dart';
 ///
 /// Either dialog can be presented as a centered dialog, a bottom sheet or a
 /// side sheet ([presentation]), like [ShowDialogAction.presentation].
+///
+/// The built-in dialog's colors can follow data: [variables] maps a color
+/// field's name (see [bindableColors]) to a variable path or formula giving a
+/// color, e.g. `{"backgroundColor": "${pal.surface}",
+/// "confirmColor": "${pal.danger}"}`. A binding that gives a color wins over
+/// the field; one that gives nothing keeps the field.
 @JsonSerializable()
 class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// The dialog's title. Supports variables and formulas.
@@ -135,6 +141,29 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   @JsonKey(unknownEnumValue: DialogPlacement.belowStart)
   final DialogPlacement placement;
 
+  /// Color bindings: a color field's name (one of [bindableColors]) to a
+  /// variable path or formula that gives a color, e.g. `${pal.surface}` or
+  /// `${= alpha(pal.ink, 0.22)}`.
+  final Map<String, String> variables;
+
+  /// The color fields [variables] can bind. `titleColor` and `messageColor`
+  /// color the title and message over their text styles; `borderColor` and
+  /// `buttonBorderColor` color [border] and [buttonBorder] (1px ones when
+  /// there are none).
+  static const List<String> bindableColors = <String>[
+    'backgroundColor',
+    'textColor',
+    'titleColor',
+    'messageColor',
+    'confirmColor',
+    'confirmTextColor',
+    'cancelColor',
+    'cancelTextColor',
+    'barrierColor',
+    'borderColor',
+    'buttonBorderColor',
+  ];
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -187,11 +216,13 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.maxHeightFactor = 1,
     this.showDragHandle = false,
     this.placement = DialogPlacement.belowStart,
+    Map<String, String>? variables,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
        cancelActions = cancelActions ?? [],
        params = params ?? {},
+       variables = variables ?? {},
        super(type: ActionType.confirm);
 
   /// Duplicates this action with the given values replaced.
@@ -245,6 +276,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     double? maxHeightFactor,
     bool? showDragHandle,
     DialogPlacement? placement,
+    Map<String, String>? variables,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -285,6 +317,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
     placement: placement ?? this.placement,
+    variables: variables ?? this.variables,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -322,6 +355,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     maxHeightFactor,
     showDragHandle,
     placement,
+    variables,
   ];
 
   /// Creates an instance from a JSON object.
