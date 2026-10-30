@@ -179,6 +179,7 @@ const _$ActionTypeEnumMap = {
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.paywall: 'paywall',
   ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
 };
 
 CloudBatchAction _$CloudBatchActionFromJson(Map json) => CloudBatchAction(
