@@ -8,11 +8,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "label": {
               "type": "string"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -23,11 +46,83 @@
         "nodeType": "elevatedButton",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
         "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "elevatedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -70,12 +165,72 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]
@@ -89,11 +244,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "label": {
               "type": "string"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -104,11 +282,83 @@
         "nodeType": "textButton",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
         "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "textButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -151,12 +401,72 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]
@@ -170,11 +480,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "label": {
               "type": "string"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -185,11 +518,83 @@
         "nodeType": "outlinedButton",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
         "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "outlinedButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -232,12 +637,72 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]
@@ -256,11 +721,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "icon": {
               "type": "object"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -269,11 +757,83 @@
     "dpp": [
       {
         "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "iconButton",
         "flutterName": "icon",
         "fieldPath": "properties.icon",
         "group": "Content",
         "control": "icon",
         "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "iconButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -316,12 +876,72 @@
     },
     "testMatrix": [
       {
+        "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
         "parameter": "icon",
         "field": "properties.icon",
         "defaultSource": null,
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]
@@ -335,11 +955,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "label": {
               "type": "string"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -350,11 +993,83 @@
         "nodeType": "filledButton",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
         "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "filledButton",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -397,12 +1112,72 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
           "",
           "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]

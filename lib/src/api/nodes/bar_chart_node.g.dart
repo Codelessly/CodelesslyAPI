@@ -219,6 +219,8 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'aspectRatioLock': instance.aspectRatioLock,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -235,8 +237,6 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),

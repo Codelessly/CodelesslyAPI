@@ -141,6 +141,7 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
             ) ??
             {},
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -152,7 +153,6 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -182,6 +182,8 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
+  'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -197,9 +199,7 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),

@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'ink_well.g.dart';
 
@@ -11,18 +12,68 @@ class InkWellModel with Equatable, SerializableMixin {
   /// The overlay color. This is the dominant color field. If this is null, then
   /// the individual [highlightColor], [splashColor], [hoverColor], and
   /// [focusColor] values are used instead.
+  @FlutterProp(
+    'overlayColor',
+    type: 'object',
+    group: 'InkWell',
+    control: 'color',
+    field: 'inkWell.overlayColor',
+    flutterParam: false,
+    note: 'Nested InkWell styling, not a constructor parameter of the parent node widget.',
+    a2ui: false,
+  )
   final ColorRGBA? overlayColor;
 
   /// The highlight color.
+  @FlutterProp(
+    'highlightColor',
+    type: 'object',
+    group: 'InkWell',
+    control: 'color',
+    field: 'inkWell.highlightColor',
+    flutterParam: false,
+    note: 'Nested InkWell styling, not a constructor parameter of the parent node widget.',
+    a2ui: false,
+  )
   final ColorRGBA? highlightColor;
 
   /// The splash color.
+  @FlutterProp(
+    'splashColor',
+    type: 'object',
+    group: 'InkWell',
+    control: 'color',
+    field: 'inkWell.splashColor',
+    flutterParam: false,
+    note: 'Nested InkWell styling, not a constructor parameter of the parent node widget.',
+    a2ui: false,
+  )
   final ColorRGBA? splashColor;
 
   /// The hover color.
+  @FlutterProp(
+    'hoverColor',
+    type: 'object',
+    group: 'InkWell',
+    control: 'color',
+    field: 'inkWell.hoverColor',
+    flutterParam: false,
+    note: 'Nested InkWell styling, not a constructor parameter of the parent node widget.',
+    a2ui: false,
+  )
   final ColorRGBA? hoverColor;
 
   /// The focus color.
+  @FlutterProp(
+    'focusColor',
+    type: 'object',
+    group: 'InkWell',
+    control: 'color',
+    field: 'inkWell.focusColor',
+    flutterParam: false,
+    note: 'Nested InkWell styling, not a constructor parameter of the parent node widget.',
+    a2ui: false,
+  )
   final ColorRGBA? focusColor;
 
   /// Creates an [InkWellModel] instance with the given data.

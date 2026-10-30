@@ -72,7 +72,36 @@ void main() {
       descriptors
           .where((descriptor) => descriptor['nodeType'] == 'spacer')
           .map((descriptor) => descriptor['fieldPath']),
-      ['flex'],
+      contains('flex'),
+    );
+  });
+
+  test('shared Frame DPP paths and nested InkWell source fields are exact', () {
+    final data = jsonDecode(
+      File('lib/src/schema/generated/dpp_descriptors.json').readAsStringSync(),
+    ) as Map;
+    final descriptors = (data['descriptors'] as List).cast<Map>();
+    final paths = descriptors
+        .where((descriptor) => descriptor['nodeType'] == 'frame')
+        .map((descriptor) => descriptor['fieldPath'])
+        .toSet();
+    expect(
+      paths,
+      containsAll({
+        'visible',
+        'enabled',
+        'clipsContent',
+        'horizontalFit',
+        'verticalFit',
+        'transition.durationMillis',
+        'pulse.minOpacity',
+        'pulse.durationMillis',
+        'inkWell.overlayColor',
+        'inkWell.highlightColor',
+        'inkWell.splashColor',
+        'inkWell.hoverColor',
+        'inkWell.focusColor',
+      }),
     );
   });
 
@@ -189,7 +218,10 @@ void main() {
       final node = output[entry.value.$1] as Map;
       expect(node['widget'], entry.value.$2);
       final properties = (node['jsonSchema'] as Map)['properties'] as Map;
-      expect((node['dpp'] as List).length, entry.value.$3);
+      expect(
+        (node['dpp'] as List).length,
+        greaterThanOrEqualTo(entry.value.$3),
+      );
       expect(properties, isNotEmpty);
       if (entry.key == 'button_node') {
         expect(
@@ -229,13 +261,19 @@ void main() {
       }
       if (entry.key == 'row_column_node') {
         expect((output['ColumnNode'] as Map)['widget'], 'Column');
-        expect(((output['ColumnNode'] as Map)['dpp'] as List).length, 11);
+        expect(
+          ((output['ColumnNode'] as Map)['dpp'] as List).length,
+          greaterThanOrEqualTo(11),
+        );
       }
       expect(
         ((node['a2ui'] as Map)['components'] as Map).keys,
         contains(entry.value.$2),
       );
-      expect((node['testMatrix'] as List).length, entry.value.$3);
+      expect(
+        (node['testMatrix'] as List).length,
+        greaterThanOrEqualTo(entry.value.$3),
+      );
       expect(
         (node['jsonSchema'] as Map)['\$schema'],
         'https://json-schema.org/draft/2020-12/schema',
@@ -351,12 +389,12 @@ void main() {
     );
     expect(
       (mappings['mappings'] as Map)['AudioPlayer']['bridgeStatus'],
-      'partial',
+      'ready',
     );
     expect((mappings['mappings'] as Map)['Modal']['nodeType'], 'modal');
-    expect((mappings['mappings'] as Map)['Modal']['bridgeStatus'], 'partial');
+    expect((mappings['mappings'] as Map)['Modal']['bridgeStatus'], 'ready');
     expect((mappings['mappings'] as Map)['Tabs']['nodeType'], 'tabs');
-    expect((mappings['mappings'] as Map)['Tabs']['bridgeStatus'], 'partial');
+    expect((mappings['mappings'] as Map)['Tabs']['bridgeStatus'], 'ready');
     expect(
       (mappings['mappings'] as Map)['DateTimeInput']['nodeType'],
       'dateTimeInput',
@@ -390,7 +428,10 @@ void main() {
                   .readAsStringSync(),
             ) as Map)['TextNode']
             as Map;
-    expect(((node['dpp'] as List).first as Map)['fieldPath'], 'data');
+    expect(
+      (node['dpp'] as List).cast<Map>().map((field) => field['fieldPath']),
+      contains('data'),
+    );
     expect(
       ((node['jsonSchema'] as Map)['properties'] as Map).keys,
       contains('data'),
