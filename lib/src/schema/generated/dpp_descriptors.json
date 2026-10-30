@@ -772,6 +772,40 @@
       "bindable": false
     },
     {
+      "nodeType": "modal",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Scene child ID of the control that opens the modal.",
+      "fieldPath": "trigger",
+      "group": "Content",
+      "control": "child",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "modal",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Scene child ID of the modal body.",
+      "fieldPath": "content",
+      "group": "Content",
+      "control": "child",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "modal",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "navigationBar",
       "flutterName": "selectedIndex",
       "fieldPath": "selectedIndex",
