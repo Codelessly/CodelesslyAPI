@@ -53,6 +53,15 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
   /// Whether every digit takes the same width (tabular figures), so a
   /// clock, counter or column of numbers doesn't shift as its digits change.
+  @FlutterProp(
+    'tabularFigures',
+    type: 'boolean',
+    group: 'Text',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly text digit-width option on the serialized text node.',
+  )
   bool tabularFigures;
 
   /// Minimum width the text node can have.
@@ -207,9 +216,28 @@ mixin TextMixin {
   /// List of mixed text properties.
   /// Each [StartEndProp] has a [start] and [end] point that defines the index
   /// of data for which the properties should be applied to.
+  @FlutterProp(
+    'textMixedProps',
+    type: 'array',
+    group: 'Typography',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized rich-text runs; font size, family, weight, color and links are nested in each run.',
+  )
   late List<StartEndProp> textMixedProps;
 
   /// Horizontal alignment applied to text.
+  @FlutterProp(
+    'textAlignHorizontal',
+    type: 'string',
+    group: 'Typography',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Codelessly persisted horizontal text alignment, not textAlign alias.',
+  )
   late TextAlignHorizontalEnum textAlignHorizontal;
 
   /// Vertical alignment applied to text.
@@ -226,6 +254,15 @@ mixin TextMixin {
   late int? maxLines;
 
   /// Defines how the text would clip when it overflows the available space.
+  @FlutterProp(
+    'overflow',
+    type: 'string',
+    group: 'Text',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly TextOverflowC persisted choice; not a string alias.',
+  )
   late TextOverflowC overflow;
 
   /// Whether the text breaks at soft line breaks. When false, it is laid out
