@@ -114,4 +114,11 @@ void main() {
       expect(ActionModel.fromJson(SpeakAction(stop: true).toJson()), SpeakAction(stop: true));
     });
   });
+
+  test('FocusFieldAction round-trips', () {
+    final action = FocusFieldAction(nodeId: 'front');
+    expect(ActionModel.fromJson(action.toJson()), action);
+    expect(ActionModel.fromJson(FocusFieldAction(unfocus: true).toJson()),
+        FocusFieldAction(unfocus: true));
+  });
 }

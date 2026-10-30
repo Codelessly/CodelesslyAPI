@@ -180,6 +180,7 @@ const _$ActionTypeEnumMap = {
   ActionType.paywall: 'paywall',
   ActionType.controlDrag: 'controlDrag',
   ActionType.speak: 'speak',
+  ActionType.focusField: 'focusField',
 };
 
 CloudBatchAction _$CloudBatchActionFromJson(Map json) => CloudBatchAction(
