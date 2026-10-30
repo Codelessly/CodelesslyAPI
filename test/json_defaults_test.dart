@@ -103,6 +103,12 @@ List<BaseNode> sampleNodes() {
   PaintModel solid(String id, ColorRGB color) =>
       PaintModel.solid(id: id, color: color);
   return [
+    TabsNode(
+      id: 'tabs',
+      name: 'Tabs',
+      basicBoxLocal: box,
+      tabs: const [TabsItem(title: 'First', child: 'a')],
+    ),
     ColumnNode(
       id: 'column',
       name: 'Column',

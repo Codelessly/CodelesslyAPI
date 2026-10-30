@@ -1,0 +1,107 @@
+{
+  "TabsNode": {
+    "widget": "CodelesslyTabs",
+    "family": "codelessly",
+    "nodeType": "tabs",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "tabs": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "tabs",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Ordered static titles and scene child IDs.",
+        "fieldPath": "tabs",
+        "group": "Content",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "tabs",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyTabs": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyTabs"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                }
+              },
+              "required": [
+                "component",
+                "children",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": null,
+        "note": "Ordered static titles and scene child IDs.",
+        "field": "tabs",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      }
+    ]
+  }
+}

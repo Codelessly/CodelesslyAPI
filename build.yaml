@@ -47,6 +47,7 @@ targets:
           - lib/src/api/nodes/variance_node.dart
           - lib/src/api/nodes/accordion_node.dart
           - lib/src/api/nodes/modal_node.dart
+          - lib/src/api/nodes/tabs_node.dart
           - lib/src/api/nodes/canvas_node.dart
           - lib/src/api/nodes/progressbar_node.dart
           - lib/src/api/nodes/root_node.dart

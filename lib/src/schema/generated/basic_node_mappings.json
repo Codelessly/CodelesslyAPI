@@ -59,8 +59,8 @@
       "bridgeStatus": "ready"
     },
     "Tabs": {
-      "nodeType": null,
-      "bridgeStatus": "deferred"
+      "nodeType": "tabs",
+      "bridgeStatus": "partial"
     },
     "DateTimeInput": {
       "nodeType": null,
