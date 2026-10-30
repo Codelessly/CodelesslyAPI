@@ -50,6 +50,7 @@ const _$DragCommandEnumMap = {
   DragCommand.fling: 'fling',
   DragCommand.returnFrom: 'returnFrom',
   DragCommand.reset: 'reset',
+  DragCommand.shake: 'shake',
 };
 
 const _$DragDirectionEnumMap = {

@@ -117,6 +117,12 @@ class DragModel with Equatable, SerializableMixin {
   /// (up and down), a drag must go to dismiss on release.
   final double distanceThreshold;
 
+  /// The threshold for up and down, when it differs from
+  /// [distanceThreshold] (a fraction of the node's height): a card that
+  /// skips with a shorter swipe up than it grades sideways. Null uses
+  /// [distanceThreshold].
+  final double? verticalThreshold;
+
   /// How fast, in logical pixels per second, a shorter drag must be flung
   /// toward an allowed direction to dismiss.
   final double velocityThreshold;
@@ -173,6 +179,15 @@ class DragModel with Equatable, SerializableMixin {
   /// none.
   final String shareAs;
 
+  /// Where the node rests horizontally, in logical pixels from where its
+  /// layout puts it. Bind it through `drag.restX` (and [restY] through
+  /// `drag.restY`) to hold a card mid-drag from data, or to make it peek;
+  /// it springs back there, and moves there when the value changes.
+  final double restX;
+
+  /// Where the node rests vertically. See [restX].
+  final double restY;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -184,6 +199,7 @@ class DragModel with Equatable, SerializableMixin {
       DragDirection.down,
     ],
     this.distanceThreshold = 0.35,
+    this.verticalThreshold,
     this.velocityThreshold = 800,
     this.rotateFactor = 0,
     this.originX = 0,
@@ -197,10 +213,25 @@ class DragModel with Equatable, SerializableMixin {
     this.disabledFollow = 0,
     this.flyOutRotate = 0,
     this.shareAs = '',
+    this.restX = 0,
+    this.restY = 0,
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
   static const String enabledVariableKey = 'drag.enabled';
+
+  /// The key in [BaseNode.variables] that binds [restX].
+  static const String restXVariableKey = 'drag.restX';
+
+  /// The key in [BaseNode.variables] that binds [restY].
+  static const String restYVariableKey = 'drag.restY';
+
+  /// The fraction of the node's size a drag toward [direction] must travel
+  /// to dismiss.
+  double thresholdFor(DragDirection direction) =>
+      direction == DragDirection.up || direction == DragDirection.down
+      ? verticalThreshold ?? distanceThreshold
+      : distanceThreshold;
 
   /// The names of the live values the `drag` variable has.
   static const List<String> liveValues = [
@@ -234,6 +265,7 @@ class DragModel with Equatable, SerializableMixin {
     DragRelease? release,
     List<DragDirection>? directions,
     double? distanceThreshold,
+    double? verticalThreshold,
     double? velocityThreshold,
     double? rotateFactor,
     double? originX,
@@ -247,11 +279,14 @@ class DragModel with Equatable, SerializableMixin {
     double? disabledFollow,
     double? flyOutRotate,
     String? shareAs,
+    double? restX,
+    double? restY,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
     directions: directions ?? this.directions,
     distanceThreshold: distanceThreshold ?? this.distanceThreshold,
+    verticalThreshold: verticalThreshold ?? this.verticalThreshold,
     velocityThreshold: velocityThreshold ?? this.velocityThreshold,
     rotateFactor: rotateFactor ?? this.rotateFactor,
     originX: originX ?? this.originX,
@@ -265,6 +300,8 @@ class DragModel with Equatable, SerializableMixin {
     disabledFollow: disabledFollow ?? this.disabledFollow,
     flyOutRotate: flyOutRotate ?? this.flyOutRotate,
     shareAs: shareAs ?? this.shareAs,
+    restX: restX ?? this.restX,
+    restY: restY ?? this.restY,
   );
 
   @override
@@ -273,6 +310,7 @@ class DragModel with Equatable, SerializableMixin {
     release,
     directions,
     distanceThreshold,
+    verticalThreshold,
     velocityThreshold,
     rotateFactor,
     originX,
@@ -286,6 +324,8 @@ class DragModel with Equatable, SerializableMixin {
     disabledFollow,
     flyOutRotate,
     shareAs,
+    restX,
+    restY,
   ];
 
   /// Creates a [DragModel] from JSON.
