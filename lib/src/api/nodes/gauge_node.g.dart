@@ -224,6 +224,11 @@ GaugeNode _$GaugeNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
@@ -263,6 +268,8 @@ Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'value': instance.value,
@@ -292,6 +299,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 GaugeZone _$GaugeZoneFromJson(Map json) => GaugeZone(

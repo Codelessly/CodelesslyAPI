@@ -1,0 +1,382 @@
+{
+  "BarcodeNode": {
+    "widget": "CodelesslyBarcode",
+    "family": "codelessly",
+    "nodeType": "barcode",
+    "drift": [
+      {
+        "flutterName": "symbology",
+        "fieldPath": "properties.symbology"
+      },
+      {
+        "flutterName": "color",
+        "fieldPath": "properties.color"
+      },
+      {
+        "flutterName": "backgroundColor",
+        "fieldPath": "properties.backgroundColor"
+      },
+      {
+        "flutterName": "errorCorrection",
+        "fieldPath": "properties.errorCorrection"
+      },
+      {
+        "flutterName": "drawText",
+        "fieldPath": "properties.drawText"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string"
+        },
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "symbology": {
+              "type": "string"
+            },
+            "color": {
+              "type": "object"
+            },
+            "backgroundColor": {
+              "type": "object"
+            },
+            "errorCorrection": {
+              "type": "string"
+            },
+            "drawText": {
+              "type": "boolean"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "barcode",
+        "flutterName": "data",
+        "fieldPath": "data",
+        "group": "Barcode",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": "symbology",
+        "fieldPath": "properties.symbology",
+        "group": "Barcode",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": "color",
+        "fieldPath": "properties.color",
+        "group": "Appearance",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": "backgroundColor",
+        "fieldPath": "properties.backgroundColor",
+        "group": "Appearance",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": "errorCorrection",
+        "fieldPath": "properties.errorCorrection",
+        "group": "Barcode",
+        "control": "enum",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": "drawText",
+        "fieldPath": "properties.drawText",
+        "group": "Barcode",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyBarcode": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyBarcode"
+                },
+                "data": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "symbology": {
+                      "type": "string"
+                    },
+                    "color": {
+                      "type": "object"
+                    },
+                    "backgroundColor": {
+                      "type": "object"
+                    },
+                    "errorCorrection": {
+                      "type": "string"
+                    },
+                    "drawText": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "data"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "data",
+        "field": "data",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "symbology",
+        "field": "properties.symbology",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "color",
+        "field": "properties.color",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "backgroundColor",
+        "field": "properties.backgroundColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "errorCorrection",
+        "field": "properties.errorCorrection",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "drawText",
+        "field": "properties.drawText",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      }
+    ]
+  }
+}

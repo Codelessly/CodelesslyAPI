@@ -186,7 +186,12 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
           : PulseModel.fromJson(json['pulse'] as Map)
       ..motion = json['motion'] == null
           ? null
-          : MotionModel.fromJson(json['motion'] as Map);
+          : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      );
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
@@ -226,6 +231,8 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'heroTag': ?instance.heroTag,
+      'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'properties': instance.properties.toJson(),
     };
 
@@ -253,6 +260,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 ButtonProperties _$ButtonPropertiesFromJson(Map json) => ButtonProperties(

@@ -69,6 +69,7 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
     json.remove('cornerSmoothing');
   if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
     json.remove('cornerRadius');
+  if (isJsonDefault(instance.notches, const [])) json.remove('notches');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
   return json;
 }
@@ -171,9 +172,13 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
+        notches:
+            (json['notches'] as List<dynamic>?)
+                ?.map((e) => NotchModel.fromJson(e as Map))
+                .toList() ??
+            const [],
         clipsContent: json['clipsContent'] as bool? ?? true,
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -198,6 +203,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -224,6 +230,11 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -236,6 +247,12 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
     <String, dynamic>{
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
       'id': instance.id,
       'name': instance.name,
       'visible': instance.visible,
@@ -247,12 +264,6 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -272,6 +283,8 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'heroTag': ?instance.heroTag,
+      'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'opacity': instance.opacity,
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'isMask': instance.isMask,
@@ -289,6 +302,7 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'clipsContent': instance.clipsContent,
       'cornerSmoothing': instance.cornerSmoothing,
       'cornerRadius': instance.cornerRadius.toJson(),
+      'notches': instance.notches.map((e) => e.toJson()).toList(),
       'type': instance.type,
     };
 
@@ -368,4 +382,9 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
