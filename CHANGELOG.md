@@ -7,6 +7,16 @@ payloads fail closed without discarding the original document JSON; direct
 node decoding rejects contradictory variant signatures; and list stack modes
 cannot both be enabled in a document.
 
+### Rich text composer additions (not published)
+
+- `TextFieldProperties.markdown` (`MarkdownStyle`, now with `copyWith`)
+  shows what's typed as live Markdown. Text fields take `keyDown` triggers.
+- `TriggerModel.key` names key combinations (`Meta+Enter`, `Shift+Enter`,
+  `Meta+b`; see `KeyCombo`) and `TriggerModel.when` limits a key reaction
+  to when a formula is true.
+- `EditTextAction` (`editText`) edits a text field at its cursor: wrap,
+  toggle a list, insert, replace the word being typed, set, clear, focus.
+
 ### PR49 additions (not published)
 
 - `CopyToClipboardAction` copies formula/bound text; new `dragEnd` and

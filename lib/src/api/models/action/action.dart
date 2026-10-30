@@ -72,6 +72,10 @@ enum ActionType {
   /// Copy a text to the clipboard.
   copyToClipboard,
 
+  /// Edit a text field's text at its cursor: wrap, list, insert, replace
+  /// the word being typed, set, clear or focus.
+  editText,
+
   /// Perform a native store-safe paywall interaction.
   paywall;
 
@@ -124,6 +128,8 @@ enum ActionType {
         return 'Cloud Batch';
       case ActionType.copyToClipboard:
         return 'Copy to Clipboard';
+      case ActionType.editText:
+        return 'Edit Text';
       case ActionType.paywall:
         return 'Paywall';
     }
@@ -221,6 +227,8 @@ abstract class ActionModel with SerializableMixin {
         return CloudBatchAction.fromJson(json);
       case ActionType.copyToClipboard:
         return CopyToClipboardAction.fromJson(json);
+      case ActionType.editText:
+        return EditTextAction.fromJson(json);
       case ActionType.paywall:
         return PaywallAction.fromJson(json);
     }

@@ -63,12 +63,40 @@ class MarkdownStyle with Equatable, SerializableMixin {
     this.markerColor,
   });
 
+  /// Duplicates this style with the given values replaced.
+  MarkdownStyle copyWith({
+    ColorRGBA? codeColor,
+    ColorRGBA? codeBackground,
+    String? codeFontFamily,
+    ColorRGBA? linkColor,
+    ColorRGBA? mentionColor,
+    ColorRGBA? mentionBackground,
+    List<String>? mentions,
+    ColorRGBA? bulletColor,
+    double? paragraphGap,
+    bool? showMarkers,
+    ColorRGBA? markerColor,
+  }) => MarkdownStyle(
+    codeColor: codeColor ?? this.codeColor,
+    codeBackground: codeBackground ?? this.codeBackground,
+    codeFontFamily: codeFontFamily ?? this.codeFontFamily,
+    linkColor: linkColor ?? this.linkColor,
+    mentionColor: mentionColor ?? this.mentionColor,
+    mentionBackground: mentionBackground ?? this.mentionBackground,
+    mentions: mentions ?? this.mentions,
+    bulletColor: bulletColor ?? this.bulletColor,
+    paragraphGap: paragraphGap ?? this.paragraphGap,
+    showMarkers: showMarkers ?? this.showMarkers,
+    markerColor: markerColor ?? this.markerColor,
+  );
+
   /// Creates a [MarkdownStyle] from JSON. Colors may be `#RRGGBB` or
   /// `#AARRGGBB` text.
   factory MarkdownStyle.fromJson(Map json) => _$MarkdownStyleFromJson(json);
 
   @override
-  Map toJson() => _$MarkdownStyleOmitDefaults(this, _$MarkdownStyleToJson(this));
+  Map toJson() =>
+      _$MarkdownStyleOmitDefaults(this, _$MarkdownStyleToJson(this));
 
   @override
   List<Object?> get props => [
