@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 48);
+      expect(annotated.length, 50);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -65,6 +65,8 @@ void main() {
     'web_view_node': ('WebViewNode', 'CodelesslyWebView', 1),
     'embedded_video_node': ('EmbeddedVideoNode', 'CodelesslyEmbeddedVideo', 2),
     'video_node': ('VideoNode', 'CodelesslyVideo', 3),
+    'date_picker_node': ('DatePickerNode', 'CalendarDatePicker', 3),
+    'time_picker_node': ('TimePickerNode', 'TimePickerDialog', 1),
     'auto_placeholder_node': (
       'AutoPlaceholderNode',
       'CodelesslyAutoPlaceholder',
@@ -238,7 +240,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 65);
+    expect(catalog.components.length, 67);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,
@@ -264,12 +266,7 @@ void main() {
       'segmentedButton',
     );
     expect((mappings['mappings'] as Map)['Video']['nodeType'], 'video');
-    for (final name in [
-      'Tabs',
-      'DateTimeInput',
-      'AudioPlayer',
-      'Modal',
-    ]) {
+    for (final name in ['Tabs', 'DateTimeInput', 'AudioPlayer', 'Modal']) {
       expect(
         (mappings['mappings'] as Map)[name]['nodeType'],
         isNull,

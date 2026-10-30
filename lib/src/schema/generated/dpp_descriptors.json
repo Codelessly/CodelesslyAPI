@@ -300,6 +300,36 @@
       "bindable": false
     },
     {
+      "nodeType": "datePicker",
+      "flutterName": "initialDate",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "datePicker",
+      "flutterName": "firstDate",
+      "fieldPath": "properties.firstDate",
+      "group": "Bounds",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "datePicker",
+      "flutterName": "lastDate",
+      "fieldPath": "properties.lastDate",
+      "group": "Bounds",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "divider",
       "flutterName": "color",
       "fieldPath": "properties.color",
@@ -1258,6 +1288,16 @@
       "bindable": false
     },
     {
+      "nodeType": "timePicker",
+      "flutterName": "initialTime",
+      "fieldPath": "value",
+      "group": "State",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
       "nodeType": "variance",
       "flutterName": "currentVariantId",
       "fieldPath": "currentVariantId",
@@ -1408,6 +1448,21 @@
       "nodeType": "chip",
       "flutterName": "autofocus",
       "fieldPath": "properties.autofocus"
+    },
+    {
+      "nodeType": "datePicker",
+      "flutterName": "initialDate",
+      "fieldPath": "value"
+    },
+    {
+      "nodeType": "datePicker",
+      "flutterName": "firstDate",
+      "fieldPath": "properties.firstDate"
+    },
+    {
+      "nodeType": "datePicker",
+      "flutterName": "lastDate",
+      "fieldPath": "properties.lastDate"
     },
     {
       "nodeType": "divider",
@@ -1721,6 +1776,11 @@
       "nodeType": "textField",
       "flutterName": "expands",
       "fieldPath": "properties.expands"
+    },
+    {
+      "nodeType": "timePicker",
+      "flutterName": "initialTime",
+      "fieldPath": "value"
     },
     {
       "nodeType": "video",
