@@ -56,6 +56,31 @@ enum PathCap {
   square,
 }
 
+/// Stores [StrokePath.points] as `{"x", "y"}` maps: Firestore, where pages
+/// are saved, rejects nested arrays. Reads `[x, y]` pairs too.
+class PathPointsConverter
+    implements JsonConverter<List<List<double>>, List<dynamic>> {
+  /// Creates a [PathPointsConverter].
+  const PathPointsConverter();
+
+  @override
+  List<List<double>> fromJson(List<dynamic> json) => [
+    for (final Object? point in json)
+      if (point is Map && point['x'] is num && point['y'] is num)
+        [(point['x'] as num).toDouble(), (point['y'] as num).toDouble()]
+      else if (point is List &&
+          point.length >= 2 &&
+          point[0] is num &&
+          point[1] is num)
+        [(point[0] as num).toDouble(), (point[1] as num).toDouble()],
+  ];
+
+  @override
+  List<dynamic> toJson(List<List<double>> points) => [
+    for (final List<double> point in points) {'x': point[0], 'y': point[1]},
+  ];
+}
+
 /// A line drawn through points inside a node's box: a dotted trail between
 /// level nodes, a connector between cards, a sketch of a route.
 ///
@@ -68,7 +93,9 @@ enum PathCap {
 /// [inFront]) and doesn't take part in layout or taps.
 @JsonSerializable()
 class StrokePath with Equatable, SerializableMixin {
-  /// The points, `[x, y]` each.
+  /// The points, `[x, y]` each. Stored as `{"x", "y"}` maps (see
+  /// [PathPointsConverter]).
+  @PathPointsConverter()
   final List<List<double>> points;
 
   /// How x is measured.
