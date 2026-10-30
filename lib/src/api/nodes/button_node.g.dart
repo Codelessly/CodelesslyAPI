@@ -24,6 +24,9 @@ Map<String, dynamic> _$ButtonNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -161,6 +164,8 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -207,6 +212,8 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'ignorePointer': instance.ignorePointer,
+      'keepAspect': instance.keepAspect,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),

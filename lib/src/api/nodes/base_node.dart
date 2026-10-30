@@ -166,6 +166,20 @@ abstract class BaseNode
   @JsonKey(defaultValue: false)
   bool squeezable = false;
 
+  /// Lets taps, drags and the mouse pass through this node and everything in
+  /// it to what lies under it, so a decorative layer (pieces drawn over a
+  /// board, a glow, a ghost following a drag) doesn't block the controls
+  /// below.
+  @JsonKey(defaultValue: false)
+  bool ignorePointer = false;
+
+  /// The width-to-height ratio the node keeps when the app runs; 0 keeps
+  /// none. The side that stretches (expanded or flexible) decides the size
+  /// and the other follows, so a board that fills the screen's width stays
+  /// square on every phone. A node fixed on both sides keeps its size.
+  @JsonKey(defaultValue: 0)
+  double keepAspect = 0;
+
   /// Whether the node preserves its aspect ratio while resizing.
   bool aspectRatioLock;
 
