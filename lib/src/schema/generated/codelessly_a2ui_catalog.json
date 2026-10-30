@@ -423,6 +423,40 @@
       ],
       "unevaluatedProperties": false
     },
+    "CalendarDatePicker": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CalendarDatePicker"
+            },
+            "value": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "firstDate": {
+                  "type": "string"
+                },
+                "lastDate": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "value"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "Divider": {
       "type": "object",
       "allOf": [
@@ -1615,6 +1649,29 @@
           "required": [
             "component",
             "text"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "TimePickerDialog": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "TimePickerDialog"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "component",
+            "value"
           ]
         }
       ],
@@ -2946,6 +3003,9 @@
           "$ref": "#/components/ChoiceChip"
         },
         {
+          "$ref": "#/components/CalendarDatePicker"
+        },
+        {
           "$ref": "#/components/Divider"
         },
         {
@@ -3052,6 +3112,9 @@
         },
         {
           "$ref": "#/components/Text"
+        },
+        {
+          "$ref": "#/components/TimePickerDialog"
         },
         {
           "$ref": "#/components/CodelesslyVariance"

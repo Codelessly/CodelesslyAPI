@@ -1,0 +1,144 @@
+{
+  "DatePickerNode": {
+    "widget": "CalendarDatePicker",
+    "family": "material",
+    "nodeType": "datePicker",
+    "drift": [
+      {
+        "flutterName": "initialDate",
+        "fieldPath": "value"
+      },
+      {
+        "flutterName": "firstDate",
+        "fieldPath": "properties.firstDate"
+      },
+      {
+        "flutterName": "lastDate",
+        "fieldPath": "properties.lastDate"
+      }
+    ],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "firstDate": {
+              "type": "string"
+            },
+            "lastDate": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "datePicker",
+        "flutterName": "initialDate",
+        "fieldPath": "value",
+        "group": "State",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "datePicker",
+        "flutterName": "firstDate",
+        "fieldPath": "properties.firstDate",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "datePicker",
+        "flutterName": "lastDate",
+        "fieldPath": "properties.lastDate",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CalendarDatePicker": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CalendarDatePicker"
+                },
+                "value": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "properties": {
+                    "firstDate": {
+                      "type": "string"
+                    },
+                    "lastDate": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": [
+                "component",
+                "value"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": "initialDate",
+        "field": "value",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "firstDate",
+        "field": "properties.firstDate",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "lastDate",
+        "field": "properties.lastDate",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      }
+    ]
+  }
+}
