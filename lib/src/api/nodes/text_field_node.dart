@@ -173,6 +173,20 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: TextCapitalizationC.none)
   TextCapitalizationC textCapitalization;
 
+  /// Whether leaving the field (tapping elsewhere) runs its `submitted`
+  /// actions, as well as Enter / the keyboard's done key. Off, only Enter
+  /// submits: a form whose submit validates and moves on shouldn't do so
+  /// because the user tapped another control.
+  @FlutterProp(
+    'submitOnUnfocus',
+    type: 'boolean',
+    group: 'Input',
+    control: 'switch',
+    field: 'properties.submitOnUnfocus',
+  )
+  @JsonKey(defaultValue: true)
+  bool submitOnUnfocus;
+
   /// Whether the field is read-only.
   @FlutterProp('readOnly', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.readOnly')
   bool readOnly;
@@ -280,6 +294,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.enabled = true,
     this.obscureText = false,
     this.textCapitalization = TextCapitalizationC.none,
+    this.submitOnUnfocus = true,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -319,6 +334,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     bool? enabled,
     bool? obscureText,
     TextCapitalizationC? textCapitalization,
+    bool? submitOnUnfocus,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -353,6 +369,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
       textCapitalization: textCapitalization ?? this.textCapitalization,
+      submitOnUnfocus: submitOnUnfocus ?? this.submitOnUnfocus,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -576,6 +593,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   @override
   List<Object?> get props => [
     textCapitalization,
+    submitOnUnfocus,
     autoCorrect,
     autoFocus,
     enableInteractiveSelection,
