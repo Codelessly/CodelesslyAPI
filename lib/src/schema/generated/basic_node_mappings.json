@@ -60,7 +60,7 @@
     },
     "Tabs": {
       "nodeType": "tabs",
-      "bridgeStatus": "partial"
+      "bridgeStatus": "ready"
     },
     "DateTimeInput": {
       "nodeType": "dateTimeInput",
@@ -68,11 +68,11 @@
     },
     "AudioPlayer": {
       "nodeType": "audioPlayer",
-      "bridgeStatus": "partial"
+      "bridgeStatus": "ready"
     },
     "Modal": {
       "nodeType": "modal",
-      "bridgeStatus": "partial"
+      "bridgeStatus": "ready"
     }
   }
 }
