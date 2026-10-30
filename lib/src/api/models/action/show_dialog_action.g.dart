@@ -123,6 +123,7 @@ const _$DialogPresentationEnumMap = {
 const _$DialogAnchorEnumMap = {
   DialogAnchor.none: 'none',
   DialogAnchor.trigger: 'trigger',
+  DialogAnchor.pointer: 'pointer',
 };
 
 const _$DialogPlacementEnumMap = {

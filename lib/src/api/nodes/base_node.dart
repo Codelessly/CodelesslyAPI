@@ -458,6 +458,14 @@ abstract class BaseNode
   /// Available on all nodes, including nodes without blend properties.
   PulseModel? pulse;
 
+  /// Lets the user pick this node up and drop it on a [dropTarget] that
+  /// accepts it. Null when the node can't be dragged. See [DraggableModel].
+  DraggableModel? draggable;
+
+  /// Lets draggable nodes be dropped on this node. Null when it isn't a drop
+  /// target. See [DropTargetModel].
+  DropTargetModel? dropTarget;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
