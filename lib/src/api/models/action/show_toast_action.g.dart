@@ -26,6 +26,7 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.bottomOffsets, {})) json.remove('bottomOffsets');
   if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
+  if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
   if (isJsonDefault(instance.alignment, ToastAlignment.center))
     json.remove('alignment');
@@ -98,6 +99,7 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : EdgeInsetsModel.fromJson(json['padding']),
   maxWidth: (json['maxWidth'] as num?)?.toDouble() ?? 560,
+  minWidth: (json['minWidth'] as num?)?.toDouble() ?? 0,
   messageStyle: json['messageStyle'] == null
       ? null
       : TextStyleModel.fromJson(json['messageStyle'] as Map),
@@ -198,6 +200,7 @@ Map<String, dynamic> _$ShowToastActionToJson(
   'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
   'padding': ?instance.padding?.toJson(),
   'maxWidth': instance.maxWidth,
+  'minWidth': instance.minWidth,
   'messageStyle': ?instance.messageStyle?.toJson(),
   'actionStyle': ?instance.actionStyle?.toJson(),
   'accentColor': ?instance.accentColor?.toJson(),

@@ -211,6 +211,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// The widest the toast grows.
   final double maxWidth;
 
+  /// The narrowest the toast gets (at most the room it has), e.g. 380 with a
+  /// [maxWidth] of 380 for a card that is always 380 wide. 0 (the default)
+  /// hugs the content.
+  final double minWidth;
+
   /// Font, size and color of the message. Unset values follow the app.
   final TextStyleModel? messageStyle;
 
@@ -275,6 +280,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.shadows,
     this.padding,
     this.maxWidth = 560,
+    this.minWidth = 0,
     this.messageStyle,
     this.actionStyle,
     this.accentColor,
@@ -344,6 +350,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     shadows,
     padding,
     maxWidth,
+    minWidth,
     messageStyle,
     actionStyle,
     accentColor,
@@ -397,6 +404,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     EdgeInsetsModel? padding,
     bool clearPadding = false,
     double? maxWidth,
+    double? minWidth,
     TextStyleModel? messageStyle,
     bool clearMessageStyle = false,
     TextStyleModel? actionStyle,
@@ -450,6 +458,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     shadows: clearShadows ? null : shadows ?? this.shadows,
     padding: clearPadding ? null : padding ?? this.padding,
     maxWidth: maxWidth ?? this.maxWidth,
+    minWidth: minWidth ?? this.minWidth,
     messageStyle: clearMessageStyle ? null : messageStyle ?? this.messageStyle,
     actionStyle: clearActionStyle ? null : actionStyle ?? this.actionStyle,
     accentColor: clearAccentColor ? null : accentColor ?? this.accentColor,
