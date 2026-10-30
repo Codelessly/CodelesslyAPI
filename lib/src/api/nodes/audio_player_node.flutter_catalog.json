@@ -19,6 +19,18 @@
       {
         "flutterName": "showControls",
         "fieldPath": "properties.showControls"
+      },
+      {
+        "flutterName": "loop",
+        "fieldPath": "properties.loop"
+      },
+      {
+        "flutterName": "volume",
+        "fieldPath": "properties.volume"
+      },
+      {
+        "flutterName": "background",
+        "fieldPath": "properties.background"
       }
     ],
     "jsonSchema": {
@@ -50,6 +62,15 @@
               "type": "boolean"
             },
             "showControls": {
+              "type": "boolean"
+            },
+            "loop": {
+              "type": "boolean"
+            },
+            "volume": {
+              "type": "number"
+            },
+            "background": {
               "type": "boolean"
             }
           }
@@ -158,6 +179,36 @@
       },
       {
         "nodeType": "audioPlayer",
+        "flutterName": "loop",
+        "fieldPath": "properties.loop",
+        "group": "Playback",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "audioPlayer",
+        "flutterName": "volume",
+        "fieldPath": "properties.volume",
+        "group": "Playback",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "audioPlayer",
+        "flutterName": "background",
+        "fieldPath": "properties.background",
+        "group": "Playback",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "audioPlayer",
         "flutterName": null,
         "flutterParam": null,
         "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
@@ -210,6 +261,15 @@
                       "type": "boolean"
                     },
                     "showControls": {
+                      "type": "boolean"
+                    },
+                    "loop": {
+                      "type": "boolean"
+                    },
+                    "volume": {
+                      "type": "number"
+                    },
+                    "background": {
                       "type": "boolean"
                     }
                   }
@@ -296,6 +356,33 @@
       {
         "parameter": "showControls",
         "field": "properties.showControls",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "loop",
+        "field": "properties.loop",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": "volume",
+        "field": "properties.volume",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": "background",
+        "field": "properties.background",
         "defaultSource": null,
         "testValues": [
           false,
