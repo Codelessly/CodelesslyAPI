@@ -285,6 +285,11 @@ List<BaseNode> sampleNodes() {
       _node('freeformPlaceholder'),
       _node('placeholder'),
       _node('accordion', {'rowColumnType': 'column', 'properties': {}}),
+      _node('modal', {
+        'trigger': 'open',
+        'content': 'body',
+        'children': ['open', 'body'],
+      }),
       _node('external', {'properties': {}}),
       _node('gauge', {
         'gaugeKind': 'radial',

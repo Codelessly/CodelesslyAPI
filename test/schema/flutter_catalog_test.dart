@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 51);
+      expect(annotated.length, 52);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -90,6 +90,7 @@ void main() {
     ),
     'variance_node': ('VarianceNode', 'CodelesslyVariance', 2),
     'accordion_node': ('AccordionNode', 'CodelesslyAccordion', 2),
+    'modal_node': ('ModalNode', 'CodelesslyModal', 3),
     'canvas_node': ('CanvasNode', 'CodelesslyCanvas', 2),
     'progressbar_node': ('ProgressBarNode', 'CodelesslyProgressBar', 2),
     'root_node': ('RootNode', 'CodelesslyRoot', 1),
@@ -240,7 +241,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 68);
+    expect(catalog.components.length, 69);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,
@@ -267,9 +268,17 @@ void main() {
     );
     expect((mappings['mappings'] as Map)['Video']['nodeType'], 'video');
     expect((mappings['mappings'] as Map)['Video']['bridgeStatus'], 'ready');
-    expect((mappings['mappings'] as Map)['AudioPlayer']['nodeType'], 'audioPlayer');
-    expect((mappings['mappings'] as Map)['AudioPlayer']['bridgeStatus'], 'partial');
-    for (final name in ['Tabs', 'DateTimeInput', 'Modal']) {
+    expect(
+      (mappings['mappings'] as Map)['AudioPlayer']['nodeType'],
+      'audioPlayer',
+    );
+    expect(
+      (mappings['mappings'] as Map)['AudioPlayer']['bridgeStatus'],
+      'partial',
+    );
+    expect((mappings['mappings'] as Map)['Modal']['nodeType'], 'modal');
+    expect((mappings['mappings'] as Map)['Modal']['bridgeStatus'], 'partial');
+    for (final name in ['Tabs', 'DateTimeInput']) {
       expect(
         (mappings['mappings'] as Map)[name]['nodeType'],
         isNull,

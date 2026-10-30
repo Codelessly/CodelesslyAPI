@@ -1,0 +1,134 @@
+{
+  "ModalNode": {
+    "widget": "CodelesslyModal",
+    "family": "codelessly",
+    "nodeType": "modal",
+    "drift": [],
+    "jsonSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "trigger": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "dpp": [
+      {
+        "nodeType": "modal",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Scene child ID of the control that opens the modal.",
+        "fieldPath": "trigger",
+        "group": "Content",
+        "control": "child",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "modal",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Scene child ID of the modal body.",
+        "fieldPath": "content",
+        "group": "Content",
+        "control": "child",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "modal",
+        "flutterName": "children",
+        "fieldPath": "children",
+        "group": "Layout",
+        "control": "children",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      }
+    ],
+    "a2ui": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+      "components": {
+        "CodelesslyModal": {
+          "allOf": [
+            {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "component": {
+                  "const": "CodelesslyModal"
+                },
+                "trigger": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentId"
+                },
+                "content": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentId"
+                },
+                "children": {
+                  "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+                }
+              },
+              "required": [
+                "component",
+                "trigger",
+                "content",
+                "children"
+              ]
+            }
+          ],
+          "unevaluatedProperties": false
+        }
+      },
+      "functions": {}
+    },
+    "testMatrix": [
+      {
+        "parameter": null,
+        "note": "Scene child ID of the control that opens the modal.",
+        "field": "trigger",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Scene child ID of the modal body.",
+        "field": "content",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "children",
+        "field": "children",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      }
+    ]
+  }
+}
