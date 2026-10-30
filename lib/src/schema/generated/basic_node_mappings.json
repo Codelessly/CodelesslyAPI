@@ -1,0 +1,78 @@
+{
+  "sourceCatalogId": "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json",
+  "catalogId": "https://codelessly.com/a2ui/catalogs/codelessly/v1/catalog.json",
+  "mappings": {
+    "Text": {
+      "nodeType": "text",
+      "bridgeStatus": "partial"
+    },
+    "Button": {
+      "nodeType": "textButton",
+      "bridgeStatus": "partial"
+    },
+    "Row": {
+      "nodeType": "row",
+      "bridgeStatus": "partial"
+    },
+    "Column": {
+      "nodeType": "column",
+      "bridgeStatus": "partial"
+    },
+    "List": {
+      "nodeType": "listView",
+      "bridgeStatus": "partial"
+    },
+    "Card": {
+      "nodeType": "frame",
+      "bridgeStatus": "partial"
+    },
+    "Image": {
+      "nodeType": "rectangle",
+      "bridgeStatus": "partial"
+    },
+    "Icon": {
+      "nodeType": "icon",
+      "bridgeStatus": "partial"
+    },
+    "Divider": {
+      "nodeType": "divider",
+      "bridgeStatus": "partial"
+    },
+    "TextField": {
+      "nodeType": "textField",
+      "bridgeStatus": "partial"
+    },
+    "CheckBox": {
+      "nodeType": "checkbox",
+      "bridgeStatus": "partial"
+    },
+    "Slider": {
+      "nodeType": "slider",
+      "bridgeStatus": "partial"
+    },
+    "ChoicePicker": {
+      "nodeType": "segmentedButton",
+      "bridgeStatus": "partial"
+    },
+    "Video": {
+      "nodeType": null,
+      "bridgeStatus": "deferred"
+    },
+    "Tabs": {
+      "nodeType": null,
+      "bridgeStatus": "deferred"
+    },
+    "DateTimeInput": {
+      "nodeType": null,
+      "bridgeStatus": "deferred"
+    },
+    "AudioPlayer": {
+      "nodeType": null,
+      "bridgeStatus": "deferred"
+    },
+    "Modal": {
+      "nodeType": null,
+      "bridgeStatus": "deferred"
+    }
+  }
+}
