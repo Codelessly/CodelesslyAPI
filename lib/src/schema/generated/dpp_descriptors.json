@@ -1177,7 +1177,7 @@
     {
       "nodeType": "badge",
       "flutterName": "smallSize",
-      "fieldPath": "properties.smallSize",
+      "fieldPath": "properties.dotSize",
       "group": "Appearance",
       "control": "number",
       "schemaType": "number",
@@ -15920,7 +15920,7 @@
     {
       "nodeType": "badge",
       "flutterName": "smallSize",
-      "fieldPath": "properties.smallSize"
+      "fieldPath": "properties.dotSize"
     },
     {
       "nodeType": "badge",

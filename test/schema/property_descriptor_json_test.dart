@@ -138,7 +138,23 @@ void main() {
       for (final path in addedPaths['badge']!) {
         expect(resolve(json, path), isNotNull, reason: path);
       }
-      expect(resolve(json, 'properties.smallSize'), isNull);
+      final dotSize = descriptors.cast<Map>().singleWhere(
+        (descriptor) =>
+            descriptor['nodeType'] == 'badge' &&
+            descriptor['fieldPath'] == 'properties.dotSize',
+      );
+      expect(dotSize['flutterName'], 'smallSize');
+      expect(
+        descriptors.cast<Map>().where(
+          (descriptor) =>
+              descriptor['nodeType'] == 'badge' &&
+              descriptor['fieldPath'] == 'properties.smallSize',
+        ),
+        isEmpty,
+      );
+      badge.properties.smallSize = 12;
+      expect(resolve(badge.toJson(), 'properties.dotSize'), 12);
+      expect(resolve(badge.toJson(), 'properties.smallSize'), isNull);
     },
   );
 }
