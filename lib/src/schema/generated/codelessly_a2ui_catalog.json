@@ -72,6 +72,42 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyAudioPlayer": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyAudioPlayer"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "autoPlay": {
+                  "type": "boolean"
+                },
+                "showControls": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyAutoPlaceholder": {
       "allOf": [
         {
@@ -2965,6 +3001,9 @@
         },
         {
           "$ref": "#/components/AppBar"
+        },
+        {
+          "$ref": "#/components/CodelesslyAudioPlayer"
         },
         {
           "$ref": "#/components/CodelesslyAutoPlaceholder"

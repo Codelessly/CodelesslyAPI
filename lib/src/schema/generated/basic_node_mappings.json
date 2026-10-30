@@ -67,8 +67,8 @@
       "bridgeStatus": "deferred"
     },
     "AudioPlayer": {
-      "nodeType": null,
-      "bridgeStatus": "deferred"
+      "nodeType": "audioPlayer",
+      "bridgeStatus": "partial"
     },
     "Modal": {
       "nodeType": null,

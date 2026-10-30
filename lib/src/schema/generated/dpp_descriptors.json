@@ -61,6 +61,46 @@
       "bindable": false
     },
     {
+      "nodeType": "audioPlayer",
+      "flutterName": "url",
+      "fieldPath": "properties.url",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "description",
+      "fieldPath": "properties.description",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "showControls",
+      "fieldPath": "properties.showControls",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "autoPlaceholder",
       "flutterName": "ephemeral",
       "fieldPath": "ephemeral",
@@ -1383,6 +1423,26 @@
       "nodeType": "appBar",
       "flutterName": "titleSpacing",
       "fieldPath": "properties.titleSpacing"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "url",
+      "fieldPath": "properties.url"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "description",
+      "fieldPath": "properties.description"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "showControls",
+      "fieldPath": "properties.showControls"
     },
     {
       "nodeType": "badge",
