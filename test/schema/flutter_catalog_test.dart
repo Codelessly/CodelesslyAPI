@@ -133,6 +133,13 @@ void main() {
         );
         expect(field['flutterName'], isNull);
       }
+      for (final nodeType in const {'modal', 'tabs'}) {
+        expect(
+          pairs,
+          isNot(contains((nodeType, 'rotation'))),
+          reason: '$nodeType codec does not serialize rotation',
+        );
+      }
       for (final path in const {
         'fills',
         'strokes',
