@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../mixins.dart';
@@ -9,7 +10,11 @@ part 'freeform_placeholder_node.g.dart';
 
 /// An unselectable node that serves as a placeholder for Freeform nodes.
 /// Related: [AutoPlaceholderNode].
-@FlutterNode('CodelesslyFreeformPlaceholder', family: 'codelessly', nodeType: 'freeformPlaceholder')
+@FlutterNode(
+  'CodelesslyFreeformPlaceholder',
+  family: 'codelessly',
+  nodeType: 'freeformPlaceholder',
+)
 @JsonSerializable()
 class FreeformPlaceholderNode extends DefaultShapeNode
     with ChildrenMixin, PlaceholderMixin, IsolatedMixin {

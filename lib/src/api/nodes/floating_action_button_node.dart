@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -19,7 +20,11 @@ Object? _readLegacyCornerRadius(Map json, String key) =>
 /// FABs come in three types: regular, mini, and extended.
 /// Refer to [FloatingActionButton](https://api.flutter.dev/flutter/material/FloatingActionButton-class.html)
 /// in Flutter for more details.
-@FlutterNode('FloatingActionButton', family: 'material', nodeType: 'floatingActionButton')
+@FlutterNode(
+  'FloatingActionButton',
+  family: 'material',
+  nodeType: 'floatingActionButton',
+)
 @JsonSerializable()
 class FloatingActionButtonNode extends SceneNode
     with CustomPropertiesMixin, FieldsHolder {
@@ -140,25 +145,49 @@ class FloatingActionButtonProperties extends CustomProperties
   /// Elevation of the FAB.
   // Designs saved before 5.0.0 omit this key and used the Material 2 default.
   @JsonKey(defaultValue: 0.0)
-  @FlutterProp('elevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.elevation')
+  @FlutterProp(
+    'elevation',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.elevation',
+  )
   double elevation;
 
   /// Elevation of the FAB when it is focuses.
   // Designs saved before 5.0.0 omit this key and used the Material 2 default.
   @JsonKey(defaultValue: 0.0)
-  @FlutterProp('focusElevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.focusElevation')
+  @FlutterProp(
+    'focusElevation',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.focusElevation',
+  )
   double focusElevation;
 
   /// Elevation of the FAB when it is hovered.
   // Designs saved before 5.0.0 omit this key and used the Material 2 default.
   @JsonKey(defaultValue: 0.0)
-  @FlutterProp('hoverElevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.hoverElevation')
+  @FlutterProp(
+    'hoverElevation',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.hoverElevation',
+  )
   double hoverElevation;
 
   /// Elevation of the FAB when it is highlighted.
   // Designs saved before 5.0.0 omit this key and used the Material 2 default.
   @JsonKey(defaultValue: 0.0)
-  @FlutterProp('highlightElevation', type: 'number', group: 'Appearance', control: 'number', field: 'properties.highlightElevation')
+  @FlutterProp(
+    'highlightElevation',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.highlightElevation',
+  )
   double highlightElevation;
 
   /// Type of the FAB. Mainly refers to its sizes. Extended type includes a

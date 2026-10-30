@@ -8,7 +8,9 @@ class CloseModalAction extends ActionModel {
   /// Reads the parameterless close-modal wire format.
   factory CloseModalAction.fromJson(Map json) {
     if (json.length != 1 || json['type'] != 'closeModal') {
-      throw const FormatException('CloseModalAction expects only type: closeModal');
+      throw const FormatException(
+        'CloseModalAction expects only type: closeModal',
+      );
     }
     return CloseModalAction();
   }
