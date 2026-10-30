@@ -13,11 +13,34 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "visible": {
+          "type": "boolean"
+        },
+        "horizontalFit": {
+          "type": "string"
+        },
+        "verticalFit": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
         "properties": {
           "type": "object",
           "properties": {
             "smooth": {
               "type": "boolean"
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "properties": {
+            "minOpacity": {
+              "type": "number"
+            },
+            "durationMillis": {
+              "type": "integer"
             }
           }
         }
@@ -26,11 +49,83 @@
     "dpp": [
       {
         "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "fieldPath": "visible",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "horizontalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "fieldPath": "verticalFit",
+        "group": "Fit",
+        "control": "fitChips",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "fieldPath": "enabled",
+        "group": "Visibility",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "lineChart",
         "flutterName": "smooth",
         "fieldPath": "properties.smooth",
         "group": "Appearance",
         "control": "switch",
         "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.minOpacity",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "lineChart",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "fieldPath": "pulse.durationMillis",
+        "group": "Effects",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       }
@@ -72,12 +167,72 @@
     },
     "testMatrix": [
       {
+        "parameter": null,
+        "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+        "field": "visible",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+        "field": "horizontalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+        "field": "verticalFit",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+        "field": "enabled",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
         "parameter": "smooth",
         "field": "properties.smooth",
         "defaultSource": null,
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+        "field": "pulse.minOpacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+        "field": "pulse.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       }
     ]

@@ -275,6 +275,9 @@ mixin BlendMixin on BaseNode {
     type: 'number',
     group: 'Appearance',
     control: 'number',
+    bindable: true,
+    flutterParam: false,
+    note: 'Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.',
   )
   late double opacity;
 
@@ -814,6 +817,15 @@ mixin GeometryMixin on BaseNode {
 /// Adds clipping functionality to a node.
 mixin ClipMixin on BaseNode {
   /// Whether to clip contents of the node.
+  @FlutterProp(
+    'clipsContent',
+    type: 'boolean',
+    group: 'Visibility',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly child clip toggle, not a Stack constructor parameter.',
+  )
   late bool clipsContent;
 
   /// Sets the clipping.
