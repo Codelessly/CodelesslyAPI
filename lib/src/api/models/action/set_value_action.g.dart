@@ -125,6 +125,7 @@ const _$ActionTypeEnumMap = {
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.paywall: 'paywall',
   ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(
