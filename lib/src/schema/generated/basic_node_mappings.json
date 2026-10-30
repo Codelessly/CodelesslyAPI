@@ -56,7 +56,7 @@
     },
     "Video": {
       "nodeType": "video",
-      "bridgeStatus": "partial"
+      "bridgeStatus": "ready"
     },
     "Tabs": {
       "nodeType": null,
