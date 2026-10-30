@@ -157,7 +157,11 @@ void main(List<String> args) {
       for (final entry in basicNodeTypes.entries)
         entry.key: {
           'nodeType': entry.value,
-          'bridgeStatus': entry.value == null ? 'deferred' : 'partial',
+          'bridgeStatus': entry.key == 'Video'
+              ? 'ready'
+              : entry.value == null
+              ? 'deferred'
+              : 'partial',
         },
     },
   });

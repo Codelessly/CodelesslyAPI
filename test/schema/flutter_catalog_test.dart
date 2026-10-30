@@ -266,6 +266,7 @@ void main() {
       'segmentedButton',
     );
     expect((mappings['mappings'] as Map)['Video']['nodeType'], 'video');
+    expect((mappings['mappings'] as Map)['Video']['bridgeStatus'], 'ready');
     for (final name in ['Tabs', 'DateTimeInput', 'AudioPlayer', 'Modal']) {
       expect(
         (mappings['mappings'] as Map)[name]['nodeType'],
