@@ -15,6 +15,7 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
     json.remove('duration');
   if (isJsonDefault(instance.intervalMillis, 1000))
     json.remove('intervalMillis');
+  if (isJsonDefault(instance.lookaheadMs, 100)) json.remove('lookaheadMs');
   return json;
 }
 
@@ -30,6 +31,9 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   key: json['key'] as String?,
   duration: (json['duration'] as num?)?.toInt() ?? 1200,
   intervalMillis: (json['intervalMillis'] as num?)?.toInt() ?? 1000,
+  every: json['every'] as String?,
+  runWhen: json['runWhen'] as String?,
+  lookaheadMs: (json['lookaheadMs'] as num?)?.toInt() ?? 100,
 );
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
@@ -41,6 +45,9 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'key': ?instance.key,
       'duration': instance.duration,
       'intervalMillis': instance.intervalMillis,
+      'every': ?instance.every,
+      'runWhen': ?instance.runWhen,
+      'lookaheadMs': instance.lookaheadMs,
     };
 
 const _$TriggerTypeEnumMap = {
@@ -69,4 +76,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.interval: 'interval',
   TriggerType.dragEnd: 'dragEnd',
   TriggerType.keyDown: 'keyDown',
+  TriggerType.clock: 'clock',
 };
