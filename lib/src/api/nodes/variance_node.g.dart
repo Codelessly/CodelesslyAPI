@@ -305,8 +305,13 @@ const _$ScreenBreakpointEnumMap = {
   ScreenBreakpoint.desktop: 'desktop',
 };
 
-VarianceProperties _$VariancePropertiesFromJson(Map json) =>
-    VarianceProperties();
+VarianceProperties _$VariancePropertiesFromJson(Map json) => VarianceProperties(
+  tabletMinWidth: (json['tabletMinWidth'] as num?)?.toDouble(),
+  desktopMinWidth: (json['desktopMinWidth'] as num?)?.toDouble(),
+);
 
 Map<String, dynamic> _$VariancePropertiesToJson(VarianceProperties instance) =>
-    <String, dynamic>{};
+    <String, dynamic>{
+      'tabletMinWidth': ?instance.tabletMinWidth,
+      'desktopMinWidth': ?instance.desktopMinWidth,
+    };
