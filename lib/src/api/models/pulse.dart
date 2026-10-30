@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'pulse.g.dart';
 
@@ -14,9 +15,29 @@ part 'pulse.g.dart';
 @JsonSerializable()
 class PulseModel with Equatable, SerializableMixin {
   /// The opacity, as a fraction of the node's own, at the faint end.
+  @FlutterProp(
+    'minOpacity',
+    type: 'number',
+    group: 'Effects',
+    control: 'number',
+    field: 'pulse.minOpacity',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.',
+  )
   final double minOpacity;
 
   /// How long one fade (faint to full, or back) takes.
+  @FlutterProp(
+    'durationMillis',
+    type: 'integer',
+    group: 'Effects',
+    control: 'number',
+    field: 'pulse.durationMillis',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.',
+  )
   final int durationMillis;
 
   /// Creates a [PulseModel] with the given data.

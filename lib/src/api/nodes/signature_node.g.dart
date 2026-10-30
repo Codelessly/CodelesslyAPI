@@ -195,6 +195,7 @@ SignatureNode _$SignatureNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$SignatureNodeToJson(SignatureNode instance) =>
     <String, dynamic>{
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -212,7 +213,6 @@ Map<String, dynamic> _$SignatureNodeToJson(SignatureNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
