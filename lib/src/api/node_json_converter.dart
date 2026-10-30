@@ -75,6 +75,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'video': VideoNode.fromJson,
       'audioPlayer': AudioPlayerNode.fromJson,
       'datePicker': DatePickerNode.fromJson,
+      'dateTimeInput': DateTimeInputNode.fromJson,
       'timePicker': TimePickerNode.fromJson,
       'divider': DividerNode.fromJson,
       'loadingIndicator': LoadingIndicatorNode.fromJson,

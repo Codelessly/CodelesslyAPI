@@ -200,6 +200,7 @@ List<BaseNode> sampleNodes() {
     EmbeddedVideoNode.empty(),
     VideoNode.empty(),
     DatePickerNode.empty(),
+    DateTimeInputNode.empty(),
     TimePickerNode.empty(),
     ExpansionTileNode.empty(),
     FloatingActionButtonNode.empty(),
