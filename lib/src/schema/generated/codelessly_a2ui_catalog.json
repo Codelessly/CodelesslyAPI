@@ -1629,6 +1629,30 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyTabs": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyTabs"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            }
+          },
+          "required": [
+            "component",
+            "children",
+            "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "TextField": {
       "type": "object",
       "allOf": [
@@ -3179,6 +3203,9 @@
         },
         {
           "$ref": "#/components/TabBar"
+        },
+        {
+          "$ref": "#/components/CodelesslyTabs"
         },
         {
           "$ref": "#/components/TextField"
