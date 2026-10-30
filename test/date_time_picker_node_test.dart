@@ -198,14 +198,73 @@ void main() {
     expect(() => node.toJson(), throwsFormatException);
   });
 
-  test('combined BASIC DateTimeInput maps to the distinct partial bridge', () {
+  test('combined input min/max round trip and enforce each mode', () {
+    for (final entry in [
+      ('date', '2024-02-29', '2024-01-01', '2024-12-31'),
+      ('time', '12:30', '12:30:00', '12:30:59'),
+      (
+        'dateTime',
+        '2024-02-29T12:30:00+02:00',
+        '2024-02-29T10:00:00Z',
+        '2024-02-29T11:00:00Z',
+      ),
+    ]) {
+      final wire = DateTimeInputNode.empty().toJson()
+        ..['mode'] = entry.$1
+        ..['value'] = entry.$2
+        ..['properties'] = {'min': entry.$3, 'max': entry.$4};
+      final node = DateTimeInputNode.fromJson(wire);
+      expect(node.toJson()['properties'], {'min': entry.$3, 'max': entry.$4});
+      expect(
+        node.properties.generateFields().keys,
+        containsAll(['min', 'max']),
+      );
+      expect(
+        node.propertyVariables.map((v) => v.name),
+        containsAll(['min', 'max']),
+      );
+      for (final bad in [
+        {'min': entry.$4, 'max': entry.$3},
+        {'min': entry.$4},
+        {
+          'max': entry.$1 == 'date'
+              ? '2024-01-01'
+              : entry.$1 == 'time'
+              ? '00:00'
+              : '2024-02-29T09:59:59Z',
+        },
+        {'min': 'invalid'},
+      ]) {
+        expect(
+          () => DateTimeInputNode.fromJson({...wire, 'properties': bad}),
+          throwsFormatException,
+        );
+      }
+    }
+    final catalog = jsonDecode(
+      File('lib/src/api/nodes/date_time_input_node.flutter_catalog.json')
+          .readAsStringSync(),
+    ) as Map;
+    expect(catalog.toString(), contains('properties.min'));
+    expect(catalog.toString(), contains('properties.max'));
+    final basic = jsonDecode(
+      File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
+          .readAsStringSync(),
+    ) as Map;
+    final component = (basic['components'] as Map)['DateTimeInput'] as Map;
+    expect(component.toString(), contains('DynamicString'));
+    expect(component.toString(), contains('min'));
+    expect(component.toString(), contains('max'));
+  });
+
+  test('combined BASIC DateTimeInput maps to the distinct ready bridge', () {
     final mappings = jsonDecode(
       File('lib/src/schema/generated/basic_node_mappings.json')
           .readAsStringSync(),
     ) as Map;
     expect((mappings['mappings'] as Map)['DateTimeInput'], {
       'nodeType': 'dateTimeInput',
-      'bridgeStatus': 'partial',
+      'bridgeStatus': 'ready',
     });
   });
 }

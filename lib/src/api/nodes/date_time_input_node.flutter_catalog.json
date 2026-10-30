@@ -15,6 +15,14 @@
       {
         "flutterName": "lastDate",
         "fieldPath": "properties.lastDate"
+      },
+      {
+        "flutterName": "min",
+        "fieldPath": "properties.min"
+      },
+      {
+        "flutterName": "max",
+        "fieldPath": "properties.max"
       }
     ],
     "jsonSchema": {
@@ -37,6 +45,12 @@
               "type": "string"
             },
             "lastDate": {
+              "type": "string"
+            },
+            "min": {
+              "type": "string"
+            },
+            "max": {
               "type": "string"
             }
           }
@@ -93,6 +107,26 @@
         "schemaType": "string",
         "defaultSource": null,
         "bindable": false
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "min",
+        "fieldPath": "properties.min",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "dateTimeInput",
+        "flutterName": "max",
+        "fieldPath": "properties.max",
+        "group": "Bounds",
+        "control": "text",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": true
       }
     ],
     "a2ui": {
@@ -127,6 +161,12 @@
                       "type": "string"
                     },
                     "lastDate": {
+                      "type": "string"
+                    },
+                    "min": {
+                      "type": "string"
+                    },
+                    "max": {
                       "type": "string"
                     }
                   }
@@ -184,6 +224,24 @@
       {
         "parameter": "lastDate",
         "field": "properties.lastDate",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "min",
+        "field": "properties.min",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": "max",
+        "field": "properties.max",
         "defaultSource": null,
         "testValues": [
           "",
