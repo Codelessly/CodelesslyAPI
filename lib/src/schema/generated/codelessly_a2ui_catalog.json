@@ -1173,6 +1173,25 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyPath": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyPath"
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyPlaceholder": {
       "allOf": [
         {
@@ -3158,6 +3177,9 @@
         },
         {
           "$ref": "#/components/PageView"
+        },
+        {
+          "$ref": "#/components/CodelesslyPath"
         },
         {
           "$ref": "#/components/CodelesslyPlaceholder"
