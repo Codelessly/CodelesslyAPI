@@ -72,6 +72,8 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'listTile': ListTileNode.fromJson,
       'embeddedVideo': EmbeddedVideoNode.fromJson,
       'video': VideoNode.fromJson,
+      'datePicker': DatePickerNode.fromJson,
+      'timePicker': TimePickerNode.fromJson,
       'divider': DividerNode.fromJson,
       'loadingIndicator': LoadingIndicatorNode.fromJson,
       'webView': WebViewNode.fromJson,
@@ -128,16 +130,26 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
 
   /// Validates the canonical chart discriminator without reading shape keys.
   static String validateChartWire(Map json, {required String expectedType}) =>
-      _requireKind(json, 'chart', 'chartKind', const {'series', 'plot'}, expectedType);
+      _requireKind(json, 'chart', 'chartKind', const {
+        'series',
+        'plot',
+      }, expectedType);
 
   /// Validates the canonical gauge discriminator without reading shape keys.
   static String validateGaugeWire(Map json, {required String expectedType}) =>
-      _requireKind(json, 'gauge', 'gaugeKind', const {'radial', 'meter'}, expectedType);
+      _requireKind(json, 'gauge', 'gaugeKind', const {
+        'radial',
+        'meter',
+      }, expectedType);
 
   /// Validates the canonical signature coordinate mode without shape guessing.
-  static String validateSignatureWire(Map json, {required String expectedType}) =>
-      _requireKind(json, 'signature', 'signatureKind',
-          const {'strokes', 'normalized'}, expectedType);
+  static String validateSignatureWire(
+    Map json, {
+    required String expectedType,
+  }) => _requireKind(json, 'signature', 'signatureKind', const {
+    'strokes',
+    'normalized',
+  }, expectedType);
 
   @override
   BaseNode? fromJson(Map json) {
@@ -152,8 +164,12 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
     if (pulse is Map) {
       const relativeKeys = {'minOpacity', 'durationMillis'};
       const motionKeys = {
-        'periodMs', 'reverse', 'opacityFrom', 'opacityTo',
-        'scaleFrom', 'scaleTo',
+        'periodMs',
+        'reverse',
+        'opacityFrom',
+        'opacityTo',
+        'scaleFrom',
+        'scaleTo',
       };
       final relative = pulse.keys.any(relativeKeys.contains);
       final motion = pulse.keys.any(motionKeys.contains);

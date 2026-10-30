@@ -184,6 +184,8 @@ List<BaseNode> sampleNodes() {
     DividerNode.empty(),
     EmbeddedVideoNode.empty(),
     VideoNode.empty(),
+    DatePickerNode.empty(),
+    TimePickerNode.empty(),
     ExpansionTileNode.empty(),
     FloatingActionButtonNode.empty(),
     IconNode.empty(),
