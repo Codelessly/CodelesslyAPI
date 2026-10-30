@@ -179,6 +179,9 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
@@ -218,6 +221,7 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'childID': ?instance.childID,
