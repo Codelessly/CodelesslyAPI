@@ -77,4 +77,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.dragEnd: 'dragEnd',
   TriggerType.keyDown: 'keyDown',
   TriggerType.clock: 'clock',
+  TriggerType.reorder: 'reorder',
 };

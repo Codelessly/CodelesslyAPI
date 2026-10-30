@@ -63,4 +63,11 @@ void main() {
       expect(t.angleAt(1), 135);
     });
   });
+
+  test('a reorder handle round-trips and offers the reorder trigger', () {
+    const drag = DragModel(reorder: true);
+    expect(drag.toJson(), {'reorder': true});
+    expect(DragModel.fromJson({'reorder': true}), drag);
+    expect(TriggerType.reorder.prettify, 'Reorder');
+  });
 }
