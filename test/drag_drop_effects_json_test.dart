@@ -99,4 +99,31 @@ void main() {
     expect(p.nonBlocking, isTrue);
     expect(ActionType.playAnimation.prettify, 'Play Animation');
   });
+
+  test('rows and columns keep drag, drop, effects, particles and flight', () {
+    final json = {
+      'id': 'r', 'name': 'R', 'type': 'column',
+      'basicBoxLocal': {'x': 0, 'y': 0, 'width': 80, 'height': 80},
+      'draggable': {'group': 'g'},
+      'dropTarget': {'acceptIf': 'true'},
+      'effectAnimations': [{'name': 'pop', 'type': 'pop'}],
+      'particles': {'count': 5},
+      'flightKey': 'k',
+    };
+    final node = RowColumnNode.fromJson(json);
+    expect(node.draggable!.group, 'g');
+    expect(node.dropTarget!.acceptIf, 'true');
+    expect(node.effectAnimations.single.type, EffectAnimationType.pop);
+    expect(node.particles!.count, 5);
+    expect(node.flightKey, 'k');
+    final again = node.toJson();
+    for (final key in ['draggable', 'dropTarget', 'effectAnimations', 'particles', 'flightKey']) {
+      expect(again.containsKey(key), isTrue, reason: key);
+    }
+  });
+
+  test('a list variable keeps its text items as text', () {
+    final v = VariableData(id: 'p', name: 'p', type: VariableType.list, value: '["", "E", "12", 3, true]');
+    expect(v.getValue(), ['', 'E', '12', 3, true]);
+  });
 }

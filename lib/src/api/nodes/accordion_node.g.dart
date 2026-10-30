@@ -215,6 +215,12 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
           ? null
           : ParticleEmitter.fromJson(json['particles'] as Map)
       ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -264,6 +270,8 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,

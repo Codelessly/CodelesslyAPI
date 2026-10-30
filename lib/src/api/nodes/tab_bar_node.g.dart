@@ -240,6 +240,12 @@ TabBarNode _$TabBarNodeFromJson(Map json) =>
           ? null
           : ParticleEmitter.fromJson(json['particles'] as Map)
       ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
       ..scrollDirection = $enumDecode(_$AxisCEnumMap, json['scrollDirection'])
       ..reverse = json['reverse'] as bool
       ..primary = json['primary'] as bool
@@ -294,6 +300,8 @@ Map<String, dynamic> _$TabBarNodeToJson(
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
