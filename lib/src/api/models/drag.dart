@@ -161,6 +161,14 @@ class DragModel with Equatable, SerializableMixin {
   /// apply then. See [DragTrackModel].
   final DragTrackModel? track;
 
+  /// Makes the node the drag handle of a row in a data list: dragging it
+  /// lifts the row and moves it among the others (the list becomes
+  /// reorderable). Dropping it runs the node's `reorder` reactions with
+  /// `${result.from}` and `${result.to}`, the row's old and new index, so a
+  /// Set Variable can store the new order (`${= move(songs, result.from,
+  /// result.to)}`). The other drag settings don't apply.
+  final bool reorder;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -183,6 +191,7 @@ class DragModel with Equatable, SerializableMixin {
     this.enabled = true,
     this.shakeWhenDisabled = false,
     this.track,
+    this.reorder = false,
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
@@ -232,6 +241,7 @@ class DragModel with Equatable, SerializableMixin {
     bool? shakeWhenDisabled,
     DragTrackModel? track,
     bool clearTrack = false,
+    bool? reorder,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
@@ -248,6 +258,7 @@ class DragModel with Equatable, SerializableMixin {
     enabled: enabled ?? this.enabled,
     shakeWhenDisabled: shakeWhenDisabled ?? this.shakeWhenDisabled,
     track: clearTrack ? null : (track ?? this.track),
+    reorder: reorder ?? this.reorder,
   );
 
   @override
@@ -267,6 +278,7 @@ class DragModel with Equatable, SerializableMixin {
     enabled,
     shakeWhenDisabled,
     track,
+    reorder,
   ];
 
   /// Creates a [DragModel] from JSON.
