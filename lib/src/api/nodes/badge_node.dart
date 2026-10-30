@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -173,6 +174,16 @@ enum BadgeAlignment {
 @JsonSerializable()
 class BadgeProperties extends CustomProperties with FieldsHolder {
   /// Type of badge.
+  @FlutterProp(
+    'badgeType',
+    type: 'string',
+    group: 'Appearance',
+    control: 'select',
+    field: 'properties.badgeType',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted badge kind selected by the editor.',
+  )
   BadgeType badgeType;
 
   /// Label text for label and count badges.
@@ -180,6 +191,16 @@ class BadgeProperties extends CustomProperties with FieldsHolder {
 
   /// Largest count shown as-is by a [BadgeType.count] badge whose [label] is
   /// a number. Larger counts show as `'<maxCount>+'`.
+  @FlutterProp(
+    'maxCount',
+    type: 'integer',
+    group: 'Content',
+    control: 'number',
+    field: 'properties.maxCount',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted count threshold for a count badge.',
+  )
   int maxCount;
 
   /// Badge background color. Defaults to the theme's `colorScheme.error`.
@@ -197,22 +218,61 @@ class BadgeProperties extends CustomProperties with FieldsHolder {
   BadgeAlignment alignment;
 
   /// Horizontal offset of a labeled badge from the aligned position.
+  @FlutterProp(
+    'offsetX',
+    type: 'number',
+    group: 'Layout',
+    control: 'number',
+    field: 'properties.offsetX',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted horizontal badge offset.',
+  )
   double offsetX;
 
   /// Vertical offset of a labeled badge from the aligned position.
+  @FlutterProp(
+    'offsetY',
+    type: 'number',
+    group: 'Layout',
+    control: 'number',
+    field: 'properties.offsetY',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted vertical badge offset.',
+  )
   double offsetY;
 
   /// Whether to show the badge.
-  @FlutterProp('isLabelVisible', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.isLabelVisible')
+  @FlutterProp(
+    'isLabelVisible',
+    type: 'boolean',
+    group: 'Appearance',
+    control: 'switch',
+    field: 'properties.isLabelVisible',
+  )
   bool isLabelVisible;
 
   /// Diameter of a [BadgeType.dot] badge.
   @JsonKey(name: 'dotSize')
-  @FlutterProp('smallSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.smallSize')
+  @FlutterProp(
+    'smallSize',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.dotSize',
+    note: 'Flutter smallSize uses the persisted dotSize JSON name.',
+  )
   double smallSize;
 
   /// Height of a labeled badge, and its minimum width.
-  @FlutterProp('largeSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.largeSize')
+  @FlutterProp(
+    'largeSize',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.largeSize',
+  )
   double largeSize;
 
   /// Padding around the label of label and count badges.

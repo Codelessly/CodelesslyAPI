@@ -289,6 +289,16 @@ mixin BlendMixin on BaseNode {
   late bool isMask;
 
   /// List of effects applied to the node.
+  @FlutterProp(
+    'effects',
+    type: 'array',
+    group: 'Effects',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Serialized node effects; individual shadow fields live in list items.',
+  )
   late List<Effect> effects;
 
   /// Whether to use ink well on this node, along with its properties.
@@ -664,13 +674,40 @@ mixin GeometryMixin on BaseNode {
   /// A list of fills applied to the node. This can be a solid color or a
   /// gradient or an image. Refer [PaintModel.type] for more info on supported
   /// types of fill.
+  @FlutterProp(
+    'fills',
+    type: 'array',
+    group: 'Fill',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized paints; image crop/transform fields live in list items.',
+  )
   late List<PaintModel> fills;
 
   /// A list of strokes applied to the node. Only solid color type of fill is
   /// supported at the moment.
+  @FlutterProp(
+    'strokes',
+    type: 'array',
+    group: 'Stroke',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized stroke paints; item color is not a top-level field.',
+  )
   List<PaintModel> strokes = [];
 
   /// Thickness/weight of the stroke.
+  @FlutterProp(
+    'strokeWeight',
+    type: 'number',
+    group: 'Stroke',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly node stroke width, not a Flutter constructor argument.',
+  )
   double strokeWeight = 0;
 
   /// The limit for miters to be drawn on segments for given stroke join.
@@ -685,6 +722,15 @@ mixin GeometryMixin on BaseNode {
 
   /// The pattern of dashes and gaps to apply to the stroke in case of dashed
   /// stroke.
+  @FlutterProp(
+    'dashPattern',
+    type: 'array',
+    group: 'Stroke',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly stroke dash/gap sequence, serialized as a number array.',
+  )
   late List<double> dashPattern;
 
   /// Side of the shape to apply the stroke to.
@@ -852,12 +898,42 @@ mixin ShapeBorderMixin {
   late CShapeBorder shape;
 
   /// Radius of the corners of the border.
+  @FlutterProp(
+    'cornerRadius',
+    type: 'object',
+    group: 'Appearance',
+    control: 'radius',
+    field: 'properties.cornerRadius',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted property border corner-radius object.',
+  )
   late CornerRadius cornerRadius;
 
   /// Thickness of the border.
+  @FlutterProp(
+    'borderWidth',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.borderWidth',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border width.',
+  )
   double? borderWidth;
 
   /// Color of the border.
+  @FlutterProp(
+    'borderColor',
+    type: 'object',
+    group: 'Appearance',
+    control: 'color',
+    field: 'properties.borderColor',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border color.',
+  )
   ColorRGBA? borderColor;
 
   /// Sets the properties of this mixin.
@@ -913,9 +989,28 @@ mixin ShapeBorderMixin {
 /// rounded corners.
 mixin CornerMixin on BaseNode {
   /// Level of pixel smoothing applied to the corners.
+  @FlutterProp(
+    'cornerSmoothing',
+    type: 'number',
+    group: 'Corners',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly corner smoothing of the serialized node.',
+  )
   late double cornerSmoothing;
 
   /// Radius of the corners of the node.
+  @FlutterProp(
+    'cornerRadius',
+    type: 'object',
+    group: 'Corners',
+    control: 'radius',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Node corner-radius object; corner subfields are not top-level fields.',
+  )
   late CornerRadius cornerRadius;
 
   /// Sets the properties of this mixin.
