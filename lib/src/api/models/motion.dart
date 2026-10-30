@@ -23,7 +23,10 @@ enum MotionCurve {
   easeOutBack,
 
   /// A fast cubic deceleration.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// A gentle sine ease in and out, like a breath.
+  easeInOutSine;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -33,6 +36,7 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.easeInOutSine => 'Sine (breath)',
   };
 }
 
@@ -145,6 +149,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// loop starts, so motions can be staggered.
   final int delayMs;
 
+  /// Gaussian blur of the whole node, in logical pixels (0 is sharp),
+  /// animated like the other values: a label that un-blurs as it fades in,
+  /// with `enterFrom: {"blur": 8, "opacity": 0}`.
+  final double blur;
+
   /// Creates a [MotionModel].
   const MotionModel({
     this.translateX = 0,
@@ -166,6 +175,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.enterFrom,
     this.replayKey,
     this.delayMs = 0,
+    this.blur = 0,
   });
 
   /// No motion at all.
@@ -182,6 +192,9 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX',
     'rotateY',
     'spin',
+    'durationMs',
+    'delayMs',
+    'blur',
   ];
 
   /// The name of the binding that replays the entrance when its value
@@ -199,7 +212,8 @@ class MotionModel with Equatable, SerializableMixin {
       opacity != 1 ||
       rotate != 0 ||
       rotateX != 0 ||
-      rotateY != 0;
+      rotateY != 0 ||
+      blur != 0;
 
   /// Whether the node animates in when it first appears.
   bool get hasEntrance => enter || enterFrom != null;
@@ -216,6 +230,7 @@ class MotionModel with Equatable, SerializableMixin {
       rotate: from.rotate,
       rotateX: from.rotateX,
       rotateY: from.rotateY,
+      blur: from.blur,
     ),
   };
 
@@ -229,6 +244,9 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => rotateX,
     'rotateY' => rotateY,
     'spin' => spin,
+    'durationMs' => durationMs.toDouble(),
+    'delayMs' => delayMs.toDouble(),
+    'blur' => blur,
     _ => throw ArgumentError.value(property, 'property'),
   };
 
@@ -255,6 +273,7 @@ class MotionModel with Equatable, SerializableMixin {
     String? replayKey,
     bool clearReplayKey = false,
     int? delayMs,
+    double? blur,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -275,6 +294,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
+    blur: blur ?? this.blur,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -286,6 +306,7 @@ class MotionModel with Equatable, SerializableMixin {
     rotate: 0,
     rotateX: 0,
     rotateY: 0,
+    blur: 0,
   );
 
   /// Returns a copy with [property] set to [value].
@@ -298,6 +319,11 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => copyWith(rotateX: value),
     'rotateY' => copyWith(rotateY: value),
     'spin' => copyWith(spin: value),
+    // Bound timings: a transition can last as long as a state does (a 4 s
+    // inhale, an 8 s exhale).
+    'durationMs' => copyWith(durationMs: value.round().clamp(0, 600000)),
+    'delayMs' => copyWith(delayMs: value.round().clamp(0, 600000)),
+    'blur' => copyWith(blur: value < 0 ? 0 : value),
     _ => throw ArgumentError.value(property, 'property'),
   };
 
@@ -322,6 +348,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom,
     replayKey,
     delayMs,
+    blur,
   ];
 
   /// Creates a [MotionModel] from JSON.
