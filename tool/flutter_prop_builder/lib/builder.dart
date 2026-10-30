@@ -178,6 +178,13 @@ class _FlutterPropsBuilder implements Builder {
           continue;
         }
         if (cls.name == 'ListTileNode' && entry.key == 'children') continue;
+        // These standalone SceneNode codecs omit BaseNode's getter-backed
+        // rotation altogether (including fromJson). Do not advertise a wire
+        // path that neither Modal nor Tabs can persist.
+        if ((cls.name == 'ModalNode' || cls.name == 'TabsNode') &&
+            entry.key == 'rotation') {
+          continue;
+        }
         if (entry.key == 'ephemeral' &&
             cls.name != 'SinglePlaceholderNode' &&
             cls.name != 'AutoPlaceholderNode')
