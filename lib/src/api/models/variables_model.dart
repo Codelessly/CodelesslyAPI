@@ -236,9 +236,32 @@ class VariableData
           VariableType.decimal => num.tryParse(value).toDouble(),
           VariableType.boolean => bool.tryParse(value, caseSensitive: false),
           VariableType.color => ColorRGBA.fromHex(value),
-          VariableType.map => tryJsonDecode(value),
-          VariableType.list => value.toList(),
+          VariableType.map || VariableType.list => _decoded(),
         };
+
+  /// Decoded lists and maps by variable: [value] is JSON text that every
+  /// read would otherwise parse again, and a screen of bindings reads a
+  /// data list (tens of kilobytes) many times per frame. A variable never
+  /// changes its value (a change makes a new [VariableData]), so the result
+  /// is kept for the instance. Callers copy before they change it.
+  static final Expando<_Decoded> _decodedValues = Expando<_Decoded>();
+
+  Object? _decoded() {
+    final _Decoded? cached = _decodedValues[this];
+    if (cached != null && identical(cached.source, value)) return cached.value;
+    final Object? decoded = type == VariableType.map
+        ? tryJsonDecode(value)
+        : value.toList();
+    _decodedValues[this] = _Decoded(value, decoded);
+    return decoded;
+  }
+}
+
+/// A [VariableData] value decoded from [source].
+class _Decoded {
+  const _Decoded(this.source, this.value);
+  final String source;
+  final Object? value;
 }
 
 /// Whether [value] is exactly one formula, `${= ...}`: a computed
