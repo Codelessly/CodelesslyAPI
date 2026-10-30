@@ -102,7 +102,11 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  keyDown,
+
+  /// A scrolling list, grid, row or column came within a short distance of
+  /// its end (or its content doesn't fill it): load the next page.
+  scrollEnd;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -177,6 +181,8 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.scrollEnd:
+        return 'Reached End';
     }
   }
 }

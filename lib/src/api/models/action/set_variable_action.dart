@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
@@ -86,8 +88,19 @@ class SetVariableAction extends ActionModel
   );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
-  factory SetVariableAction.fromJson(Map json) =>
-      _$SetVariableActionFromJson(json);
+  ///
+  /// [newValue] is text; JSON written by hand often gives `true`, `20` or a
+  /// list instead, which becomes its text (lists and maps as JSON).
+  factory SetVariableAction.fromJson(Map json) {
+    final Object? value = json['newValue'];
+    if (value == null || value is String) {
+      return _$SetVariableActionFromJson(json);
+    }
+    return _$SetVariableActionFromJson({
+      ...json,
+      'newValue': value is List || value is Map ? jsonEncode(value) : '$value',
+    });
+  }
 
   @override
   Map toJson() =>
