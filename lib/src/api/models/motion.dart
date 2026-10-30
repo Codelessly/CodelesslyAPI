@@ -142,8 +142,24 @@ class MotionModel with Equatable, SerializableMixin {
   final String? replayKey;
 
   /// Waits this long, in milliseconds, before a transition, entrance or
-  /// loop starts, so motions can be staggered.
+  /// loop starts, so motions can be staggered. Can be bound through
+  /// `motion.delayMs` in [BaseNode.variables], e.g. `${= index * 80}` to
+  /// stagger the items of a list.
   final int delayMs;
+
+  /// Holds the node where its entrance starts ([enterFrom], or rest) until
+  /// it scrolls into view, then plays the entrance once, over [durationMs]
+  /// after [delayMs]: a section fading up as the page reaches it. "In view"
+  /// is [revealFraction] of the node visible on screen, inside every
+  /// scrollable around it. Implies an entrance: without [enterFrom] or
+  /// [enter] the node fades in from transparent. The design canvas shows
+  /// the node at rest.
+  final bool revealOnScroll;
+
+  /// How much of the node must be visible for a [revealOnScroll] entrance to
+  /// play, from 0 (any pixel) to 1 (all of it, or the whole view for a node
+  /// larger than the view).
+  final double revealFraction;
 
   /// Creates a [MotionModel].
   const MotionModel({
@@ -166,6 +182,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.enterFrom,
     this.replayKey,
     this.delayMs = 0,
+    this.revealOnScroll = false,
+    this.revealFraction = kDefaultVisibleFraction,
   });
 
   /// No motion at all.
@@ -188,6 +206,9 @@ class MotionModel with Equatable, SerializableMixin {
   /// changes; see [replayKey].
   static const String replayKeyProperty = 'replayKey';
 
+  /// The name of the binding that sets [delayMs], in milliseconds.
+  static const String delayMsProperty = 'delayMs';
+
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
 
@@ -201,12 +222,15 @@ class MotionModel with Equatable, SerializableMixin {
       rotateX != 0 ||
       rotateY != 0;
 
-  /// Whether the node animates in when it first appears.
-  bool get hasEntrance => enter || enterFrom != null;
+  /// Whether the node animates in when it first appears (or, with
+  /// [revealOnScroll], when it scrolls into view).
+  bool get hasEntrance => enter || enterFrom != null || revealOnScroll;
 
   /// Where the entrance starts: these settings with the transform of
-  /// [enterFrom], or at rest when there is none.
+  /// [enterFrom], or at rest when there is none. A [revealOnScroll] node
+  /// with no other entrance starts transparent.
   MotionModel get entranceStart => switch (enterFrom) {
+    null when revealOnScroll && !enter => atRest.copyWith(opacity: 0),
     null => atRest,
     MotionModel from => copyWith(
       translateX: from.translateX,
@@ -255,6 +279,8 @@ class MotionModel with Equatable, SerializableMixin {
     String? replayKey,
     bool clearReplayKey = false,
     int? delayMs,
+    bool? revealOnScroll,
+    double? revealFraction,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -275,6 +301,8 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
+    revealOnScroll: revealOnScroll ?? this.revealOnScroll,
+    revealFraction: revealFraction ?? this.revealFraction,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -322,6 +350,8 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom,
     replayKey,
     delayMs,
+    revealOnScroll,
+    revealFraction,
   ];
 
   /// Creates a [MotionModel] from JSON.

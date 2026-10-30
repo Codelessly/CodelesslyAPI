@@ -55,6 +55,18 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// clock, counter or column of numbers doesn't shift as its digits change.
   bool tabularFigures;
 
+  /// The language to highlight the text as, when it shows code: its
+  /// keywords, strings, comments, numbers and so on take the colors of
+  /// [codeTheme], drawn over the text's own style. [SyntaxLanguage.none]
+  /// (the default) shows plain text. Can be bound through
+  /// `variables['codeLanguage']` to a language name (or an alias such as
+  /// `js`, `py` or `sh`), so one code block can follow a language tab.
+  SyntaxLanguage codeLanguage;
+
+  /// The colors of the highlighted tokens when [codeLanguage] is set. Null,
+  /// or a color left null, takes [CodeThemeModel.defaults].
+  CodeThemeModel? codeTheme;
+
   /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -129,6 +141,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.multipleVariables,
     InkWellModel? inkWell,
     this.tabularFigures = false,
+    this.codeLanguage = SyntaxLanguage.none,
+    this.codeTheme,
   }) {
     setTextMixin(
       data: data,
@@ -163,12 +177,14 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TriggerType.dragEnd,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     StringValue(name: 'data', value: data),
+    StringValue(name: 'codeLanguage', value: codeLanguage.name),
     // Overrides the color of every span; set by a binding or condition.
     const ColorValue(name: 'textColor', value: null),
   ];
