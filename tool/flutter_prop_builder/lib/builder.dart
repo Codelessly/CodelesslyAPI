@@ -52,9 +52,18 @@ class _FlutterPropsBuilder implements Builder {
       final annotated = <String, (DartType, Element, ConstantReader)>{};
       void include(InterfaceElement element, {String prefix = ''}) {
         for (final field in element.fields.where((field) => !field.isStatic)) {
-          final name = '$prefix${field.name}';
-          wireTypes[name] = field.type;
           final tag = _annotation(field.metadata.annotations, 'FlutterProp');
+          // Only annotated declarations enter DPP metadata. Resolve their
+          // serialized name, not a Dart member alias (@JsonKey can rename it).
+          final jsonName = tag == null
+              ? field.name
+              : _annotation(
+                      field.metadata.annotations,
+                      'JsonKey',
+                    )?.peek('name')?.stringValue ??
+                    field.name;
+          final name = '$prefix$jsonName';
+          wireTypes[name] = field.type;
           if (tag != null) {
             annotated.putIfAbsent(name, () => (field.type, field, tag));
           }
