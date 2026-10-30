@@ -9,7 +9,12 @@ void main() {
     (GaugeNode.empty(), 'gauge', 'gaugeKind', 'radial'),
     (GaugeMeterNode.empty(), 'gauge', 'gaugeKind', 'meter'),
     (SignatureNode.empty(), 'signature', 'signatureKind', 'strokes'),
-    (SignatureNormalizedNode.empty(), 'signature', 'signatureKind', 'normalized'),
+    (
+      SignatureNormalizedNode.empty(),
+      'signature',
+      'signatureKind',
+      'normalized',
+    ),
   ];
 
   test('all family variants use one canonical type and explicit kind', () {
@@ -28,19 +33,29 @@ void main() {
       final json = node.toJson();
       expect(
         () => converter.fromJson({...json}..remove(key)),
-        throwsA(isA<UnresolvedNodeSchema>().having(
-          (error) => error.reason, 'reason', 'missing-$key',
-        )),
+        throwsA(
+          isA<UnresolvedNodeSchema>().having(
+            (error) => error.reason,
+            'reason',
+            'missing-$key',
+          ),
+        ),
       );
       expect(
         () => converter.fromJson({...json, key: 'future-kind'}),
-        throwsA(isA<UnresolvedNodeSchema>().having(
-          (error) => error.reason, 'reason', 'unknown-$key',
-        )),
+        throwsA(
+          isA<UnresolvedNodeSchema>().having(
+            (error) => error.reason,
+            'reason',
+            'unknown-$key',
+          ),
+        ),
       );
-      final opposite = variants.firstWhere(
-        (candidate) => candidate.$2 == type && candidate.$4 != kind,
-      ).$4;
+      final opposite = variants
+          .firstWhere(
+            (candidate) => candidate.$2 == type && candidate.$4 != kind,
+          )
+          .$4;
       final wrong = {...json, key: opposite};
       expect(
         () => switch (node) {
@@ -52,16 +67,23 @@ void main() {
           SignatureNormalizedNode() => SignatureNormalizedNode.fromJson(wrong),
           _ => throw StateError('Unexpected family node'),
         },
-        throwsA(isA<UnresolvedNodeSchema>().having(
-          (error) => error.reason, 'reason', 'conflicting-$type-kind',
-        )),
+        throwsA(
+          isA<UnresolvedNodeSchema>().having(
+            (error) => error.reason,
+            'reason',
+            'conflicting-$type-kind',
+          ),
+        ),
       );
     }
   });
 
   test('legacy alternate type strings are not registered', () {
     for (final old in [
-      'chartSeries', 'chartPlot', 'gaugeRadial', 'gaugeMeter',
+      'chartSeries',
+      'chartPlot',
+      'gaugeRadial',
+      'gaugeMeter',
       'signatureNormalized',
     ]) {
       expect(NodeJsonConverter.isNodeRegistered(old), isFalse);

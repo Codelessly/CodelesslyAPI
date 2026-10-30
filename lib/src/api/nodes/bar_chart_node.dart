@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -40,7 +41,12 @@ class BarChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 
   /// Index of the highlighted bar, or null to draw every bar at full
   /// strength.
-  @FlutterProp('highlight', type: 'integer', group: 'Selection', control: 'number')
+  @FlutterProp(
+    'highlight',
+    type: 'integer',
+    group: 'Selection',
+    control: 'number',
+  )
   int? highlight;
 
   @override

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -203,16 +204,34 @@ class BadgeProperties extends CustomProperties with FieldsHolder {
   double offsetY;
 
   /// Whether to show the badge.
-  @FlutterProp('isLabelVisible', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.isLabelVisible')
+  @FlutterProp(
+    'isLabelVisible',
+    type: 'boolean',
+    group: 'Appearance',
+    control: 'switch',
+    field: 'properties.isLabelVisible',
+  )
   bool isLabelVisible;
 
   /// Diameter of a [BadgeType.dot] badge.
   @JsonKey(name: 'dotSize')
-  @FlutterProp('smallSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.smallSize')
+  @FlutterProp(
+    'smallSize',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.smallSize',
+  )
   double smallSize;
 
   /// Height of a labeled badge, and its minimum width.
-  @FlutterProp('largeSize', type: 'number', group: 'Appearance', control: 'number', field: 'properties.largeSize')
+  @FlutterProp(
+    'largeSize',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.largeSize',
+  )
   double largeSize;
 
   /// Padding around the label of label and count badges.
