@@ -158,6 +158,17 @@ class VariableData
   /// Whether this variable has a separate [formula] or a formula in [value].
   bool get isComputed => formula.trim().isNotEmpty || isFormulaValue(value);
 
+  /// Names of the parameters of a function variable, in order. A computed
+  /// variable with parameters is a function: formulas call it by name,
+  /// `legalMoves(board, sq)`, and its [formula] computes the result from the
+  /// arguments, read by these names, and any other variable. Empty for every
+  /// other variable.
+  @JsonKey(defaultValue: <String>[])
+  final List<String> parameters;
+
+  /// Whether this variable is a function: a [formula] with [parameters].
+  bool get isFunction => parameters.isNotEmpty && isComputed;
+
   /// Creates a new [VariableData].
   VariableData({
     required this.id,
@@ -166,8 +177,10 @@ class VariableData
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
     this.formula = '',
+    List<String>? parameters,
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
-       extra = extra ?? {};
+       extra = extra ?? {},
+       parameters = parameters ?? const [];
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -179,6 +192,7 @@ class VariableData
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -190,12 +204,13 @@ class VariableData
       type: type ?? this.type,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 
   @override
   // Changes to either the formula or metadata change the variable.
-  List<Object?> get props => [id, name, value, type, formula, extra];
+  List<Object?> get props => [id, name, value, type, formula, parameters, extra];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -218,6 +233,7 @@ class VariableData
     type: type,
     extra: extra,
     formula: formula,
+    parameters: parameters,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -321,6 +337,7 @@ class CanvasVariableData extends VariableData {
     super.value,
     super.extra,
     super.formula,
+    super.parameters,
   });
 
   @override
@@ -334,6 +351,7 @@ class CanvasVariableData extends VariableData {
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -346,6 +364,7 @@ class CanvasVariableData extends VariableData {
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 
@@ -382,6 +401,7 @@ class RuntimeVariableData extends VariableData {
     super.type = VariableType.text,
     super.extra,
     super.formula,
+    super.parameters,
   }) : super(id: id ?? generateId());
 
   @override
@@ -394,6 +414,7 @@ class RuntimeVariableData extends VariableData {
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -405,6 +426,7 @@ class RuntimeVariableData extends VariableData {
       type: type ?? this.type,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 }

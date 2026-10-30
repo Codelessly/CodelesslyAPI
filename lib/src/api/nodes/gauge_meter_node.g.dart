@@ -25,6 +25,9 @@ Map<String, dynamic> _$GaugeMeterNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -174,6 +177,7 @@ GaugeMeterNode _$GaugeMeterNodeFromJson(Map json) =>
             ) ??
             {},
       )
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -186,6 +190,7 @@ GaugeMeterNode _$GaugeMeterNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -217,7 +222,7 @@ GaugeMeterNode _$GaugeMeterNodeFromJson(Map json) =>
 Map<String, dynamic> _$GaugeMeterNodeToJson(GaugeMeterNode instance) =>
     <String, dynamic>{
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'aspectRatioLock': instance.aspectRatioLock,
+      'ignorePointer': instance.ignorePointer,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -234,6 +239,8 @@ Map<String, dynamic> _$GaugeMeterNodeToJson(GaugeMeterNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'keepAspect': instance.keepAspect,
+      'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),

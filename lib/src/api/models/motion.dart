@@ -75,6 +75,22 @@ class MotionModel with Equatable, SerializableMixin {
   /// Uniform scale; 1 is the node's own size.
   final double scale;
 
+  /// Horizontal offset in multiples of the node's own width, added to
+  /// [translateX]: 1 moves it one width right. Lets a layout move by its
+  /// own size whatever size it gets, e.g. a chess piece moved `file` squares
+  /// across a board that stretches to the screen.
+  final double shiftX;
+
+  /// Vertical offset in multiples of the node's own height; see [shiftX].
+  final double shiftY;
+
+  /// Horizontal scale, multiplied with [scale]: stretches the node along its
+  /// width only (an arrow's shaft grown to a distance).
+  final double scaleX;
+
+  /// Vertical scale, multiplied with [scale].
+  final double scaleY;
+
   /// Opacity from 0 (invisible) to 1, animated like the other values, on
   /// top of the node's own opacity.
   final double opacity;
@@ -124,6 +140,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// pulse, a blinking cursor.
   final MotionLoop loop;
 
+  /// How many times a [loop] runs before the node comes to rest; 0 repeats
+  /// forever. With [MotionLoop.reverse] one time is there and back, so a
+  /// shake is a loop of 3 that plays again whenever its values change.
+  final int repeat;
+
   /// Animates from rest (or from [enterFrom]) to these values when the node
   /// first appears, over [durationMs], instead of starting there: a record
   /// sliding out of its sleeve when the screen opens.
@@ -150,6 +171,10 @@ class MotionModel with Equatable, SerializableMixin {
     this.translateX = 0,
     this.translateY = 0,
     this.scale = 1,
+    this.shiftX = 0,
+    this.shiftY = 0,
+    this.scaleX = 1,
+    this.scaleY = 1,
     this.opacity = 1,
     this.rotate = 0,
     this.rotateX = 0,
@@ -162,6 +187,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.spin = 0,
     this.spinRampMs = 800,
     this.loop = MotionLoop.none,
+    this.repeat = 0,
     this.enter = false,
     this.enterFrom,
     this.replayKey,
@@ -176,7 +202,11 @@ class MotionModel with Equatable, SerializableMixin {
   static const List<String> properties = [
     'translateX',
     'translateY',
+    'shiftX',
+    'shiftY',
     'scale',
+    'scaleX',
+    'scaleY',
     'opacity',
     'rotate',
     'rotateX',
@@ -188,6 +218,10 @@ class MotionModel with Equatable, SerializableMixin {
   /// changes; see [replayKey].
   static const String replayKeyProperty = 'replayKey';
 
+  /// The name of the binding that sets [durationMs], e.g. a "piece speed"
+  /// setting chosen by the user.
+  static const String durationProperty = 'durationMs';
+
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
 
@@ -195,7 +229,11 @@ class MotionModel with Equatable, SerializableMixin {
   bool get hasTransform =>
       translateX != 0 ||
       translateY != 0 ||
+      shiftX != 0 ||
+      shiftY != 0 ||
       scale != 1 ||
+      scaleX != 1 ||
+      scaleY != 1 ||
       opacity != 1 ||
       rotate != 0 ||
       rotateX != 0 ||
@@ -211,7 +249,11 @@ class MotionModel with Equatable, SerializableMixin {
     MotionModel from => copyWith(
       translateX: from.translateX,
       translateY: from.translateY,
+      shiftX: from.shiftX,
+      shiftY: from.shiftY,
       scale: from.scale,
+      scaleX: from.scaleX,
+      scaleY: from.scaleY,
       opacity: from.opacity,
       rotate: from.rotate,
       rotateX: from.rotateX,
@@ -223,7 +265,11 @@ class MotionModel with Equatable, SerializableMixin {
   double valueOf(String property) => switch (property) {
     'translateX' => translateX,
     'translateY' => translateY,
+    'shiftX' => shiftX,
+    'shiftY' => shiftY,
     'scale' => scale,
+    'scaleX' => scaleX,
+    'scaleY' => scaleY,
     'opacity' => opacity,
     'rotate' => rotate,
     'rotateX' => rotateX,
@@ -236,7 +282,11 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel copyWith({
     double? translateX,
     double? translateY,
+    double? shiftX,
+    double? shiftY,
     double? scale,
+    double? scaleX,
+    double? scaleY,
     double? opacity,
     double? rotate,
     double? rotateX,
@@ -249,6 +299,7 @@ class MotionModel with Equatable, SerializableMixin {
     double? spin,
     int? spinRampMs,
     MotionLoop? loop,
+    int? repeat,
     bool? enter,
     MotionModel? enterFrom,
     bool clearEnterFrom = false,
@@ -258,7 +309,11 @@ class MotionModel with Equatable, SerializableMixin {
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
+    shiftX: shiftX ?? this.shiftX,
+    shiftY: shiftY ?? this.shiftY,
     scale: scale ?? this.scale,
+    scaleX: scaleX ?? this.scaleX,
+    scaleY: scaleY ?? this.scaleY,
     opacity: opacity ?? this.opacity,
     rotate: rotate ?? this.rotate,
     rotateX: rotateX ?? this.rotateX,
@@ -271,6 +326,7 @@ class MotionModel with Equatable, SerializableMixin {
     spin: spin ?? this.spin,
     spinRampMs: spinRampMs ?? this.spinRampMs,
     loop: loop ?? this.loop,
+    repeat: repeat ?? this.repeat,
     enter: enter ?? this.enter,
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
@@ -281,7 +337,11 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel get atRest => copyWith(
     translateX: 0,
     translateY: 0,
+    shiftX: 0,
+    shiftY: 0,
     scale: 1,
+    scaleX: 1,
+    scaleY: 1,
     opacity: 1,
     rotate: 0,
     rotateX: 0,
@@ -292,7 +352,11 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel withValue(String property, double value) => switch (property) {
     'translateX' => copyWith(translateX: value),
     'translateY' => copyWith(translateY: value),
+    'shiftX' => copyWith(shiftX: value),
+    'shiftY' => copyWith(shiftY: value),
     'scale' => copyWith(scale: value),
+    'scaleX' => copyWith(scaleX: value),
+    'scaleY' => copyWith(scaleY: value),
     'opacity' => copyWith(opacity: value.clamp(0, 1).toDouble()),
     'rotate' => copyWith(rotate: value),
     'rotateX' => copyWith(rotateX: value),
@@ -305,7 +369,11 @@ class MotionModel with Equatable, SerializableMixin {
   List<Object?> get props => [
     translateX,
     translateY,
+    shiftX,
+    shiftY,
     scale,
+    scaleX,
+    scaleY,
     opacity,
     rotate,
     rotateX,
@@ -318,6 +386,7 @@ class MotionModel with Equatable, SerializableMixin {
     spin,
     spinRampMs,
     loop,
+    repeat,
     enter,
     enterFrom,
     replayKey,
