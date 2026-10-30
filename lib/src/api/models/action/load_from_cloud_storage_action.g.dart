@@ -116,6 +116,7 @@ const _$ActionTypeEnumMap = {
   ActionType.controlDrag: 'controlDrag',
   ActionType.speak: 'speak',
   ActionType.focusField: 'focusField',
+  ActionType.scrollTo: 'scrollTo',
 };
 
 const _$QueryPagingEnumMap = {

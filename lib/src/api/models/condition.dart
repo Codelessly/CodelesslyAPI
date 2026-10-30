@@ -794,6 +794,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [FocusFieldAction].
   R? visitFocusFieldAction(FocusFieldAction action);
 
+  /// Visits a [ScrollToAction].
+  R? visitScrollToAction(ScrollToAction action);
+
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);
 

@@ -9,6 +9,7 @@ export 'action/copy_to_clipboard_action.dart';
 export 'action/control_drag_action.dart';
 export 'action/speak_action.dart';
 export 'action/focus_field_action.dart';
+export 'action/scroll_to_action.dart';
 export 'action/paywall_action.dart';
 export 'action/for_each_action.dart';
 export 'action/call_function_action.dart';

@@ -82,7 +82,10 @@ enum ActionType {
   speak,
 
   /// Focuses a text field; see [FocusFieldAction].
-  focusField;
+  focusField,
+
+  /// Scrolls a node into view; see [ScrollToAction].
+  scrollTo;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -141,6 +144,8 @@ enum ActionType {
         return 'Speak';
       case ActionType.focusField:
         return 'Focus Field';
+      case ActionType.scrollTo:
+        return 'Scroll To';
     }
   }
 }
@@ -244,6 +249,8 @@ abstract class ActionModel with SerializableMixin {
         return SpeakAction.fromJson(json);
       case ActionType.focusField:
         return FocusFieldAction.fromJson(json);
+      case ActionType.scrollTo:
+        return ScrollToAction.fromJson(json);
     }
   }
 
