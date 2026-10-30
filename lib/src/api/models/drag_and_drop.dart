@@ -286,7 +286,8 @@ class DropTargetModel with Equatable, SerializableMixin {
   ];
 
   /// Creates a [DropTargetModel] from JSON data.
-  factory DropTargetModel.fromJson(Map json) => _$DropTargetModelFromJson(json);
+  factory DropTargetModel.fromJson(Map json) =>
+      _$DropTargetModelFromJson(json);
 
   @override
   Map toJson() =>
@@ -306,8 +307,7 @@ extension AvailableTriggerTypes on ReactionMixin {
           !own.contains(TriggerType.secondaryClick))
         TriggerType.secondaryClick,
       if (self is BaseNode && self.draggable != null) ...TriggerType.dragSource,
-      if (self is BaseNode && self.dropTarget != null)
-        ...TriggerType.dropTarget,
+      if (self is BaseNode && self.dropTarget != null) ...TriggerType.dropTarget,
     ];
   }
 }

@@ -1,7 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
-
 import 'package:equatable/equatable.dart';
 
 import '../field_access.dart';
@@ -192,13 +190,7 @@ class TabBarProperties extends CustomProperties with FieldsHolder {
   ColorRGBA indicatorColor;
 
   /// The thickness of the tab indicator.
-  @FlutterProp(
-    'indicatorWeight',
-    type: 'number',
-    group: 'Indicator',
-    control: 'number',
-    field: 'properties.indicatorWeight',
-  )
+  @FlutterProp('indicatorWeight', type: 'number', group: 'Indicator', control: 'number', field: 'properties.indicatorWeight')
   double indicatorWeight;
 
   /// The size of the tab indicator.

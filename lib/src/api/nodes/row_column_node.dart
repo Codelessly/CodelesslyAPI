@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -167,19 +166,12 @@ class RowColumnNode extends ParentNode
     final kind = switch (json['type']) {
       'row' => RowColumnType.row,
       'column' => RowColumnType.column,
-      _ => throw FormatException(
-        'Unknown row/column wire type: ${json['type']}',
-      ),
+      _ => throw FormatException('Unknown row/column wire type: ${json['type']}'),
     };
     if (json['rowColumnType'] != null && json['rowColumnType'] != kind.name) {
-      throw FormatException(
-        'Conflicting row/column axis: ${json['rowColumnType']}',
-      );
+      throw FormatException('Conflicting row/column axis: ${json['rowColumnType']}');
     }
-    final value = _$RowColumnNodeFromJson({
-      ...json,
-      'rowColumnType': kind.name,
-    });
+    final value = _$RowColumnNodeFromJson({...json, 'rowColumnType': kind.name});
     return kind == RowColumnType.row
         ? RowNode.fromRowColumn(value)
         : ColumnNode.fromRowColumn(value);
@@ -188,9 +180,7 @@ class RowColumnNode extends ParentNode
   /// Returns a new concrete Flutter class for a changed layout axis.
   /// No retired wire value is decoded or inferred from child shape.
   RowColumnNode withAxis(RowColumnType axis) => RowColumnNode.fromJson({
-    ...toJson(),
-    'type': axis.name,
-    'rowColumnType': axis.name,
+    ...toJson(), 'type': axis.name, 'rowColumnType': axis.name,
   });
 
   @override
@@ -208,114 +198,53 @@ class RowColumnNode extends ParentNode
 @FlutterNode('Row', family: 'widgets', nodeType: 'row')
 class RowNode extends RowColumnNode {
   /// Creates a row with shared row/column layout properties.
-  RowNode({
-    required super.id,
-    required super.name,
-    required super.basicBoxLocal,
-    required super.children,
-    super.mainAxisAlignment,
-    super.crossAxisAlignment,
-    super.spacing,
-    super.wrap,
-    super.runSpacing,
-    super.outerBoxLocal,
-    super.retainedOuterBoxLocal,
-    super.visible,
-    super.enabled,
-    super.rotationDegrees,
-    super.alignment,
-    super.margin,
-    super.padding,
-    super.horizontalFit,
-    super.verticalFit,
-    super.flex,
-    super.constraints,
-    super.edgePins,
-    super.aspectRatioLock,
-    super.positioningMode,
-    super.opacity,
-    super.isMask,
-    super.effects,
-    super.blendMode,
-    super.fills,
-    super.strokes,
-    super.strokeWeight,
-    super.strokeMiterLimit,
-    super.strokeAlign,
-    super.strokeCap,
-    super.dashPattern,
-    super.strokeSide,
-    super.reactions,
-    super.parentID,
-    super.clipsContent,
-    super.cornerRadius,
-    super.cornerSmoothing,
-    super.isScrollable,
-    super.reverse,
-    super.physics,
-    super.primary,
-    super.shrinkWrap,
-    super.keyboardDismissBehavior,
-    super.useFlutterListView,
-    super.shouldAlwaysScroll,
-  }) : super(rowColumnType: RowColumnType.row);
+  RowNode({required super.id, required super.name, required super.basicBoxLocal,
+    required super.children, super.mainAxisAlignment, super.crossAxisAlignment,
+    super.spacing, super.wrap, super.runSpacing,
+    super.outerBoxLocal, super.retainedOuterBoxLocal, super.visible, super.enabled,
+    super.rotationDegrees, super.alignment, super.margin, super.padding,
+    super.horizontalFit, super.verticalFit, super.flex, super.constraints,
+    super.edgePins, super.aspectRatioLock, super.positioningMode, super.opacity,
+    super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
+    super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
+    super.dashPattern, super.strokeSide, super.reactions, super.parentID,
+    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.isScrollable, super.reverse, super.physics, super.primary,
+    super.shrinkWrap, super.keyboardDismissBehavior,
+    super.useFlutterListView, super.shouldAlwaysScroll})
+      : super(rowColumnType: RowColumnType.row);
 
   /// Restores a row from canonical JSON.
   factory RowNode.fromJson(Map json) {
-    if (json['type'] != 'row')
-      throw const FormatException('Expected row wire type');
+    if (json['type'] != 'row') throw const FormatException('Expected row wire type');
     return RowColumnNode.fromJson(json) as RowNode;
   }
 
   RowNode.fromRowColumn(RowColumnNode source)
-    : super(
-        id: source.id,
-        name: source.name,
-        basicBoxLocal: source.basicBoxLocal,
-        children: source.childrenOrEmpty,
-        rowColumnType: RowColumnType.row,
-        mainAxisAlignment: source.mainAxisAlignment,
-        crossAxisAlignment: source.crossAxisAlignment,
-        spacing: source.spacing,
-        wrap: source.wrap,
-        runSpacing: source.runSpacing,
-        visible: source.visible,
-        enabled: source.enabled,
-        rotationDegrees: source.rotationDegrees,
-        alignment: source.alignment,
-        margin: source.margin,
-        padding: source.padding,
-        horizontalFit: source.horizontalFit,
-        verticalFit: source.verticalFit,
-        flex: source.flex,
-        constraints: source.constraints,
-        edgePins: source.edgePins,
-        aspectRatioLock: source.aspectRatioLock,
-        positioningMode: source.positioningMode,
-        opacity: source.opacity,
-        isMask: source.isMask,
-        effects: source.effects,
-        blendMode: source.blendMode,
-        fills: source.fills,
-        strokes: source.strokes,
-        strokeWeight: source.strokeWeight,
-        strokeMiterLimit: source.strokeMiterLimit,
-        strokeAlign: source.strokeAlign,
-        strokeCap: source.strokeCap,
-        dashPattern: source.dashPattern,
-        strokeSide: source.strokeSide,
-        reactions: source.reactions,
-        clipsContent: source.clipsContent,
-        cornerRadius: source.cornerRadius,
-        cornerSmoothing: source.cornerSmoothing,
-        isScrollable: source.isScrollable,
-        reverse: source.reverse,
-        physics: source.physics,
-        primary: source.primary,
-        keyboardDismissBehavior: source.keyboardDismissBehavior,
-        useFlutterListView: source.useFlutterListView,
-        shouldAlwaysScroll: source.shouldAlwaysScroll,
-      ) {
+    : super(id: source.id, name: source.name, basicBoxLocal: source.basicBoxLocal,
+      children: source.childrenOrEmpty, rowColumnType: RowColumnType.row,
+      mainAxisAlignment: source.mainAxisAlignment,
+      crossAxisAlignment: source.crossAxisAlignment,
+      spacing: source.spacing, wrap: source.wrap, runSpacing: source.runSpacing,
+      visible: source.visible, enabled: source.enabled,
+      rotationDegrees: source.rotationDegrees, alignment: source.alignment,
+      margin: source.margin, padding: source.padding,
+      horizontalFit: source.horizontalFit, verticalFit: source.verticalFit,
+      flex: source.flex, constraints: source.constraints,
+      edgePins: source.edgePins, aspectRatioLock: source.aspectRatioLock,
+      positioningMode: source.positioningMode, opacity: source.opacity,
+      isMask: source.isMask, effects: source.effects, blendMode: source.blendMode,
+      fills: source.fills, strokes: source.strokes,
+      strokeWeight: source.strokeWeight, strokeMiterLimit: source.strokeMiterLimit,
+      strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
+      dashPattern: source.dashPattern, strokeSide: source.strokeSide,
+      reactions: source.reactions, clipsContent: source.clipsContent,
+      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      isScrollable: source.isScrollable, reverse: source.reverse,
+      physics: source.physics, primary: source.primary,
+      keyboardDismissBehavior: source.keyboardDismissBehavior,
+      useFlutterListView: source.useFlutterListView,
+      shouldAlwaysScroll: source.shouldAlwaysScroll) {
     _copyRowState(source, this);
   }
 }
@@ -324,114 +253,53 @@ class RowNode extends RowColumnNode {
 @FlutterNode('Column', family: 'widgets', nodeType: 'column')
 class ColumnNode extends RowColumnNode {
   /// Creates a column with shared row/column layout properties.
-  ColumnNode({
-    required super.id,
-    required super.name,
-    required super.basicBoxLocal,
-    required super.children,
-    super.mainAxisAlignment,
-    super.crossAxisAlignment,
-    super.spacing,
-    super.wrap,
-    super.runSpacing,
-    super.outerBoxLocal,
-    super.retainedOuterBoxLocal,
-    super.visible,
-    super.enabled,
-    super.rotationDegrees,
-    super.alignment,
-    super.margin,
-    super.padding,
-    super.horizontalFit,
-    super.verticalFit,
-    super.flex,
-    super.constraints,
-    super.edgePins,
-    super.aspectRatioLock,
-    super.positioningMode,
-    super.opacity,
-    super.isMask,
-    super.effects,
-    super.blendMode,
-    super.fills,
-    super.strokes,
-    super.strokeWeight,
-    super.strokeMiterLimit,
-    super.strokeAlign,
-    super.strokeCap,
-    super.dashPattern,
-    super.strokeSide,
-    super.reactions,
-    super.parentID,
-    super.clipsContent,
-    super.cornerRadius,
-    super.cornerSmoothing,
-    super.isScrollable,
-    super.reverse,
-    super.physics,
-    super.primary,
-    super.shrinkWrap,
-    super.keyboardDismissBehavior,
-    super.useFlutterListView,
-    super.shouldAlwaysScroll,
-  }) : super(rowColumnType: RowColumnType.column);
+  ColumnNode({required super.id, required super.name, required super.basicBoxLocal,
+    required super.children, super.mainAxisAlignment, super.crossAxisAlignment,
+    super.spacing, super.wrap, super.runSpacing,
+    super.outerBoxLocal, super.retainedOuterBoxLocal, super.visible, super.enabled,
+    super.rotationDegrees, super.alignment, super.margin, super.padding,
+    super.horizontalFit, super.verticalFit, super.flex, super.constraints,
+    super.edgePins, super.aspectRatioLock, super.positioningMode, super.opacity,
+    super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
+    super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
+    super.dashPattern, super.strokeSide, super.reactions, super.parentID,
+    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.isScrollable, super.reverse, super.physics, super.primary,
+    super.shrinkWrap, super.keyboardDismissBehavior,
+    super.useFlutterListView, super.shouldAlwaysScroll})
+      : super(rowColumnType: RowColumnType.column);
 
   /// Restores a column from canonical JSON.
   factory ColumnNode.fromJson(Map json) {
-    if (json['type'] != 'column')
-      throw const FormatException('Expected column wire type');
+    if (json['type'] != 'column') throw const FormatException('Expected column wire type');
     return RowColumnNode.fromJson(json) as ColumnNode;
   }
 
   ColumnNode.fromRowColumn(RowColumnNode source)
-    : super(
-        id: source.id,
-        name: source.name,
-        basicBoxLocal: source.basicBoxLocal,
-        children: source.childrenOrEmpty,
-        rowColumnType: RowColumnType.column,
-        mainAxisAlignment: source.mainAxisAlignment,
-        crossAxisAlignment: source.crossAxisAlignment,
-        spacing: source.spacing,
-        wrap: source.wrap,
-        runSpacing: source.runSpacing,
-        visible: source.visible,
-        enabled: source.enabled,
-        rotationDegrees: source.rotationDegrees,
-        alignment: source.alignment,
-        margin: source.margin,
-        padding: source.padding,
-        horizontalFit: source.horizontalFit,
-        verticalFit: source.verticalFit,
-        flex: source.flex,
-        constraints: source.constraints,
-        edgePins: source.edgePins,
-        aspectRatioLock: source.aspectRatioLock,
-        positioningMode: source.positioningMode,
-        opacity: source.opacity,
-        isMask: source.isMask,
-        effects: source.effects,
-        blendMode: source.blendMode,
-        fills: source.fills,
-        strokes: source.strokes,
-        strokeWeight: source.strokeWeight,
-        strokeMiterLimit: source.strokeMiterLimit,
-        strokeAlign: source.strokeAlign,
-        strokeCap: source.strokeCap,
-        dashPattern: source.dashPattern,
-        strokeSide: source.strokeSide,
-        reactions: source.reactions,
-        clipsContent: source.clipsContent,
-        cornerRadius: source.cornerRadius,
-        cornerSmoothing: source.cornerSmoothing,
-        isScrollable: source.isScrollable,
-        reverse: source.reverse,
-        physics: source.physics,
-        primary: source.primary,
-        keyboardDismissBehavior: source.keyboardDismissBehavior,
-        useFlutterListView: source.useFlutterListView,
-        shouldAlwaysScroll: source.shouldAlwaysScroll,
-      ) {
+    : super(id: source.id, name: source.name, basicBoxLocal: source.basicBoxLocal,
+      children: source.childrenOrEmpty, rowColumnType: RowColumnType.column,
+      mainAxisAlignment: source.mainAxisAlignment,
+      crossAxisAlignment: source.crossAxisAlignment,
+      spacing: source.spacing, wrap: source.wrap, runSpacing: source.runSpacing,
+      visible: source.visible, enabled: source.enabled,
+      rotationDegrees: source.rotationDegrees, alignment: source.alignment,
+      margin: source.margin, padding: source.padding,
+      horizontalFit: source.horizontalFit, verticalFit: source.verticalFit,
+      flex: source.flex, constraints: source.constraints,
+      edgePins: source.edgePins, aspectRatioLock: source.aspectRatioLock,
+      positioningMode: source.positioningMode, opacity: source.opacity,
+      isMask: source.isMask, effects: source.effects, blendMode: source.blendMode,
+      fills: source.fills, strokes: source.strokes,
+      strokeWeight: source.strokeWeight, strokeMiterLimit: source.strokeMiterLimit,
+      strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
+      dashPattern: source.dashPattern, strokeSide: source.strokeSide,
+      reactions: source.reactions, clipsContent: source.clipsContent,
+      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      isScrollable: source.isScrollable, reverse: source.reverse,
+      physics: source.physics, primary: source.primary,
+      keyboardDismissBehavior: source.keyboardDismissBehavior,
+      useFlutterListView: source.useFlutterListView,
+      shouldAlwaysScroll: source.shouldAlwaysScroll) {
     _copyRowState(source, this);
   }
 }

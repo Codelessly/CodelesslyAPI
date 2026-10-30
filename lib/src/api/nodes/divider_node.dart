@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -150,48 +149,24 @@ class DividerNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
 @JsonSerializable()
 class DividerProperties extends CustomProperties with FieldsHolder {
   /// Color of the divider.
-  @FlutterProp(
-    'color',
-    type: 'object',
-    group: 'Appearance',
-    control: 'color',
-    field: 'properties.color',
-  )
+  @FlutterProp('color', type: 'object', group: 'Appearance', control: 'color', field: 'properties.color')
   ColorRGBA color;
 
   /// Start indent of the divider. Refers to space of left for horizontal
   /// divider and top for vertical divider.
-  @FlutterProp(
-    'indent',
-    type: 'number',
-    group: 'Layout',
-    control: 'number',
-    field: 'properties.indent',
-  )
+  @FlutterProp('indent', type: 'number', group: 'Layout', control: 'number', field: 'properties.indent')
   double indent;
 
   /// End indent of the divider. Refers to space of right for horizontal
   /// divider and bottom for vertical divider.
-  @FlutterProp(
-    'endIndent',
-    type: 'number',
-    group: 'Layout',
-    control: 'number',
-    field: 'properties.endIndent',
-  )
+  @FlutterProp('endIndent', type: 'number', group: 'Layout', control: 'number', field: 'properties.endIndent')
   double endIndent;
 
   /// Whether this is a vertical divider.
   bool isVertical;
 
   /// Thickness of the diving line.
-  @FlutterProp(
-    'thickness',
-    type: 'number',
-    group: 'Layout',
-    control: 'number',
-    field: 'properties.thickness',
-  )
+  @FlutterProp('thickness', type: 'number', group: 'Layout', control: 'number', field: 'properties.thickness')
   double thickness;
 
   /// Creates a [DividerProperties] with the given data.
