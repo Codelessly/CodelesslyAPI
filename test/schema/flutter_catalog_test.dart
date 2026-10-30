@@ -91,6 +91,7 @@ void main() {
         'visible',
         'enabled',
         'clipsContent',
+        'opacity',
         'horizontalFit',
         'verticalFit',
         'transition.durationMillis',
@@ -117,6 +118,7 @@ void main() {
     expect(fields.keys, containsAll(['component', 'children']));
     expect(fields.keys, isNot(contains('isScrollable')));
     expect(fields.keys, isNot(contains('scrollDirection')));
+    expect(fields.keys, isNot(contains('opacity')));
   });
 
   test('DateTimeInput is correctly cataloged as a custom widget', () {

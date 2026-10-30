@@ -131,12 +131,13 @@ class _FlutterPropsBuilder implements Builder {
             cls.name != 'AutoPlaceholderNode')
           continue;
         if (entry.key == 'flex' && cls.name != 'SpacerNode') continue;
-        if (entry.key == 'opacity' && cls.name != 'RectangleNode') continue;
         final field = entry.value.$1;
         final tag = entry.value.$2;
         final flutterName = tag.read('name').stringValue;
         final isFlutterParam = tag.peek('flutterParam')?.boolValue ?? true;
-        final isA2ui = tag.peek('a2ui')?.boolValue ?? true;
+        final isA2ui =
+            (tag.peek('a2ui')?.boolValue ?? true) &&
+            (entry.key != 'opacity' || cls.name == 'RectangleNode');
         final note = tag.peek('note')?.stringValue;
         if (!isFlutterParam && (note == null || note.isEmpty)) {
           throw InvalidGenerationSourceError(
