@@ -8,6 +8,9 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "tabularFigures": {
+          "type": "boolean"
+        },
         "visible": {
           "type": "boolean"
         },
@@ -20,14 +23,38 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "opacity": {
           "type": "number"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
         "data": {
           "type": "string"
         },
+        "textMixedProps": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "textAlignHorizontal": {
+          "type": "string"
+        },
         "maxLines": {
           "type": "integer"
+        },
+        "overflow": {
+          "type": "string"
         },
         "softWrap": {
           "type": "boolean"
@@ -74,6 +101,18 @@
       }
     },
     "dpp": [
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly text digit-width option on the serialized text node.",
+        "fieldPath": "tabularFigures",
+        "group": "Text",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
       {
         "nodeType": "text",
         "flutterName": null,
@@ -126,6 +165,30 @@
         "nodeType": "text",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "fieldPath": "opacity",
         "group": "Appearance",
@@ -133,6 +196,18 @@
         "schemaType": "number",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "fieldPath": "effects",
+        "group": "Effects",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "text",
@@ -146,11 +221,47 @@
       },
       {
         "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized rich-text runs; font size, family, weight, color and links are nested in each run.",
+        "fieldPath": "textMixedProps",
+        "group": "Typography",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly persisted horizontal text alignment, not textAlign alias.",
+        "fieldPath": "textAlignHorizontal",
+        "group": "Typography",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
         "flutterName": "maxLines",
         "fieldPath": "maxLines",
         "group": "Text",
         "control": "number",
         "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly TextOverflowC persisted choice; not a string alias.",
+        "fieldPath": "overflow",
+        "group": "Text",
+        "control": "select",
+        "schemaType": "string",
         "defaultSource": null,
         "bindable": false
       },
@@ -301,6 +412,16 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly text digit-width option on the serialized text node.",
+        "field": "tabularFigures",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
         "field": "visible",
         "defaultSource": null,
@@ -341,6 +462,26 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "field": "opacity",
         "defaultSource": null,
@@ -350,8 +491,42 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "field": "effects",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
         "parameter": "data",
         "field": "data",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized rich-text runs; font size, family, weight, color and links are nested in each run.",
+        "field": "textMixedProps",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly persisted horizontal text alignment, not textAlign alias.",
+        "field": "textAlignHorizontal",
         "defaultSource": null,
         "testValues": [
           "",
@@ -365,6 +540,16 @@
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly TextOverflowC persisted choice; not a string alias.",
+        "field": "overflow",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
         ]
       },
       {

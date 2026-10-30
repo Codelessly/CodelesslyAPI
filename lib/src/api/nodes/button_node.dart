@@ -584,6 +584,16 @@ class ButtonProperties extends CustomProperties
   late double elevation;
 
   /// Whether the button is enabled.
+  @FlutterProp(
+    'enabled',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.enabled',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly button property, distinct from node-level enabled.',
+  )
   late bool enabled;
 
   // Label properties.

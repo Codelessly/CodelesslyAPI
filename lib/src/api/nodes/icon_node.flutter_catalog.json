@@ -25,8 +25,20 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
         "opacity": {
           "type": "number"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
         "properties": {
           "type": "object",
@@ -130,6 +142,30 @@
         "nodeType": "icon",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "icon",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "icon",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "fieldPath": "opacity",
         "group": "Appearance",
@@ -137,6 +173,18 @@
         "schemaType": "number",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "icon",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "fieldPath": "effects",
+        "group": "Effects",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "icon",
@@ -323,12 +371,44 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "field": "opacity",
         "defaultSource": null,
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "field": "effects",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
         ]
       },
       {
