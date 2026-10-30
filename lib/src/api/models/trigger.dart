@@ -102,7 +102,15 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  /// On a text field it fires for keys pressed while the field has focus
+  /// (e.g. ↑ ↓ Escape to drive a type-ahead menu).
+  keyDown,
+
+  /// Triggered when a text field gains focus.
+  focusGained,
+
+  /// Triggered when a text field loses focus.
+  focusLost;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -177,6 +185,10 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.focusGained:
+        return 'Focus Gained';
+      case TriggerType.focusLost:
+        return 'Focus Lost';
     }
   }
 }
