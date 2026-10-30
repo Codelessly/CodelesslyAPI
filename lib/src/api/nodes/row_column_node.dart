@@ -82,6 +82,7 @@ class RowColumnNode extends ParentNode
     super.clipsContent = false,
     // [CornerMixin] properties.
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     double cornerSmoothing = 0,
     // [ScrollableMixin] properties.
     bool isScrollable = false,
@@ -96,6 +97,7 @@ class RowColumnNode extends ParentNode
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
@@ -208,7 +210,7 @@ class RowNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -239,7 +241,8 @@ class RowNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -263,7 +266,7 @@ class ColumnNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -294,7 +297,8 @@ class ColumnNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -322,6 +326,8 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.drawScale = source.drawScale;
   target.pulse = source.pulse;
   target.motion = source.motion;
+  target.heroTag = source.heroTag;
+  target.heroFlight = source.heroFlight;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
 }

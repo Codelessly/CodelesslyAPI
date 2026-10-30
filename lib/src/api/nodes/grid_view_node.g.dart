@@ -270,6 +270,11 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -296,7 +301,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -313,6 +317,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -332,6 +337,8 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'heroTag': ?instance.heroTag,
+      'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'children': instance.children,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
@@ -402,6 +409,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 const _$QueryPagingEnumMap = {

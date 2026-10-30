@@ -51,6 +51,7 @@ class FrameNode extends DefaultShapeNode
     super.strokeCap,
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     super.dashPattern,
     super.alignment,
     super.padding,
@@ -91,6 +92,7 @@ class FrameNode extends DefaultShapeNode
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 

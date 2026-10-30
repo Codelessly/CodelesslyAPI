@@ -677,6 +677,138 @@
       "bindable": false
     },
     {
+      "nodeType": "barcode",
+      "flutterName": "data",
+      "fieldPath": "data",
+      "group": "Barcode",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+      "fieldPath": "visible",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "horizontalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "verticalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+      "fieldPath": "enabled",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "symbology",
+      "fieldPath": "properties.symbology",
+      "group": "Barcode",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "color",
+      "fieldPath": "properties.color",
+      "group": "Appearance",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "backgroundColor",
+      "fieldPath": "properties.backgroundColor",
+      "group": "Appearance",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "errorCorrection",
+      "fieldPath": "properties.errorCorrection",
+      "group": "Barcode",
+      "control": "enum",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "drawText",
+      "fieldPath": "properties.drawText",
+      "group": "Barcode",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.minOpacity",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.durationMillis",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "elevatedButton",
       "flutterName": null,
       "flutterParam": null,
@@ -7574,6 +7706,31 @@
       "nodeType": "badge",
       "flutterName": "largeSize",
       "fieldPath": "properties.largeSize"
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "symbology",
+      "fieldPath": "properties.symbology"
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "color",
+      "fieldPath": "properties.color"
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "backgroundColor",
+      "fieldPath": "properties.backgroundColor"
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "errorCorrection",
+      "fieldPath": "properties.errorCorrection"
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": "drawText",
+      "fieldPath": "properties.drawText"
     },
     {
       "nodeType": "iconButton",

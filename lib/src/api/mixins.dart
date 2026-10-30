@@ -918,13 +918,20 @@ mixin CornerMixin on BaseNode {
   /// Radius of the corners of the node.
   late CornerRadius cornerRadius;
 
+  /// Semicircular bites out of the node's edges (a ticket's notches). The
+  /// node's fills, strokes, shadows and clipped children follow the notched
+  /// outline.
+  late List<NotchModel> notches;
+
   /// Sets the properties of this mixin.
   void setCornerMixin({
     required CornerRadius cornerRadius,
     required double cornerSmoothing,
+    List<NotchModel> notches = const [],
   }) {
     this.cornerRadius = cornerRadius;
     this.cornerSmoothing = cornerSmoothing;
+    this.notches = notches;
   }
 
   @override

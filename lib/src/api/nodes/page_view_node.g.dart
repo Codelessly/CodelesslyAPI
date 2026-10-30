@@ -219,6 +219,11 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -273,6 +278,8 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'heroTag': ?instance.heroTag,
+      'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'children': instance.children,
       'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,
@@ -335,6 +342,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(

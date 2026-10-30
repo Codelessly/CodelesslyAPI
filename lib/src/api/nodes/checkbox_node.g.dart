@@ -183,6 +183,11 @@ CheckboxNode _$CheckboxNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$CheckboxNodeToJson(CheckboxNode instance) =>
@@ -223,6 +228,8 @@ Map<String, dynamic> _$CheckboxNodeToJson(CheckboxNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'heroTag': ?instance.heroTag,
+      'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'type': instance.type,
       'properties': instance.properties.toJson(),
       'value': ?instance.value,
@@ -252,6 +259,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 CheckboxProperties _$CheckboxPropertiesFromJson(Map json) => CheckboxProperties(

@@ -4,6 +4,7 @@ export 'audio_player_node.dart';
 export 'app_bar_node.dart';
 export 'auto_placeholder_node.dart';
 export 'badge_node.dart';
+export 'barcode_node.dart';
 export 'base_node.dart';
 export 'button_node.dart';
 export 'canvas_node.dart';
