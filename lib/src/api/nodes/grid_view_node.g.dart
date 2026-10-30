@@ -270,6 +270,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -283,7 +284,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -296,7 +296,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -313,6 +312,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -333,11 +333,11 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'children': instance.children,
+      'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
       'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
       'clipsContent': instance.clipsContent,
-      'ephemeral': instance.ephemeral,
       'isScrollable': instance.isScrollable,
       'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
       'reverse': instance.reverse,

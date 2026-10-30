@@ -195,6 +195,9 @@ TextNode _$TextNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
         tabularFigures: json['tabularFigures'] as bool? ?? false,
+        markdown: json['markdown'] == null
+            ? null
+            : MarkdownStyle.fromJson(json['markdown'] as Map),
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -242,13 +245,6 @@ TextNode _$TextNodeFromJson(Map json) =>
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'data': instance.data,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -266,9 +262,16 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
   'alignment': instance.alignment.toJson(),
+  'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -296,6 +299,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
+  'markdown': ?instance.markdown?.toJson(),
 };
 
 const _$SizeFitEnumMap = {
