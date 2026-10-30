@@ -69,4 +69,6 @@ const _$TriggerTypeEnumMap = {
   TriggerType.interval: 'interval',
   TriggerType.dragEnd: 'dragEnd',
   TriggerType.keyDown: 'keyDown',
+  TriggerType.focusGained: 'focusGained',
+  TriggerType.focusLost: 'focusLost',
 };
