@@ -104,4 +104,14 @@ void main() {
       expect(ActionType.controlDrag.prettify, 'Control Drag');
     });
   });
+
+  group('SpeakAction', () {
+    test('round-trips and omits defaults', () {
+      final action = SpeakAction(text: r'${card.front}', language: 'es-ES', rate: 0.8);
+      final json = action.toJson();
+      expect(json.containsKey('pitch'), isFalse);
+      expect(ActionModel.fromJson(json), action);
+      expect(ActionModel.fromJson(SpeakAction(stop: true).toJson()), SpeakAction(stop: true));
+    });
+  });
 }
