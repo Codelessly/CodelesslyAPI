@@ -376,6 +376,18 @@
     },
     {
       "nodeType": "autoPlaceholder",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "autoPlaceholder",
       "flutterName": "children",
       "fieldPath": "children",
       "group": "Layout",
@@ -1127,6 +1139,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "canvas",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
@@ -2615,6 +2639,18 @@
       "nodeType": "frame",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "frame",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly child clip toggle, not a Stack constructor parameter.",
       "fieldPath": "clipsContent",
       "group": "Visibility",
@@ -2870,6 +2906,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "freeformPlaceholder",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
@@ -3402,6 +3450,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "icon",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
@@ -5050,6 +5110,18 @@
       "nodeType": "root",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "root",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly child clip toggle, not a Stack constructor parameter.",
       "fieldPath": "clipsContent",
       "group": "Visibility",
@@ -5209,6 +5281,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "row",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
@@ -5491,6 +5575,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "column",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
@@ -6918,6 +7014,18 @@
       "group": "Visibility",
       "control": "switch",
       "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "text",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": true
     },
