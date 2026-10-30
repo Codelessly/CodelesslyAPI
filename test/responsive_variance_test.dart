@@ -35,6 +35,31 @@ void main() {
     });
   });
 
+  group('per-layout breakpoint widths', () {
+    test('a layout can switch to desktop at 1100', () {
+      final VarianceNode node = responsive([
+        variant('default', ScreenBreakpoint.mobile),
+        variant('t', ScreenBreakpoint.tablet),
+        variant('d', ScreenBreakpoint.desktop),
+      ])..properties = const VarianceProperties(desktopMinWidth: 1100);
+      expect(node.variantForWidth(1050).id, 't');
+      expect(node.variantForWidth(1100).id, 'd');
+      expect(node.variantForWidth(599).id, 'default');
+      expect(node.variantForWidth(600).id, 't');
+    });
+
+    test('round-trip through JSON and are omitted when unset', () {
+      expect(const VarianceProperties().toJson(), isEmpty);
+      const VarianceProperties moved = VarianceProperties(
+        tabletMinWidth: 700,
+        desktopMinWidth: 1100,
+      );
+      final Map<String, dynamic> json = jsonDecode(jsonEncode(moved.toJson()));
+      expect(json, {'tabletMinWidth': 700.0, 'desktopMinWidth': 1100.0});
+      expect(VarianceProperties.fromJson(json), moved);
+    });
+  });
+
   group('Variant.breakpoint JSON', () {
     test('round-trips and is omitted when unset', () {
       final Variant plain = variant('plain');
