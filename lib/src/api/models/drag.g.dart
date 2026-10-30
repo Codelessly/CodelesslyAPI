@@ -35,6 +35,7 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.shakeWhenDisabled, false))
     json.remove('shakeWhenDisabled');
+  if (isJsonDefault(instance.reorder, false)) json.remove('reorder');
   return json;
 }
 
@@ -73,6 +74,7 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   track: json['track'] == null
       ? null
       : DragTrackModel.fromJson(json['track'] as Map),
+  reorder: json['reorder'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -93,6 +95,7 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'enabled': instance.enabled,
   'shakeWhenDisabled': instance.shakeWhenDisabled,
   'track': ?instance.track?.toJson(),
+  'reorder': instance.reorder,
 };
 
 const _$DragAxisEnumMap = {
