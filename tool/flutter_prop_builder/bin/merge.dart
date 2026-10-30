@@ -80,8 +80,10 @@ void main(List<String> args) {
       }
     }
   }
-  // The dependency ships schema generated from A2UI's pinned v0.9 BASIC
-  // catalog, including Dynamic* bindings, Checkable and the full vocabulary.
+  // a2ui_core 0.4.0 embeds the official A2UI v0.9 BASIC document
+  // (specification/v0_9/catalogs/basic/catalog.json; checked against upstream
+  // revision 4d4b3e3197977afe7ac18ce67200299db5b27259). This brings all
+  // Dynamic* bindings, Checkable, functions and the full 18-name vocabulary.
   // Merge official BASIC names over colliding Flutter metadata names (e.g.
   // TextField/Slider/Divider); DPP keeps the Flutter-field projections.
   final officialBasic = BasicCatalog.v0_9().toJson();
