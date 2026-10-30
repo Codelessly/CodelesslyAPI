@@ -155,6 +155,12 @@ class DragModel with Equatable, SerializableMixin {
   /// When a disabled node is dragged, shakes it sideways once as a hint.
   final bool shakeWhenDisabled;
 
+  /// Makes the node a value control instead of a free drag: it moves along
+  /// this track (a line, an arc it rotates through, or a path) and reads
+  /// and writes a variable. [axis], [release] and the dismiss settings don't
+  /// apply then. See [DragTrackModel].
+  final DragTrackModel? track;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -176,6 +182,7 @@ class DragModel with Equatable, SerializableMixin {
     this.flyOutMs = 320,
     this.enabled = true,
     this.shakeWhenDisabled = false,
+    this.track,
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
@@ -223,6 +230,8 @@ class DragModel with Equatable, SerializableMixin {
     int? flyOutMs,
     bool? enabled,
     bool? shakeWhenDisabled,
+    DragTrackModel? track,
+    bool clearTrack = false,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
@@ -238,6 +247,7 @@ class DragModel with Equatable, SerializableMixin {
     flyOutMs: flyOutMs ?? this.flyOutMs,
     enabled: enabled ?? this.enabled,
     shakeWhenDisabled: shakeWhenDisabled ?? this.shakeWhenDisabled,
+    track: clearTrack ? null : (track ?? this.track),
   );
 
   @override
@@ -256,6 +266,7 @@ class DragModel with Equatable, SerializableMixin {
     flyOutMs,
     enabled,
     shakeWhenDisabled,
+    track,
   ];
 
   /// Creates a [DragModel] from JSON.
