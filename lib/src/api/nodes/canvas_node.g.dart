@@ -106,6 +106,7 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
     json.remove('brightness');
   if (isJsonDefault(instance.previewParams, const {}))
     json.remove('previewParams');
+  if (isJsonDefault(instance.overlay, false)) json.remove('overlay');
   return json;
 }
 
@@ -543,6 +544,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
         (k, e) => MapEntry(k as String, e),
       ) ??
       const {},
+  overlay: json['overlay'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -556,6 +558,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'signInRedirectId': ?instance.signInRedirectId,
       'path': ?instance.path,
       'previewParams': instance.previewParams,
+      'overlay': instance.overlay,
     };
 
 const _$BrightnessModelEnumMap = {
