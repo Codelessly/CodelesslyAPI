@@ -108,7 +108,7 @@ void main(List<String> args) {
     'CheckBox': 'checkbox',
     'Slider': 'slider',
     'ChoicePicker': 'segmentedButton',
-    'Video': null,
+    'Video': 'video',
     'Tabs': null,
     'DateTimeInput': null,
     'AudioPlayer': null,

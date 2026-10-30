@@ -1278,6 +1278,36 @@
       "bindable": false
     },
     {
+      "nodeType": "video",
+      "flutterName": "url",
+      "fieldPath": "properties.url",
+      "group": "Content",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "video",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "video",
+      "flutterName": "showControls",
+      "fieldPath": "properties.showControls",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
       "nodeType": "webView",
       "flutterName": "src",
       "fieldPath": "properties.src",
@@ -1691,6 +1721,21 @@
       "nodeType": "textField",
       "flutterName": "expands",
       "fieldPath": "properties.expands"
+    },
+    {
+      "nodeType": "video",
+      "flutterName": "url",
+      "fieldPath": "properties.url"
+    },
+    {
+      "nodeType": "video",
+      "flutterName": "autoPlay",
+      "fieldPath": "properties.autoPlay"
+    },
+    {
+      "nodeType": "video",
+      "flutterName": "showControls",
+      "fieldPath": "properties.showControls"
     },
     {
       "nodeType": "webView",

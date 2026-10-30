@@ -12,6 +12,7 @@ export 'chip_node.dart';
 export 'divider_node.dart';
 export 'dropdown_node.dart';
 export 'embedded_video_node.dart';
+export 'video_node.dart';
 export 'expansion_tile_node.dart';
 export 'external_component_node.dart';
 export 'gauge_node.dart';
