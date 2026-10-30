@@ -79,7 +79,10 @@ enum ActionType {
   controlDrag,
 
   /// Reads text aloud; see [SpeakAction].
-  speak;
+  speak,
+
+  /// Focuses a text field; see [FocusFieldAction].
+  focusField;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -136,6 +139,8 @@ enum ActionType {
         return 'Control Drag';
       case ActionType.speak:
         return 'Speak';
+      case ActionType.focusField:
+        return 'Focus Field';
     }
   }
 }
@@ -237,6 +242,8 @@ abstract class ActionModel with SerializableMixin {
         return ControlDragAction.fromJson(json);
       case ActionType.speak:
         return SpeakAction.fromJson(json);
+      case ActionType.focusField:
+        return FocusFieldAction.fromJson(json);
     }
   }
 
