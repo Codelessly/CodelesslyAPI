@@ -26,11 +26,7 @@ void main() {
       );
     final Map json = node.toJson();
     // Defaults stay out of the JSON.
-    expect(json['draggable'], {
-      'group': 'card',
-      'data': r'${item.id}',
-      'whileDragging': 'hidden',
-    });
+    expect(json['draggable'], {'group': 'card', 'data': r'${item.id}', 'whileDragging': 'hidden'});
     expect((json['dropTarget'] as Map).containsKey('slot'), isFalse);
 
     final BaseNode back = NodeJsonConverter().fromJson(json)!;
@@ -47,9 +43,7 @@ void main() {
       'name': 'Lane',
       'basicBoxLocal': {'x': 0, 'y': 0, 'width': 10, 'height': 10},
       'draggable': {},
-      'dropTarget': {
-        'accepts': ['card'],
-      },
+      'dropTarget': {'accepts': ['card']},
     })!;
     expect(node.draggable, const DraggableModel());
     expect(node.draggable!.start, DragStart.auto);
@@ -57,11 +51,7 @@ void main() {
   });
 
   test('drag triggers have names', () {
-    for (final t in [
-      ...TriggerType.dragSource,
-      ...TriggerType.dropTarget,
-      TriggerType.secondaryClick,
-    ]) {
+    for (final t in [...TriggerType.dragSource, ...TriggerType.dropTarget, TriggerType.secondaryClick]) {
       expect(t.prettify, isNotEmpty);
       expect(TriggerModel.fromJson(TriggerModel(type: t).toJson()).type, t);
     }

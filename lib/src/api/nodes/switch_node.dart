@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -33,14 +32,7 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   double get defaultHeight => kSwitchDefaultHeight;
 
   /// Current value of the switch.
-  @FlutterProp(
-    'value',
-    type: 'boolean',
-    group: 'State',
-    control: 'switch',
-    required: true,
-    bindable: true,
-  )
+  @FlutterProp('value', type: 'boolean', group: 'State', control: 'switch', required: true, bindable: true)
   bool value = false;
 
   /// Holds configurable properties of the switch.
@@ -144,23 +136,11 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   late ColorRGBA focusColor;
 
   /// Splash radius of the circular ink response.
-  @FlutterProp(
-    'splashRadius',
-    type: 'number',
-    group: 'Appearance',
-    control: 'number',
-    field: 'properties.splashRadius',
-  )
+  @FlutterProp('splashRadius', type: 'number', group: 'Appearance', control: 'number', field: 'properties.splashRadius')
   late double splashRadius;
 
   /// Whether to focus on the switch automatically.
-  @FlutterProp(
-    'autofocus',
-    type: 'boolean',
-    group: 'Interaction',
-    control: 'switch',
-    field: 'properties.autofocus',
-  )
+  @FlutterProp('autofocus', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.autofocus')
   late bool autofocus;
 
   /// Color of switch's track border when it's active.
@@ -170,13 +150,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   late ColorRGBA? inactiveTrackBorderColor;
 
   /// Width of switch's track border.
-  @FlutterProp(
-    'trackOutlineWidth',
-    type: 'number',
-    group: 'Appearance',
-    control: 'number',
-    field: 'properties.trackOutlineWidth',
-  )
+  @FlutterProp('trackOutlineWidth', type: 'number', group: 'Appearance', control: 'number', field: 'properties.trackOutlineWidth')
   late double trackOutlineWidth;
 
   /// Whether to use material 3 style.

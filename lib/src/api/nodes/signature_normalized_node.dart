@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -26,25 +25,14 @@ const double kSignatureNormalizedDefaultHeight = 120;
 ///
 /// The box paints only the ink: put it in a frame for a background and
 /// border, with a watermark or signing line behind it.
-@FlutterNode(
-  'CodelesslyNormalizedSignature',
-  family: 'codelessly',
-  nodeType: 'signature',
-  variant: 'normalized',
-)
+@FlutterNode('CodelesslyNormalizedSignature', family: 'codelessly', nodeType: 'signature', variant: 'normalized')
 @JsonSerializable()
 class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
   @override
   final String type = 'signature';
 
   /// The strokes shown when `value` isn't bound.
-  @FlutterProp(
-    'strokes',
-    type: 'array',
-    group: 'State',
-    control: 'strokes',
-    bindable: true,
-  )
+  @FlutterProp('strokes', type: 'array', group: 'State', control: 'strokes', bindable: true)
   List<List<List<double>>> strokes;
 
   /// The ink and whether the box takes input.
@@ -118,7 +106,10 @@ class SignatureNormalizedNode extends SceneNode with CustomPropertiesMixin {
 
   /// Creates a [SignatureNormalizedNode] from JSON.
   factory SignatureNormalizedNode.fromJson(Map json) {
-    NodeJsonConverter.validateSignatureWire(json, expectedType: 'normalized');
+    NodeJsonConverter.validateSignatureWire(
+      json,
+      expectedType: 'normalized',
+    );
     return _$SignatureNormalizedNodeFromJson(json);
   }
 
@@ -140,23 +131,11 @@ class SignatureNormalizedProperties extends CustomProperties with FieldsHolder {
   ColorRGBA inkColor;
 
   /// The ink's width in logical pixels.
-  @FlutterProp(
-    'strokeWidth',
-    type: 'number',
-    group: 'Appearance',
-    control: 'number',
-    field: 'properties.strokeWidth',
-  )
+  @FlutterProp('strokeWidth', type: 'number', group: 'Appearance', control: 'number', field: 'properties.strokeWidth')
   double strokeWidth;
 
   /// Whether the signature only shows, for replaying a saved one.
-  @FlutterProp(
-    'readOnly',
-    type: 'boolean',
-    group: 'Interaction',
-    control: 'switch',
-    field: 'properties.readOnly',
-  )
+  @FlutterProp('readOnly', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.readOnly')
   bool readOnly;
 
   /// Creates [SignatureNormalizedProperties].

@@ -4,22 +4,13 @@ import 'package:test/test.dart';
 void main() {
   for (final node in <RowColumnNode>[
     RowNode(
-      id: 'r',
-      name: 'Row',
-      basicBoxLocal: NodeBox(0, 0, 120, 50),
-      children: ['child'],
-      spacing: 12,
-      wrap: true,
-      runSpacing: 6,
+      id: 'r', name: 'Row', basicBoxLocal: NodeBox(0, 0, 120, 50),
+      children: ['child'], spacing: 12, wrap: true, runSpacing: 6,
       padding: const EdgeInsetsModel.all(4),
     ),
     ColumnNode(
-      id: 'c',
-      name: 'Column',
-      basicBoxLocal: NodeBox(0, 0, 50, 120),
-      children: ['child'],
-      spacing: 8,
-      mainAxisAlignment: MainAxisAlignmentC.end,
+      id: 'c', name: 'Column', basicBoxLocal: NodeBox(0, 0, 50, 120),
+      children: ['child'], spacing: 8, mainAxisAlignment: MainAxisAlignmentC.end,
       padding: const EdgeInsetsModel.all(5),
     ),
   ]) {
@@ -32,18 +23,11 @@ void main() {
       expect(decoded.childrenOrEmpty, node.childrenOrEmpty);
       expect(decoded.padding, node.padding);
       expect(decoded.toJson(), json);
-      expect(
-        () =>
-            NodeJsonConverter.instance.fromJson({...json, 'type': 'rowColumn'}),
-        throwsUnsupportedError,
-      );
-      expect(
-        () => NodeJsonConverter.instance.fromJson({
-          ...json,
-          'rowColumnType': node is RowNode ? 'column' : 'row',
-        }),
-        throwsFormatException,
-      );
+      expect(() => NodeJsonConverter.instance.fromJson({...json, 'type': 'rowColumn'}),
+          throwsUnsupportedError);
+      expect(() => NodeJsonConverter.instance.fromJson({
+        ...json, 'rowColumnType': node is RowNode ? 'column' : 'row',
+      }), throwsFormatException);
     });
   }
 }

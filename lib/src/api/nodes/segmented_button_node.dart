@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -205,33 +204,15 @@ class SegmentedButtonProperties extends CustomProperties with FieldsHolder {
   List<String> selected;
 
   /// Whether more than one segment can be selected.
-  @FlutterProp(
-    'multiSelectionEnabled',
-    type: 'boolean',
-    group: 'Selection',
-    control: 'switch',
-    field: 'properties.multiSelectionEnabled',
-  )
+  @FlutterProp('multiSelectionEnabled', type: 'boolean', group: 'Selection', control: 'switch', field: 'properties.multiSelectionEnabled')
   bool multiSelectionEnabled;
 
   /// Whether no segment may be selected.
-  @FlutterProp(
-    'emptySelectionAllowed',
-    type: 'boolean',
-    group: 'Selection',
-    control: 'switch',
-    field: 'properties.emptySelectionAllowed',
-  )
+  @FlutterProp('emptySelectionAllowed', type: 'boolean', group: 'Selection', control: 'switch', field: 'properties.emptySelectionAllowed')
   bool emptySelectionAllowed;
 
   /// Whether selected segments show [selectedIcon].
-  @FlutterProp(
-    'showSelectedIcon',
-    type: 'boolean',
-    group: 'Appearance',
-    control: 'switch',
-    field: 'properties.showSelectedIcon',
-  )
+  @FlutterProp('showSelectedIcon', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.showSelectedIcon')
   bool showSelectedIcon;
 
   /// Icon shown on selected segments. Defaults to Flutter's check icon.
