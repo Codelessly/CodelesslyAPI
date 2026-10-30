@@ -23,7 +23,19 @@ enum MotionCurve {
   easeOutBack,
 
   /// A fast cubic deceleration.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// Real spring physics ([MotionModel.springStiffness],
+  /// [MotionModel.springDamping]): overshoots and settles at its own pace,
+  /// so [MotionModel.durationMs] is ignored. Changing values mid-flight
+  /// keeps the motion's speed.
+  spring,
+
+  /// Overshoots and wobbles a few times before settling.
+  elasticOut,
+
+  /// Drops and bounces like a ball before settling.
+  bounceOut;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -33,6 +45,9 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.spring => 'Spring',
+    MotionCurve.elasticOut => 'Elastic',
+    MotionCurve.bounceOut => 'Bounce',
   };
 }
 
@@ -111,6 +126,13 @@ class MotionModel with Equatable, SerializableMixin {
   /// Easing of the transition.
   final MotionCurve curve;
 
+  /// Stiffness of the [MotionCurve.spring]: higher is faster and snappier.
+  final double springStiffness;
+
+  /// Damping of the [MotionCurve.spring]: lower overshoots and wobbles more;
+  /// about 2 × √stiffness stops without overshooting.
+  final double springDamping;
+
   /// Continuous rotation in turns per second (0.555 is 33⅓ rpm). 0 stops.
   /// Changes in speed ease in and out over [spinRampMs], like a motor
   /// coming up to speed.
@@ -159,6 +181,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.originY = 0,
     this.durationMs = 0,
     this.curve = MotionCurve.easeInOut,
+    this.springStiffness = 380,
+    this.springDamping = 20,
     this.spin = 0,
     this.spinRampMs = 800,
     this.loop = MotionLoop.none,
@@ -246,6 +270,8 @@ class MotionModel with Equatable, SerializableMixin {
     double? originY,
     int? durationMs,
     MotionCurve? curve,
+    double? springStiffness,
+    double? springDamping,
     double? spin,
     int? spinRampMs,
     MotionLoop? loop,
@@ -268,6 +294,8 @@ class MotionModel with Equatable, SerializableMixin {
     originY: originY ?? this.originY,
     durationMs: durationMs ?? this.durationMs,
     curve: curve ?? this.curve,
+    springStiffness: springStiffness ?? this.springStiffness,
+    springDamping: springDamping ?? this.springDamping,
     spin: spin ?? this.spin,
     spinRampMs: spinRampMs ?? this.spinRampMs,
     loop: loop ?? this.loop,
@@ -315,6 +343,8 @@ class MotionModel with Equatable, SerializableMixin {
     originY,
     durationMs,
     curve,
+    springStiffness,
+    springDamping,
     spin,
     spinRampMs,
     loop,

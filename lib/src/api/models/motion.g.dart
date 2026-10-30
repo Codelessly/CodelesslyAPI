@@ -23,6 +23,9 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.durationMs, 0)) json.remove('durationMs');
   if (isJsonDefault(instance.curve, MotionCurve.easeInOut))
     json.remove('curve');
+  if (isJsonDefault(instance.springStiffness, 380))
+    json.remove('springStiffness');
+  if (isJsonDefault(instance.springDamping, 20)) json.remove('springDamping');
   if (isJsonDefault(instance.spin, 0)) json.remove('spin');
   if (isJsonDefault(instance.spinRampMs, 800)) json.remove('spinRampMs');
   if (isJsonDefault(instance.loop, MotionLoop.none)) json.remove('loop');
@@ -50,6 +53,8 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   curve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['curve']) ??
       MotionCurve.easeInOut,
+  springStiffness: (json['springStiffness'] as num?)?.toDouble() ?? 380,
+  springDamping: (json['springDamping'] as num?)?.toDouble() ?? 20,
   spin: (json['spin'] as num?)?.toDouble() ?? 0,
   spinRampMs: (json['spinRampMs'] as num?)?.toInt() ?? 800,
   loop:
@@ -76,6 +81,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'originY': instance.originY,
       'durationMs': instance.durationMs,
       'curve': _$MotionCurveEnumMap[instance.curve]!,
+      'springStiffness': instance.springStiffness,
+      'springDamping': instance.springDamping,
       'spin': instance.spin,
       'spinRampMs': instance.spinRampMs,
       'loop': _$MotionLoopEnumMap[instance.loop]!,
@@ -92,6 +99,9 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
 };
 
 const _$MotionLoopEnumMap = {

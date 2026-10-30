@@ -69,4 +69,11 @@ const _$TriggerTypeEnumMap = {
   TriggerType.interval: 'interval',
   TriggerType.dragEnd: 'dragEnd',
   TriggerType.keyDown: 'keyDown',
+  TriggerType.dragStart: 'dragStart',
+  TriggerType.dragCompleted: 'dragCompleted',
+  TriggerType.dragCanceled: 'dragCanceled',
+  TriggerType.dragEnter: 'dragEnter',
+  TriggerType.dragExit: 'dragExit',
+  TriggerType.drop: 'drop',
+  TriggerType.dropRejected: 'dropRejected',
 };

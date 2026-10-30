@@ -73,7 +73,16 @@ enum ActionType {
   copyToClipboard,
 
   /// Perform a native store-safe paywall interaction.
-  paywall;
+  paywall,
+
+  /// Read a text aloud.
+  speak,
+
+  /// Play a short sound.
+  playSound,
+
+  /// Play a node's one-shot animation or particles.
+  playAnimation;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -126,6 +135,12 @@ enum ActionType {
         return 'Copy to Clipboard';
       case ActionType.paywall:
         return 'Paywall';
+      case ActionType.speak:
+        return 'Speak';
+      case ActionType.playSound:
+        return 'Play Sound';
+      case ActionType.playAnimation:
+        return 'Play Animation';
     }
   }
 }
@@ -223,6 +238,12 @@ abstract class ActionModel with SerializableMixin {
         return CopyToClipboardAction.fromJson(json);
       case ActionType.paywall:
         return PaywallAction.fromJson(json);
+      case ActionType.speak:
+        return SpeakAction.fromJson(json);
+      case ActionType.playSound:
+        return PlaySoundAction.fromJson(json);
+      case ActionType.playAnimation:
+        return PlayAnimationAction.fromJson(json);
     }
   }
 
