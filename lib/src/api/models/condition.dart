@@ -791,6 +791,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [SpeakAction].
   R? visitSpeakAction(SpeakAction action);
 
+  /// Visits a [PlaySoundAction].
+  R? visitPlaySoundAction(PlaySoundAction action);
+
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);
 

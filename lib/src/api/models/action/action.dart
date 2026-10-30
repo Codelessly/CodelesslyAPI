@@ -79,7 +79,11 @@ enum ActionType {
   controlDrag,
 
   /// Reads text aloud; see [SpeakAction].
-  speak;
+  speak,
+
+  /// Plays a short synthesised sound, now or at an exact time; see
+  /// [PlaySoundAction].
+  playSound;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -136,6 +140,8 @@ enum ActionType {
         return 'Control Drag';
       case ActionType.speak:
         return 'Speak';
+      case ActionType.playSound:
+        return 'Play Sound';
     }
   }
 }
@@ -237,6 +243,8 @@ abstract class ActionModel with SerializableMixin {
         return ControlDragAction.fromJson(json);
       case ActionType.speak:
         return SpeakAction.fromJson(json);
+      case ActionType.playSound:
+        return PlaySoundAction.fromJson(json);
     }
   }
 
