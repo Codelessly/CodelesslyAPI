@@ -55,8 +55,8 @@
       "bridgeStatus": "partial"
     },
     "Video": {
-      "nodeType": null,
-      "bridgeStatus": "deferred"
+      "nodeType": "video",
+      "bridgeStatus": "partial"
     },
     "Tabs": {
       "nodeType": null,

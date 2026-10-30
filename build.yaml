@@ -35,6 +35,7 @@ targets:
           - lib/src/api/nodes/signature_normalized_node.dart
           - lib/src/api/nodes/web_view_node.dart
           - lib/src/api/nodes/embedded_video_node.dart
+          - lib/src/api/nodes/video_node.dart
           - lib/src/api/nodes/auto_placeholder_node.dart
           - lib/src/api/nodes/freeform_placeholder_node.dart
           - lib/src/api/nodes/placeholder_node.dart

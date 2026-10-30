@@ -71,6 +71,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'accordion': AccordionNode.fromJson,
       'listTile': ListTileNode.fromJson,
       'embeddedVideo': EmbeddedVideoNode.fromJson,
+      'video': VideoNode.fromJson,
       'divider': DividerNode.fromJson,
       'loadingIndicator': LoadingIndicatorNode.fromJson,
       'webView': WebViewNode.fromJson,
