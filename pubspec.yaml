@@ -23,6 +23,8 @@ flutter:
     - lib/src/schema/generated/basic_node_mappings.json
 
 dev_dependencies:
+  analyzer: ^14.7.0
+  source_gen: ^4.3.0
   json_serializable: ^6.14.1
   json_defaults_builder:
     path: tool/json_defaults_builder
