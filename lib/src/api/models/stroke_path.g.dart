@@ -37,14 +37,9 @@ Map<String, dynamic> _$RevealModelOmitDefaults(
 // **************************************************************************
 
 StrokePath _$StrokePathFromJson(Map json) => StrokePath(
-  points:
-      (json['points'] as List<dynamic>?)
-          ?.map(
-            (e) =>
-                (e as List<dynamic>).map((e) => (e as num).toDouble()).toList(),
-          )
-          .toList() ??
-      const [],
+  points: json['points'] == null
+      ? const []
+      : const PathPointsConverter().fromJson(json['points'] as List),
   xUnit:
       $enumDecodeNullable(_$PathUnitEnumMap, json['xUnit']) ??
       PathUnit.fraction,
@@ -66,7 +61,7 @@ StrokePath _$StrokePathFromJson(Map json) => StrokePath(
 
 Map<String, dynamic> _$StrokePathToJson(StrokePath instance) =>
     <String, dynamic>{
-      'points': instance.points,
+      'points': const PathPointsConverter().toJson(instance.points),
       'xUnit': _$PathUnitEnumMap[instance.xUnit]!,
       'yUnit': _$PathUnitEnumMap[instance.yUnit]!,
       'curve': _$PathCurveEnumMap[instance.curve]!,
