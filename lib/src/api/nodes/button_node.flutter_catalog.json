@@ -3,12 +3,7 @@
     "widget": "ElevatedButton",
     "family": "material",
     "nodeType": "elevatedButton",
-    "drift": [
-      {
-        "flutterName": "child",
-        "fieldPath": "properties.label"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -26,7 +21,9 @@
     "dpp": [
       {
         "nodeType": "elevatedButton",
-        "flutterName": "child",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
@@ -72,7 +69,8 @@
     },
     "testMatrix": [
       {
-        "parameter": "child",
+        "parameter": null,
+        "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
@@ -86,12 +84,7 @@
     "widget": "TextButton",
     "family": "material",
     "nodeType": "textButton",
-    "drift": [
-      {
-        "flutterName": "child",
-        "fieldPath": "properties.label"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -109,7 +102,9 @@
     "dpp": [
       {
         "nodeType": "textButton",
-        "flutterName": "child",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
@@ -155,7 +150,8 @@
     },
     "testMatrix": [
       {
-        "parameter": "child",
+        "parameter": null,
+        "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
@@ -169,12 +165,7 @@
     "widget": "OutlinedButton",
     "family": "material",
     "nodeType": "outlinedButton",
-    "drift": [
-      {
-        "flutterName": "child",
-        "fieldPath": "properties.label"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -192,7 +183,9 @@
     "dpp": [
       {
         "nodeType": "outlinedButton",
-        "flutterName": "child",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
@@ -238,7 +231,8 @@
     },
     "testMatrix": [
       {
-        "parameter": "child",
+        "parameter": null,
+        "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
@@ -336,12 +330,7 @@
     "widget": "FilledButton",
     "family": "material",
     "nodeType": "filledButton",
-    "drift": [
-      {
-        "flutterName": "child",
-        "fieldPath": "properties.label"
-      }
-    ],
+    "drift": [],
     "jsonSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -359,7 +348,9 @@
     "dpp": [
       {
         "nodeType": "filledButton",
-        "flutterName": "child",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "label text rendered as the button's child Text",
         "fieldPath": "properties.label",
         "group": "Content",
         "control": "text",
@@ -405,7 +396,8 @@
     },
     "testMatrix": [
       {
-        "parameter": "child",
+        "parameter": null,
+        "note": "label text rendered as the button's child Text",
         "field": "properties.label",
         "defaultSource": null,
         "testValues": [
