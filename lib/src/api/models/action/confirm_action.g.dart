@@ -27,6 +27,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
     json.remove('showDragHandle');
   if (isJsonDefault(instance.placement, DialogPlacement.belowStart))
     json.remove('placement');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -112,6 +113,9 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
         unknownValue: DialogPlacement.belowStart,
       ) ??
       DialogPlacement.belowStart,
+  variables: (json['variables'] as Map?)?.map(
+    (k, e) => MapEntry(k as String, e as String),
+  ),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -152,6 +156,7 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
       'placement': _$DialogPlacementEnumMap[instance.placement]!,
+      'variables': instance.variables,
     };
 
 const _$DialogPresentationEnumMap = {
