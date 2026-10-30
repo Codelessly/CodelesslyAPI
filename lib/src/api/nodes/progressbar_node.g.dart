@@ -75,6 +75,10 @@ Map<String, dynamic> _$ProgressBarPropertiesOmitDefaults(
   if (isJsonDefault(instance.tickColor, ColorRGBA.white))
     json.remove('tickColor');
   if (isJsonDefault(instance.bands, [])) json.remove('bands');
+  if (isJsonDefault(instance.arcFit, ArcFit.arc)) json.remove('arcFit');
+  if (isJsonDefault(instance.arcRoundCaps, false)) json.remove('arcRoundCaps');
+  if (isJsonDefault(instance.arcGlow, 0)) json.remove('arcGlow');
+  if (isJsonDefault(instance.arcHeadDot, false)) json.remove('arcHeadDot');
   return json;
 }
 
@@ -296,6 +300,19 @@ ProgressBarProperties _$ProgressBarPropertiesFromJson(Map json) =>
       bands: (json['bands'] as List<dynamic>?)
           ?.map((e) => ProgressBand.fromJson(e as Map))
           .toList(),
+      arcFit:
+          $enumDecodeNullable(
+            _$ArcFitEnumMap,
+            json['arcFit'],
+            unknownValue: ArcFit.arc,
+          ) ??
+          ArcFit.arc,
+      arcRoundCaps: json['arcRoundCaps'] as bool? ?? false,
+      progressEndColor: json['progressEndColor'] == null
+          ? null
+          : ColorRGBA.fromJson(json['progressEndColor']),
+      arcGlow: (json['arcGlow'] as num?)?.toDouble() ?? 0,
+      arcHeadDot: json['arcHeadDot'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ProgressBarPropertiesToJson(
@@ -316,12 +333,19 @@ Map<String, dynamic> _$ProgressBarPropertiesToJson(
   'tickCount': instance.tickCount,
   'tickColor': instance.tickColor.toJson(),
   'bands': instance.bands.map((e) => e.toJson()).toList(),
+  'arcFit': _$ArcFitEnumMap[instance.arcFit]!,
+  'arcRoundCaps': instance.arcRoundCaps,
+  'progressEndColor': ?instance.progressEndColor?.toJson(),
+  'arcGlow': instance.arcGlow,
+  'arcHeadDot': instance.arcHeadDot,
 };
 
 const _$ProgressBarShapeEnumMap = {
   ProgressBarShape.bar: 'bar',
   ProgressBarShape.arc: 'arc',
 };
+
+const _$ArcFitEnumMap = {ArcFit.arc: 'arc', ArcFit.circle: 'circle'};
 
 ProgressBand _$ProgressBandFromJson(Map json) => ProgressBand(
   start: (json['start'] as num).toDouble(),
