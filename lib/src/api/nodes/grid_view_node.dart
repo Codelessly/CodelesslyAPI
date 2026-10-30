@@ -238,7 +238,18 @@ class GridViewNode extends SinglePlaceholderNode
     final Map<String, dynamic> legacy = {
       for (final key in _legacyRequiredKeys) key: json[key],
     };
-    return {..._$GridViewNodeOmitDefaults(this, json), ...legacy};
+    final Map<String, dynamic> result = {
+      ..._$GridViewNodeOmitDefaults(this, json),
+      ...legacy,
+    };
+    // fromJson reads a missing deniedTypes as ['GridView'], so write any
+    // other value, even the empty list, to survive a save and reload.
+    if (deniedTypes.length == 1 && deniedTypes.single == 'GridView') {
+      result.remove('deniedTypes');
+    } else {
+      result['deniedTypes'] = [...deniedTypes];
+    }
+    return result;
   }
 }
 

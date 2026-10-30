@@ -135,8 +135,29 @@ class ListViewNode extends SinglePlaceholderNode
     ...json,
   });
 
+  /// Omits the values [ListViewNode.fromJson] fills in for a missing key,
+  /// and keeps every other value, so a save and reload changes nothing (a
+  /// list that does not scroll stays so).
   @override
-  Map toJson() => _$ListViewNodeOmitDefaults(this, _$ListViewNodeToJson(this));
+  Map toJson() {
+    final json = _$ListViewNodeOmitDefaults(this, _$ListViewNodeToJson(this));
+    if (isScrollable) {
+      json.remove('isScrollable');
+    } else {
+      json['isScrollable'] = false;
+    }
+    if (useFlutterListView) {
+      json.remove('useFlutterListView');
+    } else {
+      json['useFlutterListView'] = false;
+    }
+    if (deniedTypes.length == 1 && deniedTypes.single == 'listView') {
+      json.remove('deniedTypes');
+    } else {
+      json['deniedTypes'] = [...deniedTypes];
+    }
+    return json;
+  }
 
   /// Returns the appropriate alignment of the child based on the
   /// [scrollDirection] and [reverse] properties.
