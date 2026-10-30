@@ -1646,6 +1646,39 @@
       ],
       "unevaluatedProperties": false
     },
+    "CodelesslyVideo": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyVideo"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "autoPlay": {
+                  "type": "boolean"
+                },
+                "showControls": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "required": [
+            "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
     "CodelesslyWebView": {
       "allOf": [
         {
@@ -3022,6 +3055,9 @@
         },
         {
           "$ref": "#/components/CodelesslyVariance"
+        },
+        {
+          "$ref": "#/components/CodelesslyVideo"
         },
         {
           "$ref": "#/components/CodelesslyWebView"

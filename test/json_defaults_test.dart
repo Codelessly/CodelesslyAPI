@@ -183,6 +183,7 @@ List<BaseNode> sampleNodes() {
     ChipNode.empty(),
     DividerNode.empty(),
     EmbeddedVideoNode.empty(),
+    VideoNode.empty(),
     ExpansionTileNode.empty(),
     FloatingActionButtonNode.empty(),
     IconNode.empty(),
