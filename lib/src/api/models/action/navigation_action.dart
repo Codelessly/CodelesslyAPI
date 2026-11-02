@@ -41,6 +41,31 @@ enum NavigationType {
   }
 }
 
+/// How the destination screen of a [NavigationAction] comes in.
+enum NavigationTransition {
+  /// The platform's page transition (a fade-up on Android and the web, a
+  /// slide from the side on iOS).
+  platform,
+
+  /// Rises from the bottom edge, like a full-screen task (cook mode,
+  /// a compose screen); going back lowers it again.
+  slideUp,
+
+  /// Fades in over the current screen.
+  fade,
+
+  /// Shows at once, with no animation.
+  none;
+
+  /// Displayable string representation of [NavigationTransition].
+  String get prettify => switch (this) {
+    NavigationTransition.platform => 'Platform default',
+    NavigationTransition.slideUp => 'Slide up',
+    NavigationTransition.fade => 'Fade',
+    NavigationTransition.none => 'None',
+  };
+}
+
 Object? _readDestinationId(Map json, String key) => json[key] ?? '';
 
 /// An action that navigates to a new page.
@@ -66,6 +91,10 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// Parameters to pass to the [baseDestinationId] page.
   final Map<String, dynamic>? baseParams;
 
+  /// How the destination screen comes in (push, replace and reset); going
+  /// back plays it in reverse.
+  final NavigationTransition transition;
+
   /// Creates a new [NavigationAction].
   NavigationAction({
     this.navigationType = NavigationType.push,
@@ -73,6 +102,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     Map<String, dynamic>? params,
     this.baseDestinationId,
     this.baseParams,
+    this.transition = NavigationTransition.platform,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -85,6 +115,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     params,
     baseDestinationId,
     baseParams,
+    transition,
   ];
 
   /// Duplicates this [NavigationAction] with given data overrides.
@@ -94,12 +125,14 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     Map<String, String>? params,
     String? baseDestinationId,
     Map<String, dynamic>? baseParams,
+    NavigationTransition? transition,
   }) => NavigationAction(
     navigationType: navigationType ?? this.navigationType,
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
     baseDestinationId: baseDestinationId ?? this.baseDestinationId,
     baseParams: baseParams ?? this.baseParams,
+    transition: transition ?? this.transition,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
