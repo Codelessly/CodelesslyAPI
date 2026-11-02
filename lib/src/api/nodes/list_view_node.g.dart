@@ -96,6 +96,8 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.wrapRunSpacing, 0)) json.remove('wrapRunSpacing');
   if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
     json.remove('wrapAlignment');
+  if (isJsonDefault(instance.wrapCrossAlignment, CrossAxisAlignmentC.start))
+    json.remove('wrapCrossAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
   return json;
@@ -411,6 +413,12 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
   wrapAlignment:
       $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
       MainAxisAlignmentC.start,
+  wrapCrossAlignment:
+      $enumDecodeNullable(
+        _$CrossAxisAlignmentCEnumMap,
+        json['wrapCrossAlignment'],
+      ) ??
+      CrossAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
   dividerProperties: json['dividerProperties'] == null
       ? null
@@ -431,6 +439,8 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapSpacing': instance.wrapSpacing,
       'wrapRunSpacing': instance.wrapRunSpacing,
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
+      'wrapCrossAlignment':
+          _$CrossAxisAlignmentCEnumMap[instance.wrapCrossAlignment]!,
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
     };
@@ -452,4 +462,12 @@ const _$MainAxisAlignmentCEnumMap = {
   MainAxisAlignmentC.spaceBetween: 'spaceBetween',
   MainAxisAlignmentC.spaceAround: 'spaceAround',
   MainAxisAlignmentC.spaceEvenly: 'spaceEvenly',
+};
+
+const _$CrossAxisAlignmentCEnumMap = {
+  CrossAxisAlignmentC.start: 'start',
+  CrossAxisAlignmentC.center: 'center',
+  CrossAxisAlignmentC.end: 'end',
+  CrossAxisAlignmentC.stretch: 'stretch',
+  CrossAxisAlignmentC.baseline: 'baseline',
 };
