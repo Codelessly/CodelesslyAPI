@@ -75,10 +75,14 @@ enum ActionType {
   /// Perform a native store-safe paywall interaction.
   paywall,
 
-  /// Read a text aloud.
+  /// Flings, returns or resets a draggable node; see [ControlDragAction].
+  controlDrag,
+
+  /// Reads text aloud; see [SpeakAction].
   speak,
 
-  /// Play a short sound.
+  /// Plays a short sound: a synthesised voice, now or at an exact time, or
+  /// a sound file; see [PlaySoundAction].
   playSound,
 
   /// Play a node's one-shot animation or particles.
@@ -135,6 +139,8 @@ enum ActionType {
         return 'Copy to Clipboard';
       case ActionType.paywall:
         return 'Paywall';
+      case ActionType.controlDrag:
+        return 'Control Drag';
       case ActionType.speak:
         return 'Speak';
       case ActionType.playSound:
@@ -238,6 +244,8 @@ abstract class ActionModel with SerializableMixin {
         return CopyToClipboardAction.fromJson(json);
       case ActionType.paywall:
         return PaywallAction.fromJson(json);
+      case ActionType.controlDrag:
+        return ControlDragAction.fromJson(json);
       case ActionType.speak:
         return SpeakAction.fromJson(json);
       case ActionType.playSound:
