@@ -4,6 +4,9 @@
   and modifiers), `pinch` (two-finger zoom, with step and total scale and
   the focal point) and `keyUp` (screen key releases) triggers, for pan and
   zoom canvases and held keys.
+- `VarianceProperties.tabletMinWidth` and `desktopMinWidth` move where a
+  responsive layout switches layouts (600 and 1024 by default);
+  `ScreenBreakpoint.forWidth` takes them.
 
 ## 6.3.0
 
