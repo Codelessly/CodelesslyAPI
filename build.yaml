@@ -54,6 +54,7 @@ targets:
           - lib/src/api/nodes/root_node.dart
           - lib/src/api/nodes/spacer_node.dart
           - lib/src/api/nodes/rectangle_node.dart
+          - lib/src/api/nodes/path_node.dart
           - lib/src/api/nodes/navigation_bar_node.dart
           - lib/src/api/nodes/icon_node.dart
           - lib/src/api/nodes/loading_indicator_node.dart
