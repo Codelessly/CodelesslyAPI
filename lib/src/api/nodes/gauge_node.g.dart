@@ -248,6 +248,9 @@ GaugeNode _$GaugeNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
@@ -294,6 +297,7 @@ Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'value': instance.value,
