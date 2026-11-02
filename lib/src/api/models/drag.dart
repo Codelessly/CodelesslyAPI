@@ -187,6 +187,19 @@ class DragModel with Equatable, SerializableMixin {
 
   /// Where the node rests vertically. See [restX].
   final double restY;
+  /// Makes the node a value control instead of a free drag: it moves along
+  /// this track (a line, an arc it rotates through, or a path) and reads
+  /// and writes a variable. [axis], [release] and the dismiss settings don't
+  /// apply then. See [DragTrackModel].
+  final DragTrackModel? track;
+
+  /// Makes the node the drag handle of a row in a data list: dragging it
+  /// lifts the row and moves it among the others (the list becomes
+  /// reorderable). Dropping it runs the node's `reorder` reactions with
+  /// `${result.from}` and `${result.to}`, the row's old and new index, so a
+  /// Set Variable can store the new order (`${= move(songs, result.from,
+  /// result.to)}`). The other drag settings don't apply.
+  final bool reorder;
 
   /// Creates a [DragModel].
   const DragModel({
@@ -215,6 +228,8 @@ class DragModel with Equatable, SerializableMixin {
     this.shareAs = '',
     this.restX = 0,
     this.restY = 0,
+    this.track,
+    this.reorder = false,
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
@@ -281,6 +296,9 @@ class DragModel with Equatable, SerializableMixin {
     String? shareAs,
     double? restX,
     double? restY,
+    DragTrackModel? track,
+    bool clearTrack = false,
+    bool? reorder,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
@@ -302,6 +320,8 @@ class DragModel with Equatable, SerializableMixin {
     shareAs: shareAs ?? this.shareAs,
     restX: restX ?? this.restX,
     restY: restY ?? this.restY,
+    track: clearTrack ? null : (track ?? this.track),
+    reorder: reorder ?? this.reorder,
   );
 
   @override
@@ -326,6 +346,8 @@ class DragModel with Equatable, SerializableMixin {
     shareAs,
     restX,
     restY,
+    track,
+    reorder,
   ];
 
   /// Creates a [DragModel] from JSON.
