@@ -61,4 +61,8 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.paywall: 'paywall',
+  ActionType.focus: 'focus',
+  ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
+  ActionType.playSound: 'playSound',
 };
