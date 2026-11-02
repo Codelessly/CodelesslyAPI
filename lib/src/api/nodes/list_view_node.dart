@@ -267,6 +267,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// is true. Maps to Flutter's [WrapAlignment] by name.
   MainAxisAlignmentC wrapAlignment;
 
+  /// How the items of a line are placed across it when [wrap] is true (a
+  /// short tag chip centered on a row of taller buttons). Start, center or
+  /// end; maps to Flutter's [WrapCrossAlignment] by name.
+  CrossAxisAlignmentC wrapCrossAlignment;
+
   /// Whether this list wraps its items instead of using either stack mode.
   bool get isWrapping => wrap && !stacked && layout == ListLayout.list;
 
@@ -292,6 +297,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapSpacing = 0,
     this.wrapRunSpacing = 0,
     this.wrapAlignment = MainAxisAlignmentC.start,
+    this.wrapCrossAlignment = CrossAxisAlignmentC.start,
     this.runSpacing = 0,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties() {
@@ -321,6 +327,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? wrapSpacing,
     double? wrapRunSpacing,
     MainAxisAlignmentC? wrapAlignment,
+    CrossAxisAlignmentC? wrapCrossAlignment,
     DividerProperties? dividerProperties,
     double? runSpacing,
     ListLayout? layout,
@@ -332,6 +339,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       wrapSpacing: wrapSpacing ?? this.wrapSpacing,
       wrapRunSpacing: wrapRunSpacing ?? this.wrapRunSpacing,
       wrapAlignment: wrapAlignment ?? this.wrapAlignment,
+      wrapCrossAlignment: wrapCrossAlignment ?? this.wrapCrossAlignment,
       itemCount: itemCount ?? this.itemCount,
       itemExtent: itemExtent ?? this.itemExtent,
       cacheExtent: cacheExtent ?? this.cacheExtent,
@@ -383,6 +391,19 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       (value) => wrapAlignment = value,
       defaultValue: () => MainAxisAlignmentC.start,
       options: () => MainAxisAlignmentC.values,
+      requiresLayout: true,
+    ),
+    'wrapCrossAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+      'Wrap Cross Alignment',
+      'How the items of a line of a wrapping list are placed across it.',
+      () => wrapCrossAlignment,
+      (value) => wrapCrossAlignment = value,
+      defaultValue: () => CrossAxisAlignmentC.start,
+      options: () => const <CrossAxisAlignmentC>[
+        CrossAxisAlignmentC.start,
+        CrossAxisAlignmentC.center,
+        CrossAxisAlignmentC.end,
+      ],
       requiresLayout: true,
     ),
     'hasSeparator': BoolFieldAccess(
@@ -473,6 +494,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     wrapSpacing,
     wrapRunSpacing,
     wrapAlignment,
+    wrapCrossAlignment,
     dividerProperties,
     runSpacing,
     layout,
