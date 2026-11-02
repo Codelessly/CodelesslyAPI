@@ -84,8 +84,11 @@ enum ActionType {
   /// Reads text aloud; see [SpeakAction].
   speak,
 
-  /// Plays a short sound: a synthesised voice, now or at an exact time, or
-  /// a sound file; see [PlaySoundAction].
+  /// Scrolls a node into view; see [ScrollToAction].
+  scrollTo,
+
+  /// Plays a short synthesised sound, now or at an exact time; see
+  /// [PlaySoundAction].
   playSound,
 
   /// Play a node's one-shot animation or particles.
@@ -148,6 +151,8 @@ enum ActionType {
         return 'Control Drag';
       case ActionType.speak:
         return 'Speak';
+      case ActionType.scrollTo:
+        return 'Scroll To';
       case ActionType.playSound:
         return 'Play Sound';
       case ActionType.playAnimation:
@@ -255,6 +260,8 @@ abstract class ActionModel with SerializableMixin {
         return ControlDragAction.fromJson(json);
       case ActionType.speak:
         return SpeakAction.fromJson(json);
+      case ActionType.scrollTo:
+        return ScrollToAction.fromJson(json);
       case ActionType.playSound:
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:

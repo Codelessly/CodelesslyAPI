@@ -138,12 +138,20 @@ void main() {
   test('speak, play sound and play animation actions round-trip', () {
     final speak = SpeakAction(
       text: '\${word}',
-      rateValue: '\${= slow ? 0.6 : 0.9}',
-      pitch: 1.15,
+      rate: '\${= slow ? 0.6 : 0.9}',
+      pitch: '1.15',
     );
     final again = ActionModel.fromJson(speak.toJson()) as SpeakAction;
     expect(again, speak);
     expect(speak.toJson().containsKey('language'), isFalse);
+    // The first form's bound rate (rateValue) reads as the rate.
+    final first = ActionModel.fromJson({
+      'type': 'speak',
+      'text': 'cat',
+      'rateValue': '\${speechRate}',
+      'pitch': 1.15,
+    }) as SpeakAction;
+    expect(first.rate, '\${speechRate}');
 
     final sound = PlaySoundAction(sound: 'boing', url: 'https://x/y.mp3');
     expect(ActionModel.fromJson(sound.toJson()), sound);
