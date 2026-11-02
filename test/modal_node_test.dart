@@ -11,6 +11,13 @@ void main() {
     content: 'content',
   );
 
+  test('modal inherited rotation is not a persisted wire field', () {
+    final wire = modal().toJson();
+    expect(wire.containsKey('rotation'), isFalse);
+    final decoded = ModalNode.fromJson({...wire, 'rotation': 45});
+    expect(decoded.toJson().containsKey('rotation'), isFalse);
+  });
+
   test('typed modal roundtrips with ordered scene children', () {
     final node = modal();
     final wire = node.toJson();
