@@ -7,6 +7,13 @@ payloads fail closed without discarding the original document JSON; direct
 node decoding rejects contradictory variant signatures; and list stack modes
 cannot both be enabled in a document.
 
+### Speak action (not published)
+
+- `SpeakAction` (`ActionType.speak`) speaks bound/formula `text` with
+  text-to-speech in a BCP-47 `language` at a bindable `rate` (and optional
+  `pitch`); `stop: true` stops any speech instead. Numeric `rate`/`pitch`
+  JSON values are read as strings.
+
 ### PR49 additions (not published)
 
 - `CopyToClipboardAction` copies formula/bound text; new `dragEnd` and

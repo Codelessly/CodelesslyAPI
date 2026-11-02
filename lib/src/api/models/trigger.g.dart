@@ -85,4 +85,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.dragHover: 'dragHover',
   TriggerType.clock: 'clock',
   TriggerType.reorder: 'reorder',
+  TriggerType.scroll: 'scroll',
 };
