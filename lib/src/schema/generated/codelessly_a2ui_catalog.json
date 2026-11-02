@@ -97,6 +97,15 @@
                 },
                 "showControls": {
                   "type": "boolean"
+                },
+                "loop": {
+                  "type": "boolean"
+                },
+                "volume": {
+                  "type": "number"
+                },
+                "background": {
+                  "type": "boolean"
                 }
               }
             }

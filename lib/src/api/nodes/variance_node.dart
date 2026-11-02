@@ -80,14 +80,17 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   /// The variant a responsive node shows on a canvas [width] wide, or the
   /// current variant when the node is not responsive.
   Variant variantForWidth(double width) =>
-      variantForBreakpoint(
-        ScreenBreakpoint.forWidth(
-          width,
-          tabletMinWidth: properties.tabletMinWidth,
-          desktopMinWidth: properties.desktopMinWidth,
-        ),
-      ) ??
-      currentVariant;
+      variantForBreakpoint(breakpointForWidth(width)) ?? currentVariant;
+
+  /// The breakpoint this responsive node shows at [width], by its own
+  /// [VarianceProperties.tabletMinWidth] and
+  /// [VarianceProperties.desktopMinWidth] when it has them.
+  ScreenBreakpoint breakpointForWidth(double width) =>
+      ScreenBreakpoint.forWidth(
+        width,
+        tabletMinWidth: properties.tabletMinWidth,
+        desktopMinWidth: properties.desktopMinWidth,
+      );
 
   /// Whether this node shows the status of a cloud list: it has a variant
   /// with the id of a query status ([kQueryStatusLoading],
@@ -113,7 +116,12 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   }
 
   /// Currently loaded variant's ID.
-  @FlutterProp('currentVariantId', type: 'string', group: 'State', control: 'text')
+  @FlutterProp(
+    'currentVariantId',
+    type: 'string',
+    group: 'State',
+    control: 'text',
+  )
   late String currentVariantId;
 
   /// Currently loaded variant.

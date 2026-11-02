@@ -63,6 +63,9 @@ Map<String, dynamic> _$AudioPlayerPropertiesOmitDefaults(
 ) {
   if (isJsonDefault(instance.autoPlay, false)) json.remove('autoPlay');
   if (isJsonDefault(instance.showControls, true)) json.remove('showControls');
+  if (isJsonDefault(instance.loop, false)) json.remove('loop');
+  if (isJsonDefault(instance.volume, 1)) json.remove('volume');
+  if (isJsonDefault(instance.background, false)) json.remove('background');
   return json;
 }
 
@@ -283,6 +286,9 @@ AudioPlayerProperties _$AudioPlayerPropertiesFromJson(Map json) =>
       description: json['description'] as String?,
       autoPlay: json['autoPlay'] as bool? ?? false,
       showControls: json['showControls'] as bool? ?? true,
+      loop: json['loop'] as bool? ?? false,
+      volume: (json['volume'] as num?)?.toDouble() ?? 1,
+      background: json['background'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$AudioPlayerPropertiesToJson(
@@ -292,4 +298,7 @@ Map<String, dynamic> _$AudioPlayerPropertiesToJson(
   'description': ?instance.description,
   'autoPlay': instance.autoPlay,
   'showControls': instance.showControls,
+  'loop': instance.loop,
+  'volume': instance.volume,
+  'background': instance.background,
 };
