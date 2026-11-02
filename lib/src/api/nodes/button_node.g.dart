@@ -184,6 +184,12 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -193,7 +199,6 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
-      'flex': instance.flex,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
@@ -209,6 +214,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+      'flex': instance.flex,
       'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
@@ -227,6 +233,8 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'transitionMs': instance.transitionMs,
       'drawScale': instance.drawScale,
       'pulse': ?instance.pulse?.toJson(),
+      'draggable': ?instance.draggable?.toJson(),
+      'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'drag': ?instance.drag?.toJson(),

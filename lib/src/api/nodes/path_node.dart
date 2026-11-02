@@ -106,6 +106,8 @@ class PathNode extends DefaultShapeNode {
     TriggerType.cursorExit,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
   ];
 
   @override

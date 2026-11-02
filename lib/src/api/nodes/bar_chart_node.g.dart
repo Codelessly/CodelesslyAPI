@@ -177,7 +177,6 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
             ) ??
             {},
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -189,6 +188,7 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -212,6 +212,12 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
@@ -223,7 +229,6 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
 Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
     <String, dynamic>{
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'squeezable': instance.squeezable,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -239,6 +244,7 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -256,6 +262,8 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'transitionMs': instance.transitionMs,
       'drawScale': instance.drawScale,
       'pulse': ?instance.pulse?.toJson(),
+      'draggable': ?instance.draggable?.toJson(),
+      'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
       'drag': ?instance.drag?.toJson(),
