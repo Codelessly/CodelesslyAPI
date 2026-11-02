@@ -35,6 +35,11 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.shakeWhenDisabled, false))
     json.remove('shakeWhenDisabled');
+  if (isJsonDefault(instance.disabledFollow, 0)) json.remove('disabledFollow');
+  if (isJsonDefault(instance.flyOutRotate, 0)) json.remove('flyOutRotate');
+  if (isJsonDefault(instance.shareAs, '')) json.remove('shareAs');
+  if (isJsonDefault(instance.restX, 0)) json.remove('restX');
+  if (isJsonDefault(instance.restY, 0)) json.remove('restY');
   if (isJsonDefault(instance.reorder, false)) json.remove('reorder');
   return json;
 }
@@ -59,6 +64,7 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
         DragDirection.down,
       ],
   distanceThreshold: (json['distanceThreshold'] as num?)?.toDouble() ?? 0.35,
+  verticalThreshold: (json['verticalThreshold'] as num?)?.toDouble(),
   velocityThreshold: (json['velocityThreshold'] as num?)?.toDouble() ?? 800,
   rotateFactor: (json['rotateFactor'] as num?)?.toDouble() ?? 0,
   originX: (json['originX'] as num?)?.toDouble() ?? 0,
@@ -71,6 +77,11 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   flyOutMs: (json['flyOutMs'] as num?)?.toInt() ?? 320,
   enabled: json['enabled'] as bool? ?? true,
   shakeWhenDisabled: json['shakeWhenDisabled'] as bool? ?? false,
+  disabledFollow: (json['disabledFollow'] as num?)?.toDouble() ?? 0,
+  flyOutRotate: (json['flyOutRotate'] as num?)?.toDouble() ?? 0,
+  shareAs: json['shareAs'] as String? ?? '',
+  restX: (json['restX'] as num?)?.toDouble() ?? 0,
+  restY: (json['restY'] as num?)?.toDouble() ?? 0,
   track: json['track'] == null
       ? null
       : DragTrackModel.fromJson(json['track'] as Map),
@@ -84,6 +95,7 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
       .map((e) => _$DragDirectionEnumMap[e]!)
       .toList(),
   'distanceThreshold': instance.distanceThreshold,
+  'verticalThreshold': ?instance.verticalThreshold,
   'velocityThreshold': instance.velocityThreshold,
   'rotateFactor': instance.rotateFactor,
   'originX': instance.originX,
@@ -94,6 +106,11 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'flyOutMs': instance.flyOutMs,
   'enabled': instance.enabled,
   'shakeWhenDisabled': instance.shakeWhenDisabled,
+  'disabledFollow': instance.disabledFollow,
+  'flyOutRotate': instance.flyOutRotate,
+  'shareAs': instance.shareAs,
+  'restX': instance.restX,
+  'restY': instance.restY,
   'track': ?instance.track?.toJson(),
   'reorder': instance.reorder,
 };
@@ -128,4 +145,5 @@ const _$MotionCurveEnumMap = {
   MotionCurve.elasticOut: 'elasticOut',
   MotionCurve.bounceOut: 'bounceOut',
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
 };
