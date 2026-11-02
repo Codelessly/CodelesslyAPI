@@ -20,6 +20,7 @@ Map<String, dynamic> _$ChartSeriesOmitDefaults(
   if (isJsonDefault(instance.dashed, false)) json.remove('dashed');
   if (isJsonDefault(instance.strokeWidth, 2)) json.remove('strokeWidth');
   if (isJsonDefault(instance.endDot, false)) json.remove('endDot');
+  if (isJsonDefault(instance.curved, false)) json.remove('curved');
   if (isJsonDefault(instance.fillOpacity, 0.25)) json.remove('fillOpacity');
   return json;
 }
@@ -76,6 +77,7 @@ Map<String, dynamic> _$ChartNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -140,6 +142,15 @@ Map<String, dynamic> _$ChartPropertiesOmitDefaults(
   ))
     json.remove('trackColor');
   if (isJsonDefault(instance.divisions, 8)) json.remove('divisions');
+  if (isJsonDefault(instance.donutThickness, 0.15))
+    json.remove('donutThickness');
+  if (isJsonDefault(instance.sliceGap, 1.5)) json.remove('sliceGap');
+  if (isJsonDefault(instance.startAngle, 0)) json.remove('startAngle');
+  if (isJsonDefault(instance.selectOnHover, false))
+    json.remove('selectOnHover');
+  if (isJsonDefault(instance.fitMinY, false)) json.remove('fitMinY');
+  if (isJsonDefault(instance.yLabelPrefix, '')) json.remove('yLabelPrefix');
+  if (isJsonDefault(instance.yLabelSuffix, '')) json.remove('yLabelSuffix');
   return json;
 }
 
@@ -161,6 +172,10 @@ ChartSeries _$ChartSeriesFromJson(Map json) => ChartSeries(
   dashed: json['dashed'] as bool? ?? false,
   strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 2,
   endDot: json['endDot'] as bool? ?? false,
+  endDotHaloColor: json['endDotHaloColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['endDotHaloColor']),
+  curved: json['curved'] as bool? ?? false,
   fillTo: json['fillTo'] as String?,
   fillOpacity: (json['fillOpacity'] as num?)?.toDouble() ?? 0.25,
 );
@@ -176,6 +191,8 @@ Map<String, dynamic> _$ChartSeriesToJson(ChartSeries instance) =>
       'dashed': instance.dashed,
       'strokeWidth': instance.strokeWidth,
       'endDot': instance.endDot,
+      'endDotHaloColor': ?instance.endDotHaloColor?.toJson(),
+      'curved': instance.curved,
       'fillTo': ?instance.fillTo,
       'fillOpacity': instance.fillOpacity,
     };
@@ -330,6 +347,7 @@ ChartNode _$ChartNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
@@ -379,6 +397,7 @@ Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'selectedIndex': instance.selectedIndex,
@@ -468,6 +487,15 @@ ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(
       ? const ColorRGBA(r: 18 / 255, g: 19 / 255, b: 22 / 255, a: 1)
       : ColorRGBA.fromJson(json['trackColor']),
   divisions: (json['divisions'] as num?)?.toInt() ?? 8,
+  donutThickness: (json['donutThickness'] as num?)?.toDouble() ?? 0.15,
+  sliceGap: (json['sliceGap'] as num?)?.toDouble() ?? 1.5,
+  startAngle: (json['startAngle'] as num?)?.toDouble() ?? 0,
+  selectOnHover: json['selectOnHover'] as bool? ?? false,
+  plotInset: (json['plotInset'] as num?)?.toDouble(),
+  fitMinY: json['fitMinY'] as bool? ?? false,
+  yLabelPrefix: json['yLabelPrefix'] as String? ?? '',
+  yLabelSuffix: json['yLabelSuffix'] as String? ?? '',
+  yAxisFontFamily: json['yAxisFontFamily'] as String?,
 );
 
 Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
@@ -504,10 +532,20 @@ Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
       'nowColor': ?instance.nowColor?.toJson(),
       'trackColor': instance.trackColor.toJson(),
       'divisions': instance.divisions,
+      'donutThickness': instance.donutThickness,
+      'sliceGap': instance.sliceGap,
+      'startAngle': instance.startAngle,
+      'selectOnHover': instance.selectOnHover,
+      'plotInset': ?instance.plotInset,
+      'fitMinY': instance.fitMinY,
+      'yLabelPrefix': instance.yLabelPrefix,
+      'yLabelSuffix': instance.yLabelSuffix,
+      'yAxisFontFamily': ?instance.yAxisFontFamily,
     };
 
 const _$ChartTypeEnumMap = {
   ChartType.bar: 'bar',
   ChartType.line: 'line',
   ChartType.timeline: 'timeline',
+  ChartType.donut: 'donut',
 };

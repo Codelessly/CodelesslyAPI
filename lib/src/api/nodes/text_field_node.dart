@@ -91,6 +91,9 @@ class TextFieldNode extends SceneNode
     TriggerType.changed,
     TriggerType.editingComplete,
     TriggerType.submitted,
+    TriggerType.focusGained,
+    TriggerType.focusLost,
+    TriggerType.keyDown,
   ];
 
   @override
@@ -157,6 +160,10 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   /// Whether to focus on text field automatically.
   bool autoFocus;
+
+  /// Whether gaining focus selects all of the field's text, so typing
+  /// replaces it (a type-ahead showing the current pick).
+  bool selectAllOnFocus;
 
   /// Whether to enable text selection via mouse drag.
   bool enableInteractiveSelection;
@@ -325,6 +332,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   TextFieldProperties({
     this.autoCorrect = true,
     this.autoFocus = false,
+    this.selectAllOnFocus = false,
     this.enableInteractiveSelection = true,
     this.enabled = true,
     this.obscureText = false,
@@ -364,6 +372,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   TextFieldProperties copyWith({
     bool? autoCorrect,
     bool? autoFocus,
+    bool? selectAllOnFocus,
     bool? enableInteractiveSelection,
     bool? enabled,
     bool? obscureText,
@@ -397,6 +406,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
       autoFocus: autoFocus ?? this.autoFocus,
+      selectAllOnFocus: selectAllOnFocus ?? this.selectAllOnFocus,
       enableInteractiveSelection:
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       enabled: enabled ?? this.enabled,
@@ -627,6 +637,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     textCapitalization,
     autoCorrect,
     autoFocus,
+    selectAllOnFocus,
     enableInteractiveSelection,
     enabled,
     obscureText,

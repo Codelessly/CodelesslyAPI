@@ -55,6 +55,7 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -266,6 +267,7 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -330,6 +332,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
