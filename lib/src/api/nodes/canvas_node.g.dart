@@ -45,6 +45,7 @@ Map<String, dynamic> _$CanvasNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -110,6 +111,8 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
   if (isJsonDefault(instance.previewParams, const {}))
     json.remove('previewParams');
   if (isJsonDefault(instance.overlay, false)) json.remove('overlay');
+  if (isJsonDefault(instance.paramsSetVariables, false))
+    json.remove('paramsSetVariables');
   return json;
 }
 
@@ -333,6 +336,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -393,6 +397,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -581,6 +586,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
       ) ??
       const {},
   overlay: json['overlay'] as bool? ?? false,
+  paramsSetVariables: json['paramsSetVariables'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -595,6 +601,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'path': ?instance.path,
       'previewParams': instance.previewParams,
       'overlay': instance.overlay,
+      'paramsSetVariables': instance.paramsSetVariables,
     };
 
 const _$BrightnessModelEnumMap = {

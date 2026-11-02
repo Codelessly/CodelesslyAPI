@@ -233,6 +233,13 @@ class CanvasProperties extends CustomProperties {
   /// drawn on top of itself when it is also opened as a screen.
   bool overlay;
 
+  /// Whether the screen's link params set its variables of the same name
+  /// when it opens (`/app/screen?month=2026-09` starts `month` at
+  /// `2026-09`), so every state a variable holds can be linked to. Text
+  /// params are read as the variable's type. App and page variables are
+  /// set too.
+  bool paramsSetVariables;
+
   /// Whether this screen needs a signed-in user.
   bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
 
@@ -256,6 +263,7 @@ class CanvasProperties extends CustomProperties {
     this.path,
     this.previewParams = const {},
     this.overlay = false,
+    this.paramsSetVariables = false,
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -276,6 +284,7 @@ class CanvasProperties extends CustomProperties {
     path,
     previewParams,
     overlay,
+    paramsSetVariables,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
