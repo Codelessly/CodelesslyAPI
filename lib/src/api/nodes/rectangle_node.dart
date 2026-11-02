@@ -78,8 +78,6 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     TriggerType.hold,
     TriggerType.drag,
     TriggerType.dragEnd,
-    ...TriggerType.draggableTriggers,
-    ...TriggerType.dropTargetTriggers,
     TriggerType.reorder,
     TriggerType.changed,
     TriggerType.pointerDown,
