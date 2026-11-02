@@ -53,6 +53,7 @@ class CanvasNode extends ParentNode
     TriggerType.interval,
     TriggerType.keyDown,
     TriggerType.clock,
+    TriggerType.scroll,
   ];
 
   @override
@@ -220,6 +221,17 @@ class CanvasProperties extends CustomProperties {
   /// The runtime never reads them.
   Map<String, dynamic> previewParams;
 
+  /// Whether this screen is an overlay: drawn above every other screen of
+  /// the app, outside navigation, so it stays in place (and keeps its state)
+  /// while the screens under it change. A podcast or music app's mini player
+  /// is one: it is on every screen and expands to the full player.
+  ///
+  /// It fills the window, follows the window's breakpoints, and its empty
+  /// parts (no fill) let taps through to the screen below. Navigation actions
+  /// in it navigate the screens under it. An app has at most one; it isn't
+  /// drawn on top of itself when it is also opened as a screen.
+  bool overlay;
+
   /// Whether this screen needs a signed-in user.
   bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
 
@@ -242,6 +254,7 @@ class CanvasProperties extends CustomProperties {
     this.signInRedirectId,
     this.path,
     this.previewParams = const {},
+    this.overlay = false,
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -261,6 +274,7 @@ class CanvasProperties extends CustomProperties {
     signInRedirectId,
     path,
     previewParams,
+    overlay,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
