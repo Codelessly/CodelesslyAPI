@@ -43,6 +43,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.repeat, 0)) json.remove('repeat');
   if (isJsonDefault(instance.enter, false)) json.remove('enter');
   if (isJsonDefault(instance.delayMs, 0)) json.remove('delayMs');
+  if (isJsonDefault(instance.blur, 0)) json.remove('blur');
   if (isJsonDefault(instance.backfaceHidden, false))
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
@@ -116,6 +117,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
       : MotionModel.fromJson(json['enterFrom'] as Map),
   replayKey: json['replayKey'] as String?,
   delayMs: (json['delayMs'] as num?)?.toInt() ?? 0,
+  blur: (json['blur'] as num?)?.toDouble() ?? 0,
   backfaceHidden: json['backfaceHidden'] as bool? ?? false,
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
@@ -156,6 +158,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'enterFrom': ?instance.enterFrom?.toJson(),
       'replayKey': ?instance.replayKey,
       'delayMs': instance.delayMs,
+      'blur': instance.blur,
       'backfaceHidden': instance.backfaceHidden,
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
@@ -171,6 +174,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
   MotionCurve.spring: 'spring',
   MotionCurve.elasticOut: 'elasticOut',
   MotionCurve.bounceOut: 'bounceOut',
