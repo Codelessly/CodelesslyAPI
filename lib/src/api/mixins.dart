@@ -1119,6 +1119,12 @@ mixin PropertyVariableMixin on BaseNode {
                 1) *
             100,
       ),
+      StringValue(
+        name: 'textDecoration',
+        value: (text.textMixedProps.firstOrNull?.textDecoration ??
+                TextDecorationEnum.none)
+            .name,
+      ),
     ],
     if (this case final BlendMixin blend) ...[
       DoubleValue(name: 'opacity', value: blend.opacity),
