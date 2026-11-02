@@ -13,6 +13,8 @@ Map<String, dynamic> _$NavigationActionOmitDefaults(
   if (isJsonDefault(instance.navigationType, NavigationType.push))
     json.remove('navigationType');
   if (isJsonDefault(instance.destinationId, null)) json.remove('destinationId');
+  if (isJsonDefault(instance.transition, NavigationTransition.platform))
+    json.remove('transition');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -32,6 +34,9 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
   baseParams: (json['baseParams'] as Map?)?.map(
     (k, e) => MapEntry(k as String, e),
   ),
+  transition:
+      $enumDecodeNullable(_$NavigationTransitionEnumMap, json['transition']) ??
+      NavigationTransition.platform,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -46,6 +51,7 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) =>
       'params': instance.params,
       'baseDestinationId': ?instance.baseDestinationId,
       'baseParams': ?instance.baseParams,
+      'transition': _$NavigationTransitionEnumMap[instance.transition]!,
     };
 
 const _$NavigationTypeEnumMap = {
@@ -53,6 +59,13 @@ const _$NavigationTypeEnumMap = {
   NavigationType.pop: 'pop',
   NavigationType.replace: 'replace',
   NavigationType.reset: 'reset',
+};
+
+const _$NavigationTransitionEnumMap = {
+  NavigationTransition.platform: 'platform',
+  NavigationTransition.slideUp: 'slideUp',
+  NavigationTransition.fade: 'fade',
+  NavigationTransition.none: 'none',
 };
 
 const _$ActionTypeEnumMap = {
