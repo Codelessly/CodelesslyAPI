@@ -36,7 +36,8 @@ const double kLineChartDefaultHeight = 240;
 ///   of the plot. `[{"y": 0, "label": "0", "color": "#CFC3AA"}]`; `label`
 ///   and `color` are optional (the color defaults to
 ///   [LineChartProperties.gridColor], or
-///   [LineChartProperties.zeroLineColor] when y is 0).
+///   [LineChartProperties.zeroLineColor] when y is 0). `"align": "start"`
+///   puts a label at the chart's left edge instead.
 /// - `areaBands`: parts of the area under the curve, inside x in
 ///   [from, to] and below y = `below`, filled with `color`, plus an
 ///   optional 4 px bar on the x axis in `barColor`.

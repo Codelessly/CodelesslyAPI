@@ -10,6 +10,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   ConfirmAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.caption, '')) json.remove('caption');
   if (isJsonDefault(instance.message, '')) json.remove('message');
   if (isJsonDefault(instance.confirmLabel, 'OK')) json.remove('confirmLabel');
   if (isJsonDefault(instance.cancelLabel, 'Cancel')) json.remove('cancelLabel');
@@ -40,6 +41,10 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
 
 ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
   title: json['title'] as String,
+  caption: json['caption'] as String? ?? '',
+  captionStyle: json['captionStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['captionStyle'] as Map),
   message: json['message'] as String? ?? '',
   confirmLabel: json['confirmLabel'] as String? ?? 'OK',
   cancelLabel: json['cancelLabel'] as String? ?? 'Cancel',
@@ -126,6 +131,8 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'nonBlocking': instance.nonBlocking,
       'enabled': instance.enabled,
       'title': instance.title,
+      'caption': instance.caption,
+      'captionStyle': ?instance.captionStyle?.toJson(),
       'message': instance.message,
       'confirmLabel': instance.confirmLabel,
       'cancelLabel': instance.cancelLabel,
