@@ -88,4 +88,7 @@ const _$TriggerTypeEnumMap = {
   TriggerType.clock: 'clock',
   TriggerType.reorder: 'reorder',
   TriggerType.scroll: 'scroll',
+  TriggerType.wheel: 'wheel',
+  TriggerType.pinch: 'pinch',
+  TriggerType.keyUp: 'keyUp',
 };

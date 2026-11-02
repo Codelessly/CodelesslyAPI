@@ -172,6 +172,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TriggerType.dragEnd,
     TriggerType.reorder,
     TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
   ];
