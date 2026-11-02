@@ -183,7 +183,8 @@ LoadingIndicatorNode _$LoadingIndicatorNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
-      ..type = json['type'] as String;
+      ..type = json['type'] as String
+      ..aspectRatio = (json['aspectRatio'] as num).toDouble();
 
 Map<String, dynamic> _$LoadingIndicatorNodeToJson(
   LoadingIndicatorNode instance,
@@ -228,6 +229,7 @@ Map<String, dynamic> _$LoadingIndicatorNodeToJson(
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'type': instance.type,
   'properties': instance.properties.toJson(),
+  'aspectRatio': instance.aspectRatio,
 };
 
 const _$SizeFitEnumMap = {

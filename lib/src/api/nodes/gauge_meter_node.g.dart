@@ -217,12 +217,12 @@ GaugeMeterNode _$GaugeMeterNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GaugeMeterNodeToJson(GaugeMeterNode instance) =>
     <String, dynamic>{
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'aspectRatioLock': instance.aspectRatioLock,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -239,6 +239,7 @@ Map<String, dynamic> _$GaugeMeterNodeToJson(GaugeMeterNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -259,6 +260,7 @@ Map<String, dynamic> _$GaugeMeterNodeToJson(GaugeMeterNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'type': instance.type,
       'properties': instance.properties.toJson(),
       'value': instance.value,

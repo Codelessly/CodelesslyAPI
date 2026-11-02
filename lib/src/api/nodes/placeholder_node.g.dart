@@ -160,6 +160,7 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) =>
@@ -202,6 +203,7 @@ Map<String, dynamic> _$PlaceholderNodeToJson(PlaceholderNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'type': instance.type,
       'leadingAsset': ?instance.leadingAsset,
       'text': ?instance.text,

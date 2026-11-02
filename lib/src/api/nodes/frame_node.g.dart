@@ -232,6 +232,9 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         contentAlignment: json['contentAlignment'] == null
             ? AlignmentModel.center
             : AlignmentModel.fromJson(json['contentAlignment'] as Map),
+        contentSize: json['contentSize'] == null
+            ? null
+            : SizeC.fromJson(json['contentSize'] as Map),
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -289,6 +292,7 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -338,6 +342,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'motion': ?instance.motion?.toJson(),
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'aspectRatio': ?instance.aspectRatio,
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -374,6 +379,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'type': instance.type,
   'contentFit': ?_$FitEnumMap[instance.contentFit],
   'contentAlignment': instance.contentAlignment.toJson(),
+  'contentSize': ?instance.contentSize?.toJson(),
 };
 
 const _$BlendModeCEnumMap = {

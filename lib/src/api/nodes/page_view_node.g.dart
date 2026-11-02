@@ -224,6 +224,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -280,6 +281,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'children': instance.children,
       'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,

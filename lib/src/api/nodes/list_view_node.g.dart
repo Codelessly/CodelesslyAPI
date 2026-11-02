@@ -258,6 +258,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -322,6 +323,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'children': instance.children,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,

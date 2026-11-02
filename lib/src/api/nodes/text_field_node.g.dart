@@ -214,6 +214,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) =>
@@ -256,6 +257,7 @@ Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'type': instance.type,
       'properties': instance.properties.toJson(),
       'initialText': instance.initialText,

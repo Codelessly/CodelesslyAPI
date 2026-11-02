@@ -195,7 +195,8 @@ IconNode _$IconNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
-      ..type = json['type'] as String;
+      ..type = json['type'] as String
+      ..aspectRatio = (json['aspectRatio'] as num).toDouble();
 
 Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
@@ -244,6 +245,7 @@ Map<String, dynamic> _$IconNodeToJson(IconNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'properties': instance.properties.toJson(),
   'type': instance.type,
+  'aspectRatio': instance.aspectRatio,
 };
 
 const _$SizeFitEnumMap = {

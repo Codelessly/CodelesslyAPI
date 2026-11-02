@@ -191,7 +191,8 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
       ..heroFlight = $enumDecodeNullable(
         _$HeroFlightEnumMap,
         json['heroFlight'],
-      );
+      )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble();
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
@@ -233,6 +234,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'properties': instance.properties.toJson(),
     };
 
