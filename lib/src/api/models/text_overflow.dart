@@ -11,4 +11,8 @@ enum TextOverflowC {
 
   /// Render overflowing text outside of its container.
   visible,
+
+  /// Shrink the text to fit its box when it is too wide, like Flutter's
+  /// `FittedBox(fit: BoxFit.scaleDown)`: a countdown that keeps one line.
+  scaleDown,
 }
