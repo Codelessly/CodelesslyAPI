@@ -8,8 +8,28 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "properties": {
+        "tabularFigures": {
+          "type": "boolean"
+        },
         "visible": {
           "type": "boolean"
+        },
+        "edgePins": {
+          "type": "object",
+          "properties": {
+            "left": {
+              "type": "number"
+            },
+            "top": {
+              "type": "number"
+            },
+            "right": {
+              "type": "number"
+            },
+            "bottom": {
+              "type": "number"
+            }
+          }
         },
         "horizontalFit": {
           "type": "string"
@@ -20,14 +40,67 @@
         "enabled": {
           "type": "boolean"
         },
+        "margin": {
+          "type": "object"
+        },
+        "padding": {
+          "type": "object"
+        },
+        "rotation": {
+          "type": "integer"
+        },
         "opacity": {
           "type": "number"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
         },
         "data": {
           "type": "string"
         },
+        "textMixedProps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fills": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "textDecoration": {
+                "type": "string"
+              },
+              "fontSize": {
+                "type": "number"
+              },
+              "letterSpacing": {
+                "type": "object"
+              },
+              "fontName": {
+                "type": "object"
+              },
+              "lineHeight": {
+                "type": "object"
+              },
+              "link": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "textAlignHorizontal": {
+          "type": "string"
+        },
         "maxLines": {
           "type": "integer"
+        },
+        "overflow": {
+          "type": "string"
         },
         "softWrap": {
           "type": "boolean"
@@ -78,6 +151,18 @@
         "nodeType": "text",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly text digit-width option on the serialized text node.",
+        "fieldPath": "tabularFigures",
+        "group": "Text",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
         "fieldPath": "visible",
         "group": "Visibility",
@@ -85,6 +170,18 @@
         "schemaType": "boolean",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "fieldPath": "edgePins",
+        "group": "Position",
+        "control": "edgePins",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "text",
@@ -126,6 +223,42 @@
         "nodeType": "text",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "fieldPath": "margin",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "fieldPath": "padding",
+        "group": "Spacing",
+        "control": "edgeInsets",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "fieldPath": "rotation",
+        "group": "Transform",
+        "control": "angle",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "fieldPath": "opacity",
         "group": "Appearance",
@@ -133,6 +266,18 @@
         "schemaType": "number",
         "defaultSource": null,
         "bindable": true
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "fieldPath": "effects",
+        "group": "Effects",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
       },
       {
         "nodeType": "text",
@@ -146,11 +291,47 @@
       },
       {
         "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Serialized rich-text runs; font size, family, weight, color and links are nested in each run.",
+        "fieldPath": "textMixedProps",
+        "group": "Typography",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly persisted horizontal text alignment, not textAlign alias.",
+        "fieldPath": "textAlignHorizontal",
+        "group": "Typography",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
         "flutterName": "maxLines",
         "fieldPath": "maxLines",
         "group": "Text",
         "control": "number",
         "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly TextOverflowC persisted choice; not a string alias.",
+        "fieldPath": "overflow",
+        "group": "Text",
+        "control": "select",
+        "schemaType": "string",
         "defaultSource": null,
         "bindable": false
       },
@@ -221,6 +402,138 @@
         "group": "InkWell",
         "control": "color",
         "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent left edge.",
+        "fieldPath": "edgePins.left",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent top edge.",
+        "fieldPath": "edgePins.top",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent right edge.",
+        "fieldPath": "edgePins.right",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "fieldPath": "edgePins.bottom",
+        "group": "Position",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted text-run paint list; color is nested in each paint.",
+        "fieldPath": "textMixedProps[].fills",
+        "group": "Typography",
+        "control": "list",
+        "schemaType": "array",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted text-run underline/overline/strikethrough choice.",
+        "fieldPath": "textMixedProps[].textDecoration",
+        "group": "Typography",
+        "control": "select",
+        "schemaType": "string",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted size for this text run, not a TextNode top-level field.",
+        "fieldPath": "textMixedProps[].fontSize",
+        "group": "Typography",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted letter-spacing model for this text run.",
+        "fieldPath": "textMixedProps[].letterSpacing",
+        "group": "Typography",
+        "control": "number",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted family/style/weight object for this text run.",
+        "fieldPath": "textMixedProps[].fontName",
+        "group": "Typography",
+        "control": "font",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted line-height model for this text run.",
+        "fieldPath": "textMixedProps[].lineHeight",
+        "group": "Typography",
+        "control": "number",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Persisted hyperlink destination on this text run.",
+        "fieldPath": "textMixedProps[].link",
+        "group": "Typography",
+        "control": "text",
+        "schemaType": "string",
         "defaultSource": null,
         "bindable": false
       },
@@ -301,12 +614,32 @@
     "testMatrix": [
       {
         "parameter": null,
+        "note": "Codelessly text digit-width option on the serialized text node.",
+        "field": "tabularFigures",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
         "field": "visible",
         "defaultSource": null,
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted edge-pin object; distances are relative to parent edges.",
+        "field": "edgePins",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
         ]
       },
       {
@@ -341,6 +674,36 @@
       },
       {
         "parameter": null,
+        "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+        "field": "margin",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+        "field": "padding",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+        "field": "rotation",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
         "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
         "field": "opacity",
         "defaultSource": null,
@@ -350,8 +713,42 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Serialized node effects; individual shadow fields live in list items.",
+        "field": "effects",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
         "parameter": "data",
         "field": "data",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Serialized rich-text runs; font size, family, weight, color and links are nested in each run.",
+        "field": "textMixedProps",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly persisted horizontal text alignment, not textAlign alias.",
+        "field": "textAlignHorizontal",
         "defaultSource": null,
         "testValues": [
           "",
@@ -365,6 +762,16 @@
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly TextOverflowC persisted choice; not a string alias.",
+        "field": "overflow",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
         ]
       },
       {
@@ -420,6 +827,118 @@
         "parameter": null,
         "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
         "field": "inkWell.focusColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent left edge.",
+        "field": "edgePins.left",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent top edge.",
+        "field": "edgePins.top",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent right edge.",
+        "field": "edgePins.right",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nullable distance from the parent bottom edge.",
+        "field": "edgePins.bottom",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted text-run paint list; color is nested in each paint.",
+        "field": "textMixedProps[].fills",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted text-run underline/overline/strikethrough choice.",
+        "field": "textMixedProps[].textDecoration",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted size for this text run, not a TextNode top-level field.",
+        "field": "textMixedProps[].fontSize",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted letter-spacing model for this text run.",
+        "field": "textMixedProps[].letterSpacing",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted family/style/weight object for this text run.",
+        "field": "textMixedProps[].fontName",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted line-height model for this text run.",
+        "field": "textMixedProps[].lineHeight",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Persisted hyperlink destination on this text run.",
+        "field": "textMixedProps[].link",
         "defaultSource": null,
         "testValues": [
           "",
