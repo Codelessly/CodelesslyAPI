@@ -248,6 +248,20 @@ class MotionModel with Equatable, SerializableMixin {
   /// Uniform scale; 1 is the node's own size.
   final double scale;
 
+  /// Horizontal offset in multiples of the node's own width, added to
+  /// [translateX]: 1 moves it one width right. Lets a layout move by its
+  /// own size whatever size it gets, e.g. a chess piece moved `file` squares
+  /// across a board that stretches to the screen.
+  ///
+  /// Like [translateX] it moves what is painted, not the layout: taps still
+  /// go to the place the node was laid out, so a node that must be tapped
+  /// where it shows (a list or grid item moved off its own cell) has to be
+  /// laid out there instead.
+  final double shiftX;
+
+  /// Vertical offset in multiples of the node's own height; see [shiftX].
+  final double shiftY;
+
   /// Horizontal scale on top of [scale]: a bar growing from its left edge
   /// (origin -1, 0) from 0 to 1.
   final double scaleX;
@@ -310,6 +324,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// transform) and these values, each way over [durationMs]: a skeleton's
   /// pulse, a blinking cursor.
   final MotionLoop loop;
+
+  /// How many times a [loop] runs before the node comes to rest; 0 repeats
+  /// forever. A wrong move's shake: three runs of a reversing loop, replayed
+  /// with [replayKey].
+  final int repeat;
 
   /// Animates from rest (or from [enterFrom]) to these values when the node
   /// first appears, over [durationMs], instead of starting there: a record
@@ -375,6 +394,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.translateX = 0,
     this.translateY = 0,
     this.scale = 1,
+    this.shiftX = 0,
+    this.shiftY = 0,
     this.scaleX = 1,
     this.scaleY = 1,
     this.opacity = 1,
@@ -391,6 +412,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.spin = 0,
     this.spinRampMs = 800,
     this.loop = MotionLoop.none,
+    this.repeat = 0,
     this.enter = false,
     this.enterFrom,
     this.replayKey,
@@ -412,6 +434,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX',
     'translateY',
     'scale',
+    'shiftX',
+    'shiftY',
     'scaleX',
     'scaleY',
     'opacity',
@@ -455,6 +479,8 @@ class MotionModel with Equatable, SerializableMixin {
       translateX != 0 ||
       translateY != 0 ||
       scale != 1 ||
+      shiftX != 0 ||
+      shiftY != 0 ||
       scaleX != 1 ||
       scaleY != 1 ||
       opacity != 1 ||
@@ -503,6 +529,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX' => translateX,
     'translateY' => translateY,
     'scale' => scale,
+    'shiftX' => shiftX,
+    'shiftY' => shiftY,
     'scaleX' => scaleX,
     'scaleY' => scaleY,
     'opacity' => opacity,
@@ -519,6 +547,8 @@ class MotionModel with Equatable, SerializableMixin {
     double? translateX,
     double? translateY,
     double? scale,
+    double? shiftX,
+    double? shiftY,
     double? scaleX,
     double? scaleY,
     double? opacity,
@@ -535,6 +565,7 @@ class MotionModel with Equatable, SerializableMixin {
     double? spin,
     int? spinRampMs,
     MotionLoop? loop,
+    int? repeat,
     bool? enter,
     MotionModel? enterFrom,
     bool clearEnterFrom = false,
@@ -553,6 +584,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
     scale: scale ?? this.scale,
+    shiftX: shiftX ?? this.shiftX,
+    shiftY: shiftY ?? this.shiftY,
     scaleX: scaleX ?? this.scaleX,
     scaleY: scaleY ?? this.scaleY,
     opacity: opacity ?? this.opacity,
@@ -569,6 +602,7 @@ class MotionModel with Equatable, SerializableMixin {
     spin: spin ?? this.spin,
     spinRampMs: spinRampMs ?? this.spinRampMs,
     loop: loop ?? this.loop,
+    repeat: repeat ?? this.repeat,
     enter: enter ?? this.enter,
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
@@ -586,6 +620,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX: 0,
     translateY: 0,
     scale: 1,
+    shiftX: 0,
+    shiftY: 0,
     scaleX: 1,
     scaleY: 1,
     opacity: 1,
@@ -600,6 +636,8 @@ class MotionModel with Equatable, SerializableMixin {
     'translateX' => copyWith(translateX: value),
     'translateY' => copyWith(translateY: value),
     'scale' => copyWith(scale: value),
+    'shiftX' => copyWith(shiftX: value),
+    'shiftY' => copyWith(shiftY: value),
     'scaleX' => copyWith(scaleX: value),
     'scaleY' => copyWith(scaleY: value),
     'opacity' => copyWith(opacity: value.clamp(0, 1).toDouble()),
@@ -740,6 +778,8 @@ class MotionModel with Equatable, SerializableMixin {
     translateX,
     translateY,
     scale,
+    shiftX,
+    shiftY,
     scaleX,
     scaleY,
     opacity,
@@ -756,6 +796,7 @@ class MotionModel with Equatable, SerializableMixin {
     spin,
     spinRampMs,
     loop,
+    repeat,
     enter,
     enterFrom,
     replayKey,
