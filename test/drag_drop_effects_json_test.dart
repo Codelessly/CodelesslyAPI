@@ -27,9 +27,10 @@ void main() {
         'flightKey': 'tile-\${item.id}',
       });
       expect(node.draggable!.group, 'letters');
-      expect(node.draggable!.whileDragging, DragLeaveBehavior.hidden);
+      expect(node.draggable!.whileDragging, DragSourceStyle.hidden);
       expect(node.draggable!.returnSpring, isTrue);
-      expect(node.dropTarget!.groups, ['letters']);
+      // The first form's `groups` reads as `accepts`.
+      expect(node.dropTarget!.accepts, ['letters']);
       expect(node.flightKey, 'tile-\${item.id}');
 
       final json = node.toJson();
@@ -38,6 +39,10 @@ void main() {
         'feedbackScale': 1.12,
         'feedbackRotation': -4.0,
         'whileDragging': 'hidden',
+      });
+      expect(json['dropTarget'], {
+        'accepts': ['letters'],
+        'acceptIf': '\${= drop.data.letter == "A"}',
       });
       expect(FrameNode.fromJson(json).dropTarget, node.dropTarget);
 
@@ -104,15 +109,30 @@ void main() {
     expect(LoopAnimation.preset(LoopAnimationType.sway).angle, 4);
   });
 
-  test('drag and drop triggers are offered by frames, rows and text', () {
-    for (final t in [
-      ...TriggerType.draggableTriggers,
-      ...TriggerType.dropTargetTriggers,
-    ]) {
-      expect(frame({}).triggerTypes, contains(t));
+  test('a draggable or drop target offers its drag and drop triggers', () {
+    final both = frame({
+      'draggable': {'group': 'letters'},
+      'dropTarget': {
+        'accepts': ['letters'],
+        'fullIf': '\${= placed != ""}',
+      },
+    });
+    expect(both.dropTarget!.fullIf, '\${= placed != ""}');
+    for (final t in [...TriggerType.dragSource, ...TriggerType.dropTarget]) {
+      expect(both.availableTriggerTypes, contains(t));
+      expect(frame({}).availableTriggerTypes, isNot(contains(t)));
       expect(TriggerModel.fromJson(TriggerModel(type: t).toJson()).type, t);
     }
+    expect(TriggerType.dragSource, contains(TriggerType.dragCompleted));
+    expect(TriggerType.dropTarget, contains(TriggerType.dropRejected));
     expect(TriggerType.dropRejected.prettify, 'Drop Rejected');
+    // The first form's long press and shadow switch read.
+    final first = DraggableModel.fromJson({
+      'longPressMs': 300,
+      'feedbackShadow': false,
+    });
+    expect(first.start, DragStart.longPress);
+    expect(first.feedbackElevation, 0);
   });
 
   test('speak, play sound and play animation actions round-trip', () {

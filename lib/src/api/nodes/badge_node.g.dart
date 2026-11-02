@@ -179,15 +179,15 @@ BadgeNode _$BadgeNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
-      ..motion = json['motion'] == null
-          ? null
-          : MotionModel.fromJson(json['motion'] as Map)
       ..draggable = json['draggable'] == null
           ? null
           : DraggableModel.fromJson(json['draggable'] as Map)
       ..dropTarget = json['dropTarget'] == null
           ? null
           : DropTargetModel.fromJson(json['dropTarget'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..effectAnimations =
           (json['effectAnimations'] as List<dynamic>?)
               ?.map((e) => EffectAnimation.fromJson(e as Map))
@@ -243,10 +243,10 @@ Map<String, dynamic> _$BadgeNodeToJson(BadgeNode instance) => <String, dynamic>{
   'transitionMs': instance.transitionMs,
   'drawScale': instance.drawScale,
   'pulse': ?instance.pulse?.toJson(),
-  'enabled': instance.enabled,
-  'motion': ?instance.motion?.toJson(),
   'draggable': ?instance.draggable?.toJson(),
   'dropTarget': ?instance.dropTarget?.toJson(),
+  'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,

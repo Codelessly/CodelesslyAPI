@@ -14,11 +14,12 @@ enum TriggerType {
   /// Triggered when text is changed inside a text input field.
   changed,
 
-  /// Triggered when text editing is completed on a text input field and
-  /// it is about to submit.
+  /// Triggered when a text field loses focus (the user clicked or tabbed
+  /// elsewhere), e.g. to save an inline edit.
   editingComplete,
 
-  /// Triggered when a text field is submitted.
+  /// Triggered when the user submits a text field from the keyboard (Enter
+  /// on a one-line field, the keyboard's done/go key).
   submitted,
 
   /// Triggered when the user long presses on a target.
@@ -98,36 +99,52 @@ enum TriggerType {
   dragEnd,
 
   /// Triggered when a key is pressed while the screen it is set on shows
-  /// and no text field has focus. The actions read `${result.key}` (the
-  /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
-  /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
-  /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
+  /// and no text field has focus (Escape and Command/Control shortcuts such
+  /// as ⌘↵ also fire while typing, with `${result.typing}` true). The actions read
+  /// `${result.key}` (the key's label: `a`, `ArrowLeft`, `Delete`,
+  /// `Escape`, ...), `${result.shift}`, `${result.alt}` and `${result.meta}`
+  /// (Command on macOS, Control elsewhere). [TriggerModel.key] limits it to
+  /// one key.
   keyDown,
 
-  /// A draggable node ([DraggableModel]) was picked up.
+  /// Triggered when the user right-clicks the target (or taps it with two
+  /// fingers on a trackpad). `${result.x}` and `${result.y}` are where, in
+  /// screen coordinates, e.g. to open a context menu there.
+  secondaryClick,
+
+  /// Triggered on a draggable node when the user picks it up. The actions
+  /// read the payload as `${drag.data}`.
   dragStart,
 
-  /// A draggable node was dropped on a target that accepted it.
-  dragCompleted,
+  /// Triggered on a draggable node when its drag ends without a drop (let go
+  /// outside every target, on a target that refused it, or cancelled).
+  dragCancel,
 
-  /// A draggable node was let go without a target accepting it.
-  dragCanceled,
-
-  /// Something draggable was dragged over this drop target
-  /// ([DropTargetModel]). The actions read `${drop.data}`.
-  dragEnter,
-
-  /// Something draggable was dragged off this drop target, or let go.
-  dragExit,
-
-  /// This drop target accepted a drop. The actions read `${drop.data}`
-  /// (what was dropped) and `${drop.dx}`, `${drop.dy}` (where its top left
-  /// was, from this node's top left).
+  /// Triggered on a drop target when a drag it accepts is dropped on it.
+  /// `${result}` (and `${drag}`) hold `data`, `group`, `count`, `key`,
+  /// `beforeId`, `before` (the item it lands before), `index` and
+  /// `accepted`. A drop its `acceptIf` refuses doesn't fire it.
   drop,
 
-  /// Something was let go over this drop target but its accept condition
-  /// failed: a wrong answer. The actions read the same as [drop]; the
-  /// draggable springs back.
+  /// Triggered on a drop target when a drag it accepts moves onto it.
+  dragEnter,
+
+  /// Triggered on a drop target when a drag leaves it without dropping.
+  dragExit,
+
+  /// Triggered on a drop target when a drag has stayed over it for its
+  /// `hoverDelayMs`, e.g. to switch to the tab or page it stands for.
+  dragHover,
+
+  /// Triggered on a draggable node when a drop target accepts its drop
+  /// (after the target's `drop` reactions start), e.g. to remove it from
+  /// the list it came from.
+  dragCompleted,
+
+  /// Triggered on a drop target when a drag of a group it accepts is let go
+  /// on it but its `acceptIf` refuses it: a wrong answer, a full column.
+  /// The actions read the drop like `drop` does; the draggable springs back.
+  /// A target that is full ([DropTargetModel.fullIf]) doesn't fire it.
   dropRejected,
 
   /// A steady clock for rhythm: ticks every [TriggerModel.every]
@@ -146,22 +163,14 @@ enum TriggerType {
   /// this node, its reorder handle ([DragModel.reorder]). The actions read
   /// `${result.from}` and `${result.to}`: the row's old index and its index
   /// in the new order.
-  reorder;
+  reorder,
 
-  /// The triggers of a draggable node.
-  static const List<TriggerType> draggableTriggers = [
-    TriggerType.dragStart,
-    TriggerType.dragCompleted,
-    TriggerType.dragCanceled,
-  ];
-
-  /// The triggers of a drop target.
-  static const List<TriggerType> dropTargetTriggers = [
-    TriggerType.dragEnter,
-    TriggerType.dragExit,
-    TriggerType.drop,
-    TriggerType.dropRejected,
-  ];
+  /// Triggered on every scroll update of a scrolling row, column or
+  /// canvas. The actions read `${result.offset}` (how far it is scrolled,
+  /// in logical pixels), `${result.max}` (how far it can scroll) and
+  /// `${result.fraction}` (0 at the start, 1 at the end), so a header can
+  /// collapse, a bar fade in or a button appear as the content scrolls.
+  scroll;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -174,6 +183,22 @@ enum TriggerType {
     'hoverEnter': 'cursorEnter',
     'hoverExit': 'cursorExit',
   };
+
+  /// The triggers of a draggable node.
+  static const List<TriggerType> dragSource = [
+    TriggerType.dragStart,
+    TriggerType.dragCancel,
+    TriggerType.dragCompleted,
+  ];
+
+  /// The triggers of a drop target.
+  static const List<TriggerType> dropTarget = [
+    TriggerType.drop,
+    TriggerType.dragEnter,
+    TriggerType.dragExit,
+    TriggerType.dragHover,
+    TriggerType.dropRejected,
+  ];
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [
@@ -236,24 +261,30 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.secondaryClick:
+        return 'Right Click';
       case TriggerType.dragStart:
         return 'Drag Start';
-      case TriggerType.dragCompleted:
-        return 'Drag Completed';
-      case TriggerType.dragCanceled:
-        return 'Drag Canceled';
+      case TriggerType.dragCancel:
+        return 'Drag Cancel';
+      case TriggerType.drop:
+        return 'Drop';
       case TriggerType.dragEnter:
         return 'Drag Enter';
       case TriggerType.dragExit:
         return 'Drag Exit';
-      case TriggerType.drop:
-        return 'Drop';
+      case TriggerType.dragHover:
+        return 'Drag Hover';
+      case TriggerType.dragCompleted:
+        return 'Drag Completed';
       case TriggerType.dropRejected:
         return 'Drop Rejected';
       case TriggerType.clock:
         return 'Beat Clock';
       case TriggerType.reorder:
         return 'Reorder';
+      case TriggerType.scroll:
+        return 'Scroll';
     }
   }
 }
