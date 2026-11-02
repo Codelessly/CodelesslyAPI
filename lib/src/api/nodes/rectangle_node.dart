@@ -106,6 +106,7 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   @override

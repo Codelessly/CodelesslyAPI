@@ -15,6 +15,8 @@ Map<String, dynamic> _$DropdownMenuStyleModelOmitDefaults(
   if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.itemHeight, 40)) json.remove('itemHeight');
   if (isJsonDefault(instance.showCheck, false)) json.remove('showCheck');
+  if (isJsonDefault(instance.checkPosition, DropdownCheckPosition.trailing))
+    json.remove('checkPosition');
   if (isJsonDefault(instance.checkSize, 18)) json.remove('checkSize');
   return json;
 }
@@ -53,6 +55,12 @@ DropdownMenuStyleModel _$DropdownMenuStyleModelFromJson(Map json) =>
           ? null
           : TextStyleModel.fromJson(json['selectedTextStyle'] as Map),
       showCheck: json['showCheck'] as bool? ?? false,
+      checkPosition:
+          $enumDecodeNullable(
+            _$DropdownCheckPositionEnumMap,
+            json['checkPosition'],
+          ) ??
+          DropdownCheckPosition.trailing,
       checkColor: json['checkColor'] == null
           ? null
           : ColorRGBA.fromJson(json['checkColor']),
@@ -76,6 +84,12 @@ Map<String, dynamic> _$DropdownMenuStyleModelToJson(
   'hoverItemColor': ?instance.hoverItemColor?.toJson(),
   'selectedTextStyle': ?instance.selectedTextStyle?.toJson(),
   'showCheck': instance.showCheck,
+  'checkPosition': _$DropdownCheckPositionEnumMap[instance.checkPosition]!,
   'checkColor': ?instance.checkColor?.toJson(),
   'checkSize': instance.checkSize,
+};
+
+const _$DropdownCheckPositionEnumMap = {
+  DropdownCheckPosition.leading: 'leading',
+  DropdownCheckPosition.trailing: 'trailing',
 };

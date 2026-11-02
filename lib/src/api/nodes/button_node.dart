@@ -228,6 +228,7 @@ abstract class ButtonNode extends SceneNode with CustomPropertiesMixin {
     TriggerType.doubleTap,
     TriggerType.cursorEnter,
     TriggerType.cursorExit,
+    ...TriggerType.viewport,
   ];
 
   @override

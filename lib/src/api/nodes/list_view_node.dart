@@ -307,6 +307,23 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// this order only breaks ties. Ignored by lists that don't layer their
   /// items.
   bool reversePaintOrder;
+  /// Whether every item is as thick across the list as the thickest item
+  /// beside it, like `crossAxisAlignment: stretch` in a Row or CSS
+  /// `align-items: stretch`: equal-height cards in a horizontal list, or
+  /// equal-height tiles in each run of a wrapping list.
+  ///
+  /// * A list that builds all its items (it doesn't scroll, hugs its items
+  ///   and has a known item count): every item is as thick as the thickest
+  ///   item, so the list hugs that.
+  /// * A wrapping list: every item is as thick as the thickest item of its
+  ///   run.
+  /// * A scrolling list: every item fills the list's cross extent.
+  ///
+  /// An item may then fill the cross axis (`verticalFit: expanded` in a
+  /// horizontal list) even when the list shrink-wraps it. Items that can't
+  /// report their intrinsic size (a list, grid or page view inside them)
+  /// keep their own thickness.
+  bool stretchItems;
 
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
@@ -325,6 +342,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapCrossAlignment = CrossAxisAlignmentC.start,
     this.runSpacing = 0,
     this.reversePaintOrder = false,
+    this.stretchItems = false,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties() {
     if (stacked && layout == ListLayout.stack) {
@@ -358,6 +376,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? runSpacing,
     ListLayout? layout,
     bool? reversePaintOrder,
+    bool? stretchItems,
   }) {
     return ListViewProperties(
       layout: layout ?? this.layout,
@@ -376,6 +395,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       dividerProperties: dividerProperties ?? this.dividerProperties,
       runSpacing: runSpacing ?? this.runSpacing,
       reversePaintOrder: reversePaintOrder ?? this.reversePaintOrder,
+      stretchItems: stretchItems ?? this.stretchItems,
     );
   }
 
@@ -480,6 +500,14 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       () => reversePaintOrder,
       (value) => reversePaintOrder = value,
     ),
+    'stretchItems': BoolFieldAccess(
+      'Stretch Items',
+      'Make every item as thick across the list as the thickest item '
+          'beside it (of its run, in a wrapping list).',
+      () => stretchItems,
+      (value) => stretchItems = value,
+      requiresLayout: true,
+    ),
     'runSpacing': NumFieldAccess<double>(
       'Run Gap',
       'The gap between runs when the items wrap.',
@@ -534,5 +562,6 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     runSpacing,
     layout,
     reversePaintOrder,
+    stretchItems,
   ];
 }

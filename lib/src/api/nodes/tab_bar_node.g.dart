@@ -262,6 +262,9 @@ TabBarNode _$TabBarNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..scrollDirection = $enumDecode(_$AxisCEnumMap, json['scrollDirection'])
       ..reverse = json['reverse'] as bool
       ..primary = json['primary'] as bool
@@ -325,6 +328,7 @@ Map<String, dynamic> _$TabBarNodeToJson(
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,

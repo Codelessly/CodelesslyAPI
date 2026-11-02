@@ -227,6 +227,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -293,6 +296,7 @@ Map<String, dynamic> _$VarianceNodeToJson(
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,

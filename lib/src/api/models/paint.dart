@@ -120,11 +120,14 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// Centre of a radial or angular gradient in the box: (-1, -1) is the top
   /// left, (0, 0) the centre, (1, 1) the bottom right. An off-centre radial
   /// highlight is how a lit dome (a knob cap, a lamp) is drawn.
-  @JsonKey(defaultValue: 0.0)
+  ///
+  /// Also read from `gradientCenter: [x, y]`, the form Hookline's pages
+  /// were saved with.
+  @JsonKey(defaultValue: 0.0, readValue: _readGradientCenter)
   final double gradientCenterX;
 
   /// See [gradientCenterX].
-  @JsonKey(defaultValue: 0.0)
+  @JsonKey(defaultValue: 0.0, readValue: _readGradientCenter)
   final double gradientCenterY;
 
   /// Radius of a radial gradient as a fraction of the box's shorter side;
@@ -922,4 +925,16 @@ class CropData with Equatable, SerializableMixin {
 
   @override
   Map toJson() => _$CropDataOmitDefaults(this, _$CropDataToJson(this));
+}
+
+/// Reads [key] (`gradientCenterX` or `gradientCenterY`) of paint JSON, or
+/// its coordinate of the earlier `gradientCenter: [x, y]` (or `{x, y}`).
+Object? _readGradientCenter(Map json, String key) {
+  if (json[key] != null) return json[key];
+  final bool isX = key == 'gradientCenterX';
+  return switch (json['gradientCenter']) {
+    [final num x, final num y] => isX ? x : y,
+    {'x': final num x, 'y': final num y} => isX ? x : y,
+    _ => null,
+  };
 }

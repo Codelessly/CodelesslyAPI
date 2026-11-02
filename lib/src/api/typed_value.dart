@@ -232,9 +232,11 @@ extension ConversionExt on Object? {
 
   /// Converts given object to [EdgeInsetsModel] if possible. Returns null otherwise.
   ///
-  /// Accepts what a binding or formula gives a node's padding: a number for
-  /// all sides, `[horizontal, vertical]`, `[left, top, right, bottom]`, a
-  /// one-item list, or any of those as text (`"12"`, `"[16, 8]"`).
+  /// Accepts what a binding or formula gives a node's padding or margin: a
+  /// number for all sides, `[horizontal, vertical]`,
+  /// `[left, top, right, bottom]`, a one-item list, a map of sides
+  /// (`{top: 44}`, `{horizontal: 16, vertical: 8}`, `{l, t, r, b}`), or any
+  /// of those as text (`"12"`, `"[16, 8]"`, `'{"top": 44}'`).
   EdgeInsetsModel? toEdgeInsetsModel() {
     final value = this;
     if (value == null) return null;
@@ -242,6 +244,15 @@ extension ConversionExt on Object? {
     if (value case [final num all]) return EdgeInsetsModel.all(all.toDouble());
     if (value case num() || [num(), num()] || [num(), num(), num(), num()]) {
       return EdgeInsetsModel.fromJson(value);
+    }
+    // Spelled-out sides ({left, top, right, bottom}, {horizontal, vertical})
+    // or the model's own {l, t, r, b}.
+    if (value is Map) {
+      try {
+        return EdgeInsetsModel.fromJson(value);
+      } catch (_) {
+        return null;
+      }
     }
     if (value is String) {
       final String text = value.trim();
