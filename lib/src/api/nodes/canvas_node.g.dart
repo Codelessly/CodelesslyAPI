@@ -523,6 +523,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(

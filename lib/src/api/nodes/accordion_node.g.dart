@@ -303,6 +303,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 AccordionProperties _$AccordionPropertiesFromJson(Map json) =>
