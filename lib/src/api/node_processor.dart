@@ -172,8 +172,9 @@ class NodeProcessor {
   /// This function will take the [internalConstraints] and union them to the
   /// [constraints] field to get a reinforced set of constraints.
   ///
-  /// This function is recursive and may travel up the parent tree from the
-  /// internal [BaseNode.relegatedConstraintsToChildren] function.
+  /// The parent's [BaseNode.relegatedConstraintsToChildren] for this node, if
+  /// any, are also unioned in (e.g. a ListTile's minimum leading width, a
+  /// ListView's item extent, or a GridView's cell size).
   static BoxConstraintsModel resolveConstraints(
     BaseNode node, {
     SizeFit? horizontalFit,
@@ -189,7 +190,7 @@ class NodeProcessor {
       final BoxConstraintsModel? relegatedConstraints = parent
           .relegatedConstraintsToChildren(node);
       if (relegatedConstraints != null) {
-        resolved = resolved.union(resolved);
+        resolved = resolved.union(relegatedConstraints);
       }
     }
 

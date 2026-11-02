@@ -4,6 +4,17 @@ import 'dart:math' as math;
 const String _kPushChars =
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 
+/// Timestamp of the most recently generated ID. Kept at library level so
+/// that consecutive calls within the same millisecond can detect the
+/// collision and increment [_lastRandomSuffix] instead of re-rolling it.
+int _lastPushTime = 0;
+
+/// Random suffix of the most recently generated ID, as indices into
+/// [_kPushChars].
+final List<int> _lastRandomSuffix = List<int>.filled(12, 0);
+
+final math.Random _random = math.Random.secure();
+
 /// Implementation from https://gist.github.com/mikelehen/3596a30bd69384624c11
 ///
 /// Fancy ID generator that creates 20-character string identifiers with the following properties:
@@ -15,26 +26,30 @@ const String _kPushChars =
 ///    latter ones will sort after the former ones.  We do this by using the previous random bits
 ///    but "incrementing" them by 1 (only in the case of a timestamp collision).
 String generateId() {
-  int lastPushTime = 0;
-  final List<int> randomSuffix = List.filled(12, 0);
-  final math.Random random = math.Random.secure();
-
   final int now = DateTime.now().toUtc().millisecondsSinceEpoch;
   String id = _toPushIdBase64(now, 8);
 
-  if (now != lastPushTime) {
+  if (now != _lastPushTime) {
     for (int i = 0; i < 12; i += 1) {
-      randomSuffix[i] = random.nextInt(63);
+      _lastRandomSuffix[i] = _random.nextInt(_kPushChars.length);
     }
   } else {
+    // Same millisecond: increment the previous suffix by one (base-N with
+    // carry) so this ID sorts strictly after the previous one.
     int i;
-    for (i = 11; i >= 0 && randomSuffix[i] == 62; i--) {
-      randomSuffix[i] = 0;
+    for (
+      i = 11;
+      i >= 0 && _lastRandomSuffix[i] == _kPushChars.length - 1;
+      i--
+    ) {
+      _lastRandomSuffix[i] = 0;
     }
-    randomSuffix[i] += 1;
+    _lastRandomSuffix[i] += 1;
   }
-  final String suffixStr = randomSuffix.map((int i) => _kPushChars[i]).join();
-  lastPushTime = now;
+  final String suffixStr = _lastRandomSuffix
+      .map((int i) => _kPushChars[i])
+      .join();
+  _lastPushTime = now;
 
   return '$id$suffixStr';
 }
