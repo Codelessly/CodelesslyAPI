@@ -495,6 +495,14 @@ abstract class BaseNode
   /// Available on all nodes, including nodes without blend properties.
   PulseModel? pulse;
 
+  /// Lets the user pick this node up and drop it on a [dropTarget] that
+  /// accepts it. Null when the node can't be dragged. See [DraggableModel].
+  DraggableModel? draggable;
+
+  /// Lets draggable nodes be dropped on this node. Null when it isn't a drop
+  /// target. See [DropTargetModel].
+  DropTargetModel? dropTarget;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
@@ -513,6 +521,11 @@ abstract class BaseNode
   /// How the node moves: a transform drawn over its layout, transitions and
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
+
+  /// Makes the node draggable: it follows the pointer, tilts, and springs
+  /// back, stays or flies off on release. Null for a node that can't be
+  /// dragged. See [DragModel].
+  DragModel? drag;
 
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
