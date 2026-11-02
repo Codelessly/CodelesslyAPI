@@ -10,6 +10,10 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.clipsScrollContent, true))
+    json.remove('clipsScrollContent');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -99,6 +103,7 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
     json.remove('cornerSmoothing');
   if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
     json.remove('cornerRadius');
+  if (isJsonDefault(instance.notches, const [])) json.remove('notches');
   return json;
 }
 
@@ -224,6 +229,11 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
+        notches:
+            (json['notches'] as List<dynamic>?)
+                ?.map((e) => NotchModel.fromJson(e as Map))
+                .toList() ??
+            const [],
         cornerSmoothing: (json['cornerSmoothing'] as num?)?.toDouble() ?? 0,
         isScrollable: json['isScrollable'] as bool? ?? false,
         reverse: json['reverse'] as bool? ?? false,
@@ -322,6 +332,12 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -329,7 +345,13 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             )
       ..transition = json['transition'] == null
           ? null
-          : NodeTransition.fromJson(json['transition'] as Map);
+          : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
+      ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true;
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -349,8 +371,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -381,6 +403,9 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -399,6 +424,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'clipsContent': instance.clipsContent,
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
+  'notches': instance.notches.map((e) => e.toJson()).toList(),
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
@@ -415,6 +442,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
           .keyboardDismissBehavior]!,
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
+  'clipsScrollContent': instance.clipsScrollContent,
 };
 
 const _$RowColumnTypeEnumMap = {
@@ -529,4 +557,9 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };

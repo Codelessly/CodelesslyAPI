@@ -38,6 +38,18 @@ class RowColumnNode extends ParentNode
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get wrapsChildren => wrap && rowColumnType == RowColumnType.row;
 
+  /// Whether a row/column that scrolls ([isScrollable]) clips its content to
+  /// its box. False lets what its children paint past their boxes (a card's
+  /// drop shadow) show past the row/column's edges, as Flutter's
+  /// `SingleChildScrollView(clipBehavior: Clip.none)` does; scrolled content
+  /// then shows past them too. [clipsContent] true always clips.
+  ///
+  /// A list view does this with `clipsContent: false`. A row/column needs
+  /// its own flag: its [clipsContent] is false unless set, and stored rows
+  /// and columns that scroll must keep clipping.
+  @JsonKey(defaultValue: true)
+  bool clipsScrollContent = true;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -82,6 +94,7 @@ class RowColumnNode extends ParentNode
     super.clipsContent = false,
     // [CornerMixin] properties.
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     double cornerSmoothing = 0,
     // [ScrollableMixin] properties.
     bool isScrollable = false,
@@ -96,6 +109,7 @@ class RowColumnNode extends ParentNode
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
@@ -156,6 +170,13 @@ class RowColumnNode extends ParentNode
       defaultValue: () => 0,
       requiresLayout: true,
     ),
+    'clipsScrollContent': BoolFieldAccess(
+      'Clip Scroll Content',
+      'Whether a scrolling row/column clips its content to its box; off lets children\'s shadows paint past its edges.',
+      () => clipsScrollContent,
+      (value) => clipsScrollContent = value,
+      defaultValue: () => true,
+    ),
     'runSpacing': NumFieldAccess<double>(
       'Run Spacing',
       'Gap between runs along the cross axis when wrapping.',
@@ -214,7 +235,7 @@ class RowNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -245,7 +266,8 @@ class RowNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -269,7 +291,7 @@ class ColumnNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -300,7 +322,8 @@ class ColumnNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -336,6 +359,11 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.strokePath = source.strokePath;
   target.reveal = source.reveal;
   target.drag = source.drag;
+  target.heroTag = source.heroTag;
+  target.heroFlight = source.heroFlight;
+  target.layoutAspectRatio = source.layoutAspectRatio;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
+  target.foregroundFills = source.foregroundFills;
+  target.clipsScrollContent = source.clipsScrollContent;
 }

@@ -220,12 +220,17 @@ FloatingActionButtonNode _$FloatingActionButtonNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   FloatingActionButtonNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -242,6 +247,7 @@ Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -272,6 +278,9 @@ Map<String, dynamic> _$FloatingActionButtonNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'type': instance.type,
   'properties': instance.properties.toJson(),
 };
@@ -301,6 +310,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 FloatingActionButtonProperties _$FloatingActionButtonPropertiesFromJson(

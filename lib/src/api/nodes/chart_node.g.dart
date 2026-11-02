@@ -348,6 +348,12 @@ ChartNode _$ChartNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
@@ -398,6 +404,9 @@ Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'selectedIndex': instance.selectedIndex,
@@ -428,6 +437,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(

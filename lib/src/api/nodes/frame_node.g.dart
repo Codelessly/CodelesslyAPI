@@ -12,6 +12,8 @@ Map<String, dynamic> _$FrameNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.contentAlignment, AlignmentModel.center))
     json.remove('contentAlignment');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -78,6 +80,7 @@ Map<String, dynamic> _$FrameNodeOmitDefaults(
     json.remove('cornerSmoothing');
   if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
     json.remove('cornerRadius');
+  if (isJsonDefault(instance.notches, const [])) json.remove('notches');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
   if (isJsonDefault(instance.children, [])) json.remove('children');
   if (isJsonDefault(instance.isScrollable, false)) json.remove('isScrollable');
@@ -159,6 +162,11 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
+        notches:
+            (json['notches'] as List<dynamic>?)
+                ?.map((e) => NotchModel.fromJson(e as Map))
+                .toList() ??
+            const [],
         dashPattern:
             (json['dashPattern'] as List<dynamic>?)
                 ?.map((e) => (e as num).toDouble())
@@ -233,6 +241,9 @@ FrameNode _$FrameNodeFromJson(Map json) =>
         contentAlignment: json['contentAlignment'] == null
             ? AlignmentModel.center
             : AlignmentModel.fromJson(json['contentAlignment'] as Map),
+        contentSize: json['contentSize'] == null
+            ? null
+            : SizeC.fromJson(json['contentSize'] as Map),
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -312,6 +323,12 @@ FrameNode _$FrameNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -320,6 +337,11 @@ FrameNode _$FrameNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
@@ -338,8 +360,8 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -370,6 +392,9 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -385,9 +410,11 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'clipsContent': instance.clipsContent,
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
+  'notches': instance.notches.map((e) => e.toJson()).toList(),
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -405,6 +432,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'type': instance.type,
   'contentFit': ?_$FitEnumMap[instance.contentFit],
   'contentAlignment': instance.contentAlignment.toJson(),
+  'contentSize': ?instance.contentSize?.toJson(),
 };
 
 const _$BlendModeCEnumMap = {
@@ -512,4 +540,9 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };

@@ -51,7 +51,7 @@
           "type": "object"
         },
         "rotation": {
-          "type": "integer"
+          "type": "number"
         },
         "pulse": {
           "type": "object",
@@ -181,7 +181,7 @@
         "fieldPath": "rotation",
         "group": "Transform",
         "control": "angle",
-        "schemaType": "integer",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": false
       },

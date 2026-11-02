@@ -55,7 +55,7 @@ StartEndProp _$StartEndPropFromJson(Map json) => StartEndProp(
   textDecoration:
       $enumDecodeNullable(
         _$TextDecorationEnumEnumMap,
-        json['textDecoration'],
+        readTextDecoration(json, 'textDecoration'),
       ) ??
       TextDecorationEnum.none,
   letterSpacing: json['letterSpacing'] == null
@@ -100,7 +100,7 @@ TextProp _$TextPropFromJson(Map json) => TextProp(
   textDecoration:
       $enumDecodeNullable(
         _$TextDecorationEnumEnumMap,
-        json['textDecoration'],
+        readTextDecoration(json, 'textDecoration'),
       ) ??
       TextDecorationEnum.none,
   letterSpacing: json['letterSpacing'] == null

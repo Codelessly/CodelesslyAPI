@@ -60,7 +60,7 @@
           "type": "object"
         },
         "rotation": {
-          "type": "integer"
+          "type": "number"
         },
         "properties": {
           "type": "object",
@@ -73,6 +73,12 @@
             },
             "trackOutlineWidth": {
               "type": "number"
+            },
+            "uniformThumb": {
+              "type": "boolean"
+            },
+            "fillTrack": {
+              "type": "boolean"
             }
           }
         },
@@ -192,7 +198,7 @@
         "fieldPath": "rotation",
         "group": "Transform",
         "control": "angle",
-        "schemaType": "integer",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": false
       },
@@ -223,6 +229,30 @@
         "group": "Appearance",
         "control": "number",
         "schemaType": "number",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "switch",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.",
+        "fieldPath": "properties.uniformThumb",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "switch",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.",
+        "fieldPath": "properties.fillTrack",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
         "defaultSource": null,
         "bindable": false
       },
@@ -329,6 +359,12 @@
                     },
                     "trackOutlineWidth": {
                       "type": "number"
+                    },
+                    "uniformThumb": {
+                      "type": "boolean"
+                    },
+                    "fillTrack": {
+                      "type": "boolean"
                     }
                   }
                 }
@@ -459,6 +495,26 @@
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.",
+        "field": "properties.uniformThumb",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.",
+        "field": "properties.fillTrack",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
         ]
       },
       {

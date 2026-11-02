@@ -10,6 +10,10 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
   RectangleNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.strokeJoin, StrokeJoinEnum.miter))
+    json.remove('strokeJoin');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -76,6 +80,7 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
     json.remove('cornerSmoothing');
   if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
     json.remove('cornerRadius');
+  if (isJsonDefault(instance.notches, const [])) json.remove('notches');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
   return json;
 }
@@ -178,7 +183,20 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
+        notches:
+            (json['notches'] as List<dynamic>?)
+                ?.map((e) => NotchModel.fromJson(e as Map))
+                .toList() ??
+            const [],
         clipsContent: json['clipsContent'] as bool? ?? true,
+        path: json['path'] as String?,
+        strokeJoin:
+            $enumDecodeNullable(
+              _$StrokeJoinEnumEnumMap,
+              json['strokeJoin'],
+              unknownValue: StrokeJoinEnum.miter,
+            ) ??
+            StrokeJoinEnum.miter,
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -258,6 +276,12 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -266,6 +290,11 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$RectangleNodeToJson(
@@ -286,8 +315,8 @@ Map<String, dynamic> _$RectangleNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -318,6 +347,9 @@ Map<String, dynamic> _$RectangleNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
@@ -333,9 +365,13 @@ Map<String, dynamic> _$RectangleNodeToJson(
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
   'clipsContent': instance.clipsContent,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
+  'notches': instance.notches.map((e) => e.toJson()).toList(),
   'type': instance.type,
+  'path': ?instance.path,
+  'strokeJoin': _$StrokeJoinEnumEnumMap[instance.strokeJoin]!,
 };
 
 const _$BlendModeCEnumMap = {
@@ -403,6 +439,12 @@ const _$PositioningModeEnumMap = {
   PositioningMode.pin: 'pin',
 };
 
+const _$StrokeJoinEnumEnumMap = {
+  StrokeJoinEnum.miter: 'miter',
+  StrokeJoinEnum.round: 'round',
+  StrokeJoinEnum.bevel: 'bevel',
+};
+
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
@@ -415,4 +457,9 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };

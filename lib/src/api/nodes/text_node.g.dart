@@ -271,6 +271,12 @@ TextNode _$TextNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -279,14 +285,13 @@ TextNode _$TextNodeFromJson(Map json) =>
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'data': instance.data,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -307,15 +312,11 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
   'alignment': instance.alignment.toJson(),
-  'textScaleFactor': ?instance.textScaleFactor,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'softWrap': instance.softWrap,
+  'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,
@@ -341,6 +342,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
@@ -432,4 +436,9 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };

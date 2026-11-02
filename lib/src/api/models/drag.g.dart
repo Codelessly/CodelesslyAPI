@@ -41,6 +41,11 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.restX, 0)) json.remove('restX');
   if (isJsonDefault(instance.restY, 0)) json.remove('restY');
   if (isJsonDefault(instance.reorder, false)) json.remove('reorder');
+  if (isJsonDefault(instance.follow, true)) json.remove('follow');
+  if (isJsonDefault(instance.flyOutCurve, MotionCurve.easeIn))
+    json.remove('flyOutCurve');
+  if (isJsonDefault(instance.xVariable, '')) json.remove('xVariable');
+  if (isJsonDefault(instance.yVariable, '')) json.remove('yVariable');
   return json;
 }
 
@@ -86,6 +91,13 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
       ? null
       : DragTrackModel.fromJson(json['track'] as Map),
   reorder: json['reorder'] as bool? ?? false,
+  follow: json['follow'] as bool? ?? true,
+  flyOutDistance: (json['flyOutDistance'] as num?)?.toDouble(),
+  flyOutCurve:
+      $enumDecodeNullable(_$MotionCurveEnumMap, json['flyOutCurve']) ??
+      MotionCurve.easeIn,
+  xVariable: json['xVariable'] as String? ?? '',
+  yVariable: json['yVariable'] as String? ?? '',
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -113,6 +125,11 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'restY': instance.restY,
   'track': ?instance.track?.toJson(),
   'reorder': instance.reorder,
+  'follow': instance.follow,
+  'flyOutDistance': ?instance.flyOutDistance,
+  'flyOutCurve': _$MotionCurveEnumMap[instance.flyOutCurve]!,
+  'xVariable': instance.xVariable,
+  'yVariable': instance.yVariable,
 };
 
 const _$DragAxisEnumMap = {

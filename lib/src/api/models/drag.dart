@@ -201,6 +201,29 @@ class DragModel with Equatable, SerializableMixin {
   /// result.to)}`). The other drag settings don't apply.
   final bool reorder;
 
+  /// Whether the node moves with the pointer. When false the drag is only
+  /// reported (to [xVariable], [yVariable], the `drag` variable and the
+  /// reactions) and the node stays put: a handle that drives something
+  /// else.
+  final bool follow;
+
+  /// How far the node flies off when dismissed, as a multiple of its size
+  /// along the direction it leaves in (1.25 clears its own box). Null flies
+  /// it off the screen.
+  final double? flyOutDistance;
+
+  /// The easing of the fly-off.
+  final MotionCurve flyOutCurve;
+
+  /// A number variable that holds the horizontal distance dragged, in
+  /// logical pixels, while the node is dragged, springs back or flies off;
+  /// 0 at rest. Empty for none. Unlike [shareAs] it holds just the number,
+  /// for formulas such as `${= abs(deckDrag) / 300}`.
+  final String xVariable;
+
+  /// Like [xVariable], for the vertical distance.
+  final String yVariable;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -230,6 +253,11 @@ class DragModel with Equatable, SerializableMixin {
     this.restY = 0,
     this.track,
     this.reorder = false,
+    this.follow = true,
+    this.flyOutDistance,
+    this.flyOutCurve = MotionCurve.easeIn,
+    this.xVariable = '',
+    this.yVariable = '',
   });
 
   /// The key in [BaseNode.variables] that binds [enabled].
@@ -298,6 +326,12 @@ class DragModel with Equatable, SerializableMixin {
     double? restY,
     DragTrackModel? track,
     bool clearTrack = false,
+    bool? follow,
+    double? flyOutDistance,
+    bool clearFlyOutDistance = false,
+    MotionCurve? flyOutCurve,
+    String? xVariable,
+    String? yVariable,
     bool? reorder,
   }) => DragModel(
     axis: axis ?? this.axis,
@@ -322,6 +356,13 @@ class DragModel with Equatable, SerializableMixin {
     restY: restY ?? this.restY,
     track: clearTrack ? null : (track ?? this.track),
     reorder: reorder ?? this.reorder,
+    follow: follow ?? this.follow,
+    flyOutDistance: clearFlyOutDistance
+        ? null
+        : flyOutDistance ?? this.flyOutDistance,
+    flyOutCurve: flyOutCurve ?? this.flyOutCurve,
+    xVariable: xVariable ?? this.xVariable,
+    yVariable: yVariable ?? this.yVariable,
   );
 
   @override
@@ -348,10 +389,61 @@ class DragModel with Equatable, SerializableMixin {
     restY,
     track,
     reorder,
+    follow,
+    flyOutDistance,
+    flyOutCurve,
+    xVariable,
+    yVariable,
   ];
 
   /// Creates a [DragModel] from JSON.
-  factory DragModel.fromJson(Map json) => _$DragModelFromJson(json);
+  ///
+  /// Also reads the first drag format (Meridian's), whose keys are mapped
+  /// onto these: `rotate` is [rotateFactor], `returnMs` and `returnCurve`
+  /// are [snapBackMs] and [snapCurve], `dismissDistance` and
+  /// `dismissVelocity` make it [DragRelease.dismiss] with those thresholds
+  /// (a missing one never dismisses), `dismissTo`, `dismissMs` and
+  /// `dismissCurve` are [flyOutDistance], [flyOutMs] and [flyOutCurve].
+  factory DragModel.fromJson(Map json) =>
+      _$DragModelFromJson(migrateLegacyJson(json));
+
+  /// The keys only the first drag format had.
+  static const Set<String> legacyKeys = {
+    'rotate',
+    'returnMs',
+    'returnCurve',
+    'dismissDistance',
+    'dismissVelocity',
+    'dismissTo',
+    'dismissMs',
+    'dismissCurve',
+  };
+
+  /// Rewrites JSON in the first drag format (see [DragModel.fromJson]) into
+  /// this one. JSON without its keys is returned as is.
+  static Map migrateLegacyJson(Map json) {
+    if (!json.keys.any(legacyKeys.contains)) return json;
+    final Map out = {
+      for (final MapEntry entry in json.entries)
+        if (!legacyKeys.contains(entry.key)) entry.key: entry.value,
+    };
+    // The first format's defaults, which its JSON left out.
+    out['snapBackMs'] = json['returnMs'] ?? 260;
+    out['snapCurve'] = json['returnCurve'] ?? MotionCurve.easeOutBack.name;
+    out['flyOutMs'] = json['dismissMs'] ?? 240;
+    out['flyOutCurve'] = json['dismissCurve'] ?? MotionCurve.easeIn.name;
+    out['flyOutDistance'] = json['dismissTo'] ?? 1.25;
+    if (json['rotate'] != null) out['rotateFactor'] = json['rotate'];
+    final Object? distance = json['dismissDistance'];
+    final Object? velocity = json['dismissVelocity'];
+    if (distance != null || velocity != null) {
+      out['release'] = DragRelease.dismiss.name;
+      // A threshold the first format left out never dismissed.
+      out['distanceThreshold'] = distance ?? double.maxFinite;
+      out['velocityThreshold'] = velocity ?? double.maxFinite;
+    }
+    return out;
+  }
 
   @override
   Map toJson() => _$DragModelOmitDefaults(this, _$DragModelToJson(this));

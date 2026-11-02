@@ -201,6 +201,7 @@ List<BaseNode> sampleNodes() {
       ),
     ),
     BadgeNode.empty(),
+    BarcodeNode.empty(),
     ElevatedButtonNode.empty(),
     CheckboxNode.empty(),
     SignatureNode.empty(),

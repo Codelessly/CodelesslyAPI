@@ -221,6 +221,12 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -284,6 +290,9 @@ Map<String, dynamic> _$VarianceNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
@@ -319,6 +328,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 Variant _$VariantFromJson(Map json) => Variant(

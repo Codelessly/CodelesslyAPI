@@ -237,6 +237,12 @@ EmbeddedVideoNode _$EmbeddedVideoNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$EmbeddedVideoNodeToJson(
@@ -289,6 +295,9 @@ Map<String, dynamic> _$EmbeddedVideoNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'type': instance.type,
   'properties': instance.properties.toJson(),
 };
@@ -318,6 +327,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 EmbeddedYoutubeVideoProperties _$EmbeddedYoutubeVideoPropertiesFromJson(

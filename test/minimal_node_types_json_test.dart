@@ -29,6 +29,7 @@ const List<String> _types = [
   'divider',
   'progressBar',
   'badge',
+  'barcode',
   'chip',
   'segmentedButton',
   'floatingActionButton',

@@ -85,6 +85,8 @@ Map<String, dynamic> _$SwitchPropertiesOmitDefaults(
   if (isJsonDefault(instance.trackOutlineWidth, 2))
     json.remove('trackOutlineWidth');
   if (isJsonDefault(instance.useMaterial3, false)) json.remove('useMaterial3');
+  if (isJsonDefault(instance.uniformThumb, false)) json.remove('uniformThumb');
+  if (isJsonDefault(instance.fillTrack, false)) json.remove('fillTrack');
   return json;
 }
 
@@ -219,11 +221,18 @@ SwitchNode _$SwitchNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SwitchNodeToJson(
   SwitchNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -239,7 +248,6 @@ Map<String, dynamic> _$SwitchNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
@@ -271,6 +279,9 @@ Map<String, dynamic> _$SwitchNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'type': instance.type,
   'value': instance.value,
   'properties': instance.properties.toJson(),
@@ -303,6 +314,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.dragged: 'dragged',
 };
 
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+};
+
 SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
   activeTrackColor: json['activeTrackColor'] == null
       ? ColorRGBA.black
@@ -333,6 +349,8 @@ SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
       : ColorRGBA.fromJson(json['inactiveTrackBorderColor']),
   trackOutlineWidth: (json['trackOutlineWidth'] as num?)?.toDouble() ?? 2,
   useMaterial3: json['useMaterial3'] as bool? ?? false,
+  uniformThumb: json['uniformThumb'] as bool? ?? false,
+  fillTrack: json['fillTrack'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
@@ -349,4 +367,6 @@ Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
       'inactiveTrackBorderColor': ?instance.inactiveTrackBorderColor?.toJson(),
       'trackOutlineWidth': instance.trackOutlineWidth,
       'useMaterial3': instance.useMaterial3,
+      'uniformThumb': instance.uniformThumb,
+      'fillTrack': instance.fillTrack,
     };

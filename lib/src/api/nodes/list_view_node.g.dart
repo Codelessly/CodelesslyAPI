@@ -107,6 +107,8 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
     json.remove('wrapCrossAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
+  if (isJsonDefault(instance.reversePaintOrder, false))
+    json.remove('reversePaintOrder');
   return json;
 }
 
@@ -289,6 +291,12 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -331,8 +339,8 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -363,12 +371,15 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'children': instance.children,
+  'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
   'clipsContent': instance.clipsContent,
-  'ephemeral': instance.ephemeral,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -436,6 +447,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.dragged: 'dragged',
 };
 
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+};
+
 const _$QueryPagingEnumMap = {
   QueryPaging.scroll: 'scroll',
   QueryPaging.button: 'button',
@@ -467,6 +483,7 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       ) ??
       CrossAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
+  reversePaintOrder: json['reversePaintOrder'] as bool? ?? false,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -490,6 +507,7 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
           _$CrossAxisAlignmentCEnumMap[instance.wrapCrossAlignment]!,
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
+      'reversePaintOrder': instance.reversePaintOrder,
     };
 
 const _$ListLayoutEnumMap = {

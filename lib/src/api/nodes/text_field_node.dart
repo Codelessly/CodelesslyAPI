@@ -152,6 +152,32 @@ class TextFieldNode extends SceneNode
       _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
+/// How a text field capitalizes what is typed in it.
+enum TextCapitalizationC {
+  /// Leaves the text as typed.
+  none,
+
+  /// Suggests a capital at the start of each word (the soft keyboard's
+  /// shift), without changing what is typed.
+  words,
+
+  /// Suggests a capital at the start of each sentence, without changing
+  /// what is typed.
+  sentences,
+
+  /// Upper-cases every character as it is typed or pasted (and asks the
+  /// soft keyboard for capitals): booking references, airport codes.
+  characters;
+
+  /// Display name.
+  String get prettify => switch (this) {
+    TextCapitalizationC.none => 'None',
+    TextCapitalizationC.words => 'Words',
+    TextCapitalizationC.sentences => 'Sentences',
+    TextCapitalizationC.characters => 'All caps',
+  };
+}
+
 /// Holds configurable properties of the text field.
 @JsonSerializable()
 class TextFieldProperties extends CustomProperties with FieldsHolder {
@@ -656,6 +682,14 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       defaultValue: () => TextInputActionC.none,
       options: () => TextInputActionC.values,
     ),
+    'textCapitalization': EnumFieldAccess<TextCapitalizationC>(
+      'Text Capitalization',
+      'How typed text is capitalized; characters turns it all into capitals.',
+      () => textCapitalization,
+      (value) => textCapitalization = value,
+      defaultValue: () => TextCapitalizationC.none,
+      options: () => TextCapitalizationC.values,
+    ),
   };
 
   @override
@@ -713,18 +747,3 @@ int? _maxLinesFromJson(Object? value) => value is num ? value.toInt() : null;
 /// [_maxLinesFromJson].
 const String _unlimitedLines = 'unlimited';
 
-/// Which letters the keyboard capitalizes by default; mirrors Flutter's
-/// `TextCapitalization`.
-enum TextCapitalizationC {
-  /// No automatic capitalization.
-  none,
-
-  /// The first letter of each word: names.
-  words,
-
-  /// The first letter of each sentence.
-  sentences,
-
-  /// Every letter.
-  characters,
-}
