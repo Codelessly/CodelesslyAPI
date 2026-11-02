@@ -78,6 +78,7 @@ Map<String, dynamic> _$SwitchPropertiesOmitDefaults(
   if (isJsonDefault(instance.trackOutlineWidth, 2))
     json.remove('trackOutlineWidth');
   if (isJsonDefault(instance.useMaterial3, false)) json.remove('useMaterial3');
+  if (isJsonDefault(instance.uniformThumb, false)) json.remove('uniformThumb');
   return json;
 }
 
@@ -304,6 +305,7 @@ SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
       : ColorRGBA.fromJson(json['inactiveTrackBorderColor']),
   trackOutlineWidth: (json['trackOutlineWidth'] as num?)?.toDouble() ?? 2,
   useMaterial3: json['useMaterial3'] as bool? ?? false,
+  uniformThumb: json['uniformThumb'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
@@ -320,4 +322,5 @@ Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
       'inactiveTrackBorderColor': ?instance.inactiveTrackBorderColor?.toJson(),
       'trackOutlineWidth': instance.trackOutlineWidth,
       'useMaterial3': instance.useMaterial3,
+      'uniformThumb': instance.uniformThumb,
     };
