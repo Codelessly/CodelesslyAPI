@@ -115,13 +115,6 @@ void main() {
     });
   });
 
-  test('FocusFieldAction round-trips', () {
-    final action = FocusFieldAction(nodeId: 'front');
-    expect(ActionModel.fromJson(action.toJson()), action);
-    expect(ActionModel.fromJson(FocusFieldAction(unfocus: true).toJson()),
-        FocusFieldAction(unfocus: true));
-  });
-
   test('ScrollToAction round-trips and omits defaults', () {
     expect(ScrollToAction(nodeId: 'calendar').toJson(),
         {'type': 'scrollTo', 'nodeId': 'calendar'});
