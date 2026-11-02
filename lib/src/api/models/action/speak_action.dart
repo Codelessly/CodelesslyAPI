@@ -6,38 +6,50 @@ import '../models.dart';
 
 part 'speak_action.g.dart';
 
-/// Reads [text] aloud with the device's text-to-speech voice: a word's
-/// pronunciation on a flashcard, a hint read out. The action finishes when
-/// the speech ends, so the actions after it run once it has been said.
-///
-/// While speaking, every node can read the `speech` variable:
-/// `${speech.speaking}`, `${speech.text}` (what is being said) and
-/// `${speech.available}` (false where the device has no voice), so a
-/// speaker button can animate while it talks and explain when it can't.
+/// Reads a bindable number stored as a string, accepting a plain JSON number
+/// too, so `{"rate": 0.6}` and `{"rate": "0.6"}` both read as `'0.6'`.
+String _bindableNumberFromJson(Object? value) =>
+    _optionalBindableNumberFromJson(value) ?? '1';
+
+String? _optionalBindableNumberFromJson(Object? value) => switch (value) {
+  null => null,
+  final String text => text,
+  final num number => number.toString(),
+  _ => value.toString(),
+};
+
+/// Speaks a text aloud with the platform's text-to-speech, e.g. a phrase in
+/// the language it is written in. A new phrase replaces the one being spoken.
+/// With [stop] it stops any speech instead of speaking.
 @JsonSerializable()
 class SpeakAction extends ActionModel with Equatable, SerializableMixin {
-  /// What to say. Supports variables and formulas, e.g. `${item.front}`.
+  /// The text to speak. Supports variables and formulas, e.g.
+  /// `${route.phrase.text}`.
   final String text;
 
-  /// The voice's language as a BCP 47 tag (`es-ES`, `ja-JP`), which may
-  /// also be a variable (`${deck.lang}`). Empty uses the device's default.
+  /// The BCP-47 language tag to speak in, e.g. `ar-EG` or `ja-JP`. May be a
+  /// variable or formula, e.g. `${route.phrase.lang}`. Empty uses the
+  /// platform's default voice.
   final String language;
 
-  /// Speed, where 1 is normal; 0.5 is half speed.
-  final double rate;
+  /// The speaking rate: `1` is normal, `0.6` slow. A number, variable or
+  /// formula, e.g. `${= slow ? 0.6 : 1}`.
+  @JsonKey(fromJson: _bindableNumberFromJson)
+  final String rate;
 
-  /// Pitch, where 1 is normal.
-  final double pitch;
+  /// The voice pitch, `1` by default. A number, variable or formula.
+  @JsonKey(fromJson: _optionalBindableNumberFromJson)
+  final String? pitch;
 
-  /// Stops anything being said instead of saying [text].
+  /// Whether this action stops any speech instead of speaking.
   final bool stop;
 
   /// Creates a [SpeakAction].
   SpeakAction({
     this.text = '',
     this.language = '',
-    this.rate = 1,
-    this.pitch = 1,
+    this.rate = '1',
+    this.pitch,
     this.stop = false,
     super.nonBlocking,
     super.enabled,
@@ -47,14 +59,15 @@ class SpeakAction extends ActionModel with Equatable, SerializableMixin {
   SpeakAction copyWith({
     String? text,
     String? language,
-    double? rate,
-    double? pitch,
+    String? rate,
+    String? pitch,
+    bool clearPitch = false,
     bool? stop,
   }) => SpeakAction(
     text: text ?? this.text,
     language: language ?? this.language,
     rate: rate ?? this.rate,
-    pitch: pitch ?? this.pitch,
+    pitch: clearPitch ? null : pitch ?? this.pitch,
     stop: stop ?? this.stop,
     nonBlocking: nonBlocking,
     enabled: enabled,

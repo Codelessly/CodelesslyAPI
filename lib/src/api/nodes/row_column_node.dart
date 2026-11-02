@@ -132,6 +132,7 @@ class RowColumnNode extends ParentNode
     TriggerType.dragEnd,
     TriggerType.reorder,
     TriggerType.changed,
+    TriggerType.scroll,
   ];
 
   @override

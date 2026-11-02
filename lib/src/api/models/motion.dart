@@ -38,7 +38,12 @@ enum MotionCurve {
   bounceOut,
 
   /// Material-style fast start and long, gentle settle.
-  fastOutSlowIn;
+  fastOutSlowIn,
+
+
+  /// A cubic ease in and out: slow at both ends, fast in the middle, as a
+  /// card turning over.
+  easeInOutCubic;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -52,6 +57,7 @@ enum MotionCurve {
     MotionCurve.elasticOut => 'Elastic',
     MotionCurve.bounceOut => 'Bounce',
     MotionCurve.fastOutSlowIn => 'Fast out, slow in',
+    MotionCurve.easeInOutCubic => 'Ease in out (cubic)',
   };
 }
 
@@ -741,7 +747,12 @@ class MotionModel with Equatable, SerializableMixin {
   ];
 
   /// Creates a [MotionModel] from JSON.
-  factory MotionModel.fromJson(Map json) => _$MotionModelFromJson(json);
+  /// An earlier name of [backfaceHidden] (`hideBackface`) still reads.
+  factory MotionModel.fromJson(Map json) => _$MotionModelFromJson(
+    json['hideBackface'] != null && json['backfaceHidden'] == null
+        ? {...json, 'backfaceHidden': json['hideBackface']}
+        : json,
+  );
 
   @override
   Map toJson() {
