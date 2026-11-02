@@ -785,6 +785,15 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [CopyToClipboardAction].
   R? visitCopyToClipboardAction(CopyToClipboardAction action);
 
+  /// Visits a [ControlDragAction].
+  R? visitControlDragAction(ControlDragAction action);
+
+  /// Visits a [SpeakAction].
+  R? visitSpeakAction(SpeakAction action);
+
+  /// Visits a [PlaySoundAction].
+  R? visitPlaySoundAction(PlaySoundAction action);
+
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);
 

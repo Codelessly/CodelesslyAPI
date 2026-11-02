@@ -52,6 +52,7 @@ class CanvasNode extends ParentNode
     TriggerType.keyPress,
     TriggerType.interval,
     TriggerType.keyDown,
+    TriggerType.clock,
   ];
 
   @override
