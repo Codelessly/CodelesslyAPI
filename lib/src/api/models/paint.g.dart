@@ -58,6 +58,9 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
   gradientRepeatEvery: (json['gradientRepeatEvery'] as num?)?.toDouble(),
+  gradientCenterX: (json['gradientCenterX'] as num?)?.toDouble(),
+  gradientCenterY: (json['gradientCenterY'] as num?)?.toDouble(),
+  gradientRadius: (json['gradientRadius'] as num?)?.toDouble(),
   gradientTileMode:
       $enumDecodeNullable(
         _$GradientTileModeEnumMap,
@@ -100,6 +103,9 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'gradientTransform': ?instance.gradientTransform,
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
       'gradientRepeatEvery': ?instance.gradientRepeatEvery,
+      'gradientCenterX': ?instance.gradientCenterX,
+      'gradientCenterY': ?instance.gradientCenterY,
+      'gradientRadius': ?instance.gradientRadius,
       'gradientTileMode': _$GradientTileModeEnumMap[instance.gradientTileMode]!,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,

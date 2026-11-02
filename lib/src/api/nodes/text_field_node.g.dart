@@ -102,6 +102,8 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
     json.remove('autofillHints');
   if (isJsonDefault(instance.textInputAction, TextInputActionC.none))
     json.remove('textInputAction');
+  if (isJsonDefault(instance.textCapitalization, TextCapitalizationC.none))
+    json.remove('textCapitalization');
   return json;
 }
 
@@ -383,6 +385,13 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
   textInputAction:
       $enumDecodeNullable(_$TextInputActionCEnumMap, json['textInputAction']) ??
       TextInputActionC.none,
+  textCapitalization:
+      $enumDecodeNullable(
+        _$TextCapitalizationCEnumMap,
+        json['textCapitalization'],
+        unknownValue: TextCapitalizationC.none,
+      ) ??
+      TextCapitalizationC.none,
 );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(
@@ -423,6 +432,8 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
       .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
       .toList(),
   'textInputAction': _$TextInputActionCEnumMap[instance.textInputAction]!,
+  'textCapitalization':
+      _$TextCapitalizationCEnumMap[instance.textCapitalization]!,
 };
 
 const _$TextInputTypeEnumEnumMap = {
@@ -565,4 +576,11 @@ const _$TextInputActionCEnumMap = {
   TextInputActionC.route: 'route',
   TextInputActionC.emergencyCall: 'emergencyCall',
   TextInputActionC.newline: 'newline',
+};
+
+const _$TextCapitalizationCEnumMap = {
+  TextCapitalizationC.none: 'none',
+  TextCapitalizationC.words: 'words',
+  TextCapitalizationC.sentences: 'sentences',
+  TextCapitalizationC.characters: 'characters',
 };

@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -148,6 +149,32 @@ class TextFieldNode extends SceneNode
       _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
+/// How a text field capitalizes what is typed in it.
+enum TextCapitalizationC {
+  /// Leaves the text as typed.
+  none,
+
+  /// Suggests a capital at the start of each word (the soft keyboard's
+  /// shift), without changing what is typed.
+  words,
+
+  /// Suggests a capital at the start of each sentence, without changing
+  /// what is typed.
+  sentences,
+
+  /// Upper-cases every character as it is typed or pasted (and asks the
+  /// soft keyboard for capitals): booking references, airport codes.
+  characters;
+
+  /// Display name.
+  String get prettify => switch (this) {
+    TextCapitalizationC.none => 'None',
+    TextCapitalizationC.words => 'Words',
+    TextCapitalizationC.sentences => 'Sentences',
+    TextCapitalizationC.characters => 'All caps',
+  };
+}
+
 /// Holds configurable properties of the text field.
 @JsonSerializable()
 class TextFieldProperties extends CustomProperties with FieldsHolder {
@@ -267,6 +294,12 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   /// button on the keyboard.
   TextInputActionC textInputAction;
 
+  /// How typed text is capitalized. [TextCapitalizationC.characters] turns
+  /// everything typed into capitals; the others only hint the soft
+  /// keyboard.
+  @JsonKey(unknownEnumValue: TextCapitalizationC.none)
+  TextCapitalizationC textCapitalization;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
@@ -299,6 +332,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
+    this.textCapitalization = TextCapitalizationC.none,
   }) : inputStyle =
            inputStyle ??
            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
@@ -337,6 +371,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     Set<TextInputAutofillHints>? autofillHints,
     AutovalidateModeC? autovalidateMode,
     TextInputActionC? textInputAction,
+    TextCapitalizationC? textCapitalization,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -370,6 +405,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       autofillHints: autofillHints ?? this.autofillHints,
       autovalidateMode: autovalidateMode ?? this.autovalidateMode,
       textInputAction: textInputAction ?? this.textInputAction,
+      textCapitalization: textCapitalization ?? this.textCapitalization,
     );
   }
 
@@ -563,6 +599,14 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       defaultValue: () => TextInputActionC.none,
       options: () => TextInputActionC.values,
     ),
+    'textCapitalization': EnumFieldAccess<TextCapitalizationC>(
+      'Text Capitalization',
+      'How typed text is capitalized; characters turns it all into capitals.',
+      () => textCapitalization,
+      (value) => textCapitalization = value,
+      defaultValue: () => TextCapitalizationC.none,
+      options: () => TextCapitalizationC.values,
+    ),
   };
 
   @override
@@ -597,6 +641,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     autofillHints,
     autovalidateMode,
     textInputAction,
+    textCapitalization,
   ];
 }
 
