@@ -276,6 +276,9 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -340,6 +343,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'children': instance.children,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,

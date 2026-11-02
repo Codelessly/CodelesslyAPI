@@ -169,6 +169,9 @@ VideoNode _$VideoNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$VideoNodeToJson(VideoNode instance) => <String, dynamic>{
@@ -210,6 +213,7 @@ Map<String, dynamic> _$VideoNodeToJson(VideoNode instance) => <String, dynamic>{
   'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
 };

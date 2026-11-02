@@ -133,6 +133,9 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -174,6 +177,7 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'children': instance.children,
   'type': instance.type,
   'tabs': instance.tabs.map((e) => e.toJson()).toList(),
