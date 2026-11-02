@@ -221,6 +221,9 @@ AccordionNode _$AccordionNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -272,6 +275,7 @@ Map<String, dynamic> _$AccordionNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,

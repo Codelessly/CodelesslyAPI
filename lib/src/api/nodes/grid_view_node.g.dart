@@ -294,6 +294,9 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -364,6 +367,7 @@ Map<String, dynamic> _$GridViewNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'children': instance.children,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,

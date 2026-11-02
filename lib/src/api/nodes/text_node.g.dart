@@ -258,6 +258,9 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -293,8 +296,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -319,6 +322,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,

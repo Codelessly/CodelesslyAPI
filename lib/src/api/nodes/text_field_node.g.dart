@@ -237,6 +237,9 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextFieldNodeToJson(
@@ -285,6 +288,7 @@ Map<String, dynamic> _$TextFieldNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'initialText': instance.initialText,

@@ -210,7 +210,10 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
           : StrokePath.fromJson(json['strokePath'] as Map)
       ..reveal = json['reveal'] == null
           ? null
-          : RevealModel.fromJson(json['reveal'] as Map);
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map);
 
 Map<String, dynamic> _$ButtonNodeToJson(
   ButtonNode instance,
@@ -258,6 +261,7 @@ Map<String, dynamic> _$ButtonNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'properties': instance.properties.toJson(),
 };
 

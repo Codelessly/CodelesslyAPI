@@ -211,6 +211,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -270,6 +273,7 @@ Map<String, dynamic> _$VarianceNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,

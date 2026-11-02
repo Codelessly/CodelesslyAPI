@@ -130,6 +130,10 @@ class RowColumnNode extends ParentNode
     TriggerType.hold,
     ...TriggerType.draggableTriggers,
     ...TriggerType.dropTargetTriggers,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
   ];
 
   @override
@@ -331,6 +335,7 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.flightKey = source.flightKey;
   target.strokePath = source.strokePath;
   target.reveal = source.reveal;
+  target.drag = source.drag;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
 }

@@ -243,6 +243,9 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..reveal = json['reveal'] == null
           ? null
           : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..deniedTypes =
           (json['deniedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -305,6 +308,7 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'flightKey': instance.flightKey,
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'children': instance.children,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
