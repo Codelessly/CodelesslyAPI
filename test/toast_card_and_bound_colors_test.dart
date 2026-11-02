@@ -125,18 +125,18 @@ void main() {
       'contentFit': 'contain',
       'contentSize': {'width': 340, 'height': 214},
       'horizontalFit': 'expanded',
-      'aspectRatio': 340 / 214,
+      'layoutAspectRatio': 340 / 214,
     });
     expect(frame.contentSize, const SizeC(340, 214));
     expect(frame.contentDesignSize, const SizeC(340, 214));
-    expect(frame.aspectRatio, closeTo(1.5888, 1e-4));
+    expect(frame.layoutAspectRatio, closeTo(1.5888, 1e-4));
     final Map json = frame.toJson();
     expect(json['contentSize'], {'width': 340.0, 'height': 214.0});
-    expect(json['aspectRatio'], closeTo(1.5888, 1e-4));
+    expect(json['layoutAspectRatio'], closeTo(1.5888, 1e-4));
     expect(json.containsKey('contentDesignSize'), isFalse);
     final FrameNode copy = FrameNode.fromJson(json);
     expect(copy.contentSize, frame.contentSize);
-    expect(copy.aspectRatio, frame.aspectRatio);
+    expect(copy.layoutAspectRatio, frame.layoutAspectRatio);
 
     // Without a design size the frame scales from its own content box.
     final FrameNode plain = FrameNode.fromJson({
@@ -147,9 +147,9 @@ void main() {
       'children': <String>[],
     });
     expect(plain.contentSize, isNull);
-    expect(plain.aspectRatio, isNull);
+    expect(plain.layoutAspectRatio, isNull);
     expect(plain.contentDesignSize, const SizeC(300, 200));
     expect(plain.toJson().containsKey('contentSize'), isFalse);
-    expect(plain.toJson().containsKey('aspectRatio'), isFalse);
+    expect(plain.toJson().containsKey('layoutAspectRatio'), isFalse);
   });
 }

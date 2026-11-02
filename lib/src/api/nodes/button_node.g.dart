@@ -195,7 +195,7 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
-      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble();
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble();
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
@@ -238,7 +238,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'drag': ?instance.drag?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
-      'aspectRatio': ?instance.aspectRatio,
+      'layoutAspectRatio': ?instance.layoutAspectRatio,
       'properties': instance.properties.toJson(),
     };
 

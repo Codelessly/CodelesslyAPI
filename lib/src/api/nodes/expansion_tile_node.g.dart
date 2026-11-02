@@ -219,7 +219,7 @@ ExpansionTileNode _$ExpansionTileNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
-      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..rowColumnType = $enumDecode(
         _$RowColumnTypeEnumMap,
         json['rowColumnType'],
@@ -279,7 +279,7 @@ Map<String, dynamic> _$ExpansionTileNodeToJson(
   'drag': ?instance.drag?.toJson(),
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
-  'aspectRatio': ?instance.aspectRatio,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'children': instance.children,
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,

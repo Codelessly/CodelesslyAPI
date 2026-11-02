@@ -278,7 +278,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
-      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -344,7 +344,7 @@ Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
       'drag': ?instance.drag?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
-      'aspectRatio': ?instance.aspectRatio,
+      'layoutAspectRatio': ?instance.layoutAspectRatio,
       'children': instance.children,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
