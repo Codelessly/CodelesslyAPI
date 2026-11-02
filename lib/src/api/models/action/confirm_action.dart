@@ -27,6 +27,13 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// The dialog's title. Supports variables and formulas.
   final String title;
 
+  /// A small line above the [title], such as "RESET PROGRESS", or empty
+  /// for none. Supports variables and formulas.
+  final String caption;
+
+  /// Style of the [caption], or null for the built-in small caps.
+  final TextStyleModel? captionStyle;
+
   /// Text under the title. Supports variables and formulas.
   final String message;
 
@@ -165,6 +172,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Creates a [ConfirmAction].
   ConfirmAction({
     required this.title,
+    this.caption = '',
+    this.captionStyle,
     this.message = '',
     this.confirmLabel = 'OK',
     this.cancelLabel = 'Cancel',
@@ -207,6 +216,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Duplicates this action with the given values replaced.
   ConfirmAction copyWith({
     String? title,
+    String? caption,
+    TextStyleModel? captionStyle,
     String? message,
     String? confirmLabel,
     String? cancelLabel,
@@ -259,6 +270,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     double? enterScale,
   }) => ConfirmAction(
     title: title ?? this.title,
+    caption: caption ?? this.caption,
+    captionStyle: captionStyle ?? this.captionStyle,
     message: message ?? this.message,
     confirmLabel: confirmLabel ?? this.confirmLabel,
     cancelLabel: cancelLabel ?? this.cancelLabel,
@@ -306,6 +319,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   @override
   List<Object?> get props => [
     title,
+    caption,
+    captionStyle,
     message,
     confirmLabel,
     cancelLabel,
