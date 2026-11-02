@@ -55,6 +55,8 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
 
 const _$ActionTypeEnumMap = {

@@ -305,6 +305,9 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -321,6 +324,7 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
 Map<String, dynamic> _$CanvasNodeToJson(
   CanvasNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -337,7 +341,6 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -357,6 +360,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,

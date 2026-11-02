@@ -187,6 +187,9 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -238,6 +241,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
