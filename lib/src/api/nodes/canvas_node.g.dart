@@ -107,6 +107,8 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
     json.remove('brightness');
   if (isJsonDefault(instance.previewParams, const {}))
     json.remove('previewParams');
+  if (isJsonDefault(instance.paramsSetVariables, false))
+    json.remove('paramsSetVariables');
   return json;
 }
 
@@ -546,6 +548,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
         (k, e) => MapEntry(k as String, e),
       ) ??
       const {},
+  paramsSetVariables: json['paramsSetVariables'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -559,6 +562,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'signInRedirectId': ?instance.signInRedirectId,
       'path': ?instance.path,
       'previewParams': instance.previewParams,
+      'paramsSetVariables': instance.paramsSetVariables,
     };
 
 const _$BrightnessModelEnumMap = {
