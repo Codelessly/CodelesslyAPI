@@ -178,6 +178,16 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: false)
   late bool useMaterial3;
 
+  /// Whether the thumb keeps its full size when the switch is off. A
+  /// Material 3 switch draws a smaller thumb when off (16 of its 32 px
+  /// track, 24 when on); with this it is 24 in both states, as a toggle
+  /// whose round knob only slides, by giving it an empty thumb icon
+  /// (Material's documented way to a full-size thumb). Pressed, it still
+  /// grows a little. A Material 2 switch's thumb never changes size.
+  @FlutterProp('uniformThumb', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.uniformThumb', flutterParam: false, note: 'Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.')
+  @JsonKey(defaultValue: false)
+  late bool uniformThumb;
+
   /// Creates a [SwitchProperties] instance with the given data.
   SwitchProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -192,6 +202,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.inactiveTrackBorderColor = ColorRGBA.transparent,
     this.trackOutlineWidth = 2,
     this.useMaterial3 = true,
+    this.uniformThumb = false,
   });
 
   /// Duplicates this [SwitchProperties] instance with the given data
@@ -211,6 +222,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     bool forceInactiveTrackBorderColor = false,
     double? trackOutlineWidth,
     bool? useMaterial3,
+    bool? uniformThumb,
   }) {
     return SwitchProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -229,6 +241,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
           : inactiveTrackBorderColor ?? this.inactiveTrackBorderColor,
       trackOutlineWidth: trackOutlineWidth ?? this.trackOutlineWidth,
       useMaterial3: useMaterial3 ?? this.useMaterial3,
+      uniformThumb: uniformThumb ?? this.uniformThumb,
     );
   }
 
@@ -328,6 +341,14 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
         if (value != null) useMaterial3 = value;
       },
     ),
+    'uniformThumb': BoolFieldAccess(
+      'Uniform Thumb',
+      'Whether the thumb keeps its full size when the switch is off.',
+      () => uniformThumb,
+      (bool? value) {
+        if (value != null) uniformThumb = value;
+      },
+    ),
   };
 
   @override
@@ -344,6 +365,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     inactiveTrackBorderColor,
     trackOutlineWidth,
     useMaterial3,
+    uniformThumb,
   ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.

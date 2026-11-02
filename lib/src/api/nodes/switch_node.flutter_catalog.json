@@ -47,6 +47,9 @@
             },
             "trackOutlineWidth": {
               "type": "number"
+            },
+            "uniformThumb": {
+              "type": "boolean"
             }
           }
         },
@@ -156,6 +159,18 @@
         "nodeType": "switch",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.",
+        "fieldPath": "properties.uniformThumb",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "switch",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
         "fieldPath": "pulse.minOpacity",
         "group": "Effects",
@@ -207,6 +222,9 @@
                     },
                     "trackOutlineWidth": {
                       "type": "number"
+                    },
+                    "uniformThumb": {
+                      "type": "boolean"
                     }
                   }
                 }
@@ -297,6 +315,16 @@
         "testValues": [
           0,
           1
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.",
+        "field": "properties.uniformThumb",
+        "defaultSource": null,
+        "testValues": [
+          false,
+          true
         ]
       },
       {
