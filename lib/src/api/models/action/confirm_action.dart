@@ -135,6 +135,14 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   @JsonKey(unknownEnumValue: DialogPlacement.belowStart)
   final DialogPlacement placement;
 
+  /// Blur of the page behind a centered [dialogId] dialog, as a Gaussian
+  /// sigma (e.g. 8). It fades in with the dialog. 0 leaves the page sharp.
+  final double barrierBlur;
+
+  /// The scale a centered [dialogId] dialog grows from as it opens (e.g.
+  /// 0.94). 1 keeps the plain fade.
+  final double enterScale;
+
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
   static const String resultKey = 'confirmed';
 
@@ -187,6 +195,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.maxHeightFactor = 1,
     this.showDragHandle = false,
     this.placement = DialogPlacement.belowStart,
+    this.barrierBlur = 0,
+    this.enterScale = 1,
     super.nonBlocking,
     super.enabled,
   }) : actions = actions ?? [],
@@ -245,6 +255,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     double? maxHeightFactor,
     bool? showDragHandle,
     DialogPlacement? placement,
+    double? barrierBlur,
+    double? enterScale,
   }) => ConfirmAction(
     title: title ?? this.title,
     message: message ?? this.message,
@@ -285,6 +297,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     showDragHandle: showDragHandle ?? this.showDragHandle,
     placement: placement ?? this.placement,
+    barrierBlur: barrierBlur ?? this.barrierBlur,
+    enterScale: enterScale ?? this.enterScale,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
@@ -322,6 +336,8 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     maxHeightFactor,
     showDragHandle,
     placement,
+    barrierBlur,
+    enterScale,
   ];
 
   /// Creates an instance from a JSON object.
