@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'pins_model.g.dart';
 
@@ -71,18 +72,54 @@ enum EdgePin {
 class EdgePinsModel with Equatable, SerializableMixin {
   /// Distance between node's left edge and its parent's left edge. Setting a
   /// non-null value pins the node to the left edge of its parent.
+  @FlutterProp(
+    'left',
+    type: 'number',
+    group: 'Position',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Nullable distance from the parent left edge.',
+  )
   final double? left;
 
   /// Distance between node's top edge and its parent's top edge. Setting a
   /// non-null value pins the node to the top edge of its parent.
+  @FlutterProp(
+    'top',
+    type: 'number',
+    group: 'Position',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Nullable distance from the parent top edge.',
+  )
   final double? top;
 
   /// Distance between node's right edge and its parent's right edge. Setting a
   /// non-null value pins the node to the right edge of its parent.
+  @FlutterProp(
+    'right',
+    type: 'number',
+    group: 'Position',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Nullable distance from the parent right edge.',
+  )
   final double? right;
 
   /// Distance between node's bottom edge and its parent's bottom edge. Setting a
   /// non-null value pins the node to the bottom edge of its parent.
+  @FlutterProp(
+    'bottom',
+    type: 'number',
+    group: 'Position',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Nullable distance from the parent bottom edge.',
+  )
   final double? bottom;
 
   /// Creates a new [EdgePinsModel] with the given [left], [top], [right], and
