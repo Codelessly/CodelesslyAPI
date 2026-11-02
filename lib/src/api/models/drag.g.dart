@@ -145,4 +145,5 @@ const _$MotionCurveEnumMap = {
   MotionCurve.elasticOut: 'elasticOut',
   MotionCurve.bounceOut: 'bounceOut',
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
 };

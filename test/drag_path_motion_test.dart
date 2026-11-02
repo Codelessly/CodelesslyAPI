@@ -107,7 +107,7 @@ void main() {
 
   group('SpeakAction', () {
     test('round-trips and omits defaults', () {
-      final action = SpeakAction(text: r'${card.front}', language: 'es-ES', rate: 0.8);
+      final action = SpeakAction(text: r'${card.front}', language: 'es-ES', rate: '0.8');
       final json = action.toJson();
       expect(json.containsKey('pitch'), isFalse);
       expect(ActionModel.fromJson(json), action);

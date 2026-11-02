@@ -152,7 +152,14 @@ enum TriggerType {
   /// this node, its reorder handle ([DragModel.reorder]). The actions read
   /// `${result.from}` and `${result.to}`: the row's old index and its index
   /// in the new order.
-  reorder;
+  reorder,
+
+  /// Triggered on every scroll update of a scrolling row, column or
+  /// canvas. The actions read `${result.offset}` (how far it is scrolled,
+  /// in logical pixels), `${result.max}` (how far it can scroll) and
+  /// `${result.fraction}` (0 at the start, 1 at the end), so a header can
+  /// collapse, a bar fade in or a button appear as the content scrolls.
+  scroll;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -259,6 +266,8 @@ enum TriggerType {
         return 'Beat Clock';
       case TriggerType.reorder:
         return 'Reorder';
+      case TriggerType.scroll:
+        return 'Scroll';
     }
   }
 }

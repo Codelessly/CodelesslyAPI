@@ -12,8 +12,7 @@ Map<String, dynamic> _$SpeakActionOmitDefaults(
 ) {
   if (isJsonDefault(instance.text, '')) json.remove('text');
   if (isJsonDefault(instance.language, '')) json.remove('language');
-  if (isJsonDefault(instance.rate, 1)) json.remove('rate');
-  if (isJsonDefault(instance.pitch, 1)) json.remove('pitch');
+  if (isJsonDefault(instance.rate, '1')) json.remove('rate');
   if (isJsonDefault(instance.stop, false)) json.remove('stop');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -27,8 +26,8 @@ Map<String, dynamic> _$SpeakActionOmitDefaults(
 SpeakAction _$SpeakActionFromJson(Map json) => SpeakAction(
   text: json['text'] as String? ?? '',
   language: json['language'] as String? ?? '',
-  rate: (json['rate'] as num?)?.toDouble() ?? 1,
-  pitch: (json['pitch'] as num?)?.toDouble() ?? 1,
+  rate: json['rate'] == null ? '1' : _bindableNumberFromJson(json['rate']),
+  pitch: _optionalBindableNumberFromJson(json['pitch']),
   stop: json['stop'] as bool? ?? false,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
@@ -42,7 +41,7 @@ Map<String, dynamic> _$SpeakActionToJson(SpeakAction instance) =>
       'text': instance.text,
       'language': instance.language,
       'rate': instance.rate,
-      'pitch': instance.pitch,
+      'pitch': ?instance.pitch,
       'stop': instance.stop,
     };
 
