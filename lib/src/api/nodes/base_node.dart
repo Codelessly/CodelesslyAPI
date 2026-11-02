@@ -92,6 +92,15 @@ abstract class BaseNode
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
+  @FlutterProp(
+    'edgePins',
+    type: 'object',
+    group: 'Position',
+    control: 'edgePins',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted edge-pin object; distances are relative to parent edges.',
+  )
   EdgePinsModel edgePins;
 
   /// [PositioningMode] defines if the node positions itself using [alignment]
@@ -349,6 +358,15 @@ abstract class BaseNode
   /// The margin applied outside the node.
   ///
   /// Replicates the behavior of Flutter's [Padding] widget.
+  @FlutterProp(
+    'margin',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized margin object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get margin => _margin;
 
   EdgeInsetsModel _padding;
@@ -357,6 +375,15 @@ abstract class BaseNode
   ///
   /// Replicates the behavior of [padding] property of Flutter's [Container]
   /// widget.
+  @FlutterProp(
+    'padding',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized padding object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -365,6 +392,16 @@ abstract class BaseNode
   /// The rotation in degrees. This is the rotation of the node's
   /// [middleBoxLocal], represented by the [middleRotatedBoxLocal].
   @JsonKey(name: 'rotation', fromJson: castRotation)
+  @FlutterProp(
+    'rotation',
+    type: 'integer',
+    group: 'Transform',
+    control: 'angle',
+    field: 'rotation',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.',
+  )
   int get rotationDegrees => _rotationDegrees;
 
   @JsonKey(includeFromJson: false, includeToJson: false)

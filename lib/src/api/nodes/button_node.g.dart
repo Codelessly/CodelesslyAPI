@@ -193,6 +193,8 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
+      'flex': instance.flex,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -207,9 +209,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
       'squeezable': instance.squeezable,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
