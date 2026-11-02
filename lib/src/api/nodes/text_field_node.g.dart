@@ -50,6 +50,7 @@ Map<String, dynamic> _$TextFieldNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -67,6 +68,8 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
 ) {
   if (isJsonDefault(instance.autoCorrect, true)) json.remove('autoCorrect');
   if (isJsonDefault(instance.autoFocus, false)) json.remove('autoFocus');
+  if (isJsonDefault(instance.selectAllOnFocus, false))
+    json.remove('selectAllOnFocus');
   if (isJsonDefault(instance.enableInteractiveSelection, true))
     json.remove('enableInteractiveSelection');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -243,6 +246,7 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TextFieldNodeToJson(
@@ -294,6 +298,7 @@ Map<String, dynamic> _$TextFieldNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'initialText': instance.initialText,
@@ -331,6 +336,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
 ) => TextFieldProperties(
   autoCorrect: json['autoCorrect'] as bool? ?? true,
   autoFocus: json['autoFocus'] as bool? ?? false,
+  selectAllOnFocus: json['selectAllOnFocus'] as bool? ?? false,
   enableInteractiveSelection:
       json['enableInteractiveSelection'] as bool? ?? true,
   enabled: json['enabled'] as bool? ?? true,
@@ -424,6 +430,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
 ) => <String, dynamic>{
   'autoCorrect': instance.autoCorrect,
   'autoFocus': instance.autoFocus,
+  'selectAllOnFocus': instance.selectAllOnFocus,
   'enableInteractiveSelection': instance.enableInteractiveSelection,
   'enabled': instance.enabled,
   'obscureText': instance.obscureText,
