@@ -48,6 +48,7 @@ Map<String, dynamic> _$ListViewNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -280,6 +281,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -351,6 +353,7 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'children': instance.children,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,

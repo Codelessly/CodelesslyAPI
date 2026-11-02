@@ -43,6 +43,7 @@ Map<String, dynamic> _$ButtonNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -213,7 +214,8 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
           : RevealModel.fromJson(json['reveal'] as Map)
       ..drag = json['drag'] == null
           ? null
-          : DragModel.fromJson(json['drag'] as Map);
+          : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false;
 
 Map<String, dynamic> _$ButtonNodeToJson(
   ButtonNode instance,
@@ -262,6 +264,7 @@ Map<String, dynamic> _$ButtonNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'properties': instance.properties.toJson(),
 };
 
