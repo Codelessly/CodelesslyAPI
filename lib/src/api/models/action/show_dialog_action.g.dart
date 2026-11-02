@@ -32,6 +32,8 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
   if (isJsonDefault(instance.maxHeightFactor, 1))
     json.remove('maxHeightFactor');
   if (isJsonDefault(instance.fullHeight, false)) json.remove('fullHeight');
+  if (isJsonDefault(instance.barrierBlur, 0)) json.remove('barrierBlur');
+  if (isJsonDefault(instance.enterScale, 1)) json.remove('enterScale');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -84,6 +86,8 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       : EdgeInsetsModel.fromJson(json['insets']),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   fullHeight: json['fullHeight'] as bool? ?? false,
+  barrierBlur: (json['barrierBlur'] as num?)?.toDouble() ?? 0,
+  enterScale: (json['enterScale'] as num?)?.toDouble() ?? 1,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -109,6 +113,8 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'insets': instance.insets.toJson(),
       'maxHeightFactor': instance.maxHeightFactor,
       'fullHeight': instance.fullHeight,
+      'barrierBlur': instance.barrierBlur,
+      'enterScale': instance.enterScale,
     };
 
 const _$DialogPresentationEnumMap = {

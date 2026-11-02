@@ -185,6 +185,41 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
   /// 90% and amber after.
   List<ProgressBand> bands;
 
+  /// Arc only: how the arc is placed in the box. [ArcFit.arc] scales the
+  /// arc itself to fill the box (a dial); [ArcFit.circle] keeps the circle
+  /// the arc belongs to centred and fitted, so arcs of different lengths in
+  /// the same box line up into one ring (phase segments of a timer).
+  @JsonKey(unknownEnumValue: ArcFit.arc)
+  ArcFit arcFit;
+
+  /// Arc only: round ends on the track and the progress.
+  bool arcRoundCaps;
+
+  /// Arc only: when set, the progress is a gradient running along the arc
+  /// from [progressColor] at its start to this color at its tip.
+  ColorRGBA? progressEndColor;
+
+  /// Arc only: blur radius of a soft glow under the progress, in the
+  /// progress color; 0 for none.
+  double arcGlow;
+
+  /// Arc only: a white dot glowing in the progress color at the tip of the
+  /// progress while it is between empty and full.
+  bool arcHeadDot;
+
+  /// Properties a node can bind to variables or formulas through its
+  /// `variables` map, e.g. `{"arcSweepAngle": "\${= item.len / cycle * 360}"}`.
+  static const List<String> bindableKeys = [
+    'currentValue',
+    'maxValue',
+    'progressColor',
+    'progressEndColor',
+    'backgroundColor',
+    'arcStartAngle',
+    'arcSweepAngle',
+    'arcStrokeWidth',
+  ];
+
   /// Creates a [ProgressBarProperties] instance with the given data.
   ProgressBarProperties({
     this.maxValue = 100,
@@ -202,6 +237,11 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     this.tickCount = 0,
     this.tickColor = ColorRGBA.white,
     List<ProgressBand>? bands,
+    this.arcFit = ArcFit.arc,
+    this.arcRoundCaps = false,
+    this.progressEndColor,
+    this.arcGlow = 0,
+    this.arcHeadDot = false,
   }) : bands = bands ?? [];
 
   /// Duplicates this [ProgressBarProperties] instance with the given data
@@ -223,6 +263,12 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     int? tickCount,
     ColorRGBA? tickColor,
     List<ProgressBand>? bands,
+    ArcFit? arcFit,
+    bool? arcRoundCaps,
+    ColorRGBA? progressEndColor,
+    bool clearProgressEndColor = false,
+    double? arcGlow,
+    bool? arcHeadDot,
   }) {
     return ProgressBarProperties(
       maxValue: maxValue ?? this.maxValue,
@@ -241,6 +287,13 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
       tickCount: tickCount ?? this.tickCount,
       tickColor: tickColor ?? this.tickColor,
       bands: bands ?? this.bands,
+      arcFit: arcFit ?? this.arcFit,
+      arcRoundCaps: arcRoundCaps ?? this.arcRoundCaps,
+      progressEndColor: clearProgressEndColor
+          ? null
+          : progressEndColor ?? this.progressEndColor,
+      arcGlow: arcGlow ?? this.arcGlow,
+      arcHeadDot: arcHeadDot ?? this.arcHeadDot,
     );
   }
 
@@ -338,6 +391,39 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
       () => tickColor,
       (value) => tickColor = value,
     ),
+    'arcFit': EnumFieldAccess<ArcFit>(
+      'Arc Fit',
+      'Arc only: fit the arc to the box, or its whole circle',
+      () => arcFit,
+      (value) => arcFit = value,
+      options: () => ArcFit.values,
+      defaultValue: () => ArcFit.arc,
+    ),
+    'arcRoundCaps': BoolFieldAccess(
+      'Round Ends',
+      'Arc only: round ends on the track and progress',
+      () => arcRoundCaps,
+      (value) => arcRoundCaps = value,
+    ),
+    'progressEndColor': ColorFieldAccess<ColorRGBA?>(
+      'Progress End Color',
+      'Arc only: the progress fades to this color at its tip; empty for solid',
+      () => progressEndColor,
+      (value) => progressEndColor = value,
+    ),
+    'arcGlow': NumFieldAccess<double>(
+      'Glow',
+      'Arc only: blur radius of a glow under the progress; 0 for none',
+      () => arcGlow,
+      (value) => arcGlow = value,
+      min: 0,
+    ),
+    'arcHeadDot': BoolFieldAccess(
+      'Head Dot',
+      'Arc only: a glowing dot at the tip of the progress',
+      () => arcHeadDot,
+      (value) => arcHeadDot = value,
+    ),
   };
 
   @override
@@ -357,6 +443,11 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     tickCount,
     tickColor,
     bands,
+    arcFit,
+    arcRoundCaps,
+    progressEndColor,
+    arcGlow,
+    arcHeadDot,
   ];
 
   /// Creates a [ProgressBarProperties] instance from a JSON object.
@@ -368,6 +459,16 @@ class ProgressBarProperties extends CustomProperties with FieldsHolder {
     this,
     _$ProgressBarPropertiesToJson(this),
   );
+}
+
+/// How an arc progress bar is placed in its box.
+enum ArcFit {
+  /// The arc is as large as the box allows; its circle may overflow.
+  arc,
+
+  /// The arc's whole circle fits the box, centred: arcs of any length line
+  /// up into one ring.
+  circle,
 }
 
 /// The shape of a [ProgressBarNode].
