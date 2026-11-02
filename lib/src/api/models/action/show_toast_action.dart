@@ -146,7 +146,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     'borderColor',
   ];
 
-  /// How long the message stays on screen, in milliseconds.
+  /// How long the message stays on screen, in milliseconds. Zero or less
+  /// keeps it up until it is closed or replaced. [variables] can bind it:
+  /// `{"duration": "${= toast.sticky ? 0 : 6000}"}`.
   final int duration;
 
   /// Background color. Null takes the [style]'s color from the app's theme.
