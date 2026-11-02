@@ -266,15 +266,13 @@ TextNode _$TextNodeFromJson(Map json) =>
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'data': instance.data,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -292,10 +290,12 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
+  'softWrap': instance.softWrap,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,

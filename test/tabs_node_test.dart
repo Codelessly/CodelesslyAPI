@@ -13,6 +13,13 @@ void main() {
     ],
   );
 
+  test('tabs inherited rotation is not a persisted wire field', () {
+    final wire = tabs().toJson();
+    expect(wire.containsKey('rotation'), isFalse);
+    final decoded = TabsNode.fromJson({...wire, 'rotation': 45});
+    expect(decoded.toJson().containsKey('rotation'), isFalse);
+  });
+
   test('ordered tabs roundtrip and children are synchronized', () {
     final wire = tabs().toJson();
     expect(wire['type'], 'tabs');
