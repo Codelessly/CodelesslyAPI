@@ -165,6 +165,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   int animationDurationMs;
 
   /// The easing of the slide to a page set through `indexValue`.
+  @JsonKey(defaultValue: MotionCurve.easeOutCubic)
   MotionCurve animationCurve;
 
   /// Creates a [PageViewProperties].
@@ -177,7 +178,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.viewportFraction = 1,
     this.allowImplicitScrolling = false,
     this.animationDurationMs = 0,
-    this.animationCurve = MotionCurve.easeInOut,
+    this.animationCurve = MotionCurve.easeOutCubic,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.

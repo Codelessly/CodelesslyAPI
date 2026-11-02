@@ -95,7 +95,7 @@ Map<String, dynamic> _$PageViewPropertiesOmitDefaults(
     json.remove('allowImplicitScrolling');
   if (isJsonDefault(instance.animationDurationMs, 0))
     json.remove('animationDurationMs');
-  if (isJsonDefault(instance.animationCurve, MotionCurve.easeInOut))
+  if (isJsonDefault(instance.animationCurve, MotionCurve.easeOutCubic))
     json.remove('animationCurve');
   return json;
 }
@@ -417,7 +417,7 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   animationDurationMs: (json['animationDurationMs'] as num?)?.toInt() ?? 0,
   animationCurve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['animationCurve']) ??
-      MotionCurve.easeInOut,
+      MotionCurve.easeOutCubic,
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
