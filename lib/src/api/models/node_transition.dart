@@ -30,7 +30,23 @@ enum TransitionCurve {
   easeInOutCubic,
 
   /// Holds the start value, then jumps to the end value halfway through.
-  step;
+  step,
+
+  /// A gentle sine ease in and out, like a breath.
+  easeInOutSine,
+
+  /// Overshoots and settles like a spring (a fixed spring curve here: a
+  /// transition keeps its duration).
+  spring,
+
+  /// Overshoots and wobbles a few times before settling.
+  elasticOut,
+
+  /// Drops and bounces like a ball before settling.
+  bounceOut,
+
+  /// Material-style fast start and long, gentle settle.
+  fastOutSlowIn;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -42,6 +58,11 @@ enum TransitionCurve {
     TransitionCurve.easeOutBack => 'Ease out back',
     TransitionCurve.easeInOutCubic => 'Ease in out cubic',
     TransitionCurve.step => 'Step',
+    TransitionCurve.easeInOutSine => 'Sine (breath)',
+    TransitionCurve.spring => 'Spring',
+    TransitionCurve.elasticOut => 'Elastic',
+    TransitionCurve.bounceOut => 'Bounce',
+    TransitionCurve.fastOutSlowIn => 'Fast out, slow in',
   };
 }
 
