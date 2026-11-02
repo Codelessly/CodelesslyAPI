@@ -1,3 +1,13 @@
+## Unreleased
+
+- New `wheel` (mouse wheel / trackpad scroll, with deltas, pointer position
+  and modifiers), `pinch` (two-finger zoom, with step and total scale and
+  the focal point) and `keyUp` (screen key releases) triggers, for pan and
+  zoom canvases and held keys.
+- `VarianceProperties.tabletMinWidth` and `desktopMinWidth` move where a
+  responsive layout switches layouts (600 and 1024 by default);
+  `ScreenBreakpoint.forWidth` takes them.
+
 ## 6.3.0
 
 This candidate includes the changes documented below for 6.2.0, which has
@@ -6,6 +16,13 @@ post-merge compatibility guards: ambiguous legacy gauge, chart and signature
 payloads fail closed without discarding the original document JSON; direct
 node decoding rejects contradictory variant signatures; and list stack modes
 cannot both be enabled in a document.
+
+### Speak action (not published)
+
+- `SpeakAction` (`ActionType.speak`) speaks bound/formula `text` with
+  text-to-speech in a BCP-47 `language` at a bindable `rate` (and optional
+  `pitch`); `stop: true` stops any speech instead. Numeric `rate`/`pitch`
+  JSON values are read as strings.
 
 ### PR49 additions (not published)
 

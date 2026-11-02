@@ -170,6 +170,10 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TriggerType.cursorExit,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
   ];
@@ -188,7 +192,9 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// Creates a [TextNode] instance from a JSON object.
   factory TextNode.fromJson(Map json) {
     if (json.containsKey('characters')) {
-      throw const FormatException('Unsupported TextNode key: characters');
+      throw const FormatException(
+        'Unsupported TextNode key: characters (the text is "data")',
+      );
     }
     return _$TextNodeFromJson(json);
   }

@@ -124,6 +124,12 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.paywall: 'paywall',
+  ActionType.focus: 'focus',
+  ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
+  ActionType.playSound: 'playSound',
+  ActionType.playAnimation: 'playAnimation',
 };
 
 BoolValue _$BoolValueFromJson(Map json) => BoolValue(
