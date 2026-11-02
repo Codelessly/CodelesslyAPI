@@ -168,6 +168,9 @@ DatePickerNode _$DatePickerNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DatePickerNodeToJson(DatePickerNode instance) =>
@@ -210,6 +213,7 @@ Map<String, dynamic> _$DatePickerNodeToJson(DatePickerNode instance) =>
       'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'type': instance.type,
       'value': validateIsoDate(instance.value),
       'properties': instance.properties.toJson(),

@@ -76,7 +76,17 @@ enum ActionType {
   paywall,
 
   /// Focus a text field or take the focus away.
-  focus;
+  focus,
+
+  /// Flings, returns or resets a draggable node; see [ControlDragAction].
+  controlDrag,
+
+  /// Reads text aloud; see [SpeakAction].
+  speak,
+
+  /// Plays a short synthesised sound, now or at an exact time; see
+  /// [PlaySoundAction].
+  playSound;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -131,6 +141,12 @@ enum ActionType {
         return 'Paywall';
       case ActionType.focus:
         return 'Focus';
+      case ActionType.controlDrag:
+        return 'Control Drag';
+      case ActionType.speak:
+        return 'Speak';
+      case ActionType.playSound:
+        return 'Play Sound';
     }
   }
 }
@@ -230,6 +246,12 @@ abstract class ActionModel with SerializableMixin {
         return PaywallAction.fromJson(json);
       case ActionType.focus:
         return FocusAction.fromJson(json);
+      case ActionType.controlDrag:
+        return ControlDragAction.fromJson(json);
+      case ActionType.speak:
+        return SpeakAction.fromJson(json);
+      case ActionType.playSound:
+        return PlaySoundAction.fromJson(json);
     }
   }
 
