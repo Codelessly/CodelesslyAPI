@@ -107,11 +107,27 @@ void main() {
 
   group('SpeakAction', () {
     test('round-trips and omits defaults', () {
-      final action = SpeakAction(text: r'${card.front}', language: 'es-ES', rate: 0.8);
+      final action = SpeakAction(text: r'${card.front}', language: 'es-ES', rate: '0.8');
       final json = action.toJson();
       expect(json.containsKey('pitch'), isFalse);
       expect(ActionModel.fromJson(json), action);
       expect(ActionModel.fromJson(SpeakAction(stop: true).toJson()), SpeakAction(stop: true));
     });
+  });
+
+  test('ScrollToAction round-trips and omits defaults', () {
+    expect(ScrollToAction(nodeId: 'calendar').toJson(),
+        {'type': 'scrollTo', 'nodeId': 'calendar'});
+    final action = ScrollToAction(
+      nodeId: 'calendar',
+      durationMs: 0,
+      curve: MotionCurve.easeOut,
+      alignment: 0.5,
+      offset: -16,
+    );
+    expect(ActionModel.fromJson(action.toJson()), action);
+    expect(ActionModel.fromJson({'type': 'scrollTo', 'nodeId': 'x'}),
+        ScrollToAction(nodeId: 'x'));
+    expect(ActionType.scrollTo.prettify, 'Scroll To');
   });
 }

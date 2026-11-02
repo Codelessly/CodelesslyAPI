@@ -99,6 +99,7 @@ const _$ActionTypeEnumMap = {
   ActionType.focus: 'focus',
   ActionType.controlDrag: 'controlDrag',
   ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
 };

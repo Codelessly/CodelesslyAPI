@@ -6,6 +6,13 @@ part of 'motion.dart';
 // JsonDefaultsGenerator
 // **************************************************************************
 
+Map<String, dynamic> _$MotionKeyframeOmitDefaults(
+  MotionKeyframe instance,
+  Map<String, dynamic> json,
+) {
+  return json;
+}
+
 Map<String, dynamic> _$MotionModelOmitDefaults(
   MotionModel instance,
   Map<String, dynamic> json,
@@ -13,6 +20,8 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.translateX, 0)) json.remove('translateX');
   if (isJsonDefault(instance.translateY, 0)) json.remove('translateY');
   if (isJsonDefault(instance.scale, 1)) json.remove('scale');
+  if (isJsonDefault(instance.scaleX, 1)) json.remove('scaleX');
+  if (isJsonDefault(instance.scaleY, 1)) json.remove('scaleY');
   if (isJsonDefault(instance.opacity, 1)) json.remove('opacity');
   if (isJsonDefault(instance.rotate, 0)) json.remove('rotate');
   if (isJsonDefault(instance.rotateX, 0)) json.remove('rotateX');
@@ -35,6 +44,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.keyframes, const [])) json.remove('keyframes');
   return json;
 }
 
@@ -42,10 +52,41 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
 // JsonSerializableGenerator
 // **************************************************************************
 
+MotionKeyframe _$MotionKeyframeFromJson(Map json) => MotionKeyframe(
+  t: (json['t'] as num).toDouble(),
+  translateX: (json['translateX'] as num?)?.toDouble(),
+  translateY: (json['translateY'] as num?)?.toDouble(),
+  scale: (json['scale'] as num?)?.toDouble(),
+  scaleX: (json['scaleX'] as num?)?.toDouble(),
+  scaleY: (json['scaleY'] as num?)?.toDouble(),
+  opacity: (json['opacity'] as num?)?.toDouble(),
+  rotate: (json['rotate'] as num?)?.toDouble(),
+  rotateX: (json['rotateX'] as num?)?.toDouble(),
+  rotateY: (json['rotateY'] as num?)?.toDouble(),
+  pathProgress: (json['pathProgress'] as num?)?.toDouble(),
+);
+
+Map<String, dynamic> _$MotionKeyframeToJson(MotionKeyframe instance) =>
+    <String, dynamic>{
+      't': instance.t,
+      'translateX': ?instance.translateX,
+      'translateY': ?instance.translateY,
+      'scale': ?instance.scale,
+      'scaleX': ?instance.scaleX,
+      'scaleY': ?instance.scaleY,
+      'opacity': ?instance.opacity,
+      'rotate': ?instance.rotate,
+      'rotateX': ?instance.rotateX,
+      'rotateY': ?instance.rotateY,
+      'pathProgress': ?instance.pathProgress,
+    };
+
 MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   translateX: (json['translateX'] as num?)?.toDouble() ?? 0,
   translateY: (json['translateY'] as num?)?.toDouble() ?? 0,
   scale: (json['scale'] as num?)?.toDouble() ?? 1,
+  scaleX: (json['scaleX'] as num?)?.toDouble() ?? 1,
+  scaleY: (json['scaleY'] as num?)?.toDouble() ?? 1,
   opacity: (json['opacity'] as num?)?.toDouble() ?? 1,
   rotate: (json['rotate'] as num?)?.toDouble() ?? 0,
   rotateX: (json['rotateX'] as num?)?.toDouble() ?? 0,
@@ -73,6 +114,12 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  keyframes:
+      (json['keyframes'] as List<dynamic>?)
+          ?.map((e) => MotionKeyframe.fromJson(e as Map))
+          .toList() ??
+      const [],
+  pulseKey: json['pulseKey'] as String?,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -80,6 +127,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'translateX': instance.translateX,
       'translateY': instance.translateY,
       'scale': instance.scale,
+      'scaleX': instance.scaleX,
+      'scaleY': instance.scaleY,
       'opacity': instance.opacity,
       'rotate': instance.rotate,
       'rotateX': instance.rotateX,
@@ -102,6 +151,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
+      'keyframes': instance.keyframes.map((e) => e.toJson()).toList(),
+      'pulseKey': ?instance.pulseKey,
     };
 
 const _$MotionCurveEnumMap = {
@@ -115,6 +166,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.elasticOut: 'elasticOut',
   MotionCurve.bounceOut: 'bounceOut',
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
 };
 
 const _$MotionLoopEnumMap = {
