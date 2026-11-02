@@ -269,6 +269,11 @@ mixin TextMixin {
 
   /// Whether the text breaks at soft line breaks. When false, it is laid out
   /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
+  ///
+  /// A text that hugs its content inside a row is held to the row's width
+  /// and wraps there, where a Flutter `Row` would leave a plain `Text`
+  /// unbounded on one line (overflowing if it must). Set this to false for
+  /// labels that must stay on one line: a button's label, a wordmark.
   @FlutterProp(
     'softWrap',
     type: 'boolean',
