@@ -32,6 +32,8 @@ Map<String, dynamic> _$ShowDialogActionOmitDefaults(
   if (isJsonDefault(instance.maxHeightFactor, 1))
     json.remove('maxHeightFactor');
   if (isJsonDefault(instance.fullHeight, false)) json.remove('fullHeight');
+  if (isJsonDefault(instance.sheetBelowWidth, 600))
+    json.remove('sheetBelowWidth');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -84,6 +86,7 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
       : EdgeInsetsModel.fromJson(json['insets']),
   maxHeightFactor: (json['maxHeightFactor'] as num?)?.toDouble() ?? 1,
   fullHeight: json['fullHeight'] as bool? ?? false,
+  sheetBelowWidth: (json['sheetBelowWidth'] as num?)?.toDouble() ?? 600,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -109,6 +112,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'insets': instance.insets.toJson(),
       'maxHeightFactor': instance.maxHeightFactor,
       'fullHeight': instance.fullHeight,
+      'sheetBelowWidth': instance.sheetBelowWidth,
     };
 
 const _$DialogPresentationEnumMap = {
