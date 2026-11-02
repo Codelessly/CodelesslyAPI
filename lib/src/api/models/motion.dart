@@ -188,6 +188,15 @@ class MotionModel with Equatable, SerializableMixin {
   /// changes; see [replayKey].
   static const String replayKeyProperty = 'replayKey';
 
+  /// The name of the binding that switches the loop per state:
+  /// `variables['motion.loop'] = "\${= live ? 'reverse' : 'none'}"`. It
+  /// reads `none`, `restart` or `reverse` (or true / false: on keeps
+  /// [loop], or loops back and forth when [loop] is none). While it is off
+  /// the running app shows the node at rest ([atRest]), since a loop's
+  /// values are where it swings to, not a pose; the design canvas keeps
+  /// showing the saved motion.
+  static const String loopProperty = 'loop';
+
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
 
