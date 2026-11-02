@@ -287,6 +287,14 @@ class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     IntValue(name: 'selectedIndex', value: selectedIndex),
+    // Bindable so a chart follows state: axis labels in the base currency
+    // (`$12k`, `12k €`), a fixed scale, a red line for a credit account.
+    StringValue(name: 'yLabelPrefix', value: properties.yLabelPrefix),
+    StringValue(name: 'yLabelSuffix', value: properties.yLabelSuffix),
+    DoubleValue(name: 'minY', value: properties.minY ?? 0),
+    DoubleValue(name: 'maxY', value: properties.maxY ?? 0),
+    for (int i = 0; i < properties.series.length; i++)
+      ColorValue(name: 'series${i}Color', value: properties.series[i].color),
   ];
 
   /// Creates a [ChartNode] from JSON.
