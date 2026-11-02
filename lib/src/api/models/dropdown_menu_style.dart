@@ -6,6 +6,15 @@ import 'models.dart';
 
 part 'dropdown_menu_style.g.dart';
 
+/// Which end of a dropdown menu's selected row its check mark is at.
+enum DropdownCheckPosition {
+  /// Before the label (and the item's image).
+  leading,
+
+  /// After the label, at the row's end.
+  trailing,
+}
+
 /// The look of a dropdown's menu when it is drawn as a card anchored under
 /// the field instead of the platform's dropdown menu.
 ///
@@ -55,8 +64,11 @@ class DropdownMenuStyleModel with Equatable, SerializableMixin {
   /// `{"fontWeight": "w600"}`.
   final TextStyleModel? selectedTextStyle;
 
-  /// Whether the selected row shows a check mark at its end.
+  /// Whether the selected row shows a check mark, at [checkPosition].
   final bool showCheck;
+
+  /// Which end of the selected row the check mark is at.
+  final DropdownCheckPosition checkPosition;
 
   /// Color of the check mark. Null uses the item text color.
   final ColorRGBA? checkColor;
@@ -80,6 +92,7 @@ class DropdownMenuStyleModel with Equatable, SerializableMixin {
     this.hoverItemColor,
     this.selectedTextStyle,
     this.showCheck = false,
+    this.checkPosition = DropdownCheckPosition.trailing,
     this.checkColor,
     this.checkSize = 18,
   });
@@ -100,6 +113,7 @@ class DropdownMenuStyleModel with Equatable, SerializableMixin {
     ColorRGBA? hoverItemColor,
     TextStyleModel? selectedTextStyle,
     bool? showCheck,
+    DropdownCheckPosition? checkPosition,
     ColorRGBA? checkColor,
     double? checkSize,
   }) => DropdownMenuStyleModel(
@@ -117,6 +131,7 @@ class DropdownMenuStyleModel with Equatable, SerializableMixin {
     hoverItemColor: hoverItemColor ?? this.hoverItemColor,
     selectedTextStyle: selectedTextStyle ?? this.selectedTextStyle,
     showCheck: showCheck ?? this.showCheck,
+    checkPosition: checkPosition ?? this.checkPosition,
     checkColor: checkColor ?? this.checkColor,
     checkSize: checkSize ?? this.checkSize,
   );
@@ -137,6 +152,7 @@ class DropdownMenuStyleModel with Equatable, SerializableMixin {
     hoverItemColor,
     selectedTextStyle,
     showCheck,
+    checkPosition,
     checkColor,
     checkSize,
   ];
