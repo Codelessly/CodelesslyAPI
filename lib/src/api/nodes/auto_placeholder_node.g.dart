@@ -11,6 +11,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.ephemeral, false)) json.remove('ephemeral');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -266,6 +268,11 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..spacing = (json['spacing'] as num?)?.toDouble() ?? 0.0
       ..wrap = json['wrap'] as bool? ?? false
       ..runSpacing = (json['runSpacing'] as num?)?.toDouble() ?? 0.0
@@ -290,8 +297,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -329,6 +336,7 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':

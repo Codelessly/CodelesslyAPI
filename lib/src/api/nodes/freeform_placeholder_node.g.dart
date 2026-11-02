@@ -10,6 +10,8 @@ Map<String, dynamic> _$FreeformPlaceholderNodeOmitDefaults(
   FreeformPlaceholderNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -169,6 +171,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             $enumDecodeNullable(_$StrokeSideEnumMap, json['strokeSide']) ??
             StrokeSide.all,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -193,7 +196,6 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -237,17 +239,16 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   FreeformPlaceholderNode instance,
 ) => <String, dynamic>{
-  'variables': instance.variables,
-  'multipleVariables': instance.multipleVariables,
-  'componentId': ?instance.componentId,
-  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-  'componentVersion': instance.componentVersion,
-  'componentSchema': instance.componentSchema,
   'id': instance.id,
   'name': instance.name,
   'visible': instance.visible,
@@ -258,8 +259,14 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -297,6 +304,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'type': instance.type,
 };
 

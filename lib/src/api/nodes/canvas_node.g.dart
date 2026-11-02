@@ -12,6 +12,8 @@ Map<String, dynamic> _$CanvasNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.scaleMode, ScaleMode.autoScale))
     json.remove('scaleMode');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -314,6 +316,11 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -330,7 +337,6 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
 Map<String, dynamic> _$CanvasNodeToJson(
   CanvasNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -348,6 +354,7 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -370,6 +377,8 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'strokes': instance.strokes.map((e) => e.toJson()).toList(),
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -378,7 +387,6 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'inkWell': ?instance.inkWell?.toJson(),
   'transition': ?instance.transition?.toJson(),
   'fills': instance.fills.map((e) => e.toJson()).toList(),
-  'strokes': instance.strokes.map((e) => e.toJson()).toList(),
   'strokeWeight': instance.strokeWeight,
   'strokeMiterLimit': instance.strokeMiterLimit,
   'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,

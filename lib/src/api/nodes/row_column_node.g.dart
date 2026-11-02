@@ -10,6 +10,8 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
   RowColumnNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -310,7 +312,12 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
             )
       ..transition = json['transition'] == null
           ? null
-          : NodeTransition.fromJson(json['transition'] as Map);
+          : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          [];
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -331,8 +338,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
@@ -374,6 +381,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
   'notches': instance.notches.map((e) => e.toJson()).toList(),
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
