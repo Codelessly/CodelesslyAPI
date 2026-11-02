@@ -76,6 +76,7 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.paywall: 'paywall',
+  ActionType.focus: 'focus',
 };
 
 MailchimpSubmitAction _$MailchimpSubmitActionFromJson(Map json) =>
