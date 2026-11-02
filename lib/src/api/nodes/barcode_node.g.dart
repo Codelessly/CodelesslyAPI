@@ -49,6 +49,11 @@ Map<String, dynamic> _$BarcodeNodeOmitDefaults(
   if (isJsonDefault(instance.componentSchema, {}))
     json.remove('componentSchema');
   if (isJsonDefault(instance.reactions, const [])) json.remove('reactions');
+  if (isJsonDefault(instance.opacity, 1.0)) json.remove('opacity');
+  if (isJsonDefault(instance.blendMode, BlendModeC.srcOver))
+    json.remove('blendMode');
+  if (isJsonDefault(instance.isMask, false)) json.remove('isMask');
+  if (isJsonDefault(instance.effects, const [])) json.remove('effects');
   return json;
 }
 
@@ -130,8 +135,26 @@ BarcodeNode _$BarcodeNodeFromJson(Map json) =>
               ),
             ) ??
             {},
+        opacity: (json['opacity'] as num?)?.toDouble() ?? 1.0,
+        isMask: json['isMask'] as bool? ?? false,
+        effects:
+            (json['effects'] as List<dynamic>?)
+                ?.map((e) => Effect.fromJson(e as Map))
+                .toList() ??
+            const [],
+        blendMode:
+            $enumDecodeNullable(
+              _$BlendModeCEnumMap,
+              json['blendMode'],
+              unknownValue: BlendModeC.srcOver,
+            ) ??
+            BlendModeC.srcOver,
+        inkWell: json['inkWell'] == null
+            ? null
+            : InkWellModel.fromJson(
+                Map<String, dynamic>.from(json['inkWell'] as Map),
+              ),
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -143,6 +166,7 @@ BarcodeNode _$BarcodeNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -175,11 +199,13 @@ BarcodeNode _$BarcodeNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
+      ..transition = json['transition'] == null
+          ? null
+          : NodeTransition.fromJson(json['transition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$BarcodeNodeToJson(BarcodeNode instance) =>
     <String, dynamic>{
-      'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
@@ -196,6 +222,7 @@ Map<String, dynamic> _$BarcodeNodeToJson(BarcodeNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -218,6 +245,12 @@ Map<String, dynamic> _$BarcodeNodeToJson(BarcodeNode instance) =>
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'aspectRatio': ?instance.aspectRatio,
+      'opacity': instance.opacity,
+      'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
+      'isMask': instance.isMask,
+      'effects': instance.effects.map((e) => e.toJson()).toList(),
+      'inkWell': ?instance.inkWell?.toJson(),
+      'transition': ?instance.transition?.toJson(),
       'type': instance.type,
       'data': instance.data,
       'properties': instance.properties.toJson(),
@@ -234,6 +267,38 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$BlendModeCEnumMap = {
+  BlendModeC.clear: 'clear',
+  BlendModeC.src: 'src',
+  BlendModeC.dst: 'dst',
+  BlendModeC.srcOver: 'srcOver',
+  BlendModeC.dstOver: 'dstOver',
+  BlendModeC.srcIn: 'srcIn',
+  BlendModeC.dstIn: 'dstIn',
+  BlendModeC.srcOut: 'srcOut',
+  BlendModeC.dstOut: 'dstOut',
+  BlendModeC.srcATop: 'srcATop',
+  BlendModeC.dstATop: 'dstATop',
+  BlendModeC.xor: 'xor',
+  BlendModeC.plus: 'plus',
+  BlendModeC.modulate: 'modulate',
+  BlendModeC.screen: 'screen',
+  BlendModeC.overlay: 'overlay',
+  BlendModeC.darken: 'darken',
+  BlendModeC.lighten: 'lighten',
+  BlendModeC.colorDodge: 'colorDodge',
+  BlendModeC.colorBurn: 'colorBurn',
+  BlendModeC.hardLight: 'hardLight',
+  BlendModeC.softLight: 'softLight',
+  BlendModeC.difference: 'difference',
+  BlendModeC.exclusion: 'exclusion',
+  BlendModeC.multiply: 'multiply',
+  BlendModeC.hue: 'hue',
+  BlendModeC.saturation: 'saturation',
+  BlendModeC.color: 'color',
+  BlendModeC.luminosity: 'luminosity',
 };
 
 const _$ComponentMarkerTypeEnumMap = {

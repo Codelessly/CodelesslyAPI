@@ -360,12 +360,12 @@ abstract class BaseNode
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int _rotationDegrees;
+  num _rotationDegrees;
 
   /// The rotation in degrees. This is the rotation of the node's
   /// [middleBoxLocal], represented by the [middleRotatedBoxLocal].
   @JsonKey(name: 'rotation', fromJson: castRotation)
-  int get rotationDegrees => _rotationDegrees;
+  num get rotationDegrees => _rotationDegrees;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   double _rotationRadians;
@@ -380,7 +380,7 @@ abstract class BaseNode
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
   /// an optimization and convenience.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int globalRotationDegrees;
+  num globalRotationDegrees;
 
   /// The global rotation in radians. It is not stored on the server and is
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
@@ -520,7 +520,7 @@ abstract class BaseNode
     OuterNodeBox? outerBoxLocal,
     NodeBox? retainedOuterBoxLocal,
     this.visible = true,
-    int rotationDegrees = 0,
+    num rotationDegrees = 0,
     this._alignment = AlignmentModel.none,
     EdgeInsetsModel margin = EdgeInsetsModel.zero,
     this._padding = EdgeInsetsModel.zero,
