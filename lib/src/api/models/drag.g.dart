@@ -141,6 +141,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
   MotionCurve.spring: 'spring',
   MotionCurve.elasticOut: 'elasticOut',
   MotionCurve.bounceOut: 'bounceOut',

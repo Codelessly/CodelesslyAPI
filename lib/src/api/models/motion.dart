@@ -27,6 +27,9 @@ enum MotionCurve {
   /// A fast cubic deceleration.
   easeOutCubic,
 
+  /// A gentle sine ease in and out, like a breath.
+  easeInOutSine,
+
   /// Real spring physics ([MotionModel.springStiffness],
   /// [MotionModel.springDamping]): overshoots and settles at its own pace,
   /// so [MotionModel.durationMs] is ignored. Changing values mid-flight
@@ -42,7 +45,6 @@ enum MotionCurve {
   /// Material-style fast start and long, gentle settle.
   fastOutSlowIn,
 
-
   /// A cubic ease in and out: slow at both ends, fast in the middle, as a
   /// card turning over.
   easeInOutCubic;
@@ -55,6 +57,7 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.easeInOutSine => 'Sine (breath)',
     MotionCurve.spring => 'Spring',
     MotionCurve.elasticOut => 'Elastic',
     MotionCurve.bounceOut => 'Bounce',
@@ -351,6 +354,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// loop starts, so motions can be staggered.
   final int delayMs;
 
+  /// Gaussian blur of the whole node, in logical pixels (0 is sharp),
+  /// animated like the other values: a label that un-blurs as it fades in,
+  /// with `enterFrom: {"blur": 8, "opacity": 0}`.
+  final double blur;
+
   /// Paints the node only while its front faces the viewer, judged by its
   /// whole transform on screen (a rotating parent counts), like CSS
   /// `backface-visibility: hidden`. Two faces of a flip card set it, the
@@ -417,6 +425,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.enterFrom,
     this.replayKey,
     this.delayMs = 0,
+    this.blur = 0,
     this.backfaceHidden = false,
     this.path,
     this.pathProgress = 0,
@@ -444,6 +453,7 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateY',
     'spin',
     'pathProgress',
+    'blur',
   ];
 
   /// The name of the binding that sets [delayMs], e.g.
@@ -487,6 +497,7 @@ class MotionModel with Equatable, SerializableMixin {
       rotate != 0 ||
       rotateX != 0 ||
       rotateY != 0 ||
+      blur != 0 ||
       backfaceHidden ||
       hasPath;
 
@@ -538,6 +549,9 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => rotateX,
     'rotateY' => rotateY,
     'spin' => spin,
+    'durationMs' => durationMs.toDouble(),
+    'delayMs' => delayMs.toDouble(),
+    'blur' => blur,
     'pathProgress' => pathProgress,
     _ => throw ArgumentError.value(property, 'property'),
   };
@@ -572,6 +586,7 @@ class MotionModel with Equatable, SerializableMixin {
     String? replayKey,
     bool clearReplayKey = false,
     int? delayMs,
+    double? blur,
     bool? backfaceHidden,
     String? path,
     bool clearPath = false,
@@ -607,6 +622,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
+    blur: blur ?? this.blur,
     backfaceHidden: backfaceHidden ?? this.backfaceHidden,
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
@@ -629,6 +645,7 @@ class MotionModel with Equatable, SerializableMixin {
     rotateX: 0,
     rotateY: 0,
     pathProgress: 0,
+    blur: 0,
   );
 
   /// Returns a copy with [property] set to [value].
@@ -645,6 +662,11 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => copyWith(rotateX: value),
     'rotateY' => copyWith(rotateY: value),
     'spin' => copyWith(spin: value),
+    // Bound timings: a transition can last as long as a state does (a 4 s
+    // inhale, an 8 s exhale).
+    'durationMs' => copyWith(durationMs: value.round().clamp(0, 600000)),
+    'delayMs' => copyWith(delayMs: value.round().clamp(0, 600000)),
+    'blur' => copyWith(blur: value < 0 ? 0 : value),
     'pathProgress' => copyWith(pathProgress: value),
     _ => throw ArgumentError.value(property, 'property'),
   };
@@ -801,6 +823,7 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom,
     replayKey,
     delayMs,
+    blur,
     backfaceHidden,
     path,
     pathProgress,
