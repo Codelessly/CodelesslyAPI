@@ -10,6 +10,8 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
   RectangleNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.strokeJoin, StrokeJoinEnum.miter))
+    json.remove('strokeJoin');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -178,7 +180,16 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
                 .toList() ??
             const [],
         clipsContent: json['clipsContent'] as bool? ?? true,
+        path: json['path'] as String?,
+        strokeJoin:
+            $enumDecodeNullable(
+              _$StrokeJoinEnumEnumMap,
+              json['strokeJoin'],
+              unknownValue: StrokeJoinEnum.miter,
+            ) ??
+            StrokeJoinEnum.miter,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -203,7 +214,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -251,12 +261,6 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
     <String, dynamic>{
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
       'id': instance.id,
       'name': instance.name,
       'visible': instance.visible,
@@ -268,6 +272,12 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'flex': instance.flex,
       'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'variables': instance.variables,
+      'multipleVariables': instance.multipleVariables,
+      'componentId': ?instance.componentId,
+      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+      'componentVersion': instance.componentVersion,
+      'componentSchema': instance.componentSchema,
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -310,6 +320,8 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'cornerRadius': instance.cornerRadius.toJson(),
       'notches': instance.notches.map((e) => e.toJson()).toList(),
       'type': instance.type,
+      'path': ?instance.path,
+      'strokeJoin': _$StrokeJoinEnumEnumMap[instance.strokeJoin]!,
     };
 
 const _$BlendModeCEnumMap = {
@@ -375,6 +387,12 @@ const _$SizeFitEnumMap = {
 const _$PositioningModeEnumMap = {
   PositioningMode.align: 'align',
   PositioningMode.pin: 'pin',
+};
+
+const _$StrokeJoinEnumEnumMap = {
+  StrokeJoinEnum.miter: 'miter',
+  StrokeJoinEnum.round: 'round',
+  StrokeJoinEnum.bevel: 'bevel',
 };
 
 const _$ComponentMarkerTypeEnumMap = {
