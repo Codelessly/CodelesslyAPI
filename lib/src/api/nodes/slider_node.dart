@@ -46,6 +46,12 @@ const ColorRGBA kSliderDefaultInactiveTrackColor = ColorRGBA(
 /// Default opacity of slider's overlay.
 const double kSliderDefaultOverlayOpacity = 0.12;
 
+/// Default blur sigma of the glow behind slider's thumb.
+const double kSliderDefaultThumbGlowBlur = 8;
+
+/// Default distance the glow behind slider's thumb reaches past the thumb.
+const double kSliderDefaultThumbGlowSpread = 6;
+
 /// How a slider draws the marks at its divisions.
 enum SliderTickMarkStyle {
   /// Dots on the track.
@@ -152,6 +158,20 @@ class SliderNode extends SceneNode with CustomPropertiesMixin {
     DoubleValue(name: 'max', value: properties.max),
     DoubleValue(name: 'markerValue', value: markerValue ?? 0),
     ColorValue(name: 'activeTrackColor', value: properties.activeTrackColor),
+    ColorValue(
+      name: 'inactiveTrackColor',
+      value: properties.inactiveTrackColor,
+    ),
+    ColorValue(name: 'thumbColor', value: properties.thumbColor),
+    ColorValue(
+      name: 'thumbGlowColor',
+      value: properties.thumbGlowColor,
+      nullable: true,
+    ),
+    DoubleValue(
+      name: 'activeTrackStartOpacity',
+      value: properties.activeTrackStartOpacity,
+    ),
   ];
 
   /// Creates a [SliderNode] instance from a JSON object.
@@ -331,6 +351,21 @@ class SliderProperties extends CustomProperties with FieldsHolder {
   /// The highest value the thumb can be dragged to. Null for [max].
   double? selectableMax;
 
+  /// Color of a soft glow behind the slider's thumb, or null for no glow.
+  /// Bindable as `thumbGlowColor`.
+  ColorRGBA? thumbGlowColor;
+
+  /// Blur sigma of the thumb's glow.
+  double thumbGlowBlur;
+
+  /// How far the thumb's glow reaches past the thumb's edge, before blur.
+  double thumbGlowSpread;
+
+  /// Opacity of the active track at its start, fading in to the full
+  /// [activeTrackColor] at the thumb. 1 draws a solid active track. Bindable
+  /// as `activeTrackStartOpacity`.
+  double activeTrackStartOpacity;
+
   /// Creates a [SliderProperties] instance with the given data.
   SliderProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -381,6 +416,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     this.markerHeight = 14,
     this.selectableMin,
     this.selectableMax,
+    this.thumbGlowColor,
+    this.thumbGlowBlur = kSliderDefaultThumbGlowBlur,
+    this.thumbGlowSpread = kSliderDefaultThumbGlowSpread,
+    this.activeTrackStartOpacity = 1,
   });
 
   /// Duplicates this [SliderProperties] instance with the given data
@@ -434,6 +473,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     double? markerHeight,
     double? selectableMin,
     double? selectableMax,
+    ColorRGBA? thumbGlowColor,
+    double? thumbGlowBlur,
+    double? thumbGlowSpread,
+    double? activeTrackStartOpacity,
   }) {
     return SliderProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -490,6 +533,11 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       markerHeight: markerHeight ?? this.markerHeight,
       selectableMin: selectableMin ?? this.selectableMin,
       selectableMax: selectableMax ?? this.selectableMax,
+      thumbGlowColor: thumbGlowColor ?? this.thumbGlowColor,
+      thumbGlowBlur: thumbGlowBlur ?? this.thumbGlowBlur,
+      thumbGlowSpread: thumbGlowSpread ?? this.thumbGlowSpread,
+      activeTrackStartOpacity:
+          activeTrackStartOpacity ?? this.activeTrackStartOpacity,
     );
   }
 
@@ -766,6 +814,30 @@ class SliderProperties extends CustomProperties with FieldsHolder {
       () => thumbStrokeWidth,
       (double value) => thumbStrokeWidth = value,
     ),
+    'thumbGlowColor': ColorFieldAccess<ColorRGBA?>(
+      'Thumb Glow Color',
+      'Color of a soft glow behind the slider\'s thumb.',
+      () => thumbGlowColor,
+      (value) => thumbGlowColor = value,
+    ),
+    'thumbGlowBlur': NumFieldAccess<double>(
+      'Thumb Glow Blur',
+      'Blur sigma of the thumb\'s glow.',
+      () => thumbGlowBlur,
+      (double value) => thumbGlowBlur = value,
+    ),
+    'thumbGlowSpread': NumFieldAccess<double>(
+      'Thumb Glow Spread',
+      'How far the thumb\'s glow reaches past the thumb.',
+      () => thumbGlowSpread,
+      (double value) => thumbGlowSpread = value,
+    ),
+    'activeTrackStartOpacity': NumFieldAccess<double>(
+      'Active Track Start Opacity',
+      'Opacity of the active track at its start, fading in to the thumb.',
+      () => activeTrackStartOpacity,
+      (double value) => activeTrackStartOpacity = value,
+    ),
   };
 
   @override
@@ -818,6 +890,10 @@ class SliderProperties extends CustomProperties with FieldsHolder {
     markerHeight,
     selectableMin,
     selectableMax,
+    thumbGlowColor,
+    thumbGlowBlur,
+    thumbGlowSpread,
+    activeTrackStartOpacity,
   ];
 
   /// Creates a [SliderProperties] instance from a JSON object.
