@@ -76,6 +76,10 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
   if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
   if (isJsonDefault(instance.textCapitalization, TextCapitalizationC.none))
     json.remove('textCapitalization');
+  if (isJsonDefault(instance.focusRingColor, ColorRGBA.transparent))
+    json.remove('focusRingColor');
+  if (isJsonDefault(instance.focusRingWidth, 0.0))
+    json.remove('focusRingWidth');
   if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
   if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
   if (isJsonDefault(instance.showDecimalKey, false))
@@ -347,6 +351,10 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
         json['textCapitalization'],
       ) ??
       TextCapitalizationC.none,
+  focusRingColor: json['focusRingColor'] == null
+      ? ColorRGBA.transparent
+      : ColorRGBA.fromJson(json['focusRingColor']),
+  focusRingWidth: (json['focusRingWidth'] as num?)?.toDouble() ?? 0.0,
   readOnly: json['readOnly'] as bool? ?? false,
   showCursor: json['showCursor'] as bool? ?? true,
   keyboardType:
@@ -436,6 +444,8 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
   'obscureText': instance.obscureText,
   'textCapitalization':
       _$TextCapitalizationCEnumMap[instance.textCapitalization]!,
+  'focusRingColor': instance.focusRingColor.toJson(),
+  'focusRingWidth': instance.focusRingWidth,
   'readOnly': instance.readOnly,
   'showCursor': instance.showCursor,
   'showDecimalKey': instance.showDecimalKey,
