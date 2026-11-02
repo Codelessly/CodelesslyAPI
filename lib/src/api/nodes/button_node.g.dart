@@ -192,7 +192,10 @@ ButtonNode _$ButtonNodeFromJson(Map json) =>
           : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
-          : MotionModel.fromJson(json['motion'] as Map);
+          : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map);
 
 Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
     <String, dynamic>{
@@ -234,6 +237,7 @@ Map<String, dynamic> _$ButtonNodeToJson(ButtonNode instance) =>
       'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'properties': instance.properties.toJson(),
     };
 
