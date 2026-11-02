@@ -306,6 +306,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>
