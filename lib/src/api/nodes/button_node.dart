@@ -561,6 +561,16 @@ class ButtonProperties extends CustomProperties
   // Designs saved before 5.0.0 omit this key and used the Material 2 default.
   @override
   @JsonKey(defaultValue: CShapeBorder.roundedRectangle)
+  @FlutterProp(
+    'shape',
+    type: 'string',
+    group: 'Appearance',
+    control: 'select',
+    field: 'properties.shape',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted ButtonProperties border shape, not a Flutter constructor parameter.',
+  )
   // ignore: overridden_fields
   late CShapeBorder shape;
 
@@ -575,15 +585,55 @@ class ButtonProperties extends CustomProperties
   ///
   /// Designs saved before this was nullable omit black, then the default:
   /// a missing key reads as null, an explicit color (black too) as set.
+  @FlutterProp(
+    'buttonColor',
+    type: 'object',
+    group: 'Appearance',
+    control: 'color',
+    field: 'properties.buttonColor',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted button background color; absent means the button default.',
+  )
   ColorRGBA? buttonColor;
 
   /// Elevation shadow color of the button.
+  @FlutterProp(
+    'shadowColor',
+    type: 'object',
+    group: 'Appearance',
+    control: 'color',
+    field: 'properties.shadowColor',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted button shadow color.',
+  )
   late ColorRGBA shadowColor;
 
   /// Elevation of the button.
+  @FlutterProp(
+    'elevation',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.elevation',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted ButtonProperties elevation, not node size or Flutter constructor input.',
+  )
   late double elevation;
 
   /// Whether the button is enabled.
+  @FlutterProp(
+    'enabled',
+    type: 'boolean',
+    group: 'Interaction',
+    control: 'switch',
+    field: 'properties.enabled',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly button property, distinct from node-level enabled.',
+  )
   late bool enabled;
 
   // Label properties.
@@ -601,17 +651,57 @@ class ButtonProperties extends CustomProperties
   late String label;
 
   /// Alignment of the label.
+  @FlutterProp(
+    'labelAlignment',
+    type: 'string',
+    group: 'Typography',
+    control: 'select',
+    field: 'properties.labelAlignment',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted button label alignment.',
+  )
   late TextAlignHorizontalEnum labelAlignment;
 
   /// Style of the label.
+  @FlutterProp(
+    'labelStyle',
+    type: 'object',
+    group: 'Typography',
+    control: 'font',
+    field: 'properties.labelStyle',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted button label style object; typed subfields describe individual edits.',
+  )
   late TextProp labelStyle;
 
   // Icon properties.
 
   /// Describes the position of the icon.
+  @FlutterProp(
+    'placement',
+    type: 'string',
+    group: 'Content',
+    control: 'select',
+    field: 'properties.placement',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted start/end position of the button icon.',
+  )
   late IconPlacementEnum placement;
 
   /// Space between the icon and the label.
+  @FlutterProp(
+    'gap',
+    type: 'number',
+    group: 'Content',
+    control: 'number',
+    field: 'properties.gap',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted gap between button icon and label.',
+  )
   late double gap;
 
   /// Icon to display in the button.
