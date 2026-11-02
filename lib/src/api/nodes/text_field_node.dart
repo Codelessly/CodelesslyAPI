@@ -216,7 +216,10 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   /// Which letters the on-screen keyboard capitalizes by default: none,
   /// the first of each word (names), of each sentence, or every letter.
-  @JsonKey(defaultValue: TextCapitalizationC.none)
+  @JsonKey(
+    defaultValue: TextCapitalizationC.none,
+    unknownEnumValue: TextCapitalizationC.none,
+  )
   TextCapitalizationC textCapitalization;
 
   /// A ring drawn around the field while it has focus, [focusRingWidth]

@@ -363,6 +363,7 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
       $enumDecodeNullable(
         _$TextCapitalizationCEnumMap,
         json['textCapitalization'],
+        unknownValue: TextCapitalizationC.none,
       ) ??
       TextCapitalizationC.none,
   focusRingColor: json['focusRingColor'] == null
