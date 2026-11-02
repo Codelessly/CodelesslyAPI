@@ -242,7 +242,7 @@ TextNode _$TextNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
-      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -300,7 +300,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'drag': ?instance.drag?.toJson(),
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
-  'aspectRatio': ?instance.aspectRatio,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,

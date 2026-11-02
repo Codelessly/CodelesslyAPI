@@ -36,7 +36,7 @@ class FrameNode extends DefaultShapeNode
   ///
   /// Set it to scale a frame whose size follows its parent, e.g. a card
   /// drawn at 340x214 that fills the width it gets
-  /// (`"horizontalFit": "expanded"`, `"aspectRatio": 1.5888`) and scales
+  /// (`"horizontalFit": "expanded"`, `"layoutAspectRatio": 1.5888`) and scales
   /// its children with it. The children's boxes are in this design space.
   SizeC? contentSize;
 

@@ -506,8 +506,9 @@ abstract class BaseNode
   /// allows. Null (the default) sizes each axis on its own.
   ///
   /// Unlike [aspectRatioLock], which only keeps the ratio while resizing in
-  /// the editor, this sizes the node in the app.
-  double? aspectRatio;
+  /// the editor, this sizes the node in the app. It is separate from the
+  /// built-in ratio of nodes such as icons ([FixedAspectRatioMixin]).
+  double? layoutAspectRatio;
 
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
