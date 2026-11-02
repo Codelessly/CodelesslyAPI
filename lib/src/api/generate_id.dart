@@ -1,8 +1,17 @@
 import 'dart:math' as math;
 
-/// Modeled after base64 web-safe chars, but ordered by ASCII.
+/// Modeled after base64 web-safe chars, but ordered by ASCII. 63 chars: the
+/// original's '-' is left out.
 const String _kPushChars =
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+
+/// Timestamp of the last ID, to detect collisions within a millisecond.
+int _lastPushTime = 0;
+
+/// Random part of the last ID, incremented on a timestamp collision.
+final List<int> _randomSuffix = List<int>.filled(12, 0);
+
+final math.Random _random = math.Random.secure();
 
 /// Implementation from https://gist.github.com/mikelehen/3596a30bd69384624c11
 ///
@@ -15,26 +24,22 @@ const String _kPushChars =
 ///    latter ones will sort after the former ones.  We do this by using the previous random bits
 ///    but "incrementing" them by 1 (only in the case of a timestamp collision).
 String generateId() {
-  int lastPushTime = 0;
-  final List<int> randomSuffix = List.filled(12, 0);
-  final math.Random random = math.Random.secure();
-
   final int now = DateTime.now().toUtc().millisecondsSinceEpoch;
   String id = _toPushIdBase64(now, 8);
 
-  if (now != lastPushTime) {
+  if (now != _lastPushTime) {
     for (int i = 0; i < 12; i += 1) {
-      randomSuffix[i] = random.nextInt(63);
+      _randomSuffix[i] = _random.nextInt(_kPushChars.length);
     }
   } else {
     int i;
-    for (i = 11; i >= 0 && randomSuffix[i] == 62; i--) {
-      randomSuffix[i] = 0;
+    for (i = 11; i >= 0 && _randomSuffix[i] == _kPushChars.length - 1; i--) {
+      _randomSuffix[i] = 0;
     }
-    randomSuffix[i] += 1;
+    _randomSuffix[i] += 1;
   }
-  final String suffixStr = randomSuffix.map((int i) => _kPushChars[i]).join();
-  lastPushTime = now;
+  final String suffixStr = _randomSuffix.map((int i) => _kPushChars[i]).join();
+  _lastPushTime = now;
 
   return '$id$suffixStr';
 }
