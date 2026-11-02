@@ -33,6 +33,9 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -211,6 +214,8 @@ TextNode _$TextNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -269,13 +274,14 @@ TextNode _$TextNodeFromJson(Map json) =>
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'data': instance.data,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignVertical':
       _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
   'paragraphIndent': instance.paragraphIndent,
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
+  'softWrap': instance.softWrap,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -292,13 +298,14 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'alignment': instance.alignment.toJson(),
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
-  'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'textScaleFactor': ?instance.textScaleFactor,
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,
