@@ -90,6 +90,14 @@ abstract class DefaultShapeNode extends SceneNode
     );
   }
 
+  /// Paints drawn over this node's children, inside its corners: a
+  /// translucent solid (`#66000000`) or a gradient that dims or tints the
+  /// whole box, text included, like Flutter's `foregroundDecoration`. Each
+  /// paint's colour can be bound through `variables['foreground-<paint
+  /// id>']`. They take no taps. Empty (the default) draws nothing.
+  @JsonKey(defaultValue: [])
+  List<PaintModel> foregroundFills = [];
+
   @override
   String toString() => '\n$type [${super.toString()}]';
 }
