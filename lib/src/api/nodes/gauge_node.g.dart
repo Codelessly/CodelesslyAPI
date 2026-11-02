@@ -41,6 +41,9 @@ Map<String, dynamic> _$GaugeNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -221,9 +224,33 @@ GaugeNode _$GaugeNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
@@ -261,8 +288,16 @@ Map<String, dynamic> _$GaugeNodeToJson(GaugeNode instance) => <String, dynamic>{
   'transitionMs': instance.transitionMs,
   'drawScale': instance.drawScale,
   'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'value': instance.value,

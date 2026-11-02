@@ -326,9 +326,9 @@ extension ConversionExt on Object? {
       list = this as List;
     } else if (this is String) {
       final decoded = tryJsonDecode(this as String);
-      if (decoded is List) {
-        list = decoded.map((e) => e is String ? e.parsedValue() : e).toList();
-      }
+      // JSON already says what each item is: text stays text, so an empty
+      // string or "12" isn't read as null or a number.
+      if (decoded is List) list = decoded;
     }
     if (list == null) return null;
 
