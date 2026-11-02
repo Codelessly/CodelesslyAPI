@@ -102,7 +102,14 @@ enum TriggerType {
   /// key's label: `a`, `ArrowLeft`, `Delete`, `Escape`, ...),
   /// `${result.shift}`, `${result.alt}` and `${result.meta}` (Command on
   /// macOS, Control elsewhere). [TriggerModel.key] limits it to one key.
-  keyDown;
+  keyDown,
+
+  /// Triggered on every scroll update of a scrolling row, column or
+  /// canvas. The actions read `${result.offset}` (how far it is scrolled,
+  /// in logical pixels), `${result.max}` (how far it can scroll) and
+  /// `${result.fraction}` (0 at the start, 1 at the end), so a header can
+  /// collapse, a bar fade in or a button appear as the content scrolls.
+  scroll;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -177,6 +184,8 @@ enum TriggerType {
         return 'Drag End';
       case TriggerType.keyDown:
         return 'Key Down';
+      case TriggerType.scroll:
+        return 'Scroll';
     }
   }
 }
