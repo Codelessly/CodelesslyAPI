@@ -61,6 +61,10 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
   gradientCenterX: (json['gradientCenterX'] as num?)?.toDouble(),
   gradientCenterY: (json['gradientCenterY'] as num?)?.toDouble(),
   gradientRadius: (json['gradientRadius'] as num?)?.toDouble(),
+  gradientBeginX: (json['gradientBeginX'] as num?)?.toDouble(),
+  gradientBeginY: (json['gradientBeginY'] as num?)?.toDouble(),
+  gradientEndX: (json['gradientEndX'] as num?)?.toDouble(),
+  gradientEndY: (json['gradientEndY'] as num?)?.toDouble(),
   gradientTileMode:
       $enumDecodeNullable(
         _$GradientTileModeEnumMap,
@@ -106,6 +110,10 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'gradientCenterX': ?instance.gradientCenterX,
       'gradientCenterY': ?instance.gradientCenterY,
       'gradientRadius': ?instance.gradientRadius,
+      'gradientBeginX': ?instance.gradientBeginX,
+      'gradientBeginY': ?instance.gradientBeginY,
+      'gradientEndX': ?instance.gradientEndX,
+      'gradientEndY': ?instance.gradientEndY,
       'gradientTileMode': _$GradientTileModeEnumMap[instance.gradientTileMode]!,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,

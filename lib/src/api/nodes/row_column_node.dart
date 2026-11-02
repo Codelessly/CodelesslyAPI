@@ -332,4 +332,5 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.layoutAspectRatio = source.layoutAspectRatio;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
+  target.foregroundFills = source.foregroundFills;
 }
