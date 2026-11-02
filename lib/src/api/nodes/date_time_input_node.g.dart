@@ -163,6 +163,9 @@ DateTimeInputNode _$DateTimeInputNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DateTimeInputNodeToJson(DateTimeInputNode instance) =>
@@ -203,6 +206,7 @@ Map<String, dynamic> _$DateTimeInputNodeToJson(DateTimeInputNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'type': instance.type,
       'mode': instance.mode,
       'value': instance.value,

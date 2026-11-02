@@ -206,6 +206,12 @@ TextNode _$TextNodeFromJson(Map json) =>
         codeTheme: json['codeTheme'] == null
             ? null
             : CodeThemeModel.fromJson(json['codeTheme'] as Map),
+        inlineCode: json['inlineCode'] == null
+            ? null
+            : InlineCodeStyle.fromJson(json['inlineCode'] as Map),
+        countUp: json['countUp'] == null
+            ? null
+            : CountUpModel.fromJson(json['countUp'] as Map),
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -245,6 +251,9 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -269,8 +278,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'aspectRatioLock': instance.aspectRatioLock,
-  'data': instance.data,
   'alignment': instance.alignment.toJson(),
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'data': instance.data,
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
       _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
@@ -281,7 +291,6 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
-  'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
@@ -299,6 +308,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
@@ -309,6 +319,8 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'tabularFigures': instance.tabularFigures,
   'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
   'codeTheme': ?instance.codeTheme?.toJson(),
+  'inlineCode': ?instance.inlineCode?.toJson(),
+  'countUp': ?instance.countUp?.toJson(),
 };
 
 const _$SizeFitEnumMap = {

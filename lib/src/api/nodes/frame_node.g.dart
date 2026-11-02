@@ -278,6 +278,9 @@ FrameNode _$FrameNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -325,6 +328,7 @@ Map<String, dynamic> _$FrameNodeToJson(FrameNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,

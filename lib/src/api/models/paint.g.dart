@@ -64,6 +64,10 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
         json['gradientTileMode'],
       ) ??
       GradientTileMode.clamp,
+  gradientCenter: json['gradientCenter'] == null
+      ? null
+      : AlignmentData.fromJson(json['gradientCenter']),
+  gradientRadius: (json['gradientRadius'] as num?)?.toDouble(),
   imageTransform: (json['imageTransform'] as List<dynamic>?)
       ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
       .toList(),
@@ -101,6 +105,8 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
       'gradientRepeatEvery': ?instance.gradientRepeatEvery,
       'gradientTileMode': _$GradientTileModeEnumMap[instance.gradientTileMode]!,
+      'gradientCenter': ?instance.gradientCenter?.toJson(),
+      'gradientRadius': ?instance.gradientRadius,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
       'imageName': ?instance.imageName,

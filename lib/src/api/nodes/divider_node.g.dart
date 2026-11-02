@@ -166,6 +166,9 @@ DividerNode _$DividerNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$DividerNodeToJson(DividerNode instance) =>
@@ -206,6 +209,7 @@ Map<String, dynamic> _$DividerNodeToJson(DividerNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'type': instance.type,
       'properties': instance.properties.toJson(),
     };

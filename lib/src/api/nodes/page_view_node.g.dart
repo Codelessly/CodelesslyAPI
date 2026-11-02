@@ -226,6 +226,9 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -280,6 +283,7 @@ Map<String, dynamic> _$PageViewNodeToJson(PageViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'children': instance.children,
       'clipsContent': instance.clipsContent,
       'ephemeral': instance.ephemeral,
@@ -380,4 +384,6 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };

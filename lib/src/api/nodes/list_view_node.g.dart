@@ -98,6 +98,7 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
     json.remove('wrapAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
+  if (isJsonDefault(instance.stretchItems, false)) json.remove('stretchItems');
   return json;
 }
 
@@ -253,6 +254,9 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -279,7 +283,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
     <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -296,6 +299,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -315,6 +319,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'children': instance.children,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
@@ -412,6 +417,7 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
       MainAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
+  stretchItems: json['stretchItems'] as bool? ?? false,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -433,6 +439,7 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
+      'stretchItems': instance.stretchItems,
     };
 
 const _$ListLayoutEnumMap = {

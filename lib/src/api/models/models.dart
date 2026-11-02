@@ -75,6 +75,7 @@ export 'safe_area.dart';
 export 'shape_border.dart';
 export 'size.dart';
 export 'start_end_prop.dart';
+export 'text_extras.dart';
 export 'text_baseline.dart';
 export 'text_direction.dart';
 export 'text_input_autofill_hints.dart';
