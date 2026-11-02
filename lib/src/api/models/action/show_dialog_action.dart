@@ -182,6 +182,15 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// scrolls as one, subject to [maxHeightFactor].
   final bool fullHeight;
 
+  /// Blur of the page behind a centered dialog, as a Gaussian sigma in
+  /// logical pixels (e.g. 8 for a frosted scrim). It fades in with the
+  /// dialog. 0 (the default) leaves the page sharp.
+  final double barrierBlur;
+
+  /// The scale a centered dialog grows from as it opens (e.g. 0.94); it
+  /// fades in at the same time. 1 (the default) keeps the plain fade.
+  final double enterScale;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -200,6 +209,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.insets = EdgeInsetsModel.zero,
     this.maxHeightFactor = 1,
     this.fullHeight = false,
+    this.barrierBlur = 0,
+    this.enterScale = 1,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -255,6 +266,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     insets,
     maxHeightFactor,
     fullHeight,
+    barrierBlur,
+    enterScale,
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
@@ -281,6 +294,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     EdgeInsetsModel? insets,
     double? maxHeightFactor,
     bool? fullHeight,
+    double? barrierBlur,
+    double? enterScale,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -298,6 +313,8 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     insets: insets ?? this.insets,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
     fullHeight: fullHeight ?? this.fullHeight,
+    barrierBlur: barrierBlur ?? this.barrierBlur,
+    enterScale: enterScale ?? this.enterScale,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
