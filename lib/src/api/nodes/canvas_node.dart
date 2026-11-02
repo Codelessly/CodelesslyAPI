@@ -219,6 +219,13 @@ class CanvasProperties extends CustomProperties {
   /// The runtime never reads them.
   Map<String, dynamic> previewParams;
 
+  /// Whether the screen's link params set its variables of the same name
+  /// when it opens (`/app/screen?month=2026-09` starts `month` at
+  /// `2026-09`), so every state a variable holds can be linked to. Text
+  /// params are read as the variable's type. App and page variables are
+  /// set too.
+  bool paramsSetVariables;
+
   /// Whether this screen needs a signed-in user.
   bool get requiresSignIn => signInRedirectId?.isNotEmpty ?? false;
 
@@ -241,6 +248,7 @@ class CanvasProperties extends CustomProperties {
     this.signInRedirectId,
     this.path,
     this.previewParams = const {},
+    this.paramsSetVariables = false,
   });
 
   /// Checks if a node is symbiotic with its canvas, ie the node acts as the
@@ -260,6 +268,7 @@ class CanvasProperties extends CustomProperties {
     signInRedirectId,
     path,
     previewParams,
+    paramsSetVariables,
   ];
 
   /// Creates a new [CanvasProperties] from a JSON data.
