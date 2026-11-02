@@ -79,6 +79,7 @@ Map<String, dynamic> _$SwitchPropertiesOmitDefaults(
     json.remove('trackOutlineWidth');
   if (isJsonDefault(instance.useMaterial3, false)) json.remove('useMaterial3');
   if (isJsonDefault(instance.uniformThumb, false)) json.remove('uniformThumb');
+  if (isJsonDefault(instance.fillTrack, false)) json.remove('fillTrack');
   return json;
 }
 
@@ -306,6 +307,7 @@ SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
   trackOutlineWidth: (json['trackOutlineWidth'] as num?)?.toDouble() ?? 2,
   useMaterial3: json['useMaterial3'] as bool? ?? false,
   uniformThumb: json['uniformThumb'] as bool? ?? false,
+  fillTrack: json['fillTrack'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
@@ -323,4 +325,5 @@ Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
       'trackOutlineWidth': instance.trackOutlineWidth,
       'useMaterial3': instance.useMaterial3,
       'uniformThumb': instance.uniformThumb,
+      'fillTrack': instance.fillTrack,
     };
