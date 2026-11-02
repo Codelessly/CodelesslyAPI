@@ -167,6 +167,7 @@ TimePickerNode _$TimePickerNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TimePickerNodeToJson(TimePickerNode instance) =>
@@ -209,6 +210,7 @@ Map<String, dynamic> _$TimePickerNodeToJson(TimePickerNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'type': instance.type,
       'value': validateClockTime(instance.value),
       'properties': instance.properties.toJson(),

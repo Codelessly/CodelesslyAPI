@@ -225,6 +225,7 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -238,7 +239,6 @@ FreeformPlaceholderNode _$FreeformPlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   FreeformPlaceholderNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -255,6 +255,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -276,6 +277,7 @@ Map<String, dynamic> _$FreeformPlaceholderNodeToJson(
   'motion': ?instance.motion?.toJson(),
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'aspectRatio': ?instance.aspectRatio,
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,

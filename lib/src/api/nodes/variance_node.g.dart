@@ -149,7 +149,6 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['properties'] as Map),
               ),
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -161,6 +160,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -192,6 +192,7 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -207,8 +208,6 @@ VarianceNode _$VarianceNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>
     <String, dynamic>{
-      'squeezable': instance.squeezable,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -224,6 +223,8 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>
       'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
+      'squeezable': instance.squeezable,
+      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
       'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -245,6 +246,7 @@ Map<String, dynamic> _$VarianceNodeToJson(VarianceNode instance) =>
       'motion': ?instance.motion?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+      'aspectRatio': ?instance.aspectRatio,
       'ephemeral': instance.ephemeral,
       'allowedTypes': instance.allowedTypes,
       'deniedTypes': instance.deniedTypes,
