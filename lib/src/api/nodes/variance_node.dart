@@ -79,20 +79,18 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
 
   /// The variant a responsive node shows on a canvas [width] wide, or the
   /// current variant when the node is not responsive.
-  ///
-  /// The widths where tablet and desktop start are the standard ones
-  /// ([ScreenBreakpoint.minWidth]) unless [VarianceProperties] sets its own,
-  /// e.g. a design that switches at 700 and 1200.
   Variant variantForWidth(double width) =>
       variantForBreakpoint(breakpointForWidth(width)) ?? currentVariant;
 
   /// The breakpoint this responsive node shows at [width], by its own
-  /// thresholds when it has them.
-  ScreenBreakpoint breakpointForWidth(double width) => ScreenBreakpoint.forWidth(
-    width,
-    tabletMinWidth: properties.tabletMinWidth,
-    desktopMinWidth: properties.desktopMinWidth,
-  );
+  /// [VarianceProperties.tabletMinWidth] and
+  /// [VarianceProperties.desktopMinWidth] when it has them.
+  ScreenBreakpoint breakpointForWidth(double width) =>
+      ScreenBreakpoint.forWidth(
+        width,
+        tabletMinWidth: properties.tabletMinWidth,
+        desktopMinWidth: properties.desktopMinWidth,
+      );
 
   /// Whether this node shows the status of a cloud list: it has a variant
   /// with the id of a query status ([kQueryStatusLoading],
@@ -118,7 +116,12 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   }
 
   /// Currently loaded variant's ID.
-  @FlutterProp('currentVariantId', type: 'string', group: 'State', control: 'text')
+  @FlutterProp(
+    'currentVariantId',
+    type: 'string',
+    group: 'State',
+    control: 'text',
+  )
   late String currentVariantId;
 
   /// Currently loaded variant.
@@ -271,12 +274,13 @@ class Variant with SerializableMixin, Equatable {
 /// [VarianceProperties] is used to store custom properties of a [VarianceNode].
 @JsonSerializable()
 class VarianceProperties extends CustomProperties {
-  /// Responsive layouts only: the width where the tablet layout starts,
-  /// instead of [ScreenBreakpoint.tablet]'s 600.
+  /// The narrowest width a responsive layout shows its tablet layout at,
+  /// when not [ScreenBreakpoint.tablet]'s 600.
   final double? tabletMinWidth;
 
-  /// Responsive layouts only: the width where the desktop layout starts,
-  /// instead of [ScreenBreakpoint.desktop]'s 1024.
+  /// The narrowest width a responsive layout shows its desktop layout at,
+  /// when not [ScreenBreakpoint.desktop]'s 1024 (an app designed to switch
+  /// at 1100, say).
   final double? desktopMinWidth;
 
   /// Creates a [VarianceProperties] instance with the given data.

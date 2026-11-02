@@ -548,6 +548,19 @@ enum StrokeCapEnum {
   square,
 }
 
+/// How a stroke's segments meet at corners.
+/// Corresponds to [StrokeJoin] in Flutter.
+enum StrokeJoinEnum {
+  /// Sharp corners, cut off past the miter limit.
+  miter,
+
+  /// Rounded corners.
+  round,
+
+  /// Corners cut flat.
+  bevel,
+}
+
 /// An enum representing the side or sides of a shape that a stroke should be
 /// applied to.
 enum StrokeSide {
@@ -1213,6 +1226,12 @@ mixin PropertyVariableMixin on BaseNode {
             ((text.textMixedProps.firstOrNull?.fontName.weight?.index ?? 3) +
                 1) *
             100,
+      ),
+      StringValue(
+        name: 'textDecoration',
+        value: (text.textMixedProps.firstOrNull?.textDecoration ??
+                TextDecorationEnum.none)
+            .name,
       ),
     ],
     if (this case final BlendMixin blend) ...[
