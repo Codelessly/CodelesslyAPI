@@ -109,6 +109,7 @@ Map<String, dynamic> _$CanvasPropertiesOmitDefaults(
     json.remove('brightness');
   if (isJsonDefault(instance.previewParams, const {}))
     json.remove('previewParams');
+  if (isJsonDefault(instance.overlay, false)) json.remove('overlay');
   return json;
 }
 
@@ -305,15 +306,15 @@ CanvasNode _$CanvasNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
-      ..motion = json['motion'] == null
-          ? null
-          : MotionModel.fromJson(json['motion'] as Map)
       ..draggable = json['draggable'] == null
           ? null
           : DraggableModel.fromJson(json['draggable'] as Map)
       ..dropTarget = json['dropTarget'] == null
           ? null
           : DropTargetModel.fromJson(json['dropTarget'] as Map)
+      ..motion = json['motion'] == null
+          ? null
+          : MotionModel.fromJson(json['motion'] as Map)
       ..effectAnimations =
           (json['effectAnimations'] as List<dynamic>?)
               ?.map((e) => EffectAnimation.fromJson(e as Map))
@@ -382,10 +383,10 @@ Map<String, dynamic> _$CanvasNodeToJson(
   'transitionMs': instance.transitionMs,
   'drawScale': instance.drawScale,
   'pulse': ?instance.pulse?.toJson(),
-  'enabled': instance.enabled,
-  'motion': ?instance.motion?.toJson(),
   'draggable': ?instance.draggable?.toJson(),
   'dropTarget': ?instance.dropTarget?.toJson(),
+  'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
   'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
   'particles': ?instance.particles?.toJson(),
   'flightKey': instance.flightKey,
@@ -578,6 +579,7 @@ CanvasProperties _$CanvasPropertiesFromJson(Map json) => CanvasProperties(
         (k, e) => MapEntry(k as String, e),
       ) ??
       const {},
+  overlay: json['overlay'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
@@ -591,6 +593,7 @@ Map<String, dynamic> _$CanvasPropertiesToJson(CanvasProperties instance) =>
       'signInRedirectId': ?instance.signInRedirectId,
       'path': ?instance.path,
       'previewParams': instance.previewParams,
+      'overlay': instance.overlay,
     };
 
 const _$BrightnessModelEnumMap = {
