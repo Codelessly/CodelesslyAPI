@@ -222,8 +222,8 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
     <String, dynamic>{
-      'squeezable': instance.squeezable,
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+      'squeezable': instance.squeezable,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
