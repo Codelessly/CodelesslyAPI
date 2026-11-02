@@ -495,6 +495,14 @@ abstract class BaseNode
   /// Available on all nodes, including nodes without blend properties.
   PulseModel? pulse;
 
+  /// Lets the user pick this node up and drop it on a [dropTarget] that
+  /// accepts it. Null when the node can't be dragged. See [DraggableModel].
+  DraggableModel? draggable;
+
+  /// Lets draggable nodes be dropped on this node. Null when it isn't a drop
+  /// target. See [DropTargetModel].
+  DropTargetModel? dropTarget;
+
   /// Determines whether the node is enabled or not. When translating the node
   /// into a widget or code, this value is used to determine whether this node
   /// should be included and accounted for or not.
@@ -513,6 +521,38 @@ abstract class BaseNode
   /// How the node moves: a transform drawn over its layout, transitions and
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
+
+  /// One-shot effects the node plays on cue (shake, bounce, pop, ...).
+  /// See [EffectAnimation].
+  @JsonKey(defaultValue: [])
+  List<EffectAnimation> effectAnimations = [];
+
+  /// Confetti or stars the node bursts with on cue. Null for none. See
+  /// [ParticleEmitter].
+  ParticleEmitter? particles;
+
+  /// Flies the node into place from where another node with the same key
+  /// just was, like a shared element: a letter tile tapped in the tray
+  /// disappears there and the slot's tile, with the same key, appears
+  /// flying from the tray into the slot. A draggable node's key also
+  /// remembers where it was let go, so dropped content flies in from the
+  /// drop point. Bindable as `flightKey` (e.g. `tile-${item.id}`); empty
+  /// for none. The flight uses the node's [MotionModel] spring settings
+  /// when it has them.
+  @JsonKey(defaultValue: '')
+  String flightKey = '';
+
+  /// A line drawn through points in the node's box, behind its children
+  /// (a dotted trail, a connector). Null for none. See [StrokePath].
+  StrokePath? strokePath;
+
+  /// Scrolls the node into view when it appears (or when `reveal.when`
+  /// turns true). Null for none. See [RevealModel].
+  RevealModel? reveal;
+  /// Makes the node draggable: it follows the pointer, tilts, and springs
+  /// back, stays or flies off on release. Null for a node that can't be
+  /// dragged. See [DragModel].
+  DragModel? drag;
 
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
