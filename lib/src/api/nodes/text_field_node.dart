@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../field_access.dart';
@@ -88,7 +89,7 @@ class TextFieldNode extends SceneNode
   @override
   List<TriggerType> get triggerTypes => [
     TriggerType.changed,
-    // TriggerType.editingComplete,
+    TriggerType.editingComplete,
     TriggerType.submitted,
   ];
 
@@ -161,19 +162,48 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   bool enableInteractiveSelection;
 
   /// Whether the field is enabled.
-  @FlutterProp('enabled', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.enabled')
+  @FlutterProp(
+    'enabled',
+    type: 'boolean',
+    group: 'Input',
+    control: 'switch',
+    field: 'properties.enabled',
+  )
   bool enabled;
 
   /// Whether to obscure the input text. Used for password fields.
-  @FlutterProp('obscureText', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.obscureText')
+  @FlutterProp(
+    'obscureText',
+    type: 'boolean',
+    group: 'Input',
+    control: 'switch',
+    field: 'properties.obscureText',
+  )
   bool obscureText;
 
+  /// Which letters the on-screen keyboard capitalizes by default: none,
+  /// the first of each word (names), of each sentence, or every letter.
+  @JsonKey(defaultValue: TextCapitalizationC.none)
+  TextCapitalizationC textCapitalization;
+
   /// Whether the field is read-only.
-  @FlutterProp('readOnly', type: 'boolean', group: 'Input', control: 'switch', field: 'properties.readOnly')
+  @FlutterProp(
+    'readOnly',
+    type: 'boolean',
+    group: 'Input',
+    control: 'switch',
+    field: 'properties.readOnly',
+  )
   bool readOnly;
 
   /// Whether to show the cursor in the field.
-  @FlutterProp('showCursor', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.showCursor')
+  @FlutterProp(
+    'showCursor',
+    type: 'boolean',
+    group: 'Appearance',
+    control: 'switch',
+    field: 'properties.showCursor',
+  )
   bool showCursor;
 
   /// Whether to show the decimal key in the soft input keyboard.
@@ -205,11 +235,23 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   ColorRGB cursorColor;
 
   /// Height of the field cursor.
-  @FlutterProp('cursorHeight', type: 'number', group: 'Appearance', control: 'number', field: 'properties.cursorHeight')
+  @FlutterProp(
+    'cursorHeight',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.cursorHeight',
+  )
   double cursorHeight;
 
   /// Width of the field cursor.
-  @FlutterProp('cursorWidth', type: 'number', group: 'Appearance', control: 'number', field: 'properties.cursorWidth')
+  @FlutterProp(
+    'cursorWidth',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.cursorWidth',
+  )
   double cursorWidth;
 
   /// Radius of the field cursor.
@@ -236,7 +278,13 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   /// Defines the character that is used to obscure the text in the field.
   /// Defaults to '•'.
-  @FlutterProp('obscuringCharacter', type: 'string', group: 'Input', control: 'text', field: 'properties.obscuringCharacter')
+  @FlutterProp(
+    'obscuringCharacter',
+    type: 'string',
+    group: 'Input',
+    control: 'text',
+    field: 'properties.obscuringCharacter',
+  )
   String obscuringCharacter;
 
   /// Text style applied to the input text.
@@ -246,7 +294,13 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   InputDecorationModel decoration;
 
   /// Whether the field expands vertically.
-  @FlutterProp('expands', type: 'boolean', group: 'Layout', control: 'switch', field: 'properties.expands')
+  @FlutterProp(
+    'expands',
+    type: 'boolean',
+    group: 'Layout',
+    control: 'switch',
+    field: 'properties.expands',
+  )
   bool expands;
 
   /// Formatter to apply to the text field input.
@@ -274,6 +328,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.enableInteractiveSelection = true,
     this.enabled = true,
     this.obscureText = false,
+    this.textCapitalization = TextCapitalizationC.none,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -312,6 +367,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     bool? enableInteractiveSelection,
     bool? enabled,
     bool? obscureText,
+    TextCapitalizationC? textCapitalization,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -345,6 +401,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
+      textCapitalization: textCapitalization ?? this.textCapitalization,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -567,6 +624,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   @override
   List<Object?> get props => [
+    textCapitalization,
     autoCorrect,
     autoFocus,
     enableInteractiveSelection,
@@ -614,3 +672,19 @@ int? _maxLinesFromJson(Object? value) => value is num ? value.toInt() : null;
 /// Marks an explicit `null` (unlimited lines) between [_readMaxLines] and
 /// [_maxLinesFromJson].
 const String _unlimitedLines = 'unlimited';
+
+/// Which letters the keyboard capitalizes by default; mirrors Flutter's
+/// `TextCapitalization`.
+enum TextCapitalizationC {
+  /// No automatic capitalization.
+  none,
+
+  /// The first letter of each word: names.
+  words,
+
+  /// The first letter of each sentence.
+  sentences,
+
+  /// Every letter.
+  characters,
+}

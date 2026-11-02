@@ -71,9 +71,8 @@ enum ScreenBreakpoint {
     required this.defaultWidth,
   });
 
-  /// The breakpoint a screen or canvas [width] wide falls in, by the
-  /// standard widths or, when given, a layout's own [tabletMinWidth] and
-  /// [desktopMinWidth].
+  /// The breakpoint a screen or canvas [width] wide falls in; a responsive
+  /// layout may move where tablet and desktop start.
   static ScreenBreakpoint forWidth(
     double width, {
     double? tabletMinWidth,
