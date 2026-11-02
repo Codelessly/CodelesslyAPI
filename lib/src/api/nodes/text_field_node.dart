@@ -193,6 +193,16 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: TextCapitalizationC.none)
   TextCapitalizationC textCapitalization;
 
+  /// A ring drawn around the field while it has focus, [focusRingWidth]
+  /// pixels wide outside its border and following its corner radius (a
+  /// soft halo around the input that's being typed in). No ring while the
+  /// width is 0.
+  ColorRGBA focusRingColor;
+
+  /// How far the focus ring reaches outside the field; 0 for none.
+  @JsonKey(defaultValue: 0.0)
+  double focusRingWidth;
+
   /// Whether the field is read-only.
   @FlutterProp(
     'readOnly',
@@ -337,6 +347,8 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.enabled = true,
     this.obscureText = false,
     this.textCapitalization = TextCapitalizationC.none,
+    this.focusRingColor = ColorRGBA.transparent,
+    this.focusRingWidth = 0,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -377,6 +389,8 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     bool? enabled,
     bool? obscureText,
     TextCapitalizationC? textCapitalization,
+    ColorRGBA? focusRingColor,
+    double? focusRingWidth,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -412,6 +426,8 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
       textCapitalization: textCapitalization ?? this.textCapitalization,
+      focusRingColor: focusRingColor ?? this.focusRingColor,
+      focusRingWidth: focusRingWidth ?? this.focusRingWidth,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -635,6 +651,8 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   @override
   List<Object?> get props => [
     textCapitalization,
+    focusRingColor,
+    focusRingWidth,
     autoCorrect,
     autoFocus,
     selectAllOnFocus,
