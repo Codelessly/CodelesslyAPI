@@ -534,6 +534,36 @@
     },
     {
       "nodeType": "audioPlayer",
+      "flutterName": "loop",
+      "fieldPath": "properties.loop",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "volume",
+      "fieldPath": "properties.volume",
+      "group": "Playback",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "background",
+      "fieldPath": "properties.background",
+      "group": "Playback",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "audioPlayer",
       "flutterName": null,
       "flutterParam": null,
       "note": "Nullable distance from the parent left edge.",
@@ -16307,6 +16337,21 @@
       "nodeType": "audioPlayer",
       "flutterName": "showControls",
       "fieldPath": "properties.showControls"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "loop",
+      "fieldPath": "properties.loop"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "volume",
+      "fieldPath": "properties.volume"
+    },
+    {
+      "nodeType": "audioPlayer",
+      "flutterName": "background",
+      "fieldPath": "properties.background"
     },
     {
       "nodeType": "badge",
