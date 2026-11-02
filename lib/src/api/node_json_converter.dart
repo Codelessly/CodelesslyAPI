@@ -46,6 +46,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'text': TextNode.fromJson,
       'canvas': CanvasNode.fromJson,
       'rectangle': RectangleNode.fromJson,
+      'path': PathNode.fromJson,
       'spacer': SpacerNode.fromJson,
       'icon': IconNode.fromJson,
       'row': RowNode.fromJson,

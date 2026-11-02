@@ -181,6 +181,9 @@ SignatureNormalizedNode _$SignatureNormalizedNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$SignatureNormalizedNodeToJson(
@@ -222,6 +225,7 @@ Map<String, dynamic> _$SignatureNormalizedNodeToJson(
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'type': instance.type,
   'strokes': instance.strokes,
   'properties': instance.properties.toJson(),
