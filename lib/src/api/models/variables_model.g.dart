@@ -14,6 +14,7 @@ Map<String, dynamic> _$VariableDataOmitDefaults(
   if (isJsonDefault(instance.type, VariableType.text)) json.remove('type');
   if (isJsonDefault(instance.extra, {})) json.remove('extra');
   if (isJsonDefault(instance.formula, '')) json.remove('formula');
+  if (isJsonDefault(instance.parameters, <String>[])) json.remove('parameters');
   return json;
 }
 
@@ -24,6 +25,7 @@ Map<String, dynamic> _$CanvasVariableDataOmitDefaults(
   if (isJsonDefault(instance.value, '')) json.remove('value');
   if (isJsonDefault(instance.type, VariableType.text)) json.remove('type');
   if (isJsonDefault(instance.formula, '')) json.remove('formula');
+  if (isJsonDefault(instance.parameters, <String>[])) json.remove('parameters');
   return json;
 }
 
@@ -44,6 +46,11 @@ VariableData _$VariableDataFromJson(Map json) => VariableData(
       VariableType.text,
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
   formula: json['formula'] as String? ?? '',
+  parameters:
+      (json['parameters'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      [],
 );
 
 Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
@@ -54,6 +61,7 @@ Map<String, dynamic> _$VariableDataToJson(VariableData instance) =>
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
       'formula': instance.formula,
+      'parameters': instance.parameters,
     };
 
 const _$VariableTypeEnumMap = {
@@ -82,6 +90,11 @@ CanvasVariableData _$CanvasVariableDataFromJson(Map json) => CanvasVariableData(
   value: json['value'] ?? '',
   extra: (json['extra'] as Map?)?.map((k, e) => MapEntry(k as String, e)),
   formula: json['formula'] as String? ?? '',
+  parameters:
+      (json['parameters'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ??
+      [],
 );
 
 Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
@@ -92,5 +105,6 @@ Map<String, dynamic> _$CanvasVariableDataToJson(CanvasVariableData instance) =>
       'type': _$VariableTypeEnumMap[instance.type]!,
       'extra': instance.extra,
       'formula': instance.formula,
+      'parameters': instance.parameters,
       'canvasId': instance.canvasId,
     };
