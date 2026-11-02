@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'paint.g.dart';
 
@@ -130,6 +131,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// translation, rotation, and skew.
   ///
   /// The identity transform is [[1, 0, 0], [0, 1, 0]].
+  @FlutterProp(
+    'imageTransform',
+    type: 'array',
+    group: 'Image Fill',
+    control: 'matrix',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted affine image transform in a paint item.',
+  )
   final List<List<num>>? imageTransform;
 
   /// Memory bytes to load the image.
@@ -153,6 +163,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
 
   /// The sizing behavior the image will use to fit inside its view.
   /// This is 1-1 with Flutter's [BoxFit].
+  @FlutterProp(
+    'fit',
+    type: 'string',
+    group: 'Image Fill',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted image fill fit mode in a paint item.',
+  )
   final Fit fit;
 
   /// The alignment positioning of the image relative to its view.
@@ -160,10 +179,39 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// right corner of the view, and [0, 0] being the center of the view.
   ///
   /// This corresponds to Flutter's [Alignment].
+  @FlutterProp(
+    'alignment',
+    type: 'object',
+    group: 'Image Fill',
+    control: 'alignment',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted image alignment object in a paint item.',
+  )
   final AlignmentModel alignment;
 
   /// The image scale per-axis.
-  final double scaleX, scaleY;
+  @FlutterProp(
+    'scaleX',
+    type: 'number',
+    group: 'Image Fill',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted horizontal image scale or flip sign in a paint item.',
+  )
+  final double scaleX;
+
+  @FlutterProp(
+    'scaleY',
+    type: 'number',
+    group: 'Image Fill',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted vertical image scale or flip sign in a paint item.',
+  )
+  final double scaleY;
 
   /// Image scale.
   double get scale => min(scaleX, scaleY);
@@ -184,6 +232,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   bool get isNonUniformScale => scaleX.abs() != scaleY.abs();
 
   /// Stores information about the crop of an image.
+  @FlutterProp(
+    'cropData',
+    type: 'object',
+    group: 'Image Fill',
+    control: 'crop',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted crop object in a paint item.',
+  )
   final CropData? cropData;
 
   /// URL of the cropped image.
@@ -199,6 +256,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   final double? sourceHeight;
 
   /// Tile mode for image fill.
+  @FlutterProp(
+    'imageRepeat',
+    type: 'string',
+    group: 'Image Fill',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted repeat mode for an image paint item.',
+  )
   final ImageRepeatEnum imageRepeat;
 
   /// Color saturation of an image fill: 1 keeps the image's colors, 0 makes
