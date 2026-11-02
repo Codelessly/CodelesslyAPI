@@ -8,7 +8,7 @@ part 'path_node.g.dart';
 
 /// A shape drawn from SVG path data: a curve, a squiggle, a trail, an
 /// arrow, a blob. It is filled with its fills and outlined with its strokes
-/// (weight, cap, dashes), like a rectangle.
+/// (weight, cap, join, dashes), like a rectangle.
 ///
 /// The path's coordinates are in a [viewBoxWidth] × [viewBoxHeight] box
 /// scaled to the node's size; without a view box they are the node's own
@@ -41,6 +41,9 @@ class PathNode extends DefaultShapeNode {
   /// Where the outline ends, as a fraction of its length (0 to 1): 0.5
   /// draws its first half. Bindable as `trimEnd`.
   double trimEnd;
+
+  /// How the outline's segments meet at corners.
+  StrokeJoinEnum strokeJoin;
 
   /// Creates a new [PathNode] with the given data.
   PathNode({
@@ -79,6 +82,7 @@ class PathNode extends DefaultShapeNode {
     this.viewBoxHeight,
     this.trimStart = 0,
     this.trimEnd = 1,
+    this.strokeJoin = StrokeJoinEnum.round,
   });
 
   /// The properties that can be bound to variables or formulas through

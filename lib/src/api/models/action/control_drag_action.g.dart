@@ -50,6 +50,7 @@ const _$DragCommandEnumMap = {
   DragCommand.fling: 'fling',
   DragCommand.returnFrom: 'returnFrom',
   DragCommand.reset: 'reset',
+  DragCommand.shake: 'shake',
 };
 
 const _$DragDirectionEnumMap = {
@@ -87,6 +88,7 @@ const _$ActionTypeEnumMap = {
   ActionType.focus: 'focus',
   ActionType.controlDrag: 'controlDrag',
   ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
 };
