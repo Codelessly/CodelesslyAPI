@@ -84,9 +84,6 @@ enum ActionType {
   /// Reads text aloud; see [SpeakAction].
   speak,
 
-  /// Focuses a text field; see [FocusFieldAction].
-  focusField,
-
   /// Scrolls a node into view; see [ScrollToAction].
   scrollTo,
 
@@ -151,8 +148,6 @@ enum ActionType {
         return 'Control Drag';
       case ActionType.speak:
         return 'Speak';
-      case ActionType.focusField:
-        return 'Focus Field';
       case ActionType.scrollTo:
         return 'Scroll To';
       case ActionType.playSound:
@@ -260,8 +255,6 @@ abstract class ActionModel with SerializableMixin {
         return ControlDragAction.fromJson(json);
       case ActionType.speak:
         return SpeakAction.fromJson(json);
-      case ActionType.focusField:
-        return FocusFieldAction.fromJson(json);
       case ActionType.scrollTo:
         return ScrollToAction.fromJson(json);
       case ActionType.playSound:
