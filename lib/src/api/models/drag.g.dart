@@ -40,6 +40,7 @@ Map<String, dynamic> _$DragModelOmitDefaults(
   if (isJsonDefault(instance.shareAs, '')) json.remove('shareAs');
   if (isJsonDefault(instance.restX, 0)) json.remove('restX');
   if (isJsonDefault(instance.restY, 0)) json.remove('restY');
+  if (isJsonDefault(instance.reorder, false)) json.remove('reorder');
   return json;
 }
 
@@ -81,6 +82,10 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
   shareAs: json['shareAs'] as String? ?? '',
   restX: (json['restX'] as num?)?.toDouble() ?? 0,
   restY: (json['restY'] as num?)?.toDouble() ?? 0,
+  track: json['track'] == null
+      ? null
+      : DragTrackModel.fromJson(json['track'] as Map),
+  reorder: json['reorder'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -106,6 +111,8 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'shareAs': instance.shareAs,
   'restX': instance.restX,
   'restY': instance.restY,
+  'track': ?instance.track?.toJson(),
+  'reorder': instance.reorder,
 };
 
 const _$DragAxisEnumMap = {
