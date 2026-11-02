@@ -29,6 +29,9 @@ Map<String, dynamic> _$PageViewNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -90,6 +93,8 @@ Map<String, dynamic> _$PageViewPropertiesOmitDefaults(
     json.remove('viewportFraction');
   if (isJsonDefault(instance.allowImplicitScrolling, false))
     json.remove('allowImplicitScrolling');
+  if (isJsonDefault(instance.animationDurationMs, 0))
+    json.remove('animationDurationMs');
   return json;
 }
 
@@ -197,6 +202,8 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -284,6 +291,8 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'flex': instance.flex,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -385,6 +394,7 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   initialPage: (json['initialPage'] as num?)?.toInt() ?? 0,
   viewportFraction: (json['viewportFraction'] as num?)?.toDouble() ?? 1,
   allowImplicitScrolling: json['allowImplicitScrolling'] as bool? ?? false,
+  animationDurationMs: (json['animationDurationMs'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -396,4 +406,5 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'initialPage': instance.initialPage,
       'viewportFraction': instance.viewportFraction,
       'allowImplicitScrolling': instance.allowImplicitScrolling,
+      'animationDurationMs': instance.animationDurationMs,
     };

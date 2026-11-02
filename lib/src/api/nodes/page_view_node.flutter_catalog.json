@@ -15,6 +15,10 @@
       {
         "flutterName": "allowImplicitScrolling",
         "fieldPath": "properties.allowImplicitScrolling"
+      },
+      {
+        "flutterName": "animationDurationMs",
+        "fieldPath": "properties.animationDurationMs"
       }
     ],
     "jsonSchema": {
@@ -103,6 +107,9 @@
             },
             "allowImplicitScrolling": {
               "type": "boolean"
+            },
+            "animationDurationMs": {
+              "type": "integer"
             }
           }
         },
@@ -366,6 +373,16 @@
       },
       {
         "nodeType": "pageView",
+        "flutterName": "animationDurationMs",
+        "fieldPath": "properties.animationDurationMs",
+        "group": "Interaction",
+        "control": "number",
+        "schemaType": "integer",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "pageView",
         "flutterName": null,
         "flutterParam": null,
         "note": "Nullable distance from the parent left edge.",
@@ -467,6 +484,9 @@
                     },
                     "allowImplicitScrolling": {
                       "type": "boolean"
+                    },
+                    "animationDurationMs": {
+                      "type": "integer"
                     }
                   }
                 }
@@ -689,6 +709,15 @@
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": "animationDurationMs",
+        "field": "properties.animationDurationMs",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       },
       {
