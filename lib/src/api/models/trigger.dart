@@ -128,7 +128,25 @@ enum TriggerType {
   /// Something was let go over this drop target but its accept condition
   /// failed: a wrong answer. The actions read the same as [drop]; the
   /// draggable springs back.
-  dropRejected;
+  dropRejected,
+
+  /// A steady clock for rhythm: ticks every [TriggerModel.every]
+  /// milliseconds (a formula such as `${= 60000 / bpm}`, read again at each
+  /// tick so tempo changes apply from the next one) while
+  /// [TriggerModel.runWhen] is true, on the audio clock, without drift.
+  ///
+  /// Each tick's actions run [TriggerModel.lookaheadMs] before the tick is
+  /// due, with `${result.tick}` (0, 1, 2… since it started), `${result.at}`
+  /// (the tick's time on the audio clock, for a Play Sound action's `at`)
+  /// and `${result.waitMs}` (how long until it's due, for a Delay that
+  /// lines visuals up with the sound). Set on a canvas.
+  clock,
+
+  /// Triggered when a row of a data list has been dragged to a new place by
+  /// this node, its reorder handle ([DragModel.reorder]). The actions read
+  /// `${result.from}` and `${result.to}`: the row's old index and its index
+  /// in the new order.
+  reorder;
 
   /// The triggers of a draggable node.
   static const List<TriggerType> draggableTriggers = [
@@ -232,6 +250,10 @@ enum TriggerType {
         return 'Drop';
       case TriggerType.dropRejected:
         return 'Drop Rejected';
+      case TriggerType.clock:
+        return 'Beat Clock';
+      case TriggerType.reorder:
+        return 'Reorder';
     }
   }
 }
@@ -272,6 +294,20 @@ class TriggerModel with Equatable, SerializableMixin {
   /// Ignored by other triggers.
   final int intervalMillis;
 
+  /// For [TriggerType.clock]: milliseconds between ticks, as a number or a
+  /// formula (`${= 60000 / bpm / subdivision}`).
+  final String? every;
+
+  /// For [TriggerType.clock]: a formula; the clock runs while it is true
+  /// (`${playing}`) and starts again from tick 0 each time it turns true.
+  /// Empty runs it while the screen shows.
+  final String? runWhen;
+
+  /// For [TriggerType.clock]: how early each tick's actions run, so sounds
+  /// can be scheduled on time.
+  @JsonKey(defaultValue: 100)
+  final int lookaheadMs;
+
   /// The shortest interval allowed, so a typo can't flood the app.
   static const int minIntervalMillis = 100;
 
@@ -284,6 +320,9 @@ class TriggerModel with Equatable, SerializableMixin {
     this.key,
     this.duration = kDefaultHoldDuration,
     this.intervalMillis = 1000,
+    this.every,
+    this.runWhen,
+    this.lookaheadMs = 100,
   });
 
   /// The interval of a timer trigger; one second when unset.
@@ -302,6 +341,9 @@ class TriggerModel with Equatable, SerializableMixin {
     key,
     duration,
     intervalMillis,
+    every,
+    runWhen,
+    lookaheadMs,
   ];
 
   /// Duplicate this [TriggerModel] with given data overrides.
@@ -313,6 +355,9 @@ class TriggerModel with Equatable, SerializableMixin {
     String? key,
     int? duration,
     int? intervalMillis,
+    String? every,
+    String? runWhen,
+    int? lookaheadMs,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
@@ -321,6 +366,9 @@ class TriggerModel with Equatable, SerializableMixin {
     key: key ?? this.key,
     duration: duration ?? this.duration,
     intervalMillis: intervalMillis ?? this.intervalMillis,
+    every: every ?? this.every,
+    runWhen: runWhen ?? this.runWhen,
+    lookaheadMs: lookaheadMs ?? this.lookaheadMs,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from

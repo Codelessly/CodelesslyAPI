@@ -549,6 +549,10 @@ abstract class BaseNode
   /// Scrolls the node into view when it appears (or when `reveal.when`
   /// turns true). Null for none. See [RevealModel].
   RevealModel? reveal;
+  /// Makes the node draggable: it follows the pointer, tilts, and springs
+  /// back, stays or flies off on release. Null for a node that can't be
+  /// dragged. See [DragModel].
+  DragModel? drag;
 
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
