@@ -165,6 +165,16 @@ List<BaseNode> sampleNodes() {
       basicBoxLocal: box,
       fills: [solid('rectFill', ColorRGB.black)],
     ),
+    PathNode(
+      id: 'path',
+      name: 'Path',
+      basicBoxLocal: box,
+      pathData: 'M0 0 C 40 -60 120 -60 160 0',
+      viewBoxWidth: 160,
+      viewBoxHeight: 60,
+      trimEnd: 0.5,
+      strokes: [solid('pathStroke', ColorRGB.black)],
+    ),
     SpacerNode(id: 'spacer', name: 'Spacer', basicBoxLocal: box),
     TextFieldNode(
       id: 'textField',
