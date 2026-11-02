@@ -103,6 +103,8 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.wrapRunSpacing, 0)) json.remove('wrapRunSpacing');
   if (isJsonDefault(instance.wrapAlignment, MainAxisAlignmentC.start))
     json.remove('wrapAlignment');
+  if (isJsonDefault(instance.wrapCrossAlignment, CrossAxisAlignmentC.start))
+    json.remove('wrapCrossAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
   return json;
@@ -287,6 +289,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -300,7 +303,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -458,6 +460,12 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
   wrapAlignment:
       $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
       MainAxisAlignmentC.start,
+  wrapCrossAlignment:
+      $enumDecodeNullable(
+        _$CrossAxisAlignmentCEnumMap,
+        json['wrapCrossAlignment'],
+      ) ??
+      CrossAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
   dividerProperties: json['dividerProperties'] == null
       ? null
@@ -478,6 +486,8 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapSpacing': instance.wrapSpacing,
       'wrapRunSpacing': instance.wrapRunSpacing,
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
+      'wrapCrossAlignment':
+          _$CrossAxisAlignmentCEnumMap[instance.wrapCrossAlignment]!,
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
     };
@@ -499,4 +509,12 @@ const _$MainAxisAlignmentCEnumMap = {
   MainAxisAlignmentC.spaceBetween: 'spaceBetween',
   MainAxisAlignmentC.spaceAround: 'spaceAround',
   MainAxisAlignmentC.spaceEvenly: 'spaceEvenly',
+};
+
+const _$CrossAxisAlignmentCEnumMap = {
+  CrossAxisAlignmentC.start: 'start',
+  CrossAxisAlignmentC.center: 'center',
+  CrossAxisAlignmentC.end: 'end',
+  CrossAxisAlignmentC.stretch: 'stretch',
+  CrossAxisAlignmentC.baseline: 'baseline',
 };

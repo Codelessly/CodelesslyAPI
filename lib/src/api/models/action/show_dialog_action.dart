@@ -190,6 +190,11 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// The scale a centered dialog grows from as it opens (e.g. 0.94); it
   /// fades in at the same time. 1 (the default) keeps the plain fade.
   final double enterScale;
+  /// For [DialogPresentation.adaptive] (and the adaptive placement): the
+  /// screen width, in logical pixels, below which it shows as a bottom
+  /// sheet. Defaults to 600; an app with its own phone breakpoint (640,
+  /// say) sets it to match.
+  final double sheetBelowWidth;
 
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
@@ -211,6 +216,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.fullHeight = false,
     this.barrierBlur = 0,
     this.enterScale = 1,
+    this.sheetBelowWidth = 600,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -268,6 +274,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     fullHeight,
     barrierBlur,
     enterScale,
+    sheetBelowWidth,
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
@@ -296,6 +303,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     bool? fullHeight,
     double? barrierBlur,
     double? enterScale,
+    double? sheetBelowWidth,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -315,6 +323,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     fullHeight: fullHeight ?? this.fullHeight,
     barrierBlur: barrierBlur ?? this.barrierBlur,
     enterScale: enterScale ?? this.enterScale,
+    sheetBelowWidth: sheetBelowWidth ?? this.sheetBelowWidth,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
