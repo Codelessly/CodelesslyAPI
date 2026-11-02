@@ -56,6 +56,24 @@ enum BarcodeSymbology {
     BarcodeSymbology.code128 || BarcodeSymbology.ean13 => false,
   };
 
+  /// The symbology [value] names: an enum name such as `pdf417` or
+  /// `qrCode`, ignoring case, spaces, dashes and underscores (`QR`, `qr-code`,
+  /// `PDF 417`, `code-128`, `data_matrix`, `EAN-13` too). Null when it names
+  /// none.
+  static BarcodeSymbology? parse(Object? value) {
+    if (value is BarcodeSymbology) return value;
+    if (value == null) return null;
+    final String key = value.toString().trim().toLowerCase().replaceAll(
+      RegExp(r'[\s_-]'),
+      '',
+    );
+    if (key == 'qr') return BarcodeSymbology.qrCode;
+    for (final BarcodeSymbology symbology in BarcodeSymbology.values) {
+      if (symbology.name.toLowerCase() == key) return symbology;
+    }
+    return null;
+  }
+
   /// Whether the code's modules are square, so it keeps its aspect ratio and
   /// is centered in the node's box. PDF417 and 1D codes stretch to fill it.
   bool get hasSquareModules => switch (this) {
@@ -98,7 +116,8 @@ enum BarcodeErrorCorrection {
 /// placeholder instead of the code.
 @FlutterNode('CodelesslyBarcode', family: 'codelessly', nodeType: 'barcode')
 @JsonSerializable()
-class BarcodeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
+class BarcodeNode extends SceneNode
+    with BlendMixin, CustomPropertiesMixin, FieldsHolder {
   @override
   final String type = 'barcode';
 
@@ -139,7 +158,15 @@ class BarcodeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
           kBarcodeDefaultWidth,
           kBarcodeDefaultHeight,
         ),
-      );
+      ) {
+    setBlendMixin(
+      opacity: 1,
+      isMask: false,
+      effects: const [],
+      blendMode: BlendModeC.srcOver,
+      inkWell: null,
+    );
+  }
 
   /// Creates a [BarcodeNode] with the given data.
   BarcodeNode({
@@ -168,7 +195,21 @@ class BarcodeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
     required this.properties,
     super.variables,
     super.multipleVariables,
-  });
+    double opacity = 1.0,
+    bool isMask = false,
+    List<Effect> effects = const [],
+    BlendModeC blendMode = BlendModeC.srcOver,
+    InkWellModel? inkWell,
+  }) {
+    // The node's opacity (and an `opacity` binding) fades the whole code.
+    setBlendMixin(
+      opacity: opacity,
+      isMask: isMask,
+      effects: effects,
+      blendMode: blendMode,
+      inkWell: inkWell,
+    );
+  }
 
   @override
   FieldsMap generateFields() => {
@@ -199,6 +240,10 @@ class BarcodeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
     ...super.propertyVariables,
     StringValue(name: 'data', value: data),
     ColorValue(name: 'color', value: properties.color),
+    // A pass can switch between a QR code and a PDF417 with its data:
+    // `qrCode`, `pdf417`, `code128`, `aztec`, `dataMatrix` or `ean13`
+    // (see [BarcodeSymbology.parse]).
+    StringValue(name: 'symbology', value: properties.symbology.name),
   ];
 
   @override

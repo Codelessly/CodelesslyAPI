@@ -44,6 +44,9 @@
         "enabled": {
           "type": "boolean"
         },
+        "opacity": {
+          "type": "number"
+        },
         "properties": {
           "type": "object",
           "properties": {
@@ -61,6 +64,34 @@
             },
             "drawText": {
               "type": "boolean"
+            }
+          }
+        },
+        "inkWell": {
+          "type": "object",
+          "properties": {
+            "overlayColor": {
+              "type": "object"
+            },
+            "highlightColor": {
+              "type": "object"
+            },
+            "splashColor": {
+              "type": "object"
+            },
+            "hoverColor": {
+              "type": "object"
+            },
+            "focusColor": {
+              "type": "object"
+            }
+          }
+        },
+        "transition": {
+          "type": "object",
+          "properties": {
+            "durationMillis": {
+              "type": "integer"
             }
           }
         },
@@ -138,6 +169,18 @@
       },
       {
         "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+        "fieldPath": "opacity",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "number",
+        "defaultSource": null,
+        "bindable": true
+      },
+      {
+        "nodeType": "barcode",
         "flutterName": "symbology",
         "fieldPath": "properties.symbology",
         "group": "Barcode",
@@ -183,6 +226,78 @@
         "group": "Barcode",
         "control": "switch",
         "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.overlayColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.highlightColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.splashColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.hoverColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "fieldPath": "inkWell.focusColor",
+        "group": "InkWell",
+        "control": "color",
+        "schemaType": "object",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "barcode",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
+        "fieldPath": "transition.durationMillis",
+        "group": "Appearance",
+        "control": "number",
+        "schemaType": "integer",
         "defaultSource": null,
         "bindable": false
       },
@@ -313,6 +428,16 @@
         ]
       },
       {
+        "parameter": null,
+        "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+        "field": "opacity",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
+        ]
+      },
+      {
         "parameter": "symbology",
         "field": "properties.symbology",
         "defaultSource": null,
@@ -355,6 +480,66 @@
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.overlayColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.highlightColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.splashColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.hoverColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+        "field": "inkWell.focusColor",
+        "defaultSource": null,
+        "testValues": [
+          "",
+          "sample"
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
+        "field": "transition.durationMillis",
+        "defaultSource": null,
+        "testValues": [
+          0,
+          1
         ]
       },
       {

@@ -1108,7 +1108,7 @@ mixin PropertyVariableMixin on BaseNode {
   /// action, on any node that has them.
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
-    IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    IntValue(name: 'rotationDegrees', value: rotationDegrees.round()),
     DoubleValue(name: 'drawScale', value: drawScale),
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
@@ -1547,8 +1547,15 @@ mixin PortalMixin on BaseNode {
   }
 }
 
-/// Type casts rotation value to integer.
-int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
+/// Reads a rotation in degrees from JSON: a number (fractional degrees such
+/// as -4.6 are kept) or numeric text. Anything else is 0.
+num castRotation(dynamic v) {
+  final num? degrees = v is String ? num.tryParse(v) : v as num?;
+  if (degrees == null || !degrees.isFinite) return 0;
+  // Whole degrees stay ints, so JSON saved before fractional rotations reads
+  // and writes back the same.
+  return degrees == degrees.roundToDouble() ? degrees.toInt() : degrees;
+}
 
 /// Base mixin for providing [toJson] method to every class for
 /// JSON serialization.
