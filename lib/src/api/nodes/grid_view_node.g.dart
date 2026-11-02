@@ -304,6 +304,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -317,7 +318,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll

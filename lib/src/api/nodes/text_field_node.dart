@@ -338,6 +338,12 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   /// button on the keyboard.
   TextInputActionC textInputAction;
 
+  /// Shows what's typed as live Markdown in this style: `**bold**` bold,
+  /// `_italic_` italic, `` `code` `` in the code font, list markers and
+  /// @mentions colored, with every character kept and the markers dimmed.
+  /// Enter in a list item continues the list. Null: plain text.
+  MarkdownStyle? markdown;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
@@ -374,6 +380,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
+    this.markdown,
   }) : inputStyle =
            inputStyle ??
            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
@@ -416,6 +423,8 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     Set<TextInputAutofillHints>? autofillHints,
     AutovalidateModeC? autovalidateMode,
     TextInputActionC? textInputAction,
+    MarkdownStyle? markdown,
+    bool clearMarkdown = false,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
@@ -453,6 +462,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       autofillHints: autofillHints ?? this.autofillHints,
       autovalidateMode: autovalidateMode ?? this.autovalidateMode,
       textInputAction: textInputAction ?? this.textInputAction,
+      markdown: clearMarkdown ? null : markdown ?? this.markdown,
     );
   }
 
@@ -684,6 +694,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     autofillHints,
     autovalidateMode,
     textInputAction,
+    markdown,
   ];
 }
 

@@ -23,6 +23,15 @@ cannot both be enabled in a document.
   text-to-speech in a BCP-47 `language` at a bindable `rate` (and optional
   `pitch`); `stop: true` stops any speech instead. Numeric `rate`/`pitch`
   JSON values are read as strings.
+### Rich text composer additions (not published)
+
+- `TextFieldProperties.markdown` (`MarkdownStyle`, now with `copyWith`)
+  shows what's typed as live Markdown. Text fields take `keyDown` triggers.
+- `TriggerModel.key` names key combinations (`Meta+Enter`, `Shift+Enter`,
+  `Meta+b`; see `KeyCombo`) and `TriggerModel.when` limits a key reaction
+  to when a formula is true.
+- `EditTextAction` (`editText`) edits a text field at its cursor: wrap,
+  toggle a list, insert, replace the word being typed, set, clear, focus.
 
 ### PR49 additions (not published)
 
