@@ -29,6 +29,7 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   variable: json['variable'] as String?,
   intervalMs: (json['intervalMs'] as num?)?.toInt(),
   key: json['key'] as String?,
+  when: json['when'] as String?,
   duration: (json['duration'] as num?)?.toInt() ?? 1200,
   intervalMillis: (json['intervalMillis'] as num?)?.toInt() ?? 1000,
   every: json['every'] as String?,
@@ -43,6 +44,7 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'variable': ?instance.variable,
       'intervalMs': ?instance.intervalMs,
       'key': ?instance.key,
+      'when': ?instance.when,
       'duration': instance.duration,
       'intervalMillis': instance.intervalMillis,
       'every': ?instance.every,
@@ -93,4 +95,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.keyUp: 'keyUp',
   TriggerType.focusGained: 'focusGained',
   TriggerType.focusLost: 'focusLost',
+  TriggerType.scrollEnd: 'scrollEnd',
 };

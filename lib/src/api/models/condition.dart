@@ -797,6 +797,8 @@ abstract interface class ActionVisitor<R> {
   R? visitScrollToAction(ScrollToAction action);
   /// Visits a [PlaySoundAction].
   R? visitPlaySoundAction(PlaySoundAction action);
+  /// Visits an [EditTextAction].
+  R? visitEditTextAction(EditTextAction action);
 
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);

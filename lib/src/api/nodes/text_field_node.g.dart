@@ -431,6 +431,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
   textInputAction:
       $enumDecodeNullable(_$TextInputActionCEnumMap, json['textInputAction']) ??
       TextInputActionC.none,
+  markdown: json['markdown'] == null
+      ? null
+      : MarkdownStyle.fromJson(json['markdown'] as Map),
 );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(
@@ -476,6 +479,7 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
       .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
       .toList(),
   'textInputAction': _$TextInputActionCEnumMap[instance.textInputAction]!,
+  'markdown': ?instance.markdown?.toJson(),
 };
 
 const _$TextCapitalizationCEnumMap = {
