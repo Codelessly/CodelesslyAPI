@@ -10,6 +10,11 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   ShowToastAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.title, '')) json.remove('title');
+  if (isJsonDefault(instance.iconDiscSize, 36)) json.remove('iconDiscSize');
+  if (isJsonDefault(instance.alignments, {})) json.remove('alignments');
+  if (isJsonDefault(instance.sideMargins, {})) json.remove('sideMargins');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.duration, 2600)) json.remove('duration');
   if (isJsonDefault(instance.style, ToastStyle.neutral)) json.remove('style');
   if (isJsonDefault(instance.position, ToastPosition.bottom))
@@ -21,6 +26,7 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.bottomOffsets, {})) json.remove('bottomOffsets');
   if (isJsonDefault(instance.showClose, false)) json.remove('showClose');
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
+  if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
   if (isJsonDefault(instance.alignment, ToastAlignment.center))
     json.remove('alignment');
@@ -38,7 +44,7 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
 // **************************************************************************
 
 ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
-  message: json['message'] as String,
+  message: _readMessage(json, 'message') as String,
   duration: (json['duration'] as num?)?.toInt() ?? 2600,
   backgroundColor: json['backgroundColor'] == null
       ? null
@@ -93,6 +99,7 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : EdgeInsetsModel.fromJson(json['padding']),
   maxWidth: (json['maxWidth'] as num?)?.toDouble() ?? 560,
+  minWidth: (json['minWidth'] as num?)?.toDouble() ?? 0,
   messageStyle: json['messageStyle'] == null
       ? null
       : TextStyleModel.fromJson(json['messageStyle'] as Map),
@@ -122,50 +129,91 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
     json['fontWeight'],
   ),
   offset: json['offset'] as String? ?? '',
+  title: json['title'] as String? ?? '',
+  titleStyle: json['titleStyle'] == null
+      ? null
+      : TextStyleModel.fromJson(json['titleStyle'] as Map),
+  messageColor: json['messageColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['messageColor']),
+  iconDiscColor: json['iconDiscColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['iconDiscColor']),
+  iconDiscSize: (json['iconDiscSize'] as num?)?.toDouble() ?? 36,
+  alignments: (json['alignments'] as Map?)?.map(
+    (k, e) => MapEntry(
+      $enumDecode(_$ScreenBreakpointEnumMap, k),
+      $enumDecode(_$ToastAlignmentEnumMap, e),
+    ),
+  ),
+  sideMargins: (json['sideMargins'] as Map?)?.map(
+    (k, e) => MapEntry(
+      $enumDecode(_$ScreenBreakpointEnumMap, k),
+      (e as num).toDouble(),
+    ),
+  ),
+  variables: (json['variables'] as Map?)?.map(
+    (k, e) => MapEntry(k as String, e as String),
+  ),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
 
-Map<String, dynamic> _$ShowToastActionToJson(ShowToastAction instance) =>
-    <String, dynamic>{
-      'type': _$ActionTypeEnumMap[instance.type]!,
-      'nonBlocking': instance.nonBlocking,
-      'enabled': instance.enabled,
-      'message': instance.message,
-      'duration': instance.duration,
-      'backgroundColor': ?instance.backgroundColor?.toJson(),
-      'textColor': ?instance.textColor?.toJson(),
-      'style': _$ToastStyleEnumMap[instance.style]!,
-      'position': _$ToastPositionEnumMap[instance.position]!,
-      'actionLabel': instance.actionLabel,
-      'actions': instance.actions.map((e) => e.toJson()).toList(),
-      'icon': ?instance.icon?.toJson(),
-      'iconSize': instance.iconSize,
-      'bottomOffset': instance.bottomOffset,
-      'bottomOffsets': instance.bottomOffsets.map(
-        (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
-      ),
-      'actionColor': ?instance.actionColor?.toJson(),
-      'showClose': instance.showClose,
-      'closeColor': ?instance.closeColor?.toJson(),
-      'cornerRadius': ?instance.cornerRadius,
-      'border': ?instance.border?.toJson(),
-      'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
-      'padding': ?instance.padding?.toJson(),
-      'maxWidth': instance.maxWidth,
-      'messageStyle': ?instance.messageStyle?.toJson(),
-      'actionStyle': ?instance.actionStyle?.toJson(),
-      'accentColor': ?instance.accentColor?.toJson(),
-      'accentWidth': instance.accentWidth,
-      'iconColor': ?instance.iconColor?.toJson(),
-      'fontFamily': ?instance.fontFamily,
-      'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
-      'sideMargin': instance.sideMargin,
-      'showCloseButton': instance.showCloseButton,
-      'fontSize': ?instance.fontSize,
-      'fontWeight': ?_$FontWeightNumericEnumMap[instance.fontWeight],
-      'offset': instance.offset,
-    };
+Map<String, dynamic> _$ShowToastActionToJson(
+  ShowToastAction instance,
+) => <String, dynamic>{
+  'type': _$ActionTypeEnumMap[instance.type]!,
+  'nonBlocking': instance.nonBlocking,
+  'enabled': instance.enabled,
+  'message': instance.message,
+  'title': instance.title,
+  'titleStyle': ?instance.titleStyle?.toJson(),
+  'messageColor': ?instance.messageColor?.toJson(),
+  'iconDiscColor': ?instance.iconDiscColor?.toJson(),
+  'iconDiscSize': instance.iconDiscSize,
+  'alignments': instance.alignments.map(
+    (k, e) =>
+        MapEntry(_$ScreenBreakpointEnumMap[k]!, _$ToastAlignmentEnumMap[e]!),
+  ),
+  'sideMargins': instance.sideMargins.map(
+    (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
+  ),
+  'variables': instance.variables,
+  'duration': instance.duration,
+  'backgroundColor': ?instance.backgroundColor?.toJson(),
+  'textColor': ?instance.textColor?.toJson(),
+  'style': _$ToastStyleEnumMap[instance.style]!,
+  'position': _$ToastPositionEnumMap[instance.position]!,
+  'actionLabel': instance.actionLabel,
+  'actions': instance.actions.map((e) => e.toJson()).toList(),
+  'icon': ?instance.icon?.toJson(),
+  'iconSize': instance.iconSize,
+  'bottomOffset': instance.bottomOffset,
+  'bottomOffsets': instance.bottomOffsets.map(
+    (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
+  ),
+  'actionColor': ?instance.actionColor?.toJson(),
+  'showClose': instance.showClose,
+  'closeColor': ?instance.closeColor?.toJson(),
+  'cornerRadius': ?instance.cornerRadius,
+  'border': ?instance.border?.toJson(),
+  'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
+  'padding': ?instance.padding?.toJson(),
+  'maxWidth': instance.maxWidth,
+  'minWidth': instance.minWidth,
+  'messageStyle': ?instance.messageStyle?.toJson(),
+  'actionStyle': ?instance.actionStyle?.toJson(),
+  'accentColor': ?instance.accentColor?.toJson(),
+  'accentWidth': instance.accentWidth,
+  'iconColor': ?instance.iconColor?.toJson(),
+  'fontFamily': ?instance.fontFamily,
+  'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
+  'sideMargin': instance.sideMargin,
+  'showCloseButton': instance.showCloseButton,
+  'fontSize': ?instance.fontSize,
+  'fontWeight': ?_$FontWeightNumericEnumMap[instance.fontWeight],
+  'offset': instance.offset,
+};
 
 const _$ToastStyleEnumMap = {
   ToastStyle.neutral: 'neutral',

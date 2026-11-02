@@ -36,6 +36,23 @@ class ListViewNode extends SinglePlaceholderNode
   @override
   covariant ListViewProperties properties;
 
+  /// The key in [BaseNode.variables] of a list whose value, evaluated for
+  /// each item (it reads `${item}` and `${index}`), identifies that item,
+  /// e.g. `${item.id}`. Items are matched by it when the list rebuilds, so
+  /// an item keeps its state, and its motion animates from where it was,
+  /// when its position or paint order changes (a card moving back in a
+  /// deck). Items whose keys repeat, or are null, are matched by index.
+  static const String itemKeyVariable = 'itemKey';
+
+  /// The key in [BaseNode.variables] of a stacked list (see
+  /// [ListViewProperties.stacked] and [ListLayout.stack]) whose value,
+  /// evaluated for each item, orders the painting: items with a higher
+  /// number are drawn over items with a lower one, and take taps first,
+  /// e.g. `${= -depth}` to draw the front card of a deck last. Items with
+  /// the same value keep the list's paint order (see
+  /// [ListViewProperties.reversePaintOrder]).
+  static const String itemZIndexVariable = 'itemZIndex';
+
   /// A text variable this ListView writes the status of its cloud query into,
   /// for loading, empty and error states: [kQueryStatusLoading],
   /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
@@ -283,6 +300,14 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// Position-based layout added by PR49, distinct from centered [stacked].
   ListLayout layout;
 
+  /// Flips the order a [stacked] list or a [ListLayout.stack] list paints
+  /// its items in. A stacked list normally draws the first item on top; a
+  /// positional stack draws the last item on top. Items with a bound
+  /// [ListViewNode.itemZIndexVariable] are painted by that value first, and
+  /// this order only breaks ties. Ignored by lists that don't layer their
+  /// items.
+  bool reversePaintOrder;
+
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
     this.layout = ListLayout.list,
@@ -299,6 +324,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapAlignment = MainAxisAlignmentC.start,
     this.wrapCrossAlignment = CrossAxisAlignmentC.start,
     this.runSpacing = 0,
+    this.reversePaintOrder = false,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties() {
     if (stacked && layout == ListLayout.stack) {
@@ -331,6 +357,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     DividerProperties? dividerProperties,
     double? runSpacing,
     ListLayout? layout,
+    bool? reversePaintOrder,
   }) {
     return ListViewProperties(
       layout: layout ?? this.layout,
@@ -348,6 +375,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       hasSeparator: hasSeparator ?? this.hasSeparator,
       dividerProperties: dividerProperties ?? this.dividerProperties,
       runSpacing: runSpacing ?? this.runSpacing,
+      reversePaintOrder: reversePaintOrder ?? this.reversePaintOrder,
     );
   }
 
@@ -445,6 +473,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       (value) => dividerProperties = value,
       requiresLayout: true,
     ),
+    'reversePaintOrder': BoolFieldAccess(
+      'Reverse Paint Order',
+      'Draw the items of a stacked list in the opposite order: the last item '
+          'on top of a stacked list, the first on top of a positional stack.',
+      () => reversePaintOrder,
+      (value) => reversePaintOrder = value,
+    ),
     'runSpacing': NumFieldAccess<double>(
       'Run Gap',
       'The gap between runs when the items wrap.',
@@ -498,5 +533,6 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     dividerProperties,
     runSpacing,
     layout,
+    reversePaintOrder,
   ];
 }

@@ -47,7 +47,7 @@
           "type": "object"
         },
         "rotation": {
-          "type": "integer"
+          "type": "number"
         },
         "opacity": {
           "type": "number"
@@ -258,7 +258,7 @@
         "fieldPath": "rotation",
         "group": "Transform",
         "control": "angle",
-        "schemaType": "integer",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": false
       },

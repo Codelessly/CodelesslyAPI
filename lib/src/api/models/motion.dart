@@ -481,6 +481,16 @@ class MotionModel with Equatable, SerializableMixin {
   /// (text), e.g. a curve built from the screen's width.
   static const String pathProperty = 'path';
 
+  /// The name of the binding that switches the loop per state:
+  /// `variables['motion.loop'] = "\${= live ? 'reverse' : 'none'}"`. It
+  /// reads `none`, `restart` or `reverse` (or true / false: on keeps
+  /// [loop], or loops back and forth when [loop] is none). While it is off
+  /// the running app shows the node as [loopOff] says: at rest, since a
+  /// loop's values are where it swings to, or at its values when
+  /// [enterFrom] gives the loop's start. The design canvas keeps showing
+  /// the saved motion.
+  static const String loopProperty = 'loop';
+
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
 
@@ -534,6 +544,37 @@ class MotionModel with Equatable, SerializableMixin {
     }
     return start;
   }
+
+  /// Where each cycle of a [loop] starts. Without [enterFrom], at rest:
+  /// every value swings between rest and these values. With [enterFrom],
+  /// only the values it moves away from rest loop, from its value to this
+  /// one; the others hold still at these values, so a pulse can fade
+  /// while a fixed scale stays: `{"scale": 1.2, "opacity": 1, "loop":
+  /// "reverse", "enterFrom": {"opacity": 0.3}}`. (A looping motion plays
+  /// no entrance, so [enterFrom] is free to say where the loop starts.)
+  MotionModel get loopStart {
+    final MotionModel? from = enterFrom;
+    if (from == null) return atRest;
+    double pick(String property) =>
+        from.valueOf(property) == MotionModel.none.valueOf(property)
+        ? valueOf(property)
+        : from.valueOf(property);
+    return copyWith(
+      translateX: pick('translateX'),
+      translateY: pick('translateY'),
+      scale: pick('scale'),
+      opacity: pick('opacity'),
+      rotate: pick('rotate'),
+      rotateX: pick('rotateX'),
+      rotateY: pick('rotateY'),
+    );
+  }
+
+  /// How the node shows while its loop is switched off by a `motion.loop`
+  /// binding: at rest, or at these values when [enterFrom] says where the
+  /// loop starts (see [loopStart]).
+  MotionModel get loopOff =>
+      (enterFrom == null ? atRest : this).copyWith(loop: MotionLoop.none);
 
   /// The value of [property] in this model.
   double valueOf(String property) => switch (property) {

@@ -79,6 +79,7 @@ class NodeJsonConverter implements JsonConverter<BaseNode?, Map> {
       'dateTimeInput': DateTimeInputNode.fromJson,
       'timePicker': TimePickerNode.fromJson,
       'divider': DividerNode.fromJson,
+      'barcode': BarcodeNode.fromJson,
       'loadingIndicator': LoadingIndicatorNode.fromJson,
       'webView': WebViewNode.fromJson,
       'dropdown': DropdownNode.fromJson,

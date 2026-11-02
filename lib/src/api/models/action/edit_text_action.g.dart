@@ -87,4 +87,10 @@ const _$ActionTypeEnumMap = {
   ActionType.copyToClipboard: 'copyToClipboard',
   ActionType.editText: 'editText',
   ActionType.paywall: 'paywall',
+  ActionType.focus: 'focus',
+  ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
+  ActionType.playSound: 'playSound',
+  ActionType.playAnimation: 'playAnimation',
 };

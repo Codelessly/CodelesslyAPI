@@ -255,6 +255,17 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
           ? null
           : DragModel.fromJson(json['drag'] as Map)
       ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..allowedTypes =
+          (json['allowedTypes'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          []
       ..deniedTypes =
           (json['deniedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -264,11 +275,6 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
-      ..allowedTypes =
-          (json['allowedTypes'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          []
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(
@@ -289,8 +295,8 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -321,12 +327,15 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
   'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
   'children': instance.children,
+  'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
   'clipsContent': instance.clipsContent,
   'ephemeral': instance.ephemeral,
-  'allowedTypes': instance.allowedTypes,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -384,6 +393,11 @@ const _$InteractionStateEnumMap = {
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
   InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
