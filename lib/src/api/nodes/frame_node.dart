@@ -154,6 +154,7 @@ class FrameNode extends DefaultShapeNode
     TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   /// Creates a [FrameNode] from a JSON data.

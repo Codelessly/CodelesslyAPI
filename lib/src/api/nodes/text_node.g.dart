@@ -19,6 +19,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.tabularFigures, false))
     json.remove('tabularFigures');
+  if (isJsonDefault(instance.codeLanguage, SyntaxLanguage.none))
+    json.remove('codeLanguage');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -205,6 +207,21 @@ TextNode _$TextNodeFromJson(Map json) =>
         markdown: json['markdown'] == null
             ? null
             : MarkdownStyle.fromJson(json['markdown'] as Map),
+        codeLanguage:
+            $enumDecodeNullable(
+              _$SyntaxLanguageEnumMap,
+              json['codeLanguage'],
+            ) ??
+            SyntaxLanguage.none,
+        codeTheme: json['codeTheme'] == null
+            ? null
+            : CodeThemeModel.fromJson(json['codeTheme'] as Map),
+        inlineCode: json['inlineCode'] == null
+            ? null
+            : InlineCodeStyle.fromJson(json['inlineCode'] as Map),
+        countUp: json['countUp'] == null
+            ? null
+            : CountUpModel.fromJson(json['countUp'] as Map),
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -277,6 +294,9 @@ TextNode _$TextNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -284,14 +304,6 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'data': instance.data,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -311,10 +323,18 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'alignment': instance.alignment.toJson(),
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'data': instance.data,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'softWrap': instance.softWrap,
   'textScaleFactor': ?instance.textScaleFactor,
   'margin': instance.margin.toJson(),
@@ -345,6 +365,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
@@ -354,6 +375,10 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
   'markdown': ?instance.markdown?.toJson(),
+  'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
+  'codeTheme': ?instance.codeTheme?.toJson(),
+  'inlineCode': ?instance.inlineCode?.toJson(),
+  'countUp': ?instance.countUp?.toJson(),
 };
 
 const _$SizeFitEnumMap = {
@@ -422,6 +447,18 @@ const _$BlendModeCEnumMap = {
   BlendModeC.saturation: 'saturation',
   BlendModeC.color: 'color',
   BlendModeC.luminosity: 'luminosity',
+};
+
+const _$SyntaxLanguageEnumMap = {
+  SyntaxLanguage.none: 'none',
+  SyntaxLanguage.bash: 'bash',
+  SyntaxLanguage.shell: 'shell',
+  SyntaxLanguage.javascript: 'javascript',
+  SyntaxLanguage.typescript: 'typescript',
+  SyntaxLanguage.python: 'python',
+  SyntaxLanguage.go: 'go',
+  SyntaxLanguage.ruby: 'ruby',
+  SyntaxLanguage.json: 'json',
 };
 
 const _$ComponentMarkerTypeEnumMap = {

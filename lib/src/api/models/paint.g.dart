@@ -64,8 +64,10 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
   gradientRepeatEvery: (json['gradientRepeatEvery'] as num?)?.toDouble(),
-  gradientCenterX: (json['gradientCenterX'] as num?)?.toDouble() ?? 0.0,
-  gradientCenterY: (json['gradientCenterY'] as num?)?.toDouble() ?? 0.0,
+  gradientCenterX:
+      (_readGradientCenter(json, 'gradientCenterX') as num?)?.toDouble() ?? 0.0,
+  gradientCenterY:
+      (_readGradientCenter(json, 'gradientCenterY') as num?)?.toDouble() ?? 0.0,
   gradientRadius: (json['gradientRadius'] as num?)?.toDouble() ?? 0.5,
   gradientBeginX: (json['gradientBeginX'] as num?)?.toDouble(),
   gradientBeginY: (json['gradientBeginY'] as num?)?.toDouble(),

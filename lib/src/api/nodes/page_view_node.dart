@@ -126,6 +126,10 @@ class PageViewNode extends SinglePlaceholderNode
   }
 }
 
+/// How long a page view slides to a page set through its index, by
+/// default, in milliseconds.
+const int kDefaultPageAnimationDurationMs = 400;
+
 /// The properties of a [PageViewNode].
 @JsonSerializable()
 class PageViewProperties extends CustomProperties with FieldsHolder {
@@ -160,6 +164,9 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   @FlutterProp('animationDurationMs', type: 'integer', group: 'Interaction', control: 'number', field: 'properties.animationDurationMs')
   int animationDurationMs;
 
+  /// The easing of the slide to a page set through `indexValue`.
+  MotionCurve animationCurve;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -170,6 +177,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.viewportFraction = 1,
     this.allowImplicitScrolling = false,
     this.animationDurationMs = 0,
+    this.animationCurve = MotionCurve.easeInOut,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -182,6 +190,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     double? viewportFraction,
     bool? allowImplicitScrolling,
     int? animationDurationMs,
+    MotionCurve? animationCurve,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -193,6 +202,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       allowImplicitScrolling:
           allowImplicitScrolling ?? this.allowImplicitScrolling,
       animationDurationMs: animationDurationMs ?? this.animationDurationMs,
+      animationCurve: animationCurve ?? this.animationCurve,
     );
   }
 
@@ -249,6 +259,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     viewportFraction,
     allowImplicitScrolling,
     animationDurationMs,
+    animationCurve,
   ];
 
   @override

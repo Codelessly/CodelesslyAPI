@@ -208,7 +208,26 @@ enum TriggerType {
 
   /// A scrolling list, grid, row or column came within a short distance of
   /// its end (or its content doesn't fill it): load the next page.
-  scrollEnd;
+  scrollEnd,
+
+  /// Triggered when the target scrolls (or is laid out) into view: when the
+  /// share of it that is visible on screen, inside every scrollable around
+  /// it, rises to [TriggerModel.visibleFraction]. Fires on the first frame
+  /// when the target is already in view. For example, highlights an anchor
+  /// nav's link while its section is on screen.
+  enterViewport,
+
+  /// Triggered when the target leaves the view: when the share of it that
+  /// is visible falls below [TriggerModel.visibleFraction] after it was in
+  /// view (see [enterViewport]). For example, gives a sticky header its
+  /// "scrolled" style once the hero scrolls away.
+  exitViewport;
+
+  /// The triggers for the target entering and leaving the view.
+  static const List<TriggerType> viewport = [
+    TriggerType.enterViewport,
+    TriggerType.exitViewport,
+  ];
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -335,6 +354,10 @@ enum TriggerType {
         return 'Focus Lost';
       case TriggerType.scrollEnd:
         return 'Reached End';
+      case TriggerType.enterViewport:
+        return 'Enter Viewport';
+      case TriggerType.exitViewport:
+        return 'Exit Viewport';
     }
   }
 }
@@ -342,6 +365,11 @@ enum TriggerType {
 /// How long a [TriggerType.hold] trigger is held by default, in
 /// milliseconds.
 const int kDefaultHoldDuration = 1200;
+
+/// How much of a node must be visible, by default, for a
+/// [TriggerType.enterViewport] trigger to fire or a
+/// [MotionModel.revealOnScroll] entrance to play.
+const double kDefaultVisibleFraction = 0.15;
 
 /// A model representing a trigger event data.
 @JsonSerializable()
@@ -405,6 +433,15 @@ class TriggerModel with Equatable, SerializableMixin {
   /// The shortest interval allowed, so a typo can't flood the app.
   static const int minIntervalMillis = 100;
 
+  /// How much of the target must be visible for a
+  /// [TriggerType.enterViewport] trigger to fire, from 0 to 1;
+  /// [TriggerType.exitViewport] fires when it falls below again. 0 means any
+  /// visible pixel, 1 the whole target. A target larger than the view
+  /// counts as wholly visible when it covers the view, so a tall section
+  /// can still reach 1. Ignored by other triggers.
+  @JsonKey(defaultValue: kDefaultVisibleFraction)
+  final double visibleFraction;
+
   /// Creates a [TriggerModel] with given data.
   TriggerModel({
     required this.type,
@@ -418,6 +455,7 @@ class TriggerModel with Equatable, SerializableMixin {
     this.every,
     this.runWhen,
     this.lookaheadMs = 100,
+    this.visibleFraction = kDefaultVisibleFraction,
   });
 
   /// [key] read as a key combination; null when [key] is null or empty.
@@ -443,6 +481,7 @@ class TriggerModel with Equatable, SerializableMixin {
     every,
     runWhen,
     lookaheadMs,
+    visibleFraction,
   ];
 
   /// Duplicate this [TriggerModel] with given data overrides.
@@ -458,6 +497,7 @@ class TriggerModel with Equatable, SerializableMixin {
     String? every,
     String? runWhen,
     int? lookaheadMs,
+    double? visibleFraction,
   }) => TriggerModel(
     type: type ?? this.type,
     debounceMs: debounceMs ?? this.debounceMs,
@@ -470,6 +510,7 @@ class TriggerModel with Equatable, SerializableMixin {
     every: every ?? this.every,
     runWhen: runWhen ?? this.runWhen,
     lookaheadMs: lookaheadMs ?? this.lookaheadMs,
+    visibleFraction: visibleFraction ?? this.visibleFraction,
   );
 
   /// Factory constructor for creating a new [TriggerModel] instance from
