@@ -538,6 +538,19 @@ enum StrokeCapEnum {
   square,
 }
 
+/// How the segments of a stroked path meet at a corner.
+/// Corresponds to [StrokeJoin] in Flutter.
+enum StrokeJoinEnum {
+  /// A sharp corner, cut off at the miter limit.
+  miter,
+
+  /// A rounded corner.
+  round,
+
+  /// A corner cut straight across.
+  bevel,
+}
+
 /// An enum representing the side or sides of a shape that a stroke should be
 /// applied to.
 enum StrokeSide {
