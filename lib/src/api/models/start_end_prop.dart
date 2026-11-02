@@ -20,6 +20,29 @@ enum TextDecorationEnum {
   /// Text with line strike-through.
   strikethrough;
 
+  /// The decoration [value] names: `none`, `underline`, `overline` or
+  /// `strikethrough`, ignoring case, spaces, dashes and underscores, with
+  /// `lineThrough` (Flutter's and CSS's name), `strike` and `crossed` as
+  /// aliases of strikethrough. Null when it names none.
+  static TextDecorationEnum? parse(Object? value) {
+    if (value is TextDecorationEnum) return value;
+    if (value == null) return null;
+    final String key = value.toString().trim().toLowerCase().replaceAll(
+      RegExp(r'[\s_-]'),
+      '',
+    );
+    return switch (key) {
+      'none' || '' => TextDecorationEnum.none,
+      'underline' || 'underlined' => TextDecorationEnum.underline,
+      'overline' => TextDecorationEnum.overline,
+      'strikethrough' ||
+      'linethrough' ||
+      'strike' ||
+      'crossed' => TextDecorationEnum.strikethrough,
+      _ => null,
+    };
+  }
+
   /// Displayable string representation of this enum.
   String get prettify {
     switch (this) {
@@ -33,6 +56,14 @@ enum TextDecorationEnum {
         return 'Strikethrough';
     }
   }
+}
+
+/// Reads the `textDecoration` of text JSON [json], with its aliases (such as
+/// `lineThrough`) read as the [TextDecorationEnum] names they stand for.
+Object? readTextDecoration(Map json, String key) {
+  final Object? value = json[key];
+  if (value == null || value is! String) return value;
+  return TextDecorationEnum.parse(value)?.name ?? value;
 }
 
 /// Holds text properties in addition to start and end index of the characters
@@ -146,7 +177,9 @@ class TextProp extends Equatable with SerializableMixin {
   /// Fills of the text.
   final List<PaintModel> fills;
 
-  /// Decoration of the text.
+  /// Decoration of the text. JSON may spell strikethrough `lineThrough`, as
+  /// Flutter and CSS do (see [TextDecorationEnum.parse]).
+  @JsonKey(readValue: readTextDecoration)
   final TextDecorationEnum textDecoration;
 
   /// Size of the text.

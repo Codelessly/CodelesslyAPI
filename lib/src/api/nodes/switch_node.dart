@@ -102,6 +102,26 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     BoolValue(name: 'value', value: value),
+    // The switch's colors can follow data or a theme, e.g.
+    // `variables['activeTrackColor'] = r'${pal.ink}'`.
+    ColorValue(name: 'activeTrackColor', value: properties.activeTrackColor),
+    ColorValue(
+      name: 'inactiveTrackColor',
+      value: properties.inactiveTrackColor,
+    ),
+    ColorValue(name: 'activeThumbColor', value: properties.activeThumbColor),
+    ColorValue(
+      name: 'inactiveThumbColor',
+      value: properties.inactiveThumbColor,
+    ),
+    ColorValue(
+      name: 'activeTrackBorderColor',
+      value: properties.activeTrackBorderColor,
+    ),
+    ColorValue(
+      name: 'inactiveTrackBorderColor',
+      value: properties.inactiveTrackBorderColor,
+    ),
   ];
 
   /// Creates a [SwitchNode] instance from a JSON object.
