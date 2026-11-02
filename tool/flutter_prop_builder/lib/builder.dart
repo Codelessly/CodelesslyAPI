@@ -49,13 +49,38 @@ class _FlutterPropsBuilder implements Builder {
         );
       }
       final wireTypes = <String, DartType>{};
-      final annotated = <String, (FieldElement, ConstantReader)>{};
+      final annotated = <String, (DartType, Element, ConstantReader)>{};
       void include(InterfaceElement element, {String prefix = ''}) {
         for (final field in element.fields.where((field) => !field.isStatic)) {
-          final name = '$prefix${field.name}';
-          wireTypes[name] = field.type;
           final tag = _annotation(field.metadata.annotations, 'FlutterProp');
-          if (tag != null) annotated.putIfAbsent(name, () => (field, tag));
+          // Only annotated declarations enter DPP metadata. Resolve their
+          // serialized name, not a Dart member alias (@JsonKey can rename it).
+          final jsonName = tag == null
+              ? field.name
+              : _annotation(
+                      field.metadata.annotations,
+                      'JsonKey',
+                    )?.peek('name')?.stringValue ??
+                    field.name;
+          final name = '$prefix$jsonName';
+          wireTypes[name] = field.type;
+          if (tag != null) {
+            annotated.putIfAbsent(name, () => (field.type, field, tag));
+          }
+        }
+        // Getter-backed persisted properties (BaseNode.margin / padding)
+        // are not FieldElements; inspect explicit annotated declarations only.
+        for (final getter in element.getters.where(
+          (getter) => !getter.isStatic,
+        )) {
+          final tag = _annotation(getter.metadata.annotations, 'FlutterProp');
+          if (tag == null) continue;
+          final wireName = _serializedGetterPath(getter, prefix);
+          wireTypes[wireName] = getter.returnType;
+          annotated.putIfAbsent(
+            wireName,
+            () => (getter.returnType, getter, tag),
+          );
         }
       }
 
@@ -74,6 +99,17 @@ class _FlutterPropsBuilder implements Builder {
         for (final ancestor in nestedElement.allSupertypes) {
           include(ancestor.element, prefix: 'properties.');
         }
+        // Button label styling is a concrete persisted TextProp, not the
+        // flattened TextNode.textMixedProps[] run representation.
+        if (nestedElement.name == 'ButtonProperties') {
+          final labelStyle = nestedElement.fields
+              .where((field) => field.name == 'labelStyle')
+              .firstOrNull;
+          final styleType = labelStyle?.type.element;
+          if (styleType is InterfaceElement && styleType.name == 'TextProp') {
+            include(styleType, prefix: 'properties.labelStyle.');
+          }
+        }
       }
       // BlendMixin owns InkWellModel?; only nodes that actually inherit that
       // field receive nested InkWell descriptors. Keep the declaration in the
@@ -85,6 +121,42 @@ class _FlutterPropsBuilder implements Builder {
       final inkWellElement = inkWellField?.type.element;
       if (inkWellElement is InterfaceElement) {
         include(inkWellElement, prefix: 'inkWell.');
+      }
+      // Opt-in typed paths for persisted nested objects and list items. The
+      // `[]` means any item, never a guessed positional index. Only fields
+      // annotated on the item's concrete source class can enter the registry.
+      final edgePinsField = [cls, ...cls.allSupertypes.map((t) => t.element)]
+          .expand((element) => element.fields)
+          .where((field) => field.name == 'edgePins')
+          .firstOrNull;
+      final pinsType = edgePinsField?.type.element;
+      if (pinsType is InterfaceElement) {
+        include(pinsType, prefix: 'edgePins.');
+      }
+      for (final (listName, itemName) in const [
+        ('fills', 'PaintModel'),
+        ('textMixedProps', 'StartEndProp'),
+      ]) {
+        final listField = [cls, ...cls.allSupertypes.map((t) => t.element)]
+            .expand((element) => element.fields)
+            .where((field) => field.name == listName)
+            .firstOrNull;
+        final listType = listField?.type;
+        if (listType is! InterfaceType ||
+            listType.element.name != 'List' ||
+            listType.typeArguments.single.element?.name != itemName) {
+          continue;
+        }
+        final itemType = listType.typeArguments.single.element;
+        if (itemType is! InterfaceElement) continue;
+        include(itemType, prefix: '$listName[].');
+        if (listName == 'textMixedProps') {
+          for (final ancestor in itemType.allSupertypes) {
+            if (ancestor.element.name == 'TextProp') {
+              include(ancestor.element, prefix: '$listName[].');
+            }
+          }
+        }
       }
       for (final nestedName in const ['transition', 'pulse']) {
         final nestedField = [cls, ...cls.allSupertypes.map((t) => t.element)]
@@ -126,13 +198,21 @@ class _FlutterPropsBuilder implements Builder {
           continue;
         }
         if (cls.name == 'ListTileNode' && entry.key == 'children') continue;
+        // These standalone SceneNode codecs omit BaseNode's getter-backed
+        // rotation altogether (including fromJson). Do not advertise a wire
+        // path that neither Modal nor Tabs can persist.
+        if ((cls.name == 'ModalNode' || cls.name == 'TabsNode') &&
+            entry.key == 'rotation') {
+          continue;
+        }
         if (entry.key == 'ephemeral' &&
             cls.name != 'SinglePlaceholderNode' &&
             cls.name != 'AutoPlaceholderNode')
           continue;
         if (entry.key == 'flex' && cls.name != 'SpacerNode') continue;
-        final field = entry.value.$1;
-        final tag = entry.value.$2;
+        final actualType = entry.value.$1;
+        final field = entry.value.$2;
+        final tag = entry.value.$3;
         final flutterName = tag.read('name').stringValue;
         final isFlutterParam = tag.peek('flutterParam')?.boolValue ?? true;
         final isA2ui =
@@ -153,17 +233,21 @@ class _FlutterPropsBuilder implements Builder {
           );
         }
         final type = tag.read('type').stringValue;
-        final schemaType = _type(field.type, type);
+        final schemaType = _type(actualType, type);
         final group = tag.read('group').stringValue;
         final control = tag.read('control').stringValue;
         final defaultSource = tag.peek('defaultSource')?.stringValue;
         final bindable = tag.read('bindable').boolValue;
         final isRequired = tag.read('required').boolValue;
-        if (schemaFields.containsKey(mapped))
-          throw InvalidGenerationSourceError(
-            'Duplicate FlutterProp field $mapped',
-            element: field,
-          );
+        if (mapped.contains('[]')) {
+          if (isA2ui) {
+            throw InvalidGenerationSourceError(
+              'Indexed DPP path $mapped cannot be exposed as an A2UI field',
+              element: field,
+            );
+          }
+          _validateIndexedPath(mapped, wireTypes, field);
+        }
         _putNested(schemaFields, mapped, schemaType);
         final a2uiName = switch (control) {
           'action' => 'action',
@@ -258,14 +342,90 @@ void _putNested(
   final parts = path.split('.');
   var current = fields;
   for (final part in parts.take(parts.length - 1)) {
-    final parent = current.putIfAbsent(
-      part,
-      () => <String, dynamic>{'type': 'object'},
-    ) as Map<String, dynamic>;
-    parent.putIfAbsent('properties', () => <String, dynamic>{});
-    current = parent['properties'] as Map<String, dynamic>;
+    if (part.endsWith('[]')) {
+      final listName = part.substring(0, part.length - 2);
+      final list = current.putIfAbsent(
+        listName,
+        () => <String, dynamic>{
+          'type': 'array',
+          'items': <String, dynamic>{'type': 'object'},
+        },
+      ) as Map<String, dynamic>;
+      if (list['type'] != 'array') {
+        throw InvalidGenerationSourceError(
+          '$listName must be an array for $path',
+        );
+      }
+      final item = list['items'] as Map<String, dynamic>;
+      item.putIfAbsent('properties', () => <String, dynamic>{});
+      current = item['properties'] as Map<String, dynamic>;
+    } else {
+      final parent = current.putIfAbsent(
+        part,
+        () => <String, dynamic>{'type': 'object'},
+      ) as Map<String, dynamic>;
+      if (parent['type'] != 'object') {
+        throw InvalidGenerationSourceError('$part must be an object for $path');
+      }
+      parent.putIfAbsent('properties', () => <String, dynamic>{});
+      current = parent['properties'] as Map<String, dynamic>;
+    }
   }
-  current[parts.last] = schema;
+  if (parts.last.endsWith('[]')) {
+    throw InvalidGenerationSourceError(
+      'Indexed descriptor needs an item field: $path',
+    );
+  }
+  final existing = current[parts.last];
+  if (existing == null) {
+    current[parts.last] = schema;
+  } else if (existing is Map && existing['type'] == schema['type']) {
+    // An annotated list has its item schema enriched by annotated item fields.
+    if (schema['type'] == 'array') {
+      (existing as Map<String, dynamic>).putIfAbsent(
+        'items',
+        () => schema['items'],
+      );
+    }
+  } else {
+    throw InvalidGenerationSourceError(
+      'Conflicting descriptor schema for $path',
+    );
+  }
+}
+
+void _validateIndexedPath(
+  String path,
+  Map<String, DartType> wireTypes,
+  Element leaf,
+) {
+  final match = RegExp(r'^([a-zA-Z]\w*)\[\]\.([a-zA-Z]\w*)$').firstMatch(path);
+  if (match == null || !wireTypes.containsKey(match.group(1))) {
+    throw InvalidGenerationSourceError('Invalid typed indexed path: $path');
+  }
+  final list = wireTypes[match.group(1)];
+  if (list is! InterfaceType || list.element.name != 'List') {
+    throw InvalidGenerationSourceError(
+      'Indexed path $path must follow a List field',
+    );
+  }
+  final item = list.typeArguments.single.element;
+  if (item is! InterfaceElement ||
+      !{
+        item.name,
+        ...item.allSupertypes.map((type) => type.element.name),
+      }.contains(leaf.enclosingElement?.name)) {
+    throw InvalidGenerationSourceError(
+      'Indexed path $path is not declared on its List item type',
+      element: leaf,
+    );
+  }
+}
+
+String _serializedGetterPath(GetterElement getter, String prefix) {
+  final jsonKey = _annotation(getter.metadata.annotations, 'JsonKey');
+  final wireName = jsonKey?.peek('name')?.stringValue ?? getter.name;
+  return '$prefix$wireName';
 }
 
 ConstantReader? _annotation(List<ElementAnnotation> annotations, String name) {
