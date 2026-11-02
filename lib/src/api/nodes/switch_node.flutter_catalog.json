@@ -50,6 +50,9 @@
             },
             "uniformThumb": {
               "type": "boolean"
+            },
+            "fillTrack": {
+              "type": "boolean"
             }
           }
         },
@@ -171,6 +174,18 @@
         "nodeType": "switch",
         "flutterName": null,
         "flutterParam": null,
+        "note": "Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.",
+        "fieldPath": "properties.fillTrack",
+        "group": "Appearance",
+        "control": "switch",
+        "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "switch",
+        "flutterName": null,
+        "flutterParam": null,
         "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
         "fieldPath": "pulse.minOpacity",
         "group": "Effects",
@@ -224,6 +239,9 @@
                       "type": "number"
                     },
                     "uniformThumb": {
+                      "type": "boolean"
+                    },
+                    "fillTrack": {
                       "type": "boolean"
                     }
                   }

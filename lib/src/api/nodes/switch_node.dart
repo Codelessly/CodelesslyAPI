@@ -188,6 +188,18 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: false)
   late bool uniformThumb;
 
+  /// Whether the switch's track fills the node's bounds. By default the
+  /// whole Material switch box (its track plus the padding and tap target
+  /// around it, 59×40) is scaled to the node's width, so the track sits
+  /// inside the node with a margin and can't be flush with its edges. With
+  /// this the track (52×32 in Material 3, 33×14 in Material 2) is stretched
+  /// to the node's width and height, e.g. a 46×28 toggle in a 46×28 node.
+  /// Keep the node near the track's aspect ratio (1.625 in Material 3) so
+  /// the thumb stays round.
+  @FlutterProp('fillTrack', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.fillTrack', flutterParam: false, note: 'Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.')
+  @JsonKey(defaultValue: false)
+  late bool fillTrack;
+
   /// Creates a [SwitchProperties] instance with the given data.
   SwitchProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -203,6 +215,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.trackOutlineWidth = 2,
     this.useMaterial3 = true,
     this.uniformThumb = false,
+    this.fillTrack = false,
   });
 
   /// Duplicates this [SwitchProperties] instance with the given data
@@ -223,6 +236,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     double? trackOutlineWidth,
     bool? useMaterial3,
     bool? uniformThumb,
+    bool? fillTrack,
   }) {
     return SwitchProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -242,6 +256,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
       trackOutlineWidth: trackOutlineWidth ?? this.trackOutlineWidth,
       useMaterial3: useMaterial3 ?? this.useMaterial3,
       uniformThumb: uniformThumb ?? this.uniformThumb,
+      fillTrack: fillTrack ?? this.fillTrack,
     );
   }
 
@@ -349,6 +364,14 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
         if (value != null) uniformThumb = value;
       },
     ),
+    'fillTrack': BoolFieldAccess(
+      'Fill Track',
+      'Whether the track fills the node\'s bounds, with no margin around it.',
+      () => fillTrack,
+      (bool? value) {
+        if (value != null) fillTrack = value;
+      },
+    ),
   };
 
   @override
@@ -366,6 +389,7 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     trackOutlineWidth,
     useMaterial3,
     uniformThumb,
+    fillTrack,
   ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.
