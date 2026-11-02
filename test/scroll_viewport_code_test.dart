@@ -120,7 +120,7 @@ void main() {
     test('defaults and round-trip', () {
       final PageViewProperties defaults = PageViewProperties.fromJson({});
       expect(defaults.animationDurationMs, 0);
-      expect(defaults.animationCurve, MotionCurve.easeInOut);
+      expect(defaults.animationCurve, MotionCurve.easeOutCubic);
       expect(defaults.toJson().containsKey('animationDurationMs'), isFalse);
 
       final PageViewProperties props = PageViewProperties(
