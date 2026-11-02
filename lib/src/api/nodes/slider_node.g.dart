@@ -138,6 +138,12 @@ Map<String, dynamic> _$SliderPropertiesOmitDefaults(
     json.remove('markerColor');
   if (isJsonDefault(instance.markerWidth, 2)) json.remove('markerWidth');
   if (isJsonDefault(instance.markerHeight, 14)) json.remove('markerHeight');
+  if (isJsonDefault(instance.thumbGlowBlur, kSliderDefaultThumbGlowBlur))
+    json.remove('thumbGlowBlur');
+  if (isJsonDefault(instance.thumbGlowSpread, kSliderDefaultThumbGlowSpread))
+    json.remove('thumbGlowSpread');
+  if (isJsonDefault(instance.activeTrackStartOpacity, 1))
+    json.remove('activeTrackStartOpacity');
   return json;
 }
 
@@ -466,6 +472,17 @@ SliderProperties _$SliderPropertiesFromJson(Map json) => SliderProperties(
   markerHeight: (json['markerHeight'] as num?)?.toDouble() ?? 14,
   selectableMin: (json['selectableMin'] as num?)?.toDouble(),
   selectableMax: (json['selectableMax'] as num?)?.toDouble(),
+  thumbGlowColor: json['thumbGlowColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['thumbGlowColor']),
+  thumbGlowBlur:
+      (json['thumbGlowBlur'] as num?)?.toDouble() ??
+      kSliderDefaultThumbGlowBlur,
+  thumbGlowSpread:
+      (json['thumbGlowSpread'] as num?)?.toDouble() ??
+      kSliderDefaultThumbGlowSpread,
+  activeTrackStartOpacity:
+      (json['activeTrackStartOpacity'] as num?)?.toDouble() ?? 1,
 );
 
 Map<String, dynamic> _$SliderPropertiesToJson(
@@ -521,6 +538,10 @@ Map<String, dynamic> _$SliderPropertiesToJson(
   'markerHeight': instance.markerHeight,
   'selectableMin': ?instance.selectableMin,
   'selectableMax': ?instance.selectableMax,
+  'thumbGlowColor': ?instance.thumbGlowColor?.toJson(),
+  'thumbGlowBlur': instance.thumbGlowBlur,
+  'thumbGlowSpread': instance.thumbGlowSpread,
+  'activeTrackStartOpacity': instance.activeTrackStartOpacity,
 };
 
 const _$SliderThumbShapeEnumEnumMap = {
