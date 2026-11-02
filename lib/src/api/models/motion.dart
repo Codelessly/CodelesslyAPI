@@ -23,7 +23,20 @@ enum MotionCurve {
   easeOutBack,
 
   /// A fast cubic deceleration.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// Springs past the target and settles with a few small wobbles, like a
+  /// card snapping back into place.
+  spring,
+
+  /// A stronger, rubbery overshoot that oscillates before settling.
+  elasticOut,
+
+  /// Bounces off the target like a dropped ball.
+  bounceOut,
+
+  /// Material-style fast start and long, gentle settle.
+  fastOutSlowIn;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -33,6 +46,10 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.spring => 'Spring',
+    MotionCurve.elasticOut => 'Elastic',
+    MotionCurve.bounceOut => 'Bounce',
+    MotionCurve.fastOutSlowIn => 'Fast out, slow in',
   };
 }
 
@@ -145,6 +162,26 @@ class MotionModel with Equatable, SerializableMixin {
   /// loop starts, so motions can be staggered.
   final int delayMs;
 
+  /// Paints the node only while its front faces the viewer, judged by its
+  /// whole transform on screen (a rotating parent counts), like CSS
+  /// `backface-visibility: hidden`. Two faces of a flip card set it, the
+  /// back one turned 180° around Y, inside a frame that rotates.
+  final bool backfaceHidden;
+
+  /// A path the node moves along, as SVG path data in logical pixels
+  /// relative to the node's rest position (`M0 0 C 80 -160 240 -200 300 -40`).
+  /// [pathProgress] says how far along it the node is. Null for none.
+  final String? path;
+
+  /// How far along [path] the node is, from 0 (its start) to 1 (its end),
+  /// by arc length. Animated like the other values, so a change glides the
+  /// node along the curve. Bindable as `motion.pathProgress`.
+  final double pathProgress;
+
+  /// Turns the node to follow the direction of [path] at [pathProgress],
+  /// added to [rotate].
+  final bool orientToPath;
+
   /// Creates a [MotionModel].
   const MotionModel({
     this.translateX = 0,
@@ -166,6 +203,10 @@ class MotionModel with Equatable, SerializableMixin {
     this.enterFrom,
     this.replayKey,
     this.delayMs = 0,
+    this.backfaceHidden = false,
+    this.path,
+    this.pathProgress = 0,
+    this.orientToPath = false,
   });
 
   /// No motion at all.
@@ -182,6 +223,7 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX',
     'rotateY',
     'spin',
+    'pathProgress',
   ];
 
   /// The name of the binding that replays the entrance when its value
@@ -199,7 +241,12 @@ class MotionModel with Equatable, SerializableMixin {
       opacity != 1 ||
       rotate != 0 ||
       rotateX != 0 ||
-      rotateY != 0;
+      rotateY != 0 ||
+      backfaceHidden ||
+      hasPath;
+
+  /// Whether the node moves along a [path].
+  bool get hasPath => path != null && path!.trim().isNotEmpty;
 
   /// Whether the node animates in when it first appears.
   bool get hasEntrance => enter || enterFrom != null;
@@ -216,6 +263,7 @@ class MotionModel with Equatable, SerializableMixin {
       rotate: from.rotate,
       rotateX: from.rotateX,
       rotateY: from.rotateY,
+      pathProgress: from.pathProgress,
     ),
   };
 
@@ -229,6 +277,7 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => rotateX,
     'rotateY' => rotateY,
     'spin' => spin,
+    'pathProgress' => pathProgress,
     _ => throw ArgumentError.value(property, 'property'),
   };
 
@@ -255,6 +304,11 @@ class MotionModel with Equatable, SerializableMixin {
     String? replayKey,
     bool clearReplayKey = false,
     int? delayMs,
+    bool? backfaceHidden,
+    String? path,
+    bool clearPath = false,
+    double? pathProgress,
+    bool? orientToPath,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -275,6 +329,10 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom: clearEnterFrom ? null : enterFrom ?? this.enterFrom,
     replayKey: clearReplayKey ? null : replayKey ?? this.replayKey,
     delayMs: delayMs ?? this.delayMs,
+    backfaceHidden: backfaceHidden ?? this.backfaceHidden,
+    path: clearPath ? null : path ?? this.path,
+    pathProgress: pathProgress ?? this.pathProgress,
+    orientToPath: orientToPath ?? this.orientToPath,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -286,6 +344,7 @@ class MotionModel with Equatable, SerializableMixin {
     rotate: 0,
     rotateX: 0,
     rotateY: 0,
+    pathProgress: 0,
   );
 
   /// Returns a copy with [property] set to [value].
@@ -298,6 +357,7 @@ class MotionModel with Equatable, SerializableMixin {
     'rotateX' => copyWith(rotateX: value),
     'rotateY' => copyWith(rotateY: value),
     'spin' => copyWith(spin: value),
+    'pathProgress' => copyWith(pathProgress: value),
     _ => throw ArgumentError.value(property, 'property'),
   };
 
@@ -322,6 +382,10 @@ class MotionModel with Equatable, SerializableMixin {
     enterFrom,
     replayKey,
     delayMs,
+    backfaceHidden,
+    path,
+    pathProgress,
+    orientToPath,
   ];
 
   /// Creates a [MotionModel] from JSON.

@@ -28,6 +28,10 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.loop, MotionLoop.none)) json.remove('loop');
   if (isJsonDefault(instance.enter, false)) json.remove('enter');
   if (isJsonDefault(instance.delayMs, 0)) json.remove('delayMs');
+  if (isJsonDefault(instance.backfaceHidden, false))
+    json.remove('backfaceHidden');
+  if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
+  if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   return json;
 }
 
@@ -60,6 +64,10 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
       : MotionModel.fromJson(json['enterFrom'] as Map),
   replayKey: json['replayKey'] as String?,
   delayMs: (json['delayMs'] as num?)?.toInt() ?? 0,
+  backfaceHidden: json['backfaceHidden'] as bool? ?? false,
+  path: json['path'] as String?,
+  pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
+  orientToPath: json['orientToPath'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -83,6 +91,10 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'enterFrom': ?instance.enterFrom?.toJson(),
       'replayKey': ?instance.replayKey,
       'delayMs': instance.delayMs,
+      'backfaceHidden': instance.backfaceHidden,
+      'path': ?instance.path,
+      'pathProgress': instance.pathProgress,
+      'orientToPath': instance.orientToPath,
     };
 
 const _$MotionCurveEnumMap = {
@@ -92,6 +104,10 @@ const _$MotionCurveEnumMap = {
   MotionCurve.easeIn: 'easeIn',
   MotionCurve.easeOutBack: 'easeOutBack',
   MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
 };
 
 const _$MotionLoopEnumMap = {
