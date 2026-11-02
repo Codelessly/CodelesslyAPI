@@ -155,6 +155,11 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   @FlutterProp('allowImplicitScrolling', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.allowImplicitScrolling')
   bool allowImplicitScrolling;
 
+  /// How long the page view takes to move to a new page when its bound page
+  /// index (`indexValue`) is changed by an action, in milliseconds. 0 jumps.
+  @FlutterProp('animationDurationMs', type: 'integer', group: 'Interaction', control: 'number', field: 'properties.animationDurationMs')
+  int animationDurationMs;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -164,6 +169,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.initialPage = 0,
     this.viewportFraction = 1,
     this.allowImplicitScrolling = false,
+    this.animationDurationMs = 0,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -175,6 +181,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     int? initialPage,
     double? viewportFraction,
     bool? allowImplicitScrolling,
+    int? animationDurationMs,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -185,6 +192,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       viewportFraction: viewportFraction ?? this.viewportFraction,
       allowImplicitScrolling:
           allowImplicitScrolling ?? this.allowImplicitScrolling,
+      animationDurationMs: animationDurationMs ?? this.animationDurationMs,
     );
   }
 
@@ -223,6 +231,12 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       () => allowImplicitScrolling,
       (value) => allowImplicitScrolling = value,
     ),
+    'animationDurationMs': NumFieldAccess<int>(
+      'Page Animation (ms)',
+      'How long moving to a new page takes when the bound page index changes. 0 jumps.',
+      () => animationDurationMs,
+      (value) => animationDurationMs = value,
+    ),
   };
 
   @override
@@ -234,6 +248,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     initialPage,
     viewportFraction,
     allowImplicitScrolling,
+    animationDurationMs,
   ];
 
   @override

@@ -25,6 +25,9 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -41,6 +44,9 @@ Map<String, dynamic> _$AutoPlaceholderNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -223,6 +229,8 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -246,9 +254,33 @@ AutoPlaceholderNode _$AutoPlaceholderNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -282,6 +314,8 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'flex': instance.flex,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -299,8 +333,16 @@ Map<String, dynamic> _$AutoPlaceholderNodeToJson(
   'transitionMs': instance.transitionMs,
   'drawScale': instance.drawScale,
   'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
   'children': instance.children,
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
@@ -425,4 +467,5 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
