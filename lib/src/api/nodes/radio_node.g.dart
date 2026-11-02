@@ -280,6 +280,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 RadioProperties _$RadioPropertiesFromJson(Map json) => RadioProperties(

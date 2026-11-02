@@ -17,7 +17,12 @@ enum InteractionState {
 
   /// The node's `disabled` property is true. A disabled node does not run
   /// its actions.
-  disabled('Disabled');
+  disabled('Disabled'),
+
+  /// The node, or a node around it, is being dragged: the row of a list
+  /// being reordered by its handle, a draggable node, or a knob or fader
+  /// cap moving along its track.
+  dragged('Dragged');
 
   /// The name shown to builders.
   final String label;
