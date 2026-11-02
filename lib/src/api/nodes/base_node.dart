@@ -477,6 +477,12 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// Makes the node follow the pointer while it is dragged, spring back or
+  /// fly off when let go, and report the drag to variables and its drag
+  /// reactions. Null for a node that isn't dragged this way. See
+  /// [DragModel].
+  DragModel? drag;
+
   /// Tag that makes this node a shared element (a Flutter `Hero`): when a
   /// navigation pushes or pops a screen that has a node with the same tag,
   /// this node flies between its place on both screens while the route
