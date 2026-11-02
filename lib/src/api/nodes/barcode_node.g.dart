@@ -193,6 +193,9 @@ BarcodeNode _$BarcodeNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
         _$HeroFlightEnumMap,
@@ -242,6 +245,7 @@ Map<String, dynamic> _$BarcodeNodeToJson(BarcodeNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'aspectRatio': ?instance.aspectRatio,

@@ -215,6 +215,9 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
         _$HeroFlightEnumMap,
@@ -226,7 +229,6 @@ BarChartNode _$BarChartNodeFromJson(Map json) =>
 Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
     <String, dynamic>{
       'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'aspectRatioLock': instance.aspectRatioLock,
       'variables': instance.variables,
       'multipleVariables': instance.multipleVariables,
       'componentId': ?instance.componentId,
@@ -243,6 +245,7 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
       'flex': instance.flex,
       'squeezable': instance.squeezable,
+      'aspectRatioLock': instance.aspectRatioLock,
       'alignment': instance.alignment.toJson(),
       'basicBoxLocal': instance.basicBoxLocal.toJson(),
       'margin': instance.margin.toJson(),
@@ -261,6 +264,7 @@ Map<String, dynamic> _$BarChartNodeToJson(BarChartNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'aspectRatio': ?instance.aspectRatio,
