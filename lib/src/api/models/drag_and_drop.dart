@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import '../json_defaults.dart';
 import '../mixins.dart';
 import '../nodes/nodes.dart';
+import 'drag.dart';
 import 'trigger.dart';
 
 part 'drag_and_drop.g.dart';
@@ -25,25 +26,6 @@ enum DragStart {
     DragStart.press => 'Press',
     DragStart.longPress => 'Long press',
     DragStart.auto => 'Auto',
-  };
-}
-
-/// Which way a dragged node may move.
-enum DragAxis {
-  /// Anywhere.
-  free,
-
-  /// Only left and right.
-  horizontal,
-
-  /// Only up and down.
-  vertical;
-
-  /// Displayable string representation.
-  String get prettify => switch (this) {
-    DragAxis.free => 'Free',
-    DragAxis.horizontal => 'Horizontal',
-    DragAxis.vertical => 'Vertical',
   };
 }
 
