@@ -38,6 +38,18 @@ class RowColumnNode extends ParentNode
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get wrapsChildren => wrap && rowColumnType == RowColumnType.row;
 
+  /// Whether a row/column that scrolls ([isScrollable]) clips its content to
+  /// its box. False lets what its children paint past their boxes (a card's
+  /// drop shadow) show past the row/column's edges, as Flutter's
+  /// `SingleChildScrollView(clipBehavior: Clip.none)` does; scrolled content
+  /// then shows past them too. [clipsContent] true always clips.
+  ///
+  /// A list view does this with `clipsContent: false`. A row/column needs
+  /// its own flag: its [clipsContent] is false unless set, and stored rows
+  /// and columns that scroll must keep clipping.
+  @JsonKey(defaultValue: true)
+  bool clipsScrollContent = true;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -151,6 +163,13 @@ class RowColumnNode extends ParentNode
       min: 0,
       defaultValue: () => 0,
       requiresLayout: true,
+    ),
+    'clipsScrollContent': BoolFieldAccess(
+      'Clip Scroll Content',
+      'Whether a scrolling row/column clips its content to its box; off lets children\'s shadows paint past its edges.',
+      () => clipsScrollContent,
+      (value) => clipsScrollContent = value,
+      defaultValue: () => true,
     ),
     'runSpacing': NumFieldAccess<double>(
       'Run Spacing',
@@ -333,4 +352,5 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.inkWell = source.inkWell;
   target.transition = source.transition;
   target.foregroundFills = source.foregroundFills;
+  target.clipsScrollContent = source.clipsScrollContent;
 }
