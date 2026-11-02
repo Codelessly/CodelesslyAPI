@@ -91,4 +91,6 @@ const _$TriggerTypeEnumMap = {
   TriggerType.wheel: 'wheel',
   TriggerType.pinch: 'pinch',
   TriggerType.keyUp: 'keyUp',
+  TriggerType.focusGained: 'focusGained',
+  TriggerType.focusLost: 'focusLost',
 };

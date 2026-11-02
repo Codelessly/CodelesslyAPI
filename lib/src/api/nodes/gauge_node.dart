@@ -113,6 +113,12 @@ class GaugeNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     DoubleValue(name: 'value', value: value),
+    // Bindable so the dial follows state: a budget ring that turns amber
+    // near the limit, a pace marker that moves with the day.
+    ColorValue(name: 'valueColor', value: properties.valueColor),
+    ColorValue(name: 'trackColor', value: properties.trackColor),
+    DoubleValue(name: 'target', value: properties.target),
+    BoolValue(name: 'showTarget', value: properties.showTarget),
   ];
 
   /// Creates a [GaugeNode] from JSON.

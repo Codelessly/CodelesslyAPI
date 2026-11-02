@@ -48,6 +48,7 @@ Map<String, dynamic> _$PageViewNodeOmitDefaults(
   if (isJsonDefault(instance.effectAnimations, []))
     json.remove('effectAnimations');
   if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -246,6 +247,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..floating = json['floating'] as bool? ?? false
       ..deniedTypes =
           (json['deniedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -309,6 +311,7 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'floating': instance.floating,
   'children': instance.children,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),

@@ -104,7 +104,8 @@ enum TriggerType {
   /// `${result.key}` (the key's label: `a`, `ArrowLeft`, `Delete`,
   /// `Escape`, ...), `${result.shift}`, `${result.alt}` and `${result.meta}`
   /// (Command on macOS, Control elsewhere). [TriggerModel.key] limits it to
-  /// one key.
+  /// one key. On a text field it fires for keys pressed while the field
+  /// has focus (e.g. ↑ ↓ Escape to drive a type-ahead menu).
   keyDown,
 
   /// Triggered when the user right-clicks the target (or taps it with two
@@ -193,7 +194,13 @@ enum TriggerType {
   /// Triggered when a key is released while the screen it is set on shows
   /// and no text field has focus, with the same `${result}` as [keyDown]:
   /// together they track a held key (Space to pan).
-  keyUp;
+  keyUp,
+
+  /// Triggered when a text field gains focus.
+  focusGained,
+
+  /// Triggered when a text field loses focus.
+  focusLost;
 
   /// The triggers for the mouse cursor entering and leaving the target.
   static const List<TriggerType> hovers = [
@@ -314,6 +321,10 @@ enum TriggerType {
         return 'Pinch';
       case TriggerType.keyUp:
         return 'Key Up';
+      case TriggerType.focusGained:
+        return 'Focus Gained';
+      case TriggerType.focusLost:
+        return 'Focus Lost';
     }
   }
 }
