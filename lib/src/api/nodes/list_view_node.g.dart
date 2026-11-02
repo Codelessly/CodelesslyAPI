@@ -98,6 +98,8 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
     json.remove('wrapAlignment');
   if (isJsonDefault(instance.runSpacing, 0)) json.remove('runSpacing');
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
+  if (isJsonDefault(instance.reversePaintOrder, false))
+    json.remove('reversePaintOrder');
   return json;
 }
 
@@ -253,6 +255,9 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
         _$HeroFlightEnumMap,
@@ -321,6 +326,7 @@ Map<String, dynamic> _$ListViewNodeToJson(ListViewNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'heroTag': ?instance.heroTag,
       'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
       'aspectRatio': ?instance.aspectRatio,
@@ -426,6 +432,7 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       $enumDecodeNullable(_$MainAxisAlignmentCEnumMap, json['wrapAlignment']) ??
       MainAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
+  reversePaintOrder: json['reversePaintOrder'] as bool? ?? false,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -447,6 +454,7 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'wrapAlignment': _$MainAxisAlignmentCEnumMap[instance.wrapAlignment]!,
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
+      'reversePaintOrder': instance.reversePaintOrder,
     };
 
 const _$ListLayoutEnumMap = {
