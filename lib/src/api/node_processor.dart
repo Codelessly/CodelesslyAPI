@@ -189,7 +189,7 @@ class NodeProcessor {
       final BoxConstraintsModel? relegatedConstraints = parent
           .relegatedConstraintsToChildren(node);
       if (relegatedConstraints != null) {
-        resolved = resolved.union(resolved);
+        resolved = resolved.union(relegatedConstraints);
       }
     }
 
