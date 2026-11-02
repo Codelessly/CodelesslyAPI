@@ -13,10 +13,6 @@
         "fieldPath": "properties.obscureText"
       },
       {
-        "flutterName": "submitOnUnfocus",
-        "fieldPath": "properties.submitOnUnfocus"
-      },
-      {
         "flutterName": "readOnly",
         "fieldPath": "properties.readOnly"
       },
@@ -90,9 +86,6 @@
               "type": "boolean"
             },
             "obscureText": {
-              "type": "boolean"
-            },
-            "submitOnUnfocus": {
               "type": "boolean"
             },
             "readOnly": {
@@ -239,16 +232,6 @@
         "nodeType": "textField",
         "flutterName": "obscureText",
         "fieldPath": "properties.obscureText",
-        "group": "Input",
-        "control": "switch",
-        "schemaType": "boolean",
-        "defaultSource": null,
-        "bindable": false
-      },
-      {
-        "nodeType": "textField",
-        "flutterName": "submitOnUnfocus",
-        "fieldPath": "properties.submitOnUnfocus",
         "group": "Input",
         "control": "switch",
         "schemaType": "boolean",
@@ -413,9 +396,6 @@
                     "obscureText": {
                       "type": "boolean"
                     },
-                    "submitOnUnfocus": {
-                      "type": "boolean"
-                    },
                     "readOnly": {
                       "type": "boolean"
                     },
@@ -540,15 +520,6 @@
       {
         "parameter": "obscureText",
         "field": "properties.obscureText",
-        "defaultSource": null,
-        "testValues": [
-          false,
-          true
-        ]
-      },
-      {
-        "parameter": "submitOnUnfocus",
-        "field": "properties.submitOnUnfocus",
         "defaultSource": null,
         "testValues": [
           false,
