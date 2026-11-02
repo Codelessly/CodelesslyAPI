@@ -67,6 +67,34 @@ Object? readTextDecoration(Map json, String key) {
   return TextDecorationEnum.parse(value)?.name ?? value;
 }
 
+/// The line style of a text decoration. Mirrors Flutter's
+/// `TextDecorationStyle`.
+enum TextDecorationStyleEnum {
+  /// A solid line.
+  solid,
+
+  /// Two parallel lines.
+  double,
+
+  /// A dotted line.
+  dotted,
+
+  /// A dashed line.
+  dashed,
+
+  /// A wavy line.
+  wavy;
+
+  /// Displayable string representation of this enum.
+  String get prettify => switch (this) {
+    TextDecorationStyleEnum.solid => 'Solid',
+    TextDecorationStyleEnum.double => 'Double',
+    TextDecorationStyleEnum.dotted => 'Dotted',
+    TextDecorationStyleEnum.dashed => 'Dashed',
+    TextDecorationStyleEnum.wavy => 'Wavy',
+  };
+}
+
 /// Holds text properties in addition to start and end index of the characters
 /// which the properties belong to.
 @JsonSerializable()
@@ -83,6 +111,9 @@ final class StartEndProp extends TextProp {
   StartEndProp.general({
     List<PaintModel>? fills,
     super.textDecoration,
+    super.decorationColor,
+    super.decorationThickness,
+    super.decorationStyle,
     super.letterSpacing,
     super.fontSize = 12,
     super.fontName,
@@ -99,6 +130,9 @@ final class StartEndProp extends TextProp {
     required this.end,
     super.fills,
     super.textDecoration,
+    super.decorationColor,
+    super.decorationThickness,
+    super.decorationStyle,
     super.letterSpacing,
     super.fontSize,
     super.fontName,
@@ -115,6 +149,9 @@ final class StartEndProp extends TextProp {
   }) : super(
          fills: prop.fills,
          textDecoration: prop.textDecoration,
+         decorationColor: prop.decorationColor,
+         decorationThickness: prop.decorationThickness,
+         decorationStyle: prop.decorationStyle,
          letterSpacing: prop.letterSpacing,
          fontSize: prop.fontSize,
          fontName: prop.fontName,
@@ -129,6 +166,9 @@ final class StartEndProp extends TextProp {
     int? end,
     List<PaintModel>? fills,
     TextDecorationEnum? textDecoration,
+    ColorRGBA? decorationColor,
+    double? decorationThickness,
+    TextDecorationStyleEnum? decorationStyle,
     double? fontSize,
     LetterSpacing? letterSpacing,
     FontName? fontName,
@@ -140,6 +180,9 @@ final class StartEndProp extends TextProp {
     end: end ?? this.end,
     fills: fills ?? this.fills,
     textDecoration: textDecoration ?? this.textDecoration,
+    decorationColor: decorationColor ?? this.decorationColor,
+    decorationThickness: decorationThickness ?? this.decorationThickness,
+    decorationStyle: decorationStyle ?? this.decorationStyle,
     fontSize: fontSize ?? this.fontSize,
     letterSpacing: letterSpacing ?? this.letterSpacing,
     fontName: fontName ?? this.fontName,
@@ -149,11 +192,14 @@ final class StartEndProp extends TextProp {
   );
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     start,
     end,
     fills,
     textDecoration,
+    decorationColor,
+    decorationThickness,
+    decorationStyle,
     fontSize,
     letterSpacing,
     fontName,
@@ -200,6 +246,18 @@ class TextProp extends Equatable with SerializableMixin {
   )
   @JsonKey(readValue: readTextDecoration)
   final TextDecorationEnum textDecoration;
+
+  /// The color of the [textDecoration] line (an underline or strikethrough).
+  /// Null draws it in the text's color.
+  final ColorRGBA? decorationColor;
+
+  /// The thickness of the [textDecoration] line, as a multiple of the
+  /// font's default thickness (Flutter's `TextStyle.decorationThickness`).
+  /// Null keeps the font's default.
+  final double? decorationThickness;
+
+  /// The line style of the [textDecoration].
+  final TextDecorationStyleEnum decorationStyle;
 
   /// Size of the text.
   @FlutterProp(
@@ -268,6 +326,9 @@ class TextProp extends Equatable with SerializableMixin {
   TextProp({
     List<PaintModel>? fills,
     this.textDecoration = TextDecorationEnum.none,
+    this.decorationColor,
+    this.decorationThickness,
+    this.decorationStyle = TextDecorationStyleEnum.solid,
     this.letterSpacing = LetterSpacing.zero,
     this.fontSize = 18,
     this.fontName = FontName.robotoRegular,
@@ -280,6 +341,9 @@ class TextProp extends Equatable with SerializableMixin {
   TextProp.general({
     List<PaintModel>? fills,
     this.textDecoration = TextDecorationEnum.none,
+    this.decorationColor,
+    this.decorationThickness,
+    this.decorationStyle = TextDecorationStyleEnum.solid,
     this.letterSpacing = LetterSpacing.zero,
     this.fontSize = 12,
     this.fontName = FontName.robotoRegular,
@@ -292,6 +356,9 @@ class TextProp extends Equatable with SerializableMixin {
   TextProp copyWith({
     List<PaintModel>? fills,
     TextDecorationEnum? textDecoration,
+    ColorRGBA? decorationColor,
+    double? decorationThickness,
+    TextDecorationStyleEnum? decorationStyle,
     double? fontSize,
     LetterSpacing? letterSpacing,
     FontName? fontName,
@@ -301,6 +368,9 @@ class TextProp extends Equatable with SerializableMixin {
   }) => TextProp(
     fills: fills ?? this.fills,
     textDecoration: textDecoration ?? this.textDecoration,
+    decorationColor: decorationColor ?? this.decorationColor,
+    decorationThickness: decorationThickness ?? this.decorationThickness,
+    decorationStyle: decorationStyle ?? this.decorationStyle,
     fontSize: fontSize ?? this.fontSize,
     letterSpacing: letterSpacing ?? this.letterSpacing,
     fontName: fontName ?? this.fontName,
@@ -319,6 +389,9 @@ class TextProp extends Equatable with SerializableMixin {
         fills.length == other.fills.length &&
         fills.every((a) => other.fills.any((b) => a.isEquivalentTo(b))) &&
         textDecoration == other.textDecoration &&
+        decorationColor == other.decorationColor &&
+        decorationThickness == other.decorationThickness &&
+        decorationStyle == other.decorationStyle &&
         fontSize == other.fontSize &&
         letterSpacing == other.letterSpacing &&
         fontName == other.fontName &&
@@ -328,9 +401,12 @@ class TextProp extends Equatable with SerializableMixin {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     fills,
     textDecoration,
+    decorationColor,
+    decorationThickness,
+    decorationStyle,
     fontSize,
     letterSpacing,
     fontName,

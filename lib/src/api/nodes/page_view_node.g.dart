@@ -95,6 +95,8 @@ Map<String, dynamic> _$PageViewPropertiesOmitDefaults(
     json.remove('allowImplicitScrolling');
   if (isJsonDefault(instance.animationDurationMs, 0))
     json.remove('animationDurationMs');
+  if (isJsonDefault(instance.animationCurve, MotionCurve.easeInOut))
+    json.remove('animationCurve');
   return json;
 }
 
@@ -261,6 +263,9 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -330,6 +335,7 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
@@ -409,6 +415,9 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   viewportFraction: (json['viewportFraction'] as num?)?.toDouble() ?? 1,
   allowImplicitScrolling: json['allowImplicitScrolling'] as bool? ?? false,
   animationDurationMs: (json['animationDurationMs'] as num?)?.toInt() ?? 0,
+  animationCurve:
+      $enumDecodeNullable(_$MotionCurveEnumMap, json['animationCurve']) ??
+      MotionCurve.easeInOut,
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -421,4 +430,21 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'viewportFraction': instance.viewportFraction,
       'allowImplicitScrolling': instance.allowImplicitScrolling,
       'animationDurationMs': instance.animationDurationMs,
+      'animationCurve': _$MotionCurveEnumMap[instance.animationCurve]!,
     };
+
+const _$MotionCurveEnumMap = {
+  MotionCurve.linear: 'linear',
+  MotionCurve.easeInOut: 'easeInOut',
+  MotionCurve.easeOut: 'easeOut',
+  MotionCurve.easeIn: 'easeIn',
+  MotionCurve.easeOutBack: 'easeOutBack',
+  MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
+};

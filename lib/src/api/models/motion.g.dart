@@ -49,6 +49,10 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.keyframes, const [])) json.remove('keyframes');
+  if (isJsonDefault(instance.revealOnScroll, false))
+    json.remove('revealOnScroll');
+  if (isJsonDefault(instance.revealFraction, kDefaultVisibleFraction))
+    json.remove('revealFraction');
   return json;
 }
 
@@ -128,6 +132,9 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
           .toList() ??
       const [],
   pulseKey: json['pulseKey'] as String?,
+  revealOnScroll: json['revealOnScroll'] as bool? ?? false,
+  revealFraction:
+      (json['revealFraction'] as num?)?.toDouble() ?? kDefaultVisibleFraction,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -165,6 +172,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'orientToPath': instance.orientToPath,
       'keyframes': instance.keyframes.map((e) => e.toJson()).toList(),
       'pulseKey': ?instance.pulseKey,
+      'revealOnScroll': instance.revealOnScroll,
+      'revealFraction': instance.revealFraction,
     };
 
 const _$MotionCurveEnumMap = {
@@ -180,6 +189,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.bounceOut: 'bounceOut',
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
   MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
 
 const _$MotionLoopEnumMap = {

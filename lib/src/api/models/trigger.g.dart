@@ -16,6 +16,8 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
   if (isJsonDefault(instance.intervalMillis, 1000))
     json.remove('intervalMillis');
   if (isJsonDefault(instance.lookaheadMs, 100)) json.remove('lookaheadMs');
+  if (isJsonDefault(instance.visibleFraction, kDefaultVisibleFraction))
+    json.remove('visibleFraction');
   return json;
 }
 
@@ -35,6 +37,7 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   every: json['every'] as String?,
   runWhen: json['runWhen'] as String?,
   lookaheadMs: (json['lookaheadMs'] as num?)?.toInt() ?? 100,
+  visibleFraction: (json['visibleFraction'] as num?)?.toDouble() ?? 0.15,
 );
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
@@ -50,6 +53,7 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'every': ?instance.every,
       'runWhen': ?instance.runWhen,
       'lookaheadMs': instance.lookaheadMs,
+      'visibleFraction': instance.visibleFraction,
     };
 
 const _$TriggerTypeEnumMap = {
@@ -96,4 +100,6 @@ const _$TriggerTypeEnumMap = {
   TriggerType.focusGained: 'focusGained',
   TriggerType.focusLost: 'focusLost',
   TriggerType.scrollEnd: 'scrollEnd',
+  TriggerType.enterViewport: 'enterViewport',
+  TriggerType.exitViewport: 'exitViewport',
 };

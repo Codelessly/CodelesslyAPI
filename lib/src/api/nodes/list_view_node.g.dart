@@ -109,6 +109,7 @@ Map<String, dynamic> _$ListViewPropertiesOmitDefaults(
   if (isJsonDefault(instance.layout, ListLayout.list)) json.remove('layout');
   if (isJsonDefault(instance.reversePaintOrder, false))
     json.remove('reversePaintOrder');
+  if (isJsonDefault(instance.stretchItems, false)) json.remove('stretchItems');
   return json;
 }
 
@@ -297,6 +298,9 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
@@ -374,6 +378,7 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
@@ -484,6 +489,7 @@ ListViewProperties _$ListViewPropertiesFromJson(Map json) => ListViewProperties(
       CrossAxisAlignmentC.start,
   runSpacing: (json['runSpacing'] as num?)?.toDouble() ?? 0,
   reversePaintOrder: json['reversePaintOrder'] as bool? ?? false,
+  stretchItems: json['stretchItems'] as bool? ?? false,
   dividerProperties: json['dividerProperties'] == null
       ? null
       : DividerProperties.fromJson(json['dividerProperties'] as Map),
@@ -508,6 +514,7 @@ Map<String, dynamic> _$ListViewPropertiesToJson(ListViewProperties instance) =>
       'runSpacing': instance.runSpacing,
       'layout': _$ListLayoutEnumMap[instance.layout]!,
       'reversePaintOrder': instance.reversePaintOrder,
+      'stretchItems': instance.stretchItems,
     };
 
 const _$ListLayoutEnumMap = {

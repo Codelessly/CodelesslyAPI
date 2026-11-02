@@ -47,7 +47,12 @@ enum MotionCurve {
 
   /// A cubic ease in and out: slow at both ends, fast in the middle, as a
   /// card turning over.
-  easeInOutCubic;
+  easeInOutCubic,
+
+  /// Holds the start value, then jumps to the end value halfway through:
+  /// no easing at all. A [MotionLoop.reverse] loop with it blinks hard on
+  /// and off, like a text cursor.
+  step;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -63,6 +68,7 @@ enum MotionCurve {
     MotionCurve.bounceOut => 'Bounce',
     MotionCurve.fastOutSlowIn => 'Fast out, slow in',
     MotionCurve.easeInOutCubic => 'Ease in out (cubic)',
+    MotionCurve.step => 'Step',
   };
 }
 
@@ -351,7 +357,9 @@ class MotionModel with Equatable, SerializableMixin {
   final String? replayKey;
 
   /// Waits this long, in milliseconds, before a transition, entrance or
-  /// loop starts, so motions can be staggered.
+  /// loop starts, so motions can be staggered. Can be bound through
+  /// `motion.delayMs` in [BaseNode.variables], e.g. `${= index * 80}` to
+  /// stagger the items of a list.
   final int delayMs;
 
   /// Gaussian blur of the whole node, in logical pixels (0 is sharp),
@@ -396,6 +404,19 @@ class MotionModel with Equatable, SerializableMixin {
   /// be bound through `motion.pulseKey` in [BaseNode.variables], e.g. to
   /// `${count}`.
   final String? pulseKey;
+  /// Holds the node where its entrance starts ([enterFrom], or rest) until
+  /// it scrolls into view, then plays the entrance once, over [durationMs]
+  /// after [delayMs]: a section fading up as the page reaches it. "In view"
+  /// is [revealFraction] of the node visible on screen, inside every
+  /// scrollable around it. Implies an entrance: without [enterFrom] or
+  /// [enter] the node fades in from transparent. The design canvas shows
+  /// the node at rest.
+  final bool revealOnScroll;
+
+  /// How much of the node must be visible for a [revealOnScroll] entrance to
+  /// play, from 0 (any pixel) to 1 (all of it, or the whole view for a node
+  /// larger than the view).
+  final double revealFraction;
 
   /// Creates a [MotionModel].
   const MotionModel({
@@ -432,6 +453,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.orientToPath = false,
     this.keyframes = const [],
     this.pulseKey,
+    this.revealOnScroll = false,
+    this.revealFraction = kDefaultVisibleFraction,
   });
 
   /// No motion at all.
@@ -490,6 +513,8 @@ class MotionModel with Equatable, SerializableMixin {
   /// [enterFrom] gives the loop's start. The design canvas keeps showing
   /// the saved motion.
   static const String loopProperty = 'loop';
+  /// The name of the binding that sets [delayMs], in milliseconds.
+  static const String delayMsProperty = 'delayMs';
 
   /// The key in [BaseNode.variables] that binds [property].
   static String variableKey(String property) => 'motion.$property';
@@ -517,8 +542,9 @@ class MotionModel with Equatable, SerializableMixin {
   /// Whether transitions pass through [keyframes].
   bool get hasKeyframes => keyframes.isNotEmpty;
 
-  /// Whether the node animates in when it first appears.
-  bool get hasEntrance => enter || enterFrom != null;
+  /// Whether the node animates in when it first appears (or, with
+  /// [revealOnScroll], when it scrolls into view).
+  bool get hasEntrance => enter || enterFrom != null || revealOnScroll;
 
   /// Where the entrance starts: these settings with the values [enterFrom]
   /// names, or at rest when there is none. A value [enterFrom] leaves at
@@ -532,7 +558,10 @@ class MotionModel with Equatable, SerializableMixin {
   /// `{"pathProgress": 0}`.
   MotionModel get entranceStart {
     final MotionModel? from = enterFrom;
-    if (from == null) return atRest;
+    // A reveal without its own start fades in as it scrolls into view.
+    if (from == null) {
+      return revealOnScroll && !enter ? atRest.copyWith(opacity: 0) : atRest;
+    }
     MotionModel start = this;
     for (final String property in properties) {
       if (property == 'spin') continue;
@@ -636,6 +665,8 @@ class MotionModel with Equatable, SerializableMixin {
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
+    bool? revealOnScroll,
+    double? revealFraction,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -670,6 +701,8 @@ class MotionModel with Equatable, SerializableMixin {
     orientToPath: orientToPath ?? this.orientToPath,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
+    revealOnScroll: revealOnScroll ?? this.revealOnScroll,
+    revealFraction: revealFraction ?? this.revealFraction,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -871,6 +904,8 @@ class MotionModel with Equatable, SerializableMixin {
     orientToPath,
     keyframes,
     pulseKey,
+    revealOnScroll,
+    revealFraction,
   ];
 
   /// Creates a [MotionModel] from JSON.

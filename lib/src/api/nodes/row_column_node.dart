@@ -148,6 +148,7 @@ class RowColumnNode extends ParentNode
     TriggerType.changed,
     TriggerType.scroll,
     TriggerType.scrollEnd,
+    ...TriggerType.viewport,
   ];
 
   @override
@@ -362,6 +363,7 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.heroTag = source.heroTag;
   target.heroFlight = source.heroFlight;
   target.layoutAspectRatio = source.layoutAspectRatio;
+  target.sizeTransition = source.sizeTransition;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
   target.foregroundFills = source.foregroundFills;

@@ -62,6 +62,7 @@ const _$MotionCurveEnumMap = {
   MotionCurve.bounceOut: 'bounceOut',
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
   MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
 
 const _$ActionTypeEnumMap = {

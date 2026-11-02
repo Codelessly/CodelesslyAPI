@@ -167,6 +167,9 @@ TabsNode _$TabsNodeFromJson(Map json) =>
         json['heroFlight'],
       )
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -220,6 +223,7 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'type': instance.type,
   'tabs': instance.tabs.map((e) => e.toJson()).toList(),
