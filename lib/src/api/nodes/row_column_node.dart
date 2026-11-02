@@ -128,6 +128,10 @@ class RowColumnNode extends ParentNode
     TriggerType.click,
     TriggerType.longPress,
     TriggerType.hold,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
     TriggerType.scroll,
   ];
 
@@ -322,7 +326,10 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.transitionMs = source.transitionMs;
   target.drawScale = source.drawScale;
   target.pulse = source.pulse;
+  target.draggable = source.draggable;
+  target.dropTarget = source.dropTarget;
   target.motion = source.motion;
+  target.drag = source.drag;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
 }

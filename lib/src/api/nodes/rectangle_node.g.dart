@@ -221,9 +221,18 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..pulse = json['pulse'] == null
           ? null
           : PulseModel.fromJson(json['pulse'] as Map)
+      ..draggable = json['draggable'] == null
+          ? null
+          : DraggableModel.fromJson(json['draggable'] as Map)
+      ..dropTarget = json['dropTarget'] == null
+          ? null
+          : DropTargetModel.fromJson(json['dropTarget'] as Map)
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -270,8 +279,11 @@ Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
       'transitionMs': instance.transitionMs,
       'drawScale': instance.drawScale,
       'pulse': ?instance.pulse?.toJson(),
+      'draggable': ?instance.draggable?.toJson(),
+      'dropTarget': ?instance.dropTarget?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'drag': ?instance.drag?.toJson(),
       'opacity': instance.opacity,
       'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
       'isMask': instance.isMask,
