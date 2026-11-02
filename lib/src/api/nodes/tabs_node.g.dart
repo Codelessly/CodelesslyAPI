@@ -127,6 +127,9 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -166,6 +169,7 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'pulse': ?instance.pulse?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'type': instance.type,
   'tabs': instance.tabs.map((e) => e.toJson()).toList(),

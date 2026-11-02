@@ -120,6 +120,17 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// with hard stops makes stripes (hazard tape, hatching).
   final GradientTileMode gradientTileMode;
 
+  /// The centre of a radial gradient in the box, as an alignment: (-1, -1)
+  /// is the top left corner, (0, 0) the centre, (1, 1) the bottom right.
+  /// Values outside -1..1 put the centre outside the box (a glow rising
+  /// from below the bottom edge). Written `[x, y]`. Null centres it.
+  final AlignmentData? gradientCenter;
+
+  /// The radius of a radial gradient, as a fraction of the box's longest
+  /// side: 0.5 in a 400 x 200 box is 200 pixels, 1 is 400. Null keeps the
+  /// default, half the shortest side (100 pixels there).
+  final double? gradientRadius;
+
   // For image paint:
 
   /// Affine transform applied to the image.
@@ -302,7 +313,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        sourceWidth = null,
        sourceHeight = null,
        assetID = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientCenter = null,
+       gradientRadius = null;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -335,7 +348,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientStops = null,
        color = null,
        gradientRepeatEvery = null,
-       gradientTileMode = GradientTileMode.clamp;
+       gradientTileMode = GradientTileMode.clamp,
+       gradientCenter = null,
+       gradientRadius = null;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -365,7 +380,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
-       assetID = null;
+       assetID = null,
+       gradientCenter = null,
+       gradientRadius = null;
 
   /// Creates [PaintModel] with radial gradient.
   PaintModel.radialGradient({
@@ -376,6 +393,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientStops,
     this.gradientTileMode = GradientTileMode.clamp,
     this.blendMode = BlendModeC.srcOver,
+    this.gradientCenter,
+    this.gradientRadius,
   }) : type = PaintType.gradientRadial,
        color = null,
        imageTransform = null,
@@ -423,7 +442,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        sourceWidth = null,
        sourceHeight = null,
        assetID = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientCenter = null,
+       gradientRadius = null;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -437,6 +458,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientStops,
     this.gradientRepeatEvery,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientCenter,
+    this.gradientRadius,
 
     this.imageTransform,
     this.hasImageBytes = false,
@@ -468,6 +491,9 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     double? gradientRepeatEvery,
     bool clearGradientRepeat = false,
     GradientTileMode? gradientTileMode,
+    AlignmentData? gradientCenter,
+    double? gradientRadius,
+    bool clearRadialShape = false,
 
     List<List<num>>? imageTransform,
     double? scalingFactor,
@@ -502,6 +528,12 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
         ? null
         : gradientRepeatEvery ?? this.gradientRepeatEvery,
     gradientTileMode: gradientTileMode ?? this.gradientTileMode,
+    gradientCenter: clearRadialShape
+        ? null
+        : gradientCenter ?? this.gradientCenter,
+    gradientRadius: clearRadialShape
+        ? null
+        : gradientRadius ?? this.gradientRadius,
 
     imageTransform: imageTransform ?? this.imageTransform,
     hasImageBytes: hasImageBytes ?? this.hasImageBytes,
@@ -556,6 +588,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           gradientTransform: gradientTransform,
           gradientRepeatEvery: gradientRepeatEvery,
           gradientTileMode: gradientTileMode,
+          gradientCenter: gradientCenter,
+          gradientRadius: gradientRadius,
         );
       case PaintType.image:
         return PaintModel.image(
@@ -598,6 +632,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (gradientStops != other.gradientStops) return false;
     if (gradientRepeatEvery != other.gradientRepeatEvery) return false;
     if (gradientTileMode != other.gradientTileMode) return false;
+    if (gradientCenter != other.gradientCenter) return false;
+    if (gradientRadius != other.gradientRadius) return false;
     if (imageTransform != other.imageTransform) return false;
     if (hasImageBytes != other.hasImageBytes) return false;
     if (downloadUrl != other.downloadUrl) return false;
@@ -629,6 +665,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientStops,
     gradientRepeatEvery,
     gradientTileMode,
+    gradientCenter,
+    gradientRadius,
 
     imageTransform,
     hasImageBytes,

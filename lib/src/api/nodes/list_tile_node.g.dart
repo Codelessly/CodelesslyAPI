@@ -193,6 +193,9 @@ ListTileNode _$ListTileNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
@@ -233,6 +236,7 @@ Map<String, dynamic> _$ListTileNodeToJson(ListTileNode instance) =>
       'pulse': ?instance.pulse?.toJson(),
       'enabled': instance.enabled,
       'motion': ?instance.motion?.toJson(),
+      'sizeTransition': ?instance.sizeTransition?.toJson(),
       'children': instance.children,
       'type': instance.type,
       'leading': ?instance.leading,

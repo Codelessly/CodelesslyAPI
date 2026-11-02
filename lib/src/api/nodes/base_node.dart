@@ -477,6 +477,16 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// How the node animates when its size changes at runtime: content it
+  /// shrink-wraps appearing (an FAQ answer opening), or a bound width or
+  /// height changing (a toggle's thumb). Null jumps to the new size.
+  ///
+  /// On an axis the node hugs (shrinkWrap) the box grows or shrinks over
+  /// the duration and clips its content meanwhile; on any other axis the
+  /// node is laid out at each size in between. The design canvas shows the
+  /// final size.
+  NodeTransition? sizeTransition;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

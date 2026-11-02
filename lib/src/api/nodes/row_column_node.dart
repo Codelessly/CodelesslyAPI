@@ -323,6 +323,7 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.drawScale = source.drawScale;
   target.pulse = source.pulse;
   target.motion = source.motion;
+  target.sizeTransition = source.sizeTransition;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
 }

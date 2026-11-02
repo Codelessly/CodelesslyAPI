@@ -23,7 +23,15 @@ enum MotionCurve {
   easeOutBack,
 
   /// A fast cubic deceleration.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// Slow at both ends, with a stronger (cubic) acceleration in the middle.
+  easeInOutCubic,
+
+  /// Holds the start value, then jumps to the end value halfway through:
+  /// no easing at all. A [MotionLoop.reverse] loop with it blinks hard on
+  /// and off, like a text cursor.
+  step;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -33,6 +41,8 @@ enum MotionCurve {
     MotionCurve.easeIn => 'Ease in',
     MotionCurve.easeOutBack => 'Overshoot',
     MotionCurve.easeOutCubic => 'Decelerate',
+    MotionCurve.easeInOutCubic => 'Ease in out cubic',
+    MotionCurve.step => 'Step',
   };
 }
 

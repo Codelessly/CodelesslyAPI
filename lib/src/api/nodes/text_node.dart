@@ -67,6 +67,17 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// or a color left null, takes [CodeThemeModel.defaults].
   CodeThemeModel? codeTheme;
 
+  /// How inline code in the text is drawn. When set, the segments of the
+  /// resolved text wrapped in backticks take this style and lose their
+  /// backticks, on the design canvas and at runtime. Null (the default)
+  /// shows backticks as typed.
+  InlineCodeStyle? inlineCode;
+
+  /// Makes the number in the text count from its old value to its new one
+  /// when the resolved text changes, at runtime. Null (the default) shows
+  /// the new text at once.
+  CountUpModel? countUp;
+
   /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -143,6 +154,8 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     this.tabularFigures = false,
     this.codeLanguage = SyntaxLanguage.none,
     this.codeTheme,
+    this.inlineCode,
+    this.countUp,
   }) {
     setTextMixin(
       data: data,
@@ -185,6 +198,27 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     ...super.propertyVariables,
     StringValue(name: 'data', value: data),
     StringValue(name: 'codeLanguage', value: codeLanguage.name),
+    // The style of every span, set by a binding, condition or set value
+    // action (see the SDK's StyleBindings): a font size, letter spacing and
+    // line height in pixels, a font family name, and an alignment name
+    // (left, center, right, justified, start, end).
+    DoubleValue(
+      name: 'fontSize',
+      value: textMixedProps.firstOrNull?.fontSize ?? 18,
+    ),
+    DoubleValue(
+      name: 'letterSpacing',
+      value: textMixedProps.firstOrNull?.letterSpacing.value ?? 0,
+    ),
+    DoubleValue(
+      name: 'lineHeight',
+      value: textMixedProps.firstOrNull?.lineHeight.value ?? 0,
+    ),
+    StringValue(
+      name: 'fontFamily',
+      value: textMixedProps.firstOrNull?.fontName.family ?? 'Roboto',
+    ),
+    StringValue(name: 'textAlign', value: textAlignHorizontal.name),
     // Overrides the color of every span; set by a binding or condition.
     const ColorValue(name: 'textColor', value: null),
   ];
