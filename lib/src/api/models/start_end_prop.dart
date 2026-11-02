@@ -2,6 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
+import '../../schema/flutter_prop.dart';
 import 'models.dart';
 
 part 'start_end_prop.g.dart';
@@ -144,24 +145,87 @@ final class StartEndProp extends TextProp {
 @JsonSerializable()
 class TextProp extends Equatable with SerializableMixin {
   /// Fills of the text.
+  @FlutterProp(
+    'fills',
+    type: 'array',
+    group: 'Typography',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted text-run paint list; color is nested in each paint.',
+  )
   final List<PaintModel> fills;
 
   /// Decoration of the text.
+  @FlutterProp(
+    'textDecoration',
+    type: 'string',
+    group: 'Typography',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted text-run underline/overline/strikethrough choice.',
+  )
   final TextDecorationEnum textDecoration;
 
   /// Size of the text.
+  @FlutterProp(
+    'fontSize',
+    type: 'number',
+    group: 'Typography',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted size for this text run, not a TextNode top-level field.',
+  )
   final double fontSize;
 
   /// Space between letters in text.
+  @FlutterProp(
+    'letterSpacing',
+    type: 'object',
+    group: 'Typography',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted letter-spacing model for this text run.',
+  )
   final LetterSpacing letterSpacing;
 
   /// Font family.
+  @FlutterProp(
+    'fontName',
+    type: 'object',
+    group: 'Typography',
+    control: 'font',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted family/style/weight object for this text run.',
+  )
   final FontName fontName;
 
   /// line height for the text.
+  @FlutterProp(
+    'lineHeight',
+    type: 'object',
+    group: 'Typography',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted line-height model for this text run.',
+  )
   final LineHeight lineHeight;
 
   /// URL to launch when text span is tapped.
+  @FlutterProp(
+    'link',
+    type: 'string',
+    group: 'Typography',
+    control: 'text',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted hyperlink destination on this text run.',
+  )
   final String link;
 
   /// Whether the text is recognized as a variable.
