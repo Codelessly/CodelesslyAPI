@@ -14,6 +14,12 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
   if (isJsonDefault(instance.opacity, 1)) json.remove('opacity');
   if (isJsonDefault(instance.blendMode, BlendModeC.srcOver))
     json.remove('blendMode');
+  if (isJsonDefault(instance.gradientCenterX, 0.0))
+    json.remove('gradientCenterX');
+  if (isJsonDefault(instance.gradientCenterY, 0.0))
+    json.remove('gradientCenterY');
+  if (isJsonDefault(instance.gradientRadius, 0.5))
+    json.remove('gradientRadius');
   if (isJsonDefault(instance.gradientTileMode, GradientTileMode.clamp))
     json.remove('gradientTileMode');
   if (isJsonDefault(instance.fit, Fit.none)) json.remove('fit');
@@ -58,6 +64,9 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       ?.map((e) => ColorStop.fromJson(e as Map))
       .toList(),
   gradientRepeatEvery: (json['gradientRepeatEvery'] as num?)?.toDouble(),
+  gradientCenterX: (json['gradientCenterX'] as num?)?.toDouble() ?? 0.0,
+  gradientCenterY: (json['gradientCenterY'] as num?)?.toDouble() ?? 0.0,
+  gradientRadius: (json['gradientRadius'] as num?)?.toDouble() ?? 0.5,
   gradientTileMode:
       $enumDecodeNullable(
         _$GradientTileModeEnumMap,
@@ -87,6 +96,9 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
       $enumDecodeNullable(_$ImageRepeatEnumEnumMap, json['imageRepeat']) ??
       ImageRepeatEnum.noRepeat,
   saturation: (json['saturation'] as num?)?.toDouble() ?? 1,
+  imageTint: json['imageTint'] == null
+      ? null
+      : ColorRGBA.fromJson(json['imageTint']),
 );
 
 Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
@@ -100,6 +112,9 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'gradientTransform': ?instance.gradientTransform,
       'gradientStops': ?instance.gradientStops?.map((e) => e.toJson()).toList(),
       'gradientRepeatEvery': ?instance.gradientRepeatEvery,
+      'gradientCenterX': instance.gradientCenterX,
+      'gradientCenterY': instance.gradientCenterY,
+      'gradientRadius': instance.gradientRadius,
       'gradientTileMode': _$GradientTileModeEnumMap[instance.gradientTileMode]!,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
@@ -116,6 +131,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'sourceHeight': ?instance.sourceHeight,
       'imageRepeat': _$ImageRepeatEnumEnumMap[instance.imageRepeat]!,
       'saturation': instance.saturation,
+      'imageTint': ?instance.imageTint?.toJson(),
     };
 
 const _$PaintTypeEnumMap = {
