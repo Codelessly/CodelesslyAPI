@@ -288,6 +288,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 CheckboxProperties _$CheckboxPropertiesFromJson(Map json) => CheckboxProperties(

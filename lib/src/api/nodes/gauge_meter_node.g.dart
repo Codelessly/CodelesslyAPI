@@ -318,6 +318,7 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
 };
 
 GaugeMeterProperties _$GaugeMeterPropertiesFromJson(Map json) =>
