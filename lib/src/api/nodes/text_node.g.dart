@@ -331,6 +331,7 @@ const _$TextOverflowCEnumMap = {
   TextOverflowC.fade: 'fade',
   TextOverflowC.ellipsis: 'ellipsis',
   TextOverflowC.visible: 'visible',
+  TextOverflowC.scaleDown: 'scaleDown',
 };
 
 const _$BlendModeCEnumMap = {
