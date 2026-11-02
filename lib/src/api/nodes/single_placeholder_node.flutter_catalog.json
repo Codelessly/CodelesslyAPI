@@ -47,7 +47,7 @@
           "type": "object"
         },
         "rotation": {
-          "type": "integer"
+          "type": "number"
         },
         "children": {
           "type": "array",
@@ -171,7 +171,7 @@
         "fieldPath": "rotation",
         "group": "Transform",
         "control": "angle",
-        "schemaType": "integer",
+        "schemaType": "number",
         "defaultSource": null,
         "bindable": false
       },

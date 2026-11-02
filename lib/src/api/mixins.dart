@@ -90,6 +90,14 @@ abstract class DefaultShapeNode extends SceneNode
     );
   }
 
+  /// Paints drawn over this node's children, inside its corners: a
+  /// translucent solid (`#66000000`) or a gradient that dims or tints the
+  /// whole box, text included, like Flutter's `foregroundDecoration`. Each
+  /// paint's colour can be bound through `variables['foreground-<paint
+  /// id>']`. They take no taps. Empty (the default) draws nothing.
+  @JsonKey(defaultValue: [])
+  List<PaintModel> foregroundFills = [];
+
   @override
   String toString() => '\n$type [${super.toString()}]';
 }
@@ -1026,13 +1034,20 @@ mixin CornerMixin on BaseNode {
   )
   late CornerRadius cornerRadius;
 
+  /// Semicircular bites out of the node's edges (a ticket's notches). The
+  /// node's fills, strokes, shadows and clipped children follow the notched
+  /// outline.
+  late List<NotchModel> notches;
+
   /// Sets the properties of this mixin.
   void setCornerMixin({
     required CornerRadius cornerRadius,
     required double cornerSmoothing,
+    List<NotchModel> notches = const [],
   }) {
     this.cornerRadius = cornerRadius;
     this.cornerSmoothing = cornerSmoothing;
+    this.notches = notches;
   }
 
   @override
@@ -1209,7 +1224,7 @@ mixin PropertyVariableMixin on BaseNode {
   /// action, on any node that has them.
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
-    IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    IntValue(name: 'rotationDegrees', value: rotationDegrees.round()),
     DoubleValue(name: 'drawScale', value: drawScale),
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
@@ -1654,8 +1669,15 @@ mixin PortalMixin on BaseNode {
   }
 }
 
-/// Type casts rotation value to integer.
-int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
+/// Reads a rotation in degrees from JSON: a number (fractional degrees such
+/// as -4.6 are kept) or numeric text. Anything else is 0.
+num castRotation(dynamic v) {
+  final num? degrees = v is String ? num.tryParse(v) : v as num?;
+  if (degrees == null || !degrees.isFinite) return 0;
+  // Whole degrees stay ints, so JSON saved before fractional rotations reads
+  // and writes back the same.
+  return degrees == degrees.roundToDouble() ? degrees.toInt() : degrees;
+}
 
 /// Base mixin for providing [toJson] method to every class for
 /// JSON serialization.

@@ -401,14 +401,14 @@ abstract class BaseNode
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int _rotationDegrees;
+  num _rotationDegrees;
 
   /// The rotation in degrees. This is the rotation of the node's
   /// [middleBoxLocal], represented by the [middleRotatedBoxLocal].
   @JsonKey(name: 'rotation', fromJson: castRotation)
   @FlutterProp(
     'rotation',
-    type: 'integer',
+    type: 'number',
     group: 'Transform',
     control: 'angle',
     field: 'rotation',
@@ -416,7 +416,7 @@ abstract class BaseNode
     a2ui: false,
     note: 'Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.',
   )
-  int get rotationDegrees => _rotationDegrees;
+  num get rotationDegrees => _rotationDegrees;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   double _rotationRadians;
@@ -431,7 +431,7 @@ abstract class BaseNode
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
   /// an optimization and convenience.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int globalRotationDegrees;
+  num globalRotationDegrees;
 
   /// The global rotation in radians. It is not stored on the server and is
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
@@ -563,6 +563,7 @@ abstract class BaseNode
   /// Scrolls the node into view when it appears (or when `reveal.when`
   /// turns true). Null for none. See [RevealModel].
   RevealModel? reveal;
+
   /// Makes the node draggable: it follows the pointer, tilts, and springs
   /// back, stays or flies off on release. Null for a node that can't be
   /// dragged. See [DragModel].
@@ -576,6 +577,33 @@ abstract class BaseNode
   /// to keep it out of the flow. The design canvas draws it in place.
   @JsonKey(defaultValue: false, includeIfNull: false)
   bool floating = false;
+
+  /// Tag that makes this node a shared element (a Flutter `Hero`): when a
+  /// navigation pushes or pops a screen that has a node with the same tag,
+  /// this node flies between its place on both screens while the route
+  /// transition plays.
+  ///
+  /// Null or empty for none. Bindable through `variables['heroTag']`, e.g.
+  /// `pass-${item.id}` in a list item; a binding that resolves to an empty
+  /// string turns the shared element off for that node (for example on every
+  /// list item but the front one). Tags must be unique on a screen.
+  String? heroTag;
+
+  /// How this shared element flies when [heroTag] is set. Null flies the
+  /// standard way ([HeroFlight.standard]).
+  HeroFlight? heroFlight;
+
+  /// Width divided by height that the node keeps at runtime, e.g.
+  /// `340 / 214` for a card: when its width follows its parent (it fills,
+  /// is expanded or pinned on both sides) its height is that width over
+  /// this ratio, and when only its height follows its parent its width is
+  /// that height times this ratio. The result stays within what the parent
+  /// allows. Null (the default) sizes each axis on its own.
+  ///
+  /// Unlike [aspectRatioLock], which only keeps the ratio while resizing in
+  /// the editor, this sizes the node in the app. It is separate from the
+  /// built-in ratio of nodes such as icons ([FixedAspectRatioMixin]).
+  double? layoutAspectRatio;
 
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
@@ -594,7 +622,7 @@ abstract class BaseNode
     OuterNodeBox? outerBoxLocal,
     NodeBox? retainedOuterBoxLocal,
     this.visible = true,
-    int rotationDegrees = 0,
+    num rotationDegrees = 0,
     this._alignment = AlignmentModel.none,
     EdgeInsetsModel margin = EdgeInsetsModel.zero,
     this._padding = EdgeInsetsModel.zero,

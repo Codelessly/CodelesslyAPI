@@ -30,6 +30,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
     json.remove('placement');
   if (isJsonDefault(instance.barrierBlur, 0)) json.remove('barrierBlur');
   if (isJsonDefault(instance.enterScale, 1)) json.remove('enterScale');
+  if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -121,6 +122,9 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
       DialogPlacement.belowStart,
   barrierBlur: (json['barrierBlur'] as num?)?.toDouble() ?? 0,
   enterScale: (json['enterScale'] as num?)?.toDouble() ?? 1,
+  variables: (json['variables'] as Map?)?.map(
+    (k, e) => MapEntry(k as String, e as String),
+  ),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -165,6 +169,7 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'placement': _$DialogPlacementEnumMap[instance.placement]!,
       'barrierBlur': instance.barrierBlur,
       'enterScale': instance.enterScale,
+      'variables': instance.variables,
     };
 
 const _$DialogPresentationEnumMap = {

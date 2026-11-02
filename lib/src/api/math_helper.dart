@@ -5,13 +5,13 @@ import 'package:vector_math/vector_math.dart';
 import 'models/models.dart';
 
 /// Calculates the cosine of [degrees] in degrees.
-double cosDeg(int degrees) => cos(degrees * pi / 180);
+double cosDeg(num degrees) => cos(degrees * pi / 180);
 
 /// Calculates the cosine of [radians] in radians.
 double cosRad(double radians) => cos(radians);
 
 /// Calculates the sine of [degrees] in degrees.
-double sinDeg(int degrees) => sin(degrees * pi / 180);
+double sinDeg(num degrees) => sin(degrees * pi / 180);
 
 /// Calculates the sine of [radians] in radians.
 double sinRad(double radians) => sin(radians);
@@ -120,7 +120,7 @@ Vec globalToRotatedLocalVec({
   required double globalY,
   required double parentX,
   required double parentY,
-  required int degrees,
+  required num degrees,
 }) {
   final diffX = globalX - parentX;
   final diffY = globalY - parentY;
