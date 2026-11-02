@@ -492,6 +492,17 @@ abstract class BaseNode
   /// standard way ([HeroFlight.standard]).
   HeroFlight? heroFlight;
 
+  /// Width divided by height that the node keeps at runtime, e.g.
+  /// `340 / 214` for a card: when its width follows its parent (it fills,
+  /// is expanded or pinned on both sides) its height is that width over
+  /// this ratio, and when only its height follows its parent its width is
+  /// that height times this ratio. The result stays within what the parent
+  /// allows. Null (the default) sizes each axis on its own.
+  ///
+  /// Unlike [aspectRatioLock], which only keeps the ratio while resizing in
+  /// the editor, this sizes the node in the app.
+  double? aspectRatio;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 

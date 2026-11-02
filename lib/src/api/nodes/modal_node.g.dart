@@ -116,6 +116,7 @@ ModalNode _$ModalNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..aspectRatio = (json['aspectRatio'] as num?)?.toDouble()
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -157,6 +158,7 @@ Map<String, dynamic> _$ModalNodeToJson(ModalNode instance) => <String, dynamic>{
   'motion': ?instance.motion?.toJson(),
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'aspectRatio': ?instance.aspectRatio,
   'children': instance.children,
   'type': instance.type,
   'trigger': instance.trigger,
