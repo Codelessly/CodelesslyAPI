@@ -13,12 +13,19 @@ enum DialogAnchor {
 
   /// Next to the node that ran the action, like a popover or menu, at the
   /// action's [ShowDialogAction.placement].
-  trigger;
+  trigger,
+
+  /// At the pointer, like a context menu: where the right click (or other
+  /// pointer trigger) that ran the action happened, read from `${result.x}`
+  /// and `${result.y}`; next to the trigger when the trigger has no
+  /// position.
+  pointer;
 
   /// Displayable name.
   String get prettify => switch (this) {
     DialogAnchor.none => 'Center of screen',
     DialogAnchor.trigger => 'Anchor to trigger',
+    DialogAnchor.pointer => 'At pointer',
   };
 }
 
