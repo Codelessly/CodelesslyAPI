@@ -1,9 +1,34 @@
-## Unreleased
+## 9.0.0
 
-- New `wheel` (mouse wheel / trackpad scroll, with deltas, pointer position
-  and modifiers), `pinch` (two-finger zoom, with step and total scale and
-  the focal point) and `keyUp` (screen key releases) triggers, for pan and
-  zoom canvases and held keys.
+The first release on pub.dev since 6.1.0, numbered to match
+`codelessly_sdk` 9.0.0, which it is released with. It includes everything
+listed below for 6.3.0 and 6.2.0, which were never published, and merges
+the Meridian and Hookline lines into one API. Documents that use the new
+nodes, actions and fields need `codelessly_sdk` 9.0.0 to render.
+
+### Breaking changes from 6.1.0
+
+- `NodeProcessor.resolveConstraints` applies the constraints a parent
+  relegates to its children (a ListTile's minimum leading width, GridView
+  item extents, ListView `itemExtent`, placeholders), which it dropped
+  before. Layout code that reads resolved constraints can now see tighter
+  limits.
+
+### Also new since 6.3.0
+
+- Transition curves `easeInOutSine`, `spring`, `elasticOut`, `bounceOut`
+  and `fastOutSlowIn`.
+- `generateId` keeps its state between calls, so IDs made in the same
+  millisecond sort in the order they were made.
+- `NavigationAction.transition` (slide up, fade, none), screens whose link
+  parameters set their variables (`paramsSetVariables`), the scroll
+  trigger, `ScrollToAction`, frosted dialogs (`barrierBlur`, `enterScale`),
+  `ShowDialogAction.sheetBelowWidth`, card toasts, `floating` nodes, the
+  dragged interaction state, drag follow and keyed stacked lists, motion
+  keyframes, `TextOverflowC.scaleDown`, linear gradient handles, SVG
+  rectangle paths, chart, gauge, slider, switch and text field additions.
+- `wheel`, `pinch` and `keyUp` triggers, for pan and zoom canvases and held
+  keys.
 - `VarianceProperties.tabletMinWidth` and `desktopMinWidth` move where a
   responsive layout switches layouts (600 and 1024 by default);
   `ScreenBreakpoint.forWidth` takes them.
