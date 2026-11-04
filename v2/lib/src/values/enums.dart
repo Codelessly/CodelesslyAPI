@@ -36,6 +36,8 @@ enum StrokeAlign {
 
 enum StrokeCap { butt, round, square }
 
+enum StrokeJoin { miter, round, bevel }
+
 enum BoxFit { fill, contain, cover, fitWidth, fitHeight, none, scaleDown }
 
 enum ImageRepeat { noRepeat, repeat, repeatX, repeatY }
