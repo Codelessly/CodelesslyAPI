@@ -74,7 +74,7 @@ Parents are derived from `children` and `slots`; they are never stored.
 | `decoration` | `Decoration` | Fills, strokes, radius, shadows, blurs, clip (box types). |
 | `props` | per type | The widget's own parameters, Flutter names (§4). |
 | `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`; paths §5.1). |
-| `actions` | `[Reaction]` | Trigger → action list. |
+| `actions` | `[Reaction]` | Trigger → the chain of actions it runs (§5.2). |
 | `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviours (§4.1), flat in the node. |
 | `extra` | map | Unknown keys, round-tripped. |
 
@@ -271,6 +271,58 @@ was. The SDK compiles a node's bindings once (`NodeBindings`) and applies
 them on the typed node (no JSON round trip for the common paths), watching
 only the names each binding reads.
 
+### 5.2 Reactions and actions
+
+**Reactions** (`Node.actions`, `Reaction`, `lib/src/triggers.dart`): a
+`Trigger` and the chain of actions it runs, in order. All the reactions of a
+node to one trigger run as one chain.
+
+```json
+"actions": [
+  {"id": "r1", "trigger": {"type": "click"},
+   "actions": [
+     {"type": "setVariable", "variable": "count", "op": "add", "value": "1"},
+     {"type": "if", "condition": {"left": "${count}", "op": "greaterThan", "right": "9"},
+      "then": [{"type": "navigate", "mode": "replace", "to": "done", "params": {"n": "${count}"}}]}]}
+]
+```
+
+**Triggers** (`TriggerType`): pointer ones on the node's box (`click`,
+`doubleTap`, `longPress`, `hold`, `secondaryClick`, `pointerDown`/`Up`,
+`hover`, `cursorEnter`/`Exit`, `swipeLeft`/`Right`/`Up`/`Down`, `drag`,
+`dragEnd`, `wheel`, `pinch`), an input's (`changed`, `changeEnd`,
+`submitted`, `editingComplete`, `focusGained`/`Lost`), a screen's (`load`,
+`valueChanged`, `timer`, `clock`, `keyDown`/`Up`), scrolling and viewport
+(`scroll`, `scrollEnd`, `enterViewport`, `exitViewport`), drag and drop and
+`reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
+`key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`/
+`lookaheadMs`, `visibleFraction`.
+
+**Actions** (`ActionDef`, sealed, one immutable class per type,
+`lib/src/actions.dart`): `navigate` (push, pop, replace, reset; params,
+base, transition), `openModal` (dialog, sheets, full screen, popover),
+`closeModal` (its result is the opener's `${result}`), `openLink`,
+`submitForm`, `setValue` (node properties at binding paths: set, toggle,
+sync), `setVariant`, `setVariable` (a `ValueWrite`: `op` set, toggle,
+add, subtract, insert, insertAll, removeAt, remove, update; `index`,
+`mapKey`), `callFunction`, `callApi` (`onSuccess` / `onError`),
+`setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
+`cloudFiles`, `auth`, `if`, `forEach`, `delay`, `showToast`, `confirm`,
+`copyToClipboard`, `editText`, `focus`, `scrollTo`, `speak`, `playSound`,
+`paywall`, `controlDrag`, `playAnimation`. Every action can be off
+(`enabled: false`), not awaited (`nonBlocking`), or run only while a
+predicate holds (`when`, §5.1's `Predicate`). Text fields are expressions;
+`${result}` is what the previous action gave (the trigger's event first).
+An unknown type decodes as `UnknownAction` and round-trips.
+
+The SDK runs them (`runtime/actions`): `CodelesslyActions` (the
+`ActionRunner`) with one typed handler per type over an `ActionContext`
+(no `BuildContext`); UI effects go through an `ActionUi` the app shell
+implements (`NavigatorActionUi` is a Navigator-based default). A failing
+action stops its chain and is reported; a chain stops when its node leaves
+the tree. `TreeReactions` wires triggers into the render tree of an
+interactive `NodeView`.
+
 ## 6. Migration from v1
 
 `v2/migrate` is a separate package. It depends on the v1 API, so it can use
@@ -288,6 +340,17 @@ variables and conditions (the publish model's `SDKLayoutVariables` /
 `SDKLayoutConditions`) are passed to `migrateDocument(variables:,
 conditions:)` and become its `variables` and `conditions` keys; each
 condition's set-value actions become `set` entries on binding paths.
+
+v1 reactions (a node's, an app bar icon's, a navigation item's, an input
+icon's, a condition's other actions) become §5.2's reactions: one per v1
+reaction, its trigger and a chain of its one action, every v1 action type
+mapped (`navigation` → `navigate`, `showDialog` → `openModal`, `link` →
+`openLink`, `conditional` → `if`, `setCloudStorage` → `cloudDocuments`,
+`loadFromCloudStorage` → `loadCloudData`, the `interval` trigger → `timer`,
+`keyPress` → `keyDown`; a set variable's typed operation → its `op`; a set
+value's property names → the target node's binding paths). Publish
+layouts carry their variables and conditions this way too, and the publish
+model's APIs as v2 `HttpApi`s.
 
 ## 7. Proving it: parity
 

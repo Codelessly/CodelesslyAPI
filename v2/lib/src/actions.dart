@@ -976,7 +976,7 @@ enum CloudFieldOperation { set, increment, arrayAdd, arrayRemove, delete, server
 /// One field a [CloudDataAction] writes: [value] is an expression.
 @immutable
 final class CloudFieldWrite {
-  const CloudFieldWrite(this.field, {this.value = '', this.operation = CloudFieldOperation.set});
+  const CloudFieldWrite(this.field, this.value, {this.operation = CloudFieldOperation.set});
 
   final String field;
   final String value;
@@ -986,8 +986,8 @@ final class CloudFieldWrite {
     final m = readMap(json);
     final field = readString(m?['field']);
     if (m == null || field == null) return null;
-    return CloudFieldWrite(field,
-        value: _s(m, 'value'), operation: readEnum(CloudFieldOperation.values, m['operation'], CloudFieldOperation.set));
+    return CloudFieldWrite(field, _s(m, 'value'),
+        operation: readEnum(CloudFieldOperation.values, m['operation'], CloudFieldOperation.set));
   }
 
   Json toJson() => {
@@ -1105,7 +1105,13 @@ enum CloudFilesOperation { upload, delete }
 enum CloudFileKind { image, any }
 
 /// Who can read an uploaded file.
-enum CloudFileAccess { private, public }
+enum CloudFileAccess {
+  /// Anyone with its URL.
+  public,
+
+  /// Only the user who uploaded it.
+  private,
+}
 
 /// Uploads files the user picks to (or deletes them from) cloud storage
 /// folder [path]; [actions] run with each file (`${result.url}`...).
