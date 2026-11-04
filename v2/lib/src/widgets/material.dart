@@ -2,6 +2,7 @@
 // names and defaults (see ../props.dart).
 import '../json.dart';
 import '../props.dart';
+import '../values/border.dart';
 import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';
