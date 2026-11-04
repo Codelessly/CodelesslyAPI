@@ -135,4 +135,53 @@ void main() {
     expect(c == n, isFalse);
     expect(c.toJson()['props'], {'mainAxisAlignment': 'center'});
   });
+
+  group('props hold their declared type', () {
+    const row = Node(id: 'r', type: 'row');
+
+    test('an int for a double prop is stored as a double', () {
+      // T infers as num here: the declaration decides the stored type.
+      final n = row.withProp(FlexProps.spacing, 31);
+      expect(n.prop(FlexProps.spacing), isA<double>());
+      expect(n.prop(FlexProps.spacing), 31.0);
+      expect(n, row.withProp(FlexProps.spacing, 31.0));
+      expect(n.toJson()['props'], {'spacing': 31});
+    });
+
+    test('a JSON value is decoded; a default or null clears it', () {
+      final n = row.withProp<Object?>(FlexProps.mainAxisAlignment, 'center');
+      expect(n.prop(FlexProps.mainAxisAlignment), MainAxisAlignment.center);
+      expect(n.withProp<Object?>(FlexProps.mainAxisAlignment, 'start').props.isEmpty, isTrue);
+      expect(row.withProp<Object?>(FlexProps.spacing, 4).withProp<Object?>(FlexProps.spacing, null).props.isEmpty, isTrue);
+    });
+
+    test('a value of another type throws', () {
+      expect(() => row.withProp<Object?>(FlexProps.spacing, 'wide'), throwsArgumentError);
+      expect(() => row.withProp<Object?>(FlexProps.mainAxisAlignment, CrossAxisAlignment.end), throwsArgumentError);
+    });
+  });
+
+  test('border radius: circular or elliptical corners, sparse JSON', () {
+    for (final (json, radius) in [
+      (8, const BorderRadius.circular(8)),
+      ([16, 8], const BorderRadius.elliptical(16, 8)),
+      ([1, 2, 3, 4], const BorderRadius.only(topLeft: 1, topRight: 2, bottomRight: 3, bottomLeft: 4)),
+      ([
+        [16, 8],
+        4,
+        0,
+        0
+      ], const BorderRadius.only(topLeft: 16, topLeftY: 8, topRight: 4)),
+    ]) {
+      expect(BorderRadius.fromJson(json), radius, reason: '$json');
+      expect(radius.toJson(), json);
+    }
+    // A Y equal to X is circular, given or not.
+    expect(const BorderRadius.only(topLeft: 4, topLeftY: 4), const BorderRadius.only(topLeft: 4));
+    expect(const BorderRadius.elliptical(16, 8).isCircular, isFalse);
+    expect(const BorderRadius.elliptical(16, 8).topRightY, 8);
+    expect(BorderRadius.fromJson([1, 'x']), BorderRadius.zero);
+    expect(BindPaths.apply(const Node(id: 'b', type: 'box'), 'decoration.radius', [12, 6]).decoration.radius,
+        const BorderRadius.elliptical(12, 6));
+  });
 }

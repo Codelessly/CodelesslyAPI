@@ -156,6 +156,21 @@ final class PropDef<T> {
   T? decode(Object? json) => codec.decode(json);
   Object? encode(T value) => codec.encode(value);
 
+  /// [value] as this prop's declared type: as is when it has it, else read
+  /// by the codec (an `int` for a double prop is that double, a JSON value
+  /// is decoded). A call site can infer a wider type than declared
+  /// (`withProp(FlexProps.spacing, 31)` infers `num`), so a value is
+  /// checked against the declaration, not the call. Throws an
+  /// [ArgumentError] for a value the codec can't read.
+  T? coerce(Object? value) {
+    if (value is T) return value;
+    final v = codec.decode(value);
+    if (v == null && value != null) {
+      throw ArgumentError.value(value, key, 'Not a value of $T');
+    }
+    return v;
+  }
+
   @override
   String toString() => 'PropDef($key)';
 }
@@ -224,13 +239,15 @@ final class Props {
   /// Whether [def] holds a non-default value.
   bool has(PropDef<Object?> def) => _values.containsKey(def.key);
 
-  /// These props with [def] set to [value].
+  /// These props with [def] set to [value], held as [def]'s declared type
+  /// ([PropDef.coerce]).
   Props set<T>(PropDef<T> def, T value) {
+    final typed = def.coerce(value);
     final next = {..._values};
-    if (value == null || jsonEquality.equals(value, def.defaultValue)) {
+    if (typed == null || jsonEquality.equals(typed, def.defaultValue)) {
       next.remove(def.key);
     } else {
-      next[def.key] = value;
+      next[def.key] = typed;
     }
     return Props._(next, _unknown);
   }

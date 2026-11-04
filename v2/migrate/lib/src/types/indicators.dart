@@ -47,10 +47,7 @@ num? _on(num? v) => v == null ? null : roundNum(v);
 String _c(ColorRGBA c) => V1Node.rgba(c);
 String? _oc(ColorRGBA? c) => c == null ? null : V1Node.rgba(c);
 
-Object _radius(CornerRadius r) {
-  final tl = r.tl.x, tr = r.tr.x, br = r.br.x, bl = r.bl.x;
-  return tl == tr && tr == br && br == bl ? _n(tl) : [_n(tl), _n(tr), _n(br), _n(bl)];
-}
+Object _radius(CornerRadius r) => radiusJson(r);
 
 /// Node-level fields a type keeps outside `properties`.
 void _takeNodeKeys(V1Node m, Json p, Map<String, String> keys) {
