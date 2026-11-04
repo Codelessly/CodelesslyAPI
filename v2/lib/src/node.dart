@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'behaviours.dart';
 import 'bindings.dart' show BindPaths;
+import 'components.dart';
 import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
@@ -30,6 +31,7 @@ final class Node {
     this.bind = const {},
     this.actions = const [],
     this.behaviours = Behaviours.none,
+    this.component,
     this.extra = const {},
   });
 
@@ -62,6 +64,10 @@ final class Node {
   /// (stored flat in the node's JSON, under [Behaviours.keys]).
   final Behaviours behaviours;
 
+  /// The component this node is the main node of, or the top node of an
+  /// instance of (DESIGN.md §4.2).
+  final ComponentLink? component;
+
   /// Keys this version doesn't model, round-tripped.
   final Json extra;
 
@@ -86,6 +92,25 @@ final class Node {
 
   Node withProp<T>(PropDef<T> def, T value) => copyWith(props: props.set(def, value));
 
+  /// This node linked to a component, or unlinked (null).
+  Node withComponent(ComponentLink? link) => Node(
+        id: id,
+        type: type,
+        name: name,
+        children: children,
+        slots: slots,
+        visible: visible,
+        opacity: opacity,
+        layout: layout,
+        decoration: decoration,
+        props: props,
+        bind: bind,
+        actions: actions,
+        behaviours: behaviours,
+        component: link,
+        extra: extra,
+      );
+
   Node copyWith({
     String? id,
     String? type,
@@ -100,6 +125,7 @@ final class Node {
     Map<String, String>? bind,
     List<Json>? actions,
     Behaviours? behaviours,
+    ComponentLink? component,
     Json? extra,
   }) =>
       Node(
@@ -116,12 +142,13 @@ final class Node {
         bind: bind ?? this.bind,
         actions: actions ?? this.actions,
         behaviours: behaviours ?? this.behaviours,
+        component: component ?? this.component,
         extra: extra ?? this.extra,
       );
 
   static const _keys = {
     'id', 'type', 'name', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
-    'actions',
+    'actions', 'component',
   };
 
   /// This node with [patch] (a JSON merge patch over its JSON, as an
@@ -163,6 +190,7 @@ final class Node {
       },
       actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
       behaviours: Behaviours.fromJson(m),
+      component: ComponentLink.fromJson(m['component']),
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key) && !Behaviours.keys.contains(e.key)) e.key: e.value,
@@ -183,6 +211,7 @@ final class Node {
     if (bind.isNotEmpty) j['bind'] = bind;
     if (actions.isNotEmpty) j['actions'] = actions;
     behaviours.writeTo(j);
+    if (component != null) j['component'] = component!.toJson();
     j.addAll(extra);
     return j;
   }
@@ -204,6 +233,7 @@ final class Node {
           jsonEquality.equals(other.bind, bind) &&
           jsonEquality.equals(other.actions, actions) &&
           other.behaviours == behaviours &&
+          other.component == component &&
           jsonEquality.equals(other.extra, extra);
 
   @override

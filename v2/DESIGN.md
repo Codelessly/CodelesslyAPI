@@ -76,6 +76,7 @@ Parents are derived from `children` and `slots`; they are never stored.
 | `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`; paths §5.1). |
 | `actions` | `[Reaction]` | Trigger → action list. |
 | `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviours (§4.1), flat in the node. |
+| `component` | `ComponentLink` | The component this node is the main node or an instance of (§4.2). |
 | `extra` | map | Unknown keys, round-tripped. |
 
 ## 3. Layout
@@ -138,6 +139,16 @@ Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `Gradient`, and enums with Flutter's value names and defaults
 (`MainAxisAlignment.start`, not v1's `center`).
 
+`BorderRadius` corners are circular or elliptical, as Flutter's `Radius`:
+`8` (every corner), `[16, 8]` (every corner 16 across, 8 down) or
+`[tl, tr, br, bl]`, each a number or `[x, y]`. In Dart a corner's
+`topLeft` is its horizontal radius and `topLeftY` its vertical one (the
+same unless given).
+
+Props hold their declared type: `Props.set` / `Node.withProp` coerce a value
+through the prop's codec (`withProp(FlexProps.spacing, 31)` stores `31.0`)
+and throw an `ArgumentError` for a value it can't read.
+
 ### 4.1 Behaviours
 
 What a node does beyond its layout and paint is the same for every type, so
@@ -170,6 +181,47 @@ resize handles; it isn't a runtime property (`layout.aspectRatio` is), so the
 API doesn't model it: the migration drops its default (`false`) and leaves
 `true` under the node's `v1` key with the other editor metadata
 (`createdTimestamp`), for the editor to move into its own state.
+
+### 4.2 Components
+
+A component is a node tree saved to a project's library and placed as
+instances (`lib/src/components.dart`).
+
+* **`ComponentDefinition`** (the library entry, stored outside pages; v1's
+  `CustomComponent` / `PublicComponent`): `id`, `name`, `version`, `size`
+  (the root's design size), `document` (a `LayoutDocument` whose single
+  root is the component's top node, with its nodes, variables and
+  conditions), `preview` (`url`, `blurhash`), `source` (`project`, `page`,
+  `node`: where it was made from) and `createdAt` (ms since the epoch).
+* **`ComponentLink`** (`Node.component`): on the component's main node
+  (`"role": "main"`, v1's `component` marker) and on the top node of each
+  instance (`role` defaults to `instance`), with the component `id` and the
+  `version` it was made from or last updated to; an instance below the
+  definition's version has an update.
+* **An instance is a copy**: the component's nodes with their own ids under
+  the linked top node. Editing them is overriding; updating an instance
+  replaces its nodes with the definition's (keeping the top node's place
+  and sizing), as v1 did.
+* **Settings** (`ComponentLink.settings`, v1's `componentSchema`): what the
+  component lets an instance customise, shown by the editor as a panel.
+  Each is `{label, type, value, targets}`, or a `group` with its own
+  `settings`; `type` names the control (`string`, `number`, `bool`,
+  `color`, `radius`, `spacing`, `options`, `icon`...), `value` is the
+  component's value (what reset restores), and control options (`min`,
+  `max`, `fractionDigits`, `options`, `insetType`...) ride along. A target
+  is a node and a binding path (§5.1), as a condition's `set` entry:
+  `{"node": "label", "path": "props.text"}`. Targets name the ids of the
+  tree they sit in, so a copy remaps them (`ComponentLink.remapped`).
+
+```json
+"card": {"type": "stack", "children": ["label"],
+         "component": {"id": "cmp1", "role": "main", "version": 3, "settings": [
+           {"label": "Title", "type": "string", "value": "Hello",
+            "targets": [{"node": "label", "path": "props.text"}]}]}}
+```
+
+External components (widgets the app builds by a builder id) are a widget
+type, `external`, not components.
 
 ## 5. SDK
 
@@ -255,7 +307,7 @@ effect id for the item with that id, and `*` for every item.
 | `decoration.fills.<paintId>.image.url` | the image | `fill-image-<id>` |
 | `decoration.fills[0].stops[i].color` | `#RRGGBB` keeps the stop's alpha | `fill-stop-<i>` |
 | `decoration.strokes[0]`, `decoration.strokes.<paintId>` | a stroke paint | `stroke`, `stroke-paint-<id>` |
-| `decoration.strokeWidth`, `decoration.radius` | number; radius also `[tl, tr, br, bl]` | `strokeWeight`, `cornerRadius` |
+| `decoration.strokeWidth`, `decoration.radius` | number; radius also `[x, y]` or `[tl, tr, br, bl]` (each n or `[x, y]`) | `strokeWeight`, `cornerRadius` |
 | `decoration.effects.*.visible`, `.<effectId>.visible` | bool | `effectsVisible`, `effect-visible-<id>` |
 | `decoration.effects.*.color` / `.offset.dx` / `.offset.dy` / `.blurRadius` / `.spreadRadius` | shadows | `effectsColor`, `effectsOffsetX`... `shadow-color-<id>` |
 | `props.<prop>` | the widget's prop, by its declaration's codec | per type (`value`, `max`, `spacing`...) |
@@ -280,6 +332,15 @@ imports v2, so both versions coexist without a name clash. Uses:
 * the one-time batch migration of stored projects and published layouts;
 * the parity fixtures: every page in `CodelesslyEditor/test/fixtures/legacy_pages`
   is migrated, and v2 must decode and render it.
+
+A node's component marker (`componentId`, `markerType`, `componentVersion`,
+`componentSchema`) becomes its `component` link (§4.2): each setting's v1
+field paths (`label.characters`, `card.fills.0.color`) become targets on
+binding paths, and one with no v2 path keeps its v1 path (`"v1"`) and is
+reported. `migrateComponent` converts a stored component to a
+`ComponentDefinition`. v1 corner radii keep each corner's x and y; a
+linked elliptical radius (SDK 8.x drew the node's ellipse) becomes the
+node's design size, `[w, h]`.
 
 v1 binding keys (`BaseNode.variables`) become §5.1's paths; a bare v1
 value (`dLen`, which v1 read as `${dLen}`) is written as `${dLen}`, and
