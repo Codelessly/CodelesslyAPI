@@ -44,6 +44,29 @@ void main() {
     expect(style['height'], 16 / 13);
   });
 
+  test('elliptical corners keep their x and y; a linked elliptical radius is the box ellipse', () {
+    Map<String, Object?> rect(String id, Object radius, {double w = 80, double h = 40}) => {
+          'id': id, 'name': id, 'parentID': 'f', 'type': 'rectangle', 'basicBoxLocal': [0, 0, w, h], 'cornerRadius': radius,
+        };
+    final v2 = migrateDocument({
+      'rootNode': {'children': ['c']},
+      'c': {'id': 'c', 'type': 'canvas', 'name': 'Home', 'parentID': 'rootNode', 'basicBoxLocal': [0, 0, 400, 300],
+            'properties': {'bodyId': 'f'}, 'children': ['f']},
+      'f': {'id': 'f', 'name': 'f', 'parentID': 'c', 'type': 'frame', 'basicBoxLocal': [0, 0, 400, 300],
+            'children': ['all', 'one', 'oval', 'round']},
+      // v1's compact forms: [x, y, linked, type] and [tl.x, tl.y, ... br.y, linked, type].
+      'all': rect('all', [16, 8, false, 'elliptical']),
+      'one': rect('one', [16, 8, 4, 4, 0, 0, 0, 0, false, 'circular']),
+      'oval': rect('oval', [5, 5, true, 'elliptical']),
+      'round': rect('round', [6, true, 'circular']),
+    });
+    Object? radius(String id) => ((v2['nodes'] as Map)[id]['decoration'] as Map?)?['radius'];
+    expect(radius('all'), [16, 8]);
+    expect(radius('one'), [[16, 8], 4, 0, 0]);
+    expect(radius('oval'), [80, 40]);
+    expect(radius('round'), 6);
+  });
+
   test('every fixture page migrates; only editor metadata stays unmapped', () {
     if (!fixtures.existsSync()) return markTestSkipped('fixtures not checked out');
     final total = MigrationReport();

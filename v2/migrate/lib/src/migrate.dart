@@ -7,6 +7,7 @@ import 'package:codelessly_api/codelessly_api.dart';
 
 import 'behaviours.dart';
 import 'bindings.dart';
+import 'components.dart';
 import 'logic.dart';
 import 'page_schema.dart';
 import 'types/registry.dart';
@@ -38,6 +39,10 @@ class MigrationReport {
   /// path nor holds `${...}`), dropped, by `type.key`.
   final Map<String, int> ineffectiveBindings = {};
 
+  /// Component setting paths (v1 field paths) with no v2 binding path (kept
+  /// as `v1` on the target), by `type.path`.
+  final Map<String, int> unmappedSettings = {};
+
   void merge(MigrationReport o) {
     nodes += o.nodes;
     o.types.forEach((k, v) => types.update(k, (x) => x + v, ifAbsent: () => v));
@@ -46,6 +51,7 @@ class MigrationReport {
     undecodable.addAll(o.undecodable);
     o.unmappedBindings.forEach((k, v) => unmappedBindings.update(k, (x) => x + v, ifAbsent: () => v));
     o.ineffectiveBindings.forEach((k, v) => ineffectiveBindings.update(k, (x) => x + v, ifAbsent: () => v));
+    o.unmappedSettings.forEach((k, v) => unmappedSettings.update(k, (x) => x + v, ifAbsent: () => v));
   }
 }
 
@@ -125,6 +131,25 @@ List<String> readStrings(Object? v) => [if (v is List) ...v.whereType<String>()]
 num roundNum(num v) {
   final r = (v * 10000).roundToDouble() / 10000;
   return r == r.roundToDouble() && r.abs() < 1e15 ? r.toInt() : r;
+}
+
+/// Whether every corner of [r] is square.
+bool isSquare(CornerRadius r) => [r.tl, r.tr, r.br, r.bl].every((c) => c.x == 0 && c.y == 0);
+
+/// v1 corners as v2 `BorderRadius` JSON: each corner's x and y, as SDK 8.x
+/// drew them (`Radius.elliptical(x, y)`); `8`, `[16, 8]` (every corner
+/// elliptical) or `[tl, tr, br, bl]`, each a number or `[x, y]`. With
+/// [box] (a node's design size), a linked elliptical radius is the node's
+/// own ellipse, as SDK 8.x's `getBorderRadius` drew a node's decoration.
+Object radiusJson(CornerRadius r, {(double, double)? box}) {
+  if (box != null && r.linked && r.type == RadiusType.elliptical) {
+    final (w, h) = box;
+    return w == h ? roundNum(w) : [roundNum(w), roundNum(h)];
+  }
+  Object corner(RadiusModel c) => c.x == c.y ? roundNum(c.x) : [roundNum(c.x), roundNum(c.y)];
+  final corners = [r.tl, r.tr, r.br, r.bl];
+  if (corners.every((c) => c == r.tl)) return corner(r.tl);
+  return [for (final c in corners) corner(c)];
 }
 
 /// The v2 type of a v1 node.
@@ -264,6 +289,7 @@ class V1Node {
     // Behaviours (motion, loops, transitions, ink, states...), before an
     // unported type's own fields go along raw.
     final behaviours = migrateBehaviours(this, states: states);
+    final component = migrateComponentLink(this);
     // Blurs act on whatever the node paints: a type without a box
     // decoration keeps them (only them) in its decoration.
     bool blur(Effect e) => e.type == EffectType.layerBlur || e.type == EffectType.backgroundBlur;
@@ -321,6 +347,7 @@ class V1Node {
     if (reactions is List && reactions.isNotEmpty) out['actions'] = reactions;
 
     out.addAll(behaviours);
+    if (component != null) out['component'] = component;
 
     final leftover = <String, Object?>{
       for (final e in raw.entries)
@@ -613,10 +640,9 @@ class V1Node {
     if (n is CornerMixin) {
       take('cornerRadius');
       final r = (n).cornerRadius;
-      final tl = r.tl.x, tr = r.tr.x, br = r.br.x, bl = r.bl.x;
-      if (tl != 0 || tr != 0 || br != 0 || bl != 0) {
-        d['radius'] = tl == tr && tr == br && br == bl ? roundNum(tl) : [roundNum(tl), roundNum(tr), roundNum(br), roundNum(bl)];
-      }
+      final box = n.basicBoxLocal;
+      final oval = r.linked && r.type == RadiusType.elliptical && box.width > 0 && box.height > 0;
+      if (oval || !isSquare(r)) d['radius'] = radiusJson(r, box: oval ? (box.width, box.height) : null);
     }
     if (n is ClipMixin) {
       take('clipsContent');
