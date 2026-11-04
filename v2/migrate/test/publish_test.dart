@@ -131,7 +131,7 @@ void main() {
       'SW50ZXIgQm9sZA==': {'family': 'Inter', 'weight': 700, 'url': 'https://f/inter-700.ttf'},
       'SW50ZXIgSXRhbGlj': {'family': 'Inter', 'italic': true, 'url': 'https://f/i.ttf'},
     });
-    expect(model['apis'], v1Model['apis']);
+    expect((model['apis'] as Map)['api1'], migrateHttpApi((v1Model['apis'] as Map)['api1'] as Map));
     expect(model['owner'], 'o');
 
     final entries = model['layouts'] as Map;
