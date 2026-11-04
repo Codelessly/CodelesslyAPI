@@ -4,6 +4,7 @@
 // and borders), so v2 can render them with Flutter's widgets alone.
 import 'package:codelessly_api/codelessly_api.dart';
 
+import '../actions.dart';
 import '../migrate.dart';
 
 /// By v1 node type.
@@ -84,7 +85,7 @@ Json? _icon(MultiSourceIconModel icon, {double? size, List<Reaction> actions = c
     'icon': _glyph(icon),
     if ((size ?? icon.size ?? 24) != 24) 'size': roundNum(size ?? icon.size ?? 24),
     if (icon.color case final ColorRGBA c) 'color': _rgba(c),
-    if (actions.isNotEmpty) 'actions': [for (final r in actions) Map<String, Object?>.from(r.toJson())],
+    if (actions.isNotEmpty) 'actions': ActionMigration().reactions(actions),
   };
 }
 
