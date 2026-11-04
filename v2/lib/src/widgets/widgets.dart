@@ -1,7 +1,12 @@
 import '../props.dart';
 import 'canvas.dart';
+import 'collections.dart';
 import 'flex.dart';
 import 'icon.dart';
+import 'indicators.dart';
+import 'inputs.dart';
+import 'material.dart';
+import 'media.dart';
 import 'stack.dart';
 import 'text.dart';
 
@@ -17,6 +22,11 @@ abstract final class Widgets {
     IconProps.spec,
     SpacerProps.spec,
     VarianceProps.spec,
+    ...collectionsSpecs,
+    ...inputsSpecs,
+    ...materialSpecs,
+    ...indicatorsSpecs,
+    ...mediaSpecs,
   ];
 
   static final Map<String, WidgetSpec> _byType = {for (final s in all) s.type: s};
