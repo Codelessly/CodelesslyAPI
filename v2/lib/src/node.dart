@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import 'behaviours.dart';
 import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
@@ -27,6 +28,7 @@ final class Node {
     this.props = Props.empty,
     this.bind = const {},
     this.actions = const [],
+    this.behaviours = Behaviours.none,
     this.extra = const {},
   });
 
@@ -53,6 +55,10 @@ final class Node {
 
   /// Reactions: trigger → actions.
   final List<Json> actions;
+
+  /// Motion, loops, transitions, ink, interaction states, drag and drop...
+  /// (stored flat in the node's JSON, under [Behaviours.keys]).
+  final Behaviours behaviours;
 
   /// Keys this version doesn't model, round-tripped.
   final Json extra;
@@ -91,6 +97,7 @@ final class Node {
     Props? props,
     Map<String, String>? bind,
     List<Json>? actions,
+    Behaviours? behaviours,
     Json? extra,
   }) =>
       Node(
@@ -106,6 +113,7 @@ final class Node {
         props: props ?? this.props,
         bind: bind ?? this.bind,
         actions: actions ?? this.actions,
+        behaviours: behaviours ?? this.behaviours,
         extra: extra ?? this.extra,
       );
 
@@ -113,6 +121,10 @@ final class Node {
     'id', 'type', 'name', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
     'actions',
   };
+
+  /// This node with [patch] (a JSON merge patch over its JSON, as an
+  /// interaction state's) applied.
+  Node patched(Json patch) => Node.fromJson(mergePatch(toJson(), patch), id: id) ?? this;
 
   /// Decodes a node; [id] wins over the JSON's own (the document map key).
   /// Returns null only when there's no type.
@@ -136,7 +148,11 @@ final class Node {
       visible: readBool(m['visible']) ?? true,
       opacity: (readDouble(m['opacity']) ?? 1).clamp(0, 1).toDouble(),
       layout: Layout.fromJson(m['layout']),
-      decoration: spec == null || spec.decorated ? Decoration.fromJson(m['decoration']) : Decoration.none,
+      // A type without a box decoration keeps only its blurs (they act on
+      // whatever it paints).
+      decoration: spec == null || spec.decorated
+          ? Decoration.fromJson(m['decoration'])
+          : Decoration(effects: [...Decoration.fromJson(m['decoration']).effects.where((e) => !e.isShadow)]),
       props: Props.fromJson(spec, m['props']),
       bind: {
         if (bind != null)
@@ -144,7 +160,11 @@ final class Node {
             if (e.value is String) e.key: e.value as String,
       },
       actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
-      extra: {for (final e in m.entries) if (!_keys.contains(e.key)) e.key: e.value},
+      behaviours: Behaviours.fromJson(m),
+      extra: {
+        for (final e in m.entries)
+          if (!_keys.contains(e.key) && !Behaviours.keys.contains(e.key)) e.key: e.value,
+      },
     );
   }
 
@@ -160,6 +180,7 @@ final class Node {
     if (!props.isEmpty) j['props'] = props.toJson(spec);
     if (bind.isNotEmpty) j['bind'] = bind;
     if (actions.isNotEmpty) j['actions'] = actions;
+    behaviours.writeTo(j);
     j.addAll(extra);
     return j;
   }
@@ -180,6 +201,7 @@ final class Node {
           other.props == props &&
           jsonEquality.equals(other.bind, bind) &&
           jsonEquality.equals(other.actions, actions) &&
+          other.behaviours == behaviours &&
           jsonEquality.equals(other.extra, extra);
 
   @override

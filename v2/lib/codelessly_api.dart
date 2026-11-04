@@ -1,6 +1,7 @@
 /// Flutter's widgets and layouts as plain, immutable data.
 library;
 
+export 'src/behaviours.dart';
 export 'src/decoration.dart';
 export 'src/document.dart';
 export 'src/json.dart';

@@ -77,3 +77,5 @@ enum BlendMode {
 enum VerticalDirection { up, down }
 
 enum ScrollPhysicsType { platform, bouncing, clamping, never, rangeMaintaining }
+
+enum TextDirection { ltr, rtl }

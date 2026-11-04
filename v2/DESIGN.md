@@ -75,6 +75,7 @@ Parents are derived from `children` and `slots`; they are never stored.
 | `props` | per type | The widget's own parameters, Flutter names (§4). |
 | `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`). |
 | `actions` | `[Reaction]` | Trigger → action list. |
+| `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviours (§4.1), flat in the node. |
 | `extra` | map | Unknown keys, round-tripped. |
 
 ## 3. Layout
@@ -137,6 +138,39 @@ Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `Gradient`, and enums with Flutter's value names and defaults
 (`MainAxisAlignment.start`, not v1's `center`).
 
+### 4.1 Behaviours
+
+What a node does beyond its layout and paint is the same for every type, so
+it isn't in `props`: it's `Node.behaviours` (`lib/src/behaviours.dart`), stored
+flat in the node's JSON. Every key is optional and sparse.
+
+| Key | Value | Flutter / meaning |
+|---|---|---|
+| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values, an entrance (`enter`, `enterFrom`), a loop, a spin, keyframes. Its values are the rest pose. |
+| `scale` | number | `Transform.scale` about the centre; layout unchanged. |
+| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first. v1's `pulse` and `loopAnimation` both migrate here. |
+| `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
+| `inkWell` | `InkWellStyle` | `InkWell` colours: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
+| `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's v2 JSON (`Node.patched`). |
+| `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
+| `hero`, `flightKey` | tag or `{tag, flight}`; string | `Hero`; flying in from where the node with the same key was. |
+| `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable`, `DragTarget`; a node that follows the pointer (swipe, spring back), or with a `DragTrack` a value control (knob, fader). |
+| `reveal`, `strokePath`, `effectAnimations`, `particles`, `textDirection` | | Scroll into view; a line through points; one-shot effects; confetti; `Directionality`. |
+
+Blur effects (`layerBlur`, `backgroundBlur`) stay in `decoration.effects`, which
+a type without a box decoration (text, icon) keeps for its blurs only: they act
+on whatever the node paints (`ImageFiltered`, `BackdropFilter`).
+
+Durations are whole milliseconds; curves are `AnimationCurve`, Flutter's
+`Curves` names. A behaviour bound to data keeps its binding in `bind` (`scale`,
+`textDirection`, `motion.rotate`, ...).
+
+**Editor state stays out.** v1's `aspectRatioLock` only locks the editor's
+resize handles; it isn't a runtime property (`layout.aspectRatio` is), so the
+API doesn't model it: the migration drops its default (`false`) and leaves
+`true` under the node's `v1` key with the other editor metadata
+(`createdTimestamp`), for the editor to move into its own state.
+
 ## 5. SDK
 
 ```
@@ -148,6 +182,14 @@ codelessly_sdk/lib/src/
   services/  data sources, auth, storage, analytics: interfaces + plugins
   app/       Codelessly, CodelesslyWidget, controllers, navigation
 ```
+
+A node's behaviours are layers of its render chain, outermost first, as SDK
+8.x wrapped a node: margin → constraints → track pose → motion → scale →
+rotation → (hover/press tracking) → loops → opacity → blurs → stroke path →
+content. A design canvas draws them at rest (the motion's values, each loop's
+first frame, a track at its variable's value); a running app
+(`NodeView(interactive: true)`) plays them with tickers in the render objects
+and applies interaction state patches to the nodes they target.
 
 The render layer comes from the prototype's `api_tree.dart`, with v1's
 `SizeFit`, pins and boxes replaced by §3's layout. The layout render objects
