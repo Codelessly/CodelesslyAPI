@@ -135,4 +135,29 @@ void main() {
     expect(c == n, isFalse);
     expect(c.toJson()['props'], {'mainAxisAlignment': 'center'});
   });
+
+  group('props hold their declared type', () {
+    const row = Node(id: 'r', type: 'row');
+
+    test('an int for a double prop is stored as a double', () {
+      // T infers as num here: the declaration decides the stored type.
+      final n = row.withProp(FlexProps.spacing, 31);
+      expect(n.prop(FlexProps.spacing), isA<double>());
+      expect(n.prop(FlexProps.spacing), 31.0);
+      expect(n, row.withProp(FlexProps.spacing, 31.0));
+      expect(n.toJson()['props'], {'spacing': 31});
+    });
+
+    test('a JSON value is decoded; a default or null clears it', () {
+      final n = row.withProp<Object?>(FlexProps.mainAxisAlignment, 'center');
+      expect(n.prop(FlexProps.mainAxisAlignment), MainAxisAlignment.center);
+      expect(n.withProp<Object?>(FlexProps.mainAxisAlignment, 'start').props.isEmpty, isTrue);
+      expect(row.withProp<Object?>(FlexProps.spacing, 4).withProp<Object?>(FlexProps.spacing, null).props.isEmpty, isTrue);
+    });
+
+    test('a value of another type throws', () {
+      expect(() => row.withProp<Object?>(FlexProps.spacing, 'wide'), throwsArgumentError);
+      expect(() => row.withProp<Object?>(FlexProps.mainAxisAlignment, CrossAxisAlignment.end), throwsArgumentError);
+    });
+  });
 }
