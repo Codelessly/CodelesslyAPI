@@ -44,7 +44,7 @@ void main() {
     expect(style['height'], 16 / 13);
   });
 
-  test('every fixture page migrates; only behaviours stay unmapped', () {
+  test('every fixture page migrates; only editor metadata stays unmapped', () {
     if (!fixtures.existsSync()) return markTestSkipped('fixtures not checked out');
     final total = MigrationReport();
     for (final f in fixtures.listSync().whereType<File>().where((f) => f.path.endsWith('.json.gz'))) {
@@ -53,11 +53,8 @@ void main() {
       jsonEncode(v2);
     }
     expect(total.nodes, greaterThan(50000));
-    const behaviours = {
-      'pulse', 'loopAnimation', 'inkWell', 'interactionStates', 'transitionMs', 'transition', 'motion', //
-      'drawScale', 'aspectRatioLock', 'createdTimestamp',
-    };
-    final unexpected = total.unmapped.keys.where((k) => !behaviours.contains(k.split('.').last));
+    const editorMetadata = {'aspectRatioLock', 'createdTimestamp'};
+    final unexpected = total.unmapped.keys.where((k) => !editorMetadata.contains(k.split('.').last));
     expect(unexpected, isEmpty);
   });
 }
