@@ -3,6 +3,7 @@ library;
 
 export 'src/behaviours.dart';
 export 'src/bindings.dart';
+export 'src/components.dart';
 export 'src/conditions.dart';
 export 'src/decoration.dart';
 export 'src/document.dart';
