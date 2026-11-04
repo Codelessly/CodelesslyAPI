@@ -7,6 +7,7 @@ import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
 
+import '../actions.dart';
 import '../migrate.dart';
 
 String _rgba(ColorRGBA c) => V1Node.rgba(c);
@@ -315,7 +316,7 @@ Json _iconAction(IconAppBarActionItem item) => {
       if (item.icon.size case final double s) 'size': _n(s),
       'color': ?_rgbaOrNull(item.icon.color),
       if (item.tooltip case final String t when t.isNotEmpty) 'tooltip': t,
-      if (item.reactions.isNotEmpty) 'actions': [for (final r in item.reactions) r.toJson()],
+      if (item.reactions.isNotEmpty) 'actions': ActionMigration().reactions(item.reactions),
     };
 
 Json _appBarProps(V1Node m) {
@@ -355,7 +356,7 @@ Json _destination(NavigationBarItem item, {bool m2 = false}) => {
       },
       if (item.tooltip case final String t when t != item.label) 'tooltip': t,
       if (m2 && item is M2NavigationBarItem) 'backgroundColor': ?_rgbaOrNull(item.backgroundColor),
-      if (item.reactions.isNotEmpty) 'actions': [for (final r in item.reactions) r.toJson()],
+      if (item.reactions.isNotEmpty) 'actions': ActionMigration().reactions(item.reactions),
     };
 
 Json _navigationBarProps(V1Node m) {

@@ -3,6 +3,8 @@
 import 'package:meta/meta.dart';
 
 import '../json.dart';
+import '../triggers.dart';
+import '../values/paint.dart' show listEquals;
 import '../values/border.dart';
 import '../values/color.dart';
 import '../values/geometry.dart';
@@ -189,7 +191,7 @@ final class IconAction {
   final double? size;
   final Color? color;
   final String? tooltip;
-  final List<Json> actions;
+  final List<Reaction> actions;
 
   static IconAction? fromJson(Object? json) {
     final m = readMap(json);
@@ -199,7 +201,7 @@ final class IconAction {
       size: readDouble(m['size']),
       color: _color(m['color']),
       tooltip: readString(m['tooltip']),
-      actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
+      actions: Reaction.listFromJson(m['actions']),
     );
   }
 
@@ -208,7 +210,7 @@ final class IconAction {
         if (size != null) 'size': writeDouble(size!),
         if (color != null) 'color': color!.toJson(),
         if (tooltip != null) 'tooltip': tooltip,
-        if (actions.isNotEmpty) 'actions': actions,
+        if (actions.isNotEmpty) 'actions': [for (final r in actions) r.toJson()],
       };
 
   @override
@@ -218,7 +220,7 @@ final class IconAction {
       other.size == size &&
       other.color == color &&
       other.tooltip == tooltip &&
-      jsonEquality.equals(other.actions, actions);
+      listEquals(other.actions, actions);
 
   @override
   int get hashCode => Object.hash(jsonEquality.hash(icon), size, color, tooltip);
@@ -249,7 +251,7 @@ final class NavigationDestination {
 
   /// `BottomNavigationBarItem.backgroundColor` (shifting bars).
   final Color? backgroundColor;
-  final List<Json> actions;
+  final List<Reaction> actions;
 
   static NavigationDestination? fromJson(Object? json) {
     final m = readMap(json);
@@ -262,7 +264,7 @@ final class NavigationDestination {
       selectedIconColor: _color(m['selectedIconColor']),
       tooltip: readString(m['tooltip']),
       backgroundColor: _color(m['backgroundColor']),
-      actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
+      actions: Reaction.listFromJson(m['actions']),
     );
   }
 
@@ -274,7 +276,7 @@ final class NavigationDestination {
         if (selectedIconColor != null) 'selectedIconColor': selectedIconColor!.toJson(),
         if (tooltip != null) 'tooltip': tooltip,
         if (backgroundColor != null) 'backgroundColor': backgroundColor!.toJson(),
-        if (actions.isNotEmpty) 'actions': actions,
+        if (actions.isNotEmpty) 'actions': [for (final r in actions) r.toJson()],
       };
 
   @override
@@ -287,7 +289,7 @@ final class NavigationDestination {
       other.selectedIconColor == selectedIconColor &&
       other.tooltip == tooltip &&
       other.backgroundColor == backgroundColor &&
-      jsonEquality.equals(other.actions, actions);
+      listEquals(other.actions, actions);
 
   @override
   int get hashCode => Object.hash(label, jsonEquality.hash(icon), iconColor, tooltip, backgroundColor);
