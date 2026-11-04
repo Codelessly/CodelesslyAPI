@@ -18,6 +18,7 @@ import 'dart:io' show gzip;
 import 'package:codelessly_api/codelessly_api.dart' show ThemeTokens, ColorRGBA;
 
 import 'migrate.dart';
+import 'services.dart';
 
 /// The v1 key a layout too large for one Firestore document keeps its
 /// canvases under, gzipped and base64 encoded, in place of `canvases`.
@@ -219,7 +220,12 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
         for (final e in f.entries)
           e.key: ?migrateFont(e.value),
       },
-    if (_map(v1Model['apis']) case final a when a.isNotEmpty) 'apis': a,
+    // The APIs as v2 `HttpApi`s (`services.apis` of a ServiceConfig).
+    if (_map(v1Model['apis']) case final a when a.isNotEmpty)
+      'apis': {
+        for (final e in a.entries)
+          if (e.value is Map) e.key: ?migrateHttpApi(e.value as Map),
+      },
     if (v1Model['lastUpdated'] is num) 'lastUpdated': (v1Model['lastUpdated'] as num).round(),
     for (final k in privacyKeys)
       if (v1Model.containsKey(k)) k: v1Model[k],
