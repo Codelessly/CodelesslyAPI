@@ -72,8 +72,8 @@ void main() {
   test('value types compare by value and build with Flutter defaults', () {
     expect(InputBorder(), InputBorder.outline);
     expect(InputBorder().toJson(), isEmpty);
-    expect(BorderSide(width: 2), isNot(BorderSide.standard));
-    expect(BorderSide(width: 2).toJson(), {'width': 2});
+    expect(const BorderSide(width: 2), isNot(BorderSide.standard));
+    expect(const BorderSide(width: 2).toJson(), {'width': 2});
     final d = InputDecoration.empty.set(InputDecorationFields.hintText, 'x');
     expect(d, InputDecoration.fromJson({'hintText': 'x'}));
     expect(d.set(InputDecorationFields.hintText, null), InputDecoration.empty);
