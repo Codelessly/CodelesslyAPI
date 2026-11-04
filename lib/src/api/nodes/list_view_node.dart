@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../../../codelessly_api.dart';
@@ -232,7 +233,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   int? itemCount;
 
   /// The forced-size of each item in the list view in the scroll axis.
-  @FlutterProp('itemExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.itemExtent')
+  @FlutterProp(
+    'itemExtent',
+    type: 'number',
+    group: 'Layout',
+    control: 'number',
+    field: 'properties.itemExtent',
+  )
   double? itemExtent;
 
   /// The number of pixels by which to allow pre-rendering of items outside
@@ -307,6 +314,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// this order only breaks ties. Ignored by lists that don't layer their
   /// items.
   bool reversePaintOrder;
+
   /// Whether every item is as thick across the list as the thickest item
   /// beside it, like `crossAxisAlignment: stretch` in a Row or CSS
   /// `align-items: stretch`: equal-height cards in a horizontal list, or
@@ -540,6 +548,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       throw const FormatException(
         'Conflicting centered and positional stack modes',
       );
+    }
+    // `overlay: true` (6.1.0 and before) layered the items in the list's box,
+    // each placed by its position variables: today's positional stack.
+    if (json['overlay'] == true &&
+        json['layout'] == null &&
+        json['stacked'] != true) {
+      return _$ListViewPropertiesFromJson({...json, 'layout': 'stack'});
     }
     return _$ListViewPropertiesFromJson(json);
   }
