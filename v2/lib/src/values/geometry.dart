@@ -45,35 +45,104 @@ final class EdgeInsets {
   String toString() => 'EdgeInsets($left, $top, $right, $bottom)';
 }
 
-/// Flutter's `BorderRadius` with circular corners. JSON: a number (all
-/// corners) or `[topLeft, topRight, bottomRight, bottomLeft]`.
+/// Flutter's `BorderRadius`: four corners, each circular or elliptical.
+/// JSON (sparse, see [fromJson]): `8`, `[16, 8]` or `[8, [16, 8], 0, 0]`.
 @immutable
 final class BorderRadius {
-  const BorderRadius.only({this.topLeft = 0, this.topRight = 0, this.bottomRight = 0, this.bottomLeft = 0});
+  /// Each corner's radius: circular, or elliptical when its `Y` (vertical)
+  /// radius is given and differs.
+  const BorderRadius.only({
+    this.topLeft = 0,
+    this.topRight = 0,
+    this.bottomRight = 0,
+    this.bottomLeft = 0,
+    this._topLeftY,
+    this._topRightY,
+    this._bottomRightY,
+    this._bottomLeftY,
+  });
   const BorderRadius.circular(double r) : this.only(topLeft: r, topRight: r, bottomRight: r, bottomLeft: r);
+
+  /// Every corner elliptical: [x] across, [y] down (Flutter's
+  /// `BorderRadius.all(Radius.elliptical(x, y))`).
+  const BorderRadius.elliptical(double x, double y)
+      : this.only(
+          topLeft: x,
+          topRight: x,
+          bottomRight: x,
+          bottomLeft: x,
+          topLeftY: y,
+          topRightY: y,
+          bottomRightY: y,
+          bottomLeftY: y,
+        );
 
   static const BorderRadius zero = BorderRadius.circular(0);
 
+  /// Each corner's horizontal radius: its radius, when it's circular.
   final double topLeft, topRight, bottomRight, bottomLeft;
+  final double? _topLeftY, _topRightY, _bottomRightY, _bottomLeftY;
 
-  bool get isZero => topLeft == 0 && topRight == 0 && bottomRight == 0 && bottomLeft == 0;
-  bool get isUniform => topLeft == topRight && topRight == bottomRight && bottomRight == bottomLeft;
+  /// Each corner's vertical radius (its horizontal one when circular).
+  double get topLeftY => _topLeftY ?? topLeft;
+  double get topRightY => _topRightY ?? topRight;
+  double get bottomRightY => _bottomRightY ?? bottomRight;
+  double get bottomLeftY => _bottomLeftY ?? bottomLeft;
 
+  /// Corners as `(x, y)`, clockwise from the top left.
+  List<(double, double)> get _corners => [
+        (topLeft, topLeftY),
+        (topRight, topRightY),
+        (bottomRight, bottomRightY),
+        (bottomLeft, bottomLeftY),
+      ];
+
+  bool get isZero => _corners.every((c) => c.$1 == 0 && c.$2 == 0);
+  bool get isUniform {
+    final c = _corners;
+    return c[0] == c[1] && c[1] == c[2] && c[2] == c[3];
+  }
+
+  /// Every corner is circular.
+  bool get isCircular => _corners.every((c) => c.$1 == c.$2);
+
+  /// JSON: a number (every corner circular), `[x, y]` (every corner
+  /// elliptical), or `[topLeft, topRight, bottomRight, bottomLeft]`, each a
+  /// number or `[x, y]`.
   static BorderRadius fromJson(Object? json) {
     if (readDouble(json) case final double v) return BorderRadius.circular(v);
     final l = readList(json);
+    if (l != null && l.length == 2) {
+      final x = readDouble(l[0]), y = readDouble(l[1]);
+      return x == null || y == null ? zero : BorderRadius.elliptical(x, y);
+    }
     if (l == null || l.length != 4) return zero;
+    (double, double) corner(Object? j) {
+      if (readDouble(j) case final double v) return (v, v);
+      final c = readList(j);
+      if (c == null || c.length != 2) return (0, 0);
+      return (readDouble(c[0]) ?? 0, readDouble(c[1]) ?? 0);
+    }
+
+    final [tl, tr, br, bl] = [for (final c in l) corner(c)];
     return BorderRadius.only(
-      topLeft: readDouble(l[0]) ?? 0,
-      topRight: readDouble(l[1]) ?? 0,
-      bottomRight: readDouble(l[2]) ?? 0,
-      bottomLeft: readDouble(l[3]) ?? 0,
+      topLeft: tl.$1,
+      topRight: tr.$1,
+      bottomRight: br.$1,
+      bottomLeft: bl.$1,
+      topLeftY: tl.$2,
+      topRightY: tr.$2,
+      bottomRightY: br.$2,
+      bottomLeftY: bl.$2,
     );
   }
 
-  Object toJson() => isUniform
-      ? writeDouble(topLeft)
-      : [writeDouble(topLeft), writeDouble(topRight), writeDouble(bottomRight), writeDouble(bottomLeft)];
+  Object toJson() {
+    Object corner((double, double) c) => c.$1 == c.$2 ? writeDouble(c.$1) : [writeDouble(c.$1), writeDouble(c.$2)];
+    final c = _corners;
+    if (isUniform) return corner(c[0]);
+    return [for (final x in c) corner(x)];
+  }
 
   @override
   bool operator ==(Object other) =>
@@ -81,10 +150,18 @@ final class BorderRadius {
       other.topLeft == topLeft &&
       other.topRight == topRight &&
       other.bottomRight == bottomRight &&
-      other.bottomLeft == bottomLeft;
+      other.bottomLeft == bottomLeft &&
+      other.topLeftY == topLeftY &&
+      other.topRightY == topRightY &&
+      other.bottomRightY == bottomRightY &&
+      other.bottomLeftY == bottomLeftY;
 
   @override
-  int get hashCode => Object.hash(topLeft, topRight, bottomRight, bottomLeft);
+  int get hashCode =>
+      Object.hash(topLeft, topRight, bottomRight, bottomLeft, topLeftY, topRightY, bottomRightY, bottomLeftY);
+
+  @override
+  String toString() => 'BorderRadius(${toJson()})';
 }
 
 /// Flutter's `Alignment`: -1 (start) to 1 (end) per axis. JSON: `[x, y]`.

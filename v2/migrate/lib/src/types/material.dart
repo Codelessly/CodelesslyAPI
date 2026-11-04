@@ -49,11 +49,9 @@ Json shapeOf(CShapeBorder shape, CornerRadius radius, {ColorRGBA? borderColor, d
     CShapeBorder.roundedSuperellipse => 'roundedSuperellipse',
   };
   final rounded = shape != CShapeBorder.rectangle && shape != CShapeBorder.circle && shape != CShapeBorder.stadium;
-  final tl = radius.tl.x, tr = radius.tr.x, br = radius.br.x, bl = radius.bl.x;
   return {
     'type': ?type,
-    if (rounded && (tl != 0 || tr != 0 || br != 0 || bl != 0))
-      'borderRadius': tl == tr && tr == br && br == bl ? _n(tl) : [_n(tl), _n(tr), _n(br), _n(bl)],
+    if (rounded && !isSquare(radius)) 'borderRadius': radiusJson(radius),
     if (borderColor != null && borderWidth != null && borderWidth > 0)
       'side': {'color': _rgba(borderColor), if (borderWidth != 1) 'width': _n(borderWidth)},
   };
