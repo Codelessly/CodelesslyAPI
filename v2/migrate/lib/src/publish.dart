@@ -221,7 +221,7 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
     if (_map(v1Model['fonts']) case final f when f.isNotEmpty)
       'fonts': {
         for (final e in f.entries)
-          if (migrateFont(e.value) case final font?) e.key: font,
+          e.key: ?migrateFont(e.value),
       },
     if (_map(v1Model['apis']) case final a when a.isNotEmpty) 'apis': a,
     if (v1Model['lastUpdated'] is num) 'lastUpdated': (v1Model['lastUpdated'] as num).round(),

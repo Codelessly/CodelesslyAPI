@@ -313,7 +313,13 @@ final class PublishModel {
     final byId = resolveLayoutId(screen);
     if (byId != null) return byId;
     String normalize(String v) => v.toLowerCase().replaceAll(RegExp(r'[\s_-]+'), '');
-    final wanted = normalize(Uri.decodeComponent(screen));
+    String decoded;
+    try {
+      decoded = Uri.decodeComponent(screen);
+    } on ArgumentError {
+      decoded = screen;
+    }
+    final wanted = normalize(decoded);
     for (final l in layouts.values) {
       if (disabledLayouts.contains(l.id)) continue;
       for (final c in l.canvases) {
