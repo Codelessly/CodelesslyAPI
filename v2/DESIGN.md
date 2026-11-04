@@ -73,7 +73,7 @@ Parents are derived from `children` and `slots`; they are never stored.
 | `layout` | `Layout` | How the node sizes itself and sits in its parent (§3). |
 | `decoration` | `Decoration` | Fills, strokes, radius, shadows, blurs, clip (box types). |
 | `props` | per type | The widget's own parameters, Flutter names (§4). |
-| `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`). |
+| `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`; paths §5.1). |
 | `actions` | `[Reaction]` | Trigger → action list. |
 | `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviours (§4.1), flat in the node. |
 | `extra` | map | Unknown keys, round-tripped. |
@@ -196,6 +196,81 @@ The render layer comes from the prototype's `api_tree.dart`, with v1's
 (`RenderFitBox`, `RenderCodelesslyFlex`, `RenderFreeformLayout`,
 `RenderHugCross`) are the SDK's own, moved over unchanged in behaviour.
 
+### 5.1 Variables, conditions and bindings
+
+**Variables** (`Variable`, `lib/src/variables.dart`): a name, a `VariableType`
+(`integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`,
+`choice`) and a default `value` held as its type holds it (JSON-native:
+`3`, `4.5`, `true`, `"#FFFF0000"`, `[...]`, `{...}`), or a `formula` (what goes
+in `${= ...}`) that computes it; a formula with `parameters` is a function
+formulas call by name. Choice variables list their `options`. v1 stored
+every value as text and a formula as a `${= ...}` value: the migration
+types them once.
+
+**Conditions** (`Condition`, `lib/src/conditions.dart`): an ordered list of
+branches, `if` / `else if` / `else`. A branch has a `when` (`Predicate`: a
+`Comparison` `{left, op, right}` with v1's loose operators, or a `Junction`
+`{"and"|"or": [...]}`; none for `else`) and `set`, the node properties it
+gives values (`{node, path, value}`; a string value is an expression). For a
+property, the first branch that holds and sets it wins; conditions win over
+the node's own binding, which wins over the node's value (v1's precedence).
+
+**Where they live**: per screen, in the layout document next to the nodes
+(read typed through `LayoutLogic` / `doc.logic`):
+
+```json
+"variables":  {"canvas-a": [{"name": "count", "type": "integer", "value": 0}]},
+"conditions": {"canvas-a": [{"id": "c1", "branches": [
+  {"when": {"left": "${count}", "op": "greaterThan", "right": "5"},
+   "set": [{"node": "badge", "path": "visible", "value": true}]},
+  {"set": [{"node": "badge", "path": "visible", "value": false}]}]}]}
+```
+
+**Expressions**: `${path}` reads a value (`user.name`, `cart[0].qty`,
+`title.length`, `pal[item.kind]`), `${= formula}` computes one (SDK 8.x's
+formula language, unchanged). A binding that is exactly one of them gives
+the value as is (a list stays a list); any other text with `${...}` is text.
+A text node's own `props.text` may hold `${...}`: it is interpolated run by
+run. Names come from scopes: the screen's variables, the list item (`item`,
+`index`, `parent`), and what the app provides (`route`, `screen`,
+`storage`, `auth`, `data`...).
+
+**Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/bindings.dart`):
+a path into the node's v2 JSON, with `[i]` for a list index, a paint or
+effect id for the item with that id, and `*` for every item.
+
+| Path | Value | v1 key |
+|---|---|---|
+| `visible` | bool; false collapses the node (no space, no gap) | `visible` |
+| `opacity` | 0–1 | `opacity` |
+| `layout.width`, `layout.height` | a number (design size, fit kept) or `{"fill": n}`... | `width`, `height` |
+| `layout.flex` | int ≥ 1 | `flex` |
+| `layout.rotation` | degrees | `rotation`, `rotationDegrees` |
+| `layout.margin`, `layout.padding` | n, `[h, v]`, `[l, t, r, b]` or `{top: n}` | `margin`, `padding` |
+| `layout.x`, `layout.y` | distance from the start, or a position map | `x`, `y` |
+| `layout.<field>` | any other layout field, as its JSON | |
+| `decoration.fills[0]` | a color, image URL or paint: the first fill | `fill` (box types) |
+| `decoration.fills.<paintId>` | the same, for that paint | `fill-<id>` |
+| `decoration.fills.<paintId>.color` | a color (opacity kept) | |
+| `decoration.fills.<paintId>.image.url` | the image | `fill-image-<id>` |
+| `decoration.fills[0].stops[i].color` | `#RRGGBB` keeps the stop's alpha | `fill-stop-<i>` |
+| `decoration.strokes[0]`, `decoration.strokes.<paintId>` | a stroke paint | `stroke`, `stroke-paint-<id>` |
+| `decoration.strokeWidth`, `decoration.radius` | number; radius also `[tl, tr, br, bl]` | `strokeWeight`, `cornerRadius` |
+| `decoration.effects.*.visible`, `.<effectId>.visible` | bool | `effectsVisible`, `effect-visible-<id>` |
+| `decoration.effects.*.color` / `.offset.dx` / `.offset.dy` / `.blurRadius` / `.spreadRadius` | shadows | `effectsColor`, `effectsOffsetX`... `shadow-color-<id>` |
+| `props.<prop>` | the widget's prop, by its declaration's codec | per type (`value`, `max`, `spacing`...) |
+| `props.<prop>.<field>` | a field of a structured prop | `fillColor` → `props.decoration.fillColor` |
+| `props.style.<field>` (text) | the base style and every run's | `fill`/`textColor` → `props.style.color`, `fontSize`, `fontWeight`... |
+| `data` | the items a list, grid or page view builds one per (its item count follows) | `data` |
+| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1) | `drawScale`, `layoutDirection`, `motion.*` |
+| `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet | `selected`, `semanticLabel`, `node_enabled` |
+
+Values are read loosely, as v1 read them (`"12"` is a number, `1` true,
+`"#F00F00"` a color); a value that can't be read leaves the property as it
+was. The SDK compiles a node's bindings once (`NodeBindings`) and applies
+them on the typed node (no JSON round trip for the common paths), watching
+only the names each binding reads.
+
 ## 6. Migration from v1
 
 `v2/migrate` is a separate package. It depends on the v1 API, so it can use
@@ -205,6 +280,14 @@ imports v2, so both versions coexist without a name clash. Uses:
 * the one-time batch migration of stored projects and published layouts;
 * the parity fixtures: every page in `CodelesslyEditor/test/fixtures/legacy_pages`
   is migrated, and v2 must decode and render it.
+
+v1 binding keys (`BaseNode.variables`) become §5.1's paths; a bare v1
+value (`dLen`, which v1 read as `${dLen}`) is written as `${dLen}`, and
+one that read nothing in v1 (`74.2`) is dropped. A layout's v1 canvas
+variables and conditions (the publish model's `SDKLayoutVariables` /
+`SDKLayoutConditions`) are passed to `migrateDocument(variables:,
+conditions:)` and become its `variables` and `conditions` keys; each
+condition's set-value actions become `set` entries on binding paths.
 
 ## 7. Proving it: parity
 

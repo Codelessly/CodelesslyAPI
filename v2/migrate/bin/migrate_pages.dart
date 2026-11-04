@@ -21,7 +21,7 @@ void main(List<String> args) {
     final doc = ((json['document'] as Map?) ?? json).cast<String, Object?>();
     final name = f.uri.pathSegments.last.replaceAll('.json.gz', '');
     final report = MigrationReport();
-    final v2 = migrateDocument(doc, id: name, report: report);
+    final v2 = migrateDocument(doc, id: name, report: report, variables: json['variables'], conditions: json['conditions']);
     total.merge(report);
     // Atomically: another process may be reading the fixtures.
     final tmp = File('${out.path}/.$name.json.gz.$pid')..writeAsBytesSync(gzip.encode(utf8.encode(jsonEncode(v2))));
@@ -33,6 +33,11 @@ void main(List<String> args) {
   final unmapped = total.unmapped.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
   stdout.writeln('unmapped v1 keys (${unmapped.length}):');
   for (final e in unmapped.take(60)) {
+    stdout.writeln('  ${e.key}: ${e.value}');
+  }
+  final bindings = total.unmappedBindings.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+  if (bindings.isNotEmpty) stdout.writeln('unmapped v1 binding keys (${bindings.length}):');
+  for (final e in bindings.take(60)) {
     stdout.writeln('  ${e.key}: ${e.value}');
   }
 }
