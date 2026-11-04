@@ -75,33 +75,48 @@ final class AxisSize {
 /// * `{"start": d}`: d from the start edge;
 /// * `{"end": d}`: d from the end edge;
 /// * `{"start": a, "end": b}`: stretched between the two;
-/// * `{"align": t}`: aligned, -1 (start) to 1 (end), keeping its share of
-///   the free space as the parent resizes.
+/// * `{"align": t}`: aligned like `Align`, -1 (start) to 1 (end), by its
+///   laid-out size;
+/// * `{"relative": d}`: d from the start at design size, keeping its share
+///   of the free space (measured with the design sizes) as the parent
+///   resizes. A text that lays out wider than designed stays where it was
+///   put, which `align` wouldn't do.
 @immutable
 final class AxisPosition {
   const AxisPosition.start(double this.start)
       : end = null,
-        align = null;
+        align = null,
+        relative = null;
   const AxisPosition.end(double this.end)
       : start = null,
-        align = null;
-  const AxisPosition.stretch(double this.start, double this.end) : align = null;
+        align = null,
+        relative = null;
+  const AxisPosition.stretch(double this.start, double this.end)
+      : align = null,
+        relative = null;
   const AxisPosition.align(double this.align)
       : start = null,
-        end = null;
+        end = null,
+        relative = null;
+  const AxisPosition.relative(double this.relative)
+      : start = null,
+        end = null,
+        align = null;
 
   static const AxisPosition zero = AxisPosition.start(0);
 
   final double? start;
   final double? end;
   final double? align;
+  final double? relative;
 
   bool get isStretch => start != null && end != null;
 
   static AxisPosition fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return zero;
-    if (readDouble(m['align']) case final double a) return AxisPosition.align(a.clamp(-1, 1).toDouble());
+    if (readDouble(m['align']) case final double a) return AxisPosition.align(a);
+    if (readDouble(m['relative']) case final double r) return AxisPosition.relative(r);
     final s = readDouble(m['start']), e = readDouble(m['end']);
     if (s != null && e != null) return AxisPosition.stretch(s, e);
     if (e != null) return AxisPosition.end(e);
@@ -112,14 +127,19 @@ final class AxisPosition {
         if (start != null) 'start': writeDouble(start!),
         if (end != null) 'end': writeDouble(end!),
         if (align != null) 'align': writeDouble(align!),
+        if (relative != null) 'relative': writeDouble(relative!),
       };
 
   @override
   bool operator ==(Object other) =>
-      other is AxisPosition && other.start == start && other.end == end && other.align == align;
+      other is AxisPosition &&
+      other.start == start &&
+      other.end == end &&
+      other.align == align &&
+      other.relative == relative;
 
   @override
-  int get hashCode => Object.hash(start, end, align);
+  int get hashCode => Object.hash(start, end, align, relative);
 
   @override
   String toString() => 'AxisPosition${toJson()}';

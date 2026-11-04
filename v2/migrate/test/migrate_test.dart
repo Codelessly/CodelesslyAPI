@@ -32,8 +32,8 @@ void main() {
     expect(nodes['f']['layout']['padding'], 10);
     final r = nodes['r'];
     expect(r['type'], 'row');
-    // v1's default positioning keeps the share of the free space: Align.
-    expect(r['layout'], {'width': {'hug': 200}, 'height': 50, 'x': {'align': -0.7778}, 'y': {'align': -0.7391}});
+    // v1's default positioning keeps its share of the free space.
+    expect(r['layout'], {'width': {'hug': 200}, 'height': 50, 'x': {'relative': 20}, 'y': {'relative': 30}});
     expect(r['props'], {'mainAxisAlignment': 'center', 'spacing': 8});
     expect(r['decoration']['radius'], 4);
     expect(r['decoration']['fills'], [{'id': 'p1', 'color': '#FF2FD17A'}]);

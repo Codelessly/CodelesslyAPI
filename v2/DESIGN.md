@@ -103,8 +103,10 @@ intent, in Flutter's terms, and nothing the renderer computes.
   (Flexible, loose) or `hug` (size to content). The number is the design size:
   the size used for `fixed`, and the fallback when a mode can't apply.
 * **Freeform position per axis** follows `Positioned`/`Align`: `{"start": d}`,
-  `{"end": d}`, `{"start": a, "end": b}` (stretch between) or
-  `{"align": -1..1}`. These are distances in the parent's padded box. The
+  `{"end": d}`, `{"start": a, "end": b}` (stretch between), `{"align": -1..1}`
+  (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
+  design size, keeping its share of the free space as the parent resizes).
+  These are distances in the parent's padded box, to the child's margin box. The
   migration resolves v1's pins, positioning mode and stored boxes into exactly
   one of these, once.
 * `flex` and `align` apply under row/column parents; `x` and `y` apply under
