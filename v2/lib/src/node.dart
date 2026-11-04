@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'behaviours.dart';
+import 'bindings.dart' show BindPaths;
 import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
@@ -49,8 +50,9 @@ final class Node {
   final Decoration decoration;
   final Props props;
 
-  /// Bound properties: a property path (`visible`, `props.text`,
-  /// `layout.width`, `fill-<paintId>`) → an expression (`${user.name}`).
+  /// Bound properties: a binding path (`visible`, `props.text`,
+  /// `layout.width`, `decoration.fills.<paintId>`; see [BindPaths] and
+  /// DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`).
   final Map<String, String> bind;
 
   /// Reactions: trigger → actions.
