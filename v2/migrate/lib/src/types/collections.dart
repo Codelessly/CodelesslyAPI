@@ -302,7 +302,6 @@ Json _expansionTile(V1Node m) {
     if (!p.showTrailingIcon) 'showTrailingIcon': false,
     if (p.shape != null) 'shape': p.shape!.name,
     if (p.collapsedShape != null) 'collapsedShape': p.collapsedShape!.name,
-    if (r.tl.x != 0 || r.tr.x != 0 || r.br.x != 0 || r.bl.x != 0)
-      'radius': [_r(r.tl.x), _r(r.tr.x), _r(r.br.x), _r(r.bl.x)],
+    if (!isSquare(r)) 'radius': radiusJson(r),
   };
 }
