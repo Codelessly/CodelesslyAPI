@@ -523,15 +523,41 @@ abstract final class BindValue {
     return null;
   }
 
-  /// A number (every corner) or `[topLeft, topRight, bottomRight,
-  /// bottomLeft]`.
+  /// A number (every corner), `[x, y]` (every corner elliptical) or
+  /// `[topLeft, topRight, bottomRight, bottomLeft]`, each a number or
+  /// `[x, y]`.
   static BorderRadius? radius(Object? v) {
-    if (number(v) case final double d) return BorderRadius.circular(d < 0 ? 0 : d);
+    double? r(Object? v) => switch (number(v)) {
+          final double d => d < 0 ? 0.0 : d,
+          null => null,
+        };
+    (double, double)? corner(Object? v) {
+      if (r(v) case final double d) return (d, d);
+      final l = readList(v);
+      if (l == null || l.length != 2) return null;
+      final x = r(l[0]), y = r(l[1]);
+      return x == null || y == null ? null : (x, y);
+    }
+
+    if (r(v) case final double d) return BorderRadius.circular(d);
     final l = readList(v);
+    if (l != null && l.length == 2) {
+      final c = corner(l);
+      return c == null ? null : BorderRadius.elliptical(c.$1, c.$2);
+    }
     if (l == null || l.length != 4) return null;
-    final n = [...l.map(number)];
-    if (n.any((x) => x == null)) return null;
-    return BorderRadius.only(topLeft: n[0]!, topRight: n[1]!, bottomRight: n[2]!, bottomLeft: n[3]!);
+    final c = [...l.map(corner)];
+    if (c.any((x) => x == null)) return null;
+    return BorderRadius.only(
+      topLeft: c[0]!.$1,
+      topRight: c[1]!.$1,
+      bottomRight: c[2]!.$1,
+      bottomLeft: c[3]!.$1,
+      topLeftY: c[0]!.$2,
+      topRightY: c[1]!.$2,
+      bottomRightY: c[2]!.$2,
+      bottomLeftY: c[3]!.$2,
+    );
   }
 
   /// 100–900, `w700`, `bold`, `normal`.

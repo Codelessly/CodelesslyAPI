@@ -160,4 +160,28 @@ void main() {
       expect(() => row.withProp<Object?>(FlexProps.mainAxisAlignment, CrossAxisAlignment.end), throwsArgumentError);
     });
   });
+
+  test('border radius: circular or elliptical corners, sparse JSON', () {
+    for (final (json, radius) in [
+      (8, const BorderRadius.circular(8)),
+      ([16, 8], const BorderRadius.elliptical(16, 8)),
+      ([1, 2, 3, 4], const BorderRadius.only(topLeft: 1, topRight: 2, bottomRight: 3, bottomLeft: 4)),
+      ([
+        [16, 8],
+        4,
+        0,
+        0
+      ], const BorderRadius.only(topLeft: 16, topLeftY: 8, topRight: 4)),
+    ]) {
+      expect(BorderRadius.fromJson(json), radius, reason: '$json');
+      expect(radius.toJson(), json);
+    }
+    // A Y equal to X is circular, given or not.
+    expect(const BorderRadius.only(topLeft: 4, topLeftY: 4), const BorderRadius.only(topLeft: 4));
+    expect(const BorderRadius.elliptical(16, 8).isCircular, isFalse);
+    expect(const BorderRadius.elliptical(16, 8).topRightY, 8);
+    expect(BorderRadius.fromJson([1, 'x']), BorderRadius.zero);
+    expect(BindPaths.apply(const Node(id: 'b', type: 'box'), 'decoration.radius', [12, 6]).decoration.radius,
+        const BorderRadius.elliptical(12, 6));
+  });
 }

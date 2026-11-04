@@ -32,10 +32,7 @@ void _put(Json p, String key, Object? v, [Object? def]) {
   p[key] = v is double ? roundNum(v) : v;
 }
 
-Object _radius(CornerRadius r) {
-  final tl = r.tl.x, tr = r.tr.x, br = r.br.x, bl = r.bl.x;
-  return tl == tr && tr == br && br == bl ? roundNum(tl) : [roundNum(tl), roundNum(tr), roundNum(br), roundNum(bl)];
-}
+Object _radius(CornerRadius r) => radiusJson(r);
 
 Json? _constraints(BoxConstraintsModel c) => c.isEmpty
     ? null
