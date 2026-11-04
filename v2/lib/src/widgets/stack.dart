@@ -1,4 +1,5 @@
 import '../props.dart';
+import '../values/enums.dart';
 import 'scroll.dart';
 
 /// A freeform container: children placed by `layout.x`/`layout.y`
@@ -12,7 +13,14 @@ abstract final class StackProps {
 abstract final class BoxProps {
   /// An SVG path drawn instead of the rectangle (shapes, vectors).
   static const path = PropDef<String>('path', Codecs.string, '');
-  static const spec = WidgetSpec('box', props: [path], decorated: true, doc: 'Flutter `Container`.');
+
+  /// How the path's segments meet when stroked (`Paint.strokeJoin`).
+  static const strokeJoin = PropDef<StrokeJoin>('strokeJoin', EnumCodec(StrokeJoin.values), StrokeJoin.miter);
+
+  /// The miter limit of [StrokeJoin.miter] corners (`Paint.strokeMiterLimit`).
+  static const strokeMiterLimit = PropDef<double>('strokeMiterLimit', Codecs.positive, 4);
+  static const spec =
+      WidgetSpec('box', props: [path, strokeJoin, strokeMiterLimit], decorated: true, doc: 'Flutter `Container`.');
 }
 
 /// Flexible empty space in a row/column (`Spacer`), or a fixed gap.
