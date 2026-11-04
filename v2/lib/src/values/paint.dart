@@ -40,6 +40,10 @@ final class ImagePaint {
     this.repeat = ImageRepeat.noRepeat,
     this.scale = 1,
     this.tint,
+    this.flipX = false,
+    this.flipY = false,
+    this.saturation = 1,
+    this.rect,
     this.extra = const {},
   });
 
@@ -48,24 +52,47 @@ final class ImagePaint {
   final BoxFit fit;
   final Alignment alignment;
   final ImageRepeat repeat;
+
+  /// The image's pixel scale (`Image.scale`): 2 draws it at half its size.
   final double scale;
+
+  /// Draws every pixel in this color, keeping its alpha
+  /// (`ColorFilter.mode(tint, BlendMode.srcIn)`).
   final Color? tint;
 
-  /// Image settings not modeled yet (crop, transform), round-tripped.
+  /// Mirrors the image horizontally / vertically.
+  final bool flipX, flipY;
+
+  /// Color saturation: 1 keeps the colors, 0 is greyscale.
+  final double saturation;
+
+  /// Where the image is drawn, `[left, top, width, height]` in the box at
+  /// its design size, instead of by [fit] and [alignment] (an image placed
+  /// by hand). Null: placed by [fit] and [alignment].
+  final List<double>? rect;
+
+  /// Image settings for editors (crop, source size, names), round-tripped.
   final Json extra;
 
-  static const _keys = {'url', 'assetId', 'fit', 'alignment', 'repeat', 'scale', 'tint'};
+  static const _keys = {
+    'url', 'assetId', 'fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY', 'saturation', 'rect', //
+  };
 
   static ImagePaint fromJson(Object? json) {
     final m = readMap(json) ?? const {};
+    final rect = readList(m['rect'])?.map(readDouble).toList();
     return ImagePaint(
       url: readString(m['url']),
       assetId: readString(m['assetId']),
       fit: readEnum(BoxFit.values, m['fit'], BoxFit.cover),
       alignment: Alignment.fromJson(m['alignment']) ?? Alignment.center,
       repeat: readEnum(ImageRepeat.values, m['repeat'], ImageRepeat.noRepeat),
-      scale: readDouble(m['scale']) ?? 1,
+      scale: (readDouble(m['scale']) ?? 1).abs(),
       tint: Color.fromJson(m['tint']),
+      flipX: readBool(m['flipX']) ?? false,
+      flipY: readBool(m['flipY']) ?? false,
+      saturation: (readDouble(m['saturation']) ?? 1).clamp(0, double.infinity).toDouble(),
+      rect: rect != null && rect.length == 4 && rect.every((v) => v != null) ? rect.cast<double>() : null,
       extra: {for (final e in m.entries) if (!_keys.contains(e.key)) e.key: e.value},
     );
   }
@@ -79,6 +106,10 @@ final class ImagePaint {
     put(j, 'repeat', repeat.name, ImageRepeat.noRepeat.name);
     put(j, 'scale', writeDouble(scale), 1);
     put(j, 'tint', tint?.toJson());
+    put(j, 'flipX', flipX, false);
+    put(j, 'flipY', flipY, false);
+    put(j, 'saturation', writeDouble(saturation), 1);
+    put(j, 'rect', rect?.map(writeDouble).toList());
     return j;
   }
 
@@ -92,10 +123,14 @@ final class ImagePaint {
       other.repeat == repeat &&
       other.scale == scale &&
       other.tint == tint &&
+      other.flipX == flipX &&
+      other.flipY == flipY &&
+      other.saturation == saturation &&
+      _listEq(other.rect, rect) &&
       jsonEquality.equals(other.extra, extra);
 
   @override
-  int get hashCode => Object.hash(url, assetId, fit, alignment, repeat, scale, tint);
+  int get hashCode => Object.hash(url, assetId, fit, alignment, repeat, scale, tint, flipX, flipY, saturation);
 }
 
 /// A fill or stroke paint: a solid color, a gradient or an image. Several
