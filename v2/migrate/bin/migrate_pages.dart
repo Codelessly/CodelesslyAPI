@@ -23,7 +23,9 @@ void main(List<String> args) {
     final report = MigrationReport();
     final v2 = migrateDocument(doc, id: name, report: report);
     total.merge(report);
-    File('${out.path}/$name.json.gz').writeAsBytesSync(gzip.encode(utf8.encode(jsonEncode(v2))));
+    // Atomically: another process may be reading the fixtures.
+    final tmp = File('${out.path}/.$name.json.gz.$pid')..writeAsBytesSync(gzip.encode(utf8.encode(jsonEncode(v2))));
+    tmp.renameSync('${out.path}/$name.json.gz');
   }
   stdout.writeln('${files.length} pages, ${total.nodes} nodes');
   stdout.writeln('types: ${total.types}');

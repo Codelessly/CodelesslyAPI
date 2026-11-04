@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:codelessly_api/codelessly_api.dart';
 
 import 'page_schema.dart';
+import 'types/registry.dart';
 
 typedef Json = Map<String, Object?>;
 
@@ -76,7 +77,7 @@ Json migrateDocument(Map<String, Object?> v1Document, {String id = '', Migration
   final out = <String, Object?>{};
   for (final n in nodes.values) {
     final parent = nodes[parents[n.id]];
-    out[n.id] = _NodeMigration(n, parent, nodes, rep).run();
+    out[n.id] = V1Node(n, parent, nodes, rep).run();
   }
   return {'schema': 2, if (id.isNotEmpty) 'id': id, 'roots': roots, 'nodes': out};
 }
@@ -91,7 +92,8 @@ List<String> ownedChildren(BaseNode node) {
 
 List<String> readStrings(Object? v) => [if (v is List) ...v.whereType<String>()];
 
-num _d(num v) {
+/// [v] rounded for storage (4 decimals; integral values as ints).
+num roundNum(num v) {
   final r = (v * 10000).roundToDouble() / 10000;
   return r == r.roundToDouble() && r.abs() < 1e15 ? r.toInt() : r;
 }
@@ -110,10 +112,52 @@ String v2TypeOf(BaseNode n) => switch (n) {
 
 /// Whether [parent] lays its children out freeform (stack semantics).
 bool isFreeformParent(BaseNode parent) =>
-    parent is FrameNode || parent is FreeformPlaceholderNode || parent is RectangleNode || parent is VarianceNode;
+    parent is FrameNode ||
+    parent is FreeformPlaceholderNode ||
+    parent is RectangleNode ||
+    parent is VarianceNode ||
+    (typeMigrations[parent.type]?.freeformChildren ?? false);
 
-class _NodeMigration {
-  _NodeMigration(this.n, this.parent, this.nodes, this.report) : raw = Map<String, Object?>.from(n.toJson());
+/// How one v1 node type (its `type`) migrates. Registered per widget group
+/// in lib/src/types.
+class TypeMigration {
+  const TypeMigration({
+    required this.type,
+    required this.props,
+    this.decorated = false,
+    this.children,
+    this.slots,
+    this.freeformChildren = false,
+    this.flexChildren = false,
+  });
+
+  /// The v2 type of a node of this v1 type.
+  final String Function(BaseNode n) type;
+
+  /// The v2 props; read v1 values with [V1Node.take] so they aren't left
+  /// under `v1`.
+  final Json Function(V1Node m) props;
+
+  /// Has a box decoration (fills, strokes, radius, effects) in v2.
+  final bool decorated;
+
+  /// The v2 ordered children; default the v1 children.
+  final List<String> Function(V1Node m)? children;
+
+  /// The v2 named slots.
+  final Map<String, String> Function(V1Node m)? slots;
+
+  /// Its children are placed freeform (they get layout.x/y).
+  final bool freeformChildren;
+
+  /// Its children are laid out as a row/column's (they get layout.align).
+  final bool flexChildren;
+}
+
+/// One v1 node being migrated: its decoded v1 node, raw JSON, parent and
+/// document, and the helpers type handlers ([TypeMigration]) use.
+class V1Node {
+  V1Node(this.n, this.parent, this.nodes, this.report) : raw = Map<String, Object?>.from(n.toJson());
 
   final BaseNode n;
   final BaseNode? parent;
@@ -125,16 +169,19 @@ class _NodeMigration {
     'name', 'children',
   };
 
+  /// The v1 value of [key], marked as migrated (not left under `v1`).
   Object? take(String key) {
     used.add(key);
     return raw[key];
   }
 
   Json run() {
-    final type = v2TypeOf(n);
+    final handler = typeMigrations[n.type];
+    final type = handler?.type(n) ?? v2TypeOf(n);
     report.nodes++;
     report.types.update(type, (v) => v + 1, ifAbsent: () => 1);
-    final ported = n is RowColumnMixin || n is FreeformPlaceholderNode || portedV1Types.contains(n.type);
+    final ported =
+        handler != null || n is RowColumnMixin || n is FreeformPlaceholderNode || portedV1Types.contains(n.type);
     final out = <String, Object?>{'type': type};
     if (n.name.isNotEmpty) out['name'] = n.name;
 
@@ -146,6 +193,11 @@ class _NodeMigration {
       take('properties');
       final body = (n as CanvasNode).properties.bodyId;
       if (nodes.containsKey(body)) out['slots'] = {'body': body};
+    } else if (handler?.children != null || handler?.slots != null) {
+      final kids = handler!.children?.call(this) ?? const [];
+      if (kids.isNotEmpty) out['children'] = kids;
+      final slots = handler.slots?.call(this) ?? const {};
+      if (slots.isNotEmpty) out['slots'] = slots;
     } else {
       final kids = ownedChildren(n);
       if (kids.isNotEmpty) out['children'] = kids;
@@ -155,11 +207,11 @@ class _NodeMigration {
     if (n is BlendMixin) {
       take('opacity');
       final o = (n as BlendMixin).opacity;
-      if (o < 1) out['opacity'] = _d(o.clamp(0, 1));
+      if (o < 1) out['opacity'] = roundNum(o.clamp(0, 1));
     }
     out['layout'] = _layout();
-    if (const {'stack', 'box', 'row', 'column', 'canvas', 'variance'}.contains(type) || !ported) {
-      final d = _decoration();
+    if (const {'stack', 'box', 'row', 'column', 'canvas', 'variance'}.contains(type) || !ported || (handler?.decorated ?? false)) {
+      final d = decoration();
       if (d.isNotEmpty) out['decoration'] = d;
     }
     final props = switch (n) {
@@ -169,6 +221,7 @@ class _NodeMigration {
       TextNode() => _textProps(),
       IconNode() => _iconProps(),
       VarianceNode() => _varianceProps(),
+      _ when handler != null => handler.props(this),
       _ => <String, Object?>{},
     };
     if (!ported) {
@@ -207,17 +260,17 @@ class _NodeMigration {
 
   // --- layout ---------------------------------------------------------------
 
-  static String _fit(SizeFit f) => switch (f) {
+  static String fit(SizeFit f) => switch (f) {
         SizeFit.fixed || SizeFit.locked => 'fixed',
         SizeFit.expanded => 'fill',
         SizeFit.flexible => 'flexible',
         SizeFit.shrinkWrap => 'hug',
       };
 
-  static Object _size(SizeFit f, double v) => _fit(f) == 'fixed' ? _d(v) : {_fit(f): _d(v)};
+  static Object axisSize(SizeFit f, double v) => fit(f) == 'fixed' ? roundNum(v) : {fit(f): roundNum(v)};
 
-  static Object _insets(EdgeInsetsModel e) =>
-      e.l == e.t && e.t == e.r && e.r == e.b ? _d(e.l) : [_d(e.l), _d(e.t), _d(e.r), _d(e.b)];
+  static Object insets(EdgeInsetsModel e) =>
+      e.l == e.t && e.t == e.r && e.r == e.b ? roundNum(e.l) : [roundNum(e.l), roundNum(e.t), roundNum(e.r), roundNum(e.b)];
 
   Json _layout() {
     for (final k in const [
@@ -228,30 +281,30 @@ class _NodeMigration {
     }
     final box = n.basicBoxLocal;
     final l = <String, Object?>{
-      'width': _size(n.horizontalFit, box.width),
-      'height': _size(n.verticalFit, box.height),
+      'width': axisSize(n.horizontalFit, box.width),
+      'height': axisSize(n.verticalFit, box.height),
     };
     if (n.flex != 1) l['flex'] = n.flex;
     if (n.squeezable) l['squeezable'] = true;
     final c = n.constraints;
     if (!c.isEmpty) {
       l['constraints'] = {
-        if (c.minWidth != null) 'minWidth': _d(c.minWidth!),
-        if (c.maxWidth != null) 'maxWidth': _d(c.maxWidth!),
-        if (c.minHeight != null) 'minHeight': _d(c.minHeight!),
-        if (c.maxHeight != null) 'maxHeight': _d(c.maxHeight!),
+        if (c.minWidth != null) 'minWidth': roundNum(c.minWidth!),
+        if (c.maxWidth != null) 'maxWidth': roundNum(c.maxWidth!),
+        if (c.minHeight != null) 'minHeight': roundNum(c.minHeight!),
+        if (c.maxHeight != null) 'maxHeight': roundNum(c.maxHeight!),
       };
     }
-    if (n.margin != EdgeInsetsModel.zero) l['margin'] = _insets(n.margin);
+    if (n.margin != EdgeInsetsModel.zero) l['margin'] = insets(n.margin);
     final padding = n.resolvedPadding();
-    if (padding != EdgeInsetsModel.zero) l['padding'] = _insets(padding);
-    if (n.rotationDegrees != 0) l['rotation'] = _d(n.rotationDegrees);
+    if (padding != EdgeInsetsModel.zero) l['padding'] = insets(padding);
+    if (n.rotationDegrees != 0) l['rotation'] = roundNum(n.rotationDegrees);
     final ratio = n.layoutAspectRatio;
     if (ratio != null && ratio.isFinite && ratio > 0) l['aspectRatio'] = ratio;
 
     final p = parent;
     final align = n.alignment.data;
-    if (p is RowColumnMixin && align != null) l['align'] = [_d(align.x), _d(align.y)];
+    if ((p is RowColumnMixin || (typeMigrations[p?.type]?.flexChildren ?? false)) && align != null) l['align'] = [roundNum(align.x), roundNum(align.y)];
     if (p != null && isFreeformParent(p)) {
       final x = _axis(p, horizontal: true), y = _axis(p, horizontal: false);
       if (!(x.length == 1 && x['start'] == 0)) l['x'] = x;
@@ -259,8 +312,8 @@ class _NodeMigration {
     } else if (p == null || p is CanvasNode) {
       // Top-level canvases and canvas bodies: where v1 stored them.
       final o = n.basicBoxLocal;
-      if (o.x != 0) l['x'] = {'start': _d(o.x)};
-      if (o.y != 0) l['y'] = {'start': _d(o.y)};
+      if (o.x != 0) l['x'] = {'start': roundNum(o.x)};
+      if (o.y != 0) l['y'] = {'start': roundNum(o.y)};
     }
     return l;
   }
@@ -299,29 +352,29 @@ class _NodeMigration {
     } else {
       start = horizontal ? outer.x - inner.edgeLeft : outer.y - inner.edgeTop;
     }
-    Json at(double s) => {'start': _d(s)};
-    Json aligned(double a) => {'align': _d(a)};
+    Json at(double s) => {'start': roundNum(s)};
+    Json aligned(double a) => {'align': roundNum(a)};
 
     if (n.alignment.data case final AlignmentData a) return aligned(horizontal ? a.x : a.y);
     if (expands || isScrollAxis) return at(start);
     final parentWraps = (horizontal ? parent.horizontalFit : parent.verticalFit) == SizeFit.shrinkWrap;
-    if (startPin != null && endPin != null && !wraps) return {'start': _d(startPin), 'end': _d(endPin)};
+    if (startPin != null && endPin != null && !wraps) return {'start': roundNum(startPin), 'end': roundNum(endPin)};
     if (startPin != null && endPin != null && !parentWraps) {
       final pinned = math.max(0, startPin) + math.max(0, endPin);
       if (pinned > 0) return aligned(2 * math.max(0, startPin) / pinned - 1);
     }
-    if (endPin != null && startPin == null) return {'end': _d(endPin)};
+    if (endPin != null && startPin == null) return {'end': roundNum(endPin)};
     if (endPin == null && !parentWraps && n.positioningMode == PositioningMode.align) {
       // Keeps its share of the free space (measured at design size).
-      if (parentExtent - extent > 0) return {'relative': _d(start)};
+      if (parentExtent - extent > 0) return {'relative': roundNum(start)};
     }
     return at(start);
   }
 
   // --- decoration -----------------------------------------------------------
 
-  static String _rgb(ColorRGB c) => Color8.hex(255, c.r, c.g, c.b);
-  static String _rgba(ColorRGBA c) => Color8.hex((c.a * 255).toInt(), c.r, c.g, c.b);
+  static String rgb(ColorRGB c) => Color8.hex(255, c.r, c.g, c.b);
+  static String rgba(ColorRGBA c) => Color8.hex((c.a * 255).toInt(), c.r, c.g, c.b);
 
   static Json? paint(PaintModel p) {
     final type = switch (p.type) {
@@ -340,9 +393,9 @@ class _NodeMigration {
     if (!p.visible) j['visible'] = false;
     if (p.opacity != 1) j['opacity'] = p.opacity;
     if (p.blendMode != BlendModeC.srcOver) j['blendMode'] = p.blendMode.name;
-    if (p.color case final ColorRGB c) j['color'] = _rgb(c);
+    if (p.color case final ColorRGB c) j['color'] = rgb(c);
     if (p.gradientStops case final List<ColorStop> stops when stops.isNotEmpty) {
-      j['stops'] = [for (final s in stops) {'position': s.position, 'color': _rgba(s.color)}];
+      j['stops'] = [for (final s in stops) {'position': s.position, 'color': rgba(s.color)}];
     }
     if (p.gradientTransform case final List<num> t when t.isNotEmpty) j['transform'] = t;
     if (p.gradientTileMode != GradientTileMode.clamp) j['tileMode'] = p.gradientTileMode.name;
@@ -354,7 +407,7 @@ class _NodeMigration {
         if (p.fit.name != 'cover') 'fit': p.fit.name,
         if (p.alignment.data case final AlignmentData a) 'alignment': [a.x, a.y],
         if (p.imageRepeat.name != 'noRepeat') 'repeat': p.imageRepeat.name,
-        if (p.imageTint case final ColorRGBA t) 'tint': _rgba(t),
+        if (p.imageTint case final ColorRGBA t) 'tint': rgba(t),
       };
       for (final k in const [
         'imageTransform', 'cropData', 'imageName', 'imageHash', 'downloadUrl', 'croppedImageURL', 'scaleX', 'scaleY',
@@ -370,7 +423,7 @@ class _NodeMigration {
     final j = <String, Object?>{'type': e.type.name};
     if (!e.visible) j['visible'] = false;
     if (e.type == EffectType.dropShadow || e.type == EffectType.innerShadow) {
-      j['color'] = _rgba(e.color ?? ColorRGBA.black);
+      j['color'] = rgba(e.color ?? ColorRGBA.black);
       final o = e.offset;
       if (o != null && (o.x != 0 || o.y != 0)) j['offset'] = [o.x, o.y];
       if ((e.spread ?? 0) != 0) j['spreadRadius'] = e.spread;
@@ -380,7 +433,7 @@ class _NodeMigration {
     return j;
   }
 
-  Json _decoration() {
+  Json decoration() {
     final d = <String, Object?>{};
     final n = this.n;
     if (n is GeometryMixin) {
@@ -413,7 +466,7 @@ class _NodeMigration {
       final r = (n).cornerRadius;
       final tl = r.tl.x, tr = r.tr.x, br = r.br.x, bl = r.bl.x;
       if (tl != 0 || tr != 0 || br != 0 || bl != 0) {
-        d['radius'] = tl == tr && tr == br && br == bl ? _d(tl) : [_d(tl), _d(tr), _d(br), _d(bl)];
+        d['radius'] = tl == tr && tr == br && br == bl ? roundNum(tl) : [roundNum(tl), roundNum(tr), roundNum(br), roundNum(bl)];
       }
     }
     if (n is ClipMixin) {
@@ -430,7 +483,7 @@ class _NodeMigration {
 
   // --- props ----------------------------------------------------------------
 
-  Json _scrollProps() {
+  Json scrollProps() {
     final n = this.n;
     final p = <String, Object?>{};
     if (n is! ScrollableMixin) return p;
@@ -468,14 +521,14 @@ class _NodeMigration {
     final p = <String, Object?>{};
     if (rc.mainAxisAlignment != MainAxisAlignmentC.start) p['mainAxisAlignment'] = rc.mainAxisAlignment.name;
     if (rc.crossAxisAlignment != CrossAxisAlignmentC.center) p['crossAxisAlignment'] = rc.crossAxisAlignment.name;
-    if (rc.spacing != 0) p['spacing'] = _d(rc.spacing);
+    if (rc.spacing != 0) p['spacing'] = roundNum(rc.spacing);
     if (rc.wrap) p['wrap'] = true;
-    if (rc.runSpacing != 0) p['runSpacing'] = _d(rc.runSpacing);
-    return {...p, ..._scrollProps()};
+    if (rc.runSpacing != 0) p['runSpacing'] = roundNum(rc.runSpacing);
+    return {...p, ...scrollProps()};
   }
 
   Json _stackProps() {
-    final p = _scrollProps();
+    final p = scrollProps();
     final n = this.n;
     if (n is RectangleNode) {
       take('path');
@@ -503,7 +556,7 @@ class _NodeMigration {
       if (icon.iconImage != null) 'image': icon.iconImage,
       if (icon.show == false) 'show': false,
     };
-    if (icon.color case final ColorRGBA c) p['color'] = _rgba(c);
+    if (icon.color case final ColorRGBA c) p['color'] = rgba(c);
     return p;
   }
 
@@ -593,7 +646,7 @@ class _NodeMigration {
     if (r.textDecoration != TextDecorationEnum.none) {
       s['decoration'] = r.textDecoration == TextDecorationEnum.strikethrough ? 'lineThrough' : r.textDecoration.name;
     }
-    if (r.decorationColor case final ColorRGBA c) s['decorationColor'] = _rgba(c);
+    if (r.decorationColor case final ColorRGBA c) s['decorationColor'] = rgba(c);
     if (r.decorationThickness case final double t) s['decorationThickness'] = t;
     if (r.decorationStyle.name != 'solid') s['decorationStyle'] = r.decorationStyle.name;
     return s;
