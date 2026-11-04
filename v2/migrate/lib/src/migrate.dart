@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
 
+import 'behaviours.dart';
 import 'page_schema.dart';
 import 'types/registry.dart';
 
@@ -157,7 +158,12 @@ class TypeMigration {
 /// One v1 node being migrated: its decoded v1 node, raw JSON, parent and
 /// document, and the helpers type handlers ([TypeMigration]) use.
 class V1Node {
-  V1Node(this.n, this.parent, this.nodes, this.report) : raw = Map<String, Object?>.from(n.toJson());
+  V1Node(this.n, this.parent, this.nodes, this.report, {this.states = true})
+      : raw = Map<String, Object?>.from(n.toJson());
+
+  /// Whether its interaction states are converted (off while migrating a
+  /// state's targets).
+  final bool states;
 
   final BaseNode n;
   final BaseNode? parent;
@@ -224,6 +230,23 @@ class V1Node {
       _ when handler != null => handler.props(this),
       _ => <String, Object?>{},
     };
+    // Behaviours (motion, loops, transitions, ink, states...), before an
+    // unported type's own fields go along raw.
+    final behaviours = migrateBehaviours(this, states: states);
+    // Blurs act on whatever the node paints: a type without a box
+    // decoration keeps them (only them) in its decoration.
+    bool blur(Effect e) => e.type == EffectType.layerBlur || e.type == EffectType.backgroundBlur;
+    // (Shadows are the type's own to map; while it doesn't, they're left.)
+    if (!out.containsKey('decoration') &&
+        n is BlendMixin &&
+        (used.contains('effects') || (n as BlendMixin).effects.every(blur))) {
+      take('effects');
+      final blurs = [
+        for (final e in (n as BlendMixin).effects)
+          if (blur(e)) effect(e),
+      ];
+      if (blurs.isNotEmpty) out['decoration'] = {'effects': blurs};
+    }
     if (!ported) {
       report.unportedTypes.update(n.type, (v) => v + 1, ifAbsent: () => 1);
       // Not declared in v2 yet: its own v1 fields go along raw, as props.
@@ -238,10 +261,23 @@ class V1Node {
 
     final vars = take('variables');
     if (vars is Map && vars.isNotEmpty) {
-      out['bind'] = {for (final e in vars.entries) if (e.value is String) '${e.key}': e.value};
+      final bind = <String, Object?>{
+        for (final e in vars.entries)
+          if (e.value is String) _bindPaths['${e.key}'] ?? '${e.key}': e.value,
+      };
+      // A fixed direction (not a binding) is the node's own.
+      if (bind['textDirection'] case final String d when !d.contains(r'${')) {
+        bind.remove('textDirection');
+        final rtl = const {'rtl', 'right-to-left', 'righttoleft', 'true'}.contains(d.trim().toLowerCase());
+        final ltr = const {'ltr', 'left-to-right', 'lefttoright', 'false'}.contains(d.trim().toLowerCase());
+        if (rtl || ltr) behaviours['textDirection'] = rtl ? 'rtl' : 'ltr';
+      }
+      if (bind.isNotEmpty) out['bind'] = bind;
     }
     final reactions = take('reactions');
     if (reactions is List && reactions.isNotEmpty) out['actions'] = reactions;
+
+    out.addAll(behaviours);
 
     final leftover = <String, Object?>{
       for (final e in raw.entries)
@@ -257,6 +293,9 @@ class V1Node {
   }
 
   static const _common = {'variables', 'reactions', 'multipleVariables'};
+
+  /// v1 binding keys whose v2 property has another name.
+  static const _bindPaths = {'drawScale': 'scale', 'layoutDirection': 'textDirection'};
 
   // --- layout ---------------------------------------------------------------
 
