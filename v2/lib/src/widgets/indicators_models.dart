@@ -1,0 +1,289 @@
+// Value types and codecs of the indicators widgets (progress bars, gauges,
+// charts, barcodes). Each nested model is a small record declared like a
+// widget: its fields are PropDefs, so decoding is total, encoding sparse and
+// equality by value, as for widget props.
+import 'package:meta/meta.dart';
+
+import '../json.dart';
+import '../props.dart';
+import '../values/color.dart';
+
+// --- codecs -------------------------------------------------------------------
+
+/// A double that may be absent (`CircularProgressIndicator.value`).
+final class OptionalDoubleCodec extends PropCodec<double?> {
+  const OptionalDoubleCodec();
+  @override
+  double? decode(Object? json) => readDouble(json);
+  @override
+  Object? encode(double? value) => value == null ? null : writeDouble(value);
+}
+
+/// A string that may be absent (a font family that falls back).
+final class OptionalStringCodec extends PropCodec<String?> {
+  const OptionalStringCodec();
+  @override
+  String? decode(Object? json) => json is String ? json : null;
+  @override
+  Object? encode(String? value) => value;
+}
+
+/// An enum value that may be absent (Flutter's nullable enum parameters).
+final class OptionalEnumCodec<T extends Enum> extends PropCodec<T?> {
+  const OptionalEnumCodec(this.values);
+  final List<T> values;
+  @override
+  T? decode(Object? json) {
+    for (final v in values) {
+      if (v.name == json) return v;
+    }
+    return null;
+  }
+
+  @override
+  Object? encode(T? value) => value?.name;
+}
+
+/// A list of numbers with gaps (`null` items kept, e.g. a bar with no value).
+final class NullableDoublesCodec extends PropCodec<List<double?>> {
+  const NullableDoublesCodec();
+  @override
+  List<double?>? decode(Object? json) => readList(json)?.map(readDouble).toList();
+  @override
+  Object encode(List<double?> value) => [for (final v in value) v == null ? null : writeDouble(v)];
+}
+
+Color? _colorIn(Object? j) => Color.fromJson(j);
+Object? _optColorOut(Color? c) => c?.toJson();
+Object? _listOut(List<Json> v) => v;
+List<Json>? _listIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
+
+/// Codecs shared by the indicators declarations.
+abstract final class IndicatorCodecs {
+  static const optionalDouble = OptionalDoubleCodec();
+  static const optionalString = OptionalStringCodec();
+  static const optionalColor = ValueCodec<Color?>(_colorIn, _optColorOut);
+  static const doubles = ListCodec<double>(Codecs.double);
+  static const strings = ListCodec<String>(Codecs.string);
+
+  /// Free-form JSON objects (data rows, bound overlays).
+  static const objects = ValueCodec<List<Json>>(_listIn, _listOut);
+}
+
+// --- records ------------------------------------------------------------------
+
+/// A small immutable model whose fields are declared as [PropDef]s in
+/// [schema] (as a widget's props are): only non-default fields are held and
+/// encoded; unknown keys round-trip.
+@immutable
+abstract base class PropRecord {
+  const PropRecord(this.props);
+
+  final Props props;
+
+  /// The field declarations.
+  WidgetSpec get schema;
+
+  T get<T>(PropDef<T> def) => props.get(def);
+
+  Json toJson() => props.toJson(schema);
+
+  @override
+  bool operator ==(Object other) => other.runtimeType == runtimeType && other is PropRecord && other.props == props;
+
+  @override
+  int get hashCode => Object.hash(runtimeType, props);
+
+  @override
+  String toString() => '${schema.type}(${toJson()})';
+}
+
+Object? _recordOut(PropRecord r) => r.toJson();
+
+/// A colored zone of an arc progress bar, from [start] to [end] as fractions
+/// of the max value.
+final class ProgressBand extends PropRecord {
+  const ProgressBand._(super.props);
+
+  ProgressBand({double start = 0, double end = 0, Color color = Color.black})
+      : super(Props.empty.set(startDef, start).set(endDef, end).set(colorDef, color));
+
+  static const startDef = PropDef<double>('start', Codecs.double, 0);
+  static const endDef = PropDef<double>('end', Codecs.double, 0);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color.black);
+  static const spec = WidgetSpec('ProgressBand', props: [startDef, endDef, colorDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get start => get(startDef);
+  double get end => get(endDef);
+  Color get color => get(colorDef);
+
+  static ProgressBand? fromJson(Object? json) =>
+      readMap(json) == null ? null : ProgressBand._(Props.fromJson(spec, json));
+  static const codec = ListCodec<ProgressBand>(ValueCodec(fromJson, _recordOut));
+}
+
+/// A colored band of a radial gauge, from [from] to [to] in value units.
+final class GaugeZone extends PropRecord {
+  const GaugeZone._(super.props);
+
+  GaugeZone({double from = 0, double to = 0, Color color = Color.black})
+      : super(Props.empty.set(fromDef, from).set(toDef, to).set(colorDef, color));
+
+  static const fromDef = PropDef<double>('from', Codecs.double, 0);
+  static const toDef = PropDef<double>('to', Codecs.double, 0);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color.black);
+  static const spec = WidgetSpec('GaugeZone', props: [fromDef, toDef, colorDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get from => get(fromDef);
+  double get to => get(toDef);
+  Color get color => get(colorDef);
+
+  static GaugeZone? fromJson(Object? json) => readMap(json) == null ? null : GaugeZone._(Props.fromJson(spec, json));
+  static const codec = ListCodec<GaugeZone>(ValueCodec(fromJson, _recordOut));
+}
+
+/// How a chart series draws its values.
+enum ChartSeriesKind { bar, line, area, tick }
+
+/// One series of a chart: the values of [field] in each data row.
+final class ChartSeries extends PropRecord {
+  const ChartSeries._(super.props);
+
+  static const fieldDef = PropDef<String>('field', Codecs.string, '');
+  static const nameDef = PropDef<String>('name', Codecs.string, '');
+  static const kindDef = PropDef<ChartSeriesKind>('kind', EnumCodec(ChartSeriesKind.values), ChartSeriesKind.bar);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color(0xFF2ED17A));
+
+  /// A row field holding a per-row color (hex), overriding [color].
+  static const colorFieldDef = PropDef<String?>('colorField', IndicatorCodecs.optionalString, null);
+
+  /// Bar series with the same stack id are stacked into one bar.
+  static const stackDef = PropDef<String?>('stack', IndicatorCodecs.optionalString, null);
+  static const dashedDef = PropDef<bool>('dashed', Codecs.bool, false);
+  static const strokeWidthDef = PropDef<double>('strokeWidth', Codecs.positive, 2);
+  static const endDotDef = PropDef<bool>('endDot', Codecs.bool, false);
+  static const endDotHaloColorDef = PropDef<Color?>('endDotHaloColor', IndicatorCodecs.optionalColor, null);
+  static const curvedDef = PropDef<bool>('curved', Codecs.bool, false);
+
+  /// Area series: fill down to this field's line instead of the axis.
+  static const fillToDef = PropDef<String?>('fillTo', IndicatorCodecs.optionalString, null);
+  static const fillOpacityDef = PropDef<double>('fillOpacity', DoubleCodec(min: 0, max: 1), 0.25);
+
+  static const spec = WidgetSpec('ChartSeries', props: [
+    fieldDef, nameDef, kindDef, colorDef, colorFieldDef, stackDef, dashedDef, strokeWidthDef, endDotDef, //
+    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef,
+  ]);
+
+  @override
+  WidgetSpec get schema => spec;
+  String get field => get(fieldDef);
+  String get name => get(nameDef);
+  ChartSeriesKind get kind => get(kindDef);
+  Color get color => get(colorDef);
+  String? get colorField => get(colorFieldDef);
+  String? get stack => get(stackDef);
+  bool get dashed => get(dashedDef);
+  double get strokeWidth => get(strokeWidthDef);
+  bool get endDot => get(endDotDef);
+  Color? get endDotHaloColor => get(endDotHaloColorDef);
+  bool get curved => get(curvedDef);
+  String? get fillTo => get(fillToDef);
+  double get fillOpacity => get(fillOpacityDef);
+
+  ChartSeries withColor(Color color) => ChartSeries._(props.set(colorDef, color));
+
+  static ChartSeries? fromJson(Object? json) => readMap(json) == null ? null : ChartSeries._(Props.fromJson(spec, json));
+  static const codec = ListCodec<ChartSeries>(ValueCodec(fromJson, _recordOut));
+}
+
+/// A horizontal line across a chart's plot at [value].
+final class ChartReferenceLine extends PropRecord {
+  const ChartReferenceLine._(super.props);
+
+  static const valueDef = PropDef<double>('value', Codecs.double, 0);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color(0x99FFFFFF));
+  static const dashedDef = PropDef<bool>('dashed', Codecs.bool, true);
+  static const strokeWidthDef = PropDef<double>('strokeWidth', Codecs.positive, 1.5);
+  static const spec = WidgetSpec('ChartReferenceLine', props: [valueDef, colorDef, dashedDef, strokeWidthDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get value => get(valueDef);
+  Color get color => get(colorDef);
+  bool get dashed => get(dashedDef);
+  double get strokeWidth => get(strokeWidthDef);
+
+  static ChartReferenceLine? fromJson(Object? json) =>
+      readMap(json) == null ? null : ChartReferenceLine._(Props.fromJson(spec, json));
+  static const codec = ListCodec<ChartReferenceLine>(ValueCodec(fromJson, _recordOut));
+}
+
+/// A label on a plot chart's x axis, centred on [x].
+final class PlotChartLabel extends PropRecord {
+  const PlotChartLabel._(super.props);
+
+  static const xDef = PropDef<double>('x', Codecs.double, 0);
+  static const labelDef = PropDef<String>('label', Codecs.string, '');
+  static const spec = WidgetSpec('PlotChartLabel', props: [xDef, labelDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get x => get(xDef);
+  String get label => get(labelDef);
+
+  static PlotChartLabel? fromJson(Object? json) =>
+      readMap(json) == null ? null : PlotChartLabel._(Props.fromJson(spec, json));
+  static const codec = ListCodec<PlotChartLabel>(ValueCodec(fromJson, _recordOut));
+}
+
+/// A shaded x range of a plot chart, painted behind the curve.
+final class PlotChartRange extends PropRecord {
+  const PlotChartRange._(super.props);
+
+  static const fromDef = PropDef<double>('from', Codecs.double, 0);
+  static const toDef = PropDef<double>('to', Codecs.double, 0);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color(0x19000000));
+  static const spec = WidgetSpec('PlotChartRange', props: [fromDef, toDef, colorDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get from => get(fromDef);
+  double get to => get(toDef);
+  Color get color => get(colorDef);
+
+  static PlotChartRange? fromJson(Object? json) =>
+      readMap(json) == null ? null : PlotChartRange._(Props.fromJson(spec, json));
+  static const codec = ListCodec<PlotChartRange>(ValueCodec(fromJson, _recordOut));
+}
+
+/// Where a plot chart marker's label sits relative to its dot.
+enum PlotChartMarkerPosition { above, below }
+
+/// A labeled dot on a plot chart (on the curve when [y] is null).
+final class PlotChartMarker extends PropRecord {
+  const PlotChartMarker._(super.props);
+
+  static const xDef = PropDef<double>('x', Codecs.double, 0);
+  static const yDef = PropDef<double?>('y', IndicatorCodecs.optionalDouble, null);
+  static const labelDef = PropDef<String>('label', Codecs.string, '');
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color.black);
+  static const positionDef = PropDef<PlotChartMarkerPosition>(
+      'position', EnumCodec(PlotChartMarkerPosition.values), PlotChartMarkerPosition.above);
+  static const spec = WidgetSpec('PlotChartMarker', props: [xDef, yDef, labelDef, colorDef, positionDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get x => get(xDef);
+  double? get y => get(yDef);
+  String get label => get(labelDef);
+  Color get color => get(colorDef);
+  PlotChartMarkerPosition get position => get(positionDef);
+
+  static PlotChartMarker? fromJson(Object? json) =>
+      readMap(json) == null ? null : PlotChartMarker._(Props.fromJson(spec, json));
+  static const codec = ListCodec<PlotChartMarker>(ValueCodec(fromJson, _recordOut));
+}
