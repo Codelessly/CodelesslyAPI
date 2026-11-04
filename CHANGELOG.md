@@ -1,3 +1,9 @@
+## 9.0.1
+
+- A list saved with `overlay: true` (6.1.0 and before) reads as
+  `layout: stack`, so items placed by their position variables (pins on a
+  floor plan) stay layered instead of running down one column.
+
 ## 9.0.0
 
 The first release on pub.dev since 6.1.0, numbered to match
