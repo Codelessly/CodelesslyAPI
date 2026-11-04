@@ -34,6 +34,10 @@ class MigrationReport {
   /// `type.key`.
   final Map<String, int> unmappedBindings = {};
 
+  /// v1 bindings that had no effect in v1 (text that is neither a variable
+  /// path nor holds `${...}`), dropped, by `type.key`.
+  final Map<String, int> ineffectiveBindings = {};
+
   void merge(MigrationReport o) {
     nodes += o.nodes;
     o.types.forEach((k, v) => types.update(k, (x) => x + v, ifAbsent: () => v));
@@ -41,6 +45,7 @@ class MigrationReport {
     o.unportedTypes.forEach((k, v) => unportedTypes.update(k, (x) => x + v, ifAbsent: () => v));
     undecodable.addAll(o.undecodable);
     o.unmappedBindings.forEach((k, v) => unmappedBindings.update(k, (x) => x + v, ifAbsent: () => v));
+    o.ineffectiveBindings.forEach((k, v) => ineffectiveBindings.update(k, (x) => x + v, ifAbsent: () => v));
   }
 }
 
@@ -294,7 +299,14 @@ class V1Node {
         if (e.value is! String) continue;
         final path = v2BindPath(n, type, '${e.key}');
         if (path == null) report.unmappedBindings.update('${n.type}.${e.key}', (v) => v + 1, ifAbsent: () => 1);
-        bind[path ?? '${e.key}'] = e.value;
+        final raw = e.value as String;
+        // A fixed direction is the node's own (below).
+        final expression = path == 'textDirection' && !raw.contains(r'${') ? raw : v2BindExpression(path, raw);
+        if (expression == null) {
+          report.ineffectiveBindings.update('${n.type}.${e.key}', (v) => v + 1, ifAbsent: () => 1);
+          continue;
+        }
+        bind[path ?? '${e.key}'] = expression;
       }
       // A fixed direction (not a binding) is the node's own.
       if (bind['textDirection'] case final String d when !d.contains(r'${')) {

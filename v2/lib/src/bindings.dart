@@ -136,12 +136,16 @@ abstract final class BindPaths {
         _ => null,
       };
     }
+    // A typed field whose value can't be read stays as it was.
+    if (next == null && keys.length == 1 && _typedLayout.contains(keys.first)) return null;
     if (next == null) {
       final j = setJsonPath(l.toJson(), keys, _jsonValue(value));
       next = j == null ? null : Layout.fromJson(j);
     }
     return next == null || next == l ? null : n.copyWith(layout: next);
   }
+
+  static const _typedLayout = {'width', 'height', 'flex', 'rotation', 'margin', 'padding', 'x', 'y', 'aspectRatio'};
 
   /// A number sets the design size (the fit stays); `{"fill": 200}` and
   /// the like set both.
@@ -184,6 +188,10 @@ abstract final class BindPaths {
       case 'effects':
         final effects = _effects(d.effects, keys.sublist(1), value);
         if (effects != null) next = d.copyWith(effects: effects);
+    }
+    if (next == null && keys.length == 1 && (keys.first == 'radius' || keys.first == 'strokeWidth')) return null;
+    if (next == null && (keys.first == 'fills' || keys.first == 'strokes' || keys.first == 'foregroundFills' || keys.first == 'effects')) {
+      return null;
     }
     if (next == null) {
       final j = setJsonPath(d.toJson(), keys, _jsonValue(value));
