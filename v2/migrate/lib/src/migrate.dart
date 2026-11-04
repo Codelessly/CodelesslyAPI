@@ -376,7 +376,9 @@ class V1Node {
   static String rgb(ColorRGB c) => Color8.hex(255, c.r, c.g, c.b);
   static String rgba(ColorRGBA c) => Color8.hex((c.a * 255).toInt(), c.r, c.g, c.b);
 
-  static Json? paint(PaintModel p) {
+  /// [p] as a v2 paint; [node] is the node it fills (an image fill placed
+  /// by hand is resolved against its design size).
+  static Json? paint(PaintModel p, [BaseNode? node]) {
     final type = switch (p.type) {
       PaintType.solid => 'solid',
       PaintType.gradientLinear => 'linear',
@@ -399,24 +401,92 @@ class V1Node {
     }
     if (p.gradientTransform case final List<num> t when t.isNotEmpty) j['transform'] = t;
     if (p.gradientTileMode != GradientTileMode.clamp) j['tileMode'] = p.gradientTileMode.name;
-    if (type == 'image') {
-      final pj = Map<String, Object?>.from(p.toJson());
-      final image = <String, Object?>{
-        if ((p.croppedImageURL ?? p.downloadUrl) case final String url) 'url': url,
-        if (p.assetID case final String a) 'assetId': a,
-        if (p.fit.name != 'cover') 'fit': p.fit.name,
-        if (p.alignment.data case final AlignmentData a) 'alignment': [a.x, a.y],
-        if (p.imageRepeat.name != 'noRepeat') 'repeat': p.imageRepeat.name,
-        if (p.imageTint case final ColorRGBA t) 'tint': rgba(t),
-      };
-      for (final k in const [
-        'imageTransform', 'cropData', 'imageName', 'imageHash', 'downloadUrl', 'croppedImageURL', 'scaleX', 'scaleY',
-      ]) {
-        if (pj[k] != null) image[k] = pj[k];
-      }
-      j['image'] = image;
-    }
+    if (type == 'image') j['image'] = imagePaint(p, node);
     return j;
+  }
+
+  /// An image paint as SDK 8.x drew it (`buildFill`, `UltimateImageBuilder`):
+  /// the cropped image when there is one, its fit, alignment, repeat, pixel
+  /// scale (`min(scaleX, scaleY)`), flips, tint and saturation.
+  static Json imagePaint(PaintModel p, [BaseNode? node]) {
+    final pj = Map<String, Object?>.from(p.toJson());
+    final scale = math.min(p.scaleX, p.scaleY).abs();
+    final image = <String, Object?>{
+      if ((p.croppedImageURL ?? p.downloadUrl) case final String url) 'url': url,
+      if (p.assetID case final String a) 'assetId': a,
+      if (p.fit.name != 'cover') 'fit': p.fit.name,
+      if (p.alignment.data case final AlignmentData a) 'alignment': [a.x, a.y],
+      if (p.imageRepeat.name != 'noRepeat') 'repeat': p.imageRepeat.name,
+      if (scale != 1 && scale != 0) 'scale': roundNum(scale),
+      if (p.imageTint case final ColorRGBA t) 'tint': rgba(t),
+      if (p.scaleX < 0) 'flipX': true,
+      if (p.scaleY < 0) 'flipY': true,
+      if (p.saturation != 1) 'saturation': roundNum(p.saturation),
+      if (node != null) ...?_imageRect(p, node),
+    };
+    // Editor settings: the crop the cropped image was made with, the source
+    // image and its size, names.
+    for (final k in const [
+      'imageTransform', 'cropData', 'imageName', 'imageHash', 'downloadUrl', 'croppedImageURL', 'sourceWidth', //
+      'sourceHeight', 'hasImageBytes',
+    ]) {
+      if (pj[k] != null && pj[k] != false) image[k] = pj[k];
+    }
+    return image;
+  }
+
+  /// SDK 8.x places an image by hand (a stack, not the image's alignment)
+  /// where Flutter can't align it (`isCustomPositionRequiredForImage`): at
+  /// its source size over its scale, aligned in the node's design box.
+  static Json? _imageRect(PaintModel p, BaseNode node) {
+    final box = node.basicBoxLocal;
+    // The image's width and height as buildFill gives them: none when the
+    // node hugs (then it isn't placed by hand).
+    final double? w = switch (node.horizontalFit) {
+      SizeFit.shrinkWrap => null,
+      SizeFit.expanded => double.infinity,
+      _ => box.width,
+    };
+    final double? h = switch (node.verticalFit) {
+      SizeFit.shrinkWrap => null,
+      SizeFit.expanded => double.infinity,
+      _ => box.height,
+    };
+    final sw = p.sourceWidth, sh = p.sourceHeight;
+    if (w == null || h == null || sw == null || sh == null) return null;
+    if (!p.fit.supportsAlignment || p.alignment.isStandard) return null;
+    bool close(double v) => v.abs() <= 1e-8;
+    var custom = p.isNonUniformScale;
+    if (!custom && (p.fit == Fit.fitWidth || p.fit == Fit.fitHeight)) custom = close(sw / sh - w / h);
+    if (!custom) custom = sw / p.scaleX.abs() == w || sh / p.scaleY.abs() == h;
+    if (!custom) return null;
+    final double cw = switch (p.fit) {
+      Fit.fitWidth => box.width,
+      Fit.fitHeight => sw / sh * box.height,
+      _ => sw / p.scaleX.abs(),
+    };
+    final double ch = switch (p.fit) {
+      Fit.fitHeight => box.height,
+      Fit.fitWidth => box.width / (sw / sh),
+      _ => sh / p.scaleY.abs(),
+    };
+    // convertAlignmentToPosition.
+    final a = p.alignment.data;
+    double place(double parent, double child, double align) {
+      final delta = parent - child;
+      final same = close(delta);
+      final d = (same ? child : delta) / 2;
+      return d + (align - (same ? 1 : 0)) * d;
+    }
+
+    return {
+      'rect': [
+        roundNum(place(box.width, cw, a?.x ?? 0)),
+        roundNum(place(box.height, ch, a?.y ?? 0)),
+        roundNum(cw),
+        roundNum(ch),
+      ],
+    };
   }
 
   static Json? effect(Effect e) {
@@ -441,7 +511,7 @@ class V1Node {
       for (final k in const ['fills', 'strokes', 'strokeWeight', 'strokeAlign', 'strokeSide', 'dashPattern', 'strokeCap']) {
         take(k);
       }
-      final fills = [...g.fills.map(paint).nonNulls];
+      final fills = [...g.fills.map((p) => paint(p, n)).nonNulls];
       if (fills.isNotEmpty) d['fills'] = fills;
       final strokes = [...g.strokes.map(paint).nonNulls];
       if (strokes.isNotEmpty) {
@@ -532,8 +602,13 @@ class V1Node {
     final n = this.n;
     if (n is RectangleNode) {
       take('path');
-      final raw = n.toJson();
-      if (raw['path'] is String && (raw['path'] as String).isNotEmpty) p['path'] = raw['path'];
+      take('strokeJoin');
+      take('strokeMiterLimit');
+      if (n.hasPath) {
+        p['path'] = n.path;
+        if (n.strokeJoin.name != 'miter') p['strokeJoin'] = n.strokeJoin.name;
+        if (n.strokeMiterLimit != 4) p['strokeMiterLimit'] = roundNum(n.strokeMiterLimit);
+      }
     }
     return p;
   }
@@ -552,9 +627,16 @@ class V1Node {
     final iconJson = icon.icon?.toJson();
     p['icon'] = {
       'source': icon.type.name,
-      if (iconJson != null) ...iconJson,
-      if (icon.iconImage != null) 'image': icon.iconImage,
+      ...?iconJson,
+      'image': ?icon.iconImage,
       if (icon.show == false) 'show': false,
+      // Material Symbols axes, and an image icon's pixel scale.
+      'fill': ?icon.fill,
+      'weight': ?icon.weight,
+      'grade': ?icon.grade,
+      'opticalSize': ?icon.opticalSize,
+      'size': ?icon.size,
+      if (icon.scale != 1) 'scale': icon.scale,
     };
     if (icon.color case final ColorRGBA c) p['color'] = rgba(c);
     return p;
