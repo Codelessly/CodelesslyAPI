@@ -1,7 +1,10 @@
 import 'package:meta/meta.dart';
 
 import '../document.dart';
+import '../conditions.dart';
 import '../json.dart';
+import '../logic.dart';
+import '../variables.dart';
 import 'theme.dart';
 
 /// The width range a canvas of a layout shows at. A layout with several
@@ -158,11 +161,15 @@ final class PublishLayout {
     return null;
   }
 
-  /// The variables canvas [canvasId] declares (variable id → variable).
-  Json variablesOf(String canvasId) => readMap(variables[canvasId]) ?? const {};
+  /// Its variables and conditions, per canvas (the `variables` and
+  /// `conditions` keys, DESIGN.md §5.1).
+  LayoutLogic get logic => LayoutLogic.fromJson({LayoutLogic.variablesKey: variables, LayoutLogic.conditionsKey: conditions});
 
-  /// The conditions canvas [canvasId] uses (condition id → condition).
-  Json conditionsOf(String canvasId) => readMap(conditions[canvasId]) ?? const {};
+  /// The variables of canvas [canvasId].
+  List<Variable> variablesOf(String canvasId) => logic.variablesOf(canvasId);
+
+  /// The conditions of canvas [canvasId].
+  List<Condition> conditionsOf(String canvasId) => logic.conditionsOf(canvasId);
 
   /// Decodes a published layout of any v2 schema. Never throws.
   static PublishLayout fromJson(Object? json) {

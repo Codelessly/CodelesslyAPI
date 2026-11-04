@@ -4,6 +4,7 @@
 import 'package:meta/meta.dart';
 
 import '../json.dart';
+import '../triggers.dart';
 import '../props.dart';
 import '../values/border.dart';
 import '../values/color.dart';
@@ -145,7 +146,7 @@ BorderSide? _sideIn(Object? json) => BorderSide.fromJson(json);
 final class InputIcon extends FieldValue {
   const InputIcon._(super.fields);
 
-  factory InputIcon({Json icon = const {}, double size = 24, Color? color, List<Json> actions = const []}) =>
+  factory InputIcon({Json icon = const {}, double size = 24, Color? color, List<Reaction> actions = const []}) =>
       InputIcon._(Props.empty
           .set(InputIconFields.icon, icon)
           .set(InputIconFields.size, size)
@@ -163,19 +164,19 @@ final class InputIcon extends FieldValue {
   Color? get color => get(InputIconFields.color);
 
   /// Reactions run when the icon is tapped.
-  List<Json> get actions => get(InputIconFields.actions);
+  List<Reaction> get actions => get(InputIconFields.actions);
 
   InputIcon set<T>(PropDef<T> field, T value) => InputIcon._(fields.set(field, value));
 }
 
-List<Json>? _actionsIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
-Object? _actionsOut(List<Json> v) => v;
+List<Reaction>? _actionsIn(Object? j) => readList(j) == null ? null : Reaction.listFromJson(j);
+Object? _actionsOut(List<Reaction> v) => [for (final r in v) r.toJson()];
 
 abstract final class InputIconFields {
   static const icon = PropDef<Json>('icon', InputCodecs.json, {});
   static const size = PropDef<double>('size', Codecs.positive, 24);
   static const color = PropDef<Color?>('color', Codecs.color, null);
-  static const actions = PropDef<List<Json>>('actions', ValueCodec(_actionsIn, _actionsOut), []);
+  static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut), []);
   static const spec = WidgetSpec('Icon', props: [icon, size, color, actions], doc: 'Flutter `Icon`.');
 }
 

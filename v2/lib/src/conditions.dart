@@ -4,6 +4,7 @@
 // (DESIGN.md §5.1).
 import 'package:meta/meta.dart';
 
+import 'actions.dart';
 import 'json.dart';
 import 'values/paint.dart' show listEquals;
 
@@ -190,9 +191,9 @@ final class ConditionBranch {
   final Predicate? when;
   final List<PropertySet> sets;
 
-  /// Other actions the branch carried (kept for the editor; the runtime
-  /// reads [sets]).
-  final List<Json> actions;
+  /// Actions the branch runs when a screen's conditions are evaluated
+  /// for actions (kept for the editor; property values come from [sets]).
+  final List<ActionDef> actions;
 
   bool get isElse => when == null;
 
@@ -202,14 +203,14 @@ final class ConditionBranch {
     return ConditionBranch(
       when: Predicate.fromJson(m['when']),
       sets: [...?readList(m['set'])?.map(PropertySet.fromJson).nonNulls],
-      actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
+      actions: ActionDef.listFromJson(m['actions']),
     );
   }
 
   Json toJson() => {
         if (when != null) 'when': when!.toJson(),
         if (sets.isNotEmpty) 'set': [for (final s in sets) s.toJson()],
-        if (actions.isNotEmpty) 'actions': actions,
+        if (actions.isNotEmpty) 'actions': [for (final a in actions) a.toJson()],
       };
 
   @override
@@ -217,7 +218,7 @@ final class ConditionBranch {
       other is ConditionBranch &&
       other.when == when &&
       listEquals(other.sets, sets) &&
-      jsonEquality.equals(other.actions, actions);
+      listEquals(other.actions, actions);
 
   @override
   int get hashCode => Object.hash(when, Object.hashAll(sets));
