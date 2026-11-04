@@ -23,6 +23,7 @@ final class TextStyle {
     this.decorationStyle,
     this.decorationThickness,
     this.tabularFigures,
+    this.shadows = const [],
   });
 
   static const TextStyle empty = TextStyle();
@@ -54,6 +55,9 @@ final class TextStyle {
   /// Fixed-width digits (`FontFeature.tabularFigures`).
   final bool? tabularFigures;
 
+  /// Text shadows (drop shadows only).
+  final List<Effect> shadows;
+
   bool get isEmpty => this == empty;
 
   /// [other]'s non-null fields over this style's.
@@ -73,6 +77,7 @@ final class TextStyle {
       decorationStyle: other.decorationStyle ?? decorationStyle,
       decorationThickness: other.decorationThickness ?? decorationThickness,
       tabularFigures: other.tabularFigures ?? tabularFigures,
+      shadows: other.shadows.isNotEmpty ? other.shadows : shadows,
     );
   }
 
@@ -97,6 +102,7 @@ final class TextStyle {
           : readEnum(TextDecorationStyle.values, m['decorationStyle'], TextDecorationStyle.solid),
       decorationThickness: readDouble(m['decorationThickness']),
       tabularFigures: readBool(m['tabularFigures']),
+      shadows: Effect.listFromJson(m['shadows']),
     );
   }
 
@@ -108,12 +114,14 @@ final class TextStyle {
         if (color != null) 'color': color!.toJson(),
         if (foreground != null) 'foreground': foreground!.toJson(),
         if (letterSpacing != null) 'letterSpacing': writeDouble(letterSpacing!),
-        if (height != null) 'height': writeDouble(height!),
+        // Full precision: a pixel line height over the font size.
+        if (height != null) 'height': height,
         if (decoration != null) 'decoration': decoration!.name,
         if (decorationColor != null) 'decorationColor': decorationColor!.toJson(),
         if (decorationStyle != null) 'decorationStyle': decorationStyle!.name,
         if (decorationThickness != null) 'decorationThickness': writeDouble(decorationThickness!),
         if (tabularFigures != null) 'tabularFigures': tabularFigures,
+        if (shadows.isNotEmpty) 'shadows': [for (final e in shadows) e.toJson()],
       };
 
   @override
@@ -131,7 +139,8 @@ final class TextStyle {
       other.decorationColor == decorationColor &&
       other.decorationStyle == decorationStyle &&
       other.decorationThickness == decorationThickness &&
-      other.tabularFigures == tabularFigures;
+      other.tabularFigures == tabularFigures &&
+      listEquals(other.shadows, shadows);
 
   @override
   int get hashCode => Object.hash(fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,

@@ -1,0 +1,4 @@
+/// Converts Codelessly v1 documents to the v2 format.
+library;
+
+export 'src/migrate.dart' show migrateDocument, MigrationReport, portedV1Types;
