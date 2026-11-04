@@ -220,16 +220,19 @@ class V1Node {
       final d = decoration();
       if (d.isNotEmpty) out['decoration'] = d;
     }
-    final props = switch (n) {
-      CanvasNode() => _canvasProps(),
-      RowColumnMixin() => _flexProps(),
-      FrameNode() || RectangleNode() || FreeformPlaceholderNode() => _stackProps(),
-      TextNode() => _textProps(),
-      IconNode() => _iconProps(),
-      VarianceNode() => _varianceProps(),
-      _ when handler != null => handler.props(this),
-      _ => <String, Object?>{},
-    };
+    // A group's handler first: some v1 types it ports carry core mixins
+    // (an accordion is a RowColumnMixin).
+    final props = handler != null
+        ? handler.props(this)
+        : switch (n) {
+            CanvasNode() => _canvasProps(),
+            RowColumnMixin() => _flexProps(),
+            FrameNode() || RectangleNode() || FreeformPlaceholderNode() => _stackProps(),
+            TextNode() => _textProps(),
+            IconNode() => _iconProps(),
+            VarianceNode() => _varianceProps(),
+            _ => <String, Object?>{},
+          };
     // Behaviours (motion, loops, transitions, ink, states...), before an
     // unported type's own fields go along raw.
     final behaviours = migrateBehaviours(this, states: states);
