@@ -18,7 +18,11 @@ abstract final class TextProps {
   static const overflow = PropDef<TextOverflow>('overflow', EnumCodec(TextOverflow.values), TextOverflow.clip);
   static const selectable = PropDef<bool>('selectable', Codecs.bool, false);
 
+  /// Shrinks the whole text to fit its width, keeping its lines
+  /// (`FittedBox(fit: BoxFit.scaleDown)`).
+  static const scaleDown = PropDef<bool>('scaleDown', Codecs.bool, false);
+
   static const spec = WidgetSpec('text',
-      props: [text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable],
+      props: [text, style, runs, textAlign, textAlignVertical, maxLines, overflow, selectable, scaleDown],
       doc: 'Flutter `Text.rich`.');
 }
