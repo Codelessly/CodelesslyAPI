@@ -112,7 +112,8 @@ const Map<String, String> _textKeys = {
 /// Keys whose v2 prop has another name, by v1 type.
 const Map<String, Map<String, String>> _byType = {
   'icon': {'icon': 'props.icon.name', 'iconName': 'props.icon.name', 'iconColor': 'props.color', 'color': 'props.color'},
-  'rowColumn': {'spacing': 'props.spacing', 'runSpacing': 'props.runSpacing'},
+  'row': {'spacing': 'props.spacing', 'runSpacing': 'props.runSpacing'},
+  'column': {'spacing': 'props.spacing', 'runSpacing': 'props.runSpacing'},
   'variance': {'currentVariantId': 'props.current', 'variant': 'props.current'},
   'progressBar': {'currentValue': 'props.value', 'progressColor': 'props.color'},
   'loadingIndicator': {'color': 'props.color', 'value': 'props.value'},
@@ -131,3 +132,19 @@ const Map<String, Map<String, String>> _byType = {
   'tabBar': {'selectedIndex': 'props.initialIndex'},
   'navigationBar': {'selectedIndex': 'props.selectedIndex'},
 };
+
+final RegExp _barePath = RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*(\[\d+\])*(\.[a-zA-Z][a-zA-Z0-9_]*(\[\d+\])*)*$');
+final RegExp _iconName = RegExp(r'^[a-z0-9_]+$');
+
+/// A v1 binding's value as a v2 expression, or null when it had no effect
+/// in v1. v1 read a value without `${` as a variable path (`dLen` is
+/// `${dLen}`); one that isn't a path (`74.2`) read nothing. An icon name
+/// written as is (`block_rounded`) showed that icon when no variable had
+/// the name.
+String? v2BindExpression(String? path, String value) {
+  if (value.contains(r'${')) return value;
+  final t = value.trim();
+  if (!_barePath.hasMatch(t)) return null;
+  if (path == 'props.icon.name' && _iconName.hasMatch(t)) return "\${= coalesce($t, '$t')}";
+  return '\${$t}';
+}

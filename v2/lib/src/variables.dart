@@ -1,6 +1,8 @@
 // Variables: the named values a layout's expressions read (`${count}`,
 // `${= price * qty}`). Pure data; the SDK's runtime holds their current
 // values (see DESIGN.md §5.1).
+import 'dart:convert';
+
 import 'package:meta/meta.dart';
 
 import 'json.dart';
@@ -62,9 +64,17 @@ enum VariableType {
             _ => null,
           },
         color => Color.fromJson(value is String ? value.trim() : value)?.toJson(),
-        list => value is List ? value : null,
-        map => readMap(value),
+        list => value is List ? value : (value is String ? _decode(value).let((d) => d is List ? d : null) : null),
+        map => readMap(value is String ? _decode(value) : value),
       };
+
+  static Object? _decode(String text) {
+    try {
+      return jsonDecode(text);
+    } catch (_) {
+      return null;
+    }
+  }
 
   static String _numText(num n) => n is double && n == n.roundToDouble() && n.abs() < 1e15 ? '${n.toInt()}' : '$n';
 }
