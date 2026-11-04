@@ -2,6 +2,7 @@
 // names and defaults (see ../props.dart). Value types are in inputs_models.dart.
 import '../json.dart';
 import '../props.dart';
+import '../values/border.dart';
 import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';

@@ -5,8 +5,8 @@ import 'package:meta/meta.dart';
 
 import '../json.dart';
 import '../props.dart';
+import '../values/border.dart';
 import '../values/color.dart';
-import '../values/enums.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
 
@@ -59,7 +59,7 @@ abstract final class InputCodecs {
   static const constraints = ValueCodec<BoxConstraints>(BoxConstraints.fromJson, _constraintsOut);
   static const alignment = ValueCodec<Alignment>(Alignment.fromJson, _alignmentOut);
   static const strings = ListCodec<String>(Codecs.string);
-  static const borderSide = ValueCodec<BorderSide?>(BorderSide.fromJson, _valueOut);
+  static const borderSide = ValueCodec<BorderSide?>(BorderSide.fromJson, _sideOut);
   static const inputBorder = ValueCodec<InputBorder?>(InputBorder.fromJson, _valueOut);
   static const icon = ValueCodec<InputIcon?>(InputIcon.fromJson, _valueOut);
   static const decoration = ValueCodec<InputDecoration>(InputDecoration.fromJson, _valueOut);
@@ -68,48 +68,8 @@ abstract final class InputCodecs {
 
 // --- BorderSide ---------------------------------------------------------------
 
-/// Flutter's `BorderStyle`.
-enum BorderStyle { none, solid }
 
-/// Flutter's `BorderSide`.
-final class BorderSide extends FieldValue {
-  const BorderSide._(super.fields);
 
-  factory BorderSide({
-    Color color = Color.black,
-    double width = 1,
-    BorderStyle style = BorderStyle.solid,
-    StrokeAlign strokeAlign = StrokeAlign.inside,
-  }) =>
-      BorderSide._(Props.empty
-          .set(BorderSideFields.color, color)
-          .set(BorderSideFields.width, width)
-          .set(BorderSideFields.style, style)
-          .set(BorderSideFields.strokeAlign, strokeAlign));
-
-  /// Black, 1 px, solid.
-  static const BorderSide standard = BorderSide._(Props.empty);
-
-  static BorderSide? fromJson(Object? json) => readMap(json) == null ? null : BorderSide._(Props.fromJson(BorderSideFields.spec, json));
-
-  @override
-  WidgetSpec get spec => BorderSideFields.spec;
-
-  Color get color => get(BorderSideFields.color);
-  double get width => get(BorderSideFields.width);
-  BorderStyle get style => get(BorderSideFields.style);
-  StrokeAlign get strokeAlign => get(BorderSideFields.strokeAlign);
-
-  BorderSide set<T>(PropDef<T> field, T value) => BorderSide._(fields.set(field, value));
-}
-
-abstract final class BorderSideFields {
-  static const color = PropDef<Color>('color', Codecs.color, Color.black);
-  static const width = PropDef<double>('width', Codecs.positive, 1);
-  static const style = PropDef<BorderStyle>('style', EnumCodec(BorderStyle.values), BorderStyle.solid);
-  static const strokeAlign = PropDef<StrokeAlign>('strokeAlign', EnumCodec(StrokeAlign.values), StrokeAlign.inside);
-  static const spec = WidgetSpec('BorderSide', props: [color, width, style, strokeAlign], doc: 'Flutter `BorderSide`.');
-}
 
 // --- InputBorder --------------------------------------------------------------
 
@@ -173,7 +133,8 @@ abstract final class InputBorderFields {
       WidgetSpec('InputBorder', props: [type, borderSide, borderRadius, gapPadding], doc: 'Flutter `InputBorder`.');
 }
 
-const _sideCodec = ValueCodec<BorderSide>(_sideIn, _valueOut);
+const _sideCodec = ValueCodec<BorderSide>(_sideIn, _sideOut);
+Object? _sideOut(BorderSide? s) => s?.toJson();
 BorderSide? _sideIn(Object? json) => BorderSide.fromJson(json);
 
 // --- InputIcon ----------------------------------------------------------------
