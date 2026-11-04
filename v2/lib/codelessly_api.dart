@@ -1,0 +1,21 @@
+/// Flutter's widgets and layouts as plain, immutable data.
+library;
+
+export 'src/decoration.dart';
+export 'src/document.dart';
+export 'src/json.dart';
+export 'src/layout.dart';
+export 'src/node.dart';
+export 'src/props.dart';
+export 'src/values/color.dart';
+export 'src/values/enums.dart';
+export 'src/values/geometry.dart';
+export 'src/values/paint.dart';
+export 'src/values/text.dart';
+export 'src/widgets/canvas.dart';
+export 'src/widgets/flex.dart';
+export 'src/widgets/icon.dart';
+export 'src/widgets/scroll.dart';
+export 'src/widgets/stack.dart';
+export 'src/widgets/text.dart';
+export 'src/widgets/widgets.dart';
