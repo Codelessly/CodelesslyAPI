@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
 
+import 'actions.dart';
 import 'behaviours.dart';
 import 'bindings.dart';
 import 'logic.dart';
@@ -318,7 +319,10 @@ class V1Node {
       if (bind.isNotEmpty) out['bind'] = bind;
     }
     final reactions = take('reactions');
-    if (reactions is List && reactions.isNotEmpty) out['actions'] = reactions;
+    if (reactions is List && reactions.isNotEmpty) {
+      final migrated = ActionMigration(nodes: nodes, report: report).reactions(reactions);
+      if (migrated.isNotEmpty) out['actions'] = migrated;
+    }
 
     out.addAll(behaviours);
 

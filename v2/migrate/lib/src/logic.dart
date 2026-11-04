@@ -4,6 +4,7 @@
 // `conditions` document keys (API v2 `LayoutLogic`, DESIGN.md §5.1).
 import 'package:codelessly_api/codelessly_api.dart';
 
+import 'actions.dart';
 import 'bindings.dart';
 import 'migrate.dart';
 
@@ -145,16 +146,16 @@ Json _branch(BaseExpression? when, List<ActionModel> actions, Map<String, BaseNo
           if (path == null) {
             report.unmappedBindings.update('condition.${node?.type ?? '?'}.${v.name}', (x) => x + 1, ifAbsent: () => 1);
           }
-          sets.add({'node': a.nodeID, 'path': path ?? v.name, 'value': _value(v, path)});
+          sets.add({'node': a.nodeID, 'path': path ?? v.name, 'value': v2SetValue(v, path)});
         }
       case SetVariantAction():
         sets.add({'node': a.nodeID, 'path': 'props.current', 'value': a.variantID});
       default:
-        other.add(a.toJson());
+        other.add(ActionMigration(nodes: nodes, report: report).action(a));
     }
   }
   return {
-    if (when != null) 'when': _predicate(when),
+    if (when != null) 'when': v2Predicate(when),
     if (sets.isNotEmpty) 'set': sets,
     if (other.isNotEmpty) 'actions': other,
   };
@@ -163,7 +164,7 @@ Json _branch(BaseExpression? when, List<ActionModel> actions, Map<String, BaseNo
 /// A set value's value as v2 JSON: text stays text (an expression), colors
 /// are `#AARRGGBB`, paints are v2 paints (or their color where the path
 /// takes a color).
-Object? _value(ValueModel v, String? path) {
+Object? v2SetValue(ValueModel v, String? path) {
   final value = v.value;
   return switch (value) {
     ColorRGBA() => value.toHex(),
@@ -177,7 +178,8 @@ Object? _value(ValueModel v, String? path) {
   };
 }
 
-Json _predicate(BaseExpression e) => switch (e) {
+/// A v1 condition expression as a v2 predicate (API v2 `Predicate`).
+Json v2Predicate(BaseExpression e) => switch (e) {
       Expression() => {
           'left': _operand(e.leftPart),
           'op': e.operator.name,
@@ -198,7 +200,7 @@ Iterable<Json> _flatten(BaseExpression e, ConditionJoin join) sync* {
     yield* _flatten(e.leftExpression, join);
     yield* _flatten(e.rightExpression, join);
   } else {
-    yield _predicate(e);
+    yield v2Predicate(e);
   }
 }
 

@@ -6,6 +6,8 @@ import 'decoration.dart';
 import 'json.dart';
 import 'layout.dart';
 import 'props.dart';
+import 'triggers.dart';
+import 'values/paint.dart' show listEquals;
 import 'widgets/canvas.dart';
 import 'widgets/widgets.dart';
 
@@ -55,8 +57,8 @@ final class Node {
   /// DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`).
   final Map<String, String> bind;
 
-  /// Reactions: trigger → actions.
-  final List<Json> actions;
+  /// Reactions: trigger → the chain of actions it runs.
+  final List<Reaction> actions;
 
   /// Motion, loops, transitions, ink, interaction states, drag and drop...
   /// (stored flat in the node's JSON, under [Behaviours.keys]).
@@ -98,7 +100,7 @@ final class Node {
     Decoration? decoration,
     Props? props,
     Map<String, String>? bind,
-    List<Json>? actions,
+    List<Reaction>? actions,
     Behaviours? behaviours,
     Json? extra,
   }) =>
@@ -161,7 +163,7 @@ final class Node {
           for (final e in bind.entries)
             if (e.value is String) e.key: e.value as String,
       },
-      actions: [...?readList(m['actions'])?.map(readMap).nonNulls],
+      actions: Reaction.listFromJson(m['actions']),
       behaviours: Behaviours.fromJson(m),
       extra: {
         for (final e in m.entries)
@@ -181,7 +183,7 @@ final class Node {
     if (!decoration.isNone) j['decoration'] = decoration.toJson();
     if (!props.isEmpty) j['props'] = props.toJson(spec);
     if (bind.isNotEmpty) j['bind'] = bind;
-    if (actions.isNotEmpty) j['actions'] = actions;
+    if (actions.isNotEmpty) j['actions'] = [for (final r in actions) r.toJson()];
     behaviours.writeTo(j);
     j.addAll(extra);
     return j;
@@ -202,7 +204,7 @@ final class Node {
           other.decoration == decoration &&
           other.props == props &&
           jsonEquality.equals(other.bind, bind) &&
-          jsonEquality.equals(other.actions, actions) &&
+          listEquals(other.actions, actions) &&
           other.behaviours == behaviours &&
           jsonEquality.equals(other.extra, extra);
 
