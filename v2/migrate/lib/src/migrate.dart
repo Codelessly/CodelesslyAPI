@@ -6,6 +6,8 @@ import 'dart:math' as math;
 import 'package:codelessly_api/codelessly_api.dart';
 
 import 'behaviours.dart';
+import 'bindings.dart';
+import 'logic.dart';
 import 'page_schema.dart';
 import 'types/registry.dart';
 
@@ -28,12 +30,17 @@ class MigrationReport {
   /// Nodes v1 itself couldn't decode, by id → error.
   final Map<String, String> undecodable = {};
 
+  /// v1 binding keys with no v2 binding path (kept under their v1 key), by
+  /// `type.key`.
+  final Map<String, int> unmappedBindings = {};
+
   void merge(MigrationReport o) {
     nodes += o.nodes;
     o.types.forEach((k, v) => types.update(k, (x) => x + v, ifAbsent: () => v));
     o.unmapped.forEach((k, v) => unmapped.update(k, (x) => x + v, ifAbsent: () => v));
     o.unportedTypes.forEach((k, v) => unportedTypes.update(k, (x) => x + v, ifAbsent: () => v));
     undecodable.addAll(o.undecodable);
+    o.unmappedBindings.forEach((k, v) => unmappedBindings.update(k, (x) => x + v, ifAbsent: () => v));
   }
 }
 
@@ -42,7 +49,17 @@ const Set<String> portedV1Types = {'canvas', 'frame', 'rectangle', 'rowColumn', 
 
 /// Converts a stored v1 page document (`id → node JSON`, plus `rootNode`) to
 /// a v2 layout document.
-Json migrateDocument(Map<String, Object?> v1Document, {String id = '', MigrationReport? report}) {
+///
+/// The layout's v1 [variables] and [conditions] (canvas id → (id → JSON), as
+/// the publish model and the editor store them) become its `variables` and
+/// `conditions` keys (see logic.dart).
+Json migrateDocument(
+  Map<String, Object?> v1Document, {
+  String id = '',
+  MigrationReport? report,
+  Object? variables,
+  Object? conditions,
+}) {
   final wrapped = <String, dynamic>{'document': {...v1Document}};
   MigrationHandler.migrateJson(wrapped);
   final doc = (wrapped['document'] as Map).cast<String, Object?>();
@@ -80,7 +97,13 @@ Json migrateDocument(Map<String, Object?> v1Document, {String id = '', Migration
     final parent = nodes[parents[n.id]];
     out[n.id] = V1Node(n, parent, nodes, rep).run();
   }
-  return {'schema': 2, if (id.isNotEmpty) 'id': id, 'roots': roots, 'nodes': out};
+  return {
+    'schema': 2,
+    if (id.isNotEmpty) 'id': id,
+    'roots': roots,
+    'nodes': out,
+    ...migrateLayoutLogic(variables: variables, conditions: conditions, nodes: nodes, report: rep),
+  };
 }
 
 List<String> ownedChildren(BaseNode node) {
@@ -263,11 +286,16 @@ class V1Node {
     if (props.isNotEmpty) out['props'] = props;
 
     final vars = take('variables');
+    // Derived (which variables a text reads): v2 reads the text itself.
+    take('multipleVariables');
     if (vars is Map && vars.isNotEmpty) {
-      final bind = <String, Object?>{
-        for (final e in vars.entries)
-          if (e.value is String) _bindPaths['${e.key}'] ?? '${e.key}': e.value,
-      };
+      final bind = <String, Object?>{};
+      for (final e in vars.entries) {
+        if (e.value is! String) continue;
+        final path = v2BindPath(n, type, '${e.key}');
+        if (path == null) report.unmappedBindings.update('${n.type}.${e.key}', (v) => v + 1, ifAbsent: () => 1);
+        bind[path ?? '${e.key}'] = e.value;
+      }
       // A fixed direction (not a binding) is the node's own.
       if (bind['textDirection'] case final String d when !d.contains(r'${')) {
         bind.remove('textDirection');
@@ -296,9 +324,6 @@ class V1Node {
   }
 
   static const _common = {'variables', 'reactions', 'multipleVariables'};
-
-  /// v1 binding keys whose v2 property has another name.
-  static const _bindPaths = {'drawScale': 'scale', 'layoutDirection': 'textDirection'};
 
   // --- layout ---------------------------------------------------------------
 
