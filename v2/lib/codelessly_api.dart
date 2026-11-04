@@ -2,10 +2,13 @@
 library;
 
 export 'src/behaviours.dart';
+export 'src/bindings.dart';
+export 'src/conditions.dart';
 export 'src/decoration.dart';
 export 'src/document.dart';
 export 'src/json.dart';
 export 'src/layout.dart';
+export 'src/logic.dart';
 export 'src/node.dart';
 export 'src/props.dart';
 export 'src/services/cloud.dart';
@@ -18,6 +21,7 @@ export 'src/values/enums.dart';
 export 'src/values/geometry.dart';
 export 'src/values/paint.dart';
 export 'src/values/text.dart';
+export 'src/variables.dart';
 export 'src/widgets/canvas.dart';
 export 'src/widgets/collections.dart';
 export 'src/widgets/indicators.dart';
