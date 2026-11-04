@@ -8,6 +8,7 @@ export 'src/json.dart';
 export 'src/layout.dart';
 export 'src/node.dart';
 export 'src/props.dart';
+export 'src/values/border.dart';
 export 'src/values/color.dart';
 export 'src/values/enums.dart';
 export 'src/values/geometry.dart';

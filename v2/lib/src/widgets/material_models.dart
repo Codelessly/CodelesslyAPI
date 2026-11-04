@@ -3,6 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../json.dart';
+import '../values/border.dart';
 import '../values/color.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
@@ -15,35 +16,6 @@ Color? _color(Object? j) => Color.fromJson(j);
 IconGlyph? _glyph(Object? j) {
   final m = readMap(j);
   return m == null || m.isEmpty ? null : m;
-}
-
-/// Flutter's `BorderSide`. A null [color] is the widget's themed outline
-/// color.
-@immutable
-final class BorderSide {
-  const BorderSide({this.color, this.width = 1});
-
-  static const BorderSide none = BorderSide(width: 0);
-
-  final Color? color;
-  final double width;
-
-  static BorderSide? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    return BorderSide(color: _color(m['color']), width: (readDouble(m['width']) ?? 1).clamp(0, double.infinity));
-  }
-
-  Json toJson() => {
-        if (color != null) 'color': color!.toJson(),
-        if (width != 1) 'width': writeDouble(width),
-      };
-
-  @override
-  bool operator ==(Object other) => other is BorderSide && other.color == color && other.width == width;
-
-  @override
-  int get hashCode => Object.hash(color, width);
 }
 
 /// Which of Flutter's `OutlinedBorder`s a [ShapeBorder] is.
