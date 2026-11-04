@@ -97,7 +97,7 @@ Json migratePublishLayout(
     if (path is String && path.trim().isNotEmpty) paths[c] = path.trim();
   }
 
-  final out = migrateDocument(page, id: id, report: report);
+  final out = migrateDocument(page, id: id, report: report, variables: variables, conditions: conditions);
   void putString(String key) {
     final v = layout[key];
     if (v is String && v.isNotEmpty) out[key] = v;
@@ -117,10 +117,6 @@ Json migratePublishLayout(
   // A layout of one canvas needs none.
   if (order.length > 1 && v2Breakpoints.isNotEmpty) out['breakpoints'] = v2Breakpoints;
   if (paths.isNotEmpty) out['paths'] = paths;
-  final vars = _map(_map(variables)['variables']);
-  if (vars.isNotEmpty) out['variables'] = vars;
-  final conds = _map(_map(conditions)['conditions']);
-  if (conds.isNotEmpty) out['conditions'] = conds;
   final fontIds = {...fonts};
   if (fontIds.isNotEmpty) out['fonts'] = [...fontIds];
   final apiIds = {...apis};

@@ -20,9 +20,9 @@ void main() {
     ],
     'paths': {'m': 'home'},
     'variables': {
-      'm': {
-        'v1': {'id': 'v1', 'name': 'count', 'type': 'integer', 'value': '3'},
-      },
+      'm': [
+        {'id': 'v1', 'name': 'count', 'type': 'integer', 'value': 3},
+      ],
     },
     'fonts': ['inter'],
     'lastUpdated': 1700000000000,
@@ -39,7 +39,7 @@ void main() {
       expect(l.pageId, 'page');
       expect(l.breakpoints, [const Breakpoint(canvasId: 'm'), const Breakpoint(canvasId: 'd', minWidth: 1024)]);
       expect(l.paths, {'m': 'home'});
-      expect(l.variablesOf('m').keys, ['v1']);
+      expect(l.variablesOf('m').single.value, 3);
       expect(l.lastUpdated, DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true));
       expect(l.extra, {'future': {'kept': true}});
       // And decodes as a plain document.

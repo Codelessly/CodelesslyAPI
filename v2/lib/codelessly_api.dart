@@ -3,6 +3,7 @@ library;
 
 export 'src/behaviours.dart';
 export 'src/bindings.dart';
+export 'src/actions.dart';
 export 'src/conditions.dart';
 export 'src/decoration.dart';
 export 'src/document.dart';
@@ -11,6 +12,7 @@ export 'src/layout.dart';
 export 'src/logic.dart';
 export 'src/node.dart';
 export 'src/props.dart';
+export 'src/triggers.dart';
 export 'src/services/cloud.dart';
 export 'src/services/config.dart';
 export 'src/services/http_api.dart';
