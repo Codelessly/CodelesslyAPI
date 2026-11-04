@@ -98,16 +98,19 @@ num _d(num v) {
 
 /// The v2 type of a v1 node.
 String v2TypeOf(BaseNode n) => switch (n) {
-      RowColumnNode(rowColumnType: RowColumnType.row) => 'row',
-      RowColumnNode() => 'column',
-      FrameNode() => 'stack',
+      CanvasNode() => 'canvas',
+      // Row/columns, and the screen-body placeholder that is one.
+      RowColumnMixin(rowColumnType: RowColumnType.row) => 'row',
+      RowColumnMixin() => 'column',
+      FrameNode() || FreeformPlaceholderNode() => 'stack',
       RectangleNode() when n.childrenOrEmpty.isNotEmpty => 'stack',
       RectangleNode() => 'box',
       _ => n.type,
     };
 
 /// Whether [parent] lays its children out freeform (stack semantics).
-bool isFreeformParent(BaseNode parent) => parent is FrameNode || parent is RectangleNode || parent is VarianceNode;
+bool isFreeformParent(BaseNode parent) =>
+    parent is FrameNode || parent is FreeformPlaceholderNode || parent is RectangleNode || parent is VarianceNode;
 
 class _NodeMigration {
   _NodeMigration(this.n, this.parent, this.nodes, this.report) : raw = Map<String, Object?>.from(n.toJson());
@@ -131,7 +134,7 @@ class _NodeMigration {
     final type = v2TypeOf(n);
     report.nodes++;
     report.types.update(type, (v) => v + 1, ifAbsent: () => 1);
-    final ported = n is RowColumnNode || portedV1Types.contains(n.type);
+    final ported = n is RowColumnMixin || n is FreeformPlaceholderNode || portedV1Types.contains(n.type);
     final out = <String, Object?>{'type': type};
     if (n.name.isNotEmpty) out['name'] = n.name;
 
@@ -161,8 +164,8 @@ class _NodeMigration {
     }
     final props = switch (n) {
       CanvasNode() => _canvasProps(),
-      RowColumnNode() => _flexProps(),
-      FrameNode() || RectangleNode() => _stackProps(),
+      RowColumnMixin() => _flexProps(),
+      FrameNode() || RectangleNode() || FreeformPlaceholderNode() => _stackProps(),
       TextNode() => _textProps(),
       IconNode() => _iconProps(),
       VarianceNode() => _varianceProps(),
@@ -248,7 +251,7 @@ class _NodeMigration {
 
     final p = parent;
     final align = n.alignment.data;
-    if (p is RowColumnNode && align != null) l['align'] = [_d(align.x), _d(align.y)];
+    if (p is RowColumnMixin && align != null) l['align'] = [_d(align.x), _d(align.y)];
     if (p != null && isFreeformParent(p)) {
       final x = _axis(p, horizontal: true), y = _axis(p, horizontal: false);
       if (!(x.length == 1 && x['start'] == 0)) l['x'] = x;
@@ -309,9 +312,8 @@ class _NodeMigration {
     }
     if (endPin != null && startPin == null) return {'end': _d(endPin)};
     if (endPin == null && !parentWraps && n.positioningMode == PositioningMode.align) {
-      // Keeps its share of the free space: Align, at the same spot.
-      final free = parentExtent - extent;
-      if (free > 0) return aligned(2 * start / free - 1);
+      // Keeps its share of the free space (measured at design size).
+      if (parentExtent - extent > 0) return {'relative': _d(start)};
     }
     return at(start);
   }
@@ -450,11 +452,16 @@ class _NodeMigration {
     };
     if (physics != null) p['physics'] = physics;
     if (s.shouldAlwaysScroll) p['alwaysScroll'] = true;
+    // A row/column may let its scrolled children's shadows paint past it.
+    if (n is RowColumnNode) {
+      take('clipsScrollContent');
+      if (!n.clipsScrollContent && !n.clipsContent) p['clipBehavior'] = 'none';
+    }
     return p;
   }
 
   Json _flexProps() {
-    final rc = n as RowColumnNode;
+    final rc = n as RowColumnMixin;
     for (final k in const ['rowColumnType', 'mainAxisAlignment', 'crossAxisAlignment', 'spacing', 'wrap', 'runSpacing']) {
       take(k);
     }
@@ -533,7 +540,11 @@ class _NodeMigration {
     if (align != null) p['textAlign'] = align;
     if (t.textAlignVertical != TextAlignVerticalEnum.top) p['textAlignVertical'] = t.textAlignVertical.name;
     if (t.maxLines != null) p['maxLines'] = t.maxLines;
-    if (t.overflow != TextOverflowC.clip) p['overflow'] = t.overflow.name;
+    if (t.overflow == TextOverflowC.scaleDown) {
+      p['scaleDown'] = true;
+    } else if (t.overflow != TextOverflowC.clip) {
+      p['overflow'] = t.overflow.name;
+    }
     final raw = this.raw;
     final base = <String, Object?>{
       if (raw['tabularFigures'] == true) 'tabularFigures': true,

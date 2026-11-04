@@ -14,5 +14,8 @@ abstract final class ScrollProps {
   /// Scrolls even when the content fits.
   static const alwaysScroll = PropDef<bool>('alwaysScroll', Codecs.bool, false);
 
-  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll];
+  /// How the scroll view clips its content.
+  static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
+
+  static const List<PropDef<Object?>> all = [scrollable, scrollDirection, reverse, physics, alwaysScroll, clipBehavior];
 }
