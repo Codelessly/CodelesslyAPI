@@ -10,14 +10,6 @@ import '../values/color.dart';
 
 // --- codecs -------------------------------------------------------------------
 
-/// A double that may be absent (`CircularProgressIndicator.value`).
-final class OptionalDoubleCodec extends PropCodec<double?> {
-  const OptionalDoubleCodec();
-  @override
-  double? decode(Object? json) => readDouble(json);
-  @override
-  Object? encode(double? value) => value == null ? null : writeDouble(value);
-}
 
 /// A string that may be absent (a font family that falls back).
 final class OptionalStringCodec extends PropCodec<String?> {

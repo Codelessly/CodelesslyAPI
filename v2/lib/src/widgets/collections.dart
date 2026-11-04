@@ -11,20 +11,6 @@ import '../values/enums.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
 
-/// A double that may be absent (`itemExtent`, `mainAxisExtent`).
-final class OptionalDoubleCodec extends PropCodec<double?> {
-  const OptionalDoubleCodec({this.min});
-  final double? min;
-  @override
-  double? decode(Object? json) {
-    final v = readDouble(json);
-    if (v == null) return null;
-    return min != null && v < min! ? min : v;
-  }
-
-  @override
-  Object? encode(double? value) => value == null ? null : writeDouble(value);
-}
 
 Object? _colorOut(Color? c) => c?.toJson();
 Object? _offsetOut(Offset? o) => o?.toJson();
