@@ -2,3 +2,4 @@
 library;
 
 export 'src/migrate.dart';
+export 'src/publish.dart';
