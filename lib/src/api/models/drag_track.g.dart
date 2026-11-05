@@ -30,6 +30,11 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.detent, 0)) json.remove('detent');
+  if (isJsonDefault(instance.overscroll, 0)) json.remove('overscroll');
+  if (isJsonDefault(instance.settleMs, 0)) json.remove('settleMs');
+  if (isJsonDefault(instance.settleCurve, MotionCurve.easeOutCubic))
+    json.remove('settleCurve');
   return json;
 }
 
@@ -63,6 +68,12 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   orientToPath: json['orientToPath'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
+  detent: (json['detent'] as num?)?.toDouble() ?? 0,
+  overscroll: (json['overscroll'] as num?)?.toDouble() ?? 0,
+  settleMs: (json['settleMs'] as num?)?.toInt() ?? 0,
+  settleCurve:
+      $enumDecodeNullable(_$MotionCurveEnumMap, json['settleCurve']) ??
+      MotionCurve.easeOutCubic,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -88,6 +99,10 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'orientToPath': instance.orientToPath,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'detent': instance.detent,
+      'overscroll': instance.overscroll,
+      'settleMs': instance.settleMs,
+      'settleCurve': _$MotionCurveEnumMap[instance.settleCurve]!,
     };
 
 const _$DragTrackShapeEnumMap = {
@@ -100,4 +115,20 @@ const _$DragTrackInputEnumMap = {
   DragTrackInput.follow: 'follow',
   DragTrackInput.vertical: 'vertical',
   DragTrackInput.horizontal: 'horizontal',
+};
+
+const _$MotionCurveEnumMap = {
+  MotionCurve.linear: 'linear',
+  MotionCurve.easeInOut: 'easeInOut',
+  MotionCurve.easeOut: 'easeOut',
+  MotionCurve.easeIn: 'easeIn',
+  MotionCurve.easeOutBack: 'easeOutBack',
+  MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
