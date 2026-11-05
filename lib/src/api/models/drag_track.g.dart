@@ -30,6 +30,13 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.fineStep, 0)) json.remove('fineStep');
+  if (isJsonDefault(instance.finePixelsPerRange, 0))
+    json.remove('finePixelsPerRange');
+  if (isJsonDefault(instance.fineHoldMs, 380)) json.remove('fineHoldMs');
+  if (isJsonDefault(instance.snapMs, 0)) json.remove('snapMs');
+  if (isJsonDefault(instance.snapCurve, 'easeOutBack'))
+    json.remove('snapCurve');
   return json;
 }
 
@@ -63,6 +70,12 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   orientToPath: json['orientToPath'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
+  fineStep: (json['fineStep'] as num?)?.toDouble() ?? 0,
+  finePixelsPerRange: (json['finePixelsPerRange'] as num?)?.toDouble() ?? 0,
+  fineHoldMs: (json['fineHoldMs'] as num?)?.toInt() ?? 380,
+  fineVariable: json['fineVariable'] as String?,
+  snapMs: (json['snapMs'] as num?)?.toInt() ?? 0,
+  snapCurve: json['snapCurve'] as String? ?? 'easeOutBack',
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -88,6 +101,12 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'orientToPath': instance.orientToPath,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'fineStep': instance.fineStep,
+      'finePixelsPerRange': instance.finePixelsPerRange,
+      'fineHoldMs': instance.fineHoldMs,
+      'fineVariable': ?instance.fineVariable,
+      'snapMs': instance.snapMs,
+      'snapCurve': instance.snapCurve,
     };
 
 const _$DragTrackShapeEnumMap = {
