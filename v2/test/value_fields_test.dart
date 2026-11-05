@@ -19,6 +19,8 @@ Json _extra(PropType type, String field) => switch (type.name) {
   'Effect' => {'type': field == 'type' ? 'innerShadow' : 'dropShadow'},
   'TextRun' => {'start': 0, 'end': 9},
   'Paint' when field == 'image' => {'type': 'image'},
+  // A hero needs its tag.
+  'HeroTag' when field != 'tag' => {'tag': 't'},
   _ => {},
 };
 
@@ -67,14 +69,19 @@ Object? sample(PropType type, [PropDef<Object?>? def]) {
       final f = type.fields.first;
       return {..._base(type, f.key), f.key: sample(f.type, f)};
     case PropKind.json:
-      return type.name == 'Reaction'
-          ? {
-              'trigger': {'type': 'click'},
-              'actions': [
-                {'type': 'openLink', 'url': 'https://example.com'},
-              ],
-            }
-          : {'a': 1};
+      return switch (type.name) {
+        'Reaction' => {
+          'trigger': {'type': 'click'},
+          'actions': [
+            {'type': 'openLink', 'url': 'https://example.com'},
+          ],
+        },
+        // A state's patches: node id → a patch of its JSON.
+        'NodePatches' => {
+          'n1': {'opacity': 0.5},
+        },
+        _ => {'a': 1},
+      };
   }
 }
 
@@ -140,6 +147,7 @@ Iterable<PropDef<Object?>> get _everyTopDef sync* {
   yield* LayoutFields.all;
   yield* DecorationFields.all;
   yield* NodeFields.all;
+  yield* BehaviourFields.all;
 }
 
 void main() {
@@ -209,12 +217,40 @@ void main() {
     }
   });
 
+  test('a node\'s behaviour fields are its flat behaviour keys', () {
+    final seen = <String>{};
+    for (final f in BehaviourFields.all) {
+      checkField(
+        'behaviours',
+        f,
+        (j) => Node.fromJson({'id': 'a', 'type': 'box', ...j})!.toJson(),
+        const PropType.json(),
+        seen,
+      );
+    }
+    expect({for (final f in BehaviourFields.all) f.key}, Behaviours.keys);
+    // Defaults are Behaviours.none's: a default value isn't stored.
+    for (final f in BehaviourFields.all) {
+      if (f.defaultValue == null) continue;
+      final n = Node.fromJson({'id': 'a', 'type': 'box', f.key: f.encode(f.defaultValue)})!;
+      expect(n.behaviours, Behaviours.none, reason: f.key);
+    }
+  });
+
   test('every object type a panel can reach declares fields its model keeps', () {
     final seen = <String>{};
     for (final d in _everyTopDef) {
       checkType(d.key, d.type, seen);
     }
     expect(seen, containsAll(['TextStyle', 'Paint', 'Effect', 'ButtonStyle', 'InputDecoration', 'ChartSeries']));
+    expect(
+      seen,
+      containsAll([
+        'Motion', 'MotionKeyframe', 'LoopAnimation', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles', //
+        'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
+        'EffectAnimation', 'ParticleEmitter',
+      ]),
+    );
   });
 
   test('types name Flutter types', () {

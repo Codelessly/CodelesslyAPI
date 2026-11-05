@@ -168,7 +168,11 @@ chart records...). A parent declares what it reads from each child
 (`WidgetSpec.childFields`: Flutter's parent data — `x`, `y` for a stack or
 variance, `flex`, `squeezable`, `align` for a row or column), so a panel
 shows a child's placement from its parent's declaration, apart from the
-child's own API. A properties panel is generated from these alone; a
+child's own API. Behaviours (§4.1) are declared too: `BehaviourFields`
+has one field per flat node key (`motion`, `loops`, `drag`, `hero`...),
+and each behaviour model has its own (`MotionFields`, `DragMotionFields`,
+`ParticleEmitterFields`...; curves are the `AnimationCurve` enumeration,
+durations whole milliseconds). A properties panel is generated from these alone; a
 test (`value_fields_test.dart`) round-trips a sample value of every field
 through its model's real JSON.
 
