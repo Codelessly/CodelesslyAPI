@@ -391,6 +391,15 @@ class MotionModel with Equatable, SerializableMixin {
   /// added to [rotate].
   final bool orientToPath;
 
+  /// Freezes the motion where it is: a running loop (and the spin) stops at
+  /// its current point instead of easing back to rest the way a loop
+  /// switched off does, and carries on from that point when this turns
+  /// false again. Chairs on a lift's cable loop stop where they hang when
+  /// the lift goes on hold and ride on when it reopens. Meant to be bound
+  /// through `motion.paused` in [BaseNode.variables], e.g. to
+  /// `${= status == 'hold'}`; see [pausedProperty].
+  final bool paused;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -451,6 +460,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.path,
     this.pathProgress = 0,
     this.orientToPath = false,
+    this.paused = false,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -513,6 +523,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// [enterFrom] gives the loop's start. The design canvas keeps showing
   /// the saved motion.
   static const String loopProperty = 'loop';
+
+  /// The name of the binding that freezes the motion in place: true (or
+  /// on, 1) pauses it, false resumes it from where it stopped. See
+  /// [paused].
+  static const String pausedProperty = 'paused';
   /// The name of the binding that sets [delayMs], in milliseconds.
   static const String delayMsProperty = 'delayMs';
 
@@ -662,6 +677,7 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPath = false,
     double? pathProgress,
     bool? orientToPath,
+    bool? paused,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -699,6 +715,7 @@ class MotionModel with Equatable, SerializableMixin {
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
+    paused: paused ?? this.paused,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -902,6 +919,7 @@ class MotionModel with Equatable, SerializableMixin {
     path,
     pathProgress,
     orientToPath,
+    paused,
     keyframes,
     pulseKey,
     revealOnScroll,
