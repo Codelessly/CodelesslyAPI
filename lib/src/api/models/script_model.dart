@@ -54,10 +54,11 @@ enum ScriptCapability {
 }
 
 List<ScriptCapability> _capabilitiesFromJson(Object? json) => [
-      if (json is List)
-        for (final Object? id in json)
-          if (id is String && ScriptCapability.fromId(id) != null) ScriptCapability.fromId(id)!,
-    ];
+  if (json is List)
+    for (final Object? id in json)
+      if (id is String && ScriptCapability.fromId(id) != null)
+        ScriptCapability.fromId(id)!,
+];
 
 /// A parameter of a [ScriptModel].
 @JsonSerializable()
@@ -86,6 +87,51 @@ class ScriptParam with Equatable, SerializableMixin {
 
   @override
   List<Object?> get props => [name, description, defaultValue];
+}
+
+/// A sample run of a [ScriptModel] with what it should give: the Editor's
+/// test console and the Editor MCP's `scripts.test` run these.
+@JsonSerializable()
+class ScriptTest with Equatable, SerializableMixin {
+  /// What the case checks, e.g. "zero rate".
+  final String name;
+
+  /// The arguments, by parameter name.
+  final Map<String, Object?> args;
+
+  /// Sample variables the script reads (by name), for scripts that read
+  /// variables.
+  final Map<String, Object?> vars;
+
+  /// Sample input values (by node id), for scripts that read inputs.
+  final Map<String, Object?> nodes;
+
+  /// The result the script should give, as JSON data, unless [expectError]
+  /// is set.
+  final Object? expect;
+
+  /// The error type the script should fail with, e.g. `RangeError`, or
+  /// null when it should succeed.
+  final String? expectError;
+
+  /// Creates a [ScriptTest].
+  const ScriptTest({
+    this.name = '',
+    this.args = const {},
+    this.vars = const {},
+    this.nodes = const {},
+    this.expect,
+    this.expectError,
+  });
+
+  /// Creates a [ScriptTest] from JSON.
+  factory ScriptTest.fromJson(Map json) => _$ScriptTestFromJson(json);
+
+  @override
+  Map toJson() => _$ScriptTestOmitDefaults(this, _$ScriptTestToJson(this));
+
+  @override
+  List<Object?> get props => [name, args, vars, nodes, expect, expectError];
 }
 
 /// A script: JavaScript that computes what formulas and actions can't
@@ -142,6 +188,9 @@ class ScriptModel with Equatable, SerializableMixin {
   /// variables, a page script of the same name wins over a project script.
   final String? pageId;
 
+  /// Sample runs with what they should give.
+  final List<ScriptTest> tests;
+
   /// Creates a [ScriptModel].
   const ScriptModel({
     required this.id,
@@ -154,6 +203,7 @@ class ScriptModel with Equatable, SerializableMixin {
     this.timeoutMs = 1000,
     this.memoryLimitMb = 32,
     this.pageId,
+    this.tests = const [],
   });
 
   /// The default CPU time limit.
@@ -167,7 +217,14 @@ class ScriptModel with Equatable, SerializableMixin {
 
   /// Names a script or parameter can't have: they're the host APIs.
   static const Set<String> reservedNames = {
-    'vars', 'nodes', 'app', 'console', 'fmt', 'script', 'params', 'main',
+    'vars',
+    'nodes',
+    'app',
+    'console',
+    'fmt',
+    'script',
+    'params',
+    'main',
   };
 
   /// Whether [name] can name a script or a parameter.
@@ -193,23 +250,25 @@ class ScriptModel with Equatable, SerializableMixin {
   List<String> get paramNames => [for (final ScriptParam p in params) p.name];
 
   /// The ids of the [capabilities], e.g. `variables.read`.
-  List<String> get capabilityIds => [for (final ScriptCapability c in capabilities) c.id];
+  List<String> get capabilityIds => [
+    for (final ScriptCapability c in capabilities) c.id,
+  ];
 
   /// What's wrong with this script's name, params or limits, or empty when
   /// nothing is. Doesn't check the source; the engine does.
   List<String> validate() => [
-        if (!isValidName(name))
-          'Name "$name" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
-        for (final ScriptParam p in params)
-          if (!isValidName(p.name))
-            'Parameter "${p.name}" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
-        if (params.map((p) => p.name).toSet().length != params.length)
-          'Parameter names must be unique.',
-        if (timeoutMs < 1 || timeoutMs > maxTimeoutMs)
-          'timeoutMs must be from 1 to $maxTimeoutMs.',
-        if (memoryLimitMb < 1 || memoryLimitMb > 256)
-          'memoryLimitMb must be from 1 to 256.',
-      ];
+    if (!isValidName(name))
+      'Name "$name" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
+    for (final ScriptParam p in params)
+      if (!isValidName(p.name))
+        'Parameter "${p.name}" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
+    if (params.map((p) => p.name).toSet().length != params.length)
+      'Parameter names must be unique.',
+    if (timeoutMs < 1 || timeoutMs > maxTimeoutMs)
+      'timeoutMs must be from 1 to $maxTimeoutMs.',
+    if (memoryLimitMb < 1 || memoryLimitMb > 256)
+      'memoryLimitMb must be from 1 to 256.',
+  ];
 
   /// A copy with the given fields replaced.
   ScriptModel copyWith({
@@ -224,19 +283,20 @@ class ScriptModel with Equatable, SerializableMixin {
     int? memoryLimitMb,
     String? pageId,
     bool clearPageId = false,
-  }) =>
-      ScriptModel(
-        id: id ?? this.id,
-        name: name ?? this.name,
-        description: description ?? this.description,
-        params: params ?? this.params,
-        source: source ?? this.source,
-        version: version ?? this.version,
-        capabilities: capabilities ?? this.capabilities,
-        timeoutMs: timeoutMs ?? this.timeoutMs,
-        memoryLimitMb: memoryLimitMb ?? this.memoryLimitMb,
-        pageId: clearPageId ? null : pageId ?? this.pageId,
-      );
+    List<ScriptTest>? tests,
+  }) => ScriptModel(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    description: description ?? this.description,
+    params: params ?? this.params,
+    source: source ?? this.source,
+    version: version ?? this.version,
+    capabilities: capabilities ?? this.capabilities,
+    timeoutMs: timeoutMs ?? this.timeoutMs,
+    memoryLimitMb: memoryLimitMb ?? this.memoryLimitMb,
+    pageId: clearPageId ? null : pageId ?? this.pageId,
+    tests: tests ?? this.tests,
+  );
 
   /// Creates a [ScriptModel] from JSON.
   factory ScriptModel.fromJson(Map json) => _$ScriptModelFromJson(json);
@@ -246,7 +306,7 @@ class ScriptModel with Equatable, SerializableMixin {
 
   @override
   List<Object?> get props => [
-        id, name, description, params, source, version, capabilities, //
-        timeoutMs, memoryLimitMb, pageId,
-      ];
+    id, name, description, params, source, version, capabilities, //
+    timeoutMs, memoryLimitMb, pageId, tests,
+  ];
 }
