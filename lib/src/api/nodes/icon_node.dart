@@ -41,6 +41,11 @@ class IconNode extends SceneNode
   @override
   bool get supportsPadding => false;
 
+  /// Icons have no tap callback of their own, so click reactions are
+  /// handled by the renderer like on any other node.
+  @override
+  bool get handlesDefaultReactionsInternally => false;
+
   @override
   double get aspectRatio => 1;
 
