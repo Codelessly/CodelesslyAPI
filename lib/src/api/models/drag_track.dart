@@ -157,8 +157,10 @@ class DragTrackModel with Equatable, SerializableMixin {
   bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
 
   /// Tapping the node's parent anywhere along the track moves the node
-  /// there (a fader cap jumps to where its slot was tapped). Only for
-  /// [DragTrackInput.follow].
+  /// there (a fader cap jumps to where its slot was tapped). On an arc, a
+  /// tap anywhere on the node turns it to the tapped angle (past the sweep's
+  /// ends, the nearer end), so a dial drawn to the size of its ring can be
+  /// tapped round its ring. Only for [DragTrackInput.follow].
   final bool jumpOnTap;
 
   /// Whether the mouse wheel steps the value.
