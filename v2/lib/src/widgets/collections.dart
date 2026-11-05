@@ -5,6 +5,7 @@
 // once per item; tabs, accordions and expansion tiles show some of their
 // children.
 import '../json.dart';
+import '../child_fits.dart';
 import '../props.dart';
 import '../values/color.dart';
 import '../values/enums.dart';
@@ -148,6 +149,7 @@ abstract final class ListViewProps {
       wrapAlignment, wrapCrossAlignment, stretchItems,
     ],
     children: ChildModel.list,
+    childFits: listChildFits,
     doc: 'Flutter `ListView`; the first child is the item.',
   );
 }
@@ -175,6 +177,7 @@ abstract final class GridViewProps {
       childAspectRatio, mainAxisExtent, shrinkWrapRows,
     ],
     children: ChildModel.list,
+    childFits: cellChildFits,
     doc: 'Flutter `GridView`; the first child is the item.',
   );
 }
@@ -203,6 +206,7 @@ abstract final class PageViewProps {
       animationCurve,
     ],
     children: ChildModel.list,
+    childFits: cellChildFits,
     doc: 'Flutter `PageView`; the first child is the page.',
   );
 }
