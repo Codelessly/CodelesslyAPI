@@ -47,6 +47,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.backfaceHidden, false))
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
+  if (isJsonDefault(instance.arc, 0)) json.remove('arc');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.keyframes, const [])) json.remove('keyframes');
   if (isJsonDefault(instance.revealOnScroll, false))
@@ -125,6 +126,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   backfaceHidden: json['backfaceHidden'] as bool? ?? false,
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
+  arc: (json['arc'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
   keyframes:
       (json['keyframes'] as List<dynamic>?)
@@ -169,6 +171,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'backfaceHidden': instance.backfaceHidden,
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
+      'arc': instance.arc,
       'orientToPath': instance.orientToPath,
       'keyframes': instance.keyframes.map((e) => e.toJson()).toList(),
       'pulseKey': ?instance.pulseKey,

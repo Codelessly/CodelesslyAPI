@@ -269,6 +269,12 @@ class DropTargetModel with Equatable, SerializableMixin {
   /// The node drawn as the slot for [DropSlot.node].
   final String slotNodeId;
 
+  /// How long the slot is along the list, in logical pixels; 0 for the
+  /// dragged node's own length. A thin slot (8 px, with a [slotNodeId] bar
+  /// in it) marks where a drop lands without opening a whole gap, like a
+  /// bench of shirts with a gold insertion line.
+  final double slotExtent;
+
   /// Milliseconds a drag must stay over this target before its `dragHover`
   /// reactions fire (e.g. to switch to a tab's page); 0 for never.
   final int hoverDelayMs;
@@ -294,6 +300,7 @@ class DropTargetModel with Equatable, SerializableMixin {
     this.listNodeId = '',
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
+    this.slotExtent = 0,
     this.hoverDelayMs = 0,
     this.fullIf = '',
     this.enabled = true,
@@ -310,6 +317,7 @@ class DropTargetModel with Equatable, SerializableMixin {
     String? listNodeId,
     DropSlot? slot,
     String? slotNodeId,
+    double? slotExtent,
     int? hoverDelayMs,
     String? fullIf,
     bool? enabled,
@@ -320,6 +328,7 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId: listNodeId ?? this.listNodeId,
     slot: slot ?? this.slot,
     slotNodeId: slotNodeId ?? this.slotNodeId,
+    slotExtent: slotExtent ?? this.slotExtent,
     hoverDelayMs: hoverDelayMs ?? this.hoverDelayMs,
     fullIf: fullIf ?? this.fullIf,
     enabled: enabled ?? this.enabled,
@@ -333,6 +342,7 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId,
     slot,
     slotNodeId,
+    slotExtent,
     hoverDelayMs,
     fullIf,
     enabled,
