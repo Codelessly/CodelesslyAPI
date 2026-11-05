@@ -48,6 +48,11 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.pathPacing, MotionPathPacing.length))
+    json.remove('pathPacing');
+  if (isJsonDefault(instance.pathFocusX, 0)) json.remove('pathFocusX');
+  if (isJsonDefault(instance.pathFocusY, 0)) json.remove('pathFocusY');
+  if (isJsonDefault(instance.pathWrap, false)) json.remove('pathWrap');
   if (isJsonDefault(instance.keyframes, const [])) json.remove('keyframes');
   if (isJsonDefault(instance.revealOnScroll, false))
     json.remove('revealOnScroll');
@@ -126,6 +131,12 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  pathPacing:
+      $enumDecodeNullable(_$MotionPathPacingEnumMap, json['pathPacing']) ??
+      MotionPathPacing.length,
+  pathFocusX: (json['pathFocusX'] as num?)?.toDouble() ?? 0,
+  pathFocusY: (json['pathFocusY'] as num?)?.toDouble() ?? 0,
+  pathWrap: json['pathWrap'] as bool? ?? false,
   keyframes:
       (json['keyframes'] as List<dynamic>?)
           ?.map((e) => MotionKeyframe.fromJson(e as Map))
@@ -170,6 +181,10 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
+      'pathPacing': _$MotionPathPacingEnumMap[instance.pathPacing]!,
+      'pathFocusX': instance.pathFocusX,
+      'pathFocusY': instance.pathFocusY,
+      'pathWrap': instance.pathWrap,
       'keyframes': instance.keyframes.map((e) => e.toJson()).toList(),
       'pulseKey': ?instance.pulseKey,
       'revealOnScroll': instance.revealOnScroll,
@@ -190,6 +205,11 @@ const _$MotionCurveEnumMap = {
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
   MotionCurve.easeInOutCubic: 'easeInOutCubic',
   MotionCurve.step: 'step',
+};
+
+const _$MotionPathPacingEnumMap = {
+  MotionPathPacing.length: 'length',
+  MotionPathPacing.area: 'area',
 };
 
 const _$MotionLoopEnumMap = {
