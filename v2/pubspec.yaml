@@ -1,4 +1,4 @@
-name: codelessly_api
+name: codelessly_api_v2
 description: Flutter's widgets and layouts as plain, immutable data. The model behind the Codelessly editor and the Codelessly SDK.
 version: 7.0.0-beta.1
 homepage: https://codelessly.com/
