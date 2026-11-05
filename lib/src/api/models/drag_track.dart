@@ -140,6 +140,22 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// For a path: turn the node to follow the path's direction.
   final bool orientToPath;
 
+  /// With both [viewBoxWidth] and [viewBoxHeight] above 0, [path] is drawn
+  /// in the box of the frame the node sits in, measured in these units:
+  /// (0, 0) is the frame's top left and (viewBoxWidth, viewBoxHeight) its
+  /// bottom right, stretched to the frame's size on each axis. The node's
+  /// centre then follows the path wherever the frame's size puts it, so a
+  /// thermometer pin keeps to a mountain ridge drawn in the same box (a
+  /// path node with the same viewBox) at any screen width. 0 (the default)
+  /// keeps [path] in pixels relative to the node's rest centre.
+  final double viewBoxWidth;
+
+  /// See [viewBoxWidth].
+  final double viewBoxHeight;
+
+  /// Whether [path] is measured in the frame's box ([viewBoxWidth]).
+  bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+
   /// Tapping the node's parent anywhere along the track moves the node
   /// there (a fader cap jumps to where its slot was tapped). Only for
   /// [DragTrackInput.follow].
@@ -169,6 +185,8 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.rotate = true,
     this.path,
     this.orientToPath = false,
+    this.viewBoxWidth = 0,
+    this.viewBoxHeight = 0,
     this.jumpOnTap = false,
     this.wheel = true,
   });
@@ -228,6 +246,8 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? rotate,
     String? path,
     bool? orientToPath,
+    double? viewBoxWidth,
+    double? viewBoxHeight,
     bool? jumpOnTap,
     bool? wheel,
   }) => DragTrackModel(
@@ -250,6 +270,8 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate: rotate ?? this.rotate,
     path: path ?? this.path,
     orientToPath: orientToPath ?? this.orientToPath,
+    viewBoxWidth: viewBoxWidth ?? this.viewBoxWidth,
+    viewBoxHeight: viewBoxHeight ?? this.viewBoxHeight,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
   );
@@ -275,6 +297,8 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate,
     path,
     orientToPath,
+    viewBoxWidth,
+    viewBoxHeight,
     jumpOnTap,
     wheel,
   ];

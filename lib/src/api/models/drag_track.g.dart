@@ -28,6 +28,8 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.pivotY, 0)) json.remove('pivotY');
   if (isJsonDefault(instance.rotate, true)) json.remove('rotate');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.viewBoxWidth, 0)) json.remove('viewBoxWidth');
+  if (isJsonDefault(instance.viewBoxHeight, 0)) json.remove('viewBoxHeight');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
   return json;
@@ -61,6 +63,8 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   rotate: json['rotate'] as bool? ?? true,
   path: json['path'] as String?,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  viewBoxWidth: (json['viewBoxWidth'] as num?)?.toDouble() ?? 0,
+  viewBoxHeight: (json['viewBoxHeight'] as num?)?.toDouble() ?? 0,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
 );
@@ -86,6 +90,8 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'rotate': instance.rotate,
       'path': ?instance.path,
       'orientToPath': instance.orientToPath,
+      'viewBoxWidth': instance.viewBoxWidth,
+      'viewBoxHeight': instance.viewBoxHeight,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
     };
