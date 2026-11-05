@@ -1,6 +1,7 @@
 /// Flutter's widgets and layouts as plain, immutable data.
 library;
 
+export 'src/behaviour_fields.dart';
 export 'src/behaviours.dart';
 export 'src/child_fits.dart';
 export 'src/bindings.dart';
