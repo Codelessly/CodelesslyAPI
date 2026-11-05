@@ -16,6 +16,7 @@ Map<String, dynamic> _$ScrollToActionOmitDefaults(
     json.remove('curve');
   if (isJsonDefault(instance.alignment, 0)) json.remove('alignment');
   if (isJsonDefault(instance.offset, 0)) json.remove('offset');
+  if (instance.axis == null) json.remove('axis');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -33,6 +34,7 @@ ScrollToAction _$ScrollToActionFromJson(Map json) => ScrollToAction(
       MotionCurve.easeInOut,
   alignment: (json['alignment'] as num?)?.toDouble() ?? 0,
   offset: (json['offset'] as num?)?.toDouble() ?? 0,
+  axis: json['axis'] as String?,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -47,6 +49,7 @@ Map<String, dynamic> _$ScrollToActionToJson(ScrollToAction instance) =>
       'curve': _$MotionCurveEnumMap[instance.curve]!,
       'alignment': instance.alignment,
       'offset': instance.offset,
+      'axis': instance.axis,
     };
 
 const _$MotionCurveEnumMap = {
