@@ -312,7 +312,7 @@ abstract final class SliderProps {
   static const thumbRadius = PropDef<double>('thumbRadius', Codecs.positive, 10);
 
   /// A rectangular thumb's size, `[width, height]` (along a horizontal track).
-  static const thumbSize = PropDef<Offset>('thumbSize', ValueCodec(Offset.fromJson, _offsetOut), Offset(20, 20));
+  static const thumbSize = PropDef<Offset>('thumbSize', Codecs.offset, Offset(20, 20));
   static const thumbCornerRadius = PropDef<double>('thumbCornerRadius', Codecs.positive, 4);
   static const thumbStrokeColor = PropDef<Color?>('thumbStrokeColor', Codecs.color, null);
   static const thumbStrokeWidth = PropDef<double>('thumbStrokeWidth', Codecs.positive, 0);
@@ -364,7 +364,6 @@ abstract final class SliderProps {
   ], doc: 'Flutter `Slider`.');
 }
 
-Object? _offsetOut(Offset o) => o.toJson();
 
 // --- dropdown -----------------------------------------------------------------
 
@@ -526,7 +525,7 @@ Object? _strokesOut(List<List<Offset>> v) => [
 /// with a placeholder and a sign line.
 abstract final class SignatureProps {
   /// The strokes, each a list of points.
-  static const value = PropDef<List<List<Offset>>>('value', ValueCodec(_strokesIn, _strokesOut), []);
+  static const value = PropDef<List<List<Offset>>>('value', ValueCodec(_strokesIn, _strokesOut, PropType.json('List<List<Offset>>')), []);
 
   /// Points are fractions of the pad's size (0–1) instead of pixels.
   static const normalized = PropDef<bool>('normalized', Codecs.bool, false);

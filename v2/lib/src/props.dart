@@ -4,9 +4,162 @@
 import 'package:meta/meta.dart';
 
 import 'json.dart';
+import 'value_fields.dart';
+import 'values/border.dart';
 import 'values/color.dart';
 import 'values/geometry.dart';
+import 'values/paint.dart';
 import 'values/text.dart';
+
+/// The shape of a prop's value, for tools: [PropType.name] is the Flutter
+/// type (`double`, `Color`, `EdgeInsets`, `MainAxisAlignment`,
+/// `List<Paint>`, `ButtonStyle`), so a properties panel picks the control a
+/// Flutter developer expects, docs print it and codegen emits it.
+enum PropKind {
+  boolean,
+  integer,
+  number,
+  string,
+
+  /// One of [PropType.values].
+  enumeration,
+
+  /// A Flutter value type edited as a whole (`Color`, `EdgeInsets`,
+  /// `BorderRadius`, `Alignment`, `Offset`, `BoxConstraints`, `IconData`).
+  value,
+
+  /// A list of [PropType.item].
+  list,
+
+  /// A model made of declared [PropType.fields] (`ButtonStyle`, `TextStyle`,
+  /// `Paint`): its JSON is an object with those keys.
+  object,
+
+  /// Free-form JSON (data rows, opaque configuration).
+  json,
+}
+
+/// What a prop holds (see [PropKind]). Pure data, read from a codec
+/// ([PropCodec.type]); a prop is nullable when its default is null
+/// ([PropDef.nullable]).
+@immutable
+final class PropType {
+  const PropType.boolean()
+    : kind = PropKind.boolean,
+      name = 'bool',
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+  const PropType.integer({this.min, this.max})
+    : kind = PropKind.integer,
+      name = 'int',
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null;
+  const PropType.number({this.min, this.max})
+    : kind = PropKind.number,
+      name = 'double',
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null;
+  const PropType.string()
+    : kind = PropKind.string,
+      name = 'String',
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+
+  /// An enum: its Flutter name and its values' names.
+  const PropType.enumeration(this.name, this.values)
+    : kind = PropKind.enumeration,
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+
+  /// A Flutter value type with a JSON form of its own ([PropKind.value]).
+  const PropType.value(this.name)
+    : kind = PropKind.value,
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+
+  /// A list; [name] is the item's Flutter type (the list's is [typeName]).
+  const PropType.list(PropType this.item)
+    : kind = PropKind.list,
+      name = 'List',
+      values = const [],
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+
+  /// A model of declared fields. [fields] is a function so a model can
+  /// contain itself (a paint's image) and declarations can be cyclic.
+  const PropType.object(this.name, List<PropDef<Object?>> Function() fields)
+    : kind = PropKind.object,
+      values = const [],
+      item = null,
+      _fields = fields,
+      _spec = null,
+      min = null,
+      max = null;
+
+  /// A model declared as a [WidgetSpec] of fields (a record).
+  const PropType.record(this.name, WidgetSpec spec)
+    : kind = PropKind.object,
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = spec,
+      min = null,
+      max = null;
+  const PropType.json([this.name = 'Object'])
+    : kind = PropKind.json,
+      values = const [],
+      item = null,
+      _fields = null,
+      _spec = null,
+      min = null,
+      max = null;
+
+  final PropKind kind;
+
+  /// The Flutter type name (`List` for lists: see [typeName]).
+  final String name;
+
+  /// The value names of an [PropKind.enumeration].
+  final List<String> values;
+
+  /// The item type of a [PropKind.list].
+  final PropType? item;
+  final List<PropDef<Object?>> Function()? _fields;
+  final WidgetSpec? _spec;
+
+  /// Bounds of a number (inclusive).
+  final num? min, max;
+
+  /// The fields of a [PropKind.object] (empty for other kinds).
+  List<PropDef<Object?>> get fields => _fields?.call() ?? _spec?.props ?? const [];
+
+  /// The full Flutter type name (`List<Paint>`).
+  String get typeName => kind == PropKind.list ? 'List<${item!.typeName}>' : name;
+
+  @override
+  String toString() => 'PropType($typeName)';
+}
 
 /// Reads and writes one prop's JSON. Decoding returns null for values it
 /// can't read (the prop then has its default).
@@ -14,6 +167,9 @@ abstract class PropCodec<T> {
   const PropCodec();
   T? decode(Object? json);
   Object? encode(T value);
+
+  /// What the values are (for panels, docs, codegen).
+  PropType get type;
 }
 
 final class DoubleCodec extends PropCodec<double> {
@@ -30,6 +186,9 @@ final class DoubleCodec extends PropCodec<double> {
 
   @override
   Object encode(double value) => writeDouble(value);
+
+  @override
+  PropType get type => PropType.number(min: min, max: max);
 }
 
 final class IntCodec extends PropCodec<int> {
@@ -43,6 +202,9 @@ final class IntCodec extends PropCodec<int> {
 
   @override
   Object encode(int value) => value;
+
+  @override
+  PropType get type => PropType.integer(min: min);
 }
 
 /// A double that may be absent (`itemExtent`, `mainAxisExtent`).
@@ -58,6 +220,9 @@ final class OptionalDoubleCodec extends PropCodec<double?> {
 
   @override
   Object? encode(double? value) => value == null ? null : writeDouble(value);
+
+  @override
+  PropType get type => PropType.number(min: min);
 }
 
 /// An int that may be absent (`maxLines`).
@@ -67,6 +232,9 @@ final class OptionalIntCodec extends PropCodec<int?> {
   int? decode(Object? json) => readInt(json);
   @override
   Object? encode(int? value) => value;
+
+  @override
+  PropType get type => const PropType.integer();
 }
 
 final class BoolCodec extends PropCodec<bool> {
@@ -75,6 +243,9 @@ final class BoolCodec extends PropCodec<bool> {
   bool? decode(Object? json) => readBool(json);
   @override
   Object encode(bool value) => value;
+
+  @override
+  PropType get type => const PropType.boolean();
 }
 
 final class StringCodec extends PropCodec<String> {
@@ -83,6 +254,9 @@ final class StringCodec extends PropCodec<String> {
   String? decode(Object? json) => json is String ? json : (json is num ? '$json' : null);
   @override
   Object encode(String value) => value;
+
+  @override
+  PropType get type => const PropType.string();
 }
 
 final class EnumCodec<T extends Enum> extends PropCodec<T> {
@@ -98,13 +272,18 @@ final class EnumCodec<T extends Enum> extends PropCodec<T> {
 
   @override
   Object encode(T value) => value.name;
+
+  @override
+  PropType get type => PropType.enumeration('$T', [for (final v in values) v.name]);
 }
 
 /// A value type with its own `fromJson` / `toJson`.
 final class ValueCodec<T> extends PropCodec<T> {
-  const ValueCodec(this._decode, this._encode);
+  const ValueCodec(this._decode, this._encode, this.type);
   final T? Function(Object?) _decode;
   final Object? Function(T) _encode;
+  @override
+  final PropType type;
   @override
   T? decode(Object? json) => json == null ? null : _decode(json);
   @override
@@ -118,26 +297,137 @@ final class ListCodec<T> extends PropCodec<List<T>> {
   List<T>? decode(Object? json) => readList(json)?.map(item.decode).whereType<T>().toList();
   @override
   Object encode(List<T> value) => [for (final v in value) item.encode(v)];
+
+  @override
+  PropType get type => PropType.list(item.type);
 }
 
-Object? _colorOut(Color c) => c.toJson();
-Object? _insetsOut(EdgeInsets e) => e.toJson();
-Object? _styleOut(TextStyle s) => s.toJson();
-Object? _runOut(TextRun r) => r.toJson();
+Object? _valueOut(Object? v) => v == null ? null : (v as dynamic).toJson();
+Object? _same(Object? v) => v;
 Color? _colorIn(Object? j) => Color.fromJson(j);
+EdgeInsets? _insetsIn(Object? j) => j == null ? null : EdgeInsets.fromJson(j);
+BorderRadius? _radiusIn(Object? j) => j == null ? null : BorderRadius.fromJson(j);
+Offset? _offsetIn(Object? j) => readList(j)?.length == 2 ? Offset.fromJson(j) : null;
+BoxConstraints? _constraintsIn(Object? j) => readMap(j) == null ? null : BoxConstraints.fromJson(j);
 TextRun? _runIn(Object? j) => TextRun.fromJson(j);
+Json? _jsonIn(Object? j) => readMap(j);
+Json? _glyphIn(Object? j) => readMap(j).let((m) => m == null || m.isEmpty ? null : m);
+List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
+TextStyle? _styleIn(Object? j) => TextStyle.fromJson(j);
+BorderSide? _sideIn(Object? j) => BorderSide.fromJson(j);
+Paint? _paintIn(Object? j) => Paint.fromJson(j);
+Effect? _effectIn(Object? j) => Effect.fromJson(j);
 
-/// Common codecs.
+/// A string that may be absent (a font family that falls back).
+final class OptionalStringCodec extends PropCodec<String?> {
+  const OptionalStringCodec();
+  @override
+  String? decode(Object? json) => json is String ? json : null;
+  @override
+  Object? encode(String? value) => value;
+  @override
+  PropType get type => const PropType.string();
+}
+
+/// An enum value that may be absent (Flutter's nullable enum parameters).
+final class OptionalEnumCodec<T extends Enum> extends PropCodec<T?> {
+  const OptionalEnumCodec(this.values);
+  final List<T> values;
+  @override
+  T? decode(Object? json) {
+    for (final v in values) {
+      if (v.name == json) return v;
+    }
+    return null;
+  }
+
+  @override
+  Object? encode(T? value) => value?.name;
+  @override
+  PropType get type => PropType.enumeration('$T', [for (final v in values) v.name]);
+}
+
+/// A bool that may be absent (null: the widget's own default).
+final class OptionalBoolCodec extends PropCodec<bool?> {
+  const OptionalBoolCodec();
+  @override
+  bool? decode(Object? json) => readBool(json);
+  @override
+  Object? encode(bool? value) => value;
+  @override
+  PropType get type => const PropType.boolean();
+}
+
+/// The Flutter value types' [PropType]s.
+abstract final class PropTypes {
+  static const color = PropType.value('Color');
+  static const edgeInsets = PropType.value('EdgeInsets');
+  static const borderRadius = PropType.value('BorderRadius');
+  static const alignment = PropType.value('Alignment');
+  static const offset = PropType.value('Offset');
+  static const boxConstraints = PropType.value('BoxConstraints');
+
+  /// An icon glyph (the icon widget's `icon` prop JSON).
+  static const icon = PropType.value('IconData');
+  static const textStyle = PropType.object('TextStyle', textStyleFields);
+  static const borderSide = PropType.object('BorderSide', borderSideFields);
+  static const paint = PropType.object('Paint', paintFields);
+  static const effect = PropType.object('Effect', effectFields);
+  static const textRun = PropType.object('TextRun', textRunFields);
+  static const json = PropType.json();
+  static const jsonList = PropType.list(PropType.json());
+}
+
+typedef _Double = double;
+
+/// Common codecs. Nullable variants (`optional*`) read a missing or
+/// unreadable value as null.
 abstract final class Codecs {
   static const double = DoubleCodec();
   static const positive = DoubleCodec(min: 0);
+  static const optionalDouble = OptionalDoubleCodec();
+  static const optionalPositive = OptionalDoubleCodec(min: 0);
   static const int = IntCodec();
+  static const optionalInt = OptionalIntCodec();
   static const bool = BoolCodec();
+  static const optionalBool = OptionalBoolCodec();
   static const string = StringCodec();
-  static const color = ValueCodec<Color>(_colorIn, _colorOut);
-  static const insets = ValueCodec<EdgeInsets>(EdgeInsets.fromJson, _insetsOut);
-  static const textStyle = ValueCodec<TextStyle>(TextStyle.fromJson, _styleOut);
-  static const textRuns = ListCodec<TextRun>(ValueCodec(_runIn, _runOut));
+  static const optionalString = OptionalStringCodec();
+  static const color = ValueCodec<Color>(_colorIn, _valueOut, PropTypes.color);
+  static const optionalColor = ValueCodec<Color?>(_colorIn, _valueOut, PropTypes.color);
+  static const insets = ValueCodec<EdgeInsets>(EdgeInsets.fromJson, _valueOut, PropTypes.edgeInsets);
+  static const optionalInsets = ValueCodec<EdgeInsets?>(_insetsIn, _valueOut, PropTypes.edgeInsets);
+  static const radius = ValueCodec<BorderRadius>(BorderRadius.fromJson, _valueOut, PropTypes.borderRadius);
+  static const optionalRadius = ValueCodec<BorderRadius?>(_radiusIn, _valueOut, PropTypes.borderRadius);
+  static const alignment = ValueCodec<Alignment>(Alignment.fromJson, _valueOut, PropTypes.alignment);
+  static const optionalAlignment = ValueCodec<Alignment?>(Alignment.fromJson, _valueOut, PropTypes.alignment);
+  static const offset = ValueCodec<Offset>(Offset.fromJson, _valueOut, PropTypes.offset);
+  static const optionalOffset = ValueCodec<Offset?>(_offsetIn, _valueOut, PropTypes.offset);
+  static const constraints = ValueCodec<BoxConstraints>(BoxConstraints.fromJson, _valueOut, PropTypes.boxConstraints);
+  static const optionalConstraints = ValueCodec<BoxConstraints?>(_constraintsIn, _valueOut, PropTypes.boxConstraints);
+  static const textStyle = ValueCodec<TextStyle>(_styleIn, _valueOut, PropTypes.textStyle);
+  static const borderSide = ValueCodec<BorderSide>(_sideIn, _valueOut, PropTypes.borderSide);
+  static const optionalBorderSide = ValueCodec<BorderSide?>(_sideIn, _valueOut, PropTypes.borderSide);
+  static const paint = ValueCodec<Paint>(_paintIn, _valueOut, PropTypes.paint);
+  static const paints = ListCodec<Paint>(paint);
+  static const effects = ListCodec<Effect>(ValueCodec<Effect>(_effectIn, _valueOut, PropTypes.effect));
+  static const textRuns = ListCodec<TextRun>(ValueCodec(_runIn, _valueOut, PropTypes.textRun));
+  static const doubles = ListCodec<_Double>(double);
+  static const strings = ListCodec<String>(string);
+
+  /// An icon glyph (`IconData`, or an SVG / image): `{"source", "name",
+  /// "codepoint", ...}` or `{"svg"|"image": url}`.
+  static const icon = ValueCodec<Json>(_jsonIn, _same, PropTypes.icon);
+  static const optionalIcon = ValueCodec<Json?>(_glyphIn, _same, PropTypes.icon);
+
+  /// A free-form JSON object.
+  static const json = ValueCodec<Json>(_jsonIn, _same, PropTypes.json);
+
+  /// Free-form JSON objects (data rows).
+  static const jsonList = ValueCodec<List<Json>>(_jsonListIn, _same, PropTypes.jsonList);
+
+  /// Any JSON value.
+  static const any = ValueCodec<Object?>(_same, _same, PropTypes.json);
 }
 
 /// One prop of a widget.
@@ -155,6 +445,12 @@ final class PropDef<T> {
 
   T? decode(Object? json) => codec.decode(json);
   Object? encode(T value) => codec.encode(value);
+
+  /// What the prop holds.
+  PropType get type => codec.type;
+
+  /// Whether the prop may be unset (null: the widget's own default).
+  bool get nullable => defaultValue == null;
 
   /// [value] as this prop's declared type: as is when it has it, else read
   /// by the codec (an `int` for a double prop is that double, a JSON value

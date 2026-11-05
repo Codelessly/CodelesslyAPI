@@ -43,28 +43,26 @@ abstract base class FieldValue {
 }
 
 Object? _valueOut(FieldValue? v) => v?.toJson();
-Object? _jsonOut(Json j) => j;
-Object? _anyOut(Object? v) => v;
-Object? _anyIn(Object? v) => v;
-Object? _radiusOut(BorderRadius r) => r.toJson();
-Object? _constraintsOut(BoxConstraints c) => c.toJson();
-Object? _alignmentOut(Alignment a) => a.toJson();
 
 /// Codecs for the inputs' value types.
 abstract final class InputCodecs {
-  static const json = ValueCodec<Json>(readMap, _jsonOut);
+  static const json = Codecs.json;
 
   /// Any JSON value (a dropdown's selected item).
-  static const any = ValueCodec<Object?>(_anyIn, _anyOut);
-  static const radius = ValueCodec<BorderRadius>(BorderRadius.fromJson, _radiusOut);
-  static const constraints = ValueCodec<BoxConstraints>(BoxConstraints.fromJson, _constraintsOut);
-  static const alignment = ValueCodec<Alignment>(Alignment.fromJson, _alignmentOut);
-  static const strings = ListCodec<String>(Codecs.string);
-  static const borderSide = ValueCodec<BorderSide?>(BorderSide.fromJson, _sideOut);
-  static const inputBorder = ValueCodec<InputBorder?>(InputBorder.fromJson, _valueOut);
-  static const icon = ValueCodec<InputIcon?>(InputIcon.fromJson, _valueOut);
-  static const decoration = ValueCodec<InputDecoration>(InputDecoration.fromJson, _valueOut);
-  static const segments = ListCodec<ButtonSegment>(ValueCodec(ButtonSegment.fromJson, _valueOut));
+  static const any = Codecs.any;
+  static const radius = Codecs.radius;
+  static const constraints = Codecs.constraints;
+  static const alignment = Codecs.alignment;
+  static const strings = Codecs.strings;
+  static const borderSide = Codecs.optionalBorderSide;
+  static const inputBorder = ValueCodec<InputBorder?>(
+      InputBorder.fromJson, _valueOut, PropType.record('InputBorder', InputBorderFields.spec));
+  static const icon =
+      ValueCodec<InputIcon?>(InputIcon.fromJson, _valueOut, PropType.record('InputIcon', InputIconFields.spec));
+  static const decoration = ValueCodec<InputDecoration>(
+      InputDecoration.fromJson, _valueOut, PropType.record('InputDecoration', InputDecorationFields.spec));
+  static const segments = ListCodec<ButtonSegment>(
+      ValueCodec(ButtonSegment.fromJson, _valueOut, PropType.record('ButtonSegment', ButtonSegmentFields.spec)));
 }
 
 // --- BorderSide ---------------------------------------------------------------
@@ -134,9 +132,7 @@ abstract final class InputBorderFields {
       WidgetSpec('InputBorder', props: [type, borderSide, borderRadius, gapPadding], doc: 'Flutter `InputBorder`.');
 }
 
-const _sideCodec = ValueCodec<BorderSide>(_sideIn, _sideOut);
-Object? _sideOut(BorderSide? s) => s?.toJson();
-BorderSide? _sideIn(Object? json) => BorderSide.fromJson(json);
+const _sideCodec = Codecs.borderSide;
 
 // --- InputIcon ----------------------------------------------------------------
 
@@ -176,7 +172,7 @@ abstract final class InputIconFields {
   static const icon = PropDef<Json>('icon', InputCodecs.json, {});
   static const size = PropDef<double>('size', Codecs.positive, 24);
   static const color = PropDef<Color?>('color', Codecs.color, null);
-  static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut), []);
+  static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut, PropType.list(PropType.json('Reaction'))), []);
   static const spec = WidgetSpec('Icon', props: [icon, size, color, actions], doc: 'Flutter `Icon`.');
 }
 

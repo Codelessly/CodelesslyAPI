@@ -149,6 +149,25 @@ Props hold their declared type: `Props.set` / `Node.withProp` coerce a value
 through the prop's codec (`withProp(FlexProps.spacing, 31)` stores `31.0`)
 and throw an `ArgumentError` for a value it can't read.
 
+### 4.0 Prop types: what a panel reads
+
+Every codec states what its values are (`PropCodec.type`, a `PropType`):
+a kind (`boolean`, `integer`, `number`, `string`, `enumeration`, `value`,
+`list`, `object`, `json`), the **Flutter type name** (`double`, `Color`,
+`EdgeInsets`, `MainAxisAlignment`, `List<Paint>`, `ButtonStyle`), enum
+value names, bounds, a list's item type and an object's fields (each a
+`PropDef`). A prop is nullable when its default is null (`PropDef.nullable`).
+
+The same declarations cover the rest of a node, so one kind of declaration
+describes everything it holds: `LayoutFields` (`box`: width, height,
+constraints, margin, padding, rotation, aspectRatio; `parentData`: flex,
+squeezable, x, y, align), `DecorationFields`, `NodeFields`, and the fields
+of every model type (`TextStyleFields`, `PaintFields`, `EffectFields`,
+`BorderSideFields`, `ButtonStyleFields`, `InputDecorationFields`, the
+chart records...). A properties panel is generated from these alone; a
+test (`value_fields_test.dart`) round-trips a sample value of every field
+through its model's real JSON.
+
 ### 4.1 Behaviours
 
 What a node does beyond its layout and paint is the same for every type, so
