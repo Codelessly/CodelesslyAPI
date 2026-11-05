@@ -1,4 +1,4 @@
-import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api_v2/codelessly_api.dart';
 import 'package:test/test.dart';
 
 Node _node(String type, Json props, {Json slots = const {}}) =>

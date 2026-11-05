@@ -1,4 +1,4 @@
-import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api_v2/codelessly_api.dart';
 import 'package:test/test.dart';
 
 Node n(String type, [Props props = Props.empty]) => Node(id: 'p', type: type, props: props);

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api_v2/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -3,7 +3,7 @@
 // models really read and write: a sample value for each field, written
 // into the model's JSON, decodes and encodes back unchanged. So a panel
 // built from the declarations alone edits real values.
-import 'package:codelessly_api/codelessly_api.dart';
+import 'package:codelessly_api_v2/codelessly_api.dart';
 import 'package:test/test.dart';
 
 /// JSON a model needs before a field can be shown on it (an effect needs a
