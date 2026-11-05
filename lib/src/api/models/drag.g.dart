@@ -46,6 +46,7 @@ Map<String, dynamic> _$DragModelOmitDefaults(
     json.remove('flyOutCurve');
   if (isJsonDefault(instance.xVariable, '')) json.remove('xVariable');
   if (isJsonDefault(instance.yVariable, '')) json.remove('yVariable');
+  if (isJsonDefault(instance.bounds, GestureBounds.none)) json.remove('bounds');
   return json;
 }
 
@@ -98,6 +99,20 @@ DragModel _$DragModelFromJson(Map json) => DragModel(
       MotionCurve.easeIn,
   xVariable: json['xVariable'] as String? ?? '',
   yVariable: json['yVariable'] as String? ?? '',
+  physics: json['physics'] == null
+      ? null
+      : PhysicsModel.fromJson(json['physics'] as Map),
+  bounds:
+      $enumDecodeNullable(
+        _$GestureBoundsEnumMap,
+        json['bounds'],
+        unknownValue: GestureBounds.none,
+      ) ??
+      GestureBounds.none,
+  minX: (json['minX'] as num?)?.toDouble(),
+  maxX: (json['maxX'] as num?)?.toDouble(),
+  minY: (json['minY'] as num?)?.toDouble(),
+  maxY: (json['maxY'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
@@ -130,6 +145,12 @@ Map<String, dynamic> _$DragModelToJson(DragModel instance) => <String, dynamic>{
   'flyOutCurve': _$MotionCurveEnumMap[instance.flyOutCurve]!,
   'xVariable': instance.xVariable,
   'yVariable': instance.yVariable,
+  'physics': ?instance.physics?.toJson(),
+  'bounds': _$GestureBoundsEnumMap[instance.bounds]!,
+  'minX': ?instance.minX,
+  'maxX': ?instance.maxX,
+  'minY': ?instance.minY,
+  'maxY': ?instance.maxY,
 };
 
 const _$DragAxisEnumMap = {
@@ -165,4 +186,10 @@ const _$MotionCurveEnumMap = {
   MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
   MotionCurve.easeInOutCubic: 'easeInOutCubic',
   MotionCurve.step: 'step',
+};
+
+const _$GestureBoundsEnumMap = {
+  GestureBounds.none: 'none',
+  GestureBounds.contain: 'contain',
+  GestureBounds.cover: 'cover',
 };

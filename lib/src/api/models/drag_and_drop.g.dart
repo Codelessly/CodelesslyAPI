@@ -87,6 +87,9 @@ DraggableModel _$DraggableModelFromJson(Map json) => DraggableModel(
   springStiffness: (json['springStiffness'] as num?)?.toDouble() ?? 260,
   springDamping: (json['springDamping'] as num?)?.toDouble() ?? 14,
   enabled: json['enabled'] as bool? ?? true,
+  physics: json['physics'] == null
+      ? null
+      : PhysicsModel.fromJson(json['physics'] as Map),
 );
 
 Map<String, dynamic> _$DraggableModelToJson(DraggableModel instance) =>
@@ -106,6 +109,7 @@ Map<String, dynamic> _$DraggableModelToJson(DraggableModel instance) =>
       'springStiffness': instance.springStiffness,
       'springDamping': instance.springDamping,
       'enabled': instance.enabled,
+      'physics': ?instance.physics?.toJson(),
     };
 
 const _$DragStartEnumMap = {

@@ -256,6 +256,9 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
       ..floating = json['floating'] as bool? ?? false
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
@@ -266,6 +269,7 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..sizeTransition = json['sizeTransition'] == null
           ? null
           : NodeTransition.fromJson(json['sizeTransition'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -279,7 +283,6 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(
@@ -331,17 +334,18 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
+  'clipsContent': instance.clipsContent,
+  'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
-  'clipsContent': instance.clipsContent,
-  'ephemeral': instance.ephemeral,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
