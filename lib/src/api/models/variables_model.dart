@@ -147,6 +147,15 @@ class VariableData
   /// metadata or any other information that is not part of the core variable.
   final Map<String, dynamic> extra;
 
+  /// The key in [extra] that makes a variable [remember] its value.
+  static const String rememberKey = 'remember';
+
+  /// Whether the running app keeps this variable's value on the device and
+  /// starts from it next time (a coach's lineup, the squad they edited),
+  /// instead of from its initial value. Stored as `extra.remember: true`.
+  /// App and page variables only; computed variables are never stored.
+  bool get remember => extra[rememberKey] == true && !isComputed;
+
   /// A separate formula expression (what goes inside `${= ...}`) that computes
   /// this variable's value from other variables, e.g. `fresh < freshLimit`.
   /// A formula may also be stored directly in [value]. A computed variable

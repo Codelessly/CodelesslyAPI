@@ -43,6 +43,7 @@ Map<String, dynamic> _$DropTargetModelOmitDefaults(
   if (isJsonDefault(instance.listNodeId, '')) json.remove('listNodeId');
   if (isJsonDefault(instance.slot, DropSlot.gap)) json.remove('slot');
   if (isJsonDefault(instance.slotNodeId, '')) json.remove('slotNodeId');
+  if (isJsonDefault(instance.slotExtent, 0)) json.remove('slotExtent');
   if (isJsonDefault(instance.hoverDelayMs, 0)) json.remove('hoverDelayMs');
   if (isJsonDefault(instance.fullIf, '')) json.remove('fullIf');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -141,6 +142,7 @@ DropTargetModel _$DropTargetModelFromJson(Map json) => DropTargetModel(
       ) ??
       DropSlot.gap,
   slotNodeId: json['slotNodeId'] as String? ?? '',
+  slotExtent: (json['slotExtent'] as num?)?.toDouble() ?? 0,
   hoverDelayMs: (json['hoverDelayMs'] as num?)?.toInt() ?? 0,
   fullIf: json['fullIf'] as String? ?? '',
   enabled: json['enabled'] as bool? ?? true,
@@ -154,6 +156,7 @@ Map<String, dynamic> _$DropTargetModelToJson(DropTargetModel instance) =>
       'listNodeId': instance.listNodeId,
       'slot': _$DropSlotEnumMap[instance.slot]!,
       'slotNodeId': instance.slotNodeId,
+      'slotExtent': instance.slotExtent,
       'hoverDelayMs': instance.hoverDelayMs,
       'fullIf': instance.fullIf,
       'enabled': instance.enabled,

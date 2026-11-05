@@ -391,6 +391,25 @@ class MotionModel with Equatable, SerializableMixin {
   /// added to [rotate].
   final bool orientToPath;
 
+  /// Bends every change of position into a curve: when [translateX],
+  /// [translateY], [shiftX] or [shiftY] change (a bound position moving a
+  /// node to a new spot), the node travels from where it was to where it
+  /// goes along a quadratic curve whose control point sits this share of
+  /// the distance off the straight line, to the right of the direction of
+  /// travel on screen (negative: to the left). 0.25 is a gentle swing, 0.5 a wide arc. The
+  /// path the node takes is its motion path between the two places, so
+  /// players crossing a pitch to a new formation each sweep along their own
+  /// curve. 0 moves in a straight line. Bindable as `motion.arc`.
+  final double arc;
+
+  /// The values given explicitly, by name ([properties]), even when they
+  /// equal the default: where an [enterFrom] says to start from full
+  /// opacity, scale 1 or no offset (a trail that fades out each time it is
+  /// replayed enters from `{"opacity": 1}` to rest at 0). Read from the keys
+  /// of the JSON and kept by [withValue]; written back by [toJson]. Not part
+  /// of equality.
+  final Set<String> named;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -451,6 +470,8 @@ class MotionModel with Equatable, SerializableMixin {
     this.path,
     this.pathProgress = 0,
     this.orientToPath = false,
+    this.arc = 0,
+    this.named = const {},
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -498,7 +519,7 @@ class MotionModel with Equatable, SerializableMixin {
   /// name such as `elasticOut`), so a node can open with a slow spring and
   /// close quickly: `variables['motion.durationMs'] = '${= open ? 380 :
   /// 160}'`. See [withSetting].
-  static const List<String> settings = ['durationMs', 'delayMs', 'curve'];
+  static const List<String> settings = ['durationMs', 'delayMs', 'curve', 'arc'];
 
   /// The name of the binding that gives [path] from a variable or formula
   /// (text), e.g. a curve built from the screen's width.
@@ -567,6 +588,7 @@ class MotionModel with Equatable, SerializableMixin {
       if (property == 'spin') continue;
       final double value = from.valueOf(property);
       if (value != none.valueOf(property) ||
+          from.named.contains(property) ||
           property == 'pathProgress' && hasPath) {
         start = start.withValue(property, value);
       }
@@ -662,6 +684,8 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPath = false,
     double? pathProgress,
     bool? orientToPath,
+    double? arc,
+    Set<String>? named,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -699,6 +723,8 @@ class MotionModel with Equatable, SerializableMixin {
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
+    arc: arc ?? this.arc,
+    named: named ?? this.named,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -723,7 +749,14 @@ class MotionModel with Equatable, SerializableMixin {
   );
 
   /// Returns a copy with [property] set to [value].
-  MotionModel withValue(String property, double value) => switch (property) {
+  MotionModel withValue(String property, double value) {
+    final MotionModel next = _withValue(property, value);
+    return properties.contains(property) && !next.named.contains(property)
+        ? next.copyWith(named: {...next.named, property})
+        : next;
+  }
+
+  MotionModel _withValue(String property, double value) => switch (property) {
     'translateX' => copyWith(translateX: value),
     'translateY' => copyWith(translateY: value),
     'scale' => copyWith(scale: value),
@@ -751,6 +784,13 @@ class MotionModel with Equatable, SerializableMixin {
   /// [curve]. Returns this unchanged when [value] doesn't name one.
   MotionModel withSetting(String property, Object? value) {
     switch (property) {
+      case 'arc':
+        final double? bend = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        return bend == null || !bend.isFinite ? this : copyWith(arc: bend);
       case 'durationMs' || 'delayMs':
         final double? number = switch (value) {
           num n => n.toDouble(),
@@ -902,6 +942,7 @@ class MotionModel with Equatable, SerializableMixin {
     path,
     pathProgress,
     orientToPath,
+    arc,
     keyframes,
     pulseKey,
     revealOnScroll,
@@ -910,15 +951,26 @@ class MotionModel with Equatable, SerializableMixin {
 
   /// Creates a [MotionModel] from JSON.
   /// An earlier name of [backfaceHidden] (`hideBackface`) still reads.
-  factory MotionModel.fromJson(Map json) => _$MotionModelFromJson(
-    json['hideBackface'] != null && json['backfaceHidden'] == null
-        ? {...json, 'backfaceHidden': json['hideBackface']}
-        : json,
-  );
+  factory MotionModel.fromJson(Map json) {
+    final MotionModel model = _$MotionModelFromJson(
+      json['hideBackface'] != null && json['backfaceHidden'] == null
+          ? {...json, 'backfaceHidden': json['hideBackface']}
+          : json,
+    );
+    final Set<String> named = {
+      for (final Object? key in json.keys)
+        if (properties.contains(key)) key as String,
+    };
+    return named.isEmpty ? model : model.copyWith(named: named);
+  }
 
   @override
   Map toJson() {
     final Map json = _$MotionModelOmitDefaults(this, _$MotionModelToJson(this));
+    // Values given on purpose stay, even at their defaults (see [named]).
+    for (final String property in named) {
+      if (!json.containsKey(property)) json[property] = valueOf(property);
+    }
     // A node on a path enters from enterFrom's progress even when it is 0
     // (see entranceStart): spell it out so the JSON reads as it plays.
     final MotionModel? from = enterFrom;
