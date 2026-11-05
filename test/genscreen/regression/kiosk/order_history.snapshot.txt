@@ -1,0 +1,490 @@
+# mobile b0c616b2
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+    column "Gap" fixed/fixed
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon search" fixed/fixed
+                textField "Input query" expanded/shrinkWrap
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              icon "Icon local_shipping" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                text "Banner title" expanded/shrinkWrap
+                text "Banner message" expanded/shrinkWrap
+              row "Button Track" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+            row "Button Load older orders" expanded/fixed
+              icon "Icon expand_more" fixed/fixed
+              text "Label" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              row "Skeleton" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Track" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+            row "Button Load older orders" expanded/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon receipt_long" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Start shopping" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# tablet 1a67b572
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              row "Spacer" expanded/fixed
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon search" fixed/fixed
+                textField "Input query" expanded/shrinkWrap
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              icon "Icon local_shipping" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                text "Banner title" expanded/shrinkWrap
+                text "Banner message" expanded/shrinkWrap
+              row "Button Track" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+            row "Button Load older orders" shrinkWrap/fixed
+              icon "Icon expand_more" fixed/fixed
+              text "Label" shrinkWrap/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              row "Spacer" expanded/fixed
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              row "Skeleton" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Track" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+            row "Button Load older orders" shrinkWrap/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon receipt_long" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Start shopping" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# desktop 2ab4c9bf
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon search" fixed/fixed
+                textField "Input query" expanded/shrinkWrap
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  text "Option" shrinkWrap/shrinkWrap
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              icon "Icon local_shipping" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                text "Banner title" expanded/shrinkWrap
+                text "Banner message" expanded/shrinkWrap
+              row "Button Track" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+            row "Button Load older orders" shrinkWrap/fixed
+              icon "Icon expand_more" fixed/fixed
+              text "Label" shrinkWrap/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section stats" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+          column "Section filters" expanded/shrinkWrap
+            column "Input Find an order" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Tabs" expanded/shrinkWrap
+              column "Tab All" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab On the way" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Delivered" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+              column "Tab Returns" expanded/shrinkWrap
+                row "Tab label" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Indicator" expanded/fixed
+          column "Section active" expanded/shrinkWrap
+            row "Banner" expanded/shrinkWrap
+              row "Skeleton" fixed/fixed
+              column "Banner texts" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Track" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+          column "Section orders" expanded/shrinkWrap
+            listView "List" expanded/shrinkWrap
+              row "Row ${item.items}" expanded/shrinkWrap
+                rectangle "Thumbnail" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+            row "Button Load older orders" shrinkWrap/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon receipt_long" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Start shopping" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
