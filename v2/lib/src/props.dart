@@ -3,6 +3,7 @@
 // decoding, encoding, equality and the editor's panels all read it.
 import 'package:meta/meta.dart';
 
+import 'child_fits.dart';
 import 'json.dart';
 import 'value_fields.dart';
 import 'values/border.dart';
@@ -493,6 +494,7 @@ final class WidgetSpec {
     this.slots = const [],
     this.decorated = false,
     this.childFields = const [],
+    this.childFits,
     this.doc = '',
   });
 
@@ -512,6 +514,10 @@ final class WidgetSpec {
   /// The fields are `LayoutFields`; a child's panel shows them as its
   /// placement, chosen by its parent.
   final List<PropDef<Object?>> childFields;
+
+  /// Which size fits a child may take (null: `defaultChildFits`); see
+  /// `childFitOptions`.
+  final ChildFitRule? childFits;
   final String doc;
 
   PropDef<Object?>? prop(String key) {

@@ -2,6 +2,7 @@
 library;
 
 export 'src/behaviours.dart';
+export 'src/child_fits.dart';
 export 'src/bindings.dart';
 export 'src/actions.dart';
 export 'src/components.dart';
