@@ -14,6 +14,17 @@ Map<String, dynamic> _$ScriptParamOmitDefaults(
   return json;
 }
 
+Map<String, dynamic> _$ScriptTestOmitDefaults(
+  ScriptTest instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.name, '')) json.remove('name');
+  if (isJsonDefault(instance.args, const {})) json.remove('args');
+  if (isJsonDefault(instance.vars, const {})) json.remove('vars');
+  if (isJsonDefault(instance.nodes, const {})) json.remove('nodes');
+  return json;
+}
+
 Map<String, dynamic> _$ScriptModelOmitDefaults(
   ScriptModel instance,
   Map<String, dynamic> json,
@@ -26,6 +37,7 @@ Map<String, dynamic> _$ScriptModelOmitDefaults(
     json.remove('capabilities');
   if (isJsonDefault(instance.timeoutMs, 1000)) json.remove('timeoutMs');
   if (isJsonDefault(instance.memoryLimitMb, 32)) json.remove('memoryLimitMb');
+  if (isJsonDefault(instance.tests, const [])) json.remove('tests');
   return json;
 }
 
@@ -46,6 +58,31 @@ Map<String, dynamic> _$ScriptParamToJson(ScriptParam instance) =>
       'defaultValue': ?instance.defaultValue,
     };
 
+ScriptTest _$ScriptTestFromJson(Map json) => ScriptTest(
+  name: json['name'] as String? ?? '',
+  args:
+      (json['args'] as Map?)?.map((k, e) => MapEntry(k as String, e)) ??
+      const {},
+  vars:
+      (json['vars'] as Map?)?.map((k, e) => MapEntry(k as String, e)) ??
+      const {},
+  nodes:
+      (json['nodes'] as Map?)?.map((k, e) => MapEntry(k as String, e)) ??
+      const {},
+  expect: json['expect'],
+  expectError: json['expectError'] as String?,
+);
+
+Map<String, dynamic> _$ScriptTestToJson(ScriptTest instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'args': instance.args,
+      'vars': instance.vars,
+      'nodes': instance.nodes,
+      'expect': ?instance.expect,
+      'expectError': ?instance.expectError,
+    };
+
 ScriptModel _$ScriptModelFromJson(Map json) => ScriptModel(
   id: json['id'] as String,
   name: json['name'] as String,
@@ -63,6 +100,11 @@ ScriptModel _$ScriptModelFromJson(Map json) => ScriptModel(
   timeoutMs: (json['timeoutMs'] as num?)?.toInt() ?? 1000,
   memoryLimitMb: (json['memoryLimitMb'] as num?)?.toInt() ?? 32,
   pageId: json['pageId'] as String?,
+  tests:
+      (json['tests'] as List<dynamic>?)
+          ?.map((e) => ScriptTest.fromJson(e as Map))
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$ScriptModelToJson(ScriptModel instance) =>
@@ -79,6 +121,7 @@ Map<String, dynamic> _$ScriptModelToJson(ScriptModel instance) =>
       'timeoutMs': instance.timeoutMs,
       'memoryLimitMb': instance.memoryLimitMb,
       'pageId': ?instance.pageId,
+      'tests': instance.tests.map((e) => e.toJson()).toList(),
     };
 
 const _$ScriptCapabilityEnumMap = {

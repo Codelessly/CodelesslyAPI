@@ -9,6 +9,8 @@
   its result is the chain's `${result}`, optionally stored in a variable,
   and its `onError` actions run when it fails. `ActionVisitor` gains
   `visitRunScriptAction`.
+- `ScriptModel.tests` holds sample runs (`ScriptTest`: arguments, sample
+  variables and inputs, and the expected result or error type).
 
 ## 9.0.3
 
