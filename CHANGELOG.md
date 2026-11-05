@@ -1,3 +1,14 @@
+## Unreleased
+
+- `AppIdentity`: a project's identity as a web app and a mobile app (name,
+  short name, title template with per-page overrides, description, keywords,
+  canonical URL, favicon/icon sources, theme and background colors, social
+  card, PWA manifest, splash, language, robots, mobile display name, adaptive
+  icon, status bar). Hand-written lenient JSON with migrations from legacy
+  flat shapes, `merge` for patches, `checklist()` for the pre-publish
+  warnings, `toWebManifest()`, and `IdentityAssets`, the list of every
+  generated favicon, icon, splash and social image size.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
