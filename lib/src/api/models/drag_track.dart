@@ -148,6 +148,35 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// Whether the mouse wheel steps the value.
   final bool wheel;
 
+  /// A finer step for precise adjustment; 0 (the default) has no fine mode.
+  /// The track is in fine mode while Shift is held, or after the pointer is
+  /// pressed and held still for [fineHoldMs] before dragging: the value then
+  /// moves in [fineStep]s, [finePixelsPerRange] pixels for the whole range,
+  /// and `${track.fine}` is true (a FINE lamp). Shift + wheel steps by it.
+  final double fineStep;
+
+  /// Pixels of drag for the whole range in fine mode; 0 is four times
+  /// [pixelsPerRange].
+  final double finePixelsPerRange;
+
+  /// How long the pointer must be held still to enter fine mode; 0 turns
+  /// hold-to-fine off (Shift still works).
+  final int fineHoldMs;
+
+  /// A boolean variable, by name, the track keeps true while in fine mode,
+  /// for nodes outside the track (its children read `${track.fine}`).
+  final String? fineVariable;
+
+  /// Animates the node to each new value over this many milliseconds, along
+  /// [snapCurve], instead of jumping: a knob clicking from detent to detent.
+  /// 0 jumps.
+  final int snapMs;
+
+  /// The curve of [snapMs]: linear, easeIn, easeOut, easeInOut,
+  /// easeOutCubic, easeOutBack (default, a slight overshoot), elasticOut,
+  /// bounceOut.
+  final String snapCurve;
+
   /// Creates a [DragTrackModel].
   const DragTrackModel({
     this.shape = DragTrackShape.line,
@@ -171,10 +200,22 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.orientToPath = false,
     this.jumpOnTap = false,
     this.wheel = true,
+    this.fineStep = 0,
+    this.finePixelsPerRange = 0,
+    this.fineHoldMs = 380,
+    this.fineVariable,
+    this.snapMs = 0,
+    this.snapCurve = 'easeOutBack',
   });
 
   /// The names of the live values the `track` variable has.
-  static const List<String> liveValues = ['value', 'progress', 'dragging'];
+  static const List<String> liveValues = ['value', 'progress', 'dragging', 'fine'];
+
+  /// Whether the track has a fine mode.
+  bool get hasFine => fineStep > 0;
+
+  /// Pixels for the whole range in fine mode.
+  double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
 
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
   double progressOf(double value) {
@@ -184,6 +225,23 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// The value at [progress] along the track, snapped to [step].
   double valueAt(double progress) => snap(min + (max - min) * progress.clamp(0.0, 1.0));
+
+  /// [value] snapped to [fineStep] (counted from [min]) and kept in range.
+  double snapFine(double value) => snapTo(value, hasFine ? fineStep : step);
+
+  /// [value] snapped to [by] (counted from [min]; 0 is continuous) and kept
+  /// in range.
+  double snapTo(double value, double by) {
+    final double lo = min < max ? min : max;
+    final double hi = min < max ? max : min;
+    double v = value.clamp(lo, hi);
+    if (by > 0) {
+      v = min + ((v - min) / by).round() * by;
+      v = v.clamp(lo, hi);
+      v = double.parse(v.toStringAsFixed(6));
+    }
+    return v;
+  }
 
   /// [value] snapped to [step] (counted from [min]) and kept in range.
   double snap(double value) {
@@ -230,6 +288,13 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? orientToPath,
     bool? jumpOnTap,
     bool? wheel,
+    double? fineStep,
+    double? finePixelsPerRange,
+    int? fineHoldMs,
+    String? fineVariable,
+    bool clearFineVariable = false,
+    int? snapMs,
+    String? snapCurve,
   }) => DragTrackModel(
     shape: shape ?? this.shape,
     variable: variable ?? this.variable,
@@ -252,6 +317,12 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath: orientToPath ?? this.orientToPath,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
+    fineStep: fineStep ?? this.fineStep,
+    finePixelsPerRange: finePixelsPerRange ?? this.finePixelsPerRange,
+    fineHoldMs: fineHoldMs ?? this.fineHoldMs,
+    fineVariable: clearFineVariable ? null : (fineVariable ?? this.fineVariable),
+    snapMs: snapMs ?? this.snapMs,
+    snapCurve: snapCurve ?? this.snapCurve,
   );
 
   @override
@@ -277,6 +348,12 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath,
     jumpOnTap,
     wheel,
+    fineStep,
+    finePixelsPerRange,
+    fineHoldMs,
+    fineVariable,
+    snapMs,
+    snapCurve,
   ];
 
   /// Creates a [DragTrackModel] from JSON.
