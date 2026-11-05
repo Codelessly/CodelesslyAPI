@@ -172,6 +172,12 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// 0 jumps.
   final int snapMs;
 
+  /// Whether dragging writes [variable]. Off, the track only shows the
+  /// variable (which may then be a computed one, such as a timer's time
+  /// left) and its `changed` / `dragEnd` reactions set whatever should
+  /// change, from `${result.value}`.
+  final bool write;
+
   /// The curve of [snapMs]: linear, easeIn, easeOut, easeInOut,
   /// easeOutCubic, easeOutBack (default, a slight overshoot), elasticOut,
   /// bounceOut.
@@ -206,7 +212,30 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.fineVariable,
     this.snapMs = 0,
     this.snapCurve = 'easeOutBack',
+    this.write = true,
   });
+
+  /// Node binding keys ([BaseNode.variables]) that set [min], [max], [step]
+  /// and [defaultValue] from data, e.g. `{"drag.track.max": "${tSeconds}"}`
+  /// for a countdown whose length changes with the stage.
+  static const String minVariableKey = 'drag.track.min';
+
+  /// See [minVariableKey].
+  static const String maxVariableKey = 'drag.track.max';
+
+  /// See [minVariableKey].
+  static const String stepVariableKey = 'drag.track.step';
+
+  /// See [minVariableKey].
+  static const String defaultValueVariableKey = 'drag.track.defaultValue';
+
+  /// The binding keys of a track's settings.
+  static const List<String> variableKeys = [
+    minVariableKey,
+    maxVariableKey,
+    stepVariableKey,
+    defaultValueVariableKey,
+  ];
 
   /// The names of the live values the `track` variable has.
   static const List<String> liveValues = ['value', 'progress', 'dragging', 'fine'];
@@ -295,6 +324,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool clearFineVariable = false,
     int? snapMs,
     String? snapCurve,
+    bool? write,
   }) => DragTrackModel(
     shape: shape ?? this.shape,
     variable: variable ?? this.variable,
@@ -323,6 +353,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     fineVariable: clearFineVariable ? null : (fineVariable ?? this.fineVariable),
     snapMs: snapMs ?? this.snapMs,
     snapCurve: snapCurve ?? this.snapCurve,
+    write: write ?? this.write,
   );
 
   @override
@@ -354,6 +385,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     fineVariable,
     snapMs,
     snapCurve,
+    write,
   ];
 
   /// Creates a [DragTrackModel] from JSON.
