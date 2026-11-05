@@ -36,6 +36,7 @@ const Map<String, List<String>> planComponents = <String, List<String>>{
   'tabs': ['tabs'],
   'group': ['children'],
   'spacer': [],
+  'deck': ['items', 'front'],
 };
 
 /// Action types a plan may use.
@@ -51,6 +52,8 @@ const Map<String, List<String>> planActions = <String, List<String>>{
   'speak': ['text'],
   'call': ['name'],
   'generate': ['prompt'],
+  'save': ['key', 'value'],
+  'swipe': ['direction'],
 };
 
 /// Screen-level patterns; they pick the desktop arrangement.
@@ -241,7 +244,8 @@ class ScreenPlanValidator {
     if (pattern != null && !planPatterns.contains(pattern)) {
       warn('pattern', 'Unknown pattern "$pattern"; one of $planPatterns.');
     }
-    final Set<String> variables = <String>{'status', 'item', 'index'};
+    // Runtime names a plan may read or write without declaring them.
+    final Set<String> variables = <String>{'status', 'item', 'index', 'flipped', 'speech', 'storage'};
     final Object? data = plan['data'];
     if (data != null && data is! Map) {
       error('data', '"data" must be an object of sample values.');
@@ -513,7 +517,13 @@ class ScreenPlanValidator {
         }
         _component(c['item'], '$path.item', error, warn, variables, depth + 1);
     }
-    for (final String key in <String>['children', 'buttons']) {
+    if (type == 'deck') {
+      for (final String side in <String>['swipeRight', 'swipeLeft']) {
+        if (c[side] != null) _action(c[side], '$path.$side', error, warn, variables, required: false);
+      }
+      if (c['back'] == null) warn(path, 'A deck without "back" can\'t flip.');
+    }
+    for (final String key in <String>['children', 'buttons', 'front', 'back']) {
       final Object? children = c[key];
       if (children == null) continue;
       if (children is! List) {

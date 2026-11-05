@@ -8,6 +8,8 @@
 /// renders (canvas > body > responsive variance > breakpoint roots).
 library;
 
+import 'dart:convert';
+
 import 'design_kit.dart';
 import 'icon_vocabulary.dart';
 import 'screen_plan.dart' show normalizePlan, planTypeAliases;
@@ -166,6 +168,27 @@ class CompiledScreen {
       'children': <String>[layout['id'] as String],
     };
     flatten(layout, '${canvasId}_body');
+    // `@key` node references (a Known button flinging the deck's card) name
+    // a node of the same breakpoint tree by its key.
+    Object? resolve(Object? json, Map<String, String> keys) {
+      if (json is String && json.startsWith('@') && keys.containsKey(json.substring(1))) return keys[json.substring(1)];
+      if (json is Map) return <String, dynamic>{for (final MapEntry<dynamic, dynamic> e in json.entries) '${e.key}': resolve(e.value, keys)};
+      if (json is List) return <Object?>[for (final Object? v in json) resolve(v, keys)];
+      return json;
+    }
+
+    for (final String bp in trees.keys) {
+      final String prefix = bp[0];
+      final Map<String, String> keys = <String, String>{
+        for (final Map<String, dynamic> n in nodes.values)
+          if (n['key'] is String && '${n['id']}'.startsWith('${prefix}_')) n['key'] as String: n['id'] as String,
+      };
+      if (keys.isEmpty) continue;
+      for (final String id in nodes.keys.where((String id) => id.startsWith('${prefix}_')).toList()) {
+        final Object? reactions = nodes[id]!['reactions'];
+        if (reactions != null) nodes[id]!['reactions'] = resolve(reactions, keys);
+      }
+    }
     return nodes;
   }
 }
@@ -196,6 +219,7 @@ class ScreenCompiler {
   late String _prefix;
   int _ids = 0;
   final Map<String, dynamic> _data = <String, dynamic>{};
+  final Set<String> _deckFlipVariables = <String>{};
 
   /// Compiles [plan] (assumed valid; see `ScreenPlanValidator`).
   CompiledScreen compile(Map<String, dynamic> source) {
@@ -204,6 +228,7 @@ class ScreenCompiler {
     for (final MapEntry<String, String> r in renames.entries) {
       _report.warnings.add('Renamed "${r.key}" to "${r.value}" (a runtime name).');
     }
+    _deckFlipVariables.clear();
     _data
       ..clear()
       ..addAll(((plan['data'] as Map?) ?? const {}).cast<String, dynamic>());
@@ -225,6 +250,10 @@ class ScreenCompiler {
             'type': planTypeAliases[v['type']] ?? v['type'] ?? _typeOf(v['value']),
             'value': v['value'] ?? _defaultFor(v['type']),
           },
+      // A deck's flip state, unless the plan declared it.
+      for (final String f in _deckFlipVariables)
+        if (!_data.containsKey(f) && !((plan['variables'] as List?) ?? const []).any((dynamic v) => v is Map && v['name'] == f))
+          <String, dynamic>{'name': f, 'type': 'boolean', 'value': false},
     ];
     // Each interactive element was counted once per breakpoint.
     _report
@@ -553,7 +582,12 @@ class ScreenCompiler {
 
   Map<String, dynamic> _icon(String? name, {double size = 24, String color = 'onSurface'}) {
     String icon = name ?? fallbackIcon;
-    if (!iconVocabulary.containsKey(icon)) {
+    String? boundName;
+    if (icon.contains(r'${')) {
+      // An icon named by data: drawn by name at runtime (`iconName`).
+      boundName = icon;
+      icon = fallbackIcon;
+    } else if (!iconVocabulary.containsKey(icon)) {
       _report.warnings.add('Icon "$icon" is not in the vocabulary; drew "$fallbackIcon".');
       icon = fallbackIcon;
     }
@@ -581,6 +615,7 @@ class ScreenCompiler {
           'show': true,
         },
       },
+      if (boundName != null) 'variables': <String, dynamic>{'iconName': boundName},
     };
   }
 
@@ -692,6 +727,21 @@ class ScreenCompiler {
           'type': 'callFunction',
           'name': '${action['name']}',
           if (action['params'] is Map) 'params': action['params'],
+        });
+      case 'swipe':
+        // The deck's top card flies off as if swiped (its swipe reactions run).
+        out.add(<String, dynamic>{
+          'type': 'controlDrag',
+          'nodeId': '@deckcard',
+          'command': 'fling',
+          'direction': '${action['direction'] == 'left' ? 'left' : 'right'}',
+        });
+      case 'save':
+        out.add(<String, dynamic>{
+          'type': 'setStorage',
+          'key': '${action['key']}',
+          'variableType': '${action['valueType'] ?? 'text'}',
+          'newValue': action['value'] is String ? action['value'] : jsonEncode(action['value']),
         });
       case 'generate':
         // The SDK's runtime generator registers `generateScreen` as an app
@@ -1212,6 +1262,7 @@ class ScreenCompiler {
       'rating' => _rating(c),
       'group' => _group(c),
       'spacer' => _spacer(_space(c['size'] as String?, 'md')),
+      'deck' => _deck(c),
       _ => _text('${c['text'] ?? ''}', 'body'),
     };
     if (c['visible'] is String) {
@@ -1724,7 +1775,10 @@ class ScreenCompiler {
       return _column('List', nodes, gap: _space(c['gap'] as String?, 'xs'));
     }
     final bool wrap = c['wrap'] == true;
-    final Map<String, dynamic> template = itemNode((c['item'] as Map?)?.cast<String, dynamic>() ?? const {});
+    Map<String, dynamic> itemSpec = (c['item'] as Map?)?.cast<String, dynamic>() ?? const {};
+    final (String filtered, Map<String, dynamic> spec) = _filterItems('$items', itemSpec);
+    itemSpec = spec;
+    final Map<String, dynamic> template = itemNode(itemSpec);
     if (!wrap) template['horizontalFit'] = 'expanded';
     final double gap = c['gap'] == null ? (wrap ? _space('sm') : 0) : _space(c['gap'] as String?);
     return <String, dynamic>{
@@ -1736,7 +1790,7 @@ class ScreenCompiler {
       'verticalFit': 'shrinkWrap',
       'isScrollable': false,
       if (wrap) 'scrollDirection': 'horizontal',
-      'variables': <String, dynamic>{'data': '$items'},
+      'variables': <String, dynamic>{'data': filtered},
       'properties': <String, dynamic>{
         'separator': 'space',
         'separatorSpacing': gap,
@@ -1747,6 +1801,20 @@ class ScreenCompiler {
       },
       'children': <Map<String, dynamic>>[template],
     };
+  }
+
+  /// An item `visible` formula on a bound list becomes a filter of the
+  /// list's data, so hidden items take no room: `${packs}` with items
+  /// visible when `item.kind == 'ladder'` lists
+  /// `${= filter(packs, item => item.kind == 'ladder')}`.
+  (String, Map<String, dynamic>) _filterItems(String items, Map<String, dynamic> spec) {
+    final Match? list = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_.]*)\}$').firstMatch(items.trim());
+    final Match? visible = RegExp(r'^\$\{=\s*(.+)\}$').firstMatch('${spec['visible'] ?? ''}'.trim());
+    if (list == null || visible == null || !visible[1]!.contains('item')) return (items, spec);
+    return (
+      '\${= filter(${list[1]}, item => ${visible[1]})}',
+      <String, dynamic>{...spec}..remove('visible'),
+    );
   }
 
   /// Replaces `${item}` and `${item.x}` in [spec]'s strings with [item]'s
@@ -1776,7 +1844,8 @@ class ScreenCompiler {
         for (final dynamic item in items) _component(_substitute(spec, item) as Map<String, dynamic>, inRow: columns > 1),
       ], columns, gap), gap: gap);
     }
-    final Map<String, dynamic> template = _component(spec);
+    final (String filtered, Map<String, dynamic> itemSpec) = _filterItems('$items', spec);
+    final Map<String, dynamic> template = _component(itemSpec);
     template['horizontalFit'] = 'expanded';
     template['verticalFit'] = 'expanded';
     final double extent = _numOf(c['itemHeight']) ?? _estimateHeight(spec, columns);
@@ -1791,7 +1860,7 @@ class ScreenCompiler {
       'allowedTypes': <String>[],
       'deniedTypes': <String>['gridView'],
       'useFlutterListView': false,
-      'variables': <String, dynamic>{'data': '$items'},
+      'variables': <String, dynamic>{'data': filtered},
       'properties': <String, dynamic>{
         'gridDelegate': <String, dynamic>{
           'type': 'fixedCrossAxisCount',
@@ -2024,6 +2093,151 @@ class ScreenCompiler {
     badge['variables'] = <String, dynamic>{'fill-$paintId': pick(fillOf)};
     label['variables'] = <String, dynamic>{...?label['variables'] as Map<String, dynamic>?, 'textColor': pick(textOf)};
     return badge;
+  }
+
+  /// A swipeable, flippable stack of cards over a list binding: the top
+  /// card follows the finger, springs back or flies off left/right (running
+  /// swipeLeft/swipeRight), and a tap flips it in 3D to its back.
+  Map<String, dynamic> _deck(Map<String, dynamic> c) {
+    final KitGuide k = _comp('card');
+    final String flipped = '${c['flipVariable'] ?? 'flipped'}';
+    _deckFlipVariables.add(flipped);
+    final double w = _bp.mobile ? (_bp.width - 2 * _space(_bp.grid.margin)).clamp(200, 360).toDouble() : 400;
+    final double h = (_numOf(c['height']) ?? (_bp.mobile ? 420 : 460)).toDouble();
+    final double pad = _space(k['padding'], 'lg');
+    final String? border = _colorProp(k, 'border', null);
+    final Map<String, dynamic> flipAction = <String, dynamic>{'type': 'toggle', 'variable': flipped};
+    Map<String, dynamic> face(String name, List<dynamic> children, {required bool back}) {
+      final Map<String, dynamic> node = _column(name, <Map<String, dynamic>>[
+        for (final dynamic child in children) _component(child as Map<String, dynamic>),
+      ],
+          h: 'expanded',
+          v: 'expanded',
+          main: 'center',
+          cross: 'stretch',
+          gap: _space('md'),
+          fill: back ? (_colorProp(k, 'backFill', 'surfaceVariant') ?? 'surfaceVariant') : (_colorProp(k, 'fill', 'surface') ?? 'surface'),
+          stroke: border,
+          strokeWeight: _num(k, 'borderWidth', 1),
+          radius: _radius(k['radius'], 'lg'),
+          padding: _pad(pad, pad, pad, pad),
+          effects: _shadow(k['shadow'] ?? 'medium'),
+          extra: <String, dynamic>{
+            'positioningMode': 'align',
+            'alignment': <String, dynamic>{'data': <String, dynamic>{'x': 0, 'y': 0}},
+            'motion': <String, dynamic>{if (back) 'rotateY': 180, 'backfaceHidden': true},
+          });
+      return _wire(node, flipAction);
+    }
+
+    Map<String, dynamic> frame(String name, List<Map<String, dynamic>> children, {Map<String, dynamic>? extra}) => <String, dynamic>{
+      'id': _id('frame'),
+      'name': name,
+      'type': 'frame',
+      'basicBoxLocal': <num>[0, 0, w, h],
+      'horizontalFit': 'expanded',
+      'verticalFit': 'expanded',
+      'clipsContent': false,
+      'children': children,
+      ...?extra,
+    };
+
+    Map<String, dynamic> stamp(String label, String tone, String direction, double angle) {
+      final String toneColor = tone;
+      final Map<String, dynamic> node = _row('Stamp $label', <Map<String, dynamic>>[
+        _text(label, 'title', color: toneColor, h: 'shrinkWrap', name: 'Stamp label'),
+      ], h: 'shrinkWrap', v: 'shrinkWrap', padding: _pad(_space('md'), _space('xs', 'sm'), _space('md'), _space('xs', 'sm')),
+          stroke: toneColor, strokeWeight: 3, radius: _radius('md'), fill: 'surface');
+      final String amount = "(index == 0 && drag.direction == '$direction' ? min(1, drag.$direction) : 0)";
+      node['positioningMode'] = 'pin';
+      node['edgePins'] = direction == 'right' ? <String, num>{'left': pad, 'top': pad} : <String, num>{'right': pad, 'top': pad};
+      node['motion'] = <String, dynamic>{'rotate': angle, 'opacity': 0};
+      node['variables'] = <String, dynamic>{'motion.opacity': '\${= $amount}'};
+      return node;
+    }
+
+    final Map<String, dynamic> labels = (c['labels'] as Map?)?.cast<String, dynamic>() ?? const {'right': 'Known', 'left': 'Review'};
+    final Map<String, dynamic> flip = frame('Flip', <Map<String, dynamic>>[
+      face('Front', (c['front'] as List?) ?? const [], back: false),
+      if (c['back'] is List) face('Back', c['back'] as List, back: true),
+    ], extra: <String, dynamic>{
+      'positioningMode': 'align',
+      'alignment': <String, dynamic>{'data': <String, dynamic>{'x': 0, 'y': 0}},
+      'motion': <String, dynamic>{
+        'perspective': 1.25,
+        'durationMs': kit.motion['emphasized']?.durationMs ?? 420,
+        'curve': 'easeInOut',
+        'keyframes': <Map<String, num>>[<String, num>{'t': 0.5, 'scale': 1.05}],
+      },
+      'variables': <String, dynamic>{'motion.rotateY': '\${= index == 0 && $flipped ? 180 : 0}'},
+    });
+    final Map<String, dynamic> card = frame('Deck card', <Map<String, dynamic>>[
+      flip,
+      if (labels['right'] != null) stamp('${labels['right']}', 'success', 'right', -12),
+      if (labels['left'] != null) stamp('${labels['left']}', 'error', 'left', 12),
+    ], extra: <String, dynamic>{
+      'drag': <String, dynamic>{
+        'axis': 'free',
+        'release': 'dismiss',
+        'directions': <String>['left', 'right'],
+        'distanceThreshold': 0.35,
+        'velocityThreshold': 800,
+        'rotateFactor': 15,
+        'originX': 0,
+        'originY': 1.5,
+        'resistance': 0,
+        'snapBackMs': 520,
+        'snapCurve': 'spring',
+        'flyOutMs': 380,
+        'flyOutRotate': 20,
+      },
+      // Cards behind the top one sit lower and smaller, and rise when it
+      // leaves (the list keys items by id, so they animate).
+      'motion': <String, dynamic>{'originY': 1, 'durationMs': 340, 'curve': 'easeOutBack'},
+      'variables': <String, dynamic>{
+        'drag.enabled': r'${= index == 0}',
+        'motion.translateY': r'${= min(index, 3) * 14}',
+        'motion.scale': r'${= 1 - min(index, 3) * 0.05}',
+      },
+    });
+    _report.interactive++;
+    card
+      ..['id'] = '${_prefix}_deck_card'
+      ..['key'] = 'deckcard';
+    // Bound to a variable, the deck advances itself: right drops the top
+    // card, left sends it to the back of the queue.
+    final String? queue = RegExp(r'^\$\{([A-Za-z_][A-Za-z0-9_]*)\}$').firstMatch('${c['items']}'.trim())?[1];
+    final bool advance = queue != null && c['advance'] != false;
+    final List<Map<String, dynamic>> reactions = <Map<String, dynamic>>[
+      for (final (String side, String trigger) in const <(String, String)>[('swipeRight', 'swipeRight'), ('swipeLeft', 'swipeLeft')])
+        ..._reactions(<Object?>[
+          <String, dynamic>{'type': 'set', 'variable': flipped, 'value': 'false'},
+          if (c[side] != null) c[side],
+          if (advance)
+            <String, dynamic>{
+              'type': 'set',
+              'variable': queue,
+              'value': side == 'swipeRight' ? '\${= slice($queue, 1)}' : '\${= append(slice($queue, 1), $queue[0])}',
+            },
+        ], trigger: trigger),
+    ];
+    if (c['swipeRight'] != null || c['swipeLeft'] != null) _report.wired++;
+    card['reactions'] = reactions;
+    final Map<String, dynamic> list = <String, dynamic>{
+      'id': _id('deck'),
+      'name': 'Deck',
+      'type': 'listView',
+      'basicBoxLocal': <num>[0, 0, w, h],
+      'horizontalFit': 'fixed',
+      'verticalFit': 'fixed',
+      'isScrollable': false,
+      'clipsContent': false,
+      'variables': <String, dynamic>{'data': '${c['items']}'},
+      'properties': <String, dynamic>{'stacked': true},
+      'children': <Map<String, dynamic>>[card],
+    };
+    return _column('Deck area', <Map<String, dynamic>>[list],
+        cross: 'center', padding: _pad(0, _space('sm'), 0, 3 * 14 + _space('sm')));
   }
 
   Map<String, dynamic> _divider() => _row('Divider', const <Map<String, dynamic>>[],
