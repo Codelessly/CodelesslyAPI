@@ -73,6 +73,7 @@ export 'motion.dart';
 export 'effect_animation.dart';
 export 'stroke_path.dart';
 export 'hero_flight.dart';
+export 'app_identity.dart';
 export 'notch.dart';
 export 'list_tile_control_affinity.dart';
 export 'loop_animation.dart';
