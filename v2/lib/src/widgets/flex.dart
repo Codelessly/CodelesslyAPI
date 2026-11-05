@@ -1,3 +1,4 @@
+import '../child_fits.dart';
 import '../props.dart';
 import '../value_fields.dart';
 import '../values/enums.dart';
@@ -33,7 +34,7 @@ abstract final class FlexProps {
   static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align];
 
   static const row = WidgetSpec('row',
-      props: all, children: ChildModel.list, decorated: true, childFields: childFields, doc: 'Flutter `Row`.');
+      props: all, children: ChildModel.list, decorated: true, childFields: childFields, childFits: flexChildFits, doc: 'Flutter `Row`.');
   static const column = WidgetSpec('column',
-      props: all, children: ChildModel.list, decorated: true, childFields: childFields, doc: 'Flutter `Column`.');
+      props: all, children: ChildModel.list, decorated: true, childFields: childFields, childFits: flexChildFits, doc: 'Flutter `Column`.');
 }
