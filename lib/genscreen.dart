@@ -13,3 +13,5 @@ export 'src/genscreen/icon_vocabulary.dart';
 export 'src/genscreen/screen_compiler.dart';
 export 'src/genscreen/screen_plan.dart';
 export 'src/genscreen/screen_prompt.dart';
+export 'src/genscreen/screen_checks.dart';
+export 'src/genscreen/kit_bridge.dart';

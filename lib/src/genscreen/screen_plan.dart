@@ -80,6 +80,18 @@ const List<String> planVariableTypes = <String>[
   'map',
 ];
 
+/// Variable type words models use for the plan's types.
+const Map<String, String> planTypeAliases = <String, String>{
+  'number': 'decimal',
+  'double': 'decimal',
+  'float': 'decimal',
+  'int': 'integer',
+  'bool': 'boolean',
+  'string': 'text',
+  'array': 'list',
+  'object': 'map',
+};
+
 /// Text roles (type tokens) a plan may name.
 const List<String> planTextRoles = <String>[
   'display',
@@ -90,6 +102,80 @@ const List<String> planTextRoles = <String>[
   'label',
   'caption',
 ];
+
+/// Variable names the Codelessly runtime defines itself (the SDK's
+/// predefined variables): a plan's data key or variable with one of these
+/// names would be shadowed, so [normalizePlan] renames it.
+const Set<String> reservedPlanNames = <String>{
+  'data', 'product', 'paywall', 'entitlements', 'index', 'value', 'item',
+  'parent', 'storage', 'route', 'auth', 'result', 'screen', 'hold', 'drag',
+  'track', 'speech', 'initial', 'status',
+};
+
+/// [plan] with its data keys and variables renamed where they clash with a
+/// runtime name (`product` → `productInfo`), every binding, `bind` and
+/// action variable rewritten to match; integral `number` variables become
+/// integers. Returns the plan and the renames made.
+(Map<String, dynamic>, Map<String, String>) normalizePlan(Map<String, dynamic> plan) {
+  final Set<String> declared = <String>{
+    if (plan['data'] is Map) ...(plan['data'] as Map).keys.map((Object? k) => '$k'),
+    if (plan['variables'] is List)
+      for (final Object? v in plan['variables'] as List)
+        if (v is Map && v['name'] != null) '${v['name']}',
+  };
+  final Map<String, String> renames = <String, String>{
+    for (final String name in declared)
+      if (reservedPlanNames.contains(name)) name: '${name}Info',
+  };
+  final RegExp expr = RegExp(r'\$\{[^}]*\}');
+  String rewrite(String text) {
+    if (renames.isEmpty || !text.contains(r'${')) return text;
+    return text.replaceAllMapped(expr, (Match m) {
+      String e = m[0]!;
+      for (final MapEntry<String, String> r in renames.entries) {
+        e = e.replaceAllMapped(
+          RegExp('(?<![A-Za-z0-9_.])${r.key}(?![A-Za-z0-9_])'),
+          (Match _) => r.value,
+        );
+      }
+      return e;
+    });
+  }
+
+  Object? walk(Object? node, [String? key]) {
+    if (node is String) {
+      if ((key == 'bind' || key == 'variable') && renames.containsKey(node)) return renames[node];
+      return rewrite(node);
+    }
+    if (node is Map) {
+      return <String, dynamic>{for (final MapEntry<Object?, Object?> e in node.entries) '${e.key}': walk(e.value, '${e.key}')};
+    }
+    if (node is List) return <Object?>[for (final Object? v in node) walk(v, key)];
+    return node;
+  }
+
+  final Map<String, dynamic> out = walk(plan) as Map<String, dynamic>;
+  if (out['data'] is Map) {
+    out['data'] = <String, dynamic>{
+      for (final MapEntry<String, dynamic> e in (out['data'] as Map<String, dynamic>).entries)
+        renames[e.key] ?? e.key: e.value,
+    };
+  }
+  if (out['variables'] is List) {
+    out['variables'] = <Object?>[
+      for (final Object? v in out['variables'] as List)
+        if (v is Map)
+          <String, dynamic>{
+            ...v.cast<String, dynamic>(),
+            if (renames.containsKey(v['name'])) 'name': renames[v['name']],
+            if (v['type'] == 'number') 'type': v['value'] is int || (v['value'] is double && (v['value'] as double) % 1 == 0) ? 'integer' : 'decimal',
+          }
+        else
+          v,
+    ];
+  }
+  return (out, renames);
+}
 
 /// How serious a [PlanIssue] is.
 enum PlanSeverity {
@@ -132,6 +218,7 @@ class ScreenPlanValidator {
 
   /// Every issue in [plan].
   List<PlanIssue> validate(Object? plan) {
+    // ignore: parameter_assignments
     final List<PlanIssue> issues = <PlanIssue>[];
     void error(String path, String message) =>
         issues.add(PlanIssue(path, PlanSeverity.error, message));
@@ -142,6 +229,11 @@ class ScreenPlanValidator {
       error(r'$', 'The plan must be a JSON object.');
       return issues;
     }
+    final (Map<String, dynamic> normalized, Map<String, String> renames) = normalizePlan(plan.cast<String, dynamic>());
+    for (final MapEntry<String, String> r in renames.entries) {
+      warn('data.${r.key}', '"${r.key}" is a runtime name; renamed to "${r.value}".');
+    }
+    plan = normalized;
     if ((plan['title'] ?? '').toString().trim().isEmpty) {
       error('title', 'Give the screen a title.');
     }
@@ -172,7 +264,7 @@ class ScreenPlanValidator {
           if (!RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$').hasMatch(name)) {
             error(path, 'Variable name "$name" must be an identifier.');
           }
-          final Object? type = v['type'];
+          final Object? type = planTypeAliases[v['type']] ?? v['type'];
           if (type != null && !planVariableTypes.contains(type)) {
             error(path, 'Variable type "$type" must be one of $planVariableTypes.');
           }

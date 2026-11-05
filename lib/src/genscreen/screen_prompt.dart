@@ -35,6 +35,7 @@ Answer with ONE JSON object (no prose, no code fence) shaped like this:
 
 ## Rules
 - Use ONLY the kit's token names for color (`color`), text style (`style`), spacing (`gap`, `size`) and radius (`radius`). Never write hex colors, px sizes or font names.
+- Don't name a `data` key or variable after a runtime name: data, product, paywall, entitlements, index, value, item, parent, storage, route, auth, result, screen, hold, drag, track, speech, initial, status (use `productInfo`, `orderStatus`...).
 - `data` holds realistic sample values (real-sounding names, prices, dates; image URLs from https://picsum.photos/seed/<word>/<w>/<h>). Bind text to it with `${album.title}`; inside a list or grid item use `${item.field}`.
 - Every button, icon button, nav item and tappable row/card has an `action`. Every input, switch, checkbox, segmented control and tab bar has `bind`: a variable declared in `variables` (or a key of `data`).
 - `states.loading` and `states.error` are required. `states.empty` is required when the screen shows a `list` or `grid`; its message says what to do next.
