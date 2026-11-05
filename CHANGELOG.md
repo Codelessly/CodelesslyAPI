@@ -1,3 +1,27 @@
+## Unreleased
+
+- One gesture API (see CodelesslyEditor `docs/gestures_api.md`):
+  - `PhysicsModel`: a spring given as stiffness, damping and mass or as
+    bounce and duration (Flutter's `withDurationAndBounce`), a friction
+    fling, overscroll at the bounds and `SnapModel` snap points (points, a
+    grid or the parent's edges), picked by velocity projection. Shared by
+    `DragModel.physics`, `TransformGestureModel.physics` and
+    `DraggableModel.physics`. `{"preset": "bouncy"}` reads as a preset.
+  - `TransformGestureModel` (`BaseNode.transformGesture`): pan, pinch-zoom
+    and two-finger rotate of a node or its content, with min and max scale,
+    `GestureBounds` (none, contain, cover), double-tap zoom, wheel and
+    ctrl+wheel zoom, rotation snap, two-way pose variables and
+    `TransformHandlesModel` corner, edge and rotate handles.
+    `BaseNode.zoomable` reads as `TransformGestureModel.zoomable`
+    (`effectiveTransformGesture`).
+  - `DragModel` gains `physics`, `bounds` and `minX`, `maxX`, `minY`, `maxY`.
+    Old JSON loads unchanged; `effectivePhysics` maps the first
+    `snapBackMs`/`snapCurve` and `DraggableModel.returnSpring` settings.
+  - `TriggerType.resultDoc` / `triggerResultDocs`: what each trigger's
+    actions read in `${result}`.
+  - `GesturePresets`: photo viewer, map canvas, bottom sheet fling, sticker
+    and puck.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one

@@ -167,6 +167,9 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
       ..floating = json['floating'] as bool? ?? false
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
@@ -182,7 +185,6 @@ SpacerNode _$SpacerNodeFromJson(Map json) =>
 Map<String, dynamic> _$SpacerNodeToJson(
   SpacerNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -199,6 +201,7 @@ Map<String, dynamic> _$SpacerNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -224,6 +227,7 @@ Map<String, dynamic> _$SpacerNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],

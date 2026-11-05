@@ -187,6 +187,7 @@ class DragModel with Equatable, SerializableMixin {
 
   /// Where the node rests vertically. See [restX].
   final double restY;
+
   /// Makes the node a value control instead of a free drag: it moves along
   /// this track (a line, an arc it rotates through, or a path) and reads
   /// and writes a variable. [axis], [release] and the dismiss settings don't
@@ -224,6 +225,34 @@ class DragModel with Equatable, SerializableMixin {
   /// Like [xVariable], for the vertical distance.
   final String yVariable;
 
+  /// How the node moves on its own after release: a fling with friction,
+  /// a spring settle with the release velocity, snap points and overscroll
+  /// at the bounds. Null keeps the curve-timed [snapBackMs] / [snapCurve]
+  /// release. With physics, [DragRelease.snapBack] springs to rest,
+  /// [DragRelease.stay] flings and settles (on a [PhysicsModel.snap] target
+  /// when it has one) and [DragRelease.dismiss] springs back below its
+  /// threshold. See [effectivePhysics].
+  final PhysicsModel? physics;
+
+  /// What the node is kept inside of while dragged and flung: its parent's
+  /// box ([GestureBounds.contain], [GestureBounds.cover]) or nothing.
+  /// [minX], [maxX], [minY] and [maxY] narrow it further.
+  @JsonKey(unknownEnumValue: GestureBounds.none)
+  final GestureBounds bounds;
+
+  /// The leftmost offset from rest, in pixels; null for no limit.
+  final double? minX;
+
+  /// The rightmost offset from rest; null for no limit.
+  final double? maxX;
+
+  /// The highest offset from rest (negative is up); null for no limit. A
+  /// bottom sheet that opens 560px: `minY: -560, maxY: 0`.
+  final double? minY;
+
+  /// The lowest offset from rest; null for no limit.
+  final double? maxY;
+
   /// Creates a [DragModel].
   const DragModel({
     this.axis = DragAxis.free,
@@ -258,7 +287,33 @@ class DragModel with Equatable, SerializableMixin {
     this.flyOutCurve = MotionCurve.easeIn,
     this.xVariable = '',
     this.yVariable = '',
+    this.physics,
+    this.bounds = GestureBounds.none,
+    this.minX,
+    this.maxX,
+    this.minY,
+    this.maxY,
   });
+
+  /// Whether the drag is kept inside limits.
+  bool get hasBounds =>
+      bounds != GestureBounds.none ||
+      minX != null ||
+      maxX != null ||
+      minY != null ||
+      maxY != null;
+
+  /// The physics of the release: [physics], or what the first release
+  /// settings amount to: a [MotionCurve.spring] snap back is a spring that
+  /// settles in [snapBackMs] with a little bounce. Null for a curve-timed
+  /// release (any other [snapCurve]), which keeps animating on its curve.
+  PhysicsModel? get effectivePhysics {
+    if (physics != null) return physics;
+    if (snapCurve == MotionCurve.spring) {
+      return PhysicsModel(bounce: 0.25, durationMs: snapBackMs, fling: false);
+    }
+    return null;
+  }
 
   /// The key in [BaseNode.variables] that binds [enabled].
   static const String enabledVariableKey = 'drag.enabled';
@@ -288,6 +343,8 @@ class DragModel with Equatable, SerializableMixin {
     'direction',
     'dragging',
     'dismissed',
+    'settling',
+    'snapIndex',
   ];
 
   /// Whether a release can fly off toward [direction].
@@ -333,6 +390,14 @@ class DragModel with Equatable, SerializableMixin {
     String? xVariable,
     String? yVariable,
     bool? reorder,
+    PhysicsModel? physics,
+    bool clearPhysics = false,
+    GestureBounds? bounds,
+    double? minX,
+    double? maxX,
+    double? minY,
+    double? maxY,
+    bool clearLimits = false,
   }) => DragModel(
     axis: axis ?? this.axis,
     release: release ?? this.release,
@@ -363,6 +428,12 @@ class DragModel with Equatable, SerializableMixin {
     flyOutCurve: flyOutCurve ?? this.flyOutCurve,
     xVariable: xVariable ?? this.xVariable,
     yVariable: yVariable ?? this.yVariable,
+    physics: clearPhysics ? null : physics ?? this.physics,
+    bounds: bounds ?? this.bounds,
+    minX: clearLimits ? minX : minX ?? this.minX,
+    maxX: clearLimits ? maxX : maxX ?? this.maxX,
+    minY: clearLimits ? minY : minY ?? this.minY,
+    maxY: clearLimits ? maxY : maxY ?? this.maxY,
   );
 
   @override
@@ -394,6 +465,12 @@ class DragModel with Equatable, SerializableMixin {
     flyOutCurve,
     xVariable,
     yVariable,
+    physics,
+    bounds,
+    minX,
+    maxX,
+    minY,
+    maxY,
   ];
 
   /// Creates a [DragModel] from JSON.

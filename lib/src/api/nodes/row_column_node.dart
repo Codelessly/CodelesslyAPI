@@ -360,6 +360,7 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.strokePath = source.strokePath;
   target.reveal = source.reveal;
   target.drag = source.drag;
+  target.transformGesture = source.transformGesture;
   target.heroTag = source.heroTag;
   target.heroFlight = source.heroFlight;
   target.layoutAspectRatio = source.layoutAspectRatio;

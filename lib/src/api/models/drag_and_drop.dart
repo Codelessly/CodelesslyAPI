@@ -5,6 +5,7 @@ import '../json_defaults.dart';
 import '../mixins.dart';
 import '../nodes/nodes.dart';
 import 'drag.dart';
+import 'physics.dart';
 import 'trigger.dart';
 
 part 'drag_and_drop.g.dart';
@@ -113,8 +114,26 @@ class DraggableModel with Equatable, SerializableMixin {
   /// node's variables to switch it with app state (a tile already placed).
   final bool enabled;
 
+  /// The return spring, shared with [DragModel.physics] and
+  /// [TransformGestureModel.physics]. Null uses [returnSpring],
+  /// [springStiffness] and [springDamping]; see [effectivePhysics].
+  final PhysicsModel? physics;
+
   /// The key in [BaseNode.variables] that binds [enabled].
   static const String enabledVariable = 'draggable.enabled';
+
+  /// The spring a drag no target takes flies back on: [physics], or the
+  /// first spring settings while [returnSpring] is on, or null for no
+  /// spring (the node reappears in place at once).
+  PhysicsModel? get effectivePhysics {
+    if (physics != null) return physics;
+    if (!returnSpring) return null;
+    return PhysicsModel(
+      stiffness: springStiffness,
+      damping: springDamping,
+      fling: false,
+    );
+  }
 
   /// Creates a [DraggableModel].
   const DraggableModel({
@@ -133,6 +152,7 @@ class DraggableModel with Equatable, SerializableMixin {
     this.springStiffness = 260,
     this.springDamping = 14,
     this.enabled = true,
+    this.physics,
   });
 
   /// Duplicates this instance with the given data overrides.
@@ -152,6 +172,8 @@ class DraggableModel with Equatable, SerializableMixin {
     double? springStiffness,
     double? springDamping,
     bool? enabled,
+    PhysicsModel? physics,
+    bool clearPhysics = false,
   }) => DraggableModel(
     group: group ?? this.group,
     data: data ?? this.data,
@@ -168,6 +190,7 @@ class DraggableModel with Equatable, SerializableMixin {
     springStiffness: springStiffness ?? this.springStiffness,
     springDamping: springDamping ?? this.springDamping,
     enabled: enabled ?? this.enabled,
+    physics: clearPhysics ? null : physics ?? this.physics,
   );
 
   @override
@@ -187,6 +210,7 @@ class DraggableModel with Equatable, SerializableMixin {
     springStiffness,
     springDamping,
     enabled,
+    physics,
   ];
 
   /// Creates a [DraggableModel] from JSON data. Also reads the first form
