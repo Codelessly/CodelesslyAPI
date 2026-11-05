@@ -1,3 +1,9 @@
+## 9.0.3
+
+- An icon's click reactions run when it is tapped, and an icon with one
+  reads as a button. They were saved but never ran, since icons were
+  taken to handle their own taps.
+
 ## 9.0.2
 
 - A `padding` stored on a text node no longer pads it. A text node has no
