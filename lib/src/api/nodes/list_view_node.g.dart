@@ -188,6 +188,18 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
+        pagination: json['pagination'] == null
+            ? null
+            : PaginationModel.fromJson(json['pagination'] as Map),
+        sections: json['sections'] == null
+            ? null
+            : ListSectionsModel.fromJson(json['sections'] as Map),
+        reorder: json['reorder'] == null
+            ? null
+            : ReorderModel.fromJson(json['reorder'] as Map),
+        swipeActions: json['swipeActions'] == null
+            ? null
+            : SwipeActionsModel.fromJson(json['swipeActions'] as Map),
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -301,7 +313,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..sizeTransition = json['sizeTransition'] == null
           ? null
           : NodeTransition.fromJson(json['sizeTransition'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -315,6 +326,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -380,11 +392,11 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
-  'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
   'clipsContent': instance.clipsContent,
+  'ephemeral': instance.ephemeral,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -405,6 +417,10 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'statusVariable': ?instance.statusVariable?.toJson(),
+  'pagination': ?instance.pagination?.toJson(),
+  'sections': ?instance.sections?.toJson(),
+  'reorder': ?instance.reorder?.toJson(),
+  'swipeActions': ?instance.swipeActions?.toJson(),
 };
 
 const _$SizeFitEnumMap = {

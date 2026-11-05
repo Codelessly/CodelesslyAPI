@@ -96,7 +96,10 @@ enum ActionType {
   playSound,
 
   /// Play a node's one-shot animation or particles.
-  playAnimation;
+  playAnimation,
+
+  /// Moves a list's pagination controller; see [PaginateAction].
+  paginate;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -163,6 +166,8 @@ enum ActionType {
         return 'Play Sound';
       case ActionType.playAnimation:
         return 'Play Animation';
+      case ActionType.paginate:
+        return 'Paginate';
     }
   }
 }
@@ -274,6 +279,8 @@ abstract class ActionModel with SerializableMixin {
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:
         return PlayAnimationAction.fromJson(json);
+      case ActionType.paginate:
+        return PaginateAction.fromJson(json);
     }
   }
 

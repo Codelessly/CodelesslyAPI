@@ -200,6 +200,12 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
+        pagination: json['pagination'] == null
+            ? null
+            : PaginationModel.fromJson(json['pagination'] as Map),
+        reorder: json['reorder'] == null
+            ? null
+            : ReorderModel.fromJson(json['reorder'] as Map),
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -417,6 +423,8 @@ Map<String, dynamic> _$GridViewNodeToJson(
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'statusVariable': ?instance.statusVariable?.toJson(),
+  'pagination': ?instance.pagination?.toJson(),
+  'reorder': ?instance.reorder?.toJson(),
 };
 
 const _$SizeFitEnumMap = {

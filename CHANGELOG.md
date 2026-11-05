@@ -1,3 +1,32 @@
+## Unreleased
+
+### Lists and pagination
+
+- `PaginationModel` (`ListViewNode.pagination`, `GridViewNode.pagination`):
+  a pagination controller over the list's bound data, its cloud query or an
+  API call, with page size, offset/page/cursor strategy, de-duplication by
+  key, page caching, pages or infinite (or two-way) scrolling, pull to
+  refresh and loading/error/end footer nodes. Its state is a map variable
+  named by `name` (`${contacts.page}`, `${contacts.hasMore}`...).
+- `PaginateAction` (`ActionType.paginate`): next, previous, go to, first,
+  last, refresh, retry and set page size. `ActionVisitor` gains
+  `visitPaginateAction`.
+- `PaginationNode` (`pagination`): page numbers with ellipses, previous and
+  next, first and last, page size select and a "Showing 21–40 of 312"
+  summary, bound to a controller by name. `PaginationProperties.pageItems`
+  computes the numbers.
+- `TableViewNode` (`tableView`): a table scrolling on both axes with a
+  pinned header row and column, cells built from template nodes.
+- `ListSectionsModel` (`ListViewNode.sections`): items grouped by a field
+  under section headers that can stay pinned, with an A–Z index bar.
+- `ReorderModel` (`ListViewNode.reorder`, `GridViewNode.reorder`): handle
+  or long press, moves between lists of a group, proxy styling, auto-scroll,
+  placeholder, per-item conditions, keyboard reorder and a built-in apply to
+  the bound variable or the cloud collection.
+- `SwipeActionsModel` (`ListViewNode.swipeActions`): start and end swipe
+  actions with reveal backgrounds and undo.
+- `TriggerType.refresh` and `TriggerType.swipeAction`.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
