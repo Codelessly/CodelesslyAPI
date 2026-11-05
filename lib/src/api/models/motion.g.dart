@@ -53,6 +53,7 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('revealOnScroll');
   if (isJsonDefault(instance.revealFraction, kDefaultVisibleFraction))
     json.remove('revealFraction');
+  if (isJsonDefault(instance.paused, false)) json.remove('paused');
   return json;
 }
 
@@ -135,6 +136,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   revealOnScroll: json['revealOnScroll'] as bool? ?? false,
   revealFraction:
       (json['revealFraction'] as num?)?.toDouble() ?? kDefaultVisibleFraction,
+  paused: json['paused'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -174,6 +176,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'pulseKey': ?instance.pulseKey,
       'revealOnScroll': instance.revealOnScroll,
       'revealFraction': instance.revealFraction,
+      'paused': instance.paused,
     };
 
 const _$MotionCurveEnumMap = {
