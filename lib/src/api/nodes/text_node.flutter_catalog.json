@@ -11,6 +11,12 @@
         "tabularFigures": {
           "type": "boolean"
         },
+        "fontFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "visible": {
           "type": "boolean"
         },
@@ -156,6 +162,18 @@
         "group": "Text",
         "control": "switch",
         "schemaType": "boolean",
+        "defaultSource": null,
+        "bindable": false
+      },
+      {
+        "nodeType": "text",
+        "flutterName": null,
+        "flutterParam": null,
+        "note": "Codelessly OpenType feature tags (e.g. \"lnum\", \"liga=0\") applied to every span; TextStyle.fontFeatures in Flutter.",
+        "fieldPath": "fontFeatures",
+        "group": "Text",
+        "control": "list",
+        "schemaType": "array",
         "defaultSource": null,
         "bindable": false
       },
@@ -620,6 +638,18 @@
         "testValues": [
           false,
           true
+        ]
+      },
+      {
+        "parameter": null,
+        "note": "Codelessly OpenType feature tags (e.g. \"lnum\", \"liga=0\") applied to every span; TextStyle.fontFeatures in Flutter.",
+        "field": "fontFeatures",
+        "defaultSource": null,
+        "testValues": [
+          [],
+          [
+            "sample"
+          ]
         ]
       },
       {

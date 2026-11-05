@@ -19,6 +19,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.tabularFigures, false))
     json.remove('tabularFigures');
+  if (isJsonDefault(instance.fontFeatures, const []))
+    json.remove('fontFeatures');
   if (isJsonDefault(instance.codeLanguage, SyntaxLanguage.none))
     json.remove('codeLanguage');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -204,6 +206,9 @@ TextNode _$TextNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
         tabularFigures: json['tabularFigures'] as bool? ?? false,
+        fontFeatures: json['fontFeatures'] == null
+            ? const []
+            : OpenTypeFeature.parseList(json['fontFeatures']),
         markdown: json['markdown'] == null
             ? null
             : MarkdownStyle.fromJson(json['markdown'] as Map),
@@ -374,6 +379,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
+  'fontFeatures': instance.fontFeatures,
   'markdown': ?instance.markdown?.toJson(),
   'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
   'codeTheme': ?instance.codeTheme?.toJson(),
