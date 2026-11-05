@@ -806,6 +806,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [PlayAnimationAction].
   R? visitPlayAnimationAction(PlayAnimationAction action);
 
+  /// Visits a [RunScriptAction].
+  R? visitRunScriptAction(RunScriptAction action);
+
   /// Visits a [CloudDataAction].
   R? visitCloudDataAction(CloudDataAction action);
 

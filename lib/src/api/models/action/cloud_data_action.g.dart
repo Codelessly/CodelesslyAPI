@@ -185,6 +185,7 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.runScript: 'runScript',
 };
 
 CloudBatchAction _$CloudBatchActionFromJson(Map json) => CloudBatchAction(

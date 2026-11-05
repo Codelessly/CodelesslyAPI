@@ -96,7 +96,10 @@ enum ActionType {
   playSound,
 
   /// Play a node's one-shot animation or particles.
-  playAnimation;
+  playAnimation,
+
+  /// Run a script; see [RunScriptAction].
+  runScript;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -163,6 +166,8 @@ enum ActionType {
         return 'Play Sound';
       case ActionType.playAnimation:
         return 'Play Animation';
+      case ActionType.runScript:
+        return 'Run Script';
     }
   }
 }
@@ -274,6 +279,8 @@ abstract class ActionModel with SerializableMixin {
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:
         return PlayAnimationAction.fromJson(json);
+      case ActionType.runScript:
+        return RunScriptAction.fromJson(json);
     }
   }
 
