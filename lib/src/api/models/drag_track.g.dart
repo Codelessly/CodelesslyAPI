@@ -28,6 +28,7 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.pivotY, 0)) json.remove('pivotY');
   if (isJsonDefault(instance.rotate, true)) json.remove('rotate');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.relative, false)) json.remove('relative');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
   return json;
@@ -61,6 +62,7 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   rotate: json['rotate'] as bool? ?? true,
   path: json['path'] as String?,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  relative: json['relative'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
 );
@@ -86,6 +88,7 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'rotate': instance.rotate,
       'path': ?instance.path,
       'orientToPath': instance.orientToPath,
+      'relative': instance.relative,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
     };
