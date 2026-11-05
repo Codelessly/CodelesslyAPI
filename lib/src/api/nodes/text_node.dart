@@ -67,6 +67,7 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// Renders the text as Markdown with this style (bold, italic, code,
   /// links, mentions, lists, paragraphs); null shows it as plain text.
   MarkdownStyle? markdown;
+
   /// The language to highlight the text as, when it shows code: its
   /// keywords, strings, comments, numbers and so on take the colors of
   /// [codeTheme], drawn over the text's own style. [SyntaxLanguage.none]
@@ -121,6 +122,15 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
   @override
   bool get supportsPadding => false;
+
+  /// A text node has no padding, so a [padding] stored on it (written by hand
+  /// or by a tool; the editor's panel hides the field) pads nothing: its
+  /// inner box is its box. The published site never drew that padding, and
+  /// the editor's canvas left room for it, so the two disagreed on the
+  /// node's size. Space around text is [margin].
+  @override
+  EdgeInsetsModel resolvedPadding([EdgeInsetsModel? padding]) =>
+      minimumPadding();
 
   /// Creates a [TextNode] instance with the given data.
   TextNode({

@@ -1,3 +1,11 @@
+## 9.0.2
+
+- A `padding` stored on a text node no longer pads it. A text node has no
+  padding (`supportsPadding` is false and the editor's panel hides it), and
+  the SDK never drew it, but `resolvedPadding` and the inner box still
+  counted it, so the editor's canvas sized such a text larger than the
+  published site showed it. Use `margin` for space around text.
+
 ## 9.0.1
 
 - A list saved with `overlay: true` (6.1.0 and before) reads as
