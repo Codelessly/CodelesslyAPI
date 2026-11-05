@@ -10,6 +10,7 @@ library;
 
 import 'design_kit.dart';
 import 'icon_vocabulary.dart';
+import 'screen_plan.dart' show normalizePlan, planTypeAliases;
 
 /// Breakpoints the compiler builds, with the canvas widths they are built at.
 const Map<String, double> compileBreakpoints = <String, double>{
@@ -197,8 +198,12 @@ class ScreenCompiler {
   final Map<String, dynamic> _data = <String, dynamic>{};
 
   /// Compiles [plan] (assumed valid; see `ScreenPlanValidator`).
-  CompiledScreen compile(Map<String, dynamic> plan) {
+  CompiledScreen compile(Map<String, dynamic> source) {
     _report = CompileReport();
+    final (Map<String, dynamic> plan, Map<String, String> renames) = normalizePlan(source);
+    for (final MapEntry<String, String> r in renames.entries) {
+      _report.warnings.add('Renamed "${r.key}" to "${r.value}" (a runtime name).');
+    }
     _data
       ..clear()
       ..addAll(((plan['data'] as Map?) ?? const {}).cast<String, dynamic>());
@@ -217,7 +222,7 @@ class ScreenCompiler {
         if (v is Map && !_data.containsKey(v['name']))
           <String, dynamic>{
             'name': v['name'],
-            'type': v['type'] ?? _typeOf(v['value']),
+            'type': planTypeAliases[v['type']] ?? v['type'] ?? _typeOf(v['value']),
             'value': v['value'] ?? _defaultFor(v['type']),
           },
     ];
@@ -458,6 +463,23 @@ class ScreenCompiler {
       fill: fill, stroke: stroke, strokeWeight: strokeWeight, radius: radius, padding: padding,
       effects: effects, wrap: wrap, flex: flex, extra: extra, height: height);
 
+  /// Fields some sample list items lack (`badge` on one plan of three).
+  bool _optionalItemField(String field) {
+    bool seen = false, missing = false;
+    for (final Object? v in _data.values) {
+      if (v is! List) continue;
+      for (final Object? item in v) {
+        if (item is! Map) continue;
+        if (item[field] == null || item[field] == '') {
+          missing = true;
+        } else {
+          seen = true;
+        }
+      }
+    }
+    return seen && missing;
+  }
+
   Map<String, dynamic> _text(
     String data,
     String role, {
@@ -472,6 +494,14 @@ class ScreenCompiler {
     final KitTextStyle s = _type(role);
     final String value = s.uppercase && !data.contains(r'${') ? data.toUpperCase() : data;
     final KitColor c = _readable(color);
+    // A text that is just an item field some items lack hides on those.
+    final Match? only = RegExp(r'^\$\{item\.([A-Za-z0-9_]+)\}$').firstMatch(data.trim());
+    if (only != null && _optionalItemField(only[1]!)) {
+      extra = <String, dynamic>{
+        ...?extra,
+        'variables': <String, dynamic>{'visible': '\${= item.${only[1]} != null && item.${only[1]} != \'\'}'},
+      };
+    }
     return <String, dynamic>{
       'id': _id('text'),
       'name': name,
@@ -664,11 +694,15 @@ class ScreenCompiler {
           if (action['params'] is Map) 'params': action['params'],
         });
       case 'generate':
+        // The SDK's runtime generator registers `generateScreen` as an app
+        // function (RuntimeScreenGenerator in codelessly_sdk).
         out.add(<String, dynamic>{
-          'type': 'generateScreen',
-          'prompt': '${action['prompt']}',
-          if (action['kit'] != null) 'kit': '${action['kit']}',
-          'navigationType': '${action['navigationType'] ?? 'push'}',
+          'type': 'callFunction',
+          'name': 'generateScreen',
+          'params': <String, dynamic>{
+            'prompt': '${action['prompt']}',
+            if (action['kit'] != null) 'kit': '${action['kit']}',
+          },
         });
     }
     if (action['then'] != null) out.addAll(_actions(action['then']));
@@ -922,7 +956,7 @@ class ScreenCompiler {
       'cornerRadius': <Object>[radius ?? (h / 2).clamp(2, 6), true, 'circular'],
       'children': <Map<String, dynamic>>[],
     };
-    Map<String, dynamic> walk(Map<String, dynamic> node) {
+    Map<String, dynamic> walk(Map<String, dynamic> node, [double limit = double.infinity]) {
       final String type = '${node['type']}';
       final List<num> box = ((node['basicBoxLocal'] as List?) ?? <num>[0, 0, 100, 16]).cast<num>();
       switch (type) {
@@ -930,15 +964,20 @@ class ScreenCompiler {
           final List<dynamic> props = (node['textMixedProps'] as List?) ?? const [];
           final double size = props.isEmpty ? 14 : ((props.first as Map)['fontSize'] as num).toDouble();
           final String data = '${node['data']}';
-          final double w = data.contains(r'${') ? 120 : (data.length * size * 0.5).clamp(24, 260).toDouble();
-          // Flexible up to the text's estimated width, so it never pushes
-          // its row wider than the screen.
-          final Map<String, dynamic> b = bar(node, w, (size * 0.9).roundToDouble())
-            ..['horizontalFit'] = 'expanded'
-            ..['constraints'] = <String, dynamic>{'maxWidth': w};
+          final bool flexible = node['horizontalFit'] == 'expanded';
+          // A bar a little narrower than the text it stands for (about half
+          // an em a character), so it never pushes its row wider.
+          final double w = (data.contains(r'${') ? (node['horizontalFit'] == 'expanded' ? 120.0 : 40.0) : (data.length * size * 0.45).clamp(16, 240).toDouble()).clamp(4, limit).toDouble();
+          final Map<String, dynamic> b = bar(node, w, (size * 0.9).roundToDouble());
+          if (flexible) {
+            b
+              ..['horizontalFit'] = 'expanded'
+              ..['constraints'] = <String, dynamic>{'maxWidth': w};
+          }
           return <String, dynamic>{
-            ..._row('Skeleton line', <Map<String, dynamic>>[b], v: 'fixed', height: size * 1.3),
-            'flex': node['flex'] ?? 1,
+            ..._row('Skeleton line', <Map<String, dynamic>>[b], v: 'fixed', height: size * 1.3,
+                h: flexible ? 'expanded' : 'shrinkWrap'),
+            if (node['flex'] != null) 'flex': node['flex'],
           };
         case 'icon':
           return bar(node, box[2].toDouble(), box[3].toDouble(), radius: box[2].toDouble() / 2);
@@ -975,7 +1014,9 @@ class ScreenCompiler {
       }
       final List<dynamic>? children = node['children'] as List?;
       if (children != null) {
-        copy['children'] = <Map<String, dynamic>>[for (final dynamic c in children) walk(c as Map<String, dynamic>)];
+        // Inside a fixed box, a bar is no wider than the box.
+        final double inner = node['horizontalFit'] == 'fixed' ? box[2].toDouble() : limit;
+        copy['children'] = <Map<String, dynamic>>[for (final dynamic c in children) walk(c as Map<String, dynamic>, inner)];
       }
       return copy;
     }
@@ -998,7 +1039,10 @@ class ScreenCompiler {
         (pattern == 'checkout' && _bp.mobile);
     double maxWidth = _bp.grid.maxContent;
     if (narrowForm && !_bp.mobile) {
-      maxWidth = double.tryParse(RegExp(r'\d+').firstMatch(kit.layout['formWidth'] ?? '')?[0] ?? '') ?? 460;
+      final double form = double.tryParse(RegExp(r'\d+').firstMatch(kit.layout['formWidth'] ?? '')?[0] ?? '') ?? 460;
+      // A form with a side column (a summary) gets room for both.
+      final bool twoColumns = sections.any((Map<String, dynamic> s) => s['area'] == 'aside');
+      maxWidth = twoColumns ? (form * 2 + _space(_bp.grid.gutter, 'lg')).clamp(0, _bp.grid.maxContent).toDouble() : form;
     }
 
     List<Map<String, dynamic>> build(Iterable<Map<String, dynamic>> list) =>
@@ -1057,7 +1101,29 @@ class ScreenCompiler {
       ];
     } else if (layout == 'grid' || layout == 'cards') {
       final int columns = _columnsFor(s['columns'], layout == 'grid' ? 2 : 1);
-      body = _chunked(children.map((c) => _component(c, inRow: columns > 1)).toList(), columns, gap);
+      // A list or grid already lays out its own columns: it spans the
+      // section instead of taking one cell.
+      bool collection(Map<String, dynamic> c) => c['type'] == 'grid' || c['type'] == 'list';
+      if (children.any(collection)) {
+        body = <Map<String, dynamic>>[];
+        final List<Map<String, dynamic>> run = <Map<String, dynamic>>[];
+        void flush() {
+          if (run.isEmpty) return;
+          body.addAll(_chunked(run.map((c) => _component(c, inRow: columns > 1)).toList(), columns, gap));
+          run.clear();
+        }
+        for (final Map<String, dynamic> c in children) {
+          if (collection(c)) {
+            flush();
+            body.add(_component(c));
+          } else {
+            run.add(c);
+          }
+        }
+        flush();
+      } else {
+        body = _chunked(children.map((c) => _component(c, inRow: columns > 1)).toList(), columns, gap);
+      }
     } else {
       body = <Map<String, dynamic>>[for (final c in children) _component(c)];
     }
@@ -1118,13 +1184,13 @@ class ScreenCompiler {
     final Map<String, dynamic> node = switch ('${c['type']}') {
       'text' => _text('${c['text']}', '${c['style'] ?? 'body'}',
           color: '${c['color'] ?? (c['style'] == 'caption' ? 'onSurfaceVariant' : 'onSurface')}',
-          align: '${c['align'] ?? 'left'}', maxLines: c['maxLines'] as int?),
+          align: '${c['align'] ?? 'left'}', maxLines: _numOf(c['maxLines'])?.toInt()),
       'heading' => _heading(c),
       'image' => _image(c),
       'avatar' => _avatar(c),
-      'icon' => _icon('${c['icon']}', size: (c['size'] as num?)?.toDouble() ?? _num(kit.icons, 'size', 24),
+      'icon' => _icon('${c['icon']}', size: _numOf(c['size']) ?? _num(kit.icons, 'size', 24),
           color: '${c['color'] ?? kit.icons['color'] ?? 'onSurfaceVariant'}'),
-      'button' => _button(c),
+      'button' => _button(c, inRow: inRow),
       'iconButton' => _iconButton(c),
       'buttonRow' => _buttonRow(c),
       'input' => _input(c),
@@ -1178,7 +1244,7 @@ class ScreenCompiler {
     // A fixed height from the content width at this breakpoint keeps the
     // image's shape without an aspect-ratio box.
     final double contentWidth = (_bp.mobile ? _bp.width - 2 * _space(_bp.grid.margin) : (_bp.desktop ? 360.0 : 320.0));
-    final double height = (c['height'] as num?)?.toDouble() ??
+    final double height = _numOf(c['height']) ??
         (kind == 'cover' ? (contentWidth.clamp(120, _bp.mobile ? 320 : 360)) / aspect : (_bp.mobile ? contentWidth : _bp.desktop ? 560.0 : 520.0) / aspect).roundToDouble();
     final String src = '${c['src'] ?? ''}';
     final bool fixedWidth = kind == 'cover' && !_bp.mobile;
@@ -1225,7 +1291,7 @@ class ScreenCompiler {
     };
   }
 
-  Map<String, dynamic> _button(Map<String, dynamic> c) {
+  Map<String, dynamic> _button(Map<String, dynamic> c, {bool inRow = false}) {
     final KitGuide k = _comp('button');
     final String variant = '${c['variant'] ?? 'primary'}';
     final Map<String, String> row = k.row(variant) ??
@@ -1235,12 +1301,17 @@ class ScreenCompiler {
     final String textColor = row['text'] ?? 'onPrimary';
     final String? border = row['border'] == null || row['border'] == 'none' ? null : row['border'];
     final double height = c['size'] == 'small' ? (_num(k, 'height', 48) * 0.75).roundToDouble() : _num(k, 'height', 48);
-    final bool full = c['fullWidth'] == true || (c['fullWidth'] != false && _bp.mobile && variant != 'ghost');
+    // Full width on phones, except in a row or when small: there it hugs
+    // its label, so it never gets squeezed below it.
+    final bool full = c['fullWidth'] == true ||
+        (c['fullWidth'] != false && _bp.mobile && !inRow && c['size'] != 'small' && variant != 'ghost');
     final String? shadow = variant == 'ghost' ? null : (row['shadow'] ?? k['shadow']);
     final double padX = _space(k['paddingX'], 'lg');
     final Map<String, dynamic> node = _row('Button ${c['label']}', <Map<String, dynamic>>[
       if (c['icon'] != null) _icon('${c['icon']}', size: _num(k, 'iconSize', 18), color: textColor),
-      _text('${c['label']}', _prop(k, 'text', 'label'), color: textColor, h: 'shrinkWrap', name: 'Label', maxLines: 1),
+      // A full-width button's label takes the room it has and ellipsizes.
+      _text('${c['label']}', _prop(k, 'text', 'label'), color: textColor, h: full ? 'expanded' : 'shrinkWrap', name: 'Label', maxLines: 1,
+          align: full && c['icon'] == null ? 'center' : 'left', flex: full && c['icon'] == null ? 1 : null),
     ],
         h: full ? 'expanded' : 'shrinkWrap',
         v: 'fixed',
@@ -1486,10 +1557,13 @@ class ScreenCompiler {
           indicator,
         ], flex: 1);
       } else {
+        label
+          ..['horizontalFit'] = 'expanded'
+          ..['textAlignHorizontal'] = 'center';
         cell = _row('Option $o', <Map<String, dynamic>>[label],
-            h: _bp.mobile ? 'expanded' : 'shrinkWrap', v: 'fixed', height: 36, main: 'center',
-            padding: _pad(_space('md'), 0, _space('md'), 0), radius: _radius('pill'),
-            fill: 'surface', flex: _bp.mobile ? 1 : null);
+            v: 'fixed', height: 36, main: 'center',
+            padding: _pad(_space('sm'), 0, _space('sm'), 0), radius: _radius('pill'),
+            fill: 'surface', flex: 1);
         final String paintId = (cell['fills'] as List).first['id'] as String;
         cell['variables'] = <String, dynamic>{
           'fill-$paintId': '\${= $bind == \'$quoted\' ? \'${_hex(selFill)}\' : \'${_hex('surface')}\'}',
@@ -1498,12 +1572,15 @@ class ScreenCompiler {
       cells.add(_wire(cell, <String, dynamic>{'type': 'set', 'variable': bind, 'value': o}));
       // A set action on a declared variable: counts as one wired control.
     }
+    final Map<String, dynamic>? cap = underline || _bp.mobile
+        ? null
+        : <String, dynamic>{'constraints': <String, dynamic>{'maxWidth': 180.0 * options.length}};
     return _row(underline ? 'Tabs' : 'Segmented', cells,
         gap: underline ? 0 : _space('xs', 'sm'),
         padding: underline ? null : _pad(4, 4, 4, 4),
         fill: underline ? null : 'surfaceVariant',
         radius: underline ? null : _radius('pill'),
-        h: underline || _bp.mobile ? 'expanded' : 'shrinkWrap',
+        h: 'expanded',
         extra: underline
             ? <String, dynamic>{
                 'strokes': <Map<String, dynamic>>[_paint('outline')],
@@ -1511,7 +1588,7 @@ class ScreenCompiler {
                 'strokeAlign': 'inside',
                 'strokeSide': 'bottom',
               }
-            : null);
+            : cap);
   }
 
   Map<String, dynamic> _chip(String label, {bool selected = false, Object? action, String? icon}) {
@@ -1664,7 +1741,9 @@ class ScreenCompiler {
         'separator': 'space',
         'separatorSpacing': gap,
         'hasSeparator': gap > 0,
-        if (wrap) ...<String, dynamic>{'wrap': true, 'wrapSpacing': gap, 'wrapRunSpacing': gap},
+        // The intrinsic wrap (no scrolling): spacing from the separator,
+        // runs apart by runSpacing.
+        if (wrap) ...<String, dynamic>{'wrap': true, 'runSpacing': gap},
       },
       'children': <Map<String, dynamic>>[template],
     };
@@ -1700,7 +1779,7 @@ class ScreenCompiler {
     final Map<String, dynamic> template = _component(spec);
     template['horizontalFit'] = 'expanded';
     template['verticalFit'] = 'expanded';
-    final double extent = (c['itemHeight'] as num?)?.toDouble() ?? _estimateHeight(spec, columns);
+    final double extent = _numOf(c['itemHeight']) ?? _estimateHeight(spec, columns);
     return <String, dynamic>{
       'id': _id('grid'),
       'name': 'Grid',
@@ -1735,11 +1814,76 @@ class ScreenCompiler {
     final double pad = _space(card['padding'], 'md');
     if (spec['image'] != null) h += cell / _aspect(spec['aspect'] ?? kit.imagery['coverAspect'], 1);
     h += pad * 2;
-    if (spec['title'] != null) h += _type('subtitle').size * _type('subtitle').lineHeight + 4;
-    if (spec['subtitle'] != null) h += _type('caption').size * _type('caption').lineHeight * 2 + 4;
+    final double inner = cell - pad * 2;
+    if (spec['title'] != null) h += _estimateChild(<String, dynamic>{'type': 'text', 'style': 'subtitle', 'text': _sample(spec['title'])}, inner) + 4;
+    if (spec['subtitle'] != null) h += _estimateChild(<String, dynamic>{'type': 'text', 'style': 'caption', 'text': _sample(spec['subtitle'])}, inner) + 4;
     if (spec['meta'] != null || spec['price'] != null) h += _type('label').size * 1.4 + 4;
-    if (spec['action'] != null && spec['button'] != null) h += _num(_comp('button'), 'height', 48) + 8;
-    return h.clamp(80, 640).roundToDouble();
+    if (spec['button'] != null) h += _num(_comp('button'), 'height', 48) * 0.75 + 8;
+    if (spec['eyebrow'] != null) h += _type('caption').size * 1.4 + 4;
+    if (spec['body'] != null) h += _estimateChild(<String, dynamic>{'type': 'text', 'style': 'body', 'text': _sample(spec['body'])}, inner) + 4;
+    // Children (a price, a feature list...): their own estimate each.
+    for (final dynamic child in (spec['children'] as List?) ?? const []) {
+      h += _estimateChild(child, cell - pad * 2) + _space(_comp('card')['gap'], 'sm');
+    }
+    // Text wraps differently by font: leave room rather than clip.
+    return (h * 1.25).clamp(80, 960).roundToDouble();
+  }
+
+  /// [text] with `${item.x}` replaced by the longest sample value of x in
+  /// the plan's data lists (estimates size bound items by their content).
+  String _sample(Object? text) => '$text'.replaceAllMapped(RegExp(r'\$\{item\.([A-Za-z0-9_]+)\}'), (Match m) {
+    String longest = '';
+    for (final Object? v in _data.values) {
+      if (v is! List) continue;
+      for (final Object? item in v) {
+        final Object? field = item is Map ? item[m[1]] : null;
+        final String value = field is List ? field.join(', ') : '${field ?? ''}';
+        if (field != null && value.length > longest.length) longest = value;
+      }
+    }
+    return longest.isEmpty ? 'Sample text value' : longest;
+  });
+
+  /// The rough height of a plan component laid out [width] wide.
+  double _estimateChild(Object? c, double width) {
+    if (c is! Map) return 0;
+    double lines(String role, String text) {
+      final KitTextStyle s = _type(role);
+      final double perLine = (width / (s.size * 0.56)).clamp(8, 400);
+      return s.size * s.lineHeight * (text.length / perLine).ceil().clamp(1, 8);
+    }
+
+    switch ('${c['type']}') {
+      case 'text':
+        return lines('${c['style'] ?? 'body'}', '${c['text']}');
+      case 'heading':
+        return lines(_bp.mobile ? 'title' : 'headline', '${c['title']}') + (c['subtitle'] == null ? 0 : lines('body', '${c['subtitle']}'));
+      case 'button':
+        return _num(_comp('button'), 'height', 48);
+      case 'buttonRow':
+        return _num(_comp('button'), 'height', 48) * (_bp.mobile ? ((c['buttons'] as List?)?.length ?? 1) : 1);
+      case 'listRow':
+        return _num(_comp('listRow'), 'minHeight', 56);
+      case 'list':
+        final Object? items = c['items'];
+        final int n = items is List ? items.length : 4;
+        return n * (_num(_comp('listRow'), 'minHeight', 56) * 0.8);
+      case 'divider':
+        return 1;
+      case 'badge':
+      case 'chips':
+        return 32;
+      case 'keyValue':
+        return _type('body').size * 1.6 + 8;
+      case 'group':
+        final List<dynamic> kids = (c['children'] as List?) ?? const [];
+        if (c['direction'] == 'row') {
+          return kids.fold<double>(0, (double m, dynamic k) => _estimateChild(k, width / kids.length).clamp(m, double.infinity));
+        }
+        return kids.fold<double>(0, (double sum, dynamic k) => sum + _estimateChild(k, width) + _space('sm'));
+      default:
+        return 40;
+    }
   }
 
   Map<String, dynamic> _card(Map<String, dynamic> c) {
@@ -1841,6 +1985,8 @@ class ScreenCompiler {
   }
 
   Map<String, dynamic> _badge(String text, String tone) {
+    final Match? bound = RegExp(r'^\$\{=?\s*([^}]+)\}$').firstMatch(tone.trim());
+    if (bound != null) return _boundBadge(text, bound[1]!.trim());
     final KitGuide k = _comp('badge');
     final String fill = tone == 'info' || tone == 'neutral' ? (_colorProp(k, 'fill', 'secondary') ?? 'secondary') : tone;
     final String color = tone == 'info' || tone == 'neutral' ? (_colorProp(k, 'text', 'onSecondary') ?? 'onSecondary') : (tone == 'error' ? 'onError' : 'onPrimary');
@@ -1848,6 +1994,36 @@ class ScreenCompiler {
       _text(text, _prop(k, 'textStyle', 'caption'), color: color, h: 'shrinkWrap', name: 'Badge text', maxLines: 1),
     ], h: 'shrinkWrap', v: 'shrinkWrap', main: 'center', padding: _pad(_space('sm'), 2, _space('sm'), 2),
         radius: _radius(k['radius'], 'pill'), fill: fill);
+  }
+
+  /// A badge whose tone comes from data (`${item.tone}`): fill and text
+  /// colors picked by a formula among the kit's tone colors.
+  Map<String, dynamic> _boundBadge(String text, String expr) {
+    const List<String> tones = <String>['success', 'warning', 'error', 'info'];
+    final Map<String, Map<String, dynamic>> byTone = <String, Map<String, dynamic>>{
+      for (final String t in tones) t: _badge(text, t),
+    };
+    String pick(String Function(Map<String, dynamic> badge) hexOf) {
+      final StringBuffer f = StringBuffer(r'${= ');
+      for (final String t in tones.take(3)) {
+        f.write("$expr == '$t' ? '${hexOf(byTone[t]!)}' : ");
+      }
+      f.write("'${hexOf(byTone['info']!)}'}");
+      return f.toString();
+    }
+
+    String fillOf(Map<String, dynamic> b) => '${((b['fills'] as List).first as Map)['color']}';
+    String textOf(Map<String, dynamic> b) {
+      final Map<String, dynamic> label = (b['children'] as List).first as Map<String, dynamic>;
+      return '${(((label['textMixedProps'] as List).first as Map)['fills'] as List).first['color']}';
+    }
+
+    final Map<String, dynamic> badge = byTone['info']!;
+    final Map<String, dynamic> label = (badge['children'] as List).first as Map<String, dynamic>;
+    final String paintId = '${((badge['fills'] as List).first as Map)['id']}';
+    badge['variables'] = <String, dynamic>{'fill-$paintId': pick(fillOf)};
+    label['variables'] = <String, dynamic>{...?label['variables'] as Map<String, dynamic>?, 'textColor': pick(textOf)};
+    return badge;
   }
 
   Map<String, dynamic> _divider() => _row('Divider', const <Map<String, dynamic>>[],
@@ -1871,7 +2047,7 @@ class ScreenCompiler {
 
   Map<String, dynamic> _rating(Map<String, dynamic> c) {
     final Object? value = c['value'];
-    final int max = (c['max'] as num?)?.toInt() ?? 5;
+    final int max = _numOf(c['max'])?.toInt() ?? 5;
     final String color = kit.colors.containsKey('accent') ? 'accent' : 'warning';
     final List<Map<String, dynamic>> stars = <Map<String, dynamic>>[];
     for (int i = 1; i <= max; i++) {
@@ -1899,9 +2075,12 @@ class ScreenCompiler {
       for (final dynamic child in c['children'] as List) _component(child as Map<String, dynamic>, inRow: row),
     ];
     final String align = '${c['align'] ?? (row ? 'center' : 'stretch')}';
+    // A row of fixed-width things (buttons, chips) wraps on a phone rather
+    // than run off the edge.
+    final bool rigid = children.every((Map<String, dynamic> n) => n['flex'] == null && n['horizontalFit'] != 'expanded');
     final Map<String, dynamic> node = row
         ? _row('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align == 'stretch' ? 'center' : align,
-            main: '${c['justify'] ?? 'start'}', wrap: c['wrap'] == true)
+            main: '${c['justify'] ?? 'start'}', wrap: c['wrap'] == true || (!_bp.desktop && rigid && children.length > 1))
         : _column('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align);
     if (c['surface'] == true) {
       final KitGuide k = _comp('card');
@@ -1913,6 +2092,14 @@ class ScreenCompiler {
     if (c['action'] != null) _wire(node, c['action']);
     return node;
   }
+
+  /// A number from a plan field that may be a number, a numeric string or
+  /// a word (`"large"`): null unless it reads as a number.
+  static double? _numOf(Object? value) => switch (value) {
+    final num n => n.toDouble(),
+    final String s => double.tryParse(s),
+    _ => null,
+  };
 
   static String _typeOf(Object? value) => switch (value) {
     bool() => 'boolean',
