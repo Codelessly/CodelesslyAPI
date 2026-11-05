@@ -127,8 +127,11 @@ enum TriggerType {
 
   /// Triggered on a drop target when a drag it accepts is dropped on it.
   /// `${result}` (and `${drag}`) hold `data`, `group`, `count`, `key`,
-  /// `beforeId`, `before` (the item it lands before), `index` and
-  /// `accepted`. A drop its `acceptIf` refuses doesn't fire it.
+  /// `beforeId`, `before` (the item it lands before), `index`,
+  /// `accepted`, and where the dragged node's centre landed on the target:
+  /// `x`, `y` in pixels from its top left and `fx`, `fy` as a share of its
+  /// size (0 to 1), e.g. a pin dropped on a map. A drop its `acceptIf`
+  /// refuses doesn't fire it.
   drop,
 
   /// Triggered on a drop target when a drag it accepts moves onto it.

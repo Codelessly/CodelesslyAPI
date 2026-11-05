@@ -404,6 +404,7 @@ class MotionModel with Equatable, SerializableMixin {
   /// be bound through `motion.pulseKey` in [BaseNode.variables], e.g. to
   /// `${count}`.
   final String? pulseKey;
+
   /// Holds the node where its entrance starts ([enterFrom], or rest) until
   /// it scrolls into view, then plays the entrance once, over [durationMs]
   /// after [delayMs]: a section fading up as the page reaches it. "In view"
@@ -417,6 +418,14 @@ class MotionModel with Equatable, SerializableMixin {
   /// play, from 0 (any pixel) to 1 (all of it, or the whole view for a node
   /// larger than the view).
   final double revealFraction;
+
+  /// Holds the node where it is: a running loop, transition or spin stops
+  /// in place and carries on from there when this turns false, like a
+  /// paused video. A queen badge circling her hive stops while the pointer
+  /// is on it. Meant to be bound through `motion.paused` in
+  /// [BaseNode.variables], e.g. `${hovering}`. The design canvas never
+  /// animates, so it ignores it.
+  final bool paused;
 
   /// Creates a [MotionModel].
   const MotionModel({
@@ -455,6 +464,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.pulseKey,
     this.revealOnScroll = false,
     this.revealFraction = kDefaultVisibleFraction,
+    this.paused = false,
   });
 
   /// No motion at all.
@@ -513,6 +523,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// [enterFrom] gives the loop's start. The design canvas keeps showing
   /// the saved motion.
   static const String loopProperty = 'loop';
+
+  /// The name of the binding that pauses the motion in place; see
+  /// [paused]. Reads true, on, 1 or any non-zero number as paused.
+  static const String pausedProperty = 'paused';
+
   /// The name of the binding that sets [delayMs], in milliseconds.
   static const String delayMsProperty = 'delayMs';
 
@@ -667,6 +682,7 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPulseKey = false,
     bool? revealOnScroll,
     double? revealFraction,
+    bool? paused,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -703,6 +719,7 @@ class MotionModel with Equatable, SerializableMixin {
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
     revealFraction: revealFraction ?? this.revealFraction,
+    paused: paused ?? this.paused,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -906,6 +923,7 @@ class MotionModel with Equatable, SerializableMixin {
     pulseKey,
     revealOnScroll,
     revealFraction,
+    paused,
   ];
 
   /// Creates a [MotionModel] from JSON.
