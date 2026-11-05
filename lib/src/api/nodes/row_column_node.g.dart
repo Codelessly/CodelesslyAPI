@@ -12,6 +12,7 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.clipsScrollContent, true))
     json.remove('clipsScrollContent');
+  if (isJsonDefault(instance.fillViewport, false)) json.remove('fillViewport');
   if (isJsonDefault(instance.foregroundFills, []))
     json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -355,7 +356,8 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
           []
-      ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true;
+      ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true
+      ..fillViewport = json['fillViewport'] as bool? ?? false;
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -449,6 +451,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'clipsScrollContent': instance.clipsScrollContent,
+  'fillViewport': instance.fillViewport,
 };
 
 const _$RowColumnTypeEnumMap = {
