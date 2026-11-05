@@ -1448,9 +1448,6 @@ class ScreenCompiler {
       'horizontalFit': 'expanded',
       'verticalFit': 'shrinkWrap',
       'flex': 1,
-      'keyboardType': switch (kind) { 'email' => 'emailAddress', 'number' => 'number', 'phone' => 'phone', 'multiline' => 'multiline', _ => 'text' },
-      if (kind == 'multiline') 'maxLines': 4,
-      'obscureText': kind == 'password',
       'variables': <String, dynamic>{'inputValue': '\${$bind}', 'semanticLabel': '${c['label']}'},
       'reactions': <Map<String, dynamic>>[
         <String, dynamic>{
@@ -1462,6 +1459,8 @@ class ScreenCompiler {
       ],
       'properties': <String, dynamic>{
         'obscureText': kind == 'password',
+        'keyboardType': switch (kind) { 'email' => 'emailAddress', 'number' => 'number', 'phone' => 'phone', 'multiline' => 'multiline', _ => 'text' },
+        if (kind == 'multiline') 'maxLines': 4,
         'cursorColor': _hex(_prop(k, 'focusBorder', 'primary')),
         'inputStyle': style(textStyle, 'onSurface'),
         'decoration': <String, dynamic>{

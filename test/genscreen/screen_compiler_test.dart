@@ -28,9 +28,15 @@ void main() {
     expect(issues.where((i) => i.severity == PlanSeverity.error), isEmpty, reason: issues.join('\n'));
   });
 
-  for (final String k in ['aurora', 'kiosk', 'verdant']) {
-    test('album plan compiles for $k and every node reads back', () {
-      final CompiledScreen screen = ScreenCompiler(kit(k)).compile(plan('album_details'));
+  final List<(String, String)> cases = [
+    for (final String k in ['aurora', 'kiosk', 'verdant']) (k, 'test/genscreen/plans/album_details.json'),
+    for (final Directory d in Directory('test/genscreen/regression').listSync().whereType<Directory>())
+      for (final File f in d.listSync().whereType<File>().where((f) => f.path.endsWith('.plan.json')))
+        (d.uri.pathSegments[d.uri.pathSegments.length - 2], f.path),
+  ];
+  for (final (String k, String path) in cases) {
+    test('${path.split('/').last} compiles for $k and every node reads back', () {
+      final CompiledScreen screen = ScreenCompiler(kit(k)).compile(jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>);
       final nodes = screen.toLayoutNodes();
       final Set<String> dropped = {};
       for (final MapEntry<String, Map<String, dynamic>> e in nodes.entries) {
@@ -44,7 +50,7 @@ void main() {
       const Set<String> defaults = {
         'crossAxisAlignment="center"', 'mainAxisAlignment="center"',
         'flex=1', 'strokeAlign="inside"', 'horizontalFit="fixed"',
-        'verticalFit="fixed"', 'clipsContent=true',
+        'verticalFit="fixed"', 'clipsContent=true', 'value=false', 'allowedTypes=[]',
       };
       expect(
         dropped.where((d) => !defaults.contains(d.substring(d.indexOf('.') + 1))),
