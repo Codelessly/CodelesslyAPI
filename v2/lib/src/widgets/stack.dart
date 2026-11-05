@@ -1,4 +1,5 @@
 import '../props.dart';
+import '../value_fields.dart';
 import '../values/enums.dart';
 import 'scroll.dart';
 
@@ -6,7 +7,11 @@ import 'scroll.dart';
 /// (Flutter `Stack` with `Positioned`/`Align` children).
 abstract final class StackProps {
   static const spec = WidgetSpec('stack',
-      props: ScrollProps.all, children: ChildModel.list, decorated: true, doc: 'Flutter `Stack`.');
+      props: ScrollProps.all,
+      children: ChildModel.list,
+      decorated: true,
+      childFields: [LayoutFields.x, LayoutFields.y],
+      doc: 'Flutter `Stack`.');
 }
 
 /// A leaf box: Flutter `Container` with a decoration and no child.
