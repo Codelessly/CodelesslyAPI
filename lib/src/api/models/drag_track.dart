@@ -148,6 +148,30 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// Whether the mouse wheel steps the value.
   final bool wheel;
 
+  /// How magnetic the [step]s are while dragging, from 0 to 1. At 0 (the
+  /// default) the node jumps from step to step; above 0 it still follows
+  /// the pointer that share of the way past the nearest step, so each step
+  /// feels like a detent pulling it in (a rating dial at 0.35). The value
+  /// itself always snaps. Letting go settles the node on its step over
+  /// [settleMs].
+  final double detent;
+
+  /// How far the node can be dragged past either end of the track, as a
+  /// share of the pointer's travel there, from 0 (it stops at the end, the
+  /// default) to 1. A deck of cards rubber-bands at 0.35 past its first
+  /// and last card. Letting go springs it back over [settleMs].
+  final double overscroll;
+
+  /// How long the node takes to glide to its value's place when it isn't
+  /// following the pointer: on letting go (from a detent or overscroll),
+  /// when a tap or an action changes the variable, a double tap reset or a
+  /// wheel step. 0 (the default) jumps there.
+  final int settleMs;
+
+  /// The easing of that glide. [MotionCurve.spring] runs real spring
+  /// physics and ignores [settleMs] for its length.
+  final MotionCurve settleCurve;
+
   /// Creates a [DragTrackModel].
   const DragTrackModel({
     this.shape = DragTrackShape.line,
@@ -171,10 +195,21 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.orientToPath = false,
     this.jumpOnTap = false,
     this.wheel = true,
+    this.detent = 0,
+    this.overscroll = 0,
+    this.settleMs = 0,
+    this.settleCurve = MotionCurve.easeOutCubic,
   });
 
   /// The names of the live values the `track` variable has.
   static const List<String> liveValues = ['value', 'progress', 'dragging'];
+
+  /// The names of the values a `dragEnd` reaction gets in `${result}`:
+  /// the final `value`, the `startValue` the drag began at, and the
+  /// `velocity` the pointer let go with, in the variable's units per second
+  /// along the track (positive toward [max]), so a deck can fling to the
+  /// next card: `${= round(result.value + result.velocity * 0.18)}`.
+  static const List<String> endValues = ['value', 'startValue', 'velocity'];
 
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
   double progressOf(double value) {
@@ -230,6 +265,10 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? orientToPath,
     bool? jumpOnTap,
     bool? wheel,
+    double? detent,
+    double? overscroll,
+    int? settleMs,
+    MotionCurve? settleCurve,
   }) => DragTrackModel(
     shape: shape ?? this.shape,
     variable: variable ?? this.variable,
@@ -252,6 +291,10 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath: orientToPath ?? this.orientToPath,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
+    detent: detent ?? this.detent,
+    overscroll: overscroll ?? this.overscroll,
+    settleMs: settleMs ?? this.settleMs,
+    settleCurve: settleCurve ?? this.settleCurve,
   );
 
   @override
@@ -277,6 +320,10 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath,
     jumpOnTap,
     wheel,
+    detent,
+    overscroll,
+    settleMs,
+    settleCurve,
   ];
 
   /// Creates a [DragTrackModel] from JSON.
