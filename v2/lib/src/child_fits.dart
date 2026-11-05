@@ -59,7 +59,7 @@ String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
     return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it.';
   }
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && _scrollsAlong(parent, horizontal)) {
-    return "The ${parent.type} scrolls: its content has no end to fill to.";
+    return 'The ${parent.type} scrolls: its content has no end to fill to.';
   }
   return null;
 }
