@@ -1,4 +1,5 @@
 import '../props.dart';
+import '../value_fields.dart';
 import '../values/enums.dart';
 import 'scroll.dart';
 
@@ -27,7 +28,12 @@ abstract final class FlexProps {
     ...ScrollProps.all,
   ];
 
-  static const row = WidgetSpec('row', props: all, children: ChildModel.list, decorated: true, doc: 'Flutter `Row`.');
-  static const column =
-      WidgetSpec('column', props: all, children: ChildModel.list, decorated: true, doc: 'Flutter `Column`.');
+  /// What a row/column reads from a child: its flex share (`Expanded` /
+  /// `Flexible`), whether a hugging child may shrink, its slot alignment.
+  static const childFields = [LayoutFields.flex, LayoutFields.squeezable, LayoutFields.align];
+
+  static const row = WidgetSpec('row',
+      props: all, children: ChildModel.list, decorated: true, childFields: childFields, doc: 'Flutter `Row`.');
+  static const column = WidgetSpec('column',
+      props: all, children: ChildModel.list, decorated: true, childFields: childFields, doc: 'Flutter `Column`.');
 }

@@ -492,6 +492,7 @@ final class WidgetSpec {
     this.children = ChildModel.none,
     this.slots = const [],
     this.decorated = false,
+    this.childFields = const [],
     this.doc = '',
   });
 
@@ -505,6 +506,12 @@ final class WidgetSpec {
 
   /// Has a box decoration (fills, strokes, radius, effects).
   final bool decorated;
+
+  /// What this widget reads from each child's layout to place it: Flutter's
+  /// parent data (`Positioned` in a stack, `Flexible`/`Align` in a flex).
+  /// The fields are `LayoutFields`; a child's panel shows them as its
+  /// placement, chosen by its parent.
+  final List<PropDef<Object?>> childFields;
   final String doc;
 
   PropDef<Object?>? prop(String key) {

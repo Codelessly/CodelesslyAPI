@@ -1,5 +1,6 @@
 import '../json.dart';
 import '../props.dart';
+import '../value_fields.dart';
 
 /// How a screen fits the device.
 enum ScaleMode { responsive, autoScale }
@@ -19,5 +20,9 @@ abstract final class VarianceProps {
   static const variants = PropDef<List<Json>>('variants', Codecs.jsonList, []);
   static const current = PropDef<String>('current', Codecs.string, '');
   static const spec = WidgetSpec('variance',
-      props: [variants, current], children: ChildModel.list, decorated: true, doc: 'Variant switcher.');
+      props: [variants, current],
+      children: ChildModel.list,
+      decorated: true,
+      childFields: [LayoutFields.x, LayoutFields.y],
+      doc: 'Variant switcher.');
 }

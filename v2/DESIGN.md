@@ -164,7 +164,11 @@ constraints, margin, padding, rotation, aspectRatio; `parentData`: flex,
 squeezable, x, y, align), `DecorationFields`, `NodeFields`, and the fields
 of every model type (`TextStyleFields`, `PaintFields`, `EffectFields`,
 `BorderSideFields`, `ButtonStyleFields`, `InputDecorationFields`, the
-chart records...). A properties panel is generated from these alone; a
+chart records...). A parent declares what it reads from each child
+(`WidgetSpec.childFields`: Flutter's parent data — `x`, `y` for a stack or
+variance, `flex`, `squeezable`, `align` for a row or column), so a panel
+shows a child's placement from its parent's declaration, apart from the
+child's own API. A properties panel is generated from these alone; a
 test (`value_fields_test.dart`) round-trips a sample value of every field
 through its model's real JSON.
 
