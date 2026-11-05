@@ -220,6 +220,13 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// See [minVariableKey].
   static const String stepVariableKey = 'track.step';
 
+  /// The node variables that bind [momentum] and [smooth] (a Reduce motion
+  /// setting turns coasting and the snap animation off).
+  static const String momentumVariableKey = 'track.momentum';
+
+  /// See [momentumVariableKey].
+  static const String smoothVariableKey = 'track.smooth';
+
   /// Whether the value is unbounded ([endless] on an arc).
   bool get unbounded => endless && shape == DragTrackShape.arc;
 
