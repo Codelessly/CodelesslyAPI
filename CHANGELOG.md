@@ -1,3 +1,14 @@
+## 9.1.0
+
+- Drag tracks gain a fine mode (`fineStep`, `finePixelsPerRange`,
+  `fineHoldMs`, `fineVariable`; `track.fine`), click-in animation
+  (`snapMs`, `snapCurve`) and `write` (false: the track shows its variable,
+  which may be computed, and its reactions do the writing). Binding keys
+  `drag.track.min`, `drag.track.max`, `drag.track.step` and
+  `drag.track.defaultValue` set a track's range from data.
+- A row or column made from `type: row/column` keeps `ignorePointer`,
+  `keepAspect` and `floating` (they were dropped).
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
