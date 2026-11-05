@@ -262,10 +262,21 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
           : NodeTransition.fromJson(json['sizeTransition'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -279,7 +290,6 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PageViewNodeToJson(
@@ -334,14 +344,17 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
+  'clipsContent': instance.clipsContent,
+  'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
-  'clipsContent': instance.clipsContent,
-  'ephemeral': instance.ephemeral,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -404,6 +417,15 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.arc: 'arc',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
@@ -418,6 +440,9 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   animationCurve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['animationCurve']) ??
       MotionCurve.easeOutCubic,
+  pageMotion: json['pageMotion'] == null
+      ? null
+      : MotionModel.fromJson(json['pageMotion'] as Map),
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -431,6 +456,7 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'allowImplicitScrolling': instance.allowImplicitScrolling,
       'animationDurationMs': instance.animationDurationMs,
       'animationCurve': _$MotionCurveEnumMap[instance.animationCurve]!,
+      'pageMotion': ?instance.pageMotion?.toJson(),
     };
 
 const _$MotionCurveEnumMap = {

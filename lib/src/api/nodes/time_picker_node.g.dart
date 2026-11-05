@@ -201,6 +201,16 @@ TimePickerNode _$TimePickerNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -210,7 +220,6 @@ TimePickerNode _$TimePickerNodeFromJson(Map json) =>
 Map<String, dynamic> _$TimePickerNodeToJson(
   TimePickerNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -227,6 +236,7 @@ Map<String, dynamic> _$TimePickerNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -259,6 +269,9 @@ Map<String, dynamic> _$TimePickerNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'type': instance.type,
@@ -296,6 +309,15 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.arc: 'arc',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 TimePickerProperties _$TimePickerPropertiesFromJson(Map json) =>
