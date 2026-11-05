@@ -190,6 +190,22 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// Color of the button's label. Null uses the message's color.
   final ColorRGBA? actionColor;
 
+  /// Fill of the action button. Null keeps a plain text button. With
+  /// [actionBorder], [actionShadows] and [actionCornerRadius] the button
+  /// can match the app's own buttons, e.g. a snow button with an ink
+  /// outline and a hard ink shadow on an ink toast.
+  final ColorRGBA? actionBackgroundColor;
+
+  /// Outline of the action button. Null draws none.
+  final BorderSideModel? actionBorder;
+
+  /// Shadows of the action button, e.g. a hard offset shadow (radius 0).
+  /// Null draws none.
+  final List<Effect>? actionShadows;
+
+  /// Corner radius of the action button. Null keeps the default.
+  final double? actionCornerRadius;
+
   /// Whether the toast shows a close (×) button that dismisses it.
   final bool showClose;
 
@@ -275,6 +291,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.bottomOffset = 104,
     Map<ScreenBreakpoint, double>? bottomOffsets,
     this.actionColor,
+    this.actionBackgroundColor,
+    this.actionBorder,
+    this.actionShadows,
+    this.actionCornerRadius,
     this.showClose = false,
     this.closeColor,
     this.cornerRadius,
@@ -345,6 +365,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     bottomOffset,
     bottomOffsets,
     actionColor,
+    actionBackgroundColor,
+    actionBorder,
+    actionShadows,
+    actionCornerRadius,
     showClose,
     closeColor,
     cornerRadius,
@@ -394,6 +418,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     Map<ScreenBreakpoint, double>? bottomOffsets,
     ColorRGBA? actionColor,
     bool clearActionColor = false,
+    ColorRGBA? actionBackgroundColor,
+    BorderSideModel? actionBorder,
+    List<Effect>? actionShadows,
+    double? actionCornerRadius,
     bool? showClose,
     ColorRGBA? closeColor,
     bool clearCloseColor = false,
@@ -453,6 +481,10 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     bottomOffset: bottomOffset ?? this.bottomOffset,
     bottomOffsets: bottomOffsets ?? this.bottomOffsets,
     actionColor: clearActionColor ? null : actionColor ?? this.actionColor,
+    actionBackgroundColor: actionBackgroundColor ?? this.actionBackgroundColor,
+    actionBorder: actionBorder ?? this.actionBorder,
+    actionShadows: actionShadows ?? this.actionShadows,
+    actionCornerRadius: actionCornerRadius ?? this.actionCornerRadius,
     showClose: showClose ?? this.showClose,
     closeColor: clearCloseColor ? null : closeColor ?? this.closeColor,
     cornerRadius: clearCornerRadius ? null : cornerRadius ?? this.cornerRadius,
