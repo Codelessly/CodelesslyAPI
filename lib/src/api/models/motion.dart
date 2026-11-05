@@ -237,6 +237,47 @@ class MotionKeyframe with Equatable, SerializableMixin {
       _$MotionKeyframeOmitDefaults(this, _$MotionKeyframeToJson(this));
 }
 
+/// A band of light sweeping across a node's painted content over and over,
+/// like a loading skeleton's shimmer: a honey glow passing over a honeycomb
+/// of empty cells. Only what the node paints lights up (it is blended on
+/// top of its pixels), so the band follows every shape inside it.
+@JsonSerializable()
+class MotionShimmer with Equatable, SerializableMixin {
+  /// The band's colour, as `#RRGGBB` or `#AARRGGBB` hex.
+  final String color;
+
+  /// How strongly the band's centre blends the colour in, from 0 to 1.
+  final double strength;
+
+  /// The band's width as a share of the node's size along the sweep: it
+  /// fades from its centre to nothing [width] / 2 either side.
+  final double width;
+
+  /// How long one sweep across takes, in milliseconds.
+  final int durationMs;
+
+  /// The sweep's direction in degrees: 0 left to right, 90 top to bottom.
+  final double angle;
+
+  /// Creates a [MotionShimmer].
+  const MotionShimmer({
+    this.color = '#FFFFFFFF',
+    this.strength = 0.8,
+    this.width = 0.44,
+    this.durationMs = 1400,
+    this.angle = 0,
+  });
+
+  @override
+  List<Object?> get props => [color, strength, width, durationMs, angle];
+
+  /// Creates a [MotionShimmer] from JSON.
+  factory MotionShimmer.fromJson(Map json) => _$MotionShimmerFromJson(json);
+
+  @override
+  Map toJson() => _$MotionShimmerToJson(this);
+}
+
 /// How a node moves: a transform drawn on top of its layout (it never changes
 /// the space the node takes up), an animated transition whenever a value
 /// changes, and an optional continuous spin.
@@ -427,6 +468,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// animates, so it ignores it.
   final bool paused;
 
+  /// A band of light sweeping across the node over and over while it is
+  /// shown (a loading skeleton); null for none. The design canvas shows the
+  /// band still, halfway across.
+  final MotionShimmer? shimmer;
+
   /// Creates a [MotionModel].
   const MotionModel({
     this.translateX = 0,
@@ -465,6 +511,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.revealOnScroll = false,
     this.revealFraction = kDefaultVisibleFraction,
     this.paused = false,
+    this.shimmer,
   });
 
   /// No motion at all.
@@ -683,6 +730,8 @@ class MotionModel with Equatable, SerializableMixin {
     bool? revealOnScroll,
     double? revealFraction,
     bool? paused,
+    MotionShimmer? shimmer,
+    bool clearShimmer = false,
   }) => MotionModel(
     translateX: translateX ?? this.translateX,
     translateY: translateY ?? this.translateY,
@@ -720,6 +769,7 @@ class MotionModel with Equatable, SerializableMixin {
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
     revealFraction: revealFraction ?? this.revealFraction,
     paused: paused ?? this.paused,
+    shimmer: clearShimmer ? null : shimmer ?? this.shimmer,
   );
 
   /// These settings with every value at rest: no transform at all.
@@ -924,6 +974,7 @@ class MotionModel with Equatable, SerializableMixin {
     revealOnScroll,
     revealFraction,
     paused,
+    shimmer,
   ];
 
   /// Creates a [MotionModel] from JSON.
