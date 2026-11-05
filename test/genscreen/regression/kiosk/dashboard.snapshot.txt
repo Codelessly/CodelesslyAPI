@@ -1,4 +1,4 @@
-# mobile bcd4c64c
+# mobile bb6a7d29
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -241,7 +241,7 @@ column "Screen" expanded/expanded
       icon "Icon settings" fixed/fixed
       text "Nav label" shrinkWrap/shrinkWrap
 
-# tablet b349a1b8
+# tablet 5dc78383
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -484,7 +484,7 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop fd2aa00d
+# desktop 047d7a10
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
