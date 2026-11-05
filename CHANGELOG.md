@@ -1,3 +1,16 @@
+## 9.0.4
+
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
+- `DropTargetModel.slotExtent`: the length of a list drop slot in px (0:
+  the dragged node's), for a thin insertion marker.
+- `VariableData.remember` (`extra.remember: true`): the running app keeps the
+  value on the device between visits.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
