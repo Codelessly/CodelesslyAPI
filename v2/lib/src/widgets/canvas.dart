@@ -4,8 +4,6 @@ import '../props.dart';
 /// How a screen fits the device.
 enum ScaleMode { responsive, autoScale }
 
-Object? _listOut(List<Json> v) => v;
-List<Json>? _listIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 
 /// A screen (`Scaffold`): its `body` slot is the page content.
 abstract final class CanvasProps {
@@ -18,7 +16,7 @@ abstract final class CanvasProps {
 /// Shows one of several variants of its content (by id, or by breakpoint).
 abstract final class VarianceProps {
   /// `[{"id", "name", "children": [ids], "breakpoint"?, "overrides"?}]`.
-  static const variants = PropDef<List<Json>>('variants', ValueCodec(_listIn, _listOut), []);
+  static const variants = PropDef<List<Json>>('variants', Codecs.jsonList, []);
   static const current = PropDef<String>('current', Codecs.string, '');
   static const spec = WidgetSpec('variance',
       props: [variants, current], children: ChildModel.list, decorated: true, doc: 'Variant switcher.');

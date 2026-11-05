@@ -3,6 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../json.dart';
+import '../props.dart';
 import '../triggers.dart';
 import '../values/paint.dart' show listEquals;
 import '../values/border.dart';
@@ -293,4 +294,73 @@ final class NavigationDestination {
 
   @override
   int get hashCode => Object.hash(label, jsonEquality.hash(icon), iconColor, tooltip, backgroundColor);
+}
+
+// --- field declarations ---------------------------------------------------------
+//
+// The models' fields as PropDefs (JSON keys, codecs, defaults): what a
+// properties panel edits. test/value_fields_test.dart checks them against
+// the models' own JSON.
+
+Object? _out(Object? v) => v == null ? null : (v as dynamic).toJson();
+List<Reaction>? _reactionsIn(Object? j) => readList(j) == null ? null : Reaction.listFromJson(j);
+Object? _reactionsOut(List<Reaction> v) => [for (final r in v) r.toJson()];
+const _reactions = ValueCodec<List<Reaction>>(_reactionsIn, _reactionsOut, PropType.list(PropType.json('Reaction')));
+
+abstract final class ShapeBorderFields {
+  static const type = PropDef<ShapeBorderType>('type', EnumCodec(ShapeBorderType.values), ShapeBorderType.roundedRectangle);
+  static const borderRadius = PropDef<BorderRadius>('borderRadius', Codecs.radius, BorderRadius.zero);
+  static const side = PropDef<BorderSide?>('side', Codecs.optionalBorderSide, null);
+  static const spec = WidgetSpec('ShapeBorder', props: [type, borderRadius, side], doc: 'Flutter `OutlinedBorder`.');
+  static const codec = ValueCodec<ShapeBorder?>(ShapeBorder.fromJson, _out, PropType.record('ShapeBorder', spec));
+}
+
+abstract final class ButtonStyleFields {
+  static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
+  static const foregroundColor = PropDef<Color?>('foregroundColor', Codecs.optionalColor, null);
+  static const shadowColor = PropDef<Color?>('shadowColor', Codecs.optionalColor, null);
+  static const elevation = PropDef<double?>('elevation', Codecs.optionalDouble, null);
+  static const textStyle = PropDef<TextStyle>('textStyle', Codecs.textStyle, TextStyle.empty);
+  static const side = PropDef<BorderSide?>('side', Codecs.optionalBorderSide, null);
+  static const shape = PropDef<ShapeBorder?>('shape', ShapeBorderFields.codec, null);
+  static const iconSize = PropDef<double?>('iconSize', Codecs.optionalDouble, null);
+  static const iconColor = PropDef<Color?>('iconColor', Codecs.optionalColor, null);
+  static const spec = WidgetSpec('ButtonStyle',
+      props: [backgroundColor, foregroundColor, shadowColor, elevation, textStyle, side, shape, iconSize, iconColor],
+      doc: 'Flutter `ButtonStyle`.');
+  static const codec = ValueCodec<ButtonStyle>(ButtonStyle.fromJson, _out, PropType.record('ButtonStyle', spec));
+}
+
+abstract final class VisualDensityFields {
+  static const horizontal = PropDef<double>('horizontal', DoubleCodec(min: -4, max: 4), 0);
+  static const vertical = PropDef<double>('vertical', DoubleCodec(min: -4, max: 4), 0);
+  static const spec = WidgetSpec('VisualDensity', props: [horizontal, vertical], doc: 'Flutter `VisualDensity`.');
+  static const codec = ValueCodec<VisualDensity?>(VisualDensity.fromJson, _out, PropType.record('VisualDensity', spec));
+}
+
+abstract final class IconActionFields {
+  static const icon = PropDef<Json>('icon', Codecs.icon, {});
+  static const size = PropDef<double?>('size', Codecs.optionalDouble, null);
+  static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
+  static const tooltip = PropDef<String?>('tooltip', Codecs.optionalString, null);
+  static const actions = PropDef<List<Reaction>>('actions', _reactions, []);
+  static const spec = WidgetSpec('IconAction', props: [icon, size, color, tooltip, actions], doc: '`IconButton`.');
+  static const codec = ValueCodec<IconAction>(IconAction.fromJson, _out, PropType.record('IconAction', spec));
+  static const optionalCodec = ValueCodec<IconAction?>(IconAction.fromJson, _out, PropType.record('IconAction', spec));
+}
+
+abstract final class NavigationDestinationFields {
+  static const label = PropDef<String>('label', Codecs.string, '');
+  static const icon = PropDef<Json>('icon', Codecs.icon, {});
+  static const iconColor = PropDef<Color?>('iconColor', Codecs.optionalColor, null);
+  static const selectedIcon = PropDef<Json?>('selectedIcon', Codecs.optionalIcon, null);
+  static const selectedIconColor = PropDef<Color?>('selectedIconColor', Codecs.optionalColor, null);
+  static const tooltip = PropDef<String?>('tooltip', Codecs.optionalString, null);
+  static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
+  static const actions = PropDef<List<Reaction>>('actions', _reactions, []);
+  static const spec = WidgetSpec('NavigationDestination',
+      props: [label, icon, iconColor, selectedIcon, selectedIconColor, tooltip, backgroundColor, actions],
+      doc: 'Flutter `NavigationDestination`.');
+  static const codec = ValueCodec<NavigationDestination>(
+      NavigationDestination.fromJson, _out, PropType.record('NavigationDestination', spec));
 }

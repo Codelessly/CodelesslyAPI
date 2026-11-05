@@ -15,14 +15,12 @@ List<double>? _sizeIn(Object? j) {
 }
 
 Object? _sizeOut(List<double>? s) => s?.map(writeDouble).toList();
-Json? _jsonIn(Object? j) => readMap(j);
-Object? _jsonOut(Json j) => j;
-Object? _colorOut(Color? c) => c?.toJson();
 
-const _size = ValueCodec<List<double>?>(_sizeIn, _sizeOut);
-const _json = ValueCodec<Json>(_jsonIn, _jsonOut);
-const _optionalColor = ValueCodec<Color?>(Color.fromJson, _colorOut);
-const _strings = ListCodec<String>(Codecs.string);
+/// `[width, height]` (a view box, a maximum size).
+const _size = ValueCodec<List<double>?>(_sizeIn, _sizeOut, PropType.value('Size'));
+const _json = Codecs.json;
+const _optionalColor = Codecs.optionalColor;
+const _strings = Codecs.strings;
 
 /// An SVG path, filled and stroked with the node's decoration
 /// (Flutter `CustomPaint`).

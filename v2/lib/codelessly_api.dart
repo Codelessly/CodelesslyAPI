@@ -14,6 +14,7 @@ export 'src/logic.dart';
 export 'src/node.dart';
 export 'src/props.dart';
 export 'src/triggers.dart';
+export 'src/value_fields.dart';
 export 'src/services/cloud.dart';
 export 'src/services/config.dart';
 export 'src/services/http_api.dart';

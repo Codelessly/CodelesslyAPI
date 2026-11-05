@@ -12,21 +12,13 @@ import '../values/geometry.dart';
 import '../values/text.dart';
 
 
-Object? _colorOut(Color? c) => c?.toJson();
-Object? _offsetOut(Offset? o) => o?.toJson();
-Offset? _offsetIn(Object? j) => readList(j)?.length == 2 ? Offset.fromJson(j) : null;
-Object? _radiusOut(BorderRadius r) => r.toJson();
-Object? _jsonOut(Json j) => j;
-Json? _jsonIn(Object? j) => readMap(j);
-Object? _jsonListOut(List<Json> v) => v;
-List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 
-const _optionalColor = ValueCodec<Color?>(Color.fromJson, _colorOut);
-const _radius = ValueCodec<BorderRadius>(BorderRadius.fromJson, _radiusOut);
-const _json = ValueCodec<Json>(_jsonIn, _jsonOut);
-const _jsonList = ValueCodec<List<Json>>(_jsonListIn, _jsonListOut);
-const _optionalDouble = OptionalDoubleCodec();
-const _optionalPositive = OptionalDoubleCodec(min: 0);
+const _optionalColor = Codecs.optionalColor;
+const _radius = Codecs.radius;
+const _json = Codecs.json;
+const _jsonList = Codecs.jsonList;
+const _optionalDouble = Codecs.optionalDouble;
+const _optionalPositive = Codecs.optionalPositive;
 
 /// How the items of a run are placed along it (Flutter's `WrapAlignment`).
 enum WrapAlignment { start, end, center, spaceBetween, spaceAround, spaceEvenly }
@@ -128,7 +120,7 @@ abstract final class ListViewProps {
 
   /// A [ListLayout.stack] list: where the item sits in the padded box when
   /// its x/y aren't bound.
-  static const itemPosition = PropDef<Offset?>('itemPosition', ValueCodec(_offsetIn, _offsetOut), null);
+  static const itemPosition = PropDef<Offset?>('itemPosition', Codecs.optionalOffset, null);
 
   /// Flows the items onto further runs (`Wrap`) instead of one line.
   static const wrap = PropDef<bool>('wrap', Codecs.bool, false);
@@ -278,7 +270,7 @@ abstract final class TabBarProps {
   static const overlayColor = PropDef<Color?>('overlayColor', _optionalColor, null);
   static const dividerColor = PropDef<Color?>('dividerColor', _optionalColor, Color.black);
   static const dividerHeight = PropDef<double?>('dividerHeight', _optionalDouble, null);
-  static const tabAlignment = PropDef<TabAlignment?>('tabAlignment', _OptionalEnumCodec(TabAlignment.values), null);
+  static const tabAlignment = PropDef<TabAlignment?>('tabAlignment', OptionalEnumCodec(TabAlignment.values), null);
   static const content = PropDef<TabContent>('content', EnumCodec(TabContent.values), TabContent.labelAndIcon);
 
   /// How a tab's icon and label are laid out: side by side (horizontal) or
@@ -300,20 +292,6 @@ abstract final class TabBarProps {
   );
 }
 
-final class _OptionalEnumCodec<T extends Enum> extends PropCodec<T?> {
-  const _OptionalEnumCodec(this.values);
-  final List<T> values;
-  @override
-  T? decode(Object? json) {
-    for (final v in values) {
-      if (v.name == json) return v;
-    }
-    return null;
-  }
-
-  @override
-  Object? encode(T? value) => value?.name;
-}
 
 /// An accordion: its first child is the header (with a toggle button over
 /// its end), its second the content shown while [expanded].
@@ -348,16 +326,16 @@ abstract final class ExpansionTileProps {
   static const maintainState = PropDef<bool>('maintainState', Codecs.bool, false);
   static const backgroundColor = PropDef<Color?>('backgroundColor', _optionalColor, null);
   static const collapsedBackgroundColor = PropDef<Color?>('collapsedBackgroundColor', _optionalColor, null);
-  static const tilePadding = PropDef<EdgeInsets?>('tilePadding', ValueCodec(_insetsIn, _insetsOut), null);
-  static const childrenPadding = PropDef<EdgeInsets?>('childrenPadding', ValueCodec(_insetsIn, _insetsOut), null);
+  static const tilePadding = PropDef<EdgeInsets?>('tilePadding', Codecs.optionalInsets, null);
+  static const childrenPadding = PropDef<EdgeInsets?>('childrenPadding', Codecs.optionalInsets, null);
   static const expandedAlignment = PropDef<Alignment?>(
     'expandedAlignment',
-    ValueCodec(Alignment.fromJson, _alignOut),
+    Codecs.optionalAlignment,
     null,
   );
   static const expandedCrossAxisAlignment = PropDef<CrossAxisAlignment?>(
     'expandedCrossAxisAlignment',
-    _OptionalEnumCodec(CrossAxisAlignment.values),
+    OptionalEnumCodec(CrossAxisAlignment.values),
     null,
   );
   static const iconColor = PropDef<Color?>('iconColor', _optionalColor, null);
@@ -366,19 +344,19 @@ abstract final class ExpansionTileProps {
   static const collapsedTextColor = PropDef<Color?>('collapsedTextColor', _optionalColor, null);
   static const controlAffinity = PropDef<ListTileControlAffinity?>(
     'controlAffinity',
-    _OptionalEnumCodec(ListTileControlAffinity.values),
+    OptionalEnumCodec(ListTileControlAffinity.values),
     null,
   );
 
   /// `[horizontal, vertical]` (`VisualDensity`).
-  static const visualDensity = PropDef<Offset?>('visualDensity', ValueCodec(_offsetIn, _offsetOut), null);
+  static const visualDensity = PropDef<Offset?>('visualDensity', Codecs.optionalOffset, null);
   static const showDividers = PropDef<bool>('showDividers', Codecs.bool, true);
   static const showTrailingIcon = PropDef<bool>('showTrailingIcon', Codecs.bool, true);
 
   /// Expanded and collapsed outline shapes (as [TabBarProps.indicatorShape]),
   /// rounded by [radius].
-  static const shape = PropDef<String?>('shape', _OptionalStringCodec(), null);
-  static const collapsedShape = PropDef<String?>('collapsedShape', _OptionalStringCodec(), null);
+  static const shape = PropDef<String?>('shape', Codecs.optionalString, null);
+  static const collapsedShape = PropDef<String?>('collapsedShape', Codecs.optionalString, null);
   static const radius = PropDef<BorderRadius>('radius', _radius, BorderRadius.zero);
 
   static const spec = WidgetSpec(
@@ -394,17 +372,7 @@ abstract final class ExpansionTileProps {
   );
 }
 
-EdgeInsets? _insetsIn(Object? j) => j == null ? null : EdgeInsets.fromJson(j);
-Object? _insetsOut(EdgeInsets? e) => e?.toJson();
-Object? _alignOut(Alignment? a) => a?.toJson();
 
-final class _OptionalStringCodec extends PropCodec<String?> {
-  const _OptionalStringCodec();
-  @override
-  String? decode(Object? json) => json is String ? json : null;
-  @override
-  Object? encode(String? value) => value;
-}
 
 const List<WidgetSpec> collectionsSpecs = [
   ListViewProps.spec,
