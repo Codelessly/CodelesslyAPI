@@ -1,4 +1,4 @@
-# mobile 4a6f85af
+# mobile 2c32eb12
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
@@ -110,7 +110,7 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet ce298510
+# tablet a85b6507
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
@@ -222,7 +222,7 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop 74036c4c
+# desktop 0108e35b
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
