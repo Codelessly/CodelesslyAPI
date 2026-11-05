@@ -400,6 +400,14 @@ class MotionModel with Equatable, SerializableMixin {
   /// `${= status == 'hold'}`; see [pausedProperty].
   final bool paused;
 
+  /// Where a [loop] starts in its cycle, from 0 (the start) to 1: a loop
+  /// with phase 0.25 begins a quarter of the way through. Several nodes
+  /// sharing one motion (the same path, timing and keyframes) can then be
+  /// spread round it, e.g. the chairs of one lift riding its cable loop
+  /// evenly spaced, as items of one list with `motion.phase` bound to
+  /// `${= index / count}`. Ignored without a loop.
+  final double phase;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -461,6 +469,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.pathProgress = 0,
     this.orientToPath = false,
     this.paused = false,
+    this.phase = 0,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -508,7 +517,12 @@ class MotionModel with Equatable, SerializableMixin {
   /// name such as `elasticOut`), so a node can open with a slow spring and
   /// close quickly: `variables['motion.durationMs'] = '${= open ? 380 :
   /// 160}'`. See [withSetting].
-  static const List<String> settings = ['durationMs', 'delayMs', 'curve'];
+  static const List<String> settings = [
+    'durationMs',
+    'delayMs',
+    'curve',
+    'phase',
+  ];
 
   /// The name of the binding that gives [path] from a variable or formula
   /// (text), e.g. a curve built from the screen's width.
@@ -678,6 +692,7 @@ class MotionModel with Equatable, SerializableMixin {
     double? pathProgress,
     bool? orientToPath,
     bool? paused,
+    double? phase,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -716,6 +731,7 @@ class MotionModel with Equatable, SerializableMixin {
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
     paused: paused ?? this.paused,
+    phase: phase ?? this.phase,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -782,6 +798,14 @@ class MotionModel with Equatable, SerializableMixin {
       case 'curve':
         final MotionCurve? curve = parseCurve(value);
         return curve == null ? this : copyWith(curve: curve);
+      case 'phase':
+        final double? phase = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        if (phase == null || !phase.isFinite) return this;
+        return copyWith(phase: phase - phase.floorToDouble());
       default:
         throw ArgumentError.value(property, 'property');
     }
@@ -920,6 +944,7 @@ class MotionModel with Equatable, SerializableMixin {
     pathProgress,
     orientToPath,
     paused,
+    phase,
     keyframes,
     pulseKey,
     revealOnScroll,
