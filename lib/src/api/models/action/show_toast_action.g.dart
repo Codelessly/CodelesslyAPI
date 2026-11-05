@@ -89,6 +89,16 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : ColorRGBA.fromJson(json['closeColor']),
   cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
+  actionBackgroundColor: json['actionBackgroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['actionBackgroundColor']),
+  actionBorder: json['actionBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['actionBorder'] as Map),
+  actionShadows: (json['actionShadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  actionCornerRadius: (json['actionCornerRadius'] as num?)?.toDouble(),
   border: json['border'] == null
       ? null
       : BorderSideModel.fromJson(json['border'] as Map),
@@ -196,6 +206,10 @@ Map<String, dynamic> _$ShowToastActionToJson(
   'showClose': instance.showClose,
   'closeColor': ?instance.closeColor?.toJson(),
   'cornerRadius': ?instance.cornerRadius,
+  'actionBackgroundColor': ?instance.actionBackgroundColor?.toJson(),
+  'actionBorder': ?instance.actionBorder?.toJson(),
+  'actionShadows': ?instance.actionShadows?.map((e) => e.toJson()).toList(),
+  'actionCornerRadius': ?instance.actionCornerRadius,
   'border': ?instance.border?.toJson(),
   'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
   'padding': ?instance.padding?.toJson(),
