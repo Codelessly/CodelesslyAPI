@@ -120,6 +120,7 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.runScript: 'runScript',
 };
 
 const _$QueryPagingEnumMap = {
