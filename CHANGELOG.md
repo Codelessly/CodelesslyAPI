@@ -1,3 +1,15 @@
+## 9.1.0
+
+- Scripts: `ScriptModel` describes a JavaScript script a project or Editor
+  page can run, with its parameters, source, version, capabilities
+  (`ScriptCapability`: `variables.read`, `variables.write`, `nodes.read`,
+  `navigation`, `api`, `cloud`, `actions`, `clock`) and time and memory
+  limits. Capabilities this version doesn't know are dropped when reading.
+- `RunScriptAction` (`ActionType.runScript`) runs a script with arguments;
+  its result is the chain's `${result}`, optionally stored in a variable,
+  and its `onError` actions run when it fails. `ActionVisitor` gains
+  `visitRunScriptAction`.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
