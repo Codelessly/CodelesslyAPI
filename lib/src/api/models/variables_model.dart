@@ -115,6 +115,15 @@ class VariableData
   /// Whether the variable has a value or not.
   bool get hasValue => value.isNotEmpty;
 
+  /// The `extra` key that marks a variable to persist: see [persists].
+  static const String persistKey = 'persist';
+
+  /// Whether the running app keeps this variable's value on the device:
+  /// every change is saved to local storage, and the next time the app
+  /// starts the variable begins with the saved value instead of its default
+  /// (a hive log kept between visits). Stored as `extra.persist`.
+  bool get persists => extra[persistKey] == true;
+
   /// The `extra` key of a [VariableType.choice] variable's options.
   static const String optionsKey = 'options';
 
