@@ -1,11 +1,11 @@
-# mobile a1a19b85
+# mobile de553cc3
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
         column "Content" expanded/shrinkWrap
           column "Section intro" expanded/shrinkWrap
-            icon "Icon eco" fixed/fixed
+            icon "Icon circle" fixed/fixed
             column "Heading" expanded/shrinkWrap
               text "Title" expanded/shrinkWrap
               text "Subtitle" expanded/shrinkWrap
@@ -86,14 +86,14 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet 61cdd4c3
+# tablet 93fec3bd
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
         column "Content" expanded/shrinkWrap
           column "Section intro" expanded/shrinkWrap
-            icon "Icon eco" fixed/fixed
+            icon "Icon circle" fixed/fixed
             column "Heading" expanded/shrinkWrap
               text "Title" expanded/shrinkWrap
               text "Subtitle" expanded/shrinkWrap
@@ -174,14 +174,14 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop 8badaadf
+# desktop a4f4b969
 column "Screen" expanded/expanded
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
         column "Content" expanded/shrinkWrap
           column "Section intro" expanded/shrinkWrap
-            icon "Icon eco" fixed/fixed
+            icon "Icon circle" fixed/fixed
             column "Heading" expanded/shrinkWrap
               text "Title" expanded/shrinkWrap
               text "Subtitle" expanded/shrinkWrap
