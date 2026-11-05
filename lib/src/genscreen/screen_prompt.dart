@@ -73,6 +73,7 @@ Answer with ONE JSON object (no prose, no code fence) shaped like this:
 - rating: value* (0-5 or a binding), label
 - group: children*, direction (row|column), gap, align, justify, wrap, surface (true = card background), action
 - spacer: size (spacing token)
+- deck: items* (a list binding; each item needs an "id"), front* (components for the card's front, using ${item.x}), back (components for the back; tapping the card flips it in 3D), swipeRight (action when the top card is swiped right), swipeLeft (action when swiped left); a deck bound to a variable advances by itself: swiping right removes the top card, left moves it to the back, flipVariable (boolean variable the flip reads, default "flipped"), labels ({"right": "Known", "left": "Review"}: stamps that fade in while dragging)
 Any component may have `visible`: a formula such as "${= cart.length > 0}".
 
 ## Actions (`type` and fields)
@@ -85,8 +86,10 @@ Any component may have `visible`: a formula such as "${= cart.length > 0}".
 - submit: message (shows loading, then the message)
 - retry (reloads: loading, then content)
 - speak: text, language ("en-US")
-- call: name, params (a host function)
+- call: name, params (an app function). Every app has `listen` {language: "en-US", expected: "the text to say"}: it records the learner once and fills ${speech.listening}, ${speech.heard} (what was heard), ${speech.score} (0-100 against expected), ${speech.error}; ${speech.canListen} says whether this device can listen. ${speech.speaking} is true while a speak action talks.
+- swipe: direction (right|left): flings the deck's top card that way, as if swiped (Known / Review buttons)
 - generate: prompt (generates and opens another screen at runtime)
+- save: key, value, valueType (text|integer|decimal|boolean|list|map): keeps a value on the device; read it back anywhere as ${storage.key}
 Any action may have `then`: another action (or a list) to run after it.
 ''';
 
