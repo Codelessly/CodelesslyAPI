@@ -7,6 +7,27 @@ import '../../../codelessly_api.dart';
 
 part 'motion.g.dart';
 
+/// How [MotionModel.pathProgress] maps to a point on [MotionModel.path].
+enum MotionPathPacing {
+  /// Progress is the share of the path's length travelled: constant speed
+  /// along the curve.
+  length,
+
+  /// Progress is the share of the area swept by a line from the focus
+  /// ([MotionModel.pathFocusX], [MotionModel.pathFocusY]) to the node:
+  /// Kepler's second law. A planet on an elliptical path with the Sun at the
+  /// focus, whose progress grows steadily with time (its mean anomaly over
+  /// 360°), speeds up near the Sun and slows far from it, as real planets
+  /// do. Progress 0 is the path's start.
+  area;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    MotionPathPacing.length => 'Even speed',
+    MotionPathPacing.area => 'Equal areas (orbit)',
+  };
+}
+
 /// The easing a [MotionModel] transition follows.
 enum MotionCurve {
   /// Constant speed.
@@ -391,6 +412,25 @@ class MotionModel with Equatable, SerializableMixin {
   /// added to [rotate].
   final bool orientToPath;
 
+  /// How [pathProgress] maps to a point on [path]: by length (even speed)
+  /// or by area swept about the focus (an orbit).
+  final MotionPathPacing pathPacing;
+
+  /// The focus of [MotionPathPacing.area] pacing (the Sun of an orbit), in
+  /// the path's own coordinates: the same pixels as the path data, not
+  /// relative to its first point. (0, 0) by default, so an orbit written
+  /// around its focus at the origin needs nothing set.
+  final double pathFocusX;
+
+  /// See [pathFocusX].
+  final double pathFocusY;
+
+  /// Reads [pathProgress] modulo 1, so a node on a closed path keeps going
+  /// round: 1.25 is a quarter of the way round again, and a formula can grow
+  /// it without bound (`${= days / period}`). A transition between two
+  /// progresses goes the short way round, across the start.
+  final bool pathWrap;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -451,6 +491,10 @@ class MotionModel with Equatable, SerializableMixin {
     this.path,
     this.pathProgress = 0,
     this.orientToPath = false,
+    this.pathPacing = MotionPathPacing.length,
+    this.pathFocusX = 0,
+    this.pathFocusY = 0,
+    this.pathWrap = false,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -662,6 +706,10 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPath = false,
     double? pathProgress,
     bool? orientToPath,
+    MotionPathPacing? pathPacing,
+    double? pathFocusX,
+    double? pathFocusY,
+    bool? pathWrap,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -699,6 +747,10 @@ class MotionModel with Equatable, SerializableMixin {
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
+    pathPacing: pathPacing ?? this.pathPacing,
+    pathFocusX: pathFocusX ?? this.pathFocusX,
+    pathFocusY: pathFocusY ?? this.pathFocusY,
+    pathWrap: pathWrap ?? this.pathWrap,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -902,6 +954,10 @@ class MotionModel with Equatable, SerializableMixin {
     path,
     pathProgress,
     orientToPath,
+    pathPacing,
+    pathFocusX,
+    pathFocusY,
+    pathWrap,
     keyframes,
     pulseKey,
     revealOnScroll,
