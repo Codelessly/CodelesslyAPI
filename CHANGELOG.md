@@ -8,6 +8,24 @@
   flat shapes, `merge` for patches, `checklist()` for the pre-publish
   warnings, `toWebManifest()`, and `IdentityAssets`, the list of every
   generated favicon, icon, splash and social image size.
+- New `package:codelessly_api/genscreen.dart`: screens generated from a
+  one-line prompt and a DESIGN.md design kit (see the editor's
+  `docs/design_md_spec.md`).
+  - DESIGN.md parser and writer (`DesignMdParser`, `DesignMdWriter`,
+    `DesignKit`), with line-numbered issues, WCAG contrast checks and a
+    content fingerprint for cache keys.
+  - Kit bridge: `kitThemeTokens`, `kitStyles` (styles for `styles.add`),
+    `kitComponentLibrary`, and `exportDesignKit` (a kit read back from a
+    project's styles and nodes).
+  - Screen plans: `ScreenPlanValidator`, `screenPlanJsonSchema`,
+    `normalizePlan` (runtime-name clashes, type aliases).
+  - `ScreenCompiler`: responsive trees (mobile, tablet, desktop) with
+    content, skeleton loading, empty and error states, built only from kit
+    tokens; components include a swipeable, flippable `deck`.
+  - `checkOnBrand`, `ScreenPrompt` (system, user, fix and review prompts),
+    `screenCacheKey`, `extractPlanJson`.
+  - `tool/genscreen.dart`: prompt, validate, compile and kit checks from the
+    command line.
 
 ## 9.0.3
 

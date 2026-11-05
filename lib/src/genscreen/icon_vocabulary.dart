@@ -1,7 +1,8 @@
 /// The Material icons generated screens may use, by Flutter name, with
 /// Flutter's codepoints (the SDK draws them offline by name). Plans that
 /// name another icon get a warning and fall back to [fallbackIcon].
-/// Generated from Flutter's material/icons.dart.
+/// Generated from Flutter's material/icons.dart, limited to the icons the
+/// editor's catalog knows (the SDK's materialIconVersions).
 library;
 
 /// Icon used when a plan names an icon outside the vocabulary.
@@ -297,8 +298,6 @@ const Map<String, int> iconVocabulary = <String, int>{
   'directions_walk_outlined': 0xefd0,
   'pets': 0xe4a1,
   'pets_outlined': 0xf285,
-  'eco': 0xe217,
-  'eco_outlined': 0xf005,
   'park': 0xe478,
   'park_outlined': 0xf25c,
   'local_florist': 0xe393,
