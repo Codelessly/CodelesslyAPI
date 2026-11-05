@@ -362,6 +362,7 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.drag = source.drag;
   target.heroTag = source.heroTag;
   target.heroFlight = source.heroFlight;
+  target.key = source.key;
   target.layoutAspectRatio = source.layoutAspectRatio;
   target.sizeTransition = source.sizeTransition;
   target.inkWell = source.inkWell;
