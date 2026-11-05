@@ -35,6 +35,7 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
     json.remove('finePixelsPerRange');
   if (isJsonDefault(instance.fineHoldMs, 380)) json.remove('fineHoldMs');
   if (isJsonDefault(instance.snapMs, 0)) json.remove('snapMs');
+  if (isJsonDefault(instance.write, true)) json.remove('write');
   if (isJsonDefault(instance.snapCurve, 'easeOutBack'))
     json.remove('snapCurve');
   return json;
@@ -76,6 +77,7 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   fineVariable: json['fineVariable'] as String?,
   snapMs: (json['snapMs'] as num?)?.toInt() ?? 0,
   snapCurve: json['snapCurve'] as String? ?? 'easeOutBack',
+  write: json['write'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -106,6 +108,7 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'fineHoldMs': instance.fineHoldMs,
       'fineVariable': ?instance.fineVariable,
       'snapMs': instance.snapMs,
+      'write': instance.write,
       'snapCurve': instance.snapCurve,
     };
 
