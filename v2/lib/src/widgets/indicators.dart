@@ -12,10 +12,8 @@ import 'indicators_models.dart';
 
 export 'indicators_models.dart';
 
-Object? _radiusOut(BorderRadius r) => r.toJson();
-Object? _styleOut(TextStyle s) => s.toJson();
-const _radius = ValueCodec<BorderRadius>(BorderRadius.fromJson, _radiusOut);
-const _style = ValueCodec<TextStyle>(TextStyle.fromJson, _styleOut);
+const _radius = Codecs.radius;
+const _style = Codecs.textStyle;
 
 /// Flutter `CircularProgressIndicator`: a spinner, or a ring filled to
 /// [value]. [startAngle] and [sweepAngle] draw it as an arc (a dial).

@@ -1,6 +1,5 @@
 // Widget declarations: material. One WidgetSpec per type; props with Flutter's
 // names and defaults (see ../props.dart).
-import '../json.dart';
 import '../props.dart';
 import '../values/border.dart';
 import '../values/color.dart';
@@ -11,30 +10,13 @@ import 'material_models.dart';
 
 export 'material_models.dart';
 
-Object? _colorOut(Color? c) => c?.toJson();
-Object? _jsonOut(Json j) => j;
-Object? _styleOut(ButtonStyle s) => s.toJson();
-Object? _shapeOut(ShapeBorder? s) => s?.toJson();
-Object? _sideOut(BorderSide? s) => s?.toJson();
-Object? _insetsOut(EdgeInsets? e) => e?.toJson();
-Object? _densityOut(VisualDensity? d) => d?.toJson();
-Object? _alignOut(Alignment a) => a.toJson();
-Object? _offsetOut(Offset o) => o.toJson();
-Object? _actionOut(IconAction? a) => a?.toJson();
-Object? _actionItemOut(IconAction a) => a.toJson();
-Object? _destinationOut(NavigationDestination d) => d.toJson();
-Json? _glyphIn(Object? j) => readMap(j);
-EdgeInsets? _insetsIn(Object? j) => EdgeInsets.fromJson(j);
-
-const _nullableColor = ValueCodec<Color?>(Color.fromJson, _colorOut);
-const _glyph = ValueCodec<Json>(_glyphIn, _jsonOut);
-const _shape = ValueCodec<ShapeBorder?>(ShapeBorder.fromJson, _shapeOut);
-const _side = ValueCodec<BorderSide?>(BorderSide.fromJson, _sideOut);
-const _insets = ValueCodec<EdgeInsets?>(_insetsIn, _insetsOut);
-const _optionalDouble = ValueCodec<double?>(readDouble, _doubleOut);
-const _optionalString = ValueCodec<String?>(readString, _stringOut);
-Object? _doubleOut(double? v) => v == null ? null : writeDouble(v);
-Object? _stringOut(String? v) => v;
+const _nullableColor = Codecs.optionalColor;
+const _glyph = Codecs.icon;
+const _shape = ShapeBorderFields.codec;
+const _side = Codecs.optionalBorderSide;
+const _insets = Codecs.optionalInsets;
+const _optionalDouble = Codecs.optionalDouble;
+const _optionalString = Codecs.optionalString;
 
 /// Where a button's icon sits: Flutter's `IconAlignment`.
 enum IconAlignment { start, end }
@@ -92,7 +74,7 @@ abstract final class ButtonProps {
 
   /// False is a disabled button (`onPressed: null`).
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const style = PropDef<ButtonStyle>('style', ValueCodec(ButtonStyle.fromJson, _styleOut), ButtonStyle.empty);
+  static const style = PropDef<ButtonStyle>('style', ButtonStyleFields.codec, ButtonStyle.empty);
 
   /// `FilledButton.tonal`.
   static const tonal = PropDef<bool>('tonal', Codecs.bool, false);
@@ -208,8 +190,8 @@ abstract final class BadgeProps {
   static const padding =
       PropDef<EdgeInsets>('padding', Codecs.insets, EdgeInsets.symmetric(horizontal: 4));
   static const alignment =
-      PropDef<Alignment>('alignment', ValueCodec(Alignment.fromJson, _alignOut), Alignment(1, -1));
-  static const offset = PropDef<Offset>('offset', ValueCodec(Offset.fromJson, _offsetOut), Offset(4, -4));
+      PropDef<Alignment>('alignment', Codecs.alignment, Alignment(1, -1));
+  static const offset = PropDef<Offset>('offset', Codecs.offset, Offset(4, -4));
 
   static const spec = WidgetSpec('badge',
       props: [
@@ -227,7 +209,7 @@ abstract final class ListTileProps {
   static const dense = PropDef<bool>('dense', Codecs.bool, false);
   static const isThreeLine = PropDef<bool>('isThreeLine', Codecs.bool, false);
   static const visualDensity =
-      PropDef<VisualDensity?>('visualDensity', ValueCodec(VisualDensity.fromJson, _densityOut), null);
+      PropDef<VisualDensity?>('visualDensity', VisualDensityFields.codec, null);
   static const shape = PropDef<ShapeBorder?>('shape', _shape, null);
   static const selected = PropDef<bool>('selected', Codecs.bool, false);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
@@ -246,7 +228,7 @@ abstract final class ListTileProps {
   static const minLeadingWidth = PropDef<double?>('minLeadingWidth', _optionalDouble, null);
   static const minTileHeight = PropDef<double?>('minTileHeight', _optionalDouble, null);
   static const titleAlignment = PropDef<ListTileTitleAlignment?>(
-      'titleAlignment', ValueCodec(_titleAlignIn, _enumOut), null);
+      'titleAlignment', OptionalEnumCodec(ListTileTitleAlignment.values), null);
 
   static const spec = WidgetSpec('listTile',
       props: [
@@ -259,21 +241,18 @@ abstract final class ListTileProps {
       doc: 'Flutter `ListTile`.');
 }
 
-ListTileTitleAlignment? _titleAlignIn(Object? j) =>
-    j is String ? ListTileTitleAlignment.values.where((v) => v.name == j).firstOrNull : null;
-Object? _enumOut(Enum? e) => e?.name;
 
 /// `AppBar`.
 abstract final class AppBarProps {
   static const title = PropDef<String>('title', Codecs.string, '');
   static const titleTextStyle = PropDef<TextStyle>('titleTextStyle', Codecs.textStyle, TextStyle.empty);
-  static const centerTitle = PropDef<bool?>('centerTitle', ValueCodec(readBool, _boolOut), null);
+  static const centerTitle = PropDef<bool?>('centerTitle', Codecs.optionalBool, null);
   static const titleSpacing = PropDef<double?>('titleSpacing', _optionalDouble, null);
-  static const leading = PropDef<IconAction?>('leading', ValueCodec(IconAction.fromJson, _actionOut), null);
+  static const leading = PropDef<IconAction?>('leading', IconActionFields.optionalCodec, null);
   static const leadingWidth = PropDef<double?>('leadingWidth', _optionalDouble, null);
   static const automaticallyImplyLeading = PropDef<bool>('automaticallyImplyLeading', Codecs.bool, true);
   static const actions =
-      PropDef<List<IconAction>>('actions', ListCodec(ValueCodec(IconAction.fromJson, _actionItemOut)), []);
+      PropDef<List<IconAction>>('actions', ListCodec(IconActionFields.codec), []);
   static const backgroundColor = PropDef<Color?>('backgroundColor', _nullableColor, null);
   static const foregroundColor = PropDef<Color?>('foregroundColor', _nullableColor, null);
   static const surfaceTintColor = PropDef<Color?>('surfaceTintColor', _nullableColor, null);
@@ -289,13 +268,12 @@ abstract final class AppBarProps {
       doc: 'Flutter `AppBar` (its toolbar height is the node height).');
 }
 
-Object? _boolOut(bool? v) => v;
 
 /// What `NavigationBar` and `BottomNavigationBar` share: items, the
 /// selection, and the selected/unselected label and icon styles.
 abstract final class NavigationBarProps {
   static const destinations = PropDef<List<NavigationDestination>>(
-      'destinations', ListCodec(ValueCodec(NavigationDestination.fromJson, _destinationOut)), []);
+      'destinations', ListCodec(NavigationDestinationFields.codec), []);
   static const selectedIndex = PropDef<int>('selectedIndex', Codecs.int, 0);
   static const backgroundColor = PropDef<Color?>('backgroundColor', _nullableColor, null);
   static const elevation = PropDef<double?>('elevation', _optionalDouble, null);

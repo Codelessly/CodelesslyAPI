@@ -11,31 +11,6 @@ import '../values/color.dart';
 // --- codecs -------------------------------------------------------------------
 
 
-/// A string that may be absent (a font family that falls back).
-final class OptionalStringCodec extends PropCodec<String?> {
-  const OptionalStringCodec();
-  @override
-  String? decode(Object? json) => json is String ? json : null;
-  @override
-  Object? encode(String? value) => value;
-}
-
-/// An enum value that may be absent (Flutter's nullable enum parameters).
-final class OptionalEnumCodec<T extends Enum> extends PropCodec<T?> {
-  const OptionalEnumCodec(this.values);
-  final List<T> values;
-  @override
-  T? decode(Object? json) {
-    for (final v in values) {
-      if (v.name == json) return v;
-    }
-    return null;
-  }
-
-  @override
-  Object? encode(T? value) => value?.name;
-}
-
 /// A list of numbers with gaps (`null` items kept, e.g. a bar with no value).
 final class NullableDoublesCodec extends PropCodec<List<double?>> {
   const NullableDoublesCodec();
@@ -43,23 +18,21 @@ final class NullableDoublesCodec extends PropCodec<List<double?>> {
   List<double?>? decode(Object? json) => readList(json)?.map(readDouble).toList();
   @override
   Object encode(List<double?> value) => [for (final v in value) v == null ? null : writeDouble(v)];
+  @override
+  PropType get type => const PropType.list(PropType.number());
 }
 
-Color? _colorIn(Object? j) => Color.fromJson(j);
-Object? _optColorOut(Color? c) => c?.toJson();
-Object? _listOut(List<Json> v) => v;
-List<Json>? _listIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 
 /// Codecs shared by the indicators declarations.
 abstract final class IndicatorCodecs {
-  static const optionalDouble = OptionalDoubleCodec();
-  static const optionalString = OptionalStringCodec();
-  static const optionalColor = ValueCodec<Color?>(_colorIn, _optColorOut);
-  static const doubles = ListCodec<double>(Codecs.double);
-  static const strings = ListCodec<String>(Codecs.string);
+  static const optionalDouble = Codecs.optionalDouble;
+  static const optionalString = Codecs.optionalString;
+  static const optionalColor = Codecs.optionalColor;
+  static const doubles = Codecs.doubles;
+  static const strings = Codecs.strings;
 
   /// Free-form JSON objects (data rows, bound overlays).
-  static const objects = ValueCodec<List<Json>>(_listIn, _listOut);
+  static const objects = Codecs.jsonList;
 }
 
 // --- records ------------------------------------------------------------------
@@ -113,7 +86,7 @@ final class ProgressBand extends PropRecord {
 
   static ProgressBand? fromJson(Object? json) =>
       readMap(json) == null ? null : ProgressBand._(Props.fromJson(spec, json));
-  static const codec = ListCodec<ProgressBand>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<ProgressBand>(ValueCodec(fromJson, _recordOut, PropType.record('ProgressBand', spec)));
 }
 
 /// A colored band of a radial gauge, from [from] to [to] in value units.
@@ -135,7 +108,7 @@ final class GaugeZone extends PropRecord {
   Color get color => get(colorDef);
 
   static GaugeZone? fromJson(Object? json) => readMap(json) == null ? null : GaugeZone._(Props.fromJson(spec, json));
-  static const codec = ListCodec<GaugeZone>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<GaugeZone>(ValueCodec(fromJson, _recordOut, PropType.record('GaugeZone', spec)));
 }
 
 /// How a chart series draws its values.
@@ -189,7 +162,7 @@ final class ChartSeries extends PropRecord {
   ChartSeries withColor(Color color) => ChartSeries._(props.set(colorDef, color));
 
   static ChartSeries? fromJson(Object? json) => readMap(json) == null ? null : ChartSeries._(Props.fromJson(spec, json));
-  static const codec = ListCodec<ChartSeries>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<ChartSeries>(ValueCodec(fromJson, _recordOut, PropType.record('ChartSeries', spec)));
 }
 
 /// A horizontal line across a chart's plot at [value].
@@ -211,7 +184,7 @@ final class ChartReferenceLine extends PropRecord {
 
   static ChartReferenceLine? fromJson(Object? json) =>
       readMap(json) == null ? null : ChartReferenceLine._(Props.fromJson(spec, json));
-  static const codec = ListCodec<ChartReferenceLine>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<ChartReferenceLine>(ValueCodec(fromJson, _recordOut, PropType.record('ChartReferenceLine', spec)));
 }
 
 /// A label on a plot chart's x axis, centred on [x].
@@ -229,7 +202,7 @@ final class PlotChartLabel extends PropRecord {
 
   static PlotChartLabel? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartLabel._(Props.fromJson(spec, json));
-  static const codec = ListCodec<PlotChartLabel>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<PlotChartLabel>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartLabel', spec)));
 }
 
 /// A shaded x range of a plot chart, painted behind the curve.
@@ -249,7 +222,7 @@ final class PlotChartRange extends PropRecord {
 
   static PlotChartRange? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartRange._(Props.fromJson(spec, json));
-  static const codec = ListCodec<PlotChartRange>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<PlotChartRange>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartRange', spec)));
 }
 
 /// Where a plot chart marker's label sits relative to its dot.
@@ -277,5 +250,5 @@ final class PlotChartMarker extends PropRecord {
 
   static PlotChartMarker? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartMarker._(Props.fromJson(spec, json));
-  static const codec = ListCodec<PlotChartMarker>(ValueCodec(fromJson, _recordOut));
+  static const codec = ListCodec<PlotChartMarker>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartMarker', spec)));
 }
