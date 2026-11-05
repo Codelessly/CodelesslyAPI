@@ -109,11 +109,12 @@ class FlipModel with Equatable, SerializableMixin {
 /// across it, with depth for parallax.
 ///
 /// [max] holds the values the node reaches with the pointer at its edge,
-/// and they are [MotionModel] values: [MotionModel.rotateX] (the node's
-/// top tips back by this much with the pointer at its top edge),
-/// [MotionModel.rotateY] (its right edge comes forward with the pointer at
-/// its right edge), [MotionModel.perspective], and [MotionModel.scale] /
-/// [MotionModel.translateY] reached while the pointer is over it at all.
+/// and they are [MotionModel] values. The edge under the pointer tips away
+/// from the viewer: by [MotionModel.rotateX] with the pointer at the top or
+/// bottom edge, and by [MotionModel.rotateY] at the left or right edge,
+/// seen with [MotionModel.perspective]. [MotionModel.scale],
+/// [MotionModel.translateX] and [MotionModel.translateY] are reached while
+/// the pointer is over the node at all (a lift on hover).
 ///
 /// Inside the node, `${tilt.x}` and `${tilt.y}` (-1 to 1, 0 at rest) can
 /// be read, so a child can parallax:
