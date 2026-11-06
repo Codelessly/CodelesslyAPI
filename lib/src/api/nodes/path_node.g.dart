@@ -15,6 +15,8 @@ Map<String, dynamic> _$PathNodeOmitDefaults(
   if (isJsonDefault(instance.trimEnd, 1)) json.remove('trimEnd');
   if (isJsonDefault(instance.strokeJoin, StrokeJoinEnum.round))
     json.remove('strokeJoin');
+  if (isJsonDefault(instance.subpathColors, const []))
+    json.remove('subpathColors');
   if (isJsonDefault(instance.foregroundFills, []))
     json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -179,6 +181,11 @@ PathNode _$PathNodeFromJson(Map json) =>
         strokeJoin:
             $enumDecodeNullable(_$StrokeJoinEnumEnumMap, json['strokeJoin']) ??
             StrokeJoinEnum.round,
+        subpathColors:
+            (json['subpathColors'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
       )
       ..variables =
           (json['variables'] as Map?)?.map(
@@ -283,6 +290,7 @@ PathNode _$PathNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$PathNodeToJson(PathNode instance) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -299,7 +307,6 @@ Map<String, dynamic> _$PathNodeToJson(PathNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -355,6 +362,7 @@ Map<String, dynamic> _$PathNodeToJson(PathNode instance) => <String, dynamic>{
   'trimStart': instance.trimStart,
   'trimEnd': instance.trimEnd,
   'strokeJoin': _$StrokeJoinEnumEnumMap[instance.strokeJoin]!,
+  'subpathColors': instance.subpathColors,
 };
 
 const _$BlendModeCEnumMap = {

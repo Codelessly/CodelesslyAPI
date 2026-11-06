@@ -166,6 +166,20 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// with hard stops makes stripes (hazard tape, hatching).
   final GradientTileMode gradientTileMode;
 
+  /// Whether the gradient is laid out in each shape of a path node instead
+  /// of across the node's box: every closed subpath (an `M ... Z` of the
+  /// node's `pathData`) gets the whole gradient, with its handles, centre
+  /// and radius in that shape's own bounds, so one path node of 300 hex
+  /// cells shades every cell alike (a radial highlight per cell). Subpaths
+  /// that lie inside the previous shape's bounds (a hole, the counter of an
+  /// "O") belong to that shape. Only path nodes paint per shape; other
+  /// nodes ignore it.
+  ///
+  /// JSON: `gradientPerSubpath: true`, also read from
+  /// `gradientUnits: 'subpath'`.
+  @JsonKey(defaultValue: false, readValue: _readGradientPerSubpath)
+  final bool gradientPerSubpath;
+
   // For image paint:
 
   /// Affine transform applied to the image.
@@ -407,6 +421,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientTransform = null,
        gradientStops = null,
        gradientTileMode = GradientTileMode.clamp,
+       gradientPerSubpath = false,
        imageTransform = null,
        imageName = null,
        fit = Fit.none,
@@ -467,7 +482,8 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientBeginY = null,
        gradientEndX = null,
        gradientEndY = null,
-       gradientTileMode = GradientTileMode.clamp;
+       gradientTileMode = GradientTileMode.clamp,
+       gradientPerSubpath = false;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -481,6 +497,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientCenterY = 0,
     this.gradientRadius = 0.5,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
     this.gradientBeginX,
     this.gradientBeginY,
     this.gradientEndX,
@@ -515,6 +532,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
     this.gradientCenterX = 0,
     this.gradientCenterY = 0,
     this.gradientRadius = 0.5,
@@ -552,6 +570,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientAngular,
        color = null,
@@ -600,6 +619,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientEndX,
     this.gradientEndY,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
 
     this.imageTransform,
     this.hasImageBytes = false,
@@ -640,6 +660,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     double? gradientEndY,
     bool clearGradientGeometry = false,
     GradientTileMode? gradientTileMode,
+    bool? gradientPerSubpath,
 
     List<List<num>>? imageTransform,
     double? scalingFactor,
@@ -696,6 +717,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
         ? null
         : gradientEndY ?? this.gradientEndY,
     gradientTileMode: gradientTileMode ?? this.gradientTileMode,
+    gradientPerSubpath: gradientPerSubpath ?? this.gradientPerSubpath,
 
     imageTransform: imageTransform ?? this.imageTransform,
     hasImageBytes: hasImageBytes ?? this.hasImageBytes,
@@ -758,6 +780,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           gradientEndX: gradientEndX,
           gradientEndY: gradientEndY,
           gradientTileMode: gradientTileMode,
+          gradientPerSubpath: gradientPerSubpath,
         );
       case PaintType.image:
         return PaintModel.image(
@@ -807,6 +830,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (gradientEndX != other.gradientEndX) return false;
     if (gradientEndY != other.gradientEndY) return false;
     if (gradientTileMode != other.gradientTileMode) return false;
+    if (gradientPerSubpath != other.gradientPerSubpath) return false;
     if (imageTransform != other.imageTransform) return false;
     if (hasImageBytes != other.hasImageBytes) return false;
     if (downloadUrl != other.downloadUrl) return false;
@@ -845,6 +869,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientEndX,
     gradientEndY,
     gradientTileMode,
+    gradientPerSubpath,
 
     imageTransform,
     hasImageBytes,
@@ -935,6 +960,16 @@ Object? _readGradientCenter(Map json, String key) {
   return switch (json['gradientCenter']) {
     [final num x, final num y] => isX ? x : y,
     {'x': final num x, 'y': final num y} => isX ? x : y,
+    _ => null,
+  };
+}
+
+/// Reads `gradientPerSubpath`, or `gradientUnits: 'subpath'` (SVG's
+/// `gradientUnits` naming: `'box'` is the default).
+Object? _readGradientPerSubpath(Map json, String key) {
+  if (json[key] != null) return json[key];
+  return switch (json['gradientUnits']) {
+    final String units => units.toLowerCase() == 'subpath',
     _ => null,
   };
 }
