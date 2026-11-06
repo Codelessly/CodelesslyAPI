@@ -41,13 +41,53 @@ enum DragTrackInput {
   vertical,
 
   /// Dragging right raises the value and left lowers it.
-  horizontal;
+  horizontal,
+
+  /// Dragging up or right raises the value, down or left lowers it (the
+  /// pointer's dx − dy): a knob that turns whichever way it is pulled.
+  both;
 
   /// Displayable name.
   String get prettify => switch (this) {
     DragTrackInput.follow => 'Follow pointer',
     DragTrackInput.vertical => 'Drag up / down',
     DragTrackInput.horizontal => 'Drag left / right',
+    DragTrackInput.both => 'Drag up / right',
+  };
+}
+
+/// Where a [DragTrackModel]'s node takes the pointer.
+enum DragTrackHitArea {
+  /// On the node itself (and, with [DragTrackModel.jumpOnTap], anywhere
+  /// along the track).
+  self,
+
+  /// Anywhere in the node's parent: a knob turned from anywhere in its box,
+  /// tick ring included, or a playhead scrubbed from anywhere across the
+  /// tracks it sits on.
+  parent;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DragTrackHitArea.self => 'The node',
+    DragTrackHitArea.parent => 'Its parent',
+  };
+}
+
+/// What a [DragTrackModel]'s geometry is measured in.
+enum DragTrackUnits {
+  /// Logical pixels.
+  pixels,
+
+  /// Fractions of the parent's size: x values (`x1`, `x2`, `pivotX` and the
+  /// path's x coordinates) of its width, y values of its height. `x2: 1`
+  /// runs a line across the whole parent, at any width.
+  parent;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    DragTrackUnits.pixels => 'Pixels',
+    DragTrackUnits.parent => 'Fraction of parent',
   };
 }
 
@@ -73,13 +113,25 @@ enum DragTrackInput {
 /// `${track.progress}` (0 to 1) and `${track.dragging}`. Each change runs
 /// the node's `changed` reactions with `${result.value}`; letting go runs
 /// its `dragEnd` reactions.
+///
+/// The node's `variables` can bind the track: `track.value` gives the value
+/// the node is drawn at (a computed or per-item value, e.g.
+/// `${= lampOf(selectedLampId).kelvin}` or `${item.kelvin}`), in place of
+/// reading [variable]; with no [variable] a drag only runs the reactions,
+/// which write the value wherever it lives, and the node follows the
+/// pointer while dragged, then settles at the bound value. `track.min`,
+/// `track.max`, `track.x1`, `track.y1`, `track.x2`, `track.y2`,
+/// `track.pivotX`, `track.pivotY`, `track.startAngle`, `track.endAngle`
+/// and `track.path` bind the geometry (`${= parent.width - 150}`), see
+/// [bindableFields].
 @JsonSerializable()
 class DragTrackModel with Equatable, SerializableMixin {
   /// The track's geometry.
   final DragTrackShape shape;
 
   /// The variable the track reads and writes, by name (an integer or
-  /// decimal variable).
+  /// decimal variable). Empty when the node binds `track.value` and its
+  /// reactions write the value.
   final String variable;
 
   /// The variable's value at the start of the track.
@@ -164,16 +216,38 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// chart's scrub area).
   final bool relative;
 
-  /// Tapping the node's parent anywhere along the track moves the node
-  /// there (a fader cap jumps to where its slot was tapped). On an arc, a
-  /// tap anywhere on the node turns it to the tapped angle (past the sweep's
-  /// ends, the nearer end), so a dial drawn to the size of its ring can be
-  /// tapped round its ring. Only for [DragTrackInput.follow].
+  /// Pressing anywhere along the track (or anywhere in the [hitArea]) moves
+  /// the node there, and dragging from there follows the pointer: a fader
+  /// cap jumps to where its slot (the node's parent) was tapped. On an arc,
+  /// a tap anywhere on the node turns it to the tapped angle (past the
+  /// sweep's ends, the nearer end), so a dial drawn to the size of its ring
+  /// can be tapped round its ring. Only for [DragTrackInput.follow].
   final bool jumpOnTap;
 
   /// Whether the mouse wheel steps the value.
   final bool wheel;
 
+  /// How far one wheel notch moves the value; null uses [step], or 1% of
+  /// the range for a continuous track.
+  final double? wheelStep;
+
+  /// Values a double tap moves between: to the one after the current value
+  /// in the list, or the first when the value isn't in it. `[100, 50]`
+  /// turns a knob up to 100, or to 50 when it is at 100. Empty uses
+  /// [defaultValue].
+  final List<double> doubleTapValues;
+
+  /// How far an arrow key moves the value while the node has the focus
+  /// (pressing it focuses it); Home and End go to [min] and [max]. Null
+  /// leaves the keyboard alone.
+  final double? keyStep;
+
+  /// Where the node takes the pointer.
+  final DragTrackHitArea hitArea;
+
+  /// What the geometry ([x1] to [y2], [pivotX], [pivotY], [path]) is
+  /// measured in.
+  final DragTrackUnits units;
   /// A finer step for precise adjustment; 0 (the default) has no fine mode.
   /// The track is in fine mode while Shift is held, or after the pointer is
   /// pressed and held still for [fineHoldMs] before dragging: the value then
@@ -240,7 +314,7 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// Creates a [DragTrackModel].
   const DragTrackModel({
     this.shape = DragTrackShape.line,
-    required this.variable,
+    this.variable = '',
     this.min = 0,
     this.max = 1,
     this.step = 0,
@@ -263,6 +337,11 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.relative = false,
     this.jumpOnTap = false,
     this.wheel = true,
+    this.wheelStep,
+    this.doubleTapValues = const [],
+    this.keyStep,
+    this.hitArea = DragTrackHitArea.self,
+    this.units = DragTrackUnits.pixels,
     this.fineStep = 0,
     this.finePixelsPerRange = 0,
     this.fineHoldMs = 380,
@@ -386,6 +465,78 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// [defaultValue].
   static const String defaultValueVariable = 'track.defaultValue';
 
+  /// The prefix of the node `variables` keys that bind a track.
+  static const String bindingPrefix = 'track.';
+
+  /// The node `variables` key that binds the value the node is drawn at.
+  static const String valueBindingKey = 'track.value';
+
+  /// The fields a node's `variables` can bind, each as `track.<field>`:
+  /// `value` (the value the node is drawn at) and the geometry.
+  static const List<String> bindableFields = [
+    'value',
+    'min',
+    'max',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
+    'startAngle',
+    'endAngle',
+    'pivotX',
+    'pivotY',
+    'path',
+  ];
+
+  /// Whether a node's track has a variable to write.
+  bool get hasVariable => variable.trim().isNotEmpty;
+
+  /// A copy with the geometry fields given in [values] (numbers by field
+  /// name, `path` a string), each one replacing the saved field: what the
+  /// node's `track.<field>` bindings resolve to.
+  DragTrackModel withBound(Map<String, Object?> values) {
+    // Track fields, bound as `track.<field>` (not node binding keys).
+    double? number(String field) => switch (values[field]) {
+      num n when n.isFinite => n.toDouble(),
+      String s => double.tryParse(s.trim()),
+      _ => null,
+    };
+    final Object? path = values['path'];
+    return copyWith(
+      min: number('min'),
+      max: number('max'),
+      x1: number('x1'),
+      y1: number('y1'),
+      x2: number('x2'),
+      y2: number('y2'),
+      startAngle: number('startAngle'),
+      endAngle: number('endAngle'),
+      pivotX: number('pivotX'),
+      pivotY: number('pivotY'),
+      path: path is String && path.trim().isNotEmpty ? path : null,
+    );
+  }
+
+  /// The values [doubleTapValues] (or [defaultValue]) toggles through, in
+  /// order.
+  List<double> get doubleTapCycle => doubleTapValues.isNotEmpty
+      ? doubleTapValues
+      : [?defaultValue];
+
+  /// The value a double tap moves to from [value], or null when double tap
+  /// does nothing.
+  double? doubleTapTarget(double value) {
+    final List<double> cycle = doubleTapCycle;
+    if (cycle.isEmpty) return null;
+    final double current = snap(value);
+    for (int i = 0; i < cycle.length; i++) {
+      if ((snap(cycle[i]) - current).abs() < 1e-6) {
+        return snap(cycle[(i + 1) % cycle.length]);
+      }
+    }
+    return snap(cycle.first);
+  }
+
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
   /// An [endless] arc's progress goes past 0 and 1 (2 is a second turn).
   double progressOf(double value) {
@@ -434,8 +585,19 @@ class DragTrackModel with Equatable, SerializableMixin {
     return v;
   }
 
-  /// How far one wheel notch moves the value.
-  double get wheelStep => step > 0 ? step : (max - min).abs() / 100;
+  /// How far one wheel notch moves the value: [wheelStep], else [step], else
+  /// 1% of the range.
+  double get effectiveWheelStep => switch (wheelStep) {
+    final double s when s > 0 => s,
+    _ => step > 0 ? step : (max - min).abs() / 100,
+  };
+
+  /// How far one arrow key press moves the value, or null when the keys
+  /// are off.
+  double? get effectiveKeyStep => switch (keyStep) {
+    final double s when s > 0 => s,
+    _ => null,
+  };
 
   /// The rotation of an arc at [progress], in degrees.
   double angleAt(double progress) =>
@@ -468,6 +630,13 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? relative,
     bool? jumpOnTap,
     bool? wheel,
+    double? wheelStep,
+    bool clearWheelStep = false,
+    List<double>? doubleTapValues,
+    double? keyStep,
+    bool clearKeyStep = false,
+    DragTrackHitArea? hitArea,
+    DragTrackUnits? units,
     double? fineStep,
     double? finePixelsPerRange,
     int? fineHoldMs,
@@ -506,6 +675,11 @@ class DragTrackModel with Equatable, SerializableMixin {
     relative: relative ?? this.relative,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
+    wheelStep: clearWheelStep ? null : (wheelStep ?? this.wheelStep),
+    doubleTapValues: doubleTapValues ?? this.doubleTapValues,
+    keyStep: clearKeyStep ? null : (keyStep ?? this.keyStep),
+    hitArea: hitArea ?? this.hitArea,
+    units: units ?? this.units,
     fineStep: fineStep ?? this.fineStep,
     finePixelsPerRange: finePixelsPerRange ?? this.finePixelsPerRange,
     fineHoldMs: fineHoldMs ?? this.fineHoldMs,
@@ -546,6 +720,11 @@ class DragTrackModel with Equatable, SerializableMixin {
     relative,
     jumpOnTap,
     wheel,
+    wheelStep,
+    doubleTapValues,
+    keyStep,
+    hitArea,
+    units,
     fineStep,
     finePixelsPerRange,
     fineHoldMs,

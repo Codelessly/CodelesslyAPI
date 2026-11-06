@@ -1,3 +1,24 @@
+## 9.2.0
+
+Fields added while recreating the Lamplight reference app (see
+CodelesslyEditor `references/lamplight/blockers.md`):
+
+- `TextNode.fontFeatures`: OpenType feature settings (`lnum`, `tnum`,
+  `ss01`, `liga=0`); `tabularFigures` still means `tnum`.
+- `BaseNode.key`: the insert key round-trips, so exported trees keep keys.
+- `ColorStop.bindingKey`: bindable stops on any fill, stroke or foreground
+  paint.
+- Drag tracks: optional `variable` (bind `track.value`), `hitArea`,
+  `input: both`, `wheelStep`, `keyStep`, `doubleTapValues`, `units:
+  parent` and bindable geometry.
+- `AnimateVariableAction` (play, pause, resume, stop, seek a variable).
+- Confirm dialog: per-button borders, icon/disc, `centered`,
+  `expandButtons`, `width`, `maxWidth`, `insets`, `padding`,
+  `buttonHeight`.
+- Pulse `phase` and `delayMs`; row/column `fillViewport`; switch
+  `thumbShadows` and `thumbInset`.
+- Colours read as hex text in formulas.
+
 ## 9.1.0
 
 - `motion.keyframes` binds to a list of `{t, translateX, translateY, ...}`

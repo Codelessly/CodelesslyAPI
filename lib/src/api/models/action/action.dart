@@ -98,6 +98,10 @@ enum ActionType {
   /// Play a node's one-shot animation or particles.
   playAnimation,
 
+  /// Animates a number variable over time (play, pause, resume, stop,
+  /// seek); see [AnimateVariableAction].
+  animateVariable,
+
   /// Buzzes the device; see [HapticAction].
   haptic;
 
@@ -166,6 +170,8 @@ enum ActionType {
         return 'Play Sound';
       case ActionType.playAnimation:
         return 'Play Animation';
+      case ActionType.animateVariable:
+        return 'Animate Variable';
       case ActionType.haptic:
         return 'Haptic Feedback';
     }
@@ -279,6 +285,8 @@ abstract class ActionModel with SerializableMixin {
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:
         return PlayAnimationAction.fromJson(json);
+      case ActionType.animateVariable:
+        return AnimateVariableAction.fromJson(json);
       case ActionType.haptic:
         return HapticAction.fromJson(json);
     }
