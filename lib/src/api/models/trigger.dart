@@ -70,7 +70,8 @@ enum TriggerType {
 
   /// Triggered when a key is pressed while the canvas is shown. The key is
   /// [TriggerModel.key], a logical key label such as `Arrow Right`, `Enter`
-  /// or `A`.
+  /// or `A`, compared without case: `a` and `A` are both the A key, pressed
+  /// with or without Shift.
   keyPress,
 
   /// Triggered when the user swipes the target to the left.
@@ -420,8 +421,14 @@ class TriggerModel with Equatable, SerializableMixin {
 
   /// The key a [TriggerType.keyPress], [TriggerType.keyDown] or
   /// [TriggerType.keyUp] listens for.
-  /// Key down labels (e.g. `ArrowLeft`) are case-insensitive; null listens
+  /// Key labels (e.g. `ArrowLeft`) are case-insensitive; null listens
   /// for every key.
+  ///
+  /// A key is a key of the keyboard, not the character it types, so a
+  /// letter matches without case: `f` and `F` both name the F key, and both
+  /// match it pressed with or without Shift. Two reactions for `f` and `F`
+  /// are two reactions for the same key and both run on one press. To act
+  /// on Shift+F only, name the modifier: `Shift+F` (key down and key up).
   ///
   /// A key down key can name modifiers before the key, joined by `+`:
   /// `Meta+Enter` (`Meta` is Command or Control, so the same shortcut works
@@ -568,7 +575,10 @@ class TriggerModel with Equatable, SerializableMixin {
 ///
 /// The last part is the key, compared without case or spaces, so
 /// `Arrow Down`, `ArrowDown` and `arrowdown` are the same key. `Esc` reads
-/// as `Escape` and `Return` as `Enter`.
+/// as `Escape` and `Return` as `Enter`. A letter is the key, not the
+/// character: `F` is the F key, as `f` is, and not Shift+F; write
+/// `Shift+F` for that. A one-character key without `Shift` also matches
+/// with Shift held (see [matches]).
 class KeyCombo with Equatable {
   /// The key, lower case and without spaces: `enter`, `arrowdown`, `b`.
   final String key;
