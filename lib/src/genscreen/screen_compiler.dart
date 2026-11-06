@@ -1463,7 +1463,7 @@ class ScreenCompiler {
     }
     return _row('Buttons', nodes,
         gap: _space('sm'),
-        main: '${c['align'] ?? 'start'}' == 'end' ? 'end' : (c['align'] == 'center' ? 'center' : 'start'));
+        main: _mainAxis(c['align']));
   }
 
   Map<String, dynamic> _input(Map<String, dynamic> c) {
@@ -2366,9 +2366,9 @@ class ScreenCompiler {
     // than run off the edge.
     final bool rigid = children.every((Map<String, dynamic> n) => n['flex'] == null && n['horizontalFit'] != 'expanded');
     final Map<String, dynamic> node = row
-        ? _row('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align == 'stretch' ? 'center' : align,
-            main: '${c['justify'] ?? 'start'}', wrap: c['wrap'] == true || (!_bp.desktop && rigid && children.length > 1))
-        : _column('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align);
+        ? _row('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align == 'stretch' ? 'center' : _crossAxis(align),
+            main: _mainAxis(c['justify']), wrap: c['wrap'] == true || (!_bp.desktop && rigid && children.length > 1))
+        : _column('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: _crossAxis(align));
     if (c['surface'] == true) {
       final KitGuide k = _comp('card');
       final double pad = _space(k['padding'], 'md');
@@ -2378,6 +2378,31 @@ class ScreenCompiler {
     }
     if (c['action'] != null) _wire(node, c['action']);
     return node;
+  }
+
+  /// A main-axis alignment from a plan word (`space-between`, `between`,
+  /// `spaceBetween`, `left`...), `start` when unknown.
+  static String _mainAxis(Object? word) {
+    final String w = '${word ?? 'start'}'.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
+    return switch (w) {
+      'center' || 'middle' => 'center',
+      'end' || 'right' || 'flexend' || 'bottom' => 'end',
+      'spacebetween' || 'between' => 'spaceBetween',
+      'spacearound' || 'around' => 'spaceAround',
+      'spaceevenly' || 'evenly' => 'spaceEvenly',
+      _ => 'start',
+    };
+  }
+
+  /// A cross-axis alignment from a plan word, `start` when unknown.
+  static String _crossAxis(Object? word) {
+    final String w = '${word ?? 'start'}'.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
+    return switch (w) {
+      'center' || 'middle' => 'center',
+      'end' || 'right' || 'flexend' || 'bottom' => 'end',
+      'stretch' => 'stretch',
+      _ => 'start',
+    };
   }
 
   /// A number from a plan field that may be a number, a numeric string or
