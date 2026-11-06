@@ -1,0 +1,290 @@
+# mobile e1488045
+column "Screen" expanded/expanded
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            icon "Icon account_balance_wallet" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              text "Title" expanded/shrinkWrap
+              text "Subtitle" expanded/shrinkWrap
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon email" fixed/fixed
+                textField "Input email" expanded/shrinkWrap
+            column "Input Password" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon lock_outline" fixed/fixed
+                textField "Input password" expanded/shrinkWrap
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                checkbox "Checkbox rememberMe" fixed/fixed
+                text "Text" expanded/shrinkWrap
+              row "Button Forgot password?" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+            row "Button Sign in" expanded/fixed
+              text "Label" expanded/shrinkWrap
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              icon "Icon key" fixed/fixed
+              text "Label" expanded/shrinkWrap
+          column "Section footer" expanded/shrinkWrap
+            text "Text" expanded/shrinkWrap
+            row "Button Create an account" shrinkWrap/fixed
+              text "Label" shrinkWrap/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            row "Skeleton" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            column "Input Password" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Forgot password?" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+            row "Button Sign in" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section footer" expanded/shrinkWrap
+            row "Skeleton line" expanded/fixed
+              row "Skeleton" expanded/fixed
+            row "Button Create an account" shrinkWrap/fixed
+              row "Skeleton line" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# tablet df2bd0c8
+column "Screen" expanded/expanded
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            icon "Icon account_balance_wallet" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              text "Title" expanded/shrinkWrap
+              text "Subtitle" expanded/shrinkWrap
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon email" fixed/fixed
+                textField "Input email" expanded/shrinkWrap
+            column "Input Password" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon lock_outline" fixed/fixed
+                textField "Input password" expanded/shrinkWrap
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                checkbox "Checkbox rememberMe" fixed/fixed
+                text "Text" expanded/shrinkWrap
+              row "Button Forgot password?" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+            row "Button Sign in" expanded/fixed
+              text "Label" expanded/shrinkWrap
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              icon "Icon key" fixed/fixed
+              text "Label" expanded/shrinkWrap
+          column "Section footer" expanded/shrinkWrap
+            text "Text" expanded/shrinkWrap
+            row "Button Create an account" shrinkWrap/fixed
+              text "Label" shrinkWrap/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            row "Skeleton" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            column "Input Password" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Forgot password?" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+            row "Button Sign in" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section footer" expanded/shrinkWrap
+            row "Skeleton line" expanded/fixed
+              row "Skeleton" expanded/fixed
+            row "Button Create an account" shrinkWrap/fixed
+              row "Skeleton line" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# desktop cdb35f7c
+column "Screen" expanded/expanded
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            icon "Icon account_balance_wallet" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              text "Title" expanded/shrinkWrap
+              text "Subtitle" expanded/shrinkWrap
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon email" fixed/fixed
+                textField "Input email" expanded/shrinkWrap
+            column "Input Password" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon lock_outline" fixed/fixed
+                textField "Input password" expanded/shrinkWrap
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                checkbox "Checkbox rememberMe" fixed/fixed
+                text "Text" expanded/shrinkWrap
+              row "Button Forgot password?" shrinkWrap/fixed
+                text "Label" shrinkWrap/shrinkWrap
+            row "Button Sign in" expanded/fixed
+              text "Label" expanded/shrinkWrap
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              icon "Icon key" fixed/fixed
+              text "Label" expanded/shrinkWrap
+          column "Section footer" expanded/shrinkWrap
+            text "Text" expanded/shrinkWrap
+            row "Button Create an account" shrinkWrap/fixed
+              text "Label" shrinkWrap/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            row "Skeleton" fixed/fixed
+            column "Heading" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section form" expanded/shrinkWrap
+            column "Input Email" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            column "Input Password" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Group" expanded/shrinkWrap
+              row "Checkbox Remember me" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Button Forgot password?" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+            row "Button Sign in" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            row "Divider" expanded/fixed
+            row "Button Sign in with passkey" expanded/fixed
+              row "Skeleton" fixed/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+          column "Section footer" expanded/shrinkWrap
+            row "Skeleton line" expanded/fixed
+              row "Skeleton" expanded/fixed
+            row "Button Create an account" shrinkWrap/fixed
+              row "Skeleton line" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
