@@ -23,6 +23,7 @@ Set<String> droppedKeys(Map<String, dynamic> json) {
 void main() {
   brandTests();
   normalizeTests();
+  quoteTests();
   test('album plan is valid for aurora', () {
     final issues = ScreenPlanValidator(kit('aurora')).validate(plan('album_details'));
     expect(issues.where((i) => i.severity == PlanSeverity.error), isEmpty, reason: issues.join('\n'));
@@ -109,5 +110,19 @@ void normalizeTests() {
     final issues = ScreenPlanValidator(kit('aurora')).validate(p);
     expect(issues.where((i) => i.severity == PlanSeverity.error), isEmpty);
     expect(issues.map((i) => '$i'), contains(contains('renamed to "productInfo"')));
+  });
+}
+
+void quoteTests() {
+  test('a formula with an unclosed apostrophe is sent back to the model', () {
+    final Map<String, dynamic> p = plan('album_details');
+    ((p['sections'] as List).first['children'] as List)
+        .add({'type': 'text', 'text': "\${= liked ? 'We'll keep it' : 'Saved'}"});
+    final issues = ScreenPlanValidator(kit('aurora')).validate(p).map((i) => '$i');
+    expect(issues, contains(contains('has an unclosed quote')));
+    ((p['sections'] as List).first['children'] as List)
+      ..removeLast()
+      ..add({'type': 'text', 'text': r"${= liked ? 'We\'ll keep it' : 'Saved'}"});
+    expect(ScreenPlanValidator(kit('aurora')).validate(p).map((i) => '$i'), isNot(contains(contains('unclosed quote'))));
   });
 }
