@@ -1,0 +1,49 @@
+{
+  "title": "Order history",
+  "summary": "Lists a member's past and current grocery orders with their status so they can review or reorder.",
+  "pattern": "list",
+  "appBar": {"title": "Orders", "leading": "back"},
+  "data": {
+    "orders": [
+      {"id": "VD-20481", "title": "Harvest box and sourdough", "subtitle": "4 Nov 2026 · 6 items · $52.40", "status": "On its way", "tone": "warning", "image": "https://picsum.photos/seed/harvestbox/200/200"},
+      {"id": "VD-20317", "title": "Weekly greens", "subtitle": "28 Oct 2026 · 5 items · $38.10", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/weeklygreens/200/200"},
+      {"id": "VD-20112", "title": "Pantry restock", "subtitle": "19 Oct 2026 · 9 items · $74.85", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/pantryjars/200/200"},
+      {"id": "VD-19960", "title": "Chamomile tea and honey", "subtitle": "7 Oct 2026 · 2 items · $30.00", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/teahoney/200/200"},
+      {"id": "VD-19744", "title": "Autumn soup kit", "subtitle": "22 Sep 2026 · 7 items · $46.20", "status": "Refunded", "tone": "neutral", "image": "https://picsum.photos/seed/soupkit/200/200"}
+    ]
+  },
+  "variables": [
+    {"name": "filter", "type": "text", "value": "All"}
+  ],
+  "sections": [
+    {
+      "id": "intro",
+      "children": [
+        {"type": "heading", "title": "Your orders", "subtitle": "Every basket you've shared with our growers."},
+        {"type": "tabs", "tabs": ["All", "In progress", "Delivered"], "bind": "filter"}
+      ]
+    },
+    {
+      "id": "active",
+      "children": [
+        {"type": "banner", "title": "Your harvest box arrives tomorrow", "message": "We'll text you when the driver is 20 minutes away.", "tone": "info", "icon": "local_shipping", "action": {"label": "Track order", "action": {"type": "navigate", "to": "Track order", "params": {"id": "VD-20481"}}}}
+      ]
+    },
+    {
+      "id": "orders",
+      "children": [
+        {
+          "type": "list",
+          "items": "${orders}",
+          "gap": "sm",
+          "item": {"type": "listRow", "title": "${item.title}", "subtitle": "${item.subtitle}", "leading": {"image": "${item.image}"}, "trailing": {"badge": "${item.status}", "tone": "${item.tone}"}, "action": {"type": "navigate", "to": "Order details", "params": {"id": "${item.id}"}}}
+        }
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "receipt_long", "title": "No orders yet", "message": "When you fill your first basket, we'll keep every order here for you.", "action": {"label": "Visit the market", "action": {"type": "navigate", "to": "Shop"}}},
+    "error": {"icon": "error_outline", "title": "We couldn't load your orders", "message": "Your orders are safe. Let's try fetching them again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

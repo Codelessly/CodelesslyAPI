@@ -1,0 +1,56 @@
+{
+  "title": "Log in",
+  "summary": "Lets returning shoppers log in with email and password or a social account.",
+  "pattern": "auth",
+  "data": {},
+  "variables": [
+    {"name": "email", "type": "text", "value": ""},
+    {"name": "password", "type": "text", "value": ""},
+    {"name": "remember", "type": "boolean", "value": true}
+  ],
+  "sections": [
+    {
+      "id": "intro",
+      "layout": "stack",
+      "children": [
+        {"type": "badge", "text": "KIOSK", "tone": "info"},
+        {"type": "heading", "title": "Welcome back", "subtitle": "Log in. The good stuff goes fast.", "size": "large"}
+      ]
+    },
+    {
+      "id": "form",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Email", "kind": "email", "bind": "email", "hint": "you@example.com", "icon": "email"},
+        {"type": "input", "label": "Password", "kind": "password", "bind": "password", "hint": "Your password", "icon": "lock_outline"},
+        {"type": "group", "direction": "row", "justify": "spaceBetween", "align": "center", "children": [
+          {"type": "checkbox", "label": "Keep me logged in", "bind": "remember"},
+          {"type": "button", "label": "Forgot it?", "variant": "ghost", "size": "small", "action": {"type": "navigate", "to": "Reset password"}}
+        ]},
+        {"type": "button", "label": "Log in", "icon": "arrow_forward", "variant": "primary", "fullWidth": true, "action": {"type": "submit", "message": "You're in.", "then": {"type": "navigate", "to": "Home"}}}
+      ]
+    },
+    {
+      "id": "social",
+      "layout": "stack",
+      "children": [
+        {"type": "divider"},
+        {"type": "text", "text": "Or skip the typing", "style": "label", "color": "onSurfaceVariant"},
+        {"type": "button", "label": "Continue with Apple", "variant": "outline", "fullWidth": true, "action": {"type": "submit", "message": "Signed in with Apple", "then": {"type": "navigate", "to": "Home"}}},
+        {"type": "button", "label": "Continue with Google", "variant": "outline", "fullWidth": true, "action": {"type": "submit", "message": "Signed in with Google", "then": {"type": "navigate", "to": "Home"}}}
+      ]
+    },
+    {
+      "id": "signup",
+      "layout": "row",
+      "children": [
+        {"type": "text", "text": "New here?", "style": "body", "color": "onSurfaceVariant"},
+        {"type": "button", "label": "Make an account", "variant": "ghost", "size": "small", "action": {"type": "navigate", "to": "Create account"}}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "spinner"},
+    "error": {"icon": "error_outline", "title": "Can't reach Kiosk", "message": "Check your connection and try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

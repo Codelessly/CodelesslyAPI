@@ -232,6 +232,13 @@ class DragTrackModel with Equatable, SerializableMixin {
     };
   }
 
+  /// The key in [BaseNode.variables] that binds [defaultValue], so a
+  /// control in a list can reset to its own item's default (each knob of a
+  /// pedal has one): a `${...}` path or `${= ...}` formula giving a number,
+  /// e.g. `${item.knobs[0].default}`. A binding that gives no number keeps
+  /// [defaultValue].
+  static const String defaultValueVariable = 'track.defaultValue';
+
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
   double progressOf(double value) {
     if (max == min) return 0;
