@@ -48,6 +48,8 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.arc, 0)) json.remove('arc');
+  if (isJsonDefault(instance.named, const <Object?>{})) json.remove('named');
   if (isJsonDefault(instance.paused, false)) json.remove('paused');
   if (isJsonDefault(instance.phase, 0)) json.remove('phase');
   if (isJsonDefault(instance.pathPacing, MotionPathPacing.length))
@@ -133,6 +135,10 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  arc: (json['arc'] as num?)?.toDouble() ?? 0,
+  named:
+      (json['named'] as List<dynamic>?)?.map((e) => e as String).toSet() ??
+      const {},
   paused: json['paused'] as bool? ?? false,
   phase: (json['phase'] as num?)?.toDouble() ?? 0,
   pathPacing:
@@ -185,6 +191,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
+      'arc': instance.arc,
+      'named': instance.named.toList(),
       'paused': instance.paused,
       'phase': instance.phase,
       'pathPacing': _$MotionPathPacingEnumMap[instance.pathPacing]!,

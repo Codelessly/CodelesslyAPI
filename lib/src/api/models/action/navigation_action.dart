@@ -2,6 +2,8 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../mixins.dart';
+import '../motion.dart';
+import '../route_transition.dart';
 import '../condition.dart';
 import 'action.dart';
 import '../../json_defaults.dart';
@@ -94,6 +96,51 @@ enum PageTransition {
     PageTransition.slideLeft => 350,
     PageTransition.scale => 300,
   };
+
+  /// This transition described as a [RouteTransition], for converting an
+  /// action to a custom transition (the editor's picker starts from it).
+  /// Null for [platform], whose look belongs to the platform. The SDK still
+  /// plays an action that only gives [NavigationAction.transition] with the
+  /// original renderer, so old projects look exactly as before.
+  RouteTransition? get asRouteTransition => switch (this) {
+    PageTransition.platform => null,
+    PageTransition.none => const RouteTransition(durationMs: 0),
+    PageTransition.fade => const RouteTransition(
+      durationMs: 250,
+      enter: TransitionSide(
+        motion: MotionModel(opacity: 0),
+        curve: MotionCurve.easeOutCubic,
+      ),
+    ),
+    PageTransition.fadeUp => const RouteTransition(
+      durationMs: 520,
+      enter: TransitionSide(
+        motion: MotionModel(opacity: 0, shiftY: 0.03),
+        curve: MotionCurve.easeOutCubic,
+      ),
+    ),
+    PageTransition.slideUp => const RouteTransition(
+      durationMs: 400,
+      enter: TransitionSide(
+        motion: MotionModel(shiftY: 1),
+        curve: MotionCurve.easeOutCubic,
+      ),
+    ),
+    PageTransition.slideLeft => const RouteTransition(
+      durationMs: 350,
+      enter: TransitionSide(
+        motion: MotionModel(shiftX: 1),
+        curve: MotionCurve.easeOutCubic,
+      ),
+    ),
+    PageTransition.scale => const RouteTransition(
+      durationMs: 300,
+      enter: TransitionSide(
+        motion: MotionModel(opacity: 0, scale: 0.9),
+        curve: MotionCurve.easeOutCubic,
+      ),
+    ),
+  };
 }
 
 Object? _readDestinationId(Map json, String key) => json[key] ?? '';
@@ -137,6 +184,12 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
   /// the destination. Null uses [resolvedTransitionMs].
   final int? reverseTransitionMs;
 
+  /// A custom transition for both screens, with 3D, reveals, a modal
+  /// barrier and interactive dismissal (see [RouteTransition]). When set it
+  /// replaces [transition], [transitionMs] and [reverseTransitionMs]. Null
+  /// plays [transition].
+  final RouteTransition? routeTransition;
+
   /// Milliseconds the [transition] takes forward.
   int get resolvedTransitionMs =>
       (transitionMs ?? transition.defaultDurationMs).clamp(0, 60000);
@@ -155,6 +208,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     this.transition = PageTransition.platform,
     this.transitionMs,
     this.reverseTransitionMs,
+    this.routeTransition,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -170,6 +224,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     transition,
     transitionMs,
     reverseTransitionMs,
+    routeTransition,
   ];
 
   /// Duplicates this [NavigationAction] with given data overrides.
@@ -182,6 +237,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     PageTransition? transition,
     int? transitionMs,
     int? reverseTransitionMs,
+    RouteTransition? routeTransition,
   }) => NavigationAction(
     navigationType: navigationType ?? this.navigationType,
     destinationId: destinationId ?? this.destinationId,
@@ -191,6 +247,7 @@ class NavigationAction extends ActionModel with Equatable, SerializableMixin {
     transition: transition ?? this.transition,
     transitionMs: transitionMs ?? this.transitionMs,
     reverseTransitionMs: reverseTransitionMs ?? this.reverseTransitionMs,
+    routeTransition: routeTransition ?? this.routeTransition,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );

@@ -85,6 +85,7 @@ const _$ActionTypeEnumMap = {
   ActionType.playAnimation: 'playAnimation',
   ActionType.animateVariable: 'animateVariable',
   ActionType.haptic: 'haptic',
+  ActionType.paginate: 'paginate',
   ActionType.runScript: 'runScript',
 };
 
