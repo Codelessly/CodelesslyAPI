@@ -12,6 +12,12 @@
   - New `PageViewProperties.pageMotion`: per-page 3D for coverflow, cube and carousel.
   - These reuse `MotionModel`'s rotateX, rotateY and perspective.
   - `TransitionSpring` is a provisional stand-in for the Gestures project's shared physics model.
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
 
 ## 9.3.0
 
