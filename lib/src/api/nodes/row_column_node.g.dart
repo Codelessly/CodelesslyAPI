@@ -12,6 +12,8 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.clipsScrollContent, true))
     json.remove('clipsScrollContent');
+  if (isJsonDefault(instance.squeezeChildren, true))
+    json.remove('squeezeChildren');
   if (isJsonDefault(instance.fillViewport, false)) json.remove('fillViewport');
   if (isJsonDefault(instance.foregroundFills, []))
     json.remove('foregroundFills');
@@ -357,6 +359,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               .toList() ??
           []
       ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true
+      ..squeezeChildren = json['squeezeChildren'] as bool? ?? true
       ..fillViewport = json['fillViewport'] as bool? ?? false;
 
 Map<String, dynamic> _$RowColumnNodeToJson(
@@ -451,6 +454,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'clipsScrollContent': instance.clipsScrollContent,
+  'squeezeChildren': instance.squeezeChildren,
   'fillViewport': instance.fillViewport,
 };
 
