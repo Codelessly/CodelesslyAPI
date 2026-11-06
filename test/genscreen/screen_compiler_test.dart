@@ -24,6 +24,7 @@ void main() {
   brandTests();
   normalizeTests();
   quoteTests();
+  looseValueTests();
   test('album plan is valid for aurora', () {
     final issues = ScreenPlanValidator(kit('aurora')).validate(plan('album_details'));
     expect(issues.where((i) => i.severity == PlanSeverity.error), isEmpty, reason: issues.join('\n'));
@@ -124,5 +125,22 @@ void quoteTests() {
       ..removeLast()
       ..add({'type': 'text', 'text': r"${= liked ? 'We\'ll keep it' : 'Saved'}"});
     expect(ScreenPlanValidator(kit('aurora')).validate(p).map((i) => '$i'), isNot(contains(contains('unclosed quote'))));
+  });
+}
+
+void looseValueTests() {
+  test('bound tones, gap none and many buttons are accepted and lay out', () {
+    final Map<String, dynamic> p = plan('album_details');
+    ((p['sections'] as List).first['children'] as List).addAll([
+      {'type': 'badge', 'text': r'${album.year}', 'tone': r'${album.tone}'},
+      {'type': 'group', 'gap': 'none', 'children': [{'type': 'text', 'text': 'A'}]},
+      {'type': 'buttonRow', 'buttons': [
+        for (final l in ['One', 'Two', 'Three'])
+          {'type': 'button', 'label': l, 'action': {'type': 'toast', 'message': l}},
+      ]},
+    ]);
+    expect(ScreenPlanValidator(kit('aurora')).validate(p).where((i) => i.severity == PlanSeverity.error), isEmpty);
+    final CompiledScreen screen = ScreenCompiler(kit('aurora')).compile(p);
+    expect(checkOnBrand(screen, kit('aurora')).passed, isTrue);
   });
 }
