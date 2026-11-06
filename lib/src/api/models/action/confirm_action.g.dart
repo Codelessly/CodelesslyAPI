@@ -41,7 +41,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
 // **************************************************************************
 
 ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
-  title: json['title'] as String,
+  title: json['title'] as String? ?? '',
   caption: json['caption'] as String? ?? '',
   captionStyle: json['captionStyle'] == null
       ? null

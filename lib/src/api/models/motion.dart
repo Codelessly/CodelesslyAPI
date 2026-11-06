@@ -504,6 +504,13 @@ class MotionModel with Equatable, SerializableMixin {
   /// (text), e.g. a curve built from the screen's width.
   static const String pathProperty = 'path';
 
+  /// The name of the binding that gives [keyframes] from a variable or
+  /// formula: a list of maps such as `{"t": 0.4, "translateY": -60}` (or
+  /// that list as JSON text). A route-dependent gust is
+  /// `${= map(gusts, g => {t: g.tMid, translateX: g.dx, translateY: g.dy})}`.
+  /// An empty list (or a value that isn't one) clears the keyframes.
+  static const String keyframesProperty = 'keyframes';
+
   /// The name of the binding that switches the loop per state:
   /// `variables['motion.loop'] = "\${= live ? 'reverse' : 'none'}"`. It
   /// reads `none`, `restart` or `reverse` (or true / false: on keeps
