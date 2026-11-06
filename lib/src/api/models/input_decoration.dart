@@ -111,6 +111,11 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// Optional text suffix to place on the line after the input.
   final String? suffixText;
 
+  /// Whether [prefixText] and [suffixText] show all the time. Flutter shows
+  /// them only once the field is focused or has text; a unit such as "kWh"
+  /// or "£" belongs on the field before anything is typed.
+  final bool affixesAlwaysVisible;
+
   /// The style to use for the [suffixText].
   final TextProp suffixStyle;
 
@@ -215,6 +220,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     TextProp? prefixStyle,
     ReactiveIconModel? suffixIcon,
     this.suffixText,
+    this.affixesAlwaysVisible = false,
     TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
     this.suffixIconPadding,
@@ -299,6 +305,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     TextProp? prefixStyle,
     ReactiveIconModel? suffixIcon,
     String? suffixText,
+    bool? affixesAlwaysVisible,
     TextProp? suffixStyle,
     BoxConstraintsModel? suffixIconConstraints,
     EdgeInsetsModel? suffixIconPadding,
@@ -346,6 +353,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     prefixStyle: prefixStyle ?? this.prefixStyle,
     suffixIcon: suffixIcon ?? this.suffixIcon,
     suffixText: suffixText ?? this.suffixText,
+    affixesAlwaysVisible: affixesAlwaysVisible ?? this.affixesAlwaysVisible,
     suffixStyle: suffixStyle ?? this.suffixStyle,
     suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
     suffixIconPadding: suffixIconPadding ?? this.suffixIconPadding,
@@ -398,6 +406,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     prefixStyle,
     suffixIcon,
     suffixText,
+    affixesAlwaysVisible,
     suffixStyle,
     suffixIconConstraints,
     suffixIconPadding,
