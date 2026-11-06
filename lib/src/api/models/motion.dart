@@ -432,6 +432,12 @@ class MotionModel with Equatable, SerializableMixin {
   /// added to [rotate].
   final bool orientToPath;
 
+  /// With [orientToPath], keeps the node from turning upside down: the
+  /// path's direction is folded into -90 to 90 degrees (turned half round
+  /// where the path heads left), so a label travelling round a loop always
+  /// reads upright, flipping as the path turns past vertical.
+  final bool orientUpright;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -506,6 +512,7 @@ class MotionModel with Equatable, SerializableMixin {
     this.path,
     this.pathProgress = 0,
     this.orientToPath = false,
+    this.orientUpright = false,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -724,6 +731,7 @@ class MotionModel with Equatable, SerializableMixin {
     bool clearPath = false,
     double? pathProgress,
     bool? orientToPath,
+    bool? orientUpright,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -764,6 +772,7 @@ class MotionModel with Equatable, SerializableMixin {
     path: clearPath ? null : path ?? this.path,
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
+    orientUpright: orientUpright ?? this.orientUpright,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -969,6 +978,7 @@ class MotionModel with Equatable, SerializableMixin {
     path,
     pathProgress,
     orientToPath,
+    orientUpright,
     keyframes,
     pulseKey,
     revealOnScroll,

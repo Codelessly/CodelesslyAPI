@@ -28,6 +28,8 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.pivotY, 0)) json.remove('pivotY');
   if (isJsonDefault(instance.rotate, true)) json.remove('rotate');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.orientUpright, false))
+    json.remove('orientUpright');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
   if (isJsonDefault(instance.detent, 0)) json.remove('detent');
@@ -35,6 +37,9 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.settleMs, 0)) json.remove('settleMs');
   if (isJsonDefault(instance.settleCurve, MotionCurve.easeOutCubic))
     json.remove('settleCurve');
+  if (isJsonDefault(instance.settleStiffness, 380))
+    json.remove('settleStiffness');
+  if (isJsonDefault(instance.settleDamping, 20)) json.remove('settleDamping');
   if (isJsonDefault(instance.keyboard, true)) json.remove('keyboard');
   return json;
 }
@@ -67,6 +72,7 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   rotate: json['rotate'] as bool? ?? true,
   path: json['path'] as String?,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  orientUpright: json['orientUpright'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
   detent: (json['detent'] as num?)?.toDouble() ?? 0,
@@ -75,6 +81,8 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   settleCurve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['settleCurve']) ??
       MotionCurve.easeOutCubic,
+  settleStiffness: (json['settleStiffness'] as num?)?.toDouble() ?? 380,
+  settleDamping: (json['settleDamping'] as num?)?.toDouble() ?? 20,
   parkedProgress: (json['parkedProgress'] as num?)?.toDouble(),
   keyboard: json['keyboard'] as bool? ?? true,
 );
@@ -100,12 +108,15 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'rotate': instance.rotate,
       'path': ?instance.path,
       'orientToPath': instance.orientToPath,
+      'orientUpright': instance.orientUpright,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
       'detent': instance.detent,
       'overscroll': instance.overscroll,
       'settleMs': instance.settleMs,
       'settleCurve': _$MotionCurveEnumMap[instance.settleCurve]!,
+      'settleStiffness': instance.settleStiffness,
+      'settleDamping': instance.settleDamping,
       'parkedProgress': ?instance.parkedProgress,
       'keyboard': instance.keyboard,
     };

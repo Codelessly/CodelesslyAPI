@@ -140,6 +140,11 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// For a path: turn the node to follow the path's direction.
   final bool orientToPath;
 
+  /// With [orientToPath], keeps the node from turning upside down: the
+  /// path's direction is folded into -90 to 90 degrees (turned half round
+  /// where the path heads left), as [MotionModel.orientUpright] does.
+  final bool orientUpright;
+
   /// Tapping anywhere along the track moves the node there, then the drag
   /// goes on from there: a fader cap jumps to where its slot was tapped
   /// (the nearest point of a line or path), a dial to the angle tapped
@@ -172,8 +177,21 @@ class DragTrackModel with Equatable, SerializableMixin {
   final int settleMs;
 
   /// The easing of that glide. [MotionCurve.spring] runs real spring
-  /// physics and ignores [settleMs] for its length.
+  /// physics ([settleStiffness], [settleDamping]) and ignores [settleMs]
+  /// for its length; letting go mid-fling starts the spring at the
+  /// pointer's speed, so a flung deck carries on into its settle (and an
+  /// action that moves the variable right after, e.g. to the card the
+  /// fling heads for, keeps that speed too).
   final MotionCurve settleCurve;
+
+  /// The stiffness of the [MotionCurve.spring] settle (mass 1): higher
+  /// snaps faster. A swipeable deck uses about 260.
+  final double settleStiffness;
+
+  /// The damping of the [MotionCurve.spring] settle: lower overshoots more,
+  /// about 2 × √[settleStiffness] stops without overshooting (a damping
+  /// ratio of 0.86 at stiffness 260 is about 27.7).
+  final double settleDamping;
 
   /// Where the node is parked while the variable is outside the range
   /// (below [min], above [max]) or empty or not a number, as a progress
@@ -218,12 +236,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.rotate = true,
     this.path,
     this.orientToPath = false,
+    this.orientUpright = false,
     this.jumpOnTap = false,
     this.wheel = true,
     this.detent = 0,
     this.overscroll = 0,
     this.settleMs = 0,
     this.settleCurve = MotionCurve.easeOutCubic,
+    this.settleStiffness = 380,
+    this.settleDamping = 20,
     this.parkedProgress,
     this.keyboard = true,
   });
@@ -242,6 +263,39 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// along the track (positive toward [max]), so a deck can fling to the
   /// next card: `${= round(result.value + result.velocity * 0.18)}`.
   static const List<String> endValues = ['value', 'startValue', 'velocity'];
+
+  /// The settings that can follow data: a binding in the node's variables
+  /// under [variableKey] (e.g. `track.max` = `${= hive.frames - 1}`)
+  /// replaces the saved value wherever the track is built, at runtime and
+  /// on the design canvas.
+  static const List<String> bindableProperties = [
+    'min',
+    'max',
+    'step',
+    'pixelsPerRange',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
+  ];
+
+  /// The key in a node's variables that binds [property] (one of
+  /// [bindableProperties]): `track.<property>`.
+  static String variableKey(String property) => 'track.$property';
+
+  /// A copy with the bindable [property] set to [value]; unknown names
+  /// leave it as it is.
+  DragTrackModel withValue(String property, double value) => switch (property) {
+    'min' => copyWith(min: value),
+    'max' => copyWith(max: value),
+    'step' => copyWith(step: value < 0 ? 0 : value),
+    'pixelsPerRange' => value == 0 ? this : copyWith(pixelsPerRange: value),
+    'x1' => copyWith(x1: value),
+    'y1' => copyWith(y1: value),
+    'x2' => copyWith(x2: value),
+    'y2' => copyWith(y2: value),
+    _ => this,
+  };
 
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
   double progressOf(double value) {
@@ -311,12 +365,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? rotate,
     String? path,
     bool? orientToPath,
+    bool? orientUpright,
     bool? jumpOnTap,
     bool? wheel,
     double? detent,
     double? overscroll,
     int? settleMs,
     MotionCurve? settleCurve,
+    double? settleStiffness,
+    double? settleDamping,
     double? parkedProgress,
     bool clearParked = false,
     bool? keyboard,
@@ -340,12 +397,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate: rotate ?? this.rotate,
     path: path ?? this.path,
     orientToPath: orientToPath ?? this.orientToPath,
+    orientUpright: orientUpright ?? this.orientUpright,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
     detent: detent ?? this.detent,
     overscroll: overscroll ?? this.overscroll,
     settleMs: settleMs ?? this.settleMs,
     settleCurve: settleCurve ?? this.settleCurve,
+    settleStiffness: settleStiffness ?? this.settleStiffness,
+    settleDamping: settleDamping ?? this.settleDamping,
     parkedProgress: clearParked
         ? null
         : (parkedProgress ?? this.parkedProgress),
@@ -373,12 +433,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate,
     path,
     orientToPath,
+    orientUpright,
     jumpOnTap,
     wheel,
     detent,
     overscroll,
     settleMs,
     settleCurve,
+    settleStiffness,
+    settleDamping,
     parkedProgress,
     keyboard,
   ];
