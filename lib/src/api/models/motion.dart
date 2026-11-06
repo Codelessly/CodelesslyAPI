@@ -434,7 +434,8 @@ class MotionModel with Equatable, SerializableMixin {
   /// opacity, scale 1 or no offset (a trail that fades out each time it is
   /// replayed enters from `{"opacity": 1}` to rest at 0). Read from the keys
   /// of the JSON and kept by [withValue]; written back by [toJson]. Not part
-  /// of equality.
+  /// of equality, and not a key of the JSON itself.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Set<String> named;
 
   /// Freezes the motion where it is: a running loop (and the spin) stops at
