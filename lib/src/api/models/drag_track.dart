@@ -140,6 +140,15 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// For a path: turn the node to follow the path's direction.
   final bool orientToPath;
 
+  /// For a line: [x1], [y1], [x2] and [y2] are multiples of the node's own
+  /// width and height instead of pixels, so the track scales with the node.
+  /// The track moves the node's centre, so a scrub area is a full-width
+  /// (transparent) node with `x1: -0.5, x2: 0.5`: at a value its centre,
+  /// and a knob centred in it, sits at that fraction across the space it
+  /// was laid out in, and a tap anywhere on it jumps there (a time bar, a
+  /// chart's scrub area).
+  final bool relative;
+
   /// Tapping the node's parent anywhere along the track moves the node
   /// there (a fader cap jumps to where its slot was tapped). Only for
   /// [DragTrackInput.follow].
@@ -169,6 +178,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.rotate = true,
     this.path,
     this.orientToPath = false,
+    this.relative = false,
     this.jumpOnTap = false,
     this.wheel = true,
   });
@@ -235,6 +245,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? rotate,
     String? path,
     bool? orientToPath,
+    bool? relative,
     bool? jumpOnTap,
     bool? wheel,
   }) => DragTrackModel(
@@ -257,6 +268,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate: rotate ?? this.rotate,
     path: path ?? this.path,
     orientToPath: orientToPath ?? this.orientToPath,
+    relative: relative ?? this.relative,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
   );
@@ -282,6 +294,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate,
     path,
     orientToPath,
+    relative,
     jumpOnTap,
     wheel,
   ];
