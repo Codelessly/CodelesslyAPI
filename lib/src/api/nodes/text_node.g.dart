@@ -19,6 +19,8 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.tabularFigures, false))
     json.remove('tabularFigures');
+  if (isJsonDefault(instance.fontFeatures, const []))
+    json.remove('fontFeatures');
   if (isJsonDefault(instance.codeLanguage, SyntaxLanguage.none))
     json.remove('codeLanguage');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -204,6 +206,9 @@ TextNode _$TextNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
         tabularFigures: json['tabularFigures'] as bool? ?? false,
+        fontFeatures: json['fontFeatures'] == null
+            ? const []
+            : OpenTypeFeature.parseList(json['fontFeatures']),
         markdown: json['markdown'] == null
             ? null
             : MarkdownStyle.fromJson(json['markdown'] as Map),
@@ -296,6 +301,7 @@ TextNode _$TextNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -328,6 +334,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
   'data': instance.data,
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
@@ -338,16 +347,13 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
-  'margin': instance.margin.toJson(),
-  'padding': instance.padding.toJson(),
-  'rotation': instance.rotationDegrees,
   'widthFactor': ?instance.widthFactor,
   'heightFactor': ?instance.heightFactor,
+  'softWrap': instance.softWrap,
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'textScaleFactor': ?instance.textScaleFactor,
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
@@ -368,6 +374,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'opacity': instance.opacity,
@@ -378,6 +385,7 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
+  'fontFeatures': instance.fontFeatures,
   'markdown': ?instance.markdown?.toJson(),
   'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
   'codeTheme': ?instance.codeTheme?.toJson(),
@@ -482,4 +490,5 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };

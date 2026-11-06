@@ -101,8 +101,20 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// The constraints for the prefix icon.
   final BoxConstraintsModel prefixIconConstraints;
 
+  /// Space around the prefix icon inside its box. Material centres the icon
+  /// in a box at least 48 wide and ignores the content padding's start when
+  /// there is one; this places it at a set inset instead (e.g. 12 from the
+  /// border and 8 before the text, with [prefixIconConstraints] at zero
+  /// minimum width). Null keeps Material's layout.
+  final EdgeInsetsModel? prefixIconPadding;
+
   /// Optional text suffix to place on the line after the input.
   final String? suffixText;
+
+  /// Whether [prefixText] and [suffixText] show all the time. Flutter shows
+  /// them only once the field is focused or has text; a unit such as "kWh"
+  /// or "£" belongs on the field before anything is typed.
+  final bool affixesAlwaysVisible;
 
   /// The style to use for the [suffixText].
   final TextProp suffixStyle;
@@ -113,6 +125,9 @@ class InputDecorationModel with Equatable, SerializableMixin {
 
   /// The constraints for the suffix icon.
   final BoxConstraintsModel suffixIconConstraints;
+
+  /// Space around the suffix icon inside its box; see [prefixIconPadding].
+  final EdgeInsetsModel? suffixIconPadding;
 
   /// Optional text to place below the line as a character count.
   final String? counterText;
@@ -200,12 +215,15 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.isDense = true,
     ReactiveIconModel? prefixIcon,
     this.prefixIconConstraints = const BoxConstraintsModel(),
+    this.prefixIconPadding,
     this.prefixText,
     TextProp? prefixStyle,
     ReactiveIconModel? suffixIcon,
     this.suffixText,
+    this.affixesAlwaysVisible = false,
     TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
+    this.suffixIconPadding,
     this.counterText,
     TextProp? counterStyle,
     this.filled = false,
@@ -282,12 +300,15 @@ class InputDecorationModel with Equatable, SerializableMixin {
     bool? isDense,
     ReactiveIconModel? prefixIcon,
     BoxConstraintsModel? prefixIconConstraints,
+    EdgeInsetsModel? prefixIconPadding,
     String? prefixText,
     TextProp? prefixStyle,
     ReactiveIconModel? suffixIcon,
     String? suffixText,
+    bool? affixesAlwaysVisible,
     TextProp? suffixStyle,
     BoxConstraintsModel? suffixIconConstraints,
+    EdgeInsetsModel? suffixIconPadding,
     String? counterText,
     TextProp? counterStyle,
     bool? filled,
@@ -327,12 +348,15 @@ class InputDecorationModel with Equatable, SerializableMixin {
     isDense: isDense ?? this.isDense,
     prefixIcon: prefixIcon ?? this.prefixIcon,
     prefixIconConstraints: prefixIconConstraints ?? this.prefixIconConstraints,
+    prefixIconPadding: prefixIconPadding ?? this.prefixIconPadding,
     prefixText: prefixText ?? this.prefixText,
     prefixStyle: prefixStyle ?? this.prefixStyle,
     suffixIcon: suffixIcon ?? this.suffixIcon,
     suffixText: suffixText ?? this.suffixText,
+    affixesAlwaysVisible: affixesAlwaysVisible ?? this.affixesAlwaysVisible,
     suffixStyle: suffixStyle ?? this.suffixStyle,
     suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
+    suffixIconPadding: suffixIconPadding ?? this.suffixIconPadding,
     counterText: forceCounterText
         ? counterText
         : counterText ?? this.counterText,
@@ -377,12 +401,15 @@ class InputDecorationModel with Equatable, SerializableMixin {
     isDense,
     prefixIcon,
     prefixIconConstraints,
+    prefixIconPadding,
     prefixText,
     prefixStyle,
     suffixIcon,
     suffixText,
+    affixesAlwaysVisible,
     suffixStyle,
     suffixIconConstraints,
+    suffixIconPadding,
     counterText,
     counterStyle,
     filled,

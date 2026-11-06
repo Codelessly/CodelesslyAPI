@@ -12,6 +12,9 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.clipsScrollContent, true))
     json.remove('clipsScrollContent');
+  if (isJsonDefault(instance.squeezeChildren, true))
+    json.remove('squeezeChildren');
+  if (isJsonDefault(instance.fillViewport, false)) json.remove('fillViewport');
   if (isJsonDefault(instance.foregroundFills, []))
     json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -340,6 +343,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -357,7 +361,9 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               ?.map((e) => PaintModel.fromJson(e as Map))
               .toList() ??
           []
-      ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true;
+      ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true
+      ..squeezeChildren = json['squeezeChildren'] as bool? ?? true
+      ..fillViewport = json['fillViewport'] as bool? ?? false;
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -412,6 +418,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
@@ -429,11 +436,11 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'clipsContent': instance.clipsContent,
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
   'notches': instance.notches.map((e) => e.toJson()).toList(),
-  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
@@ -451,6 +458,8 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'useFlutterListView': instance.useFlutterListView,
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'clipsScrollContent': instance.clipsScrollContent,
+  'squeezeChildren': instance.squeezeChildren,
+  'fillViewport': instance.fillViewport,
 };
 
 const _$RowColumnTypeEnumMap = {
@@ -570,4 +579,5 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };
