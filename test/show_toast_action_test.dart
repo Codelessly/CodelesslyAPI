@@ -158,4 +158,24 @@ void main() {
       expect(plain.containsKey(key), isFalse, reason: key);
     }
   });
+
+  test('iconShadows round-trip and are left out when unset', () {
+    final action = ShowToastAction(
+      message: 'Saved',
+      iconShadows: [
+        Effect(
+          id: 'glow',
+          type: EffectType.dropShadow,
+          radius: 9.6,
+          color: ColorRGBA(r: 0.49, g: 1, b: 0.42, a: 0.8),
+          offset: Vec(0, 0),
+        ),
+      ],
+    );
+    final json = action.toJson();
+    final back = ShowToastAction.fromJson(json);
+    expect(back.iconShadows, hasLength(1));
+    expect(back.iconShadows!.single.radius, 9.6);
+    expect(ShowToastAction(message: 'x').toJson().containsKey('iconShadows'), isFalse);
+  });
 }
