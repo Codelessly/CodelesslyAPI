@@ -50,6 +50,15 @@ class RowColumnNode extends ParentNode
   @JsonKey(defaultValue: true)
   bool clipsScrollContent = true;
 
+  /// Whether children that overflow this row/column's main axis shrink to
+  /// fit it (by how far each can shrink, never below its content), as the
+  /// editor lays them out. False lays them out at their own sizes and lets
+  /// them run past its end, as a Flutter `Row`/`Column` does: a screen whose
+  /// content is a couple of pixels taller than its column keeps every piece
+  /// at its size.
+  @JsonKey(defaultValue: true)
+  bool squeezeChildren = true;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -371,4 +380,5 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.transition = source.transition;
   target.foregroundFills = source.foregroundFills;
   target.clipsScrollContent = source.clipsScrollContent;
+  target.squeezeChildren = source.squeezeChildren;
 }
