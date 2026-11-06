@@ -593,6 +593,17 @@ abstract class BaseNode
   /// standard way ([HeroFlight.standard]).
   HeroFlight? heroFlight;
 
+  /// What the destination of this shared element shows until its own image
+  /// has loaded. Null for [HeroPlaceholder.none].
+  HeroPlaceholder? heroPlaceholder;
+
+  /// Makes this node a two-sided card that turns over: its first child is
+  /// the front, its second the back. Null for none. See [FlipModel].
+  FlipModel? flip;
+
+  /// Tilts this node in 3D toward the pointer. Null for none. See
+  /// [TiltModel].
+  TiltModel? tilt;
   /// A name for this node that its tree gives it, unique within the tree
   /// (e.g. `"content"` for the slot a layout fills). The editor API's
   /// `nodes.insertTree` reads it so actions and interaction states of the

@@ -196,6 +196,13 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
   /// say) sets it to match.
   final double sheetBelowWidth;
 
+  /// A custom transition for the modal (see [RouteTransition]): its
+  /// entrance, what the screen behind does, its barrier colour (over
+  /// [barrierColor]) and a drag that dismisses it. Setting it also lets
+  /// shared elements (nodes with a `heroTag`) fly into and out of the modal.
+  /// Null opens the modal the way [presentation] always has.
+  final RouteTransition? routeTransition;
+
   /// Creates a new [ShowDialogAction].
   ShowDialogAction({
     required this.destinationId,
@@ -217,6 +224,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     this.barrierBlur = 0,
     this.enterScale = 1,
     this.sheetBelowWidth = 600,
+    this.routeTransition,
     super.nonBlocking,
     super.enabled,
   }) : params = {...params ?? {}},
@@ -275,6 +283,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierBlur,
     enterScale,
     sheetBelowWidth,
+    routeTransition,
   ];
 
   /// Whether the dialog opens next to the node that ran the action.
@@ -304,6 +313,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     double? barrierBlur,
     double? enterScale,
     double? sheetBelowWidth,
+    RouteTransition? routeTransition,
   }) => ShowDialogAction(
     destinationId: destinationId ?? this.destinationId,
     params: {...this.params, ...params ?? {}},
@@ -324,6 +334,7 @@ class ShowDialogAction extends ActionModel with Equatable, SerializableMixin {
     barrierBlur: barrierBlur ?? this.barrierBlur,
     enterScale: enterScale ?? this.enterScale,
     sheetBelowWidth: sheetBelowWidth ?? this.sheetBelowWidth,
+    routeTransition: routeTransition ?? this.routeTransition,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
