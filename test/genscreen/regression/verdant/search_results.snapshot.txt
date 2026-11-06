@@ -1,4 +1,4 @@
-# mobile edde66f8
+# mobile daddb7e3
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     row "Icon button Back" fixed/fixed
@@ -118,7 +118,7 @@ column "Screen" expanded/expanded
       icon "Icon person_outline" fixed/fixed
       text "Nav label" shrinkWrap/shrinkWrap
 
-# tablet 30f79de9
+# tablet d674d860
 row "Screen" expanded/expanded
   column "Rail" fixed/expanded
     column "Nav Home" expanded/shrinkWrap
@@ -139,9 +139,10 @@ row "Screen" expanded/expanded
       text "Nav label" shrinkWrap/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      row "Icon button Back" fixed/fixed
-        icon "Icon arrow_back" fixed/fixed
-      text "App bar title" expanded/shrinkWrap
+      row "App bar content" expanded/expanded
+        row "Icon button Back" fixed/fixed
+          icon "Icon arrow_back" fixed/fixed
+        text "App bar title" expanded/shrinkWrap
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded
@@ -242,7 +243,7 @@ row "Screen" expanded/expanded
           row "Button Try again" shrinkWrap/fixed
             text "Label" shrinkWrap/shrinkWrap
 
-# desktop 53a7f664
+# desktop f6a91d68
 row "Screen" expanded/expanded
   column "Sidebar" fixed/expanded
     row "Nav Home" expanded/fixed
@@ -259,9 +260,10 @@ row "Screen" expanded/expanded
       text "Nav label" expanded/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      row "Icon button Back" fixed/fixed
-        icon "Icon arrow_back" fixed/fixed
-      text "App bar title" expanded/shrinkWrap
+      row "App bar content" expanded/expanded
+        row "Icon button Back" fixed/fixed
+          icon "Icon arrow_back" fixed/fixed
+        text "App bar title" expanded/shrinkWrap
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded

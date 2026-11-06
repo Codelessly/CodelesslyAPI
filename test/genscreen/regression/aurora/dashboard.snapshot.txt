@@ -1,4 +1,4 @@
-# mobile e5d8bd59
+# mobile 147eb25d
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -288,7 +288,7 @@ column "Screen" expanded/expanded
       icon "Icon settings" fixed/fixed
       text "Nav label" shrinkWrap/shrinkWrap
 
-# tablet 22d56ae8
+# tablet 33753cb8
 row "Screen" expanded/expanded
   column "Rail" fixed/expanded
     column "Nav Overview" expanded/shrinkWrap
@@ -309,11 +309,12 @@ row "Screen" expanded/expanded
       text "Nav label" shrinkWrap/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      text "App bar title" expanded/shrinkWrap
-      row "Icon button Export report" fixed/fixed
-        icon "Icon download" fixed/fixed
-      row "Icon button Notifications" fixed/fixed
-        icon "Icon notifications_none" fixed/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
+        row "Icon button Notifications" fixed/fixed
+          icon "Icon notifications_none" fixed/fixed
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded
@@ -322,7 +323,7 @@ row "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -429,7 +430,7 @@ row "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
@@ -583,7 +584,7 @@ row "Screen" expanded/expanded
           row "Button Try again" shrinkWrap/fixed
             text "Label" shrinkWrap/shrinkWrap
 
-# desktop 48b5a412
+# desktop 504505ce
 row "Screen" expanded/expanded
   column "Rail" fixed/expanded
     column "Nav Overview" expanded/shrinkWrap
@@ -604,11 +605,12 @@ row "Screen" expanded/expanded
       text "Nav label" shrinkWrap/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      text "App bar title" expanded/shrinkWrap
-      row "Icon button Export report" fixed/fixed
-        icon "Icon download" fixed/fixed
-      row "Icon button Notifications" fixed/fixed
-        icon "Icon notifications_none" fixed/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
+        row "Icon button Notifications" fixed/fixed
+          icon "Icon notifications_none" fixed/fixed
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded
@@ -617,7 +619,7 @@ row "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -724,7 +726,7 @@ row "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed

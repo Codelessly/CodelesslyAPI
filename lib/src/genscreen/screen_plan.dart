@@ -406,6 +406,14 @@ class ScreenPlanValidator {
             RegExp(r'^#[0-9a-fA-F]{3,8}$').hasMatch(value.trim())) {
           error('$path.$key', 'Raw color "$value": name a color token instead.');
         }
+        if (value is String) {
+          for (final Match f in RegExp(r'\$\{=([^}]*)\}').allMatches(value)) {
+            final int quotes = RegExp(r"(?<!\\)'").allMatches(f[1]!).length;
+            if (quotes.isOdd) {
+              error('$path.$key', 'Formula "${f[0]}" has an unclosed quote: write an apostrophe inside quoted text as \\\' or use a word without one.');
+            }
+          }
+        }
         if (value is String &&
             RegExp(r'^\d+(\.\d+)?px$').hasMatch(value.trim())) {
           error('$path.$key', 'Raw size "$value": name a spacing or radius token instead.');
