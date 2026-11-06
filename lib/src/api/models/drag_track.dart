@@ -63,16 +63,16 @@ enum DragTrackInput {
 /// changes, like [MotionModel]); dragging it writes the variable, so
 /// everything bound to the variable follows, and changing the variable
 /// elsewhere moves the node. Double tap resets to [defaultValue], the mouse
-/// wheel steps the value.
+/// wheel and the arrow keys (see [keyboard]) step the value.
 ///
 /// Positions are in logical pixels relative to where the node is laid out:
 /// a fader cap laid out at the bottom of its slot has `y2: -250` for a
 /// 250px throw. Angles are in degrees, clockwise, 0 pointing up.
 ///
 /// While dragged, the node and its children read `${track.value}`,
-/// `${track.progress}` (0 to 1) and `${track.dragging}`. Each change runs
-/// the node's `changed` reactions with `${result.value}`; letting go runs
-/// its `dragEnd` reactions.
+/// `${track.progress}` (0 to 1), `${track.dragging}` and
+/// `${track.focused}`. Each change runs the node's `changed` reactions with
+/// `${result.value}`; letting go runs its `dragEnd` reactions.
 @JsonSerializable()
 class DragTrackModel with Equatable, SerializableMixin {
   /// The track's geometry.
@@ -140,8 +140,11 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// For a path: turn the node to follow the path's direction.
   final bool orientToPath;
 
-  /// Tapping the node's parent anywhere along the track moves the node
-  /// there (a fader cap jumps to where its slot was tapped). Only for
+  /// Tapping anywhere along the track moves the node there, then the drag
+  /// goes on from there: a fader cap jumps to where its slot was tapped
+  /// (the nearest point of a line or path), a dial to the angle tapped
+  /// around its pivot, anywhere within the circle the node sweeps (the
+  /// nearest valid value, snapped to [step]). Only for
   /// [DragTrackInput.follow].
   final bool jumpOnTap;
 
@@ -172,6 +175,28 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// physics and ignores [settleMs] for its length.
   final MotionCurve settleCurve;
 
+  /// Where the node is parked while the variable is outside the range
+  /// (below [min], above [max]) or empty or not a number, as a progress
+  /// along the track that may lie outside 0 to 1: an unrated 1 to 5 dial
+  /// over -120..120 degrees parks its knob at -150 degrees with -0.125.
+  /// Lines and arcs go on past their ends; a path stops at its ends. Null
+  /// (the default) draws such a value at the nearest end.
+  ///
+  /// Dragging a parked node starts from the nearest end, and the node
+  /// glides ([settleMs]) between its parked place and the track. While
+  /// parked, `${track.progress}` reads this progress.
+  final double? parkedProgress;
+
+  /// Whether the track takes keyboard focus (tapping or dragging it
+  /// focuses it, Tab reaches it) and the keys move it while focused: the
+  /// right and up arrows step the value up by [step] (1% of the range
+  /// without one), left and down step it down, Page Up and Page Down by 10
+  /// steps, Home to [min] and End to [max]. Each key runs the node's
+  /// `changed` reactions like a drag. On by default; `${track.focused}`
+  /// tells whether it has focus, for a node to draw its own focus ring.
+  /// The track is a slider to screen readers either way.
+  final bool keyboard;
+
   /// Creates a [DragTrackModel].
   const DragTrackModel({
     this.shape = DragTrackShape.line,
@@ -199,10 +224,17 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.overscroll = 0,
     this.settleMs = 0,
     this.settleCurve = MotionCurve.easeOutCubic,
+    this.parkedProgress,
+    this.keyboard = true,
   });
 
   /// The names of the live values the `track` variable has.
-  static const List<String> liveValues = ['value', 'progress', 'dragging'];
+  static const List<String> liveValues = [
+    'value',
+    'progress',
+    'dragging',
+    'focused',
+  ];
 
   /// The names of the values a `dragEnd` reaction gets in `${result}`:
   /// the final `value`, the `startValue` the drag began at, and the
@@ -217,8 +249,24 @@ class DragTrackModel with Equatable, SerializableMixin {
     return ((value - min) / (max - min)).clamp(0.0, 1.0);
   }
 
+  /// Whether [value] is drawn at [parkedProgress]: outside the range or not
+  /// a number (NaN stands for an empty variable), when the track has one.
+  bool isParked(double value) {
+    if (parkedProgress == null) return false;
+    if (value.isNaN) return true;
+    final double lo = min < max ? min : max;
+    final double hi = min < max ? max : min;
+    return value < lo || value > hi;
+  }
+
+  /// Where the node is drawn for [value]: its [progressOf], or
+  /// [parkedProgress] when [isParked].
+  double restProgressOf(double value) =>
+      isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
+
   /// The value at [progress] along the track, snapped to [step].
-  double valueAt(double progress) => snap(min + (max - min) * progress.clamp(0.0, 1.0));
+  double valueAt(double progress) =>
+      snap(min + (max - min) * progress.clamp(0.0, 1.0));
 
   /// [value] snapped to [step] (counted from [min]) and kept in range.
   double snap(double value) {
@@ -234,7 +282,7 @@ class DragTrackModel with Equatable, SerializableMixin {
     return v;
   }
 
-  /// How far one wheel notch moves the value.
+  /// How far one wheel notch (or one arrow key) moves the value.
   double get wheelStep => step > 0 ? step : (max - min).abs() / 100;
 
   /// The rotation of an arc at [progress], in degrees.
@@ -269,6 +317,9 @@ class DragTrackModel with Equatable, SerializableMixin {
     double? overscroll,
     int? settleMs,
     MotionCurve? settleCurve,
+    double? parkedProgress,
+    bool clearParked = false,
+    bool? keyboard,
   }) => DragTrackModel(
     shape: shape ?? this.shape,
     variable: variable ?? this.variable,
@@ -295,6 +346,10 @@ class DragTrackModel with Equatable, SerializableMixin {
     overscroll: overscroll ?? this.overscroll,
     settleMs: settleMs ?? this.settleMs,
     settleCurve: settleCurve ?? this.settleCurve,
+    parkedProgress: clearParked
+        ? null
+        : (parkedProgress ?? this.parkedProgress),
+    keyboard: keyboard ?? this.keyboard,
   );
 
   @override
@@ -324,6 +379,8 @@ class DragTrackModel with Equatable, SerializableMixin {
     overscroll,
     settleMs,
     settleCurve,
+    parkedProgress,
+    keyboard,
   ];
 
   /// Creates a [DragTrackModel] from JSON.
