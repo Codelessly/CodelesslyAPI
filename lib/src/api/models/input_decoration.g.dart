@@ -22,6 +22,9 @@ Map<String, dynamic> _$InputDecorationModelOmitDefaults(
     json.remove('floatingLabelBehavior');
   if (isJsonDefault(instance.isCollapsed, false)) json.remove('isCollapsed');
   if (isJsonDefault(instance.isDense, true)) json.remove('isDense');
+  if (isJsonDefault(instance.affixesAlwaysVisible, false)) {
+    json.remove('affixesAlwaysVisible');
+  }
   if (isJsonDefault(
     instance.prefixIconConstraints,
     const BoxConstraintsModel(),
@@ -122,6 +125,9 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       prefixIconConstraints: json['prefixIconConstraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['prefixIconConstraints'] as Map),
+      prefixIconPadding: json['prefixIconPadding'] == null
+          ? null
+          : EdgeInsetsModel.fromJson(json['prefixIconPadding']),
       prefixText: json['prefixText'] as String?,
       prefixStyle: json['prefixStyle'] == null
           ? null
@@ -130,12 +136,16 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           ? null
           : ReactiveIconModel.fromJson(json['suffixIcon'] as Map),
       suffixText: json['suffixText'] as String?,
+      affixesAlwaysVisible: json['affixesAlwaysVisible'] as bool? ?? false,
       suffixStyle: json['suffixStyle'] == null
           ? null
           : TextProp.fromJson(json['suffixStyle'] as Map),
       suffixIconConstraints: json['suffixIconConstraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['suffixIconConstraints'] as Map),
+      suffixIconPadding: json['suffixIconPadding'] == null
+          ? null
+          : EdgeInsetsModel.fromJson(json['suffixIconPadding']),
       counterText: json['counterText'] as String?,
       counterStyle: json['counterStyle'] == null
           ? null
@@ -214,10 +224,13 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'prefixStyle': instance.prefixStyle.toJson(),
   'prefixIcon': instance.prefixIcon.toJson(),
   'prefixIconConstraints': instance.prefixIconConstraints.toJson(),
+  'prefixIconPadding': ?instance.prefixIconPadding?.toJson(),
   'suffixText': ?instance.suffixText,
+  'affixesAlwaysVisible': instance.affixesAlwaysVisible,
   'suffixStyle': instance.suffixStyle.toJson(),
   'suffixIcon': instance.suffixIcon.toJson(),
   'suffixIconConstraints': instance.suffixIconConstraints.toJson(),
+  'suffixIconPadding': ?instance.suffixIconPadding?.toJson(),
   'counterText': ?instance.counterText,
   'counterStyle': instance.counterStyle.toJson(),
   'filled': instance.filled,
