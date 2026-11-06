@@ -61,6 +61,9 @@ const Map<TriggerType, String> triggerResultDocs = {
   TriggerType.dragEnter: 'data, group, count, key, index.',
   TriggerType.dragExit: 'data, group, count, key.',
   TriggerType.dragHover: 'data, group, count, key, index.',
+  TriggerType.dropFull:
+      'data, group, count, key, beforeId, before, index; the target is '
+      r'full (its fullIf holds) and ${drag.full} is true.',
   TriggerType.dropRejected:
       'data, group, count, key, beforeId, before, index, accepted (false).',
   TriggerType.keyDown: 'key, shift, alt, meta, typing.',
