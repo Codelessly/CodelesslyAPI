@@ -10,6 +10,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   ConfirmAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.title, '')) json.remove('title');
   if (isJsonDefault(instance.caption, '')) json.remove('caption');
   if (isJsonDefault(instance.message, '')) json.remove('message');
   if (isJsonDefault(instance.confirmLabel, 'OK')) json.remove('confirmLabel');

@@ -29,9 +29,8 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
   if (isJsonDefault(instance.rotation, 0)) json.remove('rotation');
-  if (isJsonDefault(instance.enterCurve, 'easeOutCubic')) {
+  if (isJsonDefault(instance.enterCurve, 'easeOutCubic'))
     json.remove('enterCurve');
-  }
   if (isJsonDefault(instance.enterOffset, 0.25)) json.remove('enterOffset');
   if (isJsonDefault(instance.alignment, ToastAlignment.center))
     json.remove('alignment');
