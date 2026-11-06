@@ -6,6 +6,18 @@ import '../json_defaults.dart';
 
 part 'letter_spacing.g.dart';
 
+/// Reads a line height or letter spacing unit as written by hand: any
+/// letter case (`Percent`, `PIXELS`) and the short forms `px` and `%`.
+Object? readSizeUnit(Map json, String key) {
+  final Object? value = json[key];
+  if (value is! String) return value;
+  return switch (value.trim().toLowerCase()) {
+    'px' || 'pixel' || 'pixels' => 'pixels',
+    '%' || 'percent' || 'percentage' => 'percent',
+    final String other => other,
+  };
+}
+
 /// Letter spacing value unit.
 enum LetterSpacingUnitEnum {
   /// Letter spacing in pixels.
@@ -22,6 +34,7 @@ class LetterSpacing extends Equatable with SerializableMixin {
   final double value;
 
   /// Letter spacing value unit.
+  @JsonKey(readValue: readSizeUnit)
   final LetterSpacingUnitEnum unit;
 
   /// Creates a [LetterSpacing] instance with given values.

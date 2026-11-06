@@ -27,7 +27,10 @@ Map<String, dynamic> _$LineHeightOmitDefaults(
 LineHeight _$LineHeightFromJson(Map json) => LineHeight(
   value: (json['value'] as num?)?.toDouble(),
   unit:
-      $enumDecodeNullable(_$LineHeightUnitEnumEnumMap, json['unit']) ??
+      $enumDecodeNullable(
+        _$LineHeightUnitEnumEnumMap,
+        readSizeUnit(json, 'unit'),
+      ) ??
       LineHeightUnitEnum.pixels,
   leadingDistribution:
       $enumDecodeNullable(
