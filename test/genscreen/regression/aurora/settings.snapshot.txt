@@ -1,0 +1,970 @@
+# mobile f308b3c7
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon credit_card" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon account_balance" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon fingerprint" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch biometricLogin" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon lock_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon verified_user" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon devices" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon notifications_none" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch pushAlerts" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon email" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch weeklySummary" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch largeTransactions" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+              row "Segmented" expanded/shrinkWrap
+                row "Option Light" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option Dark" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option System" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon language" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon help_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                row "Icon button open_in_new" fixed/fixed
+                  icon "Icon open_in_new" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon privacy_tip" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                icon "Icon logout" fixed/fixed
+                text "Label" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Segmented" expanded/shrinkWrap
+                row "Option Light" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option Dark" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option System" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Icon button open_in_new" fixed/fixed
+                  row "Skeleton" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# tablet bd4c60cb
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon credit_card" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon account_balance" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon fingerprint" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch biometricLogin" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon lock_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon verified_user" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon devices" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon notifications_none" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch pushAlerts" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon email" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch weeklySummary" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch largeTransactions" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
+                row "Option Light" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option Dark" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option System" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon language" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon help_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                row "Icon button open_in_new" fixed/fixed
+                  icon "Icon open_in_new" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon privacy_tip" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                icon "Icon logout" fixed/fixed
+                text "Label" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Segmented" fixed/shrinkWrap
+                row "Option Light" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option Dark" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option System" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Icon button open_in_new" fixed/fixed
+                  row "Skeleton" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# desktop 777b8f31
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon credit_card" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon account_balance" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon fingerprint" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch biometricLogin" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon lock_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon verified_user" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                row "Badge" shrinkWrap/shrinkWrap
+                  text "Badge text" shrinkWrap/shrinkWrap
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon devices" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon notifications_none" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch pushAlerts" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon email" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch weeklySummary" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch largeTransactions" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
+                row "Option Light" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option Dark" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option System" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon language" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon attach_money" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon help_outline" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                row "Icon button open_in_new" fixed/fixed
+                  icon "Icon open_in_new" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon privacy_tip" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                icon "Icon chevron_right" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                icon "Icon logout" fixed/fixed
+                text "Label" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section account" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row ${user.name}" expanded/shrinkWrap
+                row "Avatar" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Subscription" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Linked accounts" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section security" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Face ID sign-in" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Change password" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Two-step verification" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Badge" shrinkWrap/shrinkWrap
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              row "Row Signed-in devices" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section notifications" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Push notifications" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Weekly summary" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Large transactions" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section display" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Segmented" fixed/shrinkWrap
+                row "Option Light" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option Dark" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option System" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              row "Row Language" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Row Currency" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section support" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              row "Row Help center" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Icon button open_in_new" fixed/fixed
+                  row "Skeleton" fixed/fixed
+              row "Row Privacy policy" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+              row "Button Sign out" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon inbox" fixed/fixed
+        text "State title" expanded/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap

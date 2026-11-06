@@ -11,11 +11,19 @@ enum HeroFlight {
   ///
   /// The node on the top screen is drawn through the whole flight, in both
   /// directions, clipped to the in-between corners.
-  morphCorners;
+  morphCorners,
+
+  /// The node flies along a curve instead of a straight line (bowed to the
+  /// side, like Material's arc), turning from a slight tilt to upright as it
+  /// lands and glowing on the way: the swell and fade of a halo in the colour
+  /// of the node's first drop shadow (soft white without one). A planet
+  /// lifting off its orbit onto its page.
+  arc;
 
   /// Displayable name.
   String get prettify => switch (this) {
     HeroFlight.standard => 'Standard',
     HeroFlight.morphCorners => 'Morph corners',
+    HeroFlight.arc => 'Arc and glow',
   };
 }

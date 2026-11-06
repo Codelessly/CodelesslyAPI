@@ -28,6 +28,10 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
   if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
+  if (isJsonDefault(instance.rotation, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.enterCurve, 'easeOutCubic'))
+    json.remove('enterCurve');
+  if (isJsonDefault(instance.enterOffset, 0.25)) json.remove('enterOffset');
   if (isJsonDefault(instance.alignment, ToastAlignment.center))
     json.remove('alignment');
   if (isJsonDefault(instance.sideMargin, 16)) json.remove('sideMargin');
@@ -84,6 +88,16 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   actionColor: json['actionColor'] == null
       ? null
       : ColorRGBA.fromJson(json['actionColor']),
+  actionBackgroundColor: json['actionBackgroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['actionBackgroundColor']),
+  actionBorder: json['actionBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['actionBorder'] as Map),
+  actionShadows: (json['actionShadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  actionCornerRadius: (json['actionCornerRadius'] as num?)?.toDouble(),
   showClose: json['showClose'] as bool? ?? false,
   closeColor: json['closeColor'] == null
       ? null
@@ -110,6 +124,9 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : ColorRGBA.fromJson(json['accentColor']),
   accentWidth: (json['accentWidth'] as num?)?.toDouble() ?? 4,
+  rotation: (json['rotation'] as num?)?.toDouble() ?? 0,
+  enterCurve: json['enterCurve'] as String? ?? 'easeOutCubic',
+  enterOffset: (json['enterOffset'] as num?)?.toDouble() ?? 0.25,
   iconColor: json['iconColor'] == null
       ? null
       : ColorRGBA.fromJson(json['iconColor']),
@@ -193,6 +210,10 @@ Map<String, dynamic> _$ShowToastActionToJson(
     (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
   ),
   'actionColor': ?instance.actionColor?.toJson(),
+  'actionBackgroundColor': ?instance.actionBackgroundColor?.toJson(),
+  'actionBorder': ?instance.actionBorder?.toJson(),
+  'actionShadows': ?instance.actionShadows?.map((e) => e.toJson()).toList(),
+  'actionCornerRadius': ?instance.actionCornerRadius,
   'showClose': instance.showClose,
   'closeColor': ?instance.closeColor?.toJson(),
   'cornerRadius': ?instance.cornerRadius,
@@ -205,6 +226,9 @@ Map<String, dynamic> _$ShowToastActionToJson(
   'actionStyle': ?instance.actionStyle?.toJson(),
   'accentColor': ?instance.accentColor?.toJson(),
   'accentWidth': instance.accentWidth,
+  'rotation': instance.rotation,
+  'enterCurve': instance.enterCurve,
+  'enterOffset': instance.enterOffset,
   'iconColor': ?instance.iconColor?.toJson(),
   'fontFamily': ?instance.fontFamily,
   'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
@@ -285,5 +309,7 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
   ActionType.runScript: 'runScript',
 };
