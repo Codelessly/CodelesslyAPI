@@ -1,4 +1,4 @@
-## 9.4.0
+## 10.0.0
 
 - Scripts: `ScriptModel` describes a JavaScript script a project or Editor
   page can run, with its parameters, source, version, capabilities
