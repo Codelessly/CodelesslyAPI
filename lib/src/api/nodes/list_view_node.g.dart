@@ -239,6 +239,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             ScrollViewKeyboardDismissBehaviorC.manual,
         shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -250,7 +251,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..ignorePointer = json['ignorePointer'] as bool? ?? false
       ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
@@ -309,11 +309,22 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
       ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
           : NodeTransition.fromJson(json['sizeTransition'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -327,7 +338,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -341,12 +351,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
 Map<String, dynamic> _$ListViewNodeToJson(
   ListViewNode instance,
 ) => <String, dynamic>{
-  'variables': instance.variables,
-  'multipleVariables': instance.multipleVariables,
-  'componentId': ?instance.componentId,
-  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-  'componentVersion': instance.componentVersion,
-  'componentSchema': instance.componentSchema,
   'id': instance.id,
   'name': instance.name,
   'visible': instance.visible,
@@ -358,6 +362,12 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -390,15 +400,18 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
   'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
+  'ephemeral': instance.ephemeral,
   'allowedTypes': instance.allowedTypes,
   'deniedTypes': instance.deniedTypes,
   'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
   'clipsContent': instance.clipsContent,
-  'ephemeral': instance.ephemeral,
   'isScrollable': instance.isScrollable,
   'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
   'reverse': instance.reverse,
@@ -474,6 +487,14 @@ const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
   HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 const _$QueryPagingEnumMap = {

@@ -168,6 +168,18 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: MotionCurve.easeOutCubic)
   MotionCurve animationCurve;
 
+  /// A 3D look for the pages as they scroll (coverflow, cube, carousel):
+  /// the [MotionModel] values a page has when it is one page to the right
+  /// of the current one. The current page is at rest; pages in between are
+  /// interpolated by their distance (clamped to two pages), and pages to
+  /// the left are mirrored ([MotionModel.translateX], [MotionModel.shiftX],
+  /// [MotionModel.rotate], [MotionModel.rotateY] and [MotionModel.originX]
+  /// change sign). Coverflow: `{rotateY: -50, scale: 0.8}` with a viewport
+  /// fraction of 0.5; cube: `{rotateY: -90, originX: -1}`. Each page can
+  /// also read `${page.offset}`, its signed distance from the current page.
+  /// Null for flat pages.
+  MotionModel? pageMotion;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -179,6 +191,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.allowImplicitScrolling = false,
     this.animationDurationMs = 0,
     this.animationCurve = MotionCurve.easeOutCubic,
+    this.pageMotion,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -192,6 +205,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     bool? allowImplicitScrolling,
     int? animationDurationMs,
     MotionCurve? animationCurve,
+    MotionModel? pageMotion,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -204,6 +218,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
           allowImplicitScrolling ?? this.allowImplicitScrolling,
       animationDurationMs: animationDurationMs ?? this.animationDurationMs,
       animationCurve: animationCurve ?? this.animationCurve,
+      pageMotion: pageMotion ?? this.pageMotion,
     );
   }
 
@@ -261,6 +276,7 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     allowImplicitScrolling,
     animationDurationMs,
     animationCurve,
+    pageMotion,
   ];
 
   @override

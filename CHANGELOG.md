@@ -1,5 +1,24 @@
 ## Unreleased
 
+- Transitions (see `CodelesslyEditor/docs/transitions_api.md`):
+  - `RouteTransition` is a composable route transition: `enter`, `exit`, `popEnter` and `popExit` sides, each a `MotionModel` (translate, shift, scale, opacity, rotate, rotateX/Y with perspective, blur) plus a circle or rect `reveal`, a curve, a delay and a duration.
+    - It also has a barrier colour, `opaque`, iOS `swipeBack`, and an interactive `dismiss` drag.
+    - Presets: shared axis X/Y/Z, fade through, iOS push and modal, circular reveal, zoom, cover vertical, cube and flip.
+  - `NavigationAction.routeTransition` and `ShowDialogAction.routeTransition`, used in place of the `transition` enum when set. Setting one on a dialog lets heroes fly into it.
+    - Every `PageTransition` value still works, and `PageTransition.asRouteTransition` describes it as a `RouteTransition`.
+  - New hero flights: `morph` (text style and colour morph), `fadeThrough` and `containerTransform`. New `BaseNode.heroPlaceholder` (`HeroPlaceholder`).
+  - New `BaseNode.flip` (`FlipModel`): a two-sided card that turns on tap, from a variable or by drag.
+  - New `BaseNode.tilt` (`TiltModel`): tilt on hover or drag, with parallax.
+  - New `PageViewProperties.pageMotion`: per-page 3D for coverflow, cube and carousel.
+  - These reuse `MotionModel`'s rotateX, rotateY and perspective.
+  - `TransitionSpring` is a provisional stand-in for the Gestures project's shared physics model.
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
+
 ### Lists and pagination
 
 - `PaginationModel` (`ListViewNode.pagination`, `GridViewNode.pagination`):
