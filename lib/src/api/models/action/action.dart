@@ -103,7 +103,10 @@ enum ActionType {
   animateVariable,
 
   /// Buzzes the device; see [HapticAction].
-  haptic;
+  haptic,
+
+  /// Moves a list's pagination controller; see [PaginateAction].
+  paginate;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -174,6 +177,8 @@ enum ActionType {
         return 'Animate Variable';
       case ActionType.haptic:
         return 'Haptic Feedback';
+      case ActionType.paginate:
+        return 'Paginate';
     }
   }
 }
@@ -289,6 +294,8 @@ abstract class ActionModel with SerializableMixin {
         return AnimateVariableAction.fromJson(json);
       case ActionType.haptic:
         return HapticAction.fromJson(json);
+      case ActionType.paginate:
+        return PaginateAction.fromJson(json);
     }
   }
 
