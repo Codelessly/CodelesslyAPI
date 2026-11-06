@@ -1,0 +1,85 @@
+{
+  "title": "Checkout",
+  "summary": "Collects delivery and payment details and confirms an organic grocery order.",
+  "pattern": "checkout",
+  "appBar": {"title": "Checkout", "leading": "back"},
+  "data": {
+    "cart": [
+      {"name": "Heirloom tomato box", "detail": "1.5 kg · Hillside Farm", "price": "$18.00", "image": "https://picsum.photos/seed/heirloomtomato/200/200"},
+      {"name": "Sourdough country loaf", "detail": "800 g · Baked this morning", "price": "$9.50", "image": "https://picsum.photos/seed/sourdoughloaf/200/200"},
+      {"name": "Wildflower honey", "detail": "340 g jar · Raw", "price": "$14.00", "image": "https://picsum.photos/seed/wildhoney/200/200"}
+    ],
+    "summary": {"subtotal": "$41.50", "delivery": "$4.00", "discount": "-$4.15", "total": "$41.35"}
+  },
+  "variables": [
+    {"name": "fullName", "type": "text", "value": "Maya Ellison"},
+    {"name": "address", "type": "text", "value": "27 Larch Lane"},
+    {"name": "city", "type": "text", "value": "Portland, OR 97214"},
+    {"name": "phone", "type": "text", "value": "(503) 555-0142"},
+    {"name": "deliveryWindow", "type": "text", "value": "Tomorrow morning"},
+    {"name": "deliveryNote", "type": "text", "value": ""},
+    {"name": "cardNumber", "type": "text", "value": ""},
+    {"name": "expiry", "type": "text", "value": ""},
+    {"name": "cvc", "type": "text", "value": ""},
+    {"name": "ecoPackaging", "type": "boolean", "value": true}
+  ],
+  "sections": [
+    {
+      "id": "delivery",
+      "title": "Delivery details",
+      "area": "main",
+      "children": [
+        {"type": "input", "label": "Full name", "bind": "fullName", "kind": "text", "icon": "person_outline"},
+        {"type": "input", "label": "Street address", "bind": "address", "kind": "text", "icon": "location_on"},
+        {"type": "input", "label": "City and ZIP", "bind": "city", "kind": "text"},
+        {"type": "input", "label": "Phone", "bind": "phone", "kind": "phone", "icon": "phone", "helper": "Our driver will only call if they can't find you."},
+        {"type": "text", "text": "When should we arrive?", "style": "label", "color": "onSurface"},
+        {"type": "segmented", "options": ["Tomorrow morning", "Tomorrow evening", "Saturday"], "bind": "deliveryWindow"},
+        {"type": "input", "label": "Note for the driver", "bind": "deliveryNote", "kind": "multiline", "hint": "Leave by the blue door, please"}
+      ]
+    },
+    {
+      "id": "payment",
+      "title": "Payment",
+      "area": "main",
+      "children": [
+        {"type": "input", "label": "Card number", "bind": "cardNumber", "kind": "number", "hint": "1234 5678 9012 3456", "icon": "credit_card"},
+        {
+          "type": "group",
+          "direction": "row",
+          "gap": "md",
+          "children": [
+            {"type": "input", "label": "Expiry", "bind": "expiry", "kind": "text", "hint": "MM/YY"},
+            {"type": "input", "label": "CVC", "bind": "cvc", "kind": "number", "hint": "123"}
+          ]
+        },
+        {"type": "switchRow", "title": "Plastic-free packaging", "subtitle": "Paper bags and reusable crates", "icon": "eco", "bind": "ecoPackaging"}
+      ]
+    },
+    {
+      "id": "order",
+      "title": "Your order",
+      "area": "aside",
+      "children": [
+        {
+          "type": "list",
+          "items": "${cart}",
+          "gap": "xs",
+          "item": {"type": "listRow", "title": "${item.name}", "subtitle": "${item.detail}", "leading": {"image": "${item.image}"}, "trailing": {"text": "${item.price}"}}
+        },
+        {"type": "divider"},
+        {"type": "keyValue", "label": "Subtotal", "value": "${summary.subtotal}"},
+        {"type": "keyValue", "label": "Delivery", "value": "${summary.delivery}"},
+        {"type": "keyValue", "label": "Member discount", "value": "${summary.discount}"},
+        {"type": "keyValue", "label": "Total", "value": "${summary.total}", "emphasis": true},
+        {"type": "button", "label": "Place order", "icon": "lock", "variant": "primary", "fullWidth": true, "action": {"type": "submit", "message": "Thank you. Your order is on its way to the farm.", "then": {"type": "navigate", "to": "Order confirmation"}}},
+        {"type": "text", "text": "Payments are encrypted and secure.", "style": "caption", "color": "onSurfaceVariant", "align": "center"}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "shopping_bag", "title": "Your basket is resting", "message": "Add a few seasonal favorites and we'll help you check out.", "action": {"label": "Visit the market", "action": {"type": "navigate", "to": "Shop"}}},
+    "error": {"icon": "error_outline", "title": "We couldn't load checkout", "message": "Your basket is safe. Let's try that again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

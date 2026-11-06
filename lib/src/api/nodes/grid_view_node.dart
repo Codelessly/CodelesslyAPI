@@ -20,6 +20,11 @@ class GridViewNode extends SinglePlaceholderNode
         ClipMixin,
         QueryableMixin,
         FieldsHolder {
+  /// The key in [variables] that binds the cross-axis count of a
+  /// [FixedCrossAxisCountGridDelegateProperties] grid, e.g. `${bed.cols}`
+  /// for a grid whose number of columns comes from data.
+  static const String crossAxisCountVariable = 'crossAxisCount';
+
   @override
   final String type = 'gridView';
 

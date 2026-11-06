@@ -15,6 +15,7 @@ Map<String, dynamic> _$ControlDragActionOmitDefaults(
     json.remove('command');
   if (isJsonDefault(instance.direction, DragDirection.right))
     json.remove('direction');
+  if (isJsonDefault(instance.steps, '1')) json.remove('steps');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -32,6 +33,7 @@ ControlDragAction _$ControlDragActionFromJson(Map json) => ControlDragAction(
   direction:
       $enumDecodeNullable(_$DragDirectionEnumMap, json['direction']) ??
       DragDirection.right,
+  steps: json['steps'] as String? ?? '1',
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -44,6 +46,7 @@ Map<String, dynamic> _$ControlDragActionToJson(ControlDragAction instance) =>
       'nodeId': instance.nodeId,
       'command': _$DragCommandEnumMap[instance.command]!,
       'direction': _$DragDirectionEnumMap[instance.direction]!,
+      'steps': instance.steps,
     };
 
 const _$DragCommandEnumMap = {
@@ -51,6 +54,7 @@ const _$DragCommandEnumMap = {
   DragCommand.returnFrom: 'returnFrom',
   DragCommand.reset: 'reset',
   DragCommand.shake: 'shake',
+  DragCommand.step: 'step',
 };
 
 const _$DragDirectionEnumMap = {
@@ -92,5 +96,7 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
   ActionType.paginate: 'paginate',
 };
