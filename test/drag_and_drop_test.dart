@@ -50,6 +50,19 @@ void main() {
     expect(node.dropTarget!.slot, DropSlot.gap);
   });
 
+  test('feedbackAnchor round-trips, defaults to grab and reads unknown names as grab', () {
+    expect(const DraggableModel().feedbackAnchor, DragFeedbackAnchor.grab);
+    expect(const DraggableModel().toJson().containsKey('feedbackAnchor'), isFalse);
+    const DraggableModel centred = DraggableModel(group: 'hive', feedbackAnchor: DragFeedbackAnchor.center);
+    expect(centred.toJson(), {'group': 'hive', 'feedbackAnchor': 'center'});
+    expect(DraggableModel.fromJson(centred.toJson()), centred);
+    expect(DraggableModel.fromJson({'feedbackAnchor': 'nowhere'}).feedbackAnchor, DragFeedbackAnchor.grab);
+    expect(centred.copyWith(feedbackAnchor: DragFeedbackAnchor.grab), const DraggableModel(group: 'hive'));
+    for (final anchor in DragFeedbackAnchor.values) {
+      expect(anchor.prettify, isNotEmpty);
+    }
+  });
+
   test('drag triggers have names', () {
     for (final t in [...TriggerType.dragSource, ...TriggerType.dropTarget, TriggerType.secondaryClick]) {
       expect(t.prettify, isNotEmpty);

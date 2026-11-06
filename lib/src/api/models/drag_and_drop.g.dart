@@ -25,6 +25,8 @@ Map<String, dynamic> _$DraggableModelOmitDefaults(
   if (isJsonDefault(instance.feedbackElevation, 24))
     json.remove('feedbackElevation');
   if (isJsonDefault(instance.feedbackNodeId, '')) json.remove('feedbackNodeId');
+  if (isJsonDefault(instance.feedbackAnchor, DragFeedbackAnchor.grab))
+    json.remove('feedbackAnchor');
   if (isJsonDefault(instance.returnSpring, true)) json.remove('returnSpring');
   if (isJsonDefault(instance.springStiffness, 260))
     json.remove('springStiffness');
@@ -83,6 +85,13 @@ DraggableModel _$DraggableModelFromJson(Map json) => DraggableModel(
   feedbackOpacity: (json['feedbackOpacity'] as num?)?.toDouble() ?? 1,
   feedbackElevation: (json['feedbackElevation'] as num?)?.toDouble() ?? 24,
   feedbackNodeId: json['feedbackNodeId'] as String? ?? '',
+  feedbackAnchor:
+      $enumDecodeNullable(
+        _$DragFeedbackAnchorEnumMap,
+        json['feedbackAnchor'],
+        unknownValue: DragFeedbackAnchor.grab,
+      ) ??
+      DragFeedbackAnchor.grab,
   returnSpring: json['returnSpring'] as bool? ?? true,
   springStiffness: (json['springStiffness'] as num?)?.toDouble() ?? 260,
   springDamping: (json['springDamping'] as num?)?.toDouble() ?? 14,
@@ -102,6 +111,7 @@ Map<String, dynamic> _$DraggableModelToJson(DraggableModel instance) =>
       'feedbackOpacity': instance.feedbackOpacity,
       'feedbackElevation': instance.feedbackElevation,
       'feedbackNodeId': instance.feedbackNodeId,
+      'feedbackAnchor': _$DragFeedbackAnchorEnumMap[instance.feedbackAnchor]!,
       'returnSpring': instance.returnSpring,
       'springStiffness': instance.springStiffness,
       'springDamping': instance.springDamping,
@@ -124,6 +134,11 @@ const _$DragSourceStyleEnumMap = {
   DragSourceStyle.ghost: 'ghost',
   DragSourceStyle.hidden: 'hidden',
   DragSourceStyle.keep: 'keep',
+};
+
+const _$DragFeedbackAnchorEnumMap = {
+  DragFeedbackAnchor.grab: 'grab',
+  DragFeedbackAnchor.center: 'center',
 };
 
 DropTargetModel _$DropTargetModelFromJson(Map json) => DropTargetModel(

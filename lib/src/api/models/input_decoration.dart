@@ -114,6 +114,12 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// The constraints for the suffix icon.
   final BoxConstraintsModel suffixIconConstraints;
 
+  /// Whether [prefixText] and [suffixText] always show. Flutter shows them
+  /// only while the field has focus or text, so an empty field would hide
+  /// its unit ("kg", "%"). True shows them at all times, at the field's
+  /// edges inside its content padding, next to the prefix and suffix icons.
+  final bool alwaysShowAffixes;
+
   /// Optional text to place below the line as a character count.
   final String? counterText;
 
@@ -206,6 +212,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     this.suffixText,
     TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
+    this.alwaysShowAffixes = false,
     this.counterText,
     TextProp? counterStyle,
     this.filled = false,
@@ -288,6 +295,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     String? suffixText,
     TextProp? suffixStyle,
     BoxConstraintsModel? suffixIconConstraints,
+    bool? alwaysShowAffixes,
     String? counterText,
     TextProp? counterStyle,
     bool? filled,
@@ -333,6 +341,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     suffixText: suffixText ?? this.suffixText,
     suffixStyle: suffixStyle ?? this.suffixStyle,
     suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
+    alwaysShowAffixes: alwaysShowAffixes ?? this.alwaysShowAffixes,
     counterText: forceCounterText
         ? counterText
         : counterText ?? this.counterText,
@@ -383,6 +392,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     suffixText,
     suffixStyle,
     suffixIconConstraints,
+    alwaysShowAffixes,
     counterText,
     counterStyle,
     filled,

@@ -32,6 +32,8 @@ Map<String, dynamic> _$InputDecorationModelOmitDefaults(
     const BoxConstraintsModel(),
   ))
     json.remove('suffixIconConstraints');
+  if (isJsonDefault(instance.alwaysShowAffixes, false))
+    json.remove('alwaysShowAffixes');
   if (isJsonDefault(instance.filled, false)) json.remove('filled');
   if (isJsonDefault(instance.fillColor, ColorRGBA.grey10))
     json.remove('fillColor');
@@ -136,6 +138,7 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
       suffixIconConstraints: json['suffixIconConstraints'] == null
           ? const BoxConstraintsModel()
           : BoxConstraintsModel.fromJson(json['suffixIconConstraints'] as Map),
+      alwaysShowAffixes: json['alwaysShowAffixes'] as bool? ?? false,
       counterText: json['counterText'] as String?,
       counterStyle: json['counterStyle'] == null
           ? null
@@ -218,6 +221,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'suffixStyle': instance.suffixStyle.toJson(),
   'suffixIcon': instance.suffixIcon.toJson(),
   'suffixIconConstraints': instance.suffixIconConstraints.toJson(),
+  'alwaysShowAffixes': instance.alwaysShowAffixes,
   'counterText': ?instance.counterText,
   'counterStyle': instance.counterStyle.toJson(),
   'filled': instance.filled,
