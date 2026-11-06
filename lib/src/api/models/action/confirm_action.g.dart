@@ -20,6 +20,11 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   if (isJsonDefault(instance.params, {})) json.remove('params');
   if (isJsonDefault(instance.barrierDismissible, true))
     json.remove('barrierDismissible');
+  if (isJsonDefault(instance.iconSize, 24)) json.remove('iconSize');
+  if (isJsonDefault(instance.iconDiscSize, 52)) json.remove('iconDiscSize');
+  if (isJsonDefault(instance.centered, false)) json.remove('centered');
+  if (isJsonDefault(instance.expandButtons, false))
+    json.remove('expandButtons');
   if (isJsonDefault(instance.presentation, DialogPresentation.dialog))
     json.remove('presentation');
   if (isJsonDefault(instance.maxHeightFactor, 1))
@@ -103,6 +108,28 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
   cancelTextColor: json['cancelTextColor'] == null
       ? null
       : ColorRGBA.fromJson(json['cancelTextColor']),
+  confirmBorder: json['confirmBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['confirmBorder'] as Map),
+  cancelBorder: json['cancelBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['cancelBorder'] as Map),
+  icon: json['icon'] == null
+      ? null
+      : MultiSourceIconModel.fromJson(json['icon'] as Map),
+  iconSize: (json['iconSize'] as num?)?.toDouble() ?? 24,
+  iconColor: json['iconColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['iconColor']),
+  iconDiscColor: json['iconDiscColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['iconDiscColor']),
+  iconDiscSize: (json['iconDiscSize'] as num?)?.toDouble() ?? 52,
+  iconDiscBorder: json['iconDiscBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['iconDiscBorder'] as Map),
+  centered: json['centered'] as bool? ?? false,
+  expandButtons: json['expandButtons'] as bool? ?? false,
   presentation:
       $enumDecodeNullable(
         _$DialogPresentationEnumMap,
@@ -162,7 +189,17 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'confirmTextColor': ?instance.confirmTextColor?.toJson(),
       'cancelColor': ?instance.cancelColor?.toJson(),
       'cancelTextColor': ?instance.cancelTextColor?.toJson(),
-      'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
+      'confirmBorder': ?instance.confirmBorder?.toJson(),
+      'cancelBorder': ?instance.cancelBorder?.toJson(),
+      'icon': ?instance.icon?.toJson(),
+      'iconSize': instance.iconSize,
+      'iconColor': ?instance.iconColor?.toJson(),
+      'iconDiscColor': ?instance.iconDiscColor?.toJson(),
+      'iconDiscSize': instance.iconDiscSize,
+      'iconDiscBorder': ?instance.iconDiscBorder?.toJson(),
+      'centered': instance.centered,
+      'expandButtons': instance.expandButtons,
+      'presentation':_$DialogPresentationEnumMap[instance.presentation]!,
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,

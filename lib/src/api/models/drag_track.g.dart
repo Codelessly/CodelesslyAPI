@@ -11,6 +11,7 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.shape, DragTrackShape.line)) json.remove('shape');
+  if (isJsonDefault(instance.variable, '')) json.remove('variable');
   if (isJsonDefault(instance.min, 0)) json.remove('min');
   if (isJsonDefault(instance.max, 1)) json.remove('max');
   if (isJsonDefault(instance.step, 0)) json.remove('step');
@@ -30,6 +31,12 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.doubleTapValues, const []))
+    json.remove('doubleTapValues');
+  if (isJsonDefault(instance.hitArea, DragTrackHitArea.self))
+    json.remove('hitArea');
+  if (isJsonDefault(instance.units, DragTrackUnits.pixels))
+    json.remove('units');
   return json;
 }
 
@@ -41,7 +48,7 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   shape:
       $enumDecodeNullable(_$DragTrackShapeEnumMap, json['shape']) ??
       DragTrackShape.line,
-  variable: json['variable'] as String,
+  variable: json['variable'] as String? ?? '',
   min: (json['min'] as num?)?.toDouble() ?? 0,
   max: (json['max'] as num?)?.toDouble() ?? 1,
   step: (json['step'] as num?)?.toDouble() ?? 0,
@@ -63,6 +70,19 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   orientToPath: json['orientToPath'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
+  wheelStep: (json['wheelStep'] as num?)?.toDouble(),
+  doubleTapValues:
+      (json['doubleTapValues'] as List<dynamic>?)
+          ?.map((e) => (e as num).toDouble())
+          .toList() ??
+      const [],
+  keyStep: (json['keyStep'] as num?)?.toDouble(),
+  hitArea:
+      $enumDecodeNullable(_$DragTrackHitAreaEnumMap, json['hitArea']) ??
+      DragTrackHitArea.self,
+  units:
+      $enumDecodeNullable(_$DragTrackUnitsEnumMap, json['units']) ??
+      DragTrackUnits.pixels,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -88,6 +108,11 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'orientToPath': instance.orientToPath,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'wheelStep': ?instance.wheelStep,
+      'doubleTapValues': instance.doubleTapValues,
+      'keyStep': ?instance.keyStep,
+      'hitArea': _$DragTrackHitAreaEnumMap[instance.hitArea]!,
+      'units': _$DragTrackUnitsEnumMap[instance.units]!,
     };
 
 const _$DragTrackShapeEnumMap = {
@@ -100,4 +125,15 @@ const _$DragTrackInputEnumMap = {
   DragTrackInput.follow: 'follow',
   DragTrackInput.vertical: 'vertical',
   DragTrackInput.horizontal: 'horizontal',
+  DragTrackInput.both: 'both',
+};
+
+const _$DragTrackHitAreaEnumMap = {
+  DragTrackHitArea.self: 'self',
+  DragTrackHitArea.parent: 'parent',
+};
+
+const _$DragTrackUnitsEnumMap = {
+  DragTrackUnits.pixels: 'pixels',
+  DragTrackUnits.parent: 'parent',
 };

@@ -126,6 +126,41 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Label color of the cancel button. Null uses the dialog's text color.
   final ColorRGBA? cancelTextColor;
 
+  /// Outline of the confirm button, over [buttonBorder]: a red-outlined
+  /// "Take down" beside a plain outlined "Keep it". Null uses [buttonBorder].
+  final BorderSideModel? confirmBorder;
+
+  /// Outline of the cancel button, over [buttonBorder]. Null uses
+  /// [buttonBorder].
+  final BorderSideModel? cancelBorder;
+
+  /// An icon over the title, e.g. the lamp being taken down. A
+  /// `variables` binding `icon` names a Material icon instead (`${lamp.icon}`).
+  final MultiSourceIconModel? icon;
+
+  /// Width and height of [icon].
+  final double iconSize;
+
+  /// Color of [icon]. Null keeps the icon's own color, else the text color.
+  final ColorRGBA? iconColor;
+
+  /// Fill of a circle behind the [icon] (or alone, a dot, with no icon).
+  /// Null draws the icon without one.
+  final ColorRGBA? iconDiscColor;
+
+  /// Diameter of the [iconDiscColor] circle.
+  final double iconDiscSize;
+
+  /// Outline of the [iconDiscColor] circle. Null draws none.
+  final BorderSideModel? iconDiscBorder;
+
+  /// Whether the icon, title and message are centered (the buttons then
+  /// share the row too, see [expandButtons]).
+  final bool centered;
+
+  /// Whether the two buttons share the width of the dialog equally.
+  final bool expandButtons;
+
   /// How the dialog is presented: centered, as a bottom sheet or as a side
   /// sheet. See [ShowDialogAction.presentation].
   @JsonKey(unknownEnumValue: DialogPresentation.dialog)
@@ -176,6 +211,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     'barrierColor',
     'borderColor',
     'buttonBorderColor',
+    'confirmBorderColor',
+    'cancelBorderColor',
+    'iconColor',
+    'iconDiscColor',
+    'iconDiscBorderColor',
   ];
 
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
@@ -227,6 +267,16 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.confirmTextColor,
     this.cancelColor,
     this.cancelTextColor,
+    this.confirmBorder,
+    this.cancelBorder,
+    this.icon,
+    this.iconSize = 24,
+    this.iconColor,
+    this.iconDiscColor,
+    this.iconDiscSize = 52,
+    this.iconDiscBorder,
+    this.centered = false,
+    this.expandButtons = false,
     this.presentation = DialogPresentation.dialog,
     this.sheetWidth,
     this.maxHeightFactor = 1,
@@ -290,6 +340,22 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearCancelColor = false,
     ColorRGBA? cancelTextColor,
     bool clearCancelTextColor = false,
+    BorderSideModel? confirmBorder,
+    bool clearConfirmBorder = false,
+    BorderSideModel? cancelBorder,
+    bool clearCancelBorder = false,
+    MultiSourceIconModel? icon,
+    bool clearIcon = false,
+    double? iconSize,
+    ColorRGBA? iconColor,
+    bool clearIconColor = false,
+    ColorRGBA? iconDiscColor,
+    bool clearIconDiscColor = false,
+    double? iconDiscSize,
+    BorderSideModel? iconDiscBorder,
+    bool clearIconDiscBorder = false,
+    bool? centered,
+    bool? expandButtons,
     DialogPresentation? presentation,
     double? sheetWidth,
     bool clearSheetWidth = false,
@@ -336,6 +402,22 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     cancelTextColor: clearCancelTextColor
         ? null
         : cancelTextColor ?? this.cancelTextColor,
+    confirmBorder: clearConfirmBorder
+        ? null
+        : confirmBorder ?? this.confirmBorder,
+    cancelBorder: clearCancelBorder ? null : cancelBorder ?? this.cancelBorder,
+    icon: clearIcon ? null : icon ?? this.icon,
+    iconSize: iconSize ?? this.iconSize,
+    iconColor: clearIconColor ? null : iconColor ?? this.iconColor,
+    iconDiscColor: clearIconDiscColor
+        ? null
+        : iconDiscColor ?? this.iconDiscColor,
+    iconDiscSize: iconDiscSize ?? this.iconDiscSize,
+    iconDiscBorder: clearIconDiscBorder
+        ? null
+        : iconDiscBorder ?? this.iconDiscBorder,
+    centered: centered ?? this.centered,
+    expandButtons: expandButtons ?? this.expandButtons,
     presentation: presentation ?? this.presentation,
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
@@ -378,6 +460,16 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     confirmTextColor,
     cancelColor,
     cancelTextColor,
+    confirmBorder,
+    cancelBorder,
+    icon,
+    iconSize,
+    iconColor,
+    iconDiscColor,
+    iconDiscSize,
+    iconDiscBorder,
+    centered,
+    expandButtons,
     presentation,
     sheetWidth,
     maxHeightFactor,

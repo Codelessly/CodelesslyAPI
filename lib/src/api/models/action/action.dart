@@ -96,7 +96,11 @@ enum ActionType {
   playSound,
 
   /// Play a node's one-shot animation or particles.
-  playAnimation;
+  playAnimation,
+
+  /// Animates a number variable over time (play, pause, resume, stop,
+  /// seek); see [AnimateVariableAction].
+  animateVariable;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -163,6 +167,8 @@ enum ActionType {
         return 'Play Sound';
       case ActionType.playAnimation:
         return 'Play Animation';
+      case ActionType.animateVariable:
+        return 'Animate Variable';
     }
   }
 }
@@ -274,6 +280,8 @@ abstract class ActionModel with SerializableMixin {
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:
         return PlayAnimationAction.fromJson(json);
+      case ActionType.animateVariable:
+        return AnimateVariableAction.fromJson(json);
     }
   }
 
