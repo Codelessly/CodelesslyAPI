@@ -10,6 +10,7 @@ export 'action/play_animation_action.dart';
 export 'action/focus_action.dart';
 export 'action/control_drag_action.dart';
 export 'action/speak_action.dart';
+export 'action/haptic_action.dart';
 export 'action/scroll_to_action.dart';
 export 'action/play_sound_action.dart';
 export 'action/edit_text_action.dart';
