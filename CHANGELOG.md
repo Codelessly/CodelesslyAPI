@@ -1,3 +1,21 @@
+## 9.0.4
+
+Found recreating Chairlift (a ski-resort status board) in the editor.
+
+- `MotionModel.paused` (bindable `motion.paused`): freezes a running loop and
+  spin where they are and resumes from there (chairs stop where they hang
+  when a lift goes on hold).
+- `MotionModel.phase` (bindable `motion.phase`): a loop starts that far
+  through its cycle, so the items of one list can share a looping path
+  spread round it.
+- `DragTrackModel.viewBoxWidth/viewBoxHeight`: a path track drawn in its
+  frame's box, stretched with the frame. `jumpOnTap` now also works on arc
+  tracks (a dial turns to the tapped angle).
+- `ScrollToAction.axis`: scroll only horizontal or vertical scroll views.
+- `ShowToastAction.actionBackgroundColor`, `actionBorder`, `actionShadows`,
+  `actionCornerRadius`: the toast's action as a styled button.
+- For-each docs: `${loop.item}` / `${loop.index}`.
+
 ## 9.0.3
 
 - An icon's click reactions run when it is tapped, and an icon with one
