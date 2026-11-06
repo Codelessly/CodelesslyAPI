@@ -188,6 +188,18 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
+        pagination: json['pagination'] == null
+            ? null
+            : PaginationModel.fromJson(json['pagination'] as Map),
+        sections: json['sections'] == null
+            ? null
+            : ListSectionsModel.fromJson(json['sections'] as Map),
+        reorder: json['reorder'] == null
+            ? null
+            : ReorderModel.fromJson(json['reorder'] as Map),
+        swipeActions: json['swipeActions'] == null
+            ? null
+            : SwipeActionsModel.fromJson(json['swipeActions'] as Map),
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -227,6 +239,7 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             ScrollViewKeyboardDismissBehaviorC.manual,
         shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -238,7 +251,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..ignorePointer = json['ignorePointer'] as bool? ?? false
       ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
@@ -339,12 +351,6 @@ ListViewNode _$ListViewNodeFromJson(Map json) =>
 Map<String, dynamic> _$ListViewNodeToJson(
   ListViewNode instance,
 ) => <String, dynamic>{
-  'variables': instance.variables,
-  'multipleVariables': instance.multipleVariables,
-  'componentId': ?instance.componentId,
-  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-  'componentVersion': instance.componentVersion,
-  'componentSchema': instance.componentSchema,
   'id': instance.id,
   'name': instance.name,
   'visible': instance.visible,
@@ -356,6 +362,12 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'flex': instance.flex,
   'squeezable': instance.squeezable,
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -420,6 +432,10 @@ Map<String, dynamic> _$ListViewNodeToJson(
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'statusVariable': ?instance.statusVariable?.toJson(),
+  'pagination': ?instance.pagination?.toJson(),
+  'sections': ?instance.sections?.toJson(),
+  'reorder': ?instance.reorder?.toJson(),
+  'swipeActions': ?instance.swipeActions?.toJson(),
 };
 
 const _$SizeFitEnumMap = {
