@@ -6,8 +6,6 @@
 - `MotionModel.named`: values given on purpose, kept even at their
   defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
   replay); JSON keeps them.
-- `VariableData.remember` (`extra.remember: true`): the running app keeps the
-  value on the device between visits.
 
 ## 9.2.0
 
