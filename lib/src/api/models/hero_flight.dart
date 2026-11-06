@@ -13,6 +13,13 @@ enum HeroFlight {
   /// directions, clipped to the in-between corners.
   morphCorners,
 
+  /// The node flies along a curve instead of a straight line (bowed to the
+  /// side, like Material's arc), turning from a slight tilt to upright as it
+  /// lands and glowing on the way: the swell and fade of a halo in the colour
+  /// of the node's first drop shadow (soft white without one). A planet
+  /// lifting off its orbit onto its page.
+  arc,
+
   /// Both nodes fly, each fitted to the in-between box: the one leaving
   /// fades out while the one arriving fades in, and the corners turn from
   /// one to the other. A title whose size, weight or colour differs between
@@ -22,10 +29,6 @@ enum HeroFlight {
   /// Like [morph], but the node leaving fades out over the first 35% of the
   /// flight and the arriving one fades in after it (Material fade through).
   fadeThrough,
-
-  /// Like [standard], on a curved path (Material's `MaterialRectArcTween`)
-  /// instead of a straight line.
-  arc,
 
   /// Material container transform: a card grows into a whole screen. Give
   /// the card and the destination screen's root frame the same tag. The box
@@ -39,9 +42,9 @@ enum HeroFlight {
   String get prettify => switch (this) {
     HeroFlight.standard => 'Standard',
     HeroFlight.morphCorners => 'Morph corners',
+    HeroFlight.arc => 'Arc and glow',
     HeroFlight.morph => 'Morph (style, colour)',
     HeroFlight.fadeThrough => 'Fade through',
-    HeroFlight.arc => 'Arc path',
     HeroFlight.containerTransform => 'Container transform',
   };
 

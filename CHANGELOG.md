@@ -6,12 +6,75 @@
     - Presets: shared axis X/Y/Z, fade through, iOS push and modal, circular reveal, zoom, cover vertical, cube and flip.
   - `NavigationAction.routeTransition` and `ShowDialogAction.routeTransition`, used in place of the `transition` enum when set. Setting one on a dialog lets heroes fly into it.
     - Every `PageTransition` value still works, and `PageTransition.asRouteTransition` describes it as a `RouteTransition`.
-  - New hero flights: `morph` (text style and colour morph), `fadeThrough`, `arc` and `containerTransform`. New `BaseNode.heroPlaceholder` (`HeroPlaceholder`).
+  - New hero flights: `morph` (text style and colour morph), `fadeThrough` and `containerTransform`. New `BaseNode.heroPlaceholder` (`HeroPlaceholder`).
   - New `BaseNode.flip` (`FlipModel`): a two-sided card that turns on tap, from a variable or by drag.
   - New `BaseNode.tilt` (`TiltModel`): tilt on hover or drag, with parallax.
   - New `PageViewProperties.pageMotion`: per-page 3D for coverflow, cube and carousel.
   - These reuse `MotionModel`'s rotateX, rotateY and perspective.
   - `TransitionSpring` is a provisional stand-in for the Gestures project's shared physics model.
+
+## 9.3.0
+
+### Added
+
+- `AppIdentity`: a project's web and mobile app identity (name, short name,
+  title template with per-page overrides, description, keywords, canonical
+  URL, icons, theme and background colors, social card, PWA manifest,
+  splash screen, language, robots, adaptive icon and status bar), with
+  `merge`, `checklist()`, `toWebManifest()` and `IdentityAssets`.
+- `package:codelessly_api/genscreen.dart`: generates screens from a prompt
+  and a DESIGN.md design kit.
+  - `DesignMdParser`, `DesignMdWriter` and `DesignKit`, with line-numbered
+    issues, WCAG contrast checks and a content fingerprint.
+  - `kitThemeTokens`, `kitStyles`, `kitComponentLibrary` and
+    `exportDesignKit`.
+  - `ScreenPlanValidator`, `screenPlanJsonSchema` and `normalizePlan`.
+  - `ScreenCompiler`: responsive mobile, tablet and desktop trees with
+    content, loading, empty and error states.
+  - `checkOnBrand`, `ScreenPrompt`, `screenCacheKey` and `extractPlanJson`.
+  - `tool/genscreen.dart` command-line tool.
+- `AnimateVariableAction`: play, pause, resume, stop and seek a variable.
+- `MotionModel.keyframes` can be bound (`motion.keyframes`) to a list of
+  keyframe maps or its JSON.
+- `MotionModel.paused` and `MotionModel.phase`, both bindable.
+- `TextNode.fontFeatures`: OpenType feature settings such as `lnum`, `tnum`,
+  `ss01` and `liga=0`.
+- `LineHeight.leadingDistribution`: `proportional` (default) or `even`.
+- `BaseNode.key` is kept in JSON.
+- `ColorStop.bindingKey`: bindable gradient stops on fills, strokes and
+  foreground paints.
+- Drag tracks:
+  - Fine adjustment: `fineStep`, `finePixelsPerRange`, `fineHoldMs`,
+    `fineVariable` and `track.fine`.
+  - Animated value changes: `snapMs` and `snapCurve`.
+  - `write`, an optional `variable` (bindable through `track.value`),
+    `hitArea`, `input: both`, `wheelStep`, `keyStep`, `doubleTapValues` and
+    `units: parent`.
+  - Bindable geometry and range.
+  - `viewBoxWidth` / `viewBoxHeight` for path tracks drawn in their frame's
+    view box.
+  - `jumpOnTap` on arc tracks.
+- `ConfirmAction`: per-button borders, an icon, `centered`, `expandButtons`,
+  `width`, `maxWidth`, `insets`, `padding` and `buttonHeight`.
+- `ShowToastAction`: `rotation`, `enterCurve` and `enterOffset`; the action
+  button takes `actionBackgroundColor`, `actionBorder`, `actionShadows` and
+  `actionCornerRadius`.
+- `ScrollToAction.axis`: scroll only horizontal or vertical scroll views.
+- Pulse effects: `phase` and `delayMs`.
+- Rows and columns: `fillViewport`.
+- Switches: `thumbShadows` and `thumbInset`.
+- Hex colors are read as colors in formulas.
+
+### Changed
+
+- `ConfirmAction.title` defaults to an empty string.
+
+### Fixed
+
+- Rows and columns created with `type: row` or `type: column` keep
+  `ignorePointer`, `keepAspect` and `floating`.
+- `MotionModel.loopStart` applies every `enterFrom` value, including
+  `pathProgress`.
 
 ## 9.0.3
 

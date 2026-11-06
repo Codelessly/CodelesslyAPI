@@ -30,6 +30,13 @@ class ScrollToAction extends ActionModel with Equatable, SerializableMixin {
   /// that much room before the node, e.g. under a pinned header.
   final double offset;
 
+  /// Which scroll views to move: `horizontal` or `vertical` scrolls only
+  /// those along that axis and leaves the others where they are; null (the
+  /// default) scrolls every scroll view around the node. A phone's trail
+  /// map in a sideways-scrolling window centres a point of the map
+  /// (`horizontal`) without scrolling the page under it.
+  final String? axis;
+
   /// Creates a [ScrollToAction].
   ScrollToAction({
     this.nodeId = '',
@@ -37,6 +44,7 @@ class ScrollToAction extends ActionModel with Equatable, SerializableMixin {
     this.curve = MotionCurve.easeInOut,
     this.alignment = 0,
     this.offset = 0,
+    this.axis,
     super.nonBlocking,
     super.enabled,
   }) : super(type: ActionType.scrollTo);
@@ -48,18 +56,27 @@ class ScrollToAction extends ActionModel with Equatable, SerializableMixin {
     MotionCurve? curve,
     double? alignment,
     double? offset,
+    String? axis,
   }) => ScrollToAction(
     nodeId: nodeId ?? this.nodeId,
     durationMs: durationMs ?? this.durationMs,
     curve: curve ?? this.curve,
     alignment: alignment ?? this.alignment,
     offset: offset ?? this.offset,
+    axis: axis ?? this.axis,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
 
   @override
-  List<Object?> get props => [nodeId, durationMs, curve, alignment, offset];
+  List<Object?> get props => [
+    nodeId,
+    durationMs,
+    curve,
+    alignment,
+    offset,
+    axis,
+  ];
 
   /// Creates an instance from a JSON object.
   factory ScrollToAction.fromJson(Map json) => _$ScrollToActionFromJson(json);

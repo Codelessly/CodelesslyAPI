@@ -291,6 +291,7 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..tilt = json['tilt'] == null
           ? null
           : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -365,6 +366,7 @@ Map<String, dynamic> _$RectangleNodeToJson(
   'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
   'flip': ?instance.flip?.toJson(),
   'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'opacity': instance.opacity,
@@ -479,9 +481,9 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
   HeroFlight.morph: 'morph',
   HeroFlight.fadeThrough: 'fadeThrough',
-  HeroFlight.arc: 'arc',
   HeroFlight.containerTransform: 'containerTransform',
 };
 
