@@ -304,6 +304,62 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// Pixels for the whole range in fine mode.
   double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
 
+  /// The settings that can follow a variable or formula, as
+  /// `dragTrack.<name>` keys of [BaseNode.variables]: a dial whose one turn
+  /// is a month, a year or a century as the screen says binds
+  /// `dragTrack.endAngle` to `${= maxDays / unitDays * 360}`. Numbers, and
+  /// [path] as text.
+  static const List<String> bindable = [
+    'min',
+    'max',
+    'step',
+    'defaultValue',
+    'pixelsPerRange',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
+    'startAngle',
+    'endAngle',
+    'pivotX',
+    'pivotY',
+    'path',
+  ];
+
+  /// The key in [BaseNode.variables] that binds [setting].
+  static String variableKey(String setting) => 'dragTrack.$setting';
+
+  /// Returns a copy with [setting] (one of [bindable]) set from [value], a
+  /// bound variable's value: a number or numeric text (text for [path]).
+  /// Returns this unchanged when [value] can't be read as one.
+  DragTrackModel withBinding(String setting, Object? value) {
+    if (setting == 'path') {
+      return value is String && value.trim().isNotEmpty ? copyWith(path: value.trim()) : this;
+    }
+    final double? n = switch (value) {
+      num v => v.toDouble(),
+      String v => double.tryParse(v.trim()),
+      _ => null,
+    };
+    if (n == null || !n.isFinite) return this;
+    return switch (setting) {
+      'min' => copyWith(min: n),
+      'max' => copyWith(max: n),
+      'step' => copyWith(step: n < 0 ? 0 : n),
+      'defaultValue' => copyWith(defaultValue: n),
+      'pixelsPerRange' => copyWith(pixelsPerRange: n <= 0 ? pixelsPerRange : n),
+      'x1' => copyWith(x1: n),
+      'y1' => copyWith(y1: n),
+      'x2' => copyWith(x2: n),
+      'y2' => copyWith(y2: n),
+      'startAngle' => copyWith(startAngle: n),
+      'endAngle' => copyWith(endAngle: n),
+      'pivotX' => copyWith(pivotX: n),
+      'pivotY' => copyWith(pivotY: n),
+      _ => this,
+    };
+  }
+
   /// The key in [BaseNode.variables] that binds [defaultValue], so a
   /// control in a list can reset to its own item's default (each knob of a
   /// pedal has one): a `${...}` path or `${= ...}` formula giving a number,
