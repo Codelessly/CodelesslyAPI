@@ -155,6 +155,14 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// Whether [path] is measured in the frame's box ([viewBoxWidth]).
   bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+  /// For a line: [x1], [y1], [x2] and [y2] are multiples of the node's own
+  /// width and height instead of pixels, so the track scales with the node.
+  /// The track moves the node's centre, so a scrub area is a full-width
+  /// (transparent) node with `x1: -0.5, x2: 0.5`: at a value its centre,
+  /// and a knob centred in it, sits at that fraction across the space it
+  /// was laid out in, and a tap anywhere on it jumps there (a time bar, a
+  /// chart's scrub area).
+  final bool relative;
 
   /// Tapping the node's parent anywhere along the track moves the node
   /// there (a fader cap jumps to where its slot was tapped). On an arc, a
@@ -165,6 +173,69 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// Whether the mouse wheel steps the value.
   final bool wheel;
+
+  /// A finer step for precise adjustment; 0 (the default) has no fine mode.
+  /// The track is in fine mode while Shift is held, or after the pointer is
+  /// pressed and held still for [fineHoldMs] before dragging: the value then
+  /// moves in [fineStep]s, [finePixelsPerRange] pixels for the whole range,
+  /// and `${track.fine}` is true (a FINE lamp). Shift + wheel steps by it.
+  final double fineStep;
+
+  /// Pixels of drag for the whole range in fine mode; 0 is four times
+  /// [pixelsPerRange].
+  final double finePixelsPerRange;
+
+  /// How long the pointer must be held still to enter fine mode; 0 turns
+  /// hold-to-fine off (Shift still works).
+  final int fineHoldMs;
+
+  /// A boolean variable, by name, the track keeps true while in fine mode,
+  /// for nodes outside the track (its children read `${track.fine}`).
+  final String? fineVariable;
+
+  /// Animates the node to each new value over this many milliseconds, along
+  /// [snapCurve], instead of jumping: a knob clicking from detent to detent.
+  /// 0 jumps.
+  final int snapMs;
+
+  /// Whether dragging writes [variable]. Off, the track only shows the
+  /// variable (which may then be a computed one, such as a timer's time
+  /// left) and its `changed` / `dragEnd` reactions set whatever should
+  /// change, from `${result.value}`.
+  final bool write;
+
+  /// The curve of [snapMs]: linear, easeIn, easeOut, easeInOut,
+  /// easeOutCubic, easeOutBack (default, a slight overshoot), elasticOut,
+  /// bounceOut.
+  final String snapCurve;
+  /// For an arc: the value isn't held to [min]..[max] and the node keeps
+  /// turning past the arc's ends, a turn per [min]..[max] when the arc
+  /// spans 360° (a combination dial: 40 numbers a turn, as many turns as
+  /// you like). Read the number under an index with `mod`, e.g.
+  /// `${= mod(0 - dial, 40)}`.
+  final bool endless;
+
+  /// Let go while it moves and it keeps going, slowing by [friction], then
+  /// settles on a [step]: a dial spun with a flick. Off, it stops where it
+  /// is let go.
+  final bool momentum;
+
+  /// How fast a [momentum] coast slows, per second: the speed falls to
+  /// about a third each `1 / friction` seconds (2.6 coasts about a third of
+  /// a second at full speed).
+  final double friction;
+
+  /// Draws the node where the pointer has it, between [step]s, while it is
+  /// dragged or coasting, and springs it onto the nearest step when it comes
+  /// to rest (the variable only ever holds whole steps). Off, the node jumps
+  /// from step to step.
+  final bool smooth;
+
+  /// How far the node moves for a given pointer movement: 1 follows the
+  /// pointer, 0.5 needs twice the movement (fine), 2 half (coarse). Bind it
+  /// with `variables['track.gain']` to a setting such as a dial's
+  /// sensitivity.
+  final double gain;
 
   /// Creates a [DragTrackModel].
   const DragTrackModel({
@@ -189,30 +260,174 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.orientToPath = false,
     this.viewBoxWidth = 0,
     this.viewBoxHeight = 0,
+    this.relative = false,
     this.jumpOnTap = false,
     this.wheel = true,
+    this.fineStep = 0,
+    this.finePixelsPerRange = 0,
+    this.fineHoldMs = 380,
+    this.fineVariable,
+    this.snapMs = 0,
+    this.snapCurve = 'easeOutBack',
+    this.write = true,
+    this.endless = false,
+    this.momentum = false,
+    this.friction = 2.6,
+    this.smooth = false,
+    this.gain = 1,
   });
 
+  /// The node variable that binds [gain].
+  static const String gainVariableKey = 'track.gain';
+
+  /// The node variables that bind [min], [max] and [step] (numbers or
+  /// formulas): a dial with 40 or 100 numbers a turn, from data.
+  static const String minVariableKey = 'track.min';
+
+  /// See [minVariableKey].
+  static const String maxVariableKey = 'track.max';
+
+  /// See [minVariableKey].
+  static const String stepVariableKey = 'track.step';
+
+  /// The node variables that bind [momentum] and [smooth] (a Reduce motion
+  /// setting turns coasting and the snap animation off).
+  static const String momentumVariableKey = 'track.momentum';
+
+  /// See [momentumVariableKey].
+  static const String smoothVariableKey = 'track.smooth';
+
+  /// The node variables that bind a line's ends ([x1], [y1], [x2], [y2]):
+  /// a slider whose throw follows its groove's laid-out width,
+  /// `variables['track.x2'] = '${= parent.width - 26}'`.
+  static const String x1VariableKey = 'track.x1';
+
+  /// See [x1VariableKey].
+  static const String y1VariableKey = 'track.y1';
+
+  /// See [x1VariableKey].
+  static const String x2VariableKey = 'track.x2';
+
+  /// See [x1VariableKey].
+  static const String y2VariableKey = 'track.y2';
+
+  /// Whether the value is unbounded ([endless] on an arc).
+  bool get unbounded => endless && shape == DragTrackShape.arc;
+
   /// The names of the live values the `track` variable has.
-  static const List<String> liveValues = ['value', 'progress', 'dragging'];
+  static const List<String> liveValues = ['value', 'progress', 'dragging', 'fine'];
+
+  /// Whether the track has a fine mode.
+  bool get hasFine => fineStep > 0;
+
+  /// Pixels for the whole range in fine mode.
+  double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
+
+  /// The settings that can follow a variable or formula, as
+  /// `dragTrack.<name>` keys of [BaseNode.variables]: a dial whose one turn
+  /// is a month, a year or a century as the screen says binds
+  /// `dragTrack.endAngle` to `${= maxDays / unitDays * 360}`. Numbers, and
+  /// [path] as text.
+  static const List<String> bindable = [
+    'min',
+    'max',
+    'step',
+    'defaultValue',
+    'pixelsPerRange',
+    'x1',
+    'y1',
+    'x2',
+    'y2',
+    'startAngle',
+    'endAngle',
+    'pivotX',
+    'pivotY',
+    'path',
+  ];
+
+  /// The key in [BaseNode.variables] that binds [setting].
+  static String variableKey(String setting) => 'dragTrack.$setting';
+
+  /// Returns a copy with [setting] (one of [bindable]) set from [value], a
+  /// bound variable's value: a number or numeric text (text for [path]).
+  /// Returns this unchanged when [value] can't be read as one.
+  DragTrackModel withBinding(String setting, Object? value) {
+    if (setting == 'path') {
+      return value is String && value.trim().isNotEmpty ? copyWith(path: value.trim()) : this;
+    }
+    final double? n = switch (value) {
+      num v => v.toDouble(),
+      String v => double.tryParse(v.trim()),
+      _ => null,
+    };
+    if (n == null || !n.isFinite) return this;
+    return switch (setting) {
+      'min' => copyWith(min: n),
+      'max' => copyWith(max: n),
+      'step' => copyWith(step: n < 0 ? 0 : n),
+      'defaultValue' => copyWith(defaultValue: n),
+      'pixelsPerRange' => copyWith(pixelsPerRange: n <= 0 ? pixelsPerRange : n),
+      'x1' => copyWith(x1: n),
+      'y1' => copyWith(y1: n),
+      'x2' => copyWith(x2: n),
+      'y2' => copyWith(y2: n),
+      'startAngle' => copyWith(startAngle: n),
+      'endAngle' => copyWith(endAngle: n),
+      'pivotX' => copyWith(pivotX: n),
+      'pivotY' => copyWith(pivotY: n),
+      _ => this,
+    };
+  }
+
+  /// The key in [BaseNode.variables] that binds [defaultValue], so a
+  /// control in a list can reset to its own item's default (each knob of a
+  /// pedal has one): a `${...}` path or `${= ...}` formula giving a number,
+  /// e.g. `${item.knobs[0].default}`. A binding that gives no number keeps
+  /// [defaultValue].
+  static const String defaultValueVariable = 'track.defaultValue';
 
   /// Where [value] is along the track, from 0 at [min] to 1 at [max].
+  /// An [endless] arc's progress goes past 0 and 1 (2 is a second turn).
   double progressOf(double value) {
     if (max == min) return 0;
-    return ((value - min) / (max - min)).clamp(0.0, 1.0);
+    final double p = (value - min) / (max - min);
+    return unbounded ? p : p.clamp(0.0, 1.0);
   }
 
   /// The value at [progress] along the track, snapped to [step].
-  double valueAt(double progress) => snap(min + (max - min) * progress.clamp(0.0, 1.0));
+  double valueAt(double progress) =>
+      snap(min + (max - min) * (unbounded ? progress : progress.clamp(0.0, 1.0)));
 
-  /// [value] snapped to [step] (counted from [min]) and kept in range.
-  double snap(double value) {
+  /// [value] snapped to [fineStep] (counted from [min]) and kept in range.
+  double snapFine(double value) => snapTo(value, hasFine ? fineStep : step);
+
+  /// [value] snapped to [by] (counted from [min]; 0 is continuous) and kept
+  /// in range.
+  double snapTo(double value, double by) {
     final double lo = min < max ? min : max;
     final double hi = min < max ? max : min;
     double v = value.clamp(lo, hi);
+    if (by > 0) {
+      v = min + ((v - min) / by).round() * by;
+      v = v.clamp(lo, hi);
+      v = double.parse(v.toStringAsFixed(6));
+    }
+    return v;
+  }
+
+  /// [progress] held to the track (any progress on an [endless] arc).
+  double clampProgress(double progress) =>
+      unbounded ? progress : progress.clamp(0.0, 1.0);
+
+  /// [value] snapped to [step] (counted from [min]) and kept in range (an
+  /// [endless] arc has no range).
+  double snap(double value) {
+    final double lo = min < max ? min : max;
+    final double hi = min < max ? max : min;
+    double v = unbounded ? value : value.clamp(lo, hi);
     if (step > 0) {
       v = min + ((v - min) / step).round() * step;
-      v = v.clamp(lo, hi);
+      if (!unbounded) v = v.clamp(lo, hi);
       // Keep 0.1 steps from turning into 0.30000000000000004.
       v = double.parse(v.toStringAsFixed(6));
     }
@@ -224,7 +439,7 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// The rotation of an arc at [progress], in degrees.
   double angleAt(double progress) =>
-      startAngle + (endAngle - startAngle) * progress.clamp(0.0, 1.0);
+      startAngle + (endAngle - startAngle) * clampProgress(progress);
 
   /// Returns a copy with the given values replaced.
   DragTrackModel copyWith({
@@ -250,8 +465,22 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? orientToPath,
     double? viewBoxWidth,
     double? viewBoxHeight,
+    bool? relative,
     bool? jumpOnTap,
     bool? wheel,
+    double? fineStep,
+    double? finePixelsPerRange,
+    int? fineHoldMs,
+    String? fineVariable,
+    bool clearFineVariable = false,
+    int? snapMs,
+    String? snapCurve,
+    bool? write,
+    bool? endless,
+    bool? momentum,
+    double? friction,
+    bool? smooth,
+    double? gain,
   }) => DragTrackModel(
     shape: shape ?? this.shape,
     variable: variable ?? this.variable,
@@ -274,8 +503,21 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath: orientToPath ?? this.orientToPath,
     viewBoxWidth: viewBoxWidth ?? this.viewBoxWidth,
     viewBoxHeight: viewBoxHeight ?? this.viewBoxHeight,
+    relative: relative ?? this.relative,
     jumpOnTap: jumpOnTap ?? this.jumpOnTap,
     wheel: wheel ?? this.wheel,
+    fineStep: fineStep ?? this.fineStep,
+    finePixelsPerRange: finePixelsPerRange ?? this.finePixelsPerRange,
+    fineHoldMs: fineHoldMs ?? this.fineHoldMs,
+    fineVariable: clearFineVariable ? null : (fineVariable ?? this.fineVariable),
+    snapMs: snapMs ?? this.snapMs,
+    snapCurve: snapCurve ?? this.snapCurve,
+    write: write ?? this.write,
+    endless: endless ?? this.endless,
+    momentum: momentum ?? this.momentum,
+    friction: friction ?? this.friction,
+    smooth: smooth ?? this.smooth,
+    gain: gain ?? this.gain,
   );
 
   @override
@@ -301,8 +543,21 @@ class DragTrackModel with Equatable, SerializableMixin {
     orientToPath,
     viewBoxWidth,
     viewBoxHeight,
+    relative,
     jumpOnTap,
     wheel,
+    fineStep,
+    finePixelsPerRange,
+    fineHoldMs,
+    fineVariable,
+    snapMs,
+    snapCurve,
+    write,
+    endless,
+    momentum,
+    friction,
+    smooth,
+    gain,
   ];
 
   /// Creates a [DragTrackModel] from JSON.

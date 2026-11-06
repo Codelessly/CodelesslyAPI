@@ -96,7 +96,10 @@ enum ActionType {
   playSound,
 
   /// Play a node's one-shot animation or particles.
-  playAnimation;
+  playAnimation,
+
+  /// Buzzes the device; see [HapticAction].
+  haptic;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -163,6 +166,8 @@ enum ActionType {
         return 'Play Sound';
       case ActionType.playAnimation:
         return 'Play Animation';
+      case ActionType.haptic:
+        return 'Haptic Feedback';
     }
   }
 }
@@ -274,6 +279,8 @@ abstract class ActionModel with SerializableMixin {
         return PlaySoundAction.fromJson(json);
       case ActionType.playAnimation:
         return PlayAnimationAction.fromJson(json);
+      case ActionType.haptic:
+        return HapticAction.fromJson(json);
     }
   }
 
