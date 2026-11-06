@@ -790,8 +790,14 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [ControlDragAction].
   R? visitControlDragAction(ControlDragAction action);
 
+  /// Visits an [AnimateVariableAction].
+  R? visitAnimateVariableAction(AnimateVariableAction action);
+
   /// Visits a [SpeakAction].
   R? visitSpeakAction(SpeakAction action);
+
+  /// Visits a [HapticAction].
+  R? visitHapticAction(HapticAction action);
 
   /// Visits a [ScrollToAction].
   R? visitScrollToAction(ScrollToAction action);

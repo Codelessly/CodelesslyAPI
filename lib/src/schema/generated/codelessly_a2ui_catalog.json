@@ -1213,6 +1213,9 @@
                 },
                 "allowImplicitScrolling": {
                   "type": "boolean"
+                },
+                "animationDurationMs": {
+                  "type": "integer"
                 }
               }
             }
@@ -1758,6 +1761,12 @@
                 },
                 "trackOutlineWidth": {
                   "type": "number"
+                },
+                "uniformThumb": {
+                  "type": "boolean"
+                },
+                "fillTrack": {
+                  "type": "boolean"
                 }
               }
             }
