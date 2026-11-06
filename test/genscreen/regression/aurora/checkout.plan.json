@@ -1,0 +1,102 @@
+{
+  "title": "Checkout",
+  "summary": "Collects shipping and payment details and confirms the order total before payment.",
+  "pattern": "checkout",
+  "appBar": {"title": "Checkout", "leading": "back"},
+  "data": {
+    "items": [
+      {"name": "Merino crew sweater", "variant": "Navy · M · Qty 1", "price": "$128.00", "image": "https://picsum.photos/seed/sweater/200/200"},
+      {"name": "Leather card holder", "variant": "Tan · Qty 1", "price": "$45.00", "image": "https://picsum.photos/seed/cardholder/200/200"},
+      {"name": "Wool socks, 3 pack", "variant": "Grey · Qty 2", "price": "$36.00", "image": "https://picsum.photos/seed/socks/200/200"}
+    ],
+    "summary": {"subtotal": "$209.00", "shipping": "$8.50", "tax": "$17.24", "discount": "-$20.90", "total": "$213.84"}
+  },
+  "variables": [
+    {"name": "fullName", "type": "text", "value": "Maya Chen"},
+    {"name": "address", "type": "text", "value": "214 Mercer Street, Apt 5B"},
+    {"name": "city", "type": "text", "value": "New York"},
+    {"name": "postcode", "type": "text", "value": "10012"},
+    {"name": "delivery", "type": "text", "value": "Standard"},
+    {"name": "cardNumber", "type": "text", "value": ""},
+    {"name": "expiry", "type": "text", "value": ""},
+    {"name": "cvc", "type": "text", "value": ""},
+    {"name": "saveCard", "type": "boolean", "value": true}
+  ],
+  "sections": [
+    {
+      "id": "shipping",
+      "title": "Shipping address",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Full name", "bind": "fullName", "kind": "text"},
+        {"type": "input", "label": "Street address", "bind": "address", "kind": "text", "icon": "location_on"},
+        {
+          "type": "group",
+          "direction": "row",
+          "gap": "md",
+          "children": [
+            {"type": "input", "label": "City", "bind": "city", "kind": "text"},
+            {"type": "input", "label": "ZIP code", "bind": "postcode", "kind": "number"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Delivery",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "segmented", "options": ["Standard", "Express"], "bind": "delivery"},
+        {"type": "text", "text": "Standard arrives Nov 10–12. Express arrives Nov 7 for $14.00.", "style": "caption", "color": "onSurfaceVariant"}
+      ]
+    },
+    {
+      "id": "payment",
+      "title": "Payment",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Card number", "bind": "cardNumber", "kind": "number", "hint": "1234 5678 9012 3456", "icon": "credit_card"},
+        {
+          "type": "group",
+          "direction": "row",
+          "gap": "md",
+          "children": [
+            {"type": "input", "label": "Expiry", "bind": "expiry", "kind": "text", "hint": "MM/YY"},
+            {"type": "input", "label": "CVC", "bind": "cvc", "kind": "number", "hint": "3 digits"}
+          ]
+        },
+        {"type": "checkbox", "label": "Save this card for next time", "bind": "saveCard"}
+      ]
+    },
+    {
+      "id": "summary",
+      "title": "Order summary",
+      "area": "aside",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${items}",
+          "item": {"type": "listRow", "title": "${item.name}", "subtitle": "${item.variant}", "leading": {"image": "${item.image}"}, "trailing": {"text": "${item.price}"}}
+        },
+        {"type": "divider"},
+        {"type": "keyValue", "label": "Subtotal", "value": "${summary.subtotal}"},
+        {"type": "keyValue", "label": "Discount (WELCOME10)", "value": "${summary.discount}"},
+        {"type": "keyValue", "label": "Shipping", "value": "${summary.shipping}"},
+        {"type": "keyValue", "label": "Estimated tax", "value": "${summary.tax}"},
+        {"type": "divider"},
+        {"type": "keyValue", "label": "Total", "value": "${summary.total}", "emphasis": true},
+        {"type": "button", "label": "Pay $213.84", "icon": "lock", "variant": "primary", "fullWidth": true, "action": {"type": "submit", "message": "Payment confirmed. Order #48213 is on its way.", "then": {"type": "navigate", "to": "Order confirmation"}}},
+        {"type": "text", "text": "Payments are encrypted and processed securely.", "style": "caption", "color": "onSurfaceVariant", "align": "center"}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "shopping_cart", "title": "Your cart is empty", "message": "Add items to your cart to check out.", "action": {"label": "Continue shopping", "action": {"type": "navigate", "to": "Shop"}}},
+    "error": {"icon": "error_outline", "title": "Couldn't load checkout", "message": "You haven't been charged. Check your connection and try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

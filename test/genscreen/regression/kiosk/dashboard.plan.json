@@ -1,0 +1,128 @@
+{
+  "title": "Analytics",
+  "summary": "Shows store performance: revenue, orders, conversion, top sellers and recent activity.",
+  "pattern": "dashboard",
+  "appBar": {
+    "title": "Analytics",
+    "actions": [
+      {"icon": "download", "label": "Export", "action": {"type": "toast", "message": "Report exported"}},
+      {"icon": "refresh", "label": "Refresh", "action": {"type": "retry"}}
+    ]
+  },
+  "nav": {
+    "items": [
+      {"icon": "dashboard", "label": "Stats", "active": true, "action": {"type": "navigate", "to": "Analytics"}},
+      {"icon": "inventory", "label": "Stock", "action": {"type": "navigate", "to": "Inventory"}},
+      {"icon": "receipt_long", "label": "Orders", "action": {"type": "navigate", "to": "Orders"}},
+      {"icon": "settings", "label": "Settings", "action": {"type": "navigate", "to": "Settings"}}
+    ]
+  },
+  "data": {
+    "kpis": {"revenue": "$48,920", "revenueDelta": "+18%", "orders": "1,284", "ordersDelta": "+9%", "conversion": "3.4%", "conversionDelta": "-0.3%", "aov": "$38.10", "aovDelta": "+6%"},
+    "goal": {"value": 0.82, "label": "$48.9k of $60k", "caption": "November revenue goal"},
+    "topProducts": [
+      {"name": "Static Boxy Tee", "sold": "312 sold", "revenue": "$14,976", "image": "https://picsum.photos/seed/boxytee/200/200"},
+      {"name": "Riot Fleece Hoodie", "sold": "148 sold", "revenue": "$14,208", "image": "https://picsum.photos/seed/riothoodie/200/200"},
+      {"name": "Zine Cargo Pant", "sold": "96 sold", "revenue": "$11,328", "image": "https://picsum.photos/seed/cargopant/200/200"},
+      {"name": "Ink Blot Cap", "sold": "171 sold", "revenue": "$8,208", "image": "https://picsum.photos/seed/inkcap/200/200"}
+    ],
+    "channels": [
+      {"name": "Instagram", "share": 0.42, "label": "42%"},
+      {"name": "Direct", "share": 0.27, "label": "27%"},
+      {"name": "TikTok", "share": 0.19, "label": "19%"},
+      {"name": "Email", "share": 0.12, "label": "12%"}
+    ],
+    "activity": [
+      {"title": "Order KSK-88291 placed", "time": "2 min ago", "icon": "shopping_bag"},
+      {"title": "Riot Fleece Hoodie low on stock (M)", "time": "18 min ago", "icon": "warning"},
+      {"title": "Refund issued for KSK-88102", "time": "1 hr ago", "icon": "replay"},
+      {"title": "Friday drop scheduled", "time": "3 hr ago", "icon": "event"}
+    ]
+  },
+  "variables": [
+    {"name": "range", "type": "text", "value": "30 days"}
+  ],
+  "sections": [
+    {
+      "id": "range",
+      "area": "full",
+      "layout": "row",
+      "children": [
+        {"type": "heading", "title": "How's the shop doing", "subtitle": "Nov 2026"},
+        {"type": "segmented", "options": ["7 days", "30 days", "90 days"], "bind": "range"}
+      ]
+    },
+    {
+      "id": "kpis",
+      "area": "full",
+      "layout": "grid",
+      "columns": {"mobile": 2, "desktop": 4},
+      "children": [
+        {"type": "stat", "label": "Revenue", "value": "${kpis.revenue}", "delta": "${kpis.revenueDelta}", "tone": "success"},
+        {"type": "stat", "label": "Orders", "value": "${kpis.orders}", "delta": "${kpis.ordersDelta}", "tone": "success"},
+        {"type": "stat", "label": "Conversion", "value": "${kpis.conversion}", "delta": "${kpis.conversionDelta}", "tone": "error"},
+        {"type": "stat", "label": "Avg order", "value": "${kpis.aov}", "delta": "${kpis.aovDelta}", "tone": "success"}
+      ]
+    },
+    {
+      "id": "alert",
+      "area": "full",
+      "children": [
+        {"type": "banner", "tone": "warning", "icon": "warning", "title": "3 products running low", "message": "Restock before Friday's drop.", "action": {"label": "View stock", "action": {"type": "navigate", "to": "Inventory"}}}
+      ]
+    },
+    {
+      "id": "top",
+      "title": "Top sellers",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${topProducts}",
+          "item": {"type": "listRow", "title": "${item.name}", "subtitle": "${item.sold}", "leading": {"image": "${item.image}"}, "trailing": {"text": "${item.revenue}"}, "action": {"type": "navigate", "to": "Product stats", "params": {"name": "${item.name}"}}}
+        }
+      ]
+    },
+    {
+      "id": "goal",
+      "title": "Monthly goal",
+      "area": "aside",
+      "layout": "stack",
+      "children": [
+        {"type": "progress", "value": "${goal.value}", "label": "${goal.label}", "caption": "${goal.caption}", "color": "primary"}
+      ]
+    },
+    {
+      "id": "channels",
+      "title": "Where sales come from",
+      "area": "aside",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${channels}",
+          "item": {"type": "progress", "value": "${item.share}", "label": "${item.name}", "caption": "${item.label}", "color": "secondary"}
+        }
+      ]
+    },
+    {
+      "id": "activity",
+      "title": "Latest",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${activity}",
+          "item": {"type": "listRow", "title": "${item.title}", "subtitle": "${item.time}", "leading": {"icon": "${item.icon}"}}
+        }
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "insights", "title": "No sales yet", "message": "Numbers show up after your first order. Share your shop to get one.", "action": {"label": "Share shop", "action": {"type": "toast", "message": "Shop link copied"}}},
+    "error": {"icon": "error_outline", "title": "Stats went dark", "message": "We couldn't load your numbers. Try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

@@ -593,6 +593,14 @@ abstract class BaseNode
   /// standard way ([HeroFlight.standard]).
   HeroFlight? heroFlight;
 
+  /// A name for this node that its tree gives it, unique within the tree
+  /// (e.g. `"content"` for the slot a layout fills). The editor API's
+  /// `nodes.insertTree` reads it so actions and interaction states of the
+  /// same tree can name the node before it has an ID, and keeps it so
+  /// `nodes.export` gives the tree back with its keys. Null for none; it
+  /// does not affect rendering.
+  String? key;
+
   /// Width divided by height that the node keeps at runtime, e.g.
   /// `340 / 214` for a card: when its width follows its parent (it fills,
   /// is expanded or pinned on both sides) its height is that width over

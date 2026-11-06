@@ -1,0 +1,365 @@
+# mobile daddb7e3
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section search" expanded/shrinkWrap
+            column "Input Search" expanded/shrinkWrap
+              text "Field label" expanded/shrinkWrap
+              row "Field box" expanded/fixed
+                icon "Icon search" fixed/fixed
+                textField "Input query" expanded/shrinkWrap
+            row "Chips" expanded/shrinkWrap
+              row "Chip All" shrinkWrap/fixed
+                text "Chip label" shrinkWrap/shrinkWrap
+              row "Chip Road" shrinkWrap/fixed
+                text "Chip label" shrinkWrap/shrinkWrap
+              row "Chip Trail" shrinkWrap/fixed
+                text "Chip label" shrinkWrap/shrinkWrap
+              row "Chip Everyday" shrinkWrap/fixed
+                text "Chip label" shrinkWrap/shrinkWrap
+              row "Chip Under $130" shrinkWrap/fixed
+                text "Chip label" shrinkWrap/shrinkWrap
+          column "Section results" expanded/shrinkWrap
+            row "Group" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+              row "Button Sort" shrinkWrap/fixed
+                icon "Icon sort" fixed/fixed
+                text "Label" shrinkWrap/shrinkWrap
+            gridView "Grid" expanded/shrinkWrap
+              column "Card ${item.name}" expanded/expanded
+                rectangle "Card image" expanded/fixed
+                column "Card body" expanded/shrinkWrap
+                  text "Eyebrow" expanded/shrinkWrap
+                  text "Card title" expanded/shrinkWrap
+                  row "Meta" expanded/shrinkWrap
+                    text "Price" shrinkWrap/shrinkWrap
+                    text "Meta" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section search" expanded/shrinkWrap
+            column "Input Search" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Field box" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton" expanded/fixed
+            row "Chips" expanded/shrinkWrap
+              row "Chip All" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Chip Road" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Chip Trail" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Chip Everyday" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Chip Under $130" shrinkWrap/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+          column "Section results" expanded/shrinkWrap
+            row "Group" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Button Sort" shrinkWrap/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+            gridView "Grid" expanded/shrinkWrap
+              column "Card ${item.name}" expanded/expanded
+                rectangle "Card image" expanded/fixed
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Meta" expanded/shrinkWrap
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon search" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Clear filters" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+  row "Bottom nav" expanded/fixed
+    column "Nav Home" expanded/expanded
+      icon "Icon home" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Search" expanded/expanded
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon search" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Saved" expanded/expanded
+      icon "Icon favorite_border" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Profile" expanded/expanded
+      icon "Icon person_outline" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+
+# tablet d674d860
+row "Screen" expanded/expanded
+  column "Rail" fixed/expanded
+    column "Nav Home" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon home" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Search" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon search" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Saved" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon favorite_border" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Profile" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon person_outline" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+  column "Screen" expanded/expanded
+    row "App bar" expanded/fixed
+      row "App bar content" expanded/expanded
+        row "Icon button Back" fixed/fixed
+          icon "Icon arrow_back" fixed/fixed
+        text "App bar title" expanded/shrinkWrap
+    variance "States" expanded/expanded
+      variant content
+        column "Scroll" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section search" expanded/shrinkWrap
+              column "Input Search" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon search" fixed/fixed
+                  textField "Input query" expanded/shrinkWrap
+              row "Chips" expanded/shrinkWrap
+                row "Chip All" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Road" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Trail" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Everyday" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Under $130" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+            column "Section results" expanded/shrinkWrap
+              row "Group" expanded/shrinkWrap
+                text "Text" expanded/shrinkWrap
+                row "Button Sort" shrinkWrap/fixed
+                  icon "Icon sort" fixed/fixed
+                  text "Label" shrinkWrap/shrinkWrap
+              gridView "Grid" expanded/shrinkWrap
+                column "Card ${item.name}" expanded/expanded
+                  rectangle "Card image" expanded/fixed
+                  column "Card body" expanded/shrinkWrap
+                    text "Eyebrow" expanded/shrinkWrap
+                    text "Card title" expanded/shrinkWrap
+                    row "Meta" expanded/shrinkWrap
+                      text "Price" shrinkWrap/shrinkWrap
+                      text "Meta" expanded/shrinkWrap
+      variant loading
+        column "Loading skeleton" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section search" expanded/shrinkWrap
+              column "Input Search" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+              row "Chips" expanded/shrinkWrap
+                row "Chip All" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Road" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Trail" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Everyday" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Under $130" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+            column "Section results" expanded/shrinkWrap
+              row "Group" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Button Sort" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              gridView "Grid" expanded/shrinkWrap
+                column "Card ${item.name}" expanded/expanded
+                  rectangle "Card image" expanded/fixed
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Meta" expanded/shrinkWrap
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+      variant empty
+        column "Empty state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon search" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Clear filters" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+      variant error
+        column "Error state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon error_outline" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Try again" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+
+# desktop f6a91d68
+row "Screen" expanded/expanded
+  column "Sidebar" fixed/expanded
+    row "Nav Home" expanded/fixed
+      icon "Icon home" fixed/fixed
+      text "Nav label" expanded/shrinkWrap
+    row "Nav Search" expanded/fixed
+      icon "Icon search" fixed/fixed
+      text "Nav label" expanded/shrinkWrap
+    row "Nav Saved" expanded/fixed
+      icon "Icon favorite_border" fixed/fixed
+      text "Nav label" expanded/shrinkWrap
+    row "Nav Profile" expanded/fixed
+      icon "Icon person_outline" fixed/fixed
+      text "Nav label" expanded/shrinkWrap
+  column "Screen" expanded/expanded
+    row "App bar" expanded/fixed
+      row "App bar content" expanded/expanded
+        row "Icon button Back" fixed/fixed
+          icon "Icon arrow_back" fixed/fixed
+        text "App bar title" expanded/shrinkWrap
+    variance "States" expanded/expanded
+      variant content
+        column "Scroll" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section search" expanded/shrinkWrap
+              column "Input Search" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon search" fixed/fixed
+                  textField "Input query" expanded/shrinkWrap
+              row "Chips" expanded/shrinkWrap
+                row "Chip All" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Road" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Trail" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Everyday" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Under $130" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+            column "Section results" expanded/shrinkWrap
+              row "Group" expanded/shrinkWrap
+                text "Text" expanded/shrinkWrap
+                row "Button Sort" shrinkWrap/fixed
+                  icon "Icon sort" fixed/fixed
+                  text "Label" shrinkWrap/shrinkWrap
+              gridView "Grid" expanded/shrinkWrap
+                column "Card ${item.name}" expanded/expanded
+                  rectangle "Card image" expanded/fixed
+                  column "Card body" expanded/shrinkWrap
+                    text "Eyebrow" expanded/shrinkWrap
+                    text "Card title" expanded/shrinkWrap
+                    row "Meta" expanded/shrinkWrap
+                      text "Price" shrinkWrap/shrinkWrap
+                      text "Meta" expanded/shrinkWrap
+      variant loading
+        column "Loading skeleton" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section search" expanded/shrinkWrap
+              column "Input Search" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+              row "Chips" expanded/shrinkWrap
+                row "Chip All" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Road" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Trail" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Everyday" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Under $130" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+            column "Section results" expanded/shrinkWrap
+              row "Group" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Button Sort" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              gridView "Grid" expanded/shrinkWrap
+                column "Card ${item.name}" expanded/expanded
+                  rectangle "Card image" expanded/fixed
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Meta" expanded/shrinkWrap
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+      variant empty
+        column "Empty state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon search" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Clear filters" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+      variant error
+        column "Error state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon error_outline" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Try again" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
