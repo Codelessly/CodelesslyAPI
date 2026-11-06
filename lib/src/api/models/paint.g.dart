@@ -22,6 +22,8 @@ Map<String, dynamic> _$PaintModelOmitDefaults(
     json.remove('gradientRadius');
   if (isJsonDefault(instance.gradientTileMode, GradientTileMode.clamp))
     json.remove('gradientTileMode');
+  if (isJsonDefault(instance.gradientPerSubpath, false))
+    json.remove('gradientPerSubpath');
   if (isJsonDefault(instance.fit, Fit.none)) json.remove('fit');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
     json.remove('alignment');
@@ -79,6 +81,8 @@ PaintModel _$PaintModelFromJson(Map json) => PaintModel(
         json['gradientTileMode'],
       ) ??
       GradientTileMode.clamp,
+  gradientPerSubpath:
+      _readGradientPerSubpath(json, 'gradientPerSubpath') as bool? ?? false,
   imageTransform: (json['imageTransform'] as List<dynamic>?)
       ?.map((e) => (e as List<dynamic>).map((e) => e as num).toList())
       .toList(),
@@ -126,6 +130,7 @@ Map<String, dynamic> _$PaintModelToJson(PaintModel instance) =>
       'gradientEndX': ?instance.gradientEndX,
       'gradientEndY': ?instance.gradientEndY,
       'gradientTileMode': _$GradientTileModeEnumMap[instance.gradientTileMode]!,
+      'gradientPerSubpath': instance.gradientPerSubpath,
       'imageTransform': ?instance.imageTransform,
       'downloadUrl': ?instance.downloadUrl,
       'imageName': ?instance.imageName,

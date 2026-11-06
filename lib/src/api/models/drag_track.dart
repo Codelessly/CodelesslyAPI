@@ -103,14 +103,15 @@ enum DragTrackUnits {
 /// changes, like [MotionModel]); dragging it writes the variable, so
 /// everything bound to the variable follows, and changing the variable
 /// elsewhere moves the node. Double tap resets to [defaultValue], the mouse
-/// wheel steps the value.
+/// wheel and the arrow keys (see [keyboard]) step the value.
 ///
 /// Positions are in logical pixels relative to where the node is laid out:
 /// a fader cap laid out at the bottom of its slot has `y2: -250` for a
 /// 250px throw. Angles are in degrees, clockwise, 0 pointing up.
 ///
 /// While dragged, the node and its children read `${track.value}`,
-/// `${track.progress}` (0 to 1) and `${track.dragging}`. Each change runs
+/// `${track.progress}` (0 to 1), `${track.dragging}`, `${track.fine}` and
+/// `${track.focused}`. Each change runs
 /// the node's `changed` reactions with `${result.value}`; letting go runs
 /// its `dragEnd` reactions.
 ///
@@ -123,7 +124,8 @@ enum DragTrackUnits {
 /// `track.max`, `track.x1`, `track.y1`, `track.x2`, `track.y2`,
 /// `track.pivotX`, `track.pivotY`, `track.startAngle`, `track.endAngle`
 /// and `track.path` bind the geometry (`${= parent.width - 150}`), see
-/// [bindableFields].
+/// [bindableFields]; `track.step` and `track.pixelsPerRange` bind those
+/// settings (a deck whose range follows its frame count).
 @JsonSerializable()
 class DragTrackModel with Equatable, SerializableMixin {
   /// The track's geometry.
@@ -192,6 +194,17 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// For a path: turn the node to follow the path's direction.
   final bool orientToPath;
 
+  /// With [orientToPath], keeps the node from turning upside down: the
+  /// path's direction is folded into -90 to 90 degrees (turned half round
+  /// where the path heads left), as [MotionModel.orientUpright] does.
+  final bool orientUpright;
+
+  /// Tapping anywhere along the track moves the node there, then the drag
+  /// goes on from there: a fader cap jumps to where its slot was tapped
+  /// (the nearest point of a line or path), a dial to the angle tapped
+  /// around its pivot, anywhere within the circle the node sweeps (the
+  /// nearest valid value, snapped to [step]). Only for
+  /// [DragTrackInput.follow].
   /// With both [viewBoxWidth] and [viewBoxHeight] above 0, [path] is drawn
   /// in the box of the frame the node sits in, measured in these units:
   /// (0, 0) is the frame's top left and (viewBoxWidth, viewBoxHeight) its
@@ -227,6 +240,66 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// Whether the mouse wheel steps the value.
   final bool wheel;
 
+  /// How magnetic the [step]s are while dragging, from 0 to 1. At 0 (the
+  /// default) the node jumps from step to step; above 0 it still follows
+  /// the pointer that share of the way past the nearest step, so each step
+  /// feels like a detent pulling it in (a rating dial at 0.35). The value
+  /// itself always snaps. Letting go settles the node on its step over
+  /// [settleMs].
+  final double detent;
+
+  /// How far the node can be dragged past either end of the track, as a
+  /// share of the pointer's travel there, from 0 (it stops at the end, the
+  /// default) to 1. A deck of cards rubber-bands at 0.35 past its first
+  /// and last card. Letting go springs it back over [settleMs].
+  final double overscroll;
+
+  /// How long the node takes to glide to its value's place when it isn't
+  /// following the pointer: on letting go (from a detent or overscroll),
+  /// when a tap or an action changes the variable, a double tap reset or a
+  /// wheel step. 0 (the default) jumps there.
+  final int settleMs;
+
+  /// The easing of that glide. [MotionCurve.spring] runs real spring
+  /// physics ([settleStiffness], [settleDamping]) and ignores [settleMs]
+  /// for its length; letting go mid-fling starts the spring at the
+  /// pointer's speed, so a flung deck carries on into its settle (and an
+  /// action that moves the variable right after, e.g. to the card the
+  /// fling heads for, keeps that speed too).
+  final MotionCurve settleCurve;
+
+  /// The stiffness of the [MotionCurve.spring] settle (mass 1): higher
+  /// snaps faster. A swipeable deck uses about 260.
+  final double settleStiffness;
+
+  /// The damping of the [MotionCurve.spring] settle: lower overshoots more,
+  /// about 2 × √[settleStiffness] stops without overshooting (a damping
+  /// ratio of 0.86 at stiffness 260 is about 27.7).
+  final double settleDamping;
+
+  /// Where the node is parked while the variable is outside the range
+  /// (below [min], above [max]) or empty or not a number, as a progress
+  /// along the track that may lie outside 0 to 1: an unrated 1 to 5 dial
+  /// over -120..120 degrees parks its knob at -150 degrees with -0.125.
+  /// Lines and arcs go on past their ends; a path stops at its ends. Null
+  /// (the default) draws such a value at the nearest end.
+  ///
+  /// Dragging a parked node starts from the nearest end, and the node
+  /// glides ([settleMs]) between its parked place and the track. While
+  /// parked, `${track.progress}` reads this progress.
+  final double? parkedProgress;
+
+  /// Whether the track takes keyboard focus (tapping or dragging it
+  /// focuses it, Tab reaches it) and the keys move it while focused: the
+  /// right and up arrows step the value up by [keyStep], else [step] (1%
+  /// of the range without one), left and down step it down, Page Up and
+  /// Page Down by 10
+  /// steps, Home to [min] and End to [max]. Each key runs the node's
+  /// `changed` reactions like a drag. On by default; `${track.focused}`
+  /// tells whether it has focus, for a node to draw its own focus ring.
+  /// The track is a slider to screen readers either way.
+  final bool keyboard;
+
   /// How far one wheel notch moves the value; null uses [step], or 1% of
   /// the range for a continuous track.
   final double? wheelStep;
@@ -239,7 +312,8 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// How far an arrow key moves the value while the node has the focus
   /// (pressing it focuses it); Home and End go to [min] and [max]. Null
-  /// leaves the keyboard alone.
+  /// steps by [step] (1% of the range without one); [keyboard] off leaves
+  /// the keyboard alone.
   final double? keyStep;
 
   /// Where the node takes the pointer.
@@ -332,6 +406,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     this.rotate = true,
     this.path,
     this.orientToPath = false,
+    this.orientUpright = false,
+    this.detent = 0,
+    this.overscroll = 0,
+    this.settleMs = 0,
+    this.settleCurve = MotionCurve.easeOutCubic,
+    this.settleStiffness = 380,
+    this.settleDamping = 20,
+    this.parkedProgress,
+    this.keyboard = true,
     this.viewBoxWidth = 0,
     this.viewBoxHeight = 0,
     this.relative = false,
@@ -369,6 +452,11 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// See [minVariableKey].
   static const String stepVariableKey = 'track.step';
 
+  /// The node variable that binds [pixelsPerRange] (a number or formula; 0
+  /// or less keeps the saved value): a deck whose throw follows its frame
+  /// count.
+  static const String pixelsPerRangeVariableKey = 'track.pixelsPerRange';
+
   /// The node variables that bind [momentum] and [smooth] (a Reduce motion
   /// setting turns coasting and the snap animation off).
   static const String momentumVariableKey = 'track.momentum';
@@ -394,7 +482,22 @@ class DragTrackModel with Equatable, SerializableMixin {
   bool get unbounded => endless && shape == DragTrackShape.arc;
 
   /// The names of the live values the `track` variable has.
-  static const List<String> liveValues = ['value', 'progress', 'dragging', 'fine'];
+  static const List<String> liveValues = [
+    'value',
+    'progress',
+    'dragging',
+    'fine',
+    'focused',
+  ];
+
+  /// The names of the values a `dragEnd` reaction gets in `${result}`:
+  /// the final `value`, the `startValue` the drag began at, and the
+  /// `velocity` the pointer let go with, in the variable's units per second
+  /// along the track (positive toward [max]), so a deck can fling to the
+  /// next card: `${= round(result.value + result.velocity * 0.18)}`.
+  static const List<String> endValues = ['value', 'startValue', 'velocity'];
+
+
 
   /// Whether the track has a fine mode.
   bool get hasFine => fineStep > 0;
@@ -545,6 +648,21 @@ class DragTrackModel with Equatable, SerializableMixin {
     return unbounded ? p : p.clamp(0.0, 1.0);
   }
 
+  /// Whether [value] is drawn at [parkedProgress]: outside the range or not
+  /// a number (NaN stands for an empty variable), when the track has one.
+  bool isParked(double value) {
+    if (parkedProgress == null) return false;
+    if (value.isNaN) return true;
+    final double lo = min < max ? min : max;
+    final double hi = min < max ? max : min;
+    return value < lo || value > hi;
+  }
+
+  /// Where the node is drawn for [value]: its [progressOf], or
+  /// [parkedProgress] when [isParked].
+  double restProgressOf(double value) =>
+      isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
+
   /// The value at [progress] along the track, snapped to [step].
   double valueAt(double progress) =>
       snap(min + (max - min) * (unbounded ? progress : progress.clamp(0.0, 1.0)));
@@ -592,12 +710,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     _ => step > 0 ? step : (max - min).abs() / 100,
   };
 
-  /// How far one arrow key press moves the value, or null when the keys
-  /// are off.
-  double? get effectiveKeyStep => switch (keyStep) {
-    final double s when s > 0 => s,
-    _ => null,
-  };
+  /// How far one arrow key press moves the value: [keyStep], else [step],
+  /// else 1% of the range; null when the keys are off ([keyboard]).
+  double? get effectiveKeyStep {
+    if (!keyboard) return null;
+    return switch (keyStep) {
+      final double s when s > 0 => s,
+      _ => step > 0 ? step : (max - min).abs() / 100,
+    };
+  }
 
   /// The rotation of an arc at [progress], in degrees.
   double angleAt(double progress) =>
@@ -625,6 +746,16 @@ class DragTrackModel with Equatable, SerializableMixin {
     bool? rotate,
     String? path,
     bool? orientToPath,
+    bool? orientUpright,
+    double? detent,
+    double? overscroll,
+    int? settleMs,
+    MotionCurve? settleCurve,
+    double? settleStiffness,
+    double? settleDamping,
+    double? parkedProgress,
+    bool clearParked = false,
+    bool? keyboard,
     double? viewBoxWidth,
     double? viewBoxHeight,
     bool? relative,
@@ -670,6 +801,17 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate: rotate ?? this.rotate,
     path: path ?? this.path,
     orientToPath: orientToPath ?? this.orientToPath,
+    orientUpright: orientUpright ?? this.orientUpright,
+    detent: detent ?? this.detent,
+    overscroll: overscroll ?? this.overscroll,
+    settleMs: settleMs ?? this.settleMs,
+    settleCurve: settleCurve ?? this.settleCurve,
+    settleStiffness: settleStiffness ?? this.settleStiffness,
+    settleDamping: settleDamping ?? this.settleDamping,
+    parkedProgress: clearParked
+        ? null
+        : (parkedProgress ?? this.parkedProgress),
+    keyboard: keyboard ?? this.keyboard,
     viewBoxWidth: viewBoxWidth ?? this.viewBoxWidth,
     viewBoxHeight: viewBoxHeight ?? this.viewBoxHeight,
     relative: relative ?? this.relative,
@@ -715,6 +857,15 @@ class DragTrackModel with Equatable, SerializableMixin {
     rotate,
     path,
     orientToPath,
+    orientUpright,
+    detent,
+    overscroll,
+    settleMs,
+    settleCurve,
+    settleStiffness,
+    settleDamping,
+    parkedProgress,
+    keyboard,
     viewBoxWidth,
     viewBoxHeight,
     relative,

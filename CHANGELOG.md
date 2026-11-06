@@ -11,6 +11,27 @@
   `visitRunScriptAction`.
 - `ScriptModel.tests` holds sample runs (`ScriptTest`: arguments, sample
   variables and inputs, and the expected result or error type).
+- One gesture API (see CodelesslyEditor `docs/gestures_api.md`):
+  - `PhysicsModel`: a spring given as stiffness, damping and mass or as
+    bounce and duration (Flutter's `withDurationAndBounce`), a friction
+    fling, overscroll at the bounds and `SnapModel` snap points (points, a
+    grid or the parent's edges), picked by velocity projection. Shared by
+    `DragModel.physics`, `TransformGestureModel.physics` and
+    `DraggableModel.physics`. `{"preset": "bouncy"}` reads as a preset.
+  - `TransformGestureModel` (`BaseNode.transformGesture`): pan, pinch-zoom
+    and two-finger rotate of a node or its content, with min and max scale,
+    `GestureBounds` (none, contain, cover), double-tap zoom, wheel and
+    ctrl+wheel zoom, rotation snap, two-way pose variables and
+    `TransformHandlesModel` corner, edge and rotate handles.
+    `BaseNode.zoomable` reads as `TransformGestureModel.zoomable`
+    (`effectiveTransformGesture`).
+  - `DragModel` gains `physics`, `bounds` and `minX`, `maxX`, `minY`, `maxY`.
+    Old JSON loads unchanged; `effectivePhysics` maps the first
+    `snapBackMs`/`snapCurve` and `DraggableModel.returnSpring` settings.
+  - `TriggerType.resultDoc` / `triggerResultDocs`: what each trigger's
+    actions read in `${result}`.
+  - `GesturePresets`: photo viewer, map canvas, bottom sheet fling, sticker
+    and puck.
 - Transitions (see `CodelesslyEditor/docs/transitions_api.md`):
   - `RouteTransition` is a composable route transition: `enter`, `exit`, `popEnter` and `popExit` sides, each a `MotionModel` (translate, shift, scale, opacity, rotate, rotateX/Y with perspective, blur) plus a circle or rect `reveal`, a curve, a delay and a duration.
     - It also has a barrier colour, `opaque`, iOS `swipeBack`, and an interactive `dismiss` drag.

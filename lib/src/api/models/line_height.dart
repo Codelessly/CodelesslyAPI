@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 
 import '../mixins.dart';
 import '../json_defaults.dart';
+import 'letter_spacing.dart' show readSizeUnit;
 
 part 'line_height.g.dart';
 
@@ -40,6 +41,7 @@ class LineHeight extends Equatable with SerializableMixin {
   final double? value;
 
   /// Unit of the [value]
+  @JsonKey(readValue: readSizeUnit)
   final LineHeightUnitEnum unit;
 
   /// Where the glyphs sit in a line whose height differs from the font's
