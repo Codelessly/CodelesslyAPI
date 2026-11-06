@@ -46,7 +46,7 @@ void main() {
       const db = DragTrackModel(variable: 'v', min: -48, max: 6, step: 0.5);
       expect(db.snap(-6.2), -6);
       expect(db.snap(-6.3), -6.5);
-      expect(db.wheelStep, 0.5);
+      expect(db.effectiveWheelStep, 0.5);
     });
 
     test('runs backwards when max is below min', () {

@@ -72,4 +72,6 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
 };
