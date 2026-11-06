@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import '../../mixins.dart';
 import '../condition.dart';
 import '../variables_model.dart';
+import '../motion.dart';
 import 'action.dart';
 import '../../json_defaults.dart';
 
@@ -40,6 +41,17 @@ class SetVariableAction extends ActionModel
   @override
   final NumberOperation numberOperation;
 
+  /// For a number: glide to the new value over this many milliseconds
+  /// instead of jumping, following [curve], updating the variable every
+  /// frame (everything bound to it moves with it), then go on to the next
+  /// action. 0 (the default) sets it at once. A value or a formula. A vault
+  /// door's open animation: `t` from 0 to 1 over 3600 ms, every part of
+  /// the scene a formula of `t`.
+  final String animateMs;
+
+  /// The easing of an [animateMs] glide.
+  final MotionCurve curve;
+
   /// Creates a new [SetValueAction].
   SetVariableAction({
     required this.variable,
@@ -50,6 +62,8 @@ class SetVariableAction extends ActionModel
     this.mapOperation = MapOperation.replace,
     this.mapKey = 'key',
     this.numberOperation = NumberOperation.set,
+    this.animateMs = '0',
+    this.curve = MotionCurve.linear,
     super.nonBlocking,
     super.enabled,
   }) : super(type: ActionType.setVariable);
@@ -64,6 +78,8 @@ class SetVariableAction extends ActionModel
     mapOperation,
     mapKey,
     numberOperation,
+    animateMs,
+    curve,
   ];
 
   /// Duplicates this [SetVariableAction] with given data overrides.
@@ -76,6 +92,8 @@ class SetVariableAction extends ActionModel
     MapOperation? mapOperation,
     String? mapKey,
     NumberOperation? numberOperation,
+    String? animateMs,
+    MotionCurve? curve,
   }) => SetVariableAction(
     variable: variable ?? this.variable,
     newValue: newValue ?? this.newValue,
@@ -85,6 +103,8 @@ class SetVariableAction extends ActionModel
     mapOperation: mapOperation ?? this.mapOperation,
     mapKey: mapKey ?? this.mapKey,
     numberOperation: numberOperation ?? this.numberOperation,
+    animateMs: animateMs ?? this.animateMs,
+    curve: curve ?? this.curve,
   );
 
   /// Creates a new [SetVariableAction] instance from a JSON data.
@@ -93,6 +113,8 @@ class SetVariableAction extends ActionModel
   /// list instead, which becomes its text (lists and maps as JSON).
   factory SetVariableAction.fromJson(Map json) {
     final Object? value = json['newValue'];
+    final Object? animate = json['animateMs'];
+    if (animate is num) json = {...json, 'animateMs': '$animate'};
     if (value == null || value is String) {
       return _$SetVariableActionFromJson(json);
     }

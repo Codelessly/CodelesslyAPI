@@ -51,14 +51,14 @@ void main() {
   });
 
   test('feedbackAnchor round-trips, defaults to grab and reads unknown names as grab', () {
-    expect(const DraggableModel().feedbackAnchor, DragFeedbackAnchor.grab);
+    expect(const DraggableModel().feedbackAnchor, FeedbackAnchor.grab);
     expect(const DraggableModel().toJson().containsKey('feedbackAnchor'), isFalse);
-    const DraggableModel centred = DraggableModel(group: 'hive', feedbackAnchor: DragFeedbackAnchor.center);
+    const DraggableModel centred = DraggableModel(group: 'hive', feedbackAnchor: FeedbackAnchor.center);
     expect(centred.toJson(), {'group': 'hive', 'feedbackAnchor': 'center'});
     expect(DraggableModel.fromJson(centred.toJson()), centred);
-    expect(DraggableModel.fromJson({'feedbackAnchor': 'nowhere'}).feedbackAnchor, DragFeedbackAnchor.grab);
-    expect(centred.copyWith(feedbackAnchor: DragFeedbackAnchor.grab), const DraggableModel(group: 'hive'));
-    for (final anchor in DragFeedbackAnchor.values) {
+    expect(DraggableModel.fromJson({'feedbackAnchor': 'nowhere'}).feedbackAnchor, FeedbackAnchor.grab);
+    expect(centred.copyWith(feedbackAnchor: FeedbackAnchor.grab), const DraggableModel(group: 'hive'));
+    for (final anchor in FeedbackAnchor.values) {
       expect(anchor.prettify, isNotEmpty);
     }
   });

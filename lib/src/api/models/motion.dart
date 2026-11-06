@@ -7,6 +7,27 @@ import '../../../codelessly_api.dart';
 
 part 'motion.g.dart';
 
+/// How [MotionModel.pathProgress] maps to a point on [MotionModel.path].
+enum MotionPathPacing {
+  /// Progress is the share of the path's length travelled: constant speed
+  /// along the curve.
+  length,
+
+  /// Progress is the share of the area swept by a line from the focus
+  /// ([MotionModel.pathFocusX], [MotionModel.pathFocusY]) to the node:
+  /// Kepler's second law. A planet on an elliptical path with the Sun at the
+  /// focus, whose progress grows steadily with time (its mean anomaly over
+  /// 360°), speeds up near the Sun and slows far from it, as real planets
+  /// do. Progress 0 is the path's start.
+  area;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    MotionPathPacing.length => 'Even speed',
+    MotionPathPacing.area => 'Equal areas (orbit)',
+  };
+}
+
 /// The easing a [MotionModel] transition follows.
 enum MotionCurve {
   /// Constant speed.
@@ -81,13 +102,19 @@ enum MotionLoop {
   restart,
 
   /// From rest to its values and back, over and over (a pulse).
-  reverse;
+  reverse,
+
+  /// Swings around rest on a sine, to its values and as far the other way,
+  /// one swing each [MotionModel.durationMs]: a door's wheel rocking ±20°,
+  /// a pendulum, a needle sweeping a gauge. It rests at rest, not at an end.
+  swing;
 
   /// Displayable name.
   String get prettify => switch (this) {
     MotionLoop.none => 'No loop',
     MotionLoop.restart => 'Loop',
     MotionLoop.reverse => 'Back and forth',
+    MotionLoop.swing => 'Swing around rest',
   };
 }
 
@@ -437,6 +464,59 @@ class MotionModel with Equatable, SerializableMixin {
   /// where the path heads left), so a label travelling round a loop always
   /// reads upright, flipping as the path turns past vertical.
   final bool orientUpright;
+  /// Bends every change of position into a curve: when [translateX],
+  /// [translateY], [shiftX] or [shiftY] change (a bound position moving a
+  /// node to a new spot), the node travels from where it was to where it
+  /// goes along a quadratic curve whose control point sits this share of
+  /// the distance off the straight line, to the right of the direction of
+  /// travel on screen (negative: to the left). 0.25 is a gentle swing, 0.5 a wide arc. The
+  /// path the node takes is its motion path between the two places, so
+  /// players crossing a pitch to a new formation each sweep along their own
+  /// curve. 0 moves in a straight line. Bindable as `motion.arc`.
+  final double arc;
+
+  /// The values given explicitly, by name ([properties]), even when they
+  /// equal the default: where an [enterFrom] says to start from full
+  /// opacity, scale 1 or no offset (a trail that fades out each time it is
+  /// replayed enters from `{"opacity": 1}` to rest at 0). Read from the keys
+  /// of the JSON and kept by [withValue]; written back by [toJson]. Not part
+  /// of equality.
+  final Set<String> named;
+
+  /// Freezes the motion where it is: a running loop (and the spin) stops at
+  /// its current point instead of easing back to rest the way a loop
+  /// switched off does, and carries on from that point when this turns
+  /// false again. Chairs on a lift's cable loop stop where they hang when
+  /// the lift goes on hold and ride on when it reopens. Meant to be bound
+  /// through `motion.paused` in [BaseNode.variables], e.g. to
+  /// `${= status == 'hold'}`; see [pausedProperty].
+  final bool paused;
+
+  /// Where a [loop] starts in its cycle, from 0 (the start) to 1: a loop
+  /// with phase 0.25 begins a quarter of the way through. Several nodes
+  /// sharing one motion (the same path, timing and keyframes) can then be
+  /// spread round it, e.g. the chairs of one lift riding its cable loop
+  /// evenly spaced, as items of one list with `motion.phase` bound to
+  /// `${= index / count}`. Ignored without a loop.
+  final double phase;
+  /// How [pathProgress] maps to a point on [path]: by length (even speed)
+  /// or by area swept about the focus (an orbit).
+  final MotionPathPacing pathPacing;
+
+  /// The focus of [MotionPathPacing.area] pacing (the Sun of an orbit), in
+  /// the path's own coordinates: the same pixels as the path data, not
+  /// relative to its first point. (0, 0) by default, so an orbit written
+  /// around its focus at the origin needs nothing set.
+  final double pathFocusX;
+
+  /// See [pathFocusX].
+  final double pathFocusY;
+
+  /// Reads [pathProgress] modulo 1, so a node on a closed path keeps going
+  /// round: 1.25 is a quarter of the way round again, and a formula can grow
+  /// it without bound (`${= days / period}`). A transition between two
+  /// progresses goes the short way round, across the start.
+  final bool pathWrap;
 
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
@@ -465,14 +545,6 @@ class MotionModel with Equatable, SerializableMixin {
   /// play, from 0 (any pixel) to 1 (all of it, or the whole view for a node
   /// larger than the view).
   final double revealFraction;
-
-  /// Holds the node where it is: a running loop, transition or spin stops
-  /// in place and carries on from there when this turns false, like a
-  /// paused video. A queen badge circling her hive stops while the pointer
-  /// is on it. Meant to be bound through `motion.paused` in
-  /// [BaseNode.variables], e.g. `${hovering}`. The design canvas never
-  /// animates, so it ignores it.
-  final bool paused;
 
   /// A band of light sweeping across the node over and over while it is
   /// shown (a loading skeleton); null for none. The design canvas shows the
@@ -513,11 +585,18 @@ class MotionModel with Equatable, SerializableMixin {
     this.pathProgress = 0,
     this.orientToPath = false,
     this.orientUpright = false,
+    this.arc = 0,
+    this.named = const {},
+    this.paused = false,
+    this.phase = 0,
+    this.pathPacing = MotionPathPacing.length,
+    this.pathFocusX = 0,
+    this.pathFocusY = 0,
+    this.pathWrap = false,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
     this.revealFraction = kDefaultVisibleFraction,
-    this.paused = false,
     this.shimmer,
   });
 
@@ -562,11 +641,24 @@ class MotionModel with Equatable, SerializableMixin {
   /// name such as `elasticOut`), so a node can open with a slow spring and
   /// close quickly: `variables['motion.durationMs'] = '${= open ? 380 :
   /// 160}'`. See [withSetting].
-  static const List<String> settings = ['durationMs', 'delayMs', 'curve'];
+  static const List<String> settings = [
+    'durationMs',
+    'delayMs',
+    'curve',
+    'phase',
+    'arc',
+  ];
 
   /// The name of the binding that gives [path] from a variable or formula
   /// (text), e.g. a curve built from the screen's width.
   static const String pathProperty = 'path';
+
+  /// The name of the binding that gives [keyframes] from a variable or
+  /// formula: a list of maps such as `{"t": 0.4, "translateY": -60}` (or
+  /// that list as JSON text). A route-dependent gust is
+  /// `${= map(gusts, g => {t: g.tMid, translateX: g.dx, translateY: g.dy})}`.
+  /// An empty list (or a value that isn't one) clears the keyframes.
+  static const String keyframesProperty = 'keyframes';
 
   /// The name of the binding that switches the loop per state:
   /// `variables['motion.loop'] = "\${= live ? 'reverse' : 'none'}"`. It
@@ -578,10 +670,10 @@ class MotionModel with Equatable, SerializableMixin {
   /// the saved motion.
   static const String loopProperty = 'loop';
 
-  /// The name of the binding that pauses the motion in place; see
-  /// [paused]. Reads true, on, 1 or any non-zero number as paused.
+  /// The name of the binding that freezes the motion in place: true (or
+  /// on, 1) pauses it, false resumes it from where it stopped. See
+  /// [paused].
   static const String pausedProperty = 'paused';
-
   /// The name of the binding that sets [delayMs], in milliseconds.
   static const String delayMsProperty = 'delayMs';
 
@@ -636,6 +728,7 @@ class MotionModel with Equatable, SerializableMixin {
       if (property == 'spin') continue;
       final double value = from.valueOf(property);
       if (value != none.valueOf(property) ||
+          from.named.contains(property) ||
           property == 'pathProgress' && hasPath) {
         start = start.withValue(property, value);
       }
@@ -653,19 +746,18 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel get loopStart {
     final MotionModel? from = enterFrom;
     if (from == null) return atRest;
-    double pick(String property) =>
-        from.valueOf(property) == MotionModel.none.valueOf(property)
-        ? valueOf(property)
-        : from.valueOf(property);
-    return copyWith(
-      translateX: pick('translateX'),
-      translateY: pick('translateY'),
-      scale: pick('scale'),
-      opacity: pick('opacity'),
-      rotate: pick('rotate'),
-      rotateX: pick('rotateX'),
-      rotateY: pick('rotateY'),
-    );
+    // Every value enterFrom moves, and the path progress of a path (a chair
+    // riding its cable from 0); the spin keeps turning as it is.
+    MotionModel start = this;
+    for (final String property in properties) {
+      if (property == 'spin') continue;
+      final double value = from.valueOf(property);
+      if (value != none.valueOf(property) ||
+          property == 'pathProgress' && hasPath) {
+        start = start.withValue(property, value);
+      }
+    }
+    return start;
   }
 
   /// How the node shows while its loop is switched off by a `motion.loop`
@@ -732,12 +824,19 @@ class MotionModel with Equatable, SerializableMixin {
     double? pathProgress,
     bool? orientToPath,
     bool? orientUpright,
+    double? arc,
+    Set<String>? named,
+    bool? paused,
+    double? phase,
+    MotionPathPacing? pathPacing,
+    double? pathFocusX,
+    double? pathFocusY,
+    bool? pathWrap,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
     bool? revealOnScroll,
     double? revealFraction,
-    bool? paused,
     MotionShimmer? shimmer,
     bool clearShimmer = false,
   }) => MotionModel(
@@ -773,11 +872,18 @@ class MotionModel with Equatable, SerializableMixin {
     pathProgress: pathProgress ?? this.pathProgress,
     orientToPath: orientToPath ?? this.orientToPath,
     orientUpright: orientUpright ?? this.orientUpright,
+    arc: arc ?? this.arc,
+    named: named ?? this.named,
+    paused: paused ?? this.paused,
+    phase: phase ?? this.phase,
+    pathPacing: pathPacing ?? this.pathPacing,
+    pathFocusX: pathFocusX ?? this.pathFocusX,
+    pathFocusY: pathFocusY ?? this.pathFocusY,
+    pathWrap: pathWrap ?? this.pathWrap,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
     revealFraction: revealFraction ?? this.revealFraction,
-    paused: paused ?? this.paused,
     shimmer: clearShimmer ? null : shimmer ?? this.shimmer,
   );
 
@@ -799,7 +905,14 @@ class MotionModel with Equatable, SerializableMixin {
   );
 
   /// Returns a copy with [property] set to [value].
-  MotionModel withValue(String property, double value) => switch (property) {
+  MotionModel withValue(String property, double value) {
+    final MotionModel next = _withValue(property, value);
+    return properties.contains(property) && !next.named.contains(property)
+        ? next.copyWith(named: {...next.named, property})
+        : next;
+  }
+
+  MotionModel _withValue(String property, double value) => switch (property) {
     'translateX' => copyWith(translateX: value),
     'translateY' => copyWith(translateY: value),
     'scale' => copyWith(scale: value),
@@ -827,6 +940,13 @@ class MotionModel with Equatable, SerializableMixin {
   /// [curve]. Returns this unchanged when [value] doesn't name one.
   MotionModel withSetting(String property, Object? value) {
     switch (property) {
+      case 'arc':
+        final double? bend = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        return bend == null || !bend.isFinite ? this : copyWith(arc: bend);
       case 'durationMs' || 'delayMs':
         final double? number = switch (value) {
           num n => n.toDouble(),
@@ -841,6 +961,14 @@ class MotionModel with Equatable, SerializableMixin {
       case 'curve':
         final MotionCurve? curve = parseCurve(value);
         return curve == null ? this : copyWith(curve: curve);
+      case 'phase':
+        final double? phase = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        if (phase == null || !phase.isFinite) return this;
+        return copyWith(phase: phase - phase.floorToDouble());
       default:
         throw ArgumentError.value(property, 'property');
     }
@@ -979,25 +1107,42 @@ class MotionModel with Equatable, SerializableMixin {
     pathProgress,
     orientToPath,
     orientUpright,
+    arc,
+    paused,
+    phase,
+    pathPacing,
+    pathFocusX,
+    pathFocusY,
+    pathWrap,
     keyframes,
     pulseKey,
     revealOnScroll,
     revealFraction,
-    paused,
     shimmer,
   ];
 
   /// Creates a [MotionModel] from JSON.
   /// An earlier name of [backfaceHidden] (`hideBackface`) still reads.
-  factory MotionModel.fromJson(Map json) => _$MotionModelFromJson(
-    json['hideBackface'] != null && json['backfaceHidden'] == null
-        ? {...json, 'backfaceHidden': json['hideBackface']}
-        : json,
-  );
+  factory MotionModel.fromJson(Map json) {
+    final MotionModel model = _$MotionModelFromJson(
+      json['hideBackface'] != null && json['backfaceHidden'] == null
+          ? {...json, 'backfaceHidden': json['hideBackface']}
+          : json,
+    );
+    final Set<String> named = {
+      for (final Object? key in json.keys)
+        if (properties.contains(key)) key as String,
+    };
+    return named.isEmpty ? model : model.copyWith(named: named);
+  }
 
   @override
   Map toJson() {
     final Map json = _$MotionModelOmitDefaults(this, _$MotionModelToJson(this));
+    // Values given on purpose stay, even at their defaults (see [named]).
+    for (final String property in named) {
+      if (!json.containsKey(property)) json[property] = valueOf(property);
+    }
     // A node on a path enters from enterFrom's progress even when it is 0
     // (see entranceStart): spell it out so the JSON reads as it plays.
     final MotionModel? from = enterFrom;

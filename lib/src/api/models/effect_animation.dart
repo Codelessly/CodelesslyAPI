@@ -93,6 +93,11 @@ class EffectAnimation with Equatable, SerializableMixin {
   /// Whether it plays when the node first appears.
   final bool playOnAppear;
 
+  /// How many times a shake, wiggle or jelly swings back and forth (and a
+  /// flash blinks) over the effect; 0 uses the type's own count (a shake
+  /// swings 4 times). A refused drop's three quick swings: `cycles: 3`.
+  final double cycles;
+
   /// Creates an [EffectAnimation].
   const EffectAnimation({
     required this.name,
@@ -103,6 +108,7 @@ class EffectAnimation with Equatable, SerializableMixin {
     this.originX = 0,
     this.originY = 0,
     this.playOnAppear = false,
+    this.cycles = 0,
   });
 
   /// An effect of [type] named after it, with its usual duration.
@@ -132,6 +138,7 @@ class EffectAnimation with Equatable, SerializableMixin {
     double? originX,
     double? originY,
     bool? playOnAppear,
+    double? cycles,
   }) => EffectAnimation(
     name: name ?? this.name,
     type: type ?? this.type,
@@ -141,6 +148,7 @@ class EffectAnimation with Equatable, SerializableMixin {
     originX: originX ?? this.originX,
     originY: originY ?? this.originY,
     playOnAppear: playOnAppear ?? this.playOnAppear,
+    cycles: cycles ?? this.cycles,
   );
 
   @override
@@ -153,6 +161,7 @@ class EffectAnimation with Equatable, SerializableMixin {
     originX,
     originY,
     playOnAppear,
+    cycles,
   ];
 
   /// Creates an [EffectAnimation] from JSON.
