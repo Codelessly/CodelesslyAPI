@@ -142,9 +142,11 @@ class DragTrackModel with Equatable, SerializableMixin {
 
   /// For a line: [x1], [y1], [x2] and [y2] are multiples of the node's own
   /// width and height instead of pixels, so the track scales with the node.
-  /// A full-width transparent thumb whose knob sits at its left edge, with
-  /// `x2: 1`, scrubs across whatever width its row gives it (a time bar, a
-  /// chart cursor).
+  /// The track moves the node's centre, so a scrub area is a full-width
+  /// (transparent) node with `x1: -0.5, x2: 0.5`: at a value its centre,
+  /// and a knob centred in it, sits at that fraction across the space it
+  /// was laid out in, and a tap anywhere on it jumps there (a time bar, a
+  /// chart's scrub area).
   final bool relative;
 
   /// Tapping the node's parent anywhere along the track moves the node
