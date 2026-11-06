@@ -1,4 +1,4 @@
-# mobile 23d16dd6
+# mobile f308b3c7
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     row "Icon button Back" fixed/fixed
@@ -321,12 +321,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet a5b26016
+# tablet bd4c60cb
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -418,7 +419,7 @@ column "Screen" expanded/expanded
               text "Section title" expanded/shrinkWrap
             column "Section body" expanded/shrinkWrap
               text "Text" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option Light" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option Dark" expanded/fixed
@@ -576,7 +577,7 @@ column "Screen" expanded/expanded
             column "Section body" expanded/shrinkWrap
               row "Skeleton line" expanded/fixed
                 row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option Light" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
@@ -644,12 +645,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop a1b2f8a0
+# desktop 777b8f31
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -741,7 +743,7 @@ column "Screen" expanded/expanded
               text "Section title" expanded/shrinkWrap
             column "Section body" expanded/shrinkWrap
               text "Text" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option Light" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option Dark" expanded/fixed
@@ -899,7 +901,7 @@ column "Screen" expanded/expanded
             column "Section body" expanded/shrinkWrap
               row "Skeleton line" expanded/fixed
                 row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option Light" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
