@@ -276,7 +276,9 @@ class DropTargetModel with Equatable, SerializableMixin {
   /// A condition (`${= ...}` formula or `${...}` path) that, while it
   /// holds, makes the target take no drops at all: a slot that already has
   /// a tile. Unlike a refusing [acceptIf], letting go on a full target is
-  /// not a wrong answer: it doesn't fire `dropRejected`.
+  /// not a wrong answer: it fires `dropFull`, not `dropRejected`. While a
+  /// drag is over it, `drag.over` names it and `drag.full` is true, so a
+  /// binding can say why it won't take the drop.
   final String fullIf;
 
   /// Whether the target takes drops now. Bind `dropTarget.enabled` in the
