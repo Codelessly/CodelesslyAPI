@@ -20,6 +20,8 @@ Map<String, dynamic> _$SetVariableActionOmitDefaults(
   if (isJsonDefault(instance.toggled, false)) json.remove('toggled');
   if (isJsonDefault(instance.numberOperation, NumberOperation.set))
     json.remove('numberOperation');
+  if (isJsonDefault(instance.animateMs, '0')) json.remove('animateMs');
+  if (isJsonDefault(instance.curve, MotionCurve.linear)) json.remove('curve');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -46,6 +48,10 @@ SetVariableAction _$SetVariableActionFromJson(Map json) => SetVariableAction(
   numberOperation:
       $enumDecodeNullable(_$NumberOperationEnumMap, json['numberOperation']) ??
       NumberOperation.set,
+  animateMs: json['animateMs'] as String? ?? '0',
+  curve:
+      $enumDecodeNullable(_$MotionCurveEnumMap, json['curve']) ??
+      MotionCurve.linear,
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -63,6 +69,8 @@ Map<String, dynamic> _$SetVariableActionToJson(SetVariableAction instance) =>
       'newValue': instance.newValue,
       'toggled': instance.toggled,
       'numberOperation': _$NumberOperationEnumMap[instance.numberOperation]!,
+      'animateMs': instance.animateMs,
+      'curve': _$MotionCurveEnumMap[instance.curve]!,
     };
 
 const _$ListOperationEnumMap = {
@@ -88,6 +96,22 @@ const _$NumberOperationEnumMap = {
   NumberOperation.set: 'set',
   NumberOperation.add: 'add',
   NumberOperation.subtract: 'subtract',
+};
+
+const _$MotionCurveEnumMap = {
+  MotionCurve.linear: 'linear',
+  MotionCurve.easeInOut: 'easeInOut',
+  MotionCurve.easeOut: 'easeOut',
+  MotionCurve.easeIn: 'easeIn',
+  MotionCurve.easeOutBack: 'easeOutBack',
+  MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
 
 const _$ActionTypeEnumMap = {
@@ -122,4 +146,5 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.haptic: 'haptic',
 };
