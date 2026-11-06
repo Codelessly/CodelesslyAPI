@@ -28,7 +28,12 @@ class ListViewNode extends SinglePlaceholderNode
   bool get isScrollingEnforced => true;
 
   @override
-  List<TriggerType> get triggerTypes => [TriggerType.scrollEnd];
+  List<TriggerType> get triggerTypes => [
+    TriggerType.scrollEnd,
+    TriggerType.reorder,
+    TriggerType.refresh,
+    TriggerType.swipeAction,
+  ];
 
   @override
   bool get canBeMarked => true;
@@ -58,6 +63,33 @@ class ListViewNode extends SinglePlaceholderNode
   /// for loading, empty and error states: [kQueryStatusLoading],
   /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
   VariableData? statusVariable;
+
+  /// Loads the list's items page by page, shown a page at a time or as an
+  /// endless list, with pull to refresh; see [PaginationModel]. Null for a
+  /// list that shows all of its data (or pages a cloud query by [paging]).
+  PaginationModel? pagination;
+
+  /// Groups the items under section headers that can stay pinned while
+  /// their section scrolls, with an A–Z index; see [ListSectionsModel].
+  ListSectionsModel? sections;
+
+  /// Lets the user drag the items to a new place, within the list or into
+  /// other lists; see [ReorderModel].
+  ReorderModel? reorder;
+
+  /// Actions revealed by swiping an item sideways (delete, archive) with
+  /// undo; see [SwipeActionsModel].
+  SwipeActionsModel? swipeActions;
+
+  /// The ids of the children that are not the item template: the
+  /// pagination's footers, the sections' header and the reorder
+  /// placeholder. They are built by the list, not as items.
+  List<String> get slotNodeIds => [
+    ...?pagination?.slotNodeIds,
+    if (sections?.headerNodeId.isNotEmpty == true) sections!.headerNodeId,
+    if (reorder?.placeholderNodeId.isNotEmpty == true)
+      reorder!.placeholderNodeId,
+  ];
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
@@ -96,6 +128,10 @@ class ListViewNode extends SinglePlaceholderNode
     super.multipleVariables,
     bool clipsContent = true,
     this.statusVariable,
+    this.pagination,
+    this.sections,
+    this.reorder,
+    this.swipeActions,
 
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,

@@ -52,7 +52,7 @@ MultiSourceIconModel _$MultiSourceIconModelFromJson(Map json) =>
       icon: json['icon'] == null
           ? null
           : IconModel.fromJson(Map<String, dynamic>.from(json['icon'] as Map)),
-      iconImage: json['iconImage'] as String?,
+      iconImage: _readIconImage(json, 'iconImage') as String?,
       size: (json['size'] as num?)?.toDouble() ?? 24,
       color: json['color'] == null ? null : ColorRGBA.fromJson(json['color']),
       show: json['show'] as bool? ?? false,
