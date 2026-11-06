@@ -14,6 +14,7 @@ Map<String, dynamic> _$RowColumnNodeOmitDefaults(
     json.remove('clipsScrollContent');
   if (isJsonDefault(instance.squeezeChildren, true))
     json.remove('squeezeChildren');
+  if (isJsonDefault(instance.fillViewport, false)) json.remove('fillViewport');
   if (isJsonDefault(instance.foregroundFills, []))
     json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
@@ -339,6 +340,7 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -357,7 +359,8 @@ RowColumnNode _$RowColumnNodeFromJson(Map json) =>
               .toList() ??
           []
       ..clipsScrollContent = json['clipsScrollContent'] as bool? ?? true
-      ..squeezeChildren = json['squeezeChildren'] as bool? ?? true;
+      ..squeezeChildren = json['squeezeChildren'] as bool? ?? true
+      ..fillViewport = json['fillViewport'] as bool? ?? false;
 
 Map<String, dynamic> _$RowColumnNodeToJson(
   RowColumnNode instance,
@@ -411,6 +414,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
@@ -451,6 +455,7 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'shouldAlwaysScroll': instance.shouldAlwaysScroll,
   'clipsScrollContent': instance.clipsScrollContent,
   'squeezeChildren': instance.squeezeChildren,
+  'fillViewport': instance.fillViewport,
 };
 
 const _$RowColumnTypeEnumMap = {

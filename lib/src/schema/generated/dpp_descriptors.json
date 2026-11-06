@@ -15497,6 +15497,18 @@
       "nodeType": "text",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Codelessly OpenType feature tags (e.g. \"lnum\", \"liga=0\") applied to every span; TextStyle.fontFeatures in Flutter.",
+      "fieldPath": "fontFeatures",
+      "group": "Text",
+      "control": "list",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "text",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
       "fieldPath": "visible",
       "group": "Visibility",
