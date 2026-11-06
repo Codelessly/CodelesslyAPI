@@ -192,7 +192,9 @@ enum TriggerType {
   /// Triggered when a row of a data list has been dragged to a new place by
   /// this node, its reorder handle ([DragModel.reorder]). The actions read
   /// `${result.from}` and `${result.to}`: the row's old index and its index
-  /// in the new order.
+  /// in the new order. A list with a `ReorderModel` also fires it, on the
+  /// list, with `${result.item}` (the moved item) and `${result.fromList}`
+  /// and `${result.toList}` (the lists' keys; the same within one list).
   reorder,
 
   /// Triggered on every scroll update of a scrolling row, column or
@@ -247,6 +249,17 @@ enum TriggerType {
   /// view (see [enterViewport]). For example, gives a sticky header its
   /// "scrolled" style once the hero scrolls away.
   exitViewport,
+
+  /// Triggered when the user pulls a list or grid past its start to
+  /// refresh it (its pagination's `pullToRefresh`). The list's pagination
+  /// controller, if any, reloads its first page; these reactions run too,
+  /// to reload anything else. The indicator spins until they finish.
+  refresh,
+
+  /// Triggered when a swipe action of a list item runs (the list's
+  /// `SwipeActionsModel`). The actions read `${result.action}` (the
+  /// action's id), `${result.label}`, `${result.item}` and `${result.index}`.
+  swipeAction,
 
   /// Triggered on a screen (canvas) when the user tries to leave it with the
   /// browser's back button, the system back button or gesture (Android,
@@ -397,6 +410,10 @@ enum TriggerType {
         return 'Enter Viewport';
       case TriggerType.exitViewport:
         return 'Exit Viewport';
+      case TriggerType.refresh:
+        return 'Pull to Refresh';
+      case TriggerType.swipeAction:
+        return 'Swipe Action';
       case TriggerType.backPressed:
         return 'Back Pressed';
     }

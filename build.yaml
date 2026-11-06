@@ -9,6 +9,8 @@ targets:
           - lib/src/api/nodes/divider_node.dart
           - lib/src/api/nodes/badge_node.dart
           - lib/src/api/nodes/barcode_node.dart
+          - lib/src/api/nodes/pagination_node.dart
+          - lib/src/api/nodes/table_view_node.dart
           - lib/src/api/nodes/app_bar_node.dart
           - lib/src/api/nodes/checkbox_node.dart
           - lib/src/api/nodes/slider_node.dart
