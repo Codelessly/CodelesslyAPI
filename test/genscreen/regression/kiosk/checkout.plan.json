@@ -1,0 +1,93 @@
+{
+  "title": "Checkout",
+  "summary": "Collects shipping, delivery and payment details and shows the order summary before placing the order.",
+  "pattern": "checkout",
+  "appBar": {"title": "Checkout", "leading": "back"},
+  "data": {
+    "order": {"items": "3 items", "subtotal": "$214.00", "shipping": "$0.00", "tax": "$18.19", "discount": "-$21.40", "total": "$210.79", "code": "LOUD10"},
+    "cart": [
+      {"name": "Static Boxy Tee", "variant": "Acid yellow / L", "qty": "Qty 1", "price": "$48.00", "image": "https://picsum.photos/seed/boxytee/300/300"},
+      {"name": "Zine Cargo Pant", "variant": "Washed black / 32", "qty": "Qty 1", "price": "$118.00", "image": "https://picsum.photos/seed/cargopant/300/300"},
+      {"name": "Ink Blot Cap", "variant": "Hot pink / One size", "qty": "Qty 1", "price": "$48.00", "image": "https://picsum.photos/seed/inkcap/300/300"}
+    ]
+  },
+  "variables": [
+    {"name": "fullName", "type": "text", "value": "Jules Moreno"},
+    {"name": "address", "type": "text", "value": "412 Grand St, Apt 3B"},
+    {"name": "city", "type": "text", "value": "Brooklyn"},
+    {"name": "zip", "type": "text", "value": "11211"},
+    {"name": "phone", "type": "text", "value": ""},
+    {"name": "delivery", "type": "text", "value": "Standard"},
+    {"name": "cardNumber", "type": "text", "value": ""},
+    {"name": "expiry", "type": "text", "value": ""},
+    {"name": "cvc", "type": "text", "value": ""},
+    {"name": "saveCard", "type": "boolean", "value": true}
+  ],
+  "sections": [
+    {
+      "id": "shipping",
+      "title": "Ship to",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Full name", "bind": "fullName", "icon": "person_outline"},
+        {"type": "input", "label": "Street address", "bind": "address", "icon": "location_on"},
+        {"type": "group", "direction": "row", "gap": "md", "children": [
+          {"type": "input", "label": "City", "bind": "city"},
+          {"type": "input", "label": "ZIP", "kind": "number", "bind": "zip"}
+        ]},
+        {"type": "input", "label": "Phone", "kind": "phone", "bind": "phone", "hint": "For the courier only", "icon": "phone"}
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Delivery",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "segmented", "options": ["Standard", "Express", "Pickup"], "bind": "delivery"},
+        {"type": "text", "text": "Standard is free and lands in 3-5 days. Express is $12 and lands tomorrow.", "style": "caption", "color": "onSurfaceVariant"}
+      ]
+    },
+    {
+      "id": "payment",
+      "title": "Pay",
+      "area": "main",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Card number", "kind": "number", "bind": "cardNumber", "hint": "1234 5678 9012 3456", "icon": "credit_card"},
+        {"type": "group", "direction": "row", "gap": "md", "children": [
+          {"type": "input", "label": "Expiry", "bind": "expiry", "hint": "MM/YY"},
+          {"type": "input", "label": "CVC", "kind": "number", "bind": "cvc", "hint": "123"}
+        ]},
+        {"type": "checkbox", "label": "Save this card for next time", "bind": "saveCard"}
+      ]
+    },
+    {
+      "id": "summary",
+      "title": "Your haul",
+      "area": "aside",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${cart}",
+          "item": {"type": "listRow", "title": "${item.name}", "subtitle": "${item.variant} · ${item.qty}", "leading": {"image": "${item.image}"}, "trailing": {"text": "${item.price}"}}
+        },
+        {"type": "divider"},
+        {"type": "keyValue", "label": "Subtotal", "value": "${order.subtotal}"},
+        {"type": "keyValue", "label": "Code ${order.code}", "value": "${order.discount}"},
+        {"type": "keyValue", "label": "Shipping", "value": "${order.shipping}"},
+        {"type": "keyValue", "label": "Tax", "value": "${order.tax}"},
+        {"type": "keyValue", "label": "Total", "value": "${order.total}", "emphasis": true},
+        {"type": "button", "label": "Place order", "icon": "lock", "variant": "primary", "fullWidth": true, "action": {"type": "submit", "message": "Order placed. It's yours.", "then": {"type": "navigate", "to": "Order confirmation"}}},
+        {"type": "text", "text": "Secure checkout. Free returns for 30 days.", "style": "caption", "color": "onSurfaceVariant"}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "shopping_bag", "title": "Your bag is empty", "message": "Nothing to check out yet. Go grab something loud.", "action": {"label": "Shop now", "action": {"type": "navigate", "to": "Home"}}},
+    "error": {"icon": "error_outline", "title": "Checkout hiccup", "message": "We couldn't load your order. Your bag is safe. Try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}
