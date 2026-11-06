@@ -149,8 +149,16 @@ enum TriggerType {
   /// Triggered on a drop target when a drag of a group it accepts is let go
   /// on it but its `acceptIf` refuses it: a wrong answer, a full column.
   /// The actions read the drop like `drop` does; the draggable springs back.
-  /// A target that is full ([DropTargetModel.fullIf]) doesn't fire it.
+  /// A target that is full ([DropTargetModel.fullIf]) fires [dropFull]
+  /// instead.
   dropRejected,
+
+  /// Triggered on a drop target that is full ([DropTargetModel.fullIf]) when
+  /// a drag of a group it accepts is let go on it: not a wrong answer, but
+  /// a reason to say so ("A2 is full"). The actions read the drop like
+  /// `drop` does; the draggable springs back. While a drag is over a full
+  /// target, `${drag.over}` names it and `${drag.full}` is true.
+  dropFull,
 
   /// A steady clock for rhythm: ticks every [TriggerModel.every]
   /// milliseconds (a formula such as `${= 60000 / bpm}`, read again at each
@@ -255,6 +263,7 @@ enum TriggerType {
     TriggerType.dragExit,
     TriggerType.dragHover,
     TriggerType.dropRejected,
+    TriggerType.dropFull,
   ];
 
   /// The swipe triggers.
@@ -336,6 +345,8 @@ enum TriggerType {
         return 'Drag Completed';
       case TriggerType.dropRejected:
         return 'Drop Rejected';
+      case TriggerType.dropFull:
+        return 'Drop On Full';
       case TriggerType.clock:
         return 'Beat Clock';
       case TriggerType.reorder:
