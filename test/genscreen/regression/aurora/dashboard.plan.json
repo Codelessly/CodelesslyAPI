@@ -1,0 +1,113 @@
+{
+  "title": "Analytics",
+  "summary": "Summarizes revenue, customers and conversion for the selected period, with breakdowns and top products.",
+  "pattern": "dashboard",
+  "appBar": {
+    "title": "Analytics",
+    "actions": [
+      {"icon": "download", "label": "Export report", "action": {"type": "toast", "message": "Report exported as CSV"}},
+      {"icon": "notifications_none", "label": "Notifications", "action": {"type": "navigate", "to": "Notifications"}}
+    ]
+  },
+  "nav": {
+    "items": [
+      {"icon": "dashboard", "label": "Overview", "action": {"type": "navigate", "to": "Home"}},
+      {"icon": "analytics", "label": "Analytics", "active": true, "action": {"type": "navigate", "to": "Analytics"}},
+      {"icon": "receipt_long", "label": "Invoices", "action": {"type": "navigate", "to": "Invoices"}},
+      {"icon": "settings", "label": "Settings", "action": {"type": "navigate", "to": "Settings"}}
+    ]
+  },
+  "data": {
+    "channels": [
+      {"name": "Direct", "share": 0.42, "value": "$20,370 · 42%"},
+      {"name": "Organic search", "share": 0.27, "value": "$13,095 · 27%"},
+      {"name": "Referral", "share": 0.18, "value": "$8,730 · 18%"},
+      {"name": "Paid ads", "share": 0.13, "value": "$6,305 · 13%"}
+    ],
+    "goals": [
+      {"name": "Monthly revenue", "progress": 0.81, "caption": "$48,500 of $60,000"},
+      {"name": "New customers", "progress": 0.64, "caption": "320 of 500"},
+      {"name": "Churn under 3%", "progress": 0.9, "caption": "2.7% this month"}
+    ],
+    "products": [
+      {"name": "Team plan (annual)", "sales": "214 sales", "revenue": "$21,186"},
+      {"name": "Pro plan (monthly)", "sales": "612 sales", "revenue": "$14,688"},
+      {"name": "Starter plan", "sales": "980 sales", "revenue": "$8,820"},
+      {"name": "Add-on: extra seats", "sales": "153 sales", "revenue": "$3,806"}
+    ]
+  },
+  "variables": [
+    {"name": "period", "type": "text", "value": "30 days"}
+  ],
+  "sections": [
+    {
+      "id": "header",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {"type": "heading", "title": "Last 30 days", "subtitle": "Oct 6 – Nov 4, 2026 · updated 5 min ago"},
+        {"type": "segmented", "options": ["7 days", "30 days", "90 days", "12 months"], "bind": "period"}
+      ]
+    },
+    {
+      "id": "kpis",
+      "area": "full",
+      "layout": "grid",
+      "columns": {"mobile": 2, "desktop": 4},
+      "children": [
+        {"type": "stat", "label": "Revenue", "value": "$48,500", "delta": "+12.4%", "tone": "success"},
+        {"type": "stat", "label": "Active customers", "value": "2,184", "delta": "+6.1%", "tone": "success"},
+        {"type": "stat", "label": "Conversion rate", "value": "3.8%", "delta": "-0.4%", "tone": "error"},
+        {"type": "stat", "label": "Avg. order value", "value": "$62.40", "delta": "+2.2%", "tone": "success"}
+      ]
+    },
+    {
+      "id": "charts",
+      "area": "full",
+      "layout": "grid",
+      "columns": {"mobile": 1, "desktop": 2},
+      "children": [
+        {
+          "type": "card",
+          "title": "Revenue by channel",
+          "subtitle": "Share of $48,500",
+          "children": [
+            {"type": "progress", "value": 0.42, "label": "Direct", "caption": "$20,370 · 42%"},
+            {"type": "progress", "value": 0.27, "label": "Organic search", "caption": "$13,095 · 27%"},
+            {"type": "progress", "value": 0.18, "label": "Referral", "caption": "$8,730 · 18%"},
+            {"type": "progress", "value": 0.13, "label": "Paid ads", "caption": "$6,305 · 13%"}
+          ]
+        },
+        {
+          "type": "card",
+          "title": "Goals",
+          "subtitle": "November targets",
+          "children": [
+            {"type": "progress", "value": 0.81, "label": "Monthly revenue", "caption": "$48,500 of $60,000"},
+            {"type": "progress", "value": 0.64, "label": "New customers", "caption": "320 of 500"},
+            {"type": "progress", "value": 0.9, "label": "Churn under 3%", "caption": "2.7% this month", "color": "success"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "title": "Top products",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${products}",
+          "item": {"type": "listRow", "title": "${item.name}", "subtitle": "${item.sales}", "leading": {"icon": "sell"}, "trailing": {"text": "${item.revenue}"}, "action": {"type": "navigate", "to": "Product analytics", "params": {"name": "${item.name}"}}}
+        },
+        {"type": "button", "label": "View full report", "variant": "primary", "icon": "bar_chart", "action": {"type": "navigate", "to": "Reports"}}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "insights", "title": "No data for this period", "message": "Sales will appear here once orders come in. Try a longer period.", "action": {"label": "Show 90 days", "action": {"type": "set", "variable": "period", "value": "90 days"}}},
+    "error": {"icon": "error_outline", "title": "Couldn't load analytics", "message": "Your data is safe. Check your connection and try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}
