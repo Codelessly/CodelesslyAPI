@@ -1,0 +1,81 @@
+{
+  "title": "Settings",
+  "summary": "Lets shoppers manage their account, notifications, appearance and privacy.",
+  "pattern": "settings",
+  "appBar": {"title": "Settings", "leading": "back"},
+  "data": {
+    "user": {"name": "Jules Moreno", "email": "jules@kioskmail.com", "avatar": "https://picsum.photos/seed/julesm/200/200", "tier": "Loud Club member"}
+  },
+  "variables": [
+    {"name": "dropAlerts", "type": "boolean", "value": true},
+    {"name": "orderUpdates", "type": "boolean", "value": true},
+    {"name": "newsletter", "type": "boolean", "value": false},
+    {"name": "theme", "type": "text", "value": "System"},
+    {"name": "personalized", "type": "boolean", "value": true},
+    {"name": "faceId", "type": "boolean", "value": false}
+  ],
+  "sections": [
+    {
+      "id": "account",
+      "title": "Account",
+      "layout": "stack",
+      "children": [
+        {"type": "listRow", "title": "${user.name}", "subtitle": "${user.email}", "leading": {"avatar": "${user.avatar}"}, "trailing": {"badge": "Loud Club", "tone": "info"}, "action": {"type": "navigate", "to": "Profile"}},
+        {"type": "listRow", "title": "Addresses", "subtitle": "2 saved", "leading": {"icon": "location_on"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Addresses"}},
+        {"type": "listRow", "title": "Payment methods", "subtitle": "Visa ending 4421", "leading": {"icon": "credit_card"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Payment methods"}},
+        {"type": "listRow", "title": "Sizes", "subtitle": "Tops M / Bottoms 32 / Shoes 10", "leading": {"icon": "style"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Sizes"}}
+      ]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications",
+      "layout": "stack",
+      "children": [
+        {"type": "switchRow", "title": "Drop alerts", "subtitle": "Know before it sells out", "icon": "notifications_active", "bind": "dropAlerts"},
+        {"type": "switchRow", "title": "Order updates", "subtitle": "Shipped, out for delivery, at your door", "icon": "local_shipping", "bind": "orderUpdates"},
+        {"type": "switchRow", "title": "The zine", "subtitle": "One email a week. Promise.", "icon": "mail", "bind": "newsletter"}
+      ]
+    },
+    {
+      "id": "appearance",
+      "title": "Appearance",
+      "layout": "stack",
+      "children": [
+        {"type": "segmented", "options": ["Light", "Dark", "System"], "bind": "theme"}
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Privacy and security",
+      "layout": "stack",
+      "children": [
+        {"type": "switchRow", "title": "Personalized picks", "subtitle": "Use your browsing to tune recommendations", "icon": "auto_awesome", "bind": "personalized"},
+        {"type": "switchRow", "title": "Sign in with Face ID", "icon": "fingerprint", "bind": "faceId"},
+        {"type": "listRow", "title": "Change password", "leading": {"icon": "lock_outline"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Change password"}},
+        {"type": "listRow", "title": "Privacy policy", "leading": {"icon": "privacy_tip"}, "trailing": {"icon": "open_in_new", "action": {"type": "link", "url": "https://kiosk.shop/privacy"}}, "action": {"type": "link", "url": "https://kiosk.shop/privacy"}}
+      ]
+    },
+    {
+      "id": "help",
+      "title": "Help",
+      "layout": "stack",
+      "children": [
+        {"type": "listRow", "title": "Talk to a human", "subtitle": "Usually replies in 10 min", "leading": {"icon": "support_agent"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Support"}},
+        {"type": "listRow", "title": "Returns", "subtitle": "30 days, no drama", "leading": {"icon": "replay"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Returns"}}
+      ]
+    },
+    {
+      "id": "signout",
+      "layout": "stack",
+      "children": [
+        {"type": "button", "label": "Log out", "icon": "logout", "variant": "outline", "fullWidth": true, "action": {"type": "navigate", "to": "Login", "then": {"type": "toast", "message": "Logged out. See you soon."}}},
+        {"type": "button", "label": "Delete account", "icon": "delete", "variant": "ghost", "fullWidth": true, "action": {"type": "navigate", "to": "Delete account"}},
+        {"type": "text", "text": "Kiosk v4.2.0", "style": "caption", "color": "onSurfaceVariant"}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "error": {"icon": "error_outline", "title": "Settings won't load", "message": "Something jammed. Give it another shot.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

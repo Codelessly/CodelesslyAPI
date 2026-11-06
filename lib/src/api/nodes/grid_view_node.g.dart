@@ -319,6 +319,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..tilt = json['tilt'] == null
           ? null
           : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -402,6 +403,7 @@ Map<String, dynamic> _$GridViewNodeToJson(
   'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
   'flip': ?instance.flip?.toJson(),
   'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
@@ -480,9 +482,9 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
   HeroFlight.morph: 'morph',
   HeroFlight.fadeThrough: 'fadeThrough',
-  HeroFlight.arc: 'arc',
   HeroFlight.containerTransform: 'containerTransform',
 };
 

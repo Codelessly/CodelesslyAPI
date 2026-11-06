@@ -171,6 +171,7 @@ void main() {
         'textAlignHorizontal',
         'overflow',
         'tabularFigures',
+        'fontFeatures',
         'textMixedProps[].fontSize',
         'textMixedProps[].fontName',
         'textMixedProps[].lineHeight',

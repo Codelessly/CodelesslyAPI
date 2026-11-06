@@ -87,6 +87,8 @@ Map<String, dynamic> _$SwitchPropertiesOmitDefaults(
   if (isJsonDefault(instance.useMaterial3, false)) json.remove('useMaterial3');
   if (isJsonDefault(instance.uniformThumb, false)) json.remove('uniformThumb');
   if (isJsonDefault(instance.fillTrack, false)) json.remove('fillTrack');
+  if (isJsonDefault(instance.thumbShadows, <Effect>[]))
+    json.remove('thumbShadows');
   return json;
 }
 
@@ -236,6 +238,7 @@ SwitchNode _$SwitchNodeFromJson(Map json) =>
       ..tilt = json['tilt'] == null
           ? null
           : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -297,6 +300,7 @@ Map<String, dynamic> _$SwitchNodeToJson(
   'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
   'flip': ?instance.flip?.toJson(),
   'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'type': instance.type,
@@ -334,9 +338,9 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
   HeroFlight.morph: 'morph',
   HeroFlight.fadeThrough: 'fadeThrough',
-  HeroFlight.arc: 'arc',
   HeroFlight.containerTransform: 'containerTransform',
 };
 
@@ -377,6 +381,12 @@ SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(
   useMaterial3: json['useMaterial3'] as bool? ?? false,
   uniformThumb: json['uniformThumb'] as bool? ?? false,
   fillTrack: json['fillTrack'] as bool? ?? false,
+  thumbShadows:
+      (json['thumbShadows'] as List<dynamic>?)
+          ?.map((e) => Effect.fromJson(e as Map))
+          .toList() ??
+      [],
+  thumbInset: (json['thumbInset'] as num?)?.toDouble(),
 );
 
 Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
@@ -395,4 +405,6 @@ Map<String, dynamic> _$SwitchPropertiesToJson(SwitchProperties instance) =>
       'useMaterial3': instance.useMaterial3,
       'uniformThumb': instance.uniformThumb,
       'fillTrack': instance.fillTrack,
+      'thumbShadows': instance.thumbShadows.map((e) => e.toJson()).toList(),
+      'thumbInset': ?instance.thumbInset,
     };
