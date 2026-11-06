@@ -232,6 +232,19 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// Width of the [accentColor] bar.
   final double accentWidth;
 
+  /// Tilt of the toast in degrees, e.g. -1.5 for a sticky note stuck on
+  /// slightly crooked. 0 for none.
+  final double rotation;
+
+  /// The curve the toast comes in on: a [MotionCurve] name such as
+  /// `easeOutBack` (a note that drops in and settles) or `elasticOut`.
+  final String enterCurve;
+
+  /// How far the toast travels as it comes in, as a share of its height
+  /// (from above for a top toast, below for a bottom one): 0.25 slides in
+  /// a little, 1 drops in from a whole toast away.
+  final double enterOffset;
+
   /// Color of the [icon]. Null takes the message color.
   final ColorRGBA? iconColor;
 
@@ -287,6 +300,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.actionStyle,
     this.accentColor,
     this.accentWidth = 4,
+    this.rotation = 0,
+    this.enterCurve = 'easeOutCubic',
+    this.enterOffset = 0.25,
     this.iconColor,
     this.fontFamily,
     this.alignment = ToastAlignment.center,
@@ -357,6 +373,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actionStyle,
     accentColor,
     accentWidth,
+    rotation,
+    enterCurve,
+    enterOffset,
     iconColor,
     fontFamily,
     alignment,
@@ -414,6 +433,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     ColorRGBA? accentColor,
     bool clearAccentColor = false,
     double? accentWidth,
+    double? rotation,
+    String? enterCurve,
+    double? enterOffset,
     ColorRGBA? iconColor,
     bool clearIconColor = false,
     String? fontFamily,
@@ -465,6 +487,9 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actionStyle: clearActionStyle ? null : actionStyle ?? this.actionStyle,
     accentColor: clearAccentColor ? null : accentColor ?? this.accentColor,
     accentWidth: accentWidth ?? this.accentWidth,
+    rotation: rotation ?? this.rotation,
+    enterCurve: enterCurve ?? this.enterCurve,
+    enterOffset: enterOffset ?? this.enterOffset,
     iconColor: clearIconColor ? null : iconColor ?? this.iconColor,
     fontFamily: clearFontFamily ? null : fontFamily ?? this.fontFamily,
     alignment: alignment ?? this.alignment,

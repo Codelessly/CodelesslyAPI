@@ -28,6 +28,11 @@ Map<String, dynamic> _$ShowToastActionOmitDefaults(
   if (isJsonDefault(instance.maxWidth, 560)) json.remove('maxWidth');
   if (isJsonDefault(instance.minWidth, 0)) json.remove('minWidth');
   if (isJsonDefault(instance.accentWidth, 4)) json.remove('accentWidth');
+  if (isJsonDefault(instance.rotation, 0)) json.remove('rotation');
+  if (isJsonDefault(instance.enterCurve, 'easeOutCubic')) {
+    json.remove('enterCurve');
+  }
+  if (isJsonDefault(instance.enterOffset, 0.25)) json.remove('enterOffset');
   if (isJsonDefault(instance.alignment, ToastAlignment.center))
     json.remove('alignment');
   if (isJsonDefault(instance.sideMargin, 16)) json.remove('sideMargin');
@@ -110,6 +115,9 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ? null
       : ColorRGBA.fromJson(json['accentColor']),
   accentWidth: (json['accentWidth'] as num?)?.toDouble() ?? 4,
+  rotation: (json['rotation'] as num?)?.toDouble() ?? 0,
+  enterCurve: json['enterCurve'] as String? ?? 'easeOutCubic',
+  enterOffset: (json['enterOffset'] as num?)?.toDouble() ?? 0.25,
   iconColor: json['iconColor'] == null
       ? null
       : ColorRGBA.fromJson(json['iconColor']),
@@ -205,6 +213,9 @@ Map<String, dynamic> _$ShowToastActionToJson(
   'actionStyle': ?instance.actionStyle?.toJson(),
   'accentColor': ?instance.accentColor?.toJson(),
   'accentWidth': instance.accentWidth,
+  'rotation': instance.rotation,
+  'enterCurve': instance.enterCurve,
+  'enterOffset': instance.enterOffset,
   'iconColor': ?instance.iconColor?.toJson(),
   'fontFamily': ?instance.fontFamily,
   'alignment': _$ToastAlignmentEnumMap[instance.alignment]!,
