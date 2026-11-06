@@ -7,6 +7,27 @@ import '../../../codelessly_api.dart';
 
 part 'motion.g.dart';
 
+/// How [MotionModel.pathProgress] maps to a point on [MotionModel.path].
+enum MotionPathPacing {
+  /// Progress is the share of the path's length travelled: constant speed
+  /// along the curve.
+  length,
+
+  /// Progress is the share of the area swept by a line from the focus
+  /// ([MotionModel.pathFocusX], [MotionModel.pathFocusY]) to the node:
+  /// Kepler's second law. A planet on an elliptical path with the Sun at the
+  /// focus, whose progress grows steadily with time (its mean anomaly over
+  /// 360°), speeds up near the Sun and slows far from it, as real planets
+  /// do. Progress 0 is the path's start.
+  area;
+
+  /// Displayable name.
+  String get prettify => switch (this) {
+    MotionPathPacing.length => 'Even speed',
+    MotionPathPacing.area => 'Equal areas (orbit)',
+  };
+}
+
 /// The easing a [MotionModel] transition follows.
 enum MotionCurve {
   /// Constant speed.
@@ -81,13 +102,19 @@ enum MotionLoop {
   restart,
 
   /// From rest to its values and back, over and over (a pulse).
-  reverse;
+  reverse,
+
+  /// Swings around rest on a sine, to its values and as far the other way,
+  /// one swing each [MotionModel.durationMs]: a door's wheel rocking ±20°,
+  /// a pendulum, a needle sweeping a gauge. It rests at rest, not at an end.
+  swing;
 
   /// Displayable name.
   String get prettify => switch (this) {
     MotionLoop.none => 'No loop',
     MotionLoop.restart => 'Loop',
     MotionLoop.reverse => 'Back and forth',
+    MotionLoop.swing => 'Swing around rest',
   };
 }
 
@@ -410,6 +437,41 @@ class MotionModel with Equatable, SerializableMixin {
   /// of equality.
   final Set<String> named;
 
+  /// Freezes the motion where it is: a running loop (and the spin) stops at
+  /// its current point instead of easing back to rest the way a loop
+  /// switched off does, and carries on from that point when this turns
+  /// false again. Chairs on a lift's cable loop stop where they hang when
+  /// the lift goes on hold and ride on when it reopens. Meant to be bound
+  /// through `motion.paused` in [BaseNode.variables], e.g. to
+  /// `${= status == 'hold'}`; see [pausedProperty].
+  final bool paused;
+
+  /// Where a [loop] starts in its cycle, from 0 (the start) to 1: a loop
+  /// with phase 0.25 begins a quarter of the way through. Several nodes
+  /// sharing one motion (the same path, timing and keyframes) can then be
+  /// spread round it, e.g. the chairs of one lift riding its cable loop
+  /// evenly spaced, as items of one list with `motion.phase` bound to
+  /// `${= index / count}`. Ignored without a loop.
+  final double phase;
+  /// How [pathProgress] maps to a point on [path]: by length (even speed)
+  /// or by area swept about the focus (an orbit).
+  final MotionPathPacing pathPacing;
+
+  /// The focus of [MotionPathPacing.area] pacing (the Sun of an orbit), in
+  /// the path's own coordinates: the same pixels as the path data, not
+  /// relative to its first point. (0, 0) by default, so an orbit written
+  /// around its focus at the origin needs nothing set.
+  final double pathFocusX;
+
+  /// See [pathFocusX].
+  final double pathFocusY;
+
+  /// Reads [pathProgress] modulo 1, so a node on a closed path keeps going
+  /// round: 1.25 is a quarter of the way round again, and a formula can grow
+  /// it without bound (`${= days / period}`). A transition between two
+  /// progresses goes the short way round, across the start.
+  final bool pathWrap;
+
   /// Values the node passes through during every transition (a value
   /// change, the entrance, a replay, a [pulseKey] pulse, each loop), each at
   /// a share of the transition's time: a card flip that swells at the
@@ -472,6 +534,12 @@ class MotionModel with Equatable, SerializableMixin {
     this.orientToPath = false,
     this.arc = 0,
     this.named = const {},
+    this.paused = false,
+    this.phase = 0,
+    this.pathPacing = MotionPathPacing.length,
+    this.pathFocusX = 0,
+    this.pathFocusY = 0,
+    this.pathWrap = false,
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
@@ -519,11 +587,24 @@ class MotionModel with Equatable, SerializableMixin {
   /// name such as `elasticOut`), so a node can open with a slow spring and
   /// close quickly: `variables['motion.durationMs'] = '${= open ? 380 :
   /// 160}'`. See [withSetting].
-  static const List<String> settings = ['durationMs', 'delayMs', 'curve', 'arc'];
+  static const List<String> settings = [
+    'durationMs',
+    'delayMs',
+    'curve',
+    'phase',
+    'arc',
+  ];
 
   /// The name of the binding that gives [path] from a variable or formula
   /// (text), e.g. a curve built from the screen's width.
   static const String pathProperty = 'path';
+
+  /// The name of the binding that gives [keyframes] from a variable or
+  /// formula: a list of maps such as `{"t": 0.4, "translateY": -60}` (or
+  /// that list as JSON text). A route-dependent gust is
+  /// `${= map(gusts, g => {t: g.tMid, translateX: g.dx, translateY: g.dy})}`.
+  /// An empty list (or a value that isn't one) clears the keyframes.
+  static const String keyframesProperty = 'keyframes';
 
   /// The name of the binding that switches the loop per state:
   /// `variables['motion.loop'] = "\${= live ? 'reverse' : 'none'}"`. It
@@ -534,6 +615,11 @@ class MotionModel with Equatable, SerializableMixin {
   /// [enterFrom] gives the loop's start. The design canvas keeps showing
   /// the saved motion.
   static const String loopProperty = 'loop';
+
+  /// The name of the binding that freezes the motion in place: true (or
+  /// on, 1) pauses it, false resumes it from where it stopped. See
+  /// [paused].
+  static const String pausedProperty = 'paused';
   /// The name of the binding that sets [delayMs], in milliseconds.
   static const String delayMsProperty = 'delayMs';
 
@@ -606,19 +692,18 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel get loopStart {
     final MotionModel? from = enterFrom;
     if (from == null) return atRest;
-    double pick(String property) =>
-        from.valueOf(property) == MotionModel.none.valueOf(property)
-        ? valueOf(property)
-        : from.valueOf(property);
-    return copyWith(
-      translateX: pick('translateX'),
-      translateY: pick('translateY'),
-      scale: pick('scale'),
-      opacity: pick('opacity'),
-      rotate: pick('rotate'),
-      rotateX: pick('rotateX'),
-      rotateY: pick('rotateY'),
-    );
+    // Every value enterFrom moves, and the path progress of a path (a chair
+    // riding its cable from 0); the spin keeps turning as it is.
+    MotionModel start = this;
+    for (final String property in properties) {
+      if (property == 'spin') continue;
+      final double value = from.valueOf(property);
+      if (value != none.valueOf(property) ||
+          property == 'pathProgress' && hasPath) {
+        start = start.withValue(property, value);
+      }
+    }
+    return start;
   }
 
   /// How the node shows while its loop is switched off by a `motion.loop`
@@ -686,6 +771,12 @@ class MotionModel with Equatable, SerializableMixin {
     bool? orientToPath,
     double? arc,
     Set<String>? named,
+    bool? paused,
+    double? phase,
+    MotionPathPacing? pathPacing,
+    double? pathFocusX,
+    double? pathFocusY,
+    bool? pathWrap,
     List<MotionKeyframe>? keyframes,
     String? pulseKey,
     bool clearPulseKey = false,
@@ -725,6 +816,12 @@ class MotionModel with Equatable, SerializableMixin {
     orientToPath: orientToPath ?? this.orientToPath,
     arc: arc ?? this.arc,
     named: named ?? this.named,
+    paused: paused ?? this.paused,
+    phase: phase ?? this.phase,
+    pathPacing: pathPacing ?? this.pathPacing,
+    pathFocusX: pathFocusX ?? this.pathFocusX,
+    pathFocusY: pathFocusY ?? this.pathFocusY,
+    pathWrap: pathWrap ?? this.pathWrap,
     keyframes: keyframes ?? this.keyframes,
     pulseKey: clearPulseKey ? null : pulseKey ?? this.pulseKey,
     revealOnScroll: revealOnScroll ?? this.revealOnScroll,
@@ -805,6 +902,14 @@ class MotionModel with Equatable, SerializableMixin {
       case 'curve':
         final MotionCurve? curve = parseCurve(value);
         return curve == null ? this : copyWith(curve: curve);
+      case 'phase':
+        final double? phase = switch (value) {
+          num n => n.toDouble(),
+          String s => double.tryParse(s.trim()),
+          _ => null,
+        };
+        if (phase == null || !phase.isFinite) return this;
+        return copyWith(phase: phase - phase.floorToDouble());
       default:
         throw ArgumentError.value(property, 'property');
     }
@@ -943,6 +1048,12 @@ class MotionModel with Equatable, SerializableMixin {
     pathProgress,
     orientToPath,
     arc,
+    paused,
+    phase,
+    pathPacing,
+    pathFocusX,
+    pathFocusY,
+    pathWrap,
     keyframes,
     pulseKey,
     revealOnScroll,

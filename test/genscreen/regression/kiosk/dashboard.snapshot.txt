@@ -1,4 +1,4 @@
-# mobile bb6a7d29
+# mobile 594e13d5
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -241,7 +241,7 @@ column "Screen" expanded/expanded
       icon "Icon settings" fixed/fixed
       text "Nav label" shrinkWrap/shrinkWrap
 
-# tablet 5dc78383
+# tablet 527b4fea
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -266,7 +266,7 @@ column "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -356,7 +356,7 @@ column "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
@@ -484,7 +484,7 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop 047d7a10
+# desktop 3425a3a3
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     text "App bar title" expanded/shrinkWrap
@@ -509,7 +509,7 @@ column "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -598,7 +598,7 @@ column "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed

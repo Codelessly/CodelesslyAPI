@@ -200,7 +200,7 @@ column "Screen" expanded/expanded
       icon "Icon settings" fixed/fixed
       text "Nav label" shrinkWrap/shrinkWrap
 
-# tablet 0bfa5222
+# tablet e7501f7e
 row "Screen" expanded/expanded
   column "Rail" fixed/expanded
     column "Nav Overview" expanded/shrinkWrap
@@ -221,9 +221,10 @@ row "Screen" expanded/expanded
       text "Nav label" shrinkWrap/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      text "App bar title" expanded/shrinkWrap
-      row "Icon button Export report" fixed/fixed
-        icon "Icon download" fixed/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded
@@ -232,7 +233,7 @@ row "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -305,7 +306,7 @@ row "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
@@ -412,7 +413,7 @@ row "Screen" expanded/expanded
           row "Button Try again" shrinkWrap/fixed
             text "Label" shrinkWrap/shrinkWrap
 
-# desktop 71ffad13
+# desktop 864670cd
 row "Screen" expanded/expanded
   column "Sidebar" fixed/expanded
     row "Nav Overview" expanded/fixed
@@ -429,9 +430,10 @@ row "Screen" expanded/expanded
       text "Nav label" expanded/shrinkWrap
   column "Screen" expanded/expanded
     row "App bar" expanded/fixed
-      text "App bar title" expanded/shrinkWrap
-      row "Icon button Export report" fixed/fixed
-        icon "Icon download" fixed/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
     variance "States" expanded/expanded
       variant content
         column "Scroll" expanded/expanded
@@ -440,7 +442,7 @@ row "Screen" expanded/expanded
               column "Heading" expanded/shrinkWrap
                 text "Title" expanded/shrinkWrap
                 text "Subtitle" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   text "Option" expanded/shrinkWrap
                 row "Option 30 days" expanded/fixed
@@ -512,7 +514,7 @@ row "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
                 row "Option 7 days" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed

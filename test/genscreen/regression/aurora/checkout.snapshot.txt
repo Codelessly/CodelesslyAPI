@@ -1,4 +1,4 @@
-# mobile b518230f
+# mobile 83ed9b90
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     row "Icon button Back" fixed/fixed
@@ -228,12 +228,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet 0d32e203
+# tablet d805e219
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -266,7 +267,7 @@ column "Screen" expanded/expanded
                 row "Section header" expanded/shrinkWrap
                   text "Section title" expanded/shrinkWrap
                 column "Section body" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
+                  row "Segmented" fixed/shrinkWrap
                     row "Option Standard" expanded/fixed
                       text "Option" expanded/shrinkWrap
                     row "Option Express" expanded/fixed
@@ -363,7 +364,7 @@ column "Screen" expanded/expanded
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
                 column "Section body" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
+                  row "Segmented" fixed/shrinkWrap
                     row "Option Standard" expanded/fixed
                       row "Skeleton line" expanded/fixed
                         row "Skeleton" expanded/fixed
@@ -464,12 +465,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop e0f61a35
+# desktop 6e3d566d
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -502,7 +504,7 @@ column "Screen" expanded/expanded
                 row "Section header" expanded/shrinkWrap
                   text "Section title" expanded/shrinkWrap
                 column "Section body" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
+                  row "Segmented" fixed/shrinkWrap
                     row "Option Standard" expanded/fixed
                       text "Option" expanded/shrinkWrap
                     row "Option Express" expanded/fixed
@@ -599,7 +601,7 @@ column "Screen" expanded/expanded
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
                 column "Section body" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
+                  row "Segmented" fixed/shrinkWrap
                     row "Option Standard" expanded/fixed
                       row "Skeleton line" expanded/fixed
                         row "Skeleton" expanded/fixed
