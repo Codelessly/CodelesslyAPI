@@ -89,6 +89,16 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   actionColor: json['actionColor'] == null
       ? null
       : ColorRGBA.fromJson(json['actionColor']),
+  actionBackgroundColor: json['actionBackgroundColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['actionBackgroundColor']),
+  actionBorder: json['actionBorder'] == null
+      ? null
+      : BorderSideModel.fromJson(json['actionBorder'] as Map),
+  actionShadows: (json['actionShadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
+  actionCornerRadius: (json['actionCornerRadius'] as num?)?.toDouble(),
   showClose: json['showClose'] as bool? ?? false,
   closeColor: json['closeColor'] == null
       ? null
@@ -201,6 +211,10 @@ Map<String, dynamic> _$ShowToastActionToJson(
     (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
   ),
   'actionColor': ?instance.actionColor?.toJson(),
+  'actionBackgroundColor': ?instance.actionBackgroundColor?.toJson(),
+  'actionBorder': ?instance.actionBorder?.toJson(),
+  'actionShadows': ?instance.actionShadows?.map((e) => e.toJson()).toList(),
+  'actionCornerRadius': ?instance.actionCornerRadius,
   'showClose': instance.showClose,
   'closeColor': ?instance.closeColor?.toJson(),
   'cornerRadius': ?instance.cornerRadius,
