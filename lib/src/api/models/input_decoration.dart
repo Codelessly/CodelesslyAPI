@@ -116,6 +116,14 @@ class InputDecorationModel with Equatable, SerializableMixin {
   /// or "£" belongs on the field before anything is typed.
   final bool affixesAlwaysVisible;
 
+  /// Whether the border's width adds to [contentPadding], as a container's
+  /// border adds to its padding: the field keeps its text the padding away
+  /// from the inside of the border in effect (enabled, focused, error or
+  /// disabled), so a field whose border thickens when focused or in error
+  /// grows by the difference. Flutter's InputDecorator draws an outline
+  /// border over the padding instead (false).
+  final bool paddingIncludesBorder;
+
   /// The style to use for the [suffixText].
   final TextProp suffixStyle;
 
@@ -221,6 +229,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     ReactiveIconModel? suffixIcon,
     this.suffixText,
     this.affixesAlwaysVisible = false,
+    this.paddingIncludesBorder = false,
     TextProp? suffixStyle,
     this.suffixIconConstraints = const BoxConstraintsModel(),
     this.suffixIconPadding,
@@ -306,6 +315,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     ReactiveIconModel? suffixIcon,
     String? suffixText,
     bool? affixesAlwaysVisible,
+    bool? paddingIncludesBorder,
     TextProp? suffixStyle,
     BoxConstraintsModel? suffixIconConstraints,
     EdgeInsetsModel? suffixIconPadding,
@@ -354,6 +364,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     suffixIcon: suffixIcon ?? this.suffixIcon,
     suffixText: suffixText ?? this.suffixText,
     affixesAlwaysVisible: affixesAlwaysVisible ?? this.affixesAlwaysVisible,
+    paddingIncludesBorder: paddingIncludesBorder ?? this.paddingIncludesBorder,
     suffixStyle: suffixStyle ?? this.suffixStyle,
     suffixIconConstraints: suffixIconConstraints ?? this.suffixIconConstraints,
     suffixIconPadding: suffixIconPadding ?? this.suffixIconPadding,
@@ -407,6 +418,7 @@ class InputDecorationModel with Equatable, SerializableMixin {
     suffixIcon,
     suffixText,
     affixesAlwaysVisible,
+    paddingIncludesBorder,
     suffixStyle,
     suffixIconConstraints,
     suffixIconPadding,
