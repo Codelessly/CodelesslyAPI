@@ -787,6 +787,7 @@ abstract interface class ActionVisitor<R> {
 
   /// Visits a [FocusAction].
   R? visitFocusAction(FocusAction action);
+
   /// Visits a [ControlDragAction].
   R? visitControlDragAction(ControlDragAction action);
 
@@ -801,8 +802,10 @@ abstract interface class ActionVisitor<R> {
 
   /// Visits a [ScrollToAction].
   R? visitScrollToAction(ScrollToAction action);
+
   /// Visits a [PlaySoundAction].
   R? visitPlaySoundAction(PlaySoundAction action);
+
   /// Visits an [EditTextAction].
   R? visitEditTextAction(EditTextAction action);
 
