@@ -50,6 +50,32 @@ class RowColumnNode extends ParentNode
   @JsonKey(defaultValue: true)
   bool clipsScrollContent = true;
 
+  /// Whether children that overflow this row/column's main axis shrink to
+  /// fit it (by how far each can shrink, never below its content), as the
+  /// editor lays them out. False lays them out at their own sizes and lets
+  /// them run past its end, as a Flutter `Row`/`Column` does: a screen whose
+  /// content is a couple of pixels taller than its column keeps every piece
+  /// at its size.
+  @JsonKey(defaultValue: true)
+  bool squeezeChildren = true;
+
+  /// Whether a row/column that scrolls ([isScrollable]) makes its content at
+  /// least as long as its viewport, as Flutter's `ConstrainedBox(minHeight:
+  /// viewport)` around an `IntrinsicHeight` column in a
+  /// `SingleChildScrollView` does: while the children fit, the main-axis
+  /// alignment places them in the whole viewport (an error card centred on
+  /// the screen) and expanded or flexible children share what is left of
+  /// it; once they are longer the content scrolls, flex children at their
+  /// design size.
+  ///
+  /// A scrolling row/column already does this when it centres or spreads
+  /// its children or has a flex child; this makes it do so in every case
+  /// (start-aligned content, the runs of a wrapping one). One that hugs its
+  /// content along its scroll axis (a `flexible` fit) has no free space to
+  /// fill and keeps hugging.
+  @JsonKey(defaultValue: false)
+  bool fillViewport = false;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -177,6 +203,13 @@ class RowColumnNode extends ParentNode
       () => clipsScrollContent,
       (value) => clipsScrollContent = value,
       defaultValue: () => true,
+    ),
+    'fillViewport': BoolFieldAccess(
+      'Fill Viewport',
+      'Whether a scrolling row/column\'s content is at least as long as its viewport, so alignment and expanded children use the whole viewport while it fits.',
+      () => fillViewport,
+      (value) => fillViewport = value,
+      defaultValue: () => false,
     ),
     'runSpacing': NumFieldAccess<double>(
       'Run Spacing',
@@ -342,6 +375,9 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.componentVersion = source.componentVersion;
   target.componentSchema = source.componentSchema;
   target.squeezable = source.squeezable;
+  target.ignorePointer = source.ignorePointer;
+  target.keepAspect = source.keepAspect;
+  target.floating = source.floating;
   target.widthFactor = source.widthFactor;
   target.heightFactor = source.heightFactor;
   target.interactionStates = source.interactionStates;
@@ -362,10 +398,13 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.drag = source.drag;
   target.heroTag = source.heroTag;
   target.heroFlight = source.heroFlight;
+  target.key = source.key;
   target.layoutAspectRatio = source.layoutAspectRatio;
   target.sizeTransition = source.sizeTransition;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
   target.foregroundFills = source.foregroundFills;
   target.clipsScrollContent = source.clipsScrollContent;
+  target.fillViewport = source.fillViewport;
+  target.squeezeChildren = source.squeezeChildren;
 }

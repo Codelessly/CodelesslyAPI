@@ -43,4 +43,19 @@ void main() {
       'scaleTo': 1.4,
     });
   });
+
+  test('a loop starts from what enterFrom moves, path progress included', () {
+    final MotionModel ride = MotionModel.fromJson({
+      'path': 'M0 0 L100 0',
+      'pathProgress': 1,
+      'scaleX': 2,
+      'loop': 'restart',
+      'durationMs': 1000,
+      'enterFrom': {'pathProgress': 0, 'scaleX': 0.5},
+    });
+    expect(ride.loopStart.pathProgress, 0);
+    expect(ride.loopStart.scaleX, 0.5);
+    // What enterFrom leaves alone holds at the motion's value.
+    expect(ride.loopStart.path, ride.path);
+  });
 }

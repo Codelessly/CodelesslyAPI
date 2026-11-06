@@ -16,6 +16,7 @@ Map<String, dynamic> _$EffectAnimationOmitDefaults(
   if (isJsonDefault(instance.originX, 0)) json.remove('originX');
   if (isJsonDefault(instance.originY, 0)) json.remove('originY');
   if (isJsonDefault(instance.playOnAppear, false)) json.remove('playOnAppear');
+  if (isJsonDefault(instance.cycles, 0)) json.remove('cycles');
   return json;
 }
 
@@ -59,6 +60,7 @@ EffectAnimation _$EffectAnimationFromJson(Map json) => EffectAnimation(
   originX: (json['originX'] as num?)?.toDouble() ?? 0,
   originY: (json['originY'] as num?)?.toDouble() ?? 0,
   playOnAppear: json['playOnAppear'] as bool? ?? false,
+  cycles: (json['cycles'] as num?)?.toDouble() ?? 0,
 );
 
 Map<String, dynamic> _$EffectAnimationToJson(EffectAnimation instance) =>
@@ -71,6 +73,7 @@ Map<String, dynamic> _$EffectAnimationToJson(EffectAnimation instance) =>
       'originX': instance.originX,
       'originY': instance.originY,
       'playOnAppear': instance.playOnAppear,
+      'cycles': instance.cycles,
     };
 
 const _$EffectAnimationTypeEnumMap = {
