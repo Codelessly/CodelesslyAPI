@@ -105,4 +105,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.exitViewport: 'exitViewport',
   TriggerType.refresh: 'refresh',
   TriggerType.swipeAction: 'swipeAction',
+  TriggerType.backPressed: 'backPressed',
 };

@@ -5,6 +5,7 @@ import '../json_defaults.dart';
 import '../mixins.dart';
 import '../nodes/nodes.dart';
 import 'drag.dart';
+import 'physics.dart';
 import 'trigger.dart';
 
 part 'drag_and_drop.g.dart';
@@ -70,7 +71,9 @@ enum FeedbackAnchor {
 ///
 /// While a drag is in progress the predefined `drag` variable describes it
 /// (`drag.active`, `drag.group`, `drag.data`, `drag.count`, `drag.over`,
-/// `drag.beforeId`, `drag.index`, `drag.accepted`, ...), so any node can
+/// `drag.beforeId`, `drag.index`, `drag.accepted`, and `drag.x`, `drag.y`,
+/// `drag.fx`, `drag.fy`: where the dragged node's centre is over the target
+/// under it, in pixels and as a share of the target's size), so any node can
 /// bind to it to highlight targets or show where the drop will land.
 @JsonSerializable()
 class DraggableModel with Equatable, SerializableMixin {
@@ -112,7 +115,9 @@ class DraggableModel with Equatable, SerializableMixin {
   final double feedbackElevation;
 
   /// A node to draw under the pointer instead of a copy of this one (e.g. a
-  /// stack showing `${drag.count} cards`). Empty for a copy.
+  /// stack showing `${drag.count} cards`). Empty for a copy. It is built by
+  /// id, with this node's data (its list item), so it need not be shown
+  /// anywhere: keep it hidden, or off the screen.
   final String feedbackNodeId;
 
   /// Which point of the copy that follows the pointer sits under it.
@@ -134,8 +139,26 @@ class DraggableModel with Equatable, SerializableMixin {
   /// node's variables to switch it with app state (a tile already placed).
   final bool enabled;
 
+  /// The return spring, shared with [DragModel.physics] and
+  /// [TransformGestureModel.physics]. Null uses [returnSpring],
+  /// [springStiffness] and [springDamping]; see [effectivePhysics].
+  final PhysicsModel? physics;
+
   /// The key in [BaseNode.variables] that binds [enabled].
   static const String enabledVariable = 'draggable.enabled';
+
+  /// The spring a drag no target takes flies back on: [physics], or the
+  /// first spring settings while [returnSpring] is on, or null for no
+  /// spring (the node reappears in place at once).
+  PhysicsModel? get effectivePhysics {
+    if (physics != null) return physics;
+    if (!returnSpring) return null;
+    return PhysicsModel(
+      stiffness: springStiffness,
+      damping: springDamping,
+      fling: false,
+    );
+  }
 
   /// Creates a [DraggableModel].
   const DraggableModel({
@@ -155,6 +178,7 @@ class DraggableModel with Equatable, SerializableMixin {
     this.springStiffness = 260,
     this.springDamping = 14,
     this.enabled = true,
+    this.physics,
   });
 
   /// Duplicates this instance with the given data overrides.
@@ -175,6 +199,8 @@ class DraggableModel with Equatable, SerializableMixin {
     double? springStiffness,
     double? springDamping,
     bool? enabled,
+    PhysicsModel? physics,
+    bool clearPhysics = false,
   }) => DraggableModel(
     group: group ?? this.group,
     data: data ?? this.data,
@@ -192,6 +218,7 @@ class DraggableModel with Equatable, SerializableMixin {
     springStiffness: springStiffness ?? this.springStiffness,
     springDamping: springDamping ?? this.springDamping,
     enabled: enabled ?? this.enabled,
+    physics: clearPhysics ? null : physics ?? this.physics,
   );
 
   @override
@@ -212,6 +239,7 @@ class DraggableModel with Equatable, SerializableMixin {
     springStiffness,
     springDamping,
     enabled,
+    physics,
   ];
 
   /// Creates a [DraggableModel] from JSON data. Also reads the first form

@@ -97,6 +97,9 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   actionShadows: (json['actionShadows'] as List<dynamic>?)
       ?.map((e) => Effect.fromJson(e as Map))
       .toList(),
+  iconShadows: (json['iconShadows'] as List<dynamic>?)
+      ?.map((e) => Effect.fromJson(e as Map))
+      .toList(),
   actionCornerRadius: (json['actionCornerRadius'] as num?)?.toDouble(),
   showClose: json['showClose'] as bool? ?? false,
   closeColor: json['closeColor'] == null
@@ -213,6 +216,7 @@ Map<String, dynamic> _$ShowToastActionToJson(
   'actionBackgroundColor': ?instance.actionBackgroundColor?.toJson(),
   'actionBorder': ?instance.actionBorder?.toJson(),
   'actionShadows': ?instance.actionShadows?.map((e) => e.toJson()).toList(),
+  'iconShadows': ?instance.iconShadows?.map((e) => e.toJson()).toList(),
   'actionCornerRadius': ?instance.actionCornerRadius,
   'showClose': instance.showClose,
   'closeColor': ?instance.closeColor?.toJson(),

@@ -214,6 +214,9 @@ SignatureNormalizedNode _$SignatureNormalizedNodeFromJson(Map json) =>
       ..drag = json['drag'] == null
           ? null
           : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
       ..floating = json['floating'] as bool? ?? false
       ..heroTag = json['heroTag'] as String?
       ..heroFlight = $enumDecodeNullable(
@@ -286,6 +289,7 @@ Map<String, dynamic> _$SignatureNormalizedNodeToJson(
   'strokePath': ?instance.strokePath?.toJson(),
   'reveal': ?instance.reveal?.toJson(),
   'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],

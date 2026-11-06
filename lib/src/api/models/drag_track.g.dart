@@ -29,11 +29,22 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.pivotY, 0)) json.remove('pivotY');
   if (isJsonDefault(instance.rotate, true)) json.remove('rotate');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.orientUpright, false))
+    json.remove('orientUpright');
   if (isJsonDefault(instance.viewBoxWidth, 0)) json.remove('viewBoxWidth');
   if (isJsonDefault(instance.viewBoxHeight, 0)) json.remove('viewBoxHeight');
   if (isJsonDefault(instance.relative, false)) json.remove('relative');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.detent, 0)) json.remove('detent');
+  if (isJsonDefault(instance.overscroll, 0)) json.remove('overscroll');
+  if (isJsonDefault(instance.settleMs, 0)) json.remove('settleMs');
+  if (isJsonDefault(instance.settleCurve, MotionCurve.easeOutCubic))
+    json.remove('settleCurve');
+  if (isJsonDefault(instance.settleStiffness, 380))
+    json.remove('settleStiffness');
+  if (isJsonDefault(instance.settleDamping, 20)) json.remove('settleDamping');
+  if (isJsonDefault(instance.keyboard, true)) json.remove('keyboard');
   if (isJsonDefault(instance.doubleTapValues, const []))
     json.remove('doubleTapValues');
   if (isJsonDefault(instance.hitArea, DragTrackHitArea.self))
@@ -84,6 +95,17 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   rotate: json['rotate'] as bool? ?? true,
   path: json['path'] as String?,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  orientUpright: json['orientUpright'] as bool? ?? false,
+  detent: (json['detent'] as num?)?.toDouble() ?? 0,
+  overscroll: (json['overscroll'] as num?)?.toDouble() ?? 0,
+  settleMs: (json['settleMs'] as num?)?.toInt() ?? 0,
+  settleCurve:
+      $enumDecodeNullable(_$MotionCurveEnumMap, json['settleCurve']) ??
+      MotionCurve.easeOutCubic,
+  settleStiffness: (json['settleStiffness'] as num?)?.toDouble() ?? 380,
+  settleDamping: (json['settleDamping'] as num?)?.toDouble() ?? 20,
+  parkedProgress: (json['parkedProgress'] as num?)?.toDouble(),
+  keyboard: json['keyboard'] as bool? ?? true,
   viewBoxWidth: (json['viewBoxWidth'] as num?)?.toDouble() ?? 0,
   viewBoxHeight: (json['viewBoxHeight'] as num?)?.toDouble() ?? 0,
   relative: json['relative'] as bool? ?? false,
@@ -137,11 +159,20 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'rotate': instance.rotate,
       'path': ?instance.path,
       'orientToPath': instance.orientToPath,
+      'orientUpright': instance.orientUpright,
       'viewBoxWidth': instance.viewBoxWidth,
       'viewBoxHeight': instance.viewBoxHeight,
       'relative': instance.relative,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'detent': instance.detent,
+      'overscroll': instance.overscroll,
+      'settleMs': instance.settleMs,
+      'settleCurve': _$MotionCurveEnumMap[instance.settleCurve]!,
+      'settleStiffness': instance.settleStiffness,
+      'settleDamping': instance.settleDamping,
+      'parkedProgress': ?instance.parkedProgress,
+      'keyboard': instance.keyboard,
       'wheelStep': ?instance.wheelStep,
       'doubleTapValues': instance.doubleTapValues,
       'keyStep': ?instance.keyStep,
@@ -172,6 +203,22 @@ const _$DragTrackInputEnumMap = {
   DragTrackInput.vertical: 'vertical',
   DragTrackInput.horizontal: 'horizontal',
   DragTrackInput.both: 'both',
+};
+
+const _$MotionCurveEnumMap = {
+  MotionCurve.linear: 'linear',
+  MotionCurve.easeInOut: 'easeInOut',
+  MotionCurve.easeOut: 'easeOut',
+  MotionCurve.easeIn: 'easeIn',
+  MotionCurve.easeOutBack: 'easeOutBack',
+  MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
 };
 
 const _$DragTrackHitAreaEnumMap = {

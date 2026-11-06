@@ -13,6 +13,18 @@ Map<String, dynamic> _$MotionKeyframeOmitDefaults(
   return json;
 }
 
+Map<String, dynamic> _$MotionShimmerOmitDefaults(
+  MotionShimmer instance,
+  Map<String, dynamic> json,
+) {
+  if (isJsonDefault(instance.color, '#FFFFFFFF')) json.remove('color');
+  if (isJsonDefault(instance.strength, 0.8)) json.remove('strength');
+  if (isJsonDefault(instance.width, 0.44)) json.remove('width');
+  if (isJsonDefault(instance.durationMs, 1400)) json.remove('durationMs');
+  if (isJsonDefault(instance.angle, 0)) json.remove('angle');
+  return json;
+}
+
 Map<String, dynamic> _$MotionModelOmitDefaults(
   MotionModel instance,
   Map<String, dynamic> json,
@@ -48,6 +60,8 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.orientUpright, false))
+    json.remove('orientUpright');
   if (isJsonDefault(instance.arc, 0)) json.remove('arc');
   if (isJsonDefault(instance.paused, false)) json.remove('paused');
   if (isJsonDefault(instance.phase, 0)) json.remove('phase');
@@ -97,6 +111,23 @@ Map<String, dynamic> _$MotionKeyframeToJson(MotionKeyframe instance) =>
       'pathProgress': ?instance.pathProgress,
     };
 
+MotionShimmer _$MotionShimmerFromJson(Map json) => MotionShimmer(
+  color: json['color'] as String? ?? '#FFFFFFFF',
+  strength: (json['strength'] as num?)?.toDouble() ?? 0.8,
+  width: (json['width'] as num?)?.toDouble() ?? 0.44,
+  durationMs: (json['durationMs'] as num?)?.toInt() ?? 1400,
+  angle: (json['angle'] as num?)?.toDouble() ?? 0,
+);
+
+Map<String, dynamic> _$MotionShimmerToJson(MotionShimmer instance) =>
+    <String, dynamic>{
+      'color': instance.color,
+      'strength': instance.strength,
+      'width': instance.width,
+      'durationMs': instance.durationMs,
+      'angle': instance.angle,
+    };
+
 MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   translateX: (json['translateX'] as num?)?.toDouble() ?? 0,
   translateY: (json['translateY'] as num?)?.toDouble() ?? 0,
@@ -134,6 +165,7 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  orientUpright: json['orientUpright'] as bool? ?? false,
   arc: (json['arc'] as num?)?.toDouble() ?? 0,
   paused: json['paused'] as bool? ?? false,
   phase: (json['phase'] as num?)?.toDouble() ?? 0,
@@ -152,6 +184,9 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   revealOnScroll: json['revealOnScroll'] as bool? ?? false,
   revealFraction:
       (json['revealFraction'] as num?)?.toDouble() ?? kDefaultVisibleFraction,
+  shimmer: json['shimmer'] == null
+      ? null
+      : MotionShimmer.fromJson(json['shimmer'] as Map),
 );
 
 Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
@@ -187,6 +222,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
+      'orientUpright': instance.orientUpright,
       'arc': instance.arc,
       'paused': instance.paused,
       'phase': instance.phase,
@@ -198,6 +234,7 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'pulseKey': ?instance.pulseKey,
       'revealOnScroll': instance.revealOnScroll,
       'revealFraction': instance.revealFraction,
+      'shimmer': ?instance.shimmer?.toJson(),
     };
 
 const _$MotionCurveEnumMap = {
