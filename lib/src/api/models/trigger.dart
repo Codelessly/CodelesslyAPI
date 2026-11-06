@@ -224,7 +224,18 @@ enum TriggerType {
   /// is visible falls below [TriggerModel.visibleFraction] after it was in
   /// view (see [enterViewport]). For example, gives a sticky header its
   /// "scrolled" style once the hero scrolls away.
-  exitViewport;
+  exitViewport,
+
+  /// Triggered on a screen (canvas) when the user tries to leave it with the
+  /// browser's back button, the system back button or gesture (Android,
+  /// iOS swipe back) or Escape on a dialog, while the screen's
+  /// [CanvasNode.blockBackVariable] binding (`variables['blockBack']`, e.g.
+  /// `${= dirty}`) is true. The screen then stays, and these actions run
+  /// instead, e.g. a "Discard changes?" confirm whose agreeing branch leaves
+  /// with a Navigation pop, which the block does not stop. While the binding
+  /// is false (or the canvas has none), back leaves as usual and this
+  /// trigger doesn't fire.
+  backPressed;
 
   /// The triggers for the target entering and leaving the view.
   static const List<TriggerType> viewport = [
@@ -361,6 +372,8 @@ enum TriggerType {
         return 'Enter Viewport';
       case TriggerType.exitViewport:
         return 'Exit Viewport';
+      case TriggerType.backPressed:
+        return 'Back Pressed';
     }
   }
 }

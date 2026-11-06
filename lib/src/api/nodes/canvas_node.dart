@@ -55,7 +55,23 @@ class CanvasNode extends ParentNode
     TriggerType.clock,
     TriggerType.scroll,
     TriggerType.keyUp,
+    TriggerType.backPressed,
   ];
+
+  /// The key of the binding in [variables] that, while true, keeps the user
+  /// on this screen when they go back (the browser's back button, the
+  /// system back button or gesture): a formula or variable such as
+  /// `${= dirty}`, or `true`. The screen's [TriggerType.backPressed]
+  /// reactions run instead, e.g. to ask "Discard changes?" and leave with a
+  /// Navigation pop when the user agrees: a pop from the screen's own
+  /// actions is never blocked.
+  ///
+  /// ```json
+  /// {"variables": {"blockBack": "${= dirty}"},
+  ///  "reactions": [{"trigger": {"type": "backPressed"},
+  ///                 "action": {"type": "confirm", ...}}]}
+  /// ```
+  static const String blockBackVariable = 'blockBack';
 
   @override
   List<ReactionMixin> get reactiveChildren =>
