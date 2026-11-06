@@ -84,11 +84,6 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
   actionColor: json['actionColor'] == null
       ? null
       : ColorRGBA.fromJson(json['actionColor']),
-  showClose: json['showClose'] as bool? ?? false,
-  closeColor: json['closeColor'] == null
-      ? null
-      : ColorRGBA.fromJson(json['closeColor']),
-  cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
   actionBackgroundColor: json['actionBackgroundColor'] == null
       ? null
       : ColorRGBA.fromJson(json['actionBackgroundColor']),
@@ -99,6 +94,11 @@ ShowToastAction _$ShowToastActionFromJson(Map json) => ShowToastAction(
       ?.map((e) => Effect.fromJson(e as Map))
       .toList(),
   actionCornerRadius: (json['actionCornerRadius'] as num?)?.toDouble(),
+  showClose: json['showClose'] as bool? ?? false,
+  closeColor: json['closeColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['closeColor']),
+  cornerRadius: (json['cornerRadius'] as num?)?.toDouble(),
   border: json['border'] == null
       ? null
       : BorderSideModel.fromJson(json['border'] as Map),
@@ -203,13 +203,13 @@ Map<String, dynamic> _$ShowToastActionToJson(
     (k, e) => MapEntry(_$ScreenBreakpointEnumMap[k]!, e),
   ),
   'actionColor': ?instance.actionColor?.toJson(),
-  'showClose': instance.showClose,
-  'closeColor': ?instance.closeColor?.toJson(),
-  'cornerRadius': ?instance.cornerRadius,
   'actionBackgroundColor': ?instance.actionBackgroundColor?.toJson(),
   'actionBorder': ?instance.actionBorder?.toJson(),
   'actionShadows': ?instance.actionShadows?.map((e) => e.toJson()).toList(),
   'actionCornerRadius': ?instance.actionCornerRadius,
+  'showClose': instance.showClose,
+  'closeColor': ?instance.closeColor?.toJson(),
+  'cornerRadius': ?instance.cornerRadius,
   'border': ?instance.border?.toJson(),
   'shadows': ?instance.shadows?.map((e) => e.toJson()).toList(),
   'padding': ?instance.padding?.toJson(),
@@ -299,4 +299,5 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.haptic: 'haptic',
 };
