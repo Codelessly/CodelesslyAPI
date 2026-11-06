@@ -1,0 +1,75 @@
+{
+  "title": "Settings",
+  "summary": "Lets people manage their account, security, notifications and display preferences.",
+  "pattern": "settings",
+  "appBar": {"title": "Settings", "leading": "back"},
+  "data": {
+    "user": {"name": "Maya Chen", "email": "maya.chen@northwind.io", "plan": "Pro plan", "avatar": "https://picsum.photos/seed/mayachen/200/200"}
+  },
+  "variables": [
+    {"name": "pushAlerts", "type": "boolean", "value": true},
+    {"name": "weeklySummary", "type": "boolean", "value": true},
+    {"name": "largeTransactions", "type": "boolean", "value": false},
+    {"name": "biometricLogin", "type": "boolean", "value": true},
+    {"name": "theme", "type": "text", "value": "System"}
+  ],
+  "sections": [
+    {
+      "id": "account",
+      "title": "Account",
+      "layout": "stack",
+      "children": [
+        {"type": "listRow", "title": "${user.name}", "subtitle": "${user.email}", "leading": {"avatar": "${user.avatar}"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Profile"}},
+        {"type": "listRow", "title": "Subscription", "subtitle": "${user.plan} · renews Dec 14, 2026", "leading": {"icon": "credit_card"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Subscription"}},
+        {"type": "listRow", "title": "Linked accounts", "subtitle": "3 bank accounts", "leading": {"icon": "account_balance"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Linked accounts"}}
+      ]
+    },
+    {
+      "id": "security",
+      "title": "Security",
+      "layout": "stack",
+      "children": [
+        {"type": "switchRow", "title": "Face ID sign-in", "subtitle": "Use biometrics instead of your password", "icon": "fingerprint", "bind": "biometricLogin"},
+        {"type": "listRow", "title": "Change password", "subtitle": "Last changed 4 months ago", "leading": {"icon": "lock_outline"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Change password"}},
+        {"type": "listRow", "title": "Two-step verification", "subtitle": "On · authenticator app", "leading": {"icon": "verified_user"}, "trailing": {"badge": "On", "tone": "success"}, "action": {"type": "navigate", "to": "Two-step verification"}},
+        {"type": "listRow", "title": "Signed-in devices", "subtitle": "2 devices", "leading": {"icon": "devices"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Devices"}}
+      ]
+    },
+    {
+      "id": "notifications",
+      "title": "Notifications",
+      "layout": "stack",
+      "children": [
+        {"type": "switchRow", "title": "Push notifications", "subtitle": "Payments, reminders and account alerts", "icon": "notifications_none", "bind": "pushAlerts"},
+        {"type": "switchRow", "title": "Weekly summary", "subtitle": "Email every Monday at 8:00", "icon": "email", "bind": "weeklySummary"},
+        {"type": "switchRow", "title": "Large transactions", "subtitle": "Alert for payments over $500", "icon": "attach_money", "bind": "largeTransactions"}
+      ]
+    },
+    {
+      "id": "display",
+      "title": "Appearance",
+      "layout": "stack",
+      "children": [
+        {"type": "text", "text": "Theme", "style": "label"},
+        {"type": "segmented", "options": ["Light", "Dark", "System"], "bind": "theme"},
+        {"type": "listRow", "title": "Language", "subtitle": "English (US)", "leading": {"icon": "language"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Language"}},
+        {"type": "listRow", "title": "Currency", "subtitle": "USD ($)", "leading": {"icon": "attach_money"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Currency"}}
+      ]
+    },
+    {
+      "id": "support",
+      "title": "Support",
+      "layout": "stack",
+      "children": [
+        {"type": "listRow", "title": "Help center", "leading": {"icon": "help_outline"}, "trailing": {"icon": "open_in_new", "action": {"type": "link", "url": "https://help.example.com"}}, "action": {"type": "link", "url": "https://help.example.com"}},
+        {"type": "listRow", "title": "Privacy policy", "leading": {"icon": "privacy_tip"}, "trailing": "chevron", "action": {"type": "navigate", "to": "Privacy policy"}},
+        {"type": "button", "label": "Sign out", "icon": "logout", "variant": "outline", "fullWidth": true, "action": {"type": "navigate", "to": "Login"}},
+        {"type": "text", "text": "Version 4.12.0", "style": "caption", "color": "onSurfaceVariant", "align": "center"}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "error": {"icon": "error_outline", "title": "Couldn't load settings", "message": "Your preferences are saved. Check your connection and try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

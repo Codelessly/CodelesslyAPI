@@ -327,6 +327,7 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };
 
 ProgressBarProperties _$ProgressBarPropertiesFromJson(Map json) =>
