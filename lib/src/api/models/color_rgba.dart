@@ -109,3 +109,18 @@ final class ColorRGBA extends ColorRGB with DynamicSerializableMixin {
     opacity: opacity ?? a,
   );
 }
+
+/// [color] as text, the way formulas and text bindings read a colour:
+/// `#RRGGBB` when it is opaque, else `#AARRGGBB` (channels rounded, so
+/// `ColorRGBA.fromHex('#FF8A2B')` reads `#FF8A2B` again).
+String colorHexText(ColorRGB color) {
+  String two(double channel) => (channel.clamp(0, 1) * 255)
+      .round()
+      .toRadixString(16)
+      .padLeft(2, '0')
+      .toUpperCase();
+  final double alpha = color is ColorRGBA ? color.a : 1;
+  final String alphaText = two(alpha);
+  return '#${alphaText == 'FF' ? '' : alphaText}'
+      '${two(color.r)}${two(color.g)}${two(color.b)}';
+}

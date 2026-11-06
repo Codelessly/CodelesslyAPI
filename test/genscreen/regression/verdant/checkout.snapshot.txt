@@ -1,0 +1,730 @@
+# mobile b579083d
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "Icon button Back" fixed/fixed
+      icon "Icon arrow_back" fixed/fixed
+    text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section delivery" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              column "Input Full name" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon person_outline" fixed/fixed
+                  textField "Input fullName" expanded/shrinkWrap
+              column "Input Street address" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon location_on" fixed/fixed
+                  textField "Input address" expanded/shrinkWrap
+              column "Input City and ZIP" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  textField "Input city" expanded/shrinkWrap
+              column "Input Phone" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon phone" fixed/fixed
+                  textField "Input phone" expanded/shrinkWrap
+                text "Helper" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+              row "Chips" expanded/shrinkWrap
+                row "Chip Tomorrow morning" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Tomorrow evening" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Saturday" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+              column "Input Note for the driver" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/shrinkWrap
+                  textField "Input deliveryNote" expanded/shrinkWrap
+          column "Section payment" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              column "Input Card number" expanded/shrinkWrap
+                text "Field label" expanded/shrinkWrap
+                row "Field box" expanded/fixed
+                  icon "Icon credit_card" fixed/fixed
+                  textField "Input cardNumber" expanded/shrinkWrap
+              row "Group" expanded/shrinkWrap
+                column "Input Expiry" expanded/shrinkWrap
+                  text "Field label" expanded/shrinkWrap
+                  row "Field box" expanded/fixed
+                    textField "Input expiry" expanded/shrinkWrap
+                column "Input CVC" expanded/shrinkWrap
+                  text "Field label" expanded/shrinkWrap
+                  row "Field box" expanded/fixed
+                    textField "Input cvc" expanded/shrinkWrap
+              row "Row Plastic-free packaging" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  icon "Icon circle" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  text "Title" expanded/shrinkWrap
+                  text "Subtitle" expanded/shrinkWrap
+                switch "Switch ecoPackaging" fixed/fixed
+          column "Section order" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              listView "List" expanded/shrinkWrap
+                row "Row ${item.name}" expanded/shrinkWrap
+                  rectangle "Thumbnail" fixed/fixed
+                  column "Texts" expanded/shrinkWrap
+                    text "Title" expanded/shrinkWrap
+                    text "Subtitle" expanded/shrinkWrap
+                  text "Trailing" shrinkWrap/shrinkWrap
+              row "Divider" expanded/fixed
+              row "Key value" expanded/shrinkWrap
+                text "Key" expanded/shrinkWrap
+                text "Value" shrinkWrap/shrinkWrap
+              row "Key value" expanded/shrinkWrap
+                text "Key" expanded/shrinkWrap
+                text "Value" shrinkWrap/shrinkWrap
+              row "Key value" expanded/shrinkWrap
+                text "Key" expanded/shrinkWrap
+                text "Value" shrinkWrap/shrinkWrap
+              row "Key value" expanded/shrinkWrap
+                text "Key" expanded/shrinkWrap
+                text "Value" shrinkWrap/shrinkWrap
+              row "Button Place order" expanded/fixed
+                icon "Icon lock" fixed/fixed
+                text "Label" expanded/shrinkWrap
+              text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section delivery" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              column "Input Full name" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+              column "Input Street address" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+              column "Input City and ZIP" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              column "Input Phone" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Chips" expanded/shrinkWrap
+                row "Chip Tomorrow morning" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Tomorrow evening" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Saturday" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              column "Input Note for the driver" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/shrinkWrap
+                  row "Skeleton" expanded/fixed
+          column "Section payment" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              column "Input Card number" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Field box" expanded/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton" expanded/fixed
+              row "Group" expanded/shrinkWrap
+                column "Input Expiry" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Field box" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Input CVC" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Field box" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              row "Row Plastic-free packaging" expanded/shrinkWrap
+                row "Leading" fixed/fixed
+                  row "Skeleton" fixed/fixed
+                column "Texts" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Skeleton" fixed/fixed
+          column "Section order" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              listView "List" expanded/shrinkWrap
+                row "Row ${item.name}" expanded/shrinkWrap
+                  rectangle "Thumbnail" fixed/fixed
+                  column "Texts" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              row "Divider" expanded/fixed
+              row "Key value" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Key value" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Key value" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Key value" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+              row "Button Place order" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon shopping_bag" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Visit the market" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# tablet 27a3b72e
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          row "Split" expanded/shrinkWrap
+            column "Main" expanded/shrinkWrap
+              column "Section delivery" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  column "Input Full name" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon person_outline" fixed/fixed
+                      textField "Input fullName" expanded/shrinkWrap
+                  column "Input Street address" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon location_on" fixed/fixed
+                      textField "Input address" expanded/shrinkWrap
+                  column "Input City and ZIP" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      textField "Input city" expanded/shrinkWrap
+                  column "Input Phone" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon phone" fixed/fixed
+                      textField "Input phone" expanded/shrinkWrap
+                    text "Helper" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Saturday" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                  column "Input Note for the driver" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/shrinkWrap
+                      textField "Input deliveryNote" expanded/shrinkWrap
+              column "Section payment" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  column "Input Card number" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon credit_card" fixed/fixed
+                      textField "Input cardNumber" expanded/shrinkWrap
+                  row "Group" expanded/shrinkWrap
+                    column "Input Expiry" expanded/shrinkWrap
+                      text "Field label" expanded/shrinkWrap
+                      row "Field box" expanded/fixed
+                        textField "Input expiry" expanded/shrinkWrap
+                    column "Input CVC" expanded/shrinkWrap
+                      text "Field label" expanded/shrinkWrap
+                      row "Field box" expanded/fixed
+                        textField "Input cvc" expanded/shrinkWrap
+                  row "Row Plastic-free packaging" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      icon "Icon circle" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      text "Title" expanded/shrinkWrap
+                      text "Subtitle" expanded/shrinkWrap
+                    switch "Switch ecoPackaging" fixed/fixed
+            column "Aside" expanded/shrinkWrap
+              column "Section order" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  listView "List" expanded/shrinkWrap
+                    row "Row ${item.name}" expanded/shrinkWrap
+                      rectangle "Thumbnail" fixed/fixed
+                      column "Texts" expanded/shrinkWrap
+                        text "Title" expanded/shrinkWrap
+                        text "Subtitle" expanded/shrinkWrap
+                      text "Trailing" shrinkWrap/shrinkWrap
+                  row "Divider" expanded/fixed
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Button Place order" expanded/fixed
+                    icon "Icon lock" fixed/fixed
+                    text "Label" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          row "Split" expanded/shrinkWrap
+            column "Main" expanded/shrinkWrap
+              column "Section delivery" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  column "Input Full name" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input Street address" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input City and ZIP" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input Phone" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Saturday" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                  column "Input Note for the driver" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/shrinkWrap
+                      row "Skeleton" expanded/fixed
+              column "Section payment" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  column "Input Card number" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Group" expanded/shrinkWrap
+                    column "Input Expiry" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Field box" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    column "Input CVC" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Field box" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                  row "Row Plastic-free packaging" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      row "Skeleton" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    row "Skeleton" fixed/fixed
+            column "Aside" expanded/shrinkWrap
+              column "Section order" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  listView "List" expanded/shrinkWrap
+                    row "Row ${item.name}" expanded/shrinkWrap
+                      rectangle "Thumbnail" fixed/fixed
+                      column "Texts" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                  row "Divider" expanded/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Button Place order" expanded/fixed
+                    row "Skeleton" fixed/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon shopping_bag" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Visit the market" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+
+# desktop f13f6ffc
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          row "Split" expanded/shrinkWrap
+            column "Main" expanded/shrinkWrap
+              column "Section delivery" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  column "Input Full name" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon person_outline" fixed/fixed
+                      textField "Input fullName" expanded/shrinkWrap
+                  column "Input Street address" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon location_on" fixed/fixed
+                      textField "Input address" expanded/shrinkWrap
+                  column "Input City and ZIP" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      textField "Input city" expanded/shrinkWrap
+                  column "Input Phone" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon phone" fixed/fixed
+                      textField "Input phone" expanded/shrinkWrap
+                    text "Helper" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Saturday" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                  column "Input Note for the driver" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/shrinkWrap
+                      textField "Input deliveryNote" expanded/shrinkWrap
+              column "Section payment" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  column "Input Card number" expanded/shrinkWrap
+                    text "Field label" expanded/shrinkWrap
+                    row "Field box" expanded/fixed
+                      icon "Icon credit_card" fixed/fixed
+                      textField "Input cardNumber" expanded/shrinkWrap
+                  row "Group" expanded/shrinkWrap
+                    column "Input Expiry" expanded/shrinkWrap
+                      text "Field label" expanded/shrinkWrap
+                      row "Field box" expanded/fixed
+                        textField "Input expiry" expanded/shrinkWrap
+                    column "Input CVC" expanded/shrinkWrap
+                      text "Field label" expanded/shrinkWrap
+                      row "Field box" expanded/fixed
+                        textField "Input cvc" expanded/shrinkWrap
+                  row "Row Plastic-free packaging" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      icon "Icon circle" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      text "Title" expanded/shrinkWrap
+                      text "Subtitle" expanded/shrinkWrap
+                    switch "Switch ecoPackaging" fixed/fixed
+            column "Aside" expanded/shrinkWrap
+              column "Section order" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  text "Section title" expanded/shrinkWrap
+                column "Section body" expanded/shrinkWrap
+                  listView "List" expanded/shrinkWrap
+                    row "Row ${item.name}" expanded/shrinkWrap
+                      rectangle "Thumbnail" fixed/fixed
+                      column "Texts" expanded/shrinkWrap
+                        text "Title" expanded/shrinkWrap
+                        text "Subtitle" expanded/shrinkWrap
+                      text "Trailing" shrinkWrap/shrinkWrap
+                  row "Divider" expanded/fixed
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Key value" expanded/shrinkWrap
+                    text "Key" expanded/shrinkWrap
+                    text "Value" shrinkWrap/shrinkWrap
+                  row "Button Place order" expanded/fixed
+                    icon "Icon lock" fixed/fixed
+                    text "Label" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          row "Split" expanded/shrinkWrap
+            column "Main" expanded/shrinkWrap
+              column "Section delivery" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  column "Input Full name" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input Street address" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input City and ZIP" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  column "Input Phone" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Saturday" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                  column "Input Note for the driver" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/shrinkWrap
+                      row "Skeleton" expanded/fixed
+              column "Section payment" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  column "Input Card number" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Field box" expanded/fixed
+                      row "Skeleton" fixed/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Group" expanded/shrinkWrap
+                    column "Input Expiry" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Field box" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    column "Input CVC" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Field box" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                  row "Row Plastic-free packaging" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      row "Skeleton" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    row "Skeleton" fixed/fixed
+            column "Aside" expanded/shrinkWrap
+              column "Section order" expanded/shrinkWrap
+                row "Section header" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                column "Section body" expanded/shrinkWrap
+                  listView "List" expanded/shrinkWrap
+                    row "Row ${item.name}" expanded/shrinkWrap
+                      rectangle "Thumbnail" fixed/fixed
+                      column "Texts" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                  row "Divider" expanded/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Key value" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Button Place order" expanded/fixed
+                    row "Skeleton" fixed/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon shopping_bag" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Visit the market" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap

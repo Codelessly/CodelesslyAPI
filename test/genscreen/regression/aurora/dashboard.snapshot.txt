@@ -1,0 +1,881 @@
+# mobile 147eb25d
+column "Screen" expanded/expanded
+  row "App bar" expanded/fixed
+    text "App bar title" expanded/shrinkWrap
+    row "Icon button Export report" fixed/fixed
+      icon "Icon download" fixed/fixed
+    row "Icon button Notifications" fixed/fixed
+      icon "Icon notifications_none" fixed/fixed
+  variance "States" expanded/expanded
+    variant content
+      column "Scroll" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            column "Heading" expanded/shrinkWrap
+              text "Title" expanded/shrinkWrap
+              text "Subtitle" expanded/shrinkWrap
+            row "Segmented" expanded/shrinkWrap
+              row "Option 7 days" expanded/fixed
+                text "Option" expanded/shrinkWrap
+              row "Option 30 days" expanded/fixed
+                text "Option" expanded/shrinkWrap
+              row "Option 90 days" expanded/fixed
+                text "Option" expanded/shrinkWrap
+              row "Option 12 months" expanded/fixed
+                text "Option" expanded/shrinkWrap
+          column "Section kpis" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+                  text "Text" expanded/shrinkWrap
+          column "Section charts" expanded/shrinkWrap
+            column "Card Revenue by channel" expanded/shrinkWrap
+              column "Card body" expanded/shrinkWrap
+                text "Card title" expanded/shrinkWrap
+                text "Card subtitle" expanded/shrinkWrap
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+            column "Card Goals" expanded/shrinkWrap
+              column "Card body" expanded/shrinkWrap
+                text "Card title" expanded/shrinkWrap
+                text "Card subtitle" expanded/shrinkWrap
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    text "Progress label" expanded/shrinkWrap
+                    text "Progress caption" shrinkWrap/shrinkWrap
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+          column "Section products" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              text "Section title" expanded/shrinkWrap
+            column "Section body" expanded/shrinkWrap
+              listView "List" expanded/shrinkWrap
+                row "Row ${item.name}" expanded/shrinkWrap
+                  row "Leading" fixed/fixed
+                    icon "Icon sell" fixed/fixed
+                  column "Texts" expanded/shrinkWrap
+                    text "Title" expanded/shrinkWrap
+                    text "Subtitle" expanded/shrinkWrap
+                  text "Trailing" shrinkWrap/shrinkWrap
+              row "Button View full report" expanded/fixed
+                icon "Icon bar_chart" fixed/fixed
+                text "Label" expanded/shrinkWrap
+    variant loading
+      column "Loading skeleton" expanded/expanded
+        column "Content" expanded/shrinkWrap
+          column "Section header" expanded/shrinkWrap
+            column "Heading" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            row "Segmented" expanded/shrinkWrap
+              row "Option 7 days" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Option 30 days" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Option 90 days" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Option 12 months" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+          column "Section kpis" expanded/shrinkWrap
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+            row "Grid row" expanded/shrinkWrap
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+              column "Card" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+          column "Section charts" expanded/shrinkWrap
+            column "Card Revenue by channel" expanded/shrinkWrap
+              column "Card body" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+            column "Card Goals" expanded/shrinkWrap
+              column "Card body" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+                column "Progress" expanded/shrinkWrap
+                  row "Progress labels" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                  row "Track" expanded/fixed
+                    row "Progress value" expanded/fixed
+          column "Section products" expanded/shrinkWrap
+            row "Section header" expanded/shrinkWrap
+              row "Skeleton line" expanded/fixed
+                row "Skeleton" expanded/fixed
+            column "Section body" expanded/shrinkWrap
+              listView "List" expanded/shrinkWrap
+                row "Row ${item.name}" expanded/shrinkWrap
+                  row "Leading" fixed/fixed
+                    row "Skeleton" fixed/fixed
+                  column "Texts" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+              row "Button View full report" expanded/fixed
+                row "Skeleton" fixed/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+    variant empty
+      column "Empty state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon insights" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Show 90 days" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+    variant error
+      column "Error state" expanded/expanded
+        row "Icon badge" fixed/fixed
+          icon "Icon error_outline" fixed/fixed
+        text "State title" expanded/shrinkWrap
+        text "State message" expanded/shrinkWrap
+        row "Button Try again" shrinkWrap/fixed
+          text "Label" shrinkWrap/shrinkWrap
+  row "Bottom nav" expanded/fixed
+    column "Nav Overview" expanded/expanded
+      icon "Icon dashboard" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Analytics" expanded/expanded
+      icon "Icon analytics" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Invoices" expanded/expanded
+      icon "Icon receipt_long" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Settings" expanded/expanded
+      icon "Icon settings" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+
+# tablet 33753cb8
+row "Screen" expanded/expanded
+  column "Rail" fixed/expanded
+    column "Nav Overview" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon dashboard" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Analytics" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon analytics" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Invoices" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon receipt_long" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Settings" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon settings" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+  column "Screen" expanded/expanded
+    row "App bar" expanded/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
+        row "Icon button Notifications" fixed/fixed
+          icon "Icon notifications_none" fixed/fixed
+    variance "States" expanded/expanded
+      variant content
+        column "Scroll" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section header" expanded/shrinkWrap
+              column "Heading" expanded/shrinkWrap
+                text "Title" expanded/shrinkWrap
+                text "Subtitle" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
+                row "Option 7 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 30 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 90 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 12 months" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+            column "Section kpis" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+            column "Section charts" expanded/shrinkWrap
+              column "Card Revenue by channel" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Card title" expanded/shrinkWrap
+                  text "Card subtitle" expanded/shrinkWrap
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+              column "Card Goals" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  text "Card title" expanded/shrinkWrap
+                  text "Card subtitle" expanded/shrinkWrap
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      text "Progress label" expanded/shrinkWrap
+                      text "Progress caption" shrinkWrap/shrinkWrap
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+            column "Section products" expanded/shrinkWrap
+              row "Section header" expanded/shrinkWrap
+                text "Section title" expanded/shrinkWrap
+              column "Section body" expanded/shrinkWrap
+                listView "List" expanded/shrinkWrap
+                  row "Row ${item.name}" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      icon "Icon sell" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      text "Title" expanded/shrinkWrap
+                      text "Subtitle" expanded/shrinkWrap
+                    text "Trailing" shrinkWrap/shrinkWrap
+                row "Button View full report" shrinkWrap/fixed
+                  icon "Icon bar_chart" fixed/fixed
+                  text "Label" shrinkWrap/shrinkWrap
+      variant loading
+        column "Loading skeleton" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section header" expanded/shrinkWrap
+              column "Heading" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Segmented" fixed/shrinkWrap
+                row "Option 7 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 30 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 90 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 12 months" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+            column "Section kpis" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+            column "Section charts" expanded/shrinkWrap
+              column "Card Revenue by channel" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+              column "Card Goals" expanded/shrinkWrap
+                column "Card body" expanded/shrinkWrap
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+                  column "Progress" expanded/shrinkWrap
+                    row "Progress labels" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Track" expanded/fixed
+                      row "Progress value" expanded/fixed
+            column "Section products" expanded/shrinkWrap
+              row "Section header" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              column "Section body" expanded/shrinkWrap
+                listView "List" expanded/shrinkWrap
+                  row "Row ${item.name}" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      row "Skeleton" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                row "Button View full report" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+      variant empty
+        column "Empty state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon insights" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Show 90 days" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+      variant error
+        column "Error state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon error_outline" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Try again" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+
+# desktop 504505ce
+row "Screen" expanded/expanded
+  column "Rail" fixed/expanded
+    column "Nav Overview" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon dashboard" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Analytics" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon analytics" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Invoices" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon receipt_long" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+    column "Nav Settings" expanded/shrinkWrap
+      row "Indicator" shrinkWrap/fixed
+        icon "Icon settings" fixed/fixed
+      text "Nav label" shrinkWrap/shrinkWrap
+  column "Screen" expanded/expanded
+    row "App bar" expanded/fixed
+      row "App bar content" expanded/expanded
+        text "App bar title" expanded/shrinkWrap
+        row "Icon button Export report" fixed/fixed
+          icon "Icon download" fixed/fixed
+        row "Icon button Notifications" fixed/fixed
+          icon "Icon notifications_none" fixed/fixed
+    variance "States" expanded/expanded
+      variant content
+        column "Scroll" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section header" expanded/shrinkWrap
+              column "Heading" expanded/shrinkWrap
+                text "Title" expanded/shrinkWrap
+                text "Subtitle" expanded/shrinkWrap
+              row "Segmented" fixed/shrinkWrap
+                row "Option 7 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 30 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 90 days" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+                row "Option 12 months" expanded/fixed
+                  text "Option" expanded/shrinkWrap
+            column "Section kpis" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+                    text "Text" expanded/shrinkWrap
+            column "Section charts" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card Revenue by channel" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Card title" expanded/shrinkWrap
+                    text "Card subtitle" expanded/shrinkWrap
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                column "Card Goals" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    text "Card title" expanded/shrinkWrap
+                    text "Card subtitle" expanded/shrinkWrap
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        text "Progress label" expanded/shrinkWrap
+                        text "Progress caption" shrinkWrap/shrinkWrap
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+            column "Section products" expanded/shrinkWrap
+              row "Section header" expanded/shrinkWrap
+                text "Section title" expanded/shrinkWrap
+              column "Section body" expanded/shrinkWrap
+                listView "List" expanded/shrinkWrap
+                  row "Row ${item.name}" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      icon "Icon sell" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      text "Title" expanded/shrinkWrap
+                      text "Subtitle" expanded/shrinkWrap
+                    text "Trailing" shrinkWrap/shrinkWrap
+                row "Button View full report" shrinkWrap/fixed
+                  icon "Icon bar_chart" fixed/fixed
+                  text "Label" shrinkWrap/shrinkWrap
+      variant loading
+        column "Loading skeleton" expanded/expanded
+          column "Content" expanded/shrinkWrap
+            column "Section header" expanded/shrinkWrap
+              column "Heading" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              row "Segmented" fixed/shrinkWrap
+                row "Option 7 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 30 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 90 days" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+                row "Option 12 months" expanded/fixed
+                  row "Skeleton line" expanded/fixed
+                    row "Skeleton" expanded/fixed
+            column "Section kpis" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                column "Card" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+            column "Section charts" expanded/shrinkWrap
+              row "Grid row" expanded/shrinkWrap
+                column "Card Revenue by channel" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                column "Card Goals" expanded/shrinkWrap
+                  column "Card body" expanded/shrinkWrap
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    row "Skeleton line" expanded/fixed
+                      row "Skeleton" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+                    column "Progress" expanded/shrinkWrap
+                      row "Progress labels" expanded/shrinkWrap
+                        row "Skeleton line" expanded/fixed
+                          row "Skeleton" expanded/fixed
+                        row "Skeleton line" shrinkWrap/fixed
+                          row "Skeleton" fixed/fixed
+                      row "Track" expanded/fixed
+                        row "Progress value" expanded/fixed
+            column "Section products" expanded/shrinkWrap
+              row "Section header" expanded/shrinkWrap
+                row "Skeleton line" expanded/fixed
+                  row "Skeleton" expanded/fixed
+              column "Section body" expanded/shrinkWrap
+                listView "List" expanded/shrinkWrap
+                  row "Row ${item.name}" expanded/shrinkWrap
+                    row "Leading" fixed/fixed
+                      row "Skeleton" fixed/fixed
+                    column "Texts" expanded/shrinkWrap
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                      row "Skeleton line" expanded/fixed
+                        row "Skeleton" expanded/fixed
+                    row "Skeleton line" shrinkWrap/fixed
+                      row "Skeleton" fixed/fixed
+                row "Button View full report" shrinkWrap/fixed
+                  row "Skeleton" fixed/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+      variant empty
+        column "Empty state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon insights" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Show 90 days" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap
+      variant error
+        column "Error state" expanded/expanded
+          row "Icon badge" fixed/fixed
+            icon "Icon error_outline" fixed/fixed
+          text "State title" expanded/shrinkWrap
+          text "State message" expanded/shrinkWrap
+          row "Button Try again" shrinkWrap/fixed
+            text "Label" shrinkWrap/shrinkWrap

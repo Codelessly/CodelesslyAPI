@@ -62,12 +62,20 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
   if (isJsonDefault(instance.orientUpright, false))
     json.remove('orientUpright');
+  if (isJsonDefault(instance.arc, 0)) json.remove('arc');
+  if (isJsonDefault(instance.named, const <Object?>{})) json.remove('named');
+  if (isJsonDefault(instance.paused, false)) json.remove('paused');
+  if (isJsonDefault(instance.phase, 0)) json.remove('phase');
+  if (isJsonDefault(instance.pathPacing, MotionPathPacing.length))
+    json.remove('pathPacing');
+  if (isJsonDefault(instance.pathFocusX, 0)) json.remove('pathFocusX');
+  if (isJsonDefault(instance.pathFocusY, 0)) json.remove('pathFocusY');
+  if (isJsonDefault(instance.pathWrap, false)) json.remove('pathWrap');
   if (isJsonDefault(instance.keyframes, const [])) json.remove('keyframes');
   if (isJsonDefault(instance.revealOnScroll, false))
     json.remove('revealOnScroll');
   if (isJsonDefault(instance.revealFraction, kDefaultVisibleFraction))
     json.remove('revealFraction');
-  if (isJsonDefault(instance.paused, false)) json.remove('paused');
   return json;
 }
 
@@ -159,6 +167,18 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
   orientUpright: json['orientUpright'] as bool? ?? false,
+  arc: (json['arc'] as num?)?.toDouble() ?? 0,
+  named:
+      (json['named'] as List<dynamic>?)?.map((e) => e as String).toSet() ??
+      const {},
+  paused: json['paused'] as bool? ?? false,
+  phase: (json['phase'] as num?)?.toDouble() ?? 0,
+  pathPacing:
+      $enumDecodeNullable(_$MotionPathPacingEnumMap, json['pathPacing']) ??
+      MotionPathPacing.length,
+  pathFocusX: (json['pathFocusX'] as num?)?.toDouble() ?? 0,
+  pathFocusY: (json['pathFocusY'] as num?)?.toDouble() ?? 0,
+  pathWrap: json['pathWrap'] as bool? ?? false,
   keyframes:
       (json['keyframes'] as List<dynamic>?)
           ?.map((e) => MotionKeyframe.fromJson(e as Map))
@@ -168,7 +188,6 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   revealOnScroll: json['revealOnScroll'] as bool? ?? false,
   revealFraction:
       (json['revealFraction'] as num?)?.toDouble() ?? kDefaultVisibleFraction,
-  paused: json['paused'] as bool? ?? false,
   shimmer: json['shimmer'] == null
       ? null
       : MotionShimmer.fromJson(json['shimmer'] as Map),
@@ -208,11 +227,18 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
       'orientUpright': instance.orientUpright,
+      'arc': instance.arc,
+      'named': instance.named.toList(),
+      'paused': instance.paused,
+      'phase': instance.phase,
+      'pathPacing': _$MotionPathPacingEnumMap[instance.pathPacing]!,
+      'pathFocusX': instance.pathFocusX,
+      'pathFocusY': instance.pathFocusY,
+      'pathWrap': instance.pathWrap,
       'keyframes': instance.keyframes.map((e) => e.toJson()).toList(),
       'pulseKey': ?instance.pulseKey,
       'revealOnScroll': instance.revealOnScroll,
       'revealFraction': instance.revealFraction,
-      'paused': instance.paused,
       'shimmer': ?instance.shimmer?.toJson(),
     };
 
@@ -236,4 +262,10 @@ const _$MotionLoopEnumMap = {
   MotionLoop.none: 'none',
   MotionLoop.restart: 'restart',
   MotionLoop.reverse: 'reverse',
+  MotionLoop.swing: 'swing',
+};
+
+const _$MotionPathPacingEnumMap = {
+  MotionPathPacing.length: 'length',
+  MotionPathPacing.area: 'area',
 };
