@@ -29,6 +29,8 @@ Map<String, dynamic> _$InputDecorationModelOmitDefaults(
     json.remove('prefixIconConstraints');
   if (isJsonDefault(instance.affixesAlwaysVisible, false))
     json.remove('affixesAlwaysVisible');
+  if (isJsonDefault(instance.paddingIncludesBorder, false))
+    json.remove('paddingIncludesBorder');
   if (isJsonDefault(
     instance.suffixIconConstraints,
     const BoxConstraintsModel(),
@@ -136,6 +138,7 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           : ReactiveIconModel.fromJson(json['suffixIcon'] as Map),
       suffixText: json['suffixText'] as String?,
       affixesAlwaysVisible: json['affixesAlwaysVisible'] as bool? ?? false,
+      paddingIncludesBorder: json['paddingIncludesBorder'] as bool? ?? false,
       suffixStyle: json['suffixStyle'] == null
           ? null
           : TextProp.fromJson(json['suffixStyle'] as Map),
@@ -226,6 +229,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'prefixIconPadding': ?instance.prefixIconPadding?.toJson(),
   'suffixText': ?instance.suffixText,
   'affixesAlwaysVisible': instance.affixesAlwaysVisible,
+  'paddingIncludesBorder': instance.paddingIncludesBorder,
   'suffixStyle': instance.suffixStyle.toJson(),
   'suffixIcon': instance.suffixIcon.toJson(),
   'suffixIconConstraints': instance.suffixIconConstraints.toJson(),
