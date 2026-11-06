@@ -11,6 +11,7 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.shape, DragTrackShape.line)) json.remove('shape');
+  if (isJsonDefault(instance.variable, '')) json.remove('variable');
   if (isJsonDefault(instance.min, 0)) json.remove('min');
   if (isJsonDefault(instance.max, 1)) json.remove('max');
   if (isJsonDefault(instance.step, 0)) json.remove('step');
@@ -28,8 +29,30 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.pivotY, 0)) json.remove('pivotY');
   if (isJsonDefault(instance.rotate, true)) json.remove('rotate');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.viewBoxWidth, 0)) json.remove('viewBoxWidth');
+  if (isJsonDefault(instance.viewBoxHeight, 0)) json.remove('viewBoxHeight');
+  if (isJsonDefault(instance.relative, false)) json.remove('relative');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.doubleTapValues, const []))
+    json.remove('doubleTapValues');
+  if (isJsonDefault(instance.hitArea, DragTrackHitArea.self))
+    json.remove('hitArea');
+  if (isJsonDefault(instance.units, DragTrackUnits.pixels))
+    json.remove('units');
+  if (isJsonDefault(instance.fineStep, 0)) json.remove('fineStep');
+  if (isJsonDefault(instance.finePixelsPerRange, 0))
+    json.remove('finePixelsPerRange');
+  if (isJsonDefault(instance.fineHoldMs, 380)) json.remove('fineHoldMs');
+  if (isJsonDefault(instance.snapMs, 0)) json.remove('snapMs');
+  if (isJsonDefault(instance.write, true)) json.remove('write');
+  if (isJsonDefault(instance.snapCurve, 'easeOutBack'))
+    json.remove('snapCurve');
+  if (isJsonDefault(instance.endless, false)) json.remove('endless');
+  if (isJsonDefault(instance.momentum, false)) json.remove('momentum');
+  if (isJsonDefault(instance.friction, 2.6)) json.remove('friction');
+  if (isJsonDefault(instance.smooth, false)) json.remove('smooth');
+  if (isJsonDefault(instance.gain, 1)) json.remove('gain');
   return json;
 }
 
@@ -41,7 +64,7 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   shape:
       $enumDecodeNullable(_$DragTrackShapeEnumMap, json['shape']) ??
       DragTrackShape.line,
-  variable: json['variable'] as String,
+  variable: json['variable'] as String? ?? '',
   min: (json['min'] as num?)?.toDouble() ?? 0,
   max: (json['max'] as num?)?.toDouble() ?? 1,
   step: (json['step'] as num?)?.toDouble() ?? 0,
@@ -61,8 +84,36 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   rotate: json['rotate'] as bool? ?? true,
   path: json['path'] as String?,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  viewBoxWidth: (json['viewBoxWidth'] as num?)?.toDouble() ?? 0,
+  viewBoxHeight: (json['viewBoxHeight'] as num?)?.toDouble() ?? 0,
+  relative: json['relative'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
+  wheelStep: (json['wheelStep'] as num?)?.toDouble(),
+  doubleTapValues:
+      (json['doubleTapValues'] as List<dynamic>?)
+          ?.map((e) => (e as num).toDouble())
+          .toList() ??
+      const [],
+  keyStep: (json['keyStep'] as num?)?.toDouble(),
+  hitArea:
+      $enumDecodeNullable(_$DragTrackHitAreaEnumMap, json['hitArea']) ??
+      DragTrackHitArea.self,
+  units:
+      $enumDecodeNullable(_$DragTrackUnitsEnumMap, json['units']) ??
+      DragTrackUnits.pixels,
+  fineStep: (json['fineStep'] as num?)?.toDouble() ?? 0,
+  finePixelsPerRange: (json['finePixelsPerRange'] as num?)?.toDouble() ?? 0,
+  fineHoldMs: (json['fineHoldMs'] as num?)?.toInt() ?? 380,
+  fineVariable: json['fineVariable'] as String?,
+  snapMs: (json['snapMs'] as num?)?.toInt() ?? 0,
+  snapCurve: json['snapCurve'] as String? ?? 'easeOutBack',
+  write: json['write'] as bool? ?? true,
+  endless: json['endless'] as bool? ?? false,
+  momentum: json['momentum'] as bool? ?? false,
+  friction: (json['friction'] as num?)?.toDouble() ?? 2.6,
+  smooth: json['smooth'] as bool? ?? false,
+  gain: (json['gain'] as num?)?.toDouble() ?? 1,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -86,8 +137,28 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'rotate': instance.rotate,
       'path': ?instance.path,
       'orientToPath': instance.orientToPath,
+      'viewBoxWidth': instance.viewBoxWidth,
+      'viewBoxHeight': instance.viewBoxHeight,
+      'relative': instance.relative,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'wheelStep': ?instance.wheelStep,
+      'doubleTapValues': instance.doubleTapValues,
+      'keyStep': ?instance.keyStep,
+      'hitArea': _$DragTrackHitAreaEnumMap[instance.hitArea]!,
+      'units': _$DragTrackUnitsEnumMap[instance.units]!,
+      'fineStep': instance.fineStep,
+      'finePixelsPerRange': instance.finePixelsPerRange,
+      'fineHoldMs': instance.fineHoldMs,
+      'fineVariable': ?instance.fineVariable,
+      'snapMs': instance.snapMs,
+      'write': instance.write,
+      'snapCurve': instance.snapCurve,
+      'endless': instance.endless,
+      'momentum': instance.momentum,
+      'friction': instance.friction,
+      'smooth': instance.smooth,
+      'gain': instance.gain,
     };
 
 const _$DragTrackShapeEnumMap = {
@@ -100,4 +171,15 @@ const _$DragTrackInputEnumMap = {
   DragTrackInput.follow: 'follow',
   DragTrackInput.vertical: 'vertical',
   DragTrackInput.horizontal: 'horizontal',
+  DragTrackInput.both: 'both',
+};
+
+const _$DragTrackHitAreaEnumMap = {
+  DragTrackHitArea.self: 'self',
+  DragTrackHitArea.parent: 'parent',
+};
+
+const _$DragTrackUnitsEnumMap = {
+  DragTrackUnits.pixels: 'pixels',
+  DragTrackUnits.parent: 'parent',
 };
