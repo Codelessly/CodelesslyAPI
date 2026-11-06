@@ -1,4 +1,4 @@
-# mobile e263db2f
+# mobile b579083d
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
     row "Icon button Back" fixed/fixed
@@ -33,13 +33,13 @@ column "Screen" expanded/expanded
                   textField "Input phone" expanded/shrinkWrap
                 text "Helper" expanded/shrinkWrap
               text "Text" expanded/shrinkWrap
-              row "Segmented" expanded/shrinkWrap
-                row "Option Tomorrow morning" expanded/fixed
-                  text "Option" expanded/shrinkWrap
-                row "Option Tomorrow evening" expanded/fixed
-                  text "Option" expanded/shrinkWrap
-                row "Option Saturday" expanded/fixed
-                  text "Option" expanded/shrinkWrap
+              row "Chips" expanded/shrinkWrap
+                row "Chip Tomorrow morning" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Tomorrow evening" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
+                row "Chip Saturday" shrinkWrap/fixed
+                  text "Chip label" shrinkWrap/shrinkWrap
               column "Input Note for the driver" expanded/shrinkWrap
                 text "Field label" expanded/shrinkWrap
                 row "Field box" expanded/shrinkWrap
@@ -132,16 +132,16 @@ column "Screen" expanded/expanded
                   row "Skeleton" expanded/fixed
               row "Skeleton line" expanded/fixed
                 row "Skeleton" expanded/fixed
-              row "Segmented" expanded/shrinkWrap
-                row "Option Tomorrow morning" expanded/fixed
-                  row "Skeleton line" expanded/fixed
-                    row "Skeleton" expanded/fixed
-                row "Option Tomorrow evening" expanded/fixed
-                  row "Skeleton line" expanded/fixed
-                    row "Skeleton" expanded/fixed
-                row "Option Saturday" expanded/fixed
-                  row "Skeleton line" expanded/fixed
-                    row "Skeleton" expanded/fixed
+              row "Chips" expanded/shrinkWrap
+                row "Chip Tomorrow morning" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Tomorrow evening" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
+                row "Chip Saturday" shrinkWrap/fixed
+                  row "Skeleton line" shrinkWrap/fixed
+                    row "Skeleton" fixed/fixed
               column "Input Note for the driver" expanded/shrinkWrap
                 row "Skeleton line" expanded/fixed
                   row "Skeleton" expanded/fixed
@@ -237,12 +237,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet 5a9e5400
+# tablet 27a3b72e
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -274,13 +275,13 @@ column "Screen" expanded/expanded
                       textField "Input phone" expanded/shrinkWrap
                     text "Helper" expanded/shrinkWrap
                   text "Text" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
-                    row "Option Tomorrow morning" expanded/fixed
-                      text "Option" expanded/shrinkWrap
-                    row "Option Tomorrow evening" expanded/fixed
-                      text "Option" expanded/shrinkWrap
-                    row "Option Saturday" expanded/fixed
-                      text "Option" expanded/shrinkWrap
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Saturday" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
                   column "Input Note for the driver" expanded/shrinkWrap
                     text "Field label" expanded/shrinkWrap
                     row "Field box" expanded/shrinkWrap
@@ -376,16 +377,16 @@ column "Screen" expanded/expanded
                       row "Skeleton" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
-                  row "Segmented" expanded/shrinkWrap
-                    row "Option Tomorrow morning" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
-                    row "Option Tomorrow evening" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
-                    row "Option Saturday" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Saturday" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
                   column "Input Note for the driver" expanded/shrinkWrap
                     row "Skeleton line" expanded/fixed
                       row "Skeleton" expanded/fixed
@@ -482,12 +483,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop 10b95d97
+# desktop f13f6ffc
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -519,13 +521,13 @@ column "Screen" expanded/expanded
                       textField "Input phone" expanded/shrinkWrap
                     text "Helper" expanded/shrinkWrap
                   text "Text" expanded/shrinkWrap
-                  row "Segmented" expanded/shrinkWrap
-                    row "Option Tomorrow morning" expanded/fixed
-                      text "Option" expanded/shrinkWrap
-                    row "Option Tomorrow evening" expanded/fixed
-                      text "Option" expanded/shrinkWrap
-                    row "Option Saturday" expanded/fixed
-                      text "Option" expanded/shrinkWrap
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
+                    row "Chip Saturday" shrinkWrap/fixed
+                      text "Chip label" shrinkWrap/shrinkWrap
                   column "Input Note for the driver" expanded/shrinkWrap
                     text "Field label" expanded/shrinkWrap
                     row "Field box" expanded/shrinkWrap
@@ -621,16 +623,16 @@ column "Screen" expanded/expanded
                       row "Skeleton" expanded/fixed
                   row "Skeleton line" expanded/fixed
                     row "Skeleton" expanded/fixed
-                  row "Segmented" expanded/shrinkWrap
-                    row "Option Tomorrow morning" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
-                    row "Option Tomorrow evening" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
-                    row "Option Saturday" expanded/fixed
-                      row "Skeleton line" expanded/fixed
-                        row "Skeleton" expanded/fixed
+                  row "Chips" expanded/shrinkWrap
+                    row "Chip Tomorrow morning" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Tomorrow evening" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
+                    row "Chip Saturday" shrinkWrap/fixed
+                      row "Skeleton line" shrinkWrap/fixed
+                        row "Skeleton" fixed/fixed
                   column "Input Note for the driver" expanded/shrinkWrap
                     row "Skeleton line" expanded/fixed
                       row "Skeleton" expanded/fixed
