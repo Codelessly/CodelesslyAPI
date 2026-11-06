@@ -227,6 +227,20 @@ class DragTrackModel with Equatable, SerializableMixin {
   /// See [momentumVariableKey].
   static const String smoothVariableKey = 'track.smooth';
 
+  /// The node variables that bind a line's ends ([x1], [y1], [x2], [y2]):
+  /// a slider whose throw follows its groove's laid-out width,
+  /// `variables['track.x2'] = '${= parent.width - 26}'`.
+  static const String x1VariableKey = 'track.x1';
+
+  /// See [x1VariableKey].
+  static const String y1VariableKey = 'track.y1';
+
+  /// See [x1VariableKey].
+  static const String x2VariableKey = 'track.x2';
+
+  /// See [x1VariableKey].
+  static const String y2VariableKey = 'track.y2';
+
   /// Whether the value is unbounded ([endless] on an arc).
   bool get unbounded => endless && shape == DragTrackShape.arc;
 
