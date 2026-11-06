@@ -204,6 +204,7 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
       ..tilt = json['tilt'] == null
           ? null
           : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
           ? null
@@ -213,6 +214,7 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$PlaceholderNodeToJson(
   PlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -229,7 +231,6 @@ Map<String, dynamic> _$PlaceholderNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -265,6 +266,7 @@ Map<String, dynamic> _$PlaceholderNodeToJson(
   'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
   'flip': ?instance.flip?.toJson(),
   'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
   'type': instance.type,
@@ -302,9 +304,9 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
   HeroFlight.morph: 'morph',
   HeroFlight.fadeThrough: 'fadeThrough',
-  HeroFlight.arc: 'arc',
   HeroFlight.containerTransform: 'containerTransform',
 };
 
