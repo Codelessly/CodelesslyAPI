@@ -322,6 +322,8 @@ class ScreenCompiler {
   }
 
   double _space(String? token, [String fallback = 'md']) {
+    // "none" is no space at all.
+    if (token == 'none') return 0;
     final String t = token ?? fallback;
     final double? v = kit.space(t);
     if (v != null) {
@@ -1461,9 +1463,12 @@ class ScreenCompiler {
     for (final n in nodes) {
       if (n['flex'] == null) n.remove('flex');
     }
+    // Wraps rather than overflows when the buttons don't fit the column.
     return _row('Buttons', nodes,
         gap: _space('sm'),
-        main: _mainAxis(c['align']));
+        wrap: !_bp.mobile && nodes.length > 1,
+        main: _mainAxis(c['align']),
+        extra: <String, dynamic>{'runSpacing': _space('sm')});
   }
 
   Map<String, dynamic> _input(Map<String, dynamic> c) {

@@ -475,7 +475,7 @@ class ScreenPlanValidator {
     }
     _token(c['style'], '$path.style', planTextRoles, 'text style', error);
     _token(c['color'], '$path.color', kit.colors.keys, 'color', error);
-    _token(c['gap'], '$path.gap', kit.spacing.keys, 'spacing', error);
+    if (c['gap'] != 'none') _token(c['gap'], '$path.gap', kit.spacing.keys, 'spacing', error);
     _token(c['radius'], '$path.radius', kit.radius.keys, 'radius', error);
     if (c['icon'] != null) _icon(c['icon'], '$path.icon', warn);
     if (c['variant'] != null && (type == 'button' || type == 'iconButton')) {
@@ -484,7 +484,11 @@ class ScreenPlanValidator {
         error('$path.variant', 'Unknown button variant "${c['variant']}".');
       }
     }
-    if (c['tone'] != null && !const ['info', 'success', 'warning', 'error', 'neutral'].contains(c['tone'])) {
+    // A tone may also come from data (`${item.tone}`); the compiler picks the
+    // colors by formula.
+    if (c['tone'] != null &&
+        !'${c['tone']}'.contains(r'${') &&
+        !const ['info', 'success', 'warning', 'error', 'neutral'].contains(c['tone'])) {
       error('$path.tone', 'tone is info, success, warning, error or neutral.');
     }
     // Interactive components must do something.
