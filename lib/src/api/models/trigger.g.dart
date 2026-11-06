@@ -102,4 +102,5 @@ const _$TriggerTypeEnumMap = {
   TriggerType.scrollEnd: 'scrollEnd',
   TriggerType.enterViewport: 'enterViewport',
   TriggerType.exitViewport: 'exitViewport',
+  TriggerType.backPressed: 'backPressed',
 };
