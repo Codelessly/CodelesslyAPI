@@ -569,6 +569,17 @@ abstract class BaseNode
   /// dragged. See [DragModel].
   DragModel? drag;
 
+  /// Makes the node (or its content) pannable, zoomable and rotatable, with
+  /// fling physics, bounds, double-tap and wheel zoom, two-way pose
+  /// variables and optional transform handles. Null for none; see
+  /// [effectiveTransformGesture] for [zoomable]. See [TransformGestureModel].
+  TransformGestureModel? transformGesture;
+
+  /// [transformGesture], or [TransformGestureModel.zoomable] for a node
+  /// that only has the first switch, [zoomable].
+  TransformGestureModel? get effectiveTransformGesture =>
+      transformGesture ?? (zoomable ? TransformGestureModel.zoomable : null);
+
   /// Whether the node floats above the screen at runtime: drawn where its
   /// layout puts it, but over every other node, not clipped by its parents,
   /// and tappable even outside them, like a menu attached to a field (a

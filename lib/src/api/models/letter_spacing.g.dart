@@ -22,7 +22,10 @@ Map<String, dynamic> _$LetterSpacingOmitDefaults(
 LetterSpacing _$LetterSpacingFromJson(Map json) => LetterSpacing(
   value: (json['value'] as num).toDouble(),
   unit:
-      $enumDecodeNullable(_$LetterSpacingUnitEnumEnumMap, json['unit']) ??
+      $enumDecodeNullable(
+        _$LetterSpacingUnitEnumEnumMap,
+        readSizeUnit(json, 'unit'),
+      ) ??
       LetterSpacingUnitEnum.pixels,
 );
 
