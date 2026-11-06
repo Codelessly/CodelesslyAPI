@@ -613,19 +613,18 @@ class MotionModel with Equatable, SerializableMixin {
   MotionModel get loopStart {
     final MotionModel? from = enterFrom;
     if (from == null) return atRest;
-    double pick(String property) =>
-        from.valueOf(property) == MotionModel.none.valueOf(property)
-        ? valueOf(property)
-        : from.valueOf(property);
-    return copyWith(
-      translateX: pick('translateX'),
-      translateY: pick('translateY'),
-      scale: pick('scale'),
-      opacity: pick('opacity'),
-      rotate: pick('rotate'),
-      rotateX: pick('rotateX'),
-      rotateY: pick('rotateY'),
-    );
+    // Every value enterFrom moves, and the path progress of a path (a chair
+    // riding its cable from 0); the spin keeps turning as it is.
+    MotionModel start = this;
+    for (final String property in properties) {
+      if (property == 'spin') continue;
+      final double value = from.valueOf(property);
+      if (value != none.valueOf(property) ||
+          property == 'pathProgress' && hasPath) {
+        start = start.withValue(property, value);
+      }
+    }
+    return start;
   }
 
   /// How the node shows while its loop is switched off by a `motion.loop`

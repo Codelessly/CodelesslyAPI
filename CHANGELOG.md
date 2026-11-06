@@ -5,6 +5,9 @@ Found recreating Chairlift (a ski-resort status board) in the editor.
 - `MotionModel.paused` (bindable `motion.paused`): freezes a running loop and
   spin where they are and resumes from there (chairs stop where they hang
   when a lift goes on hold).
+- `MotionModel.loopStart` takes every value `enterFrom` moves, including a
+  path's `pathProgress`: a path loop with `enterFrom: {pathProgress: 0}`
+  ran from its end to its end and sat there.
 - `MotionModel.phase` (bindable `motion.phase`): a loop starts that far
   through its cycle, so the items of one list can share a looping path
   spread round it.
