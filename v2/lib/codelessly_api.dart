@@ -5,6 +5,7 @@ export 'src/behaviour_fields.dart';
 export 'src/behaviours.dart';
 export 'src/child_fits.dart';
 export 'src/bindings.dart';
+export 'src/action_fields.dart';
 export 'src/actions.dart';
 export 'src/components.dart';
 export 'src/conditions.dart';
