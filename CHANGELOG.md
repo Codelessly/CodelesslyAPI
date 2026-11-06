@@ -29,9 +29,7 @@
 - Drag tracks gain a fine mode (`fineStep`, `finePixelsPerRange`,
   `fineHoldMs`, `fineVariable`; `track.fine`), click-in animation
   (`snapMs`, `snapCurve`) and `write` (false: the track shows its variable,
-  which may be computed, and its reactions do the writing). Binding keys
-  `drag.track.min`, `drag.track.max`, `drag.track.step` and
-  `drag.track.defaultValue` set a track's range from data.
+  which may be computed, and its reactions do the writing).
 - A row or column made from `type: row/column` keeps `ignorePointer`,
   `keepAspect` and `floating` (they were dropped).
 
