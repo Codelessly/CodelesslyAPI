@@ -1,4 +1,9 @@
-## 9.2.0
+## 9.3.0
+
+The first release since 9.0.3: it publishes the 9.2.0, 9.1.0 and 9.0.4
+changes below, which were versioned but never published.
+
+### 9.2.0 (not published)
 
 Fields added while recreating the Lamplight reference app (see
 CodelesslyEditor `references/lamplight/blockers.md`):
@@ -19,7 +24,7 @@ CodelesslyEditor `references/lamplight/blockers.md`):
   `thumbShadows` and `thumbInset`.
 - Colours read as hex text in formulas.
 
-## 9.1.0
+### 9.1.0 (not published)
 
 - `motion.keyframes` binds to a list of `{t, translateX, translateY, ...}`
   maps (or that list as JSON): keyframes that follow data, such as wind
@@ -35,7 +40,7 @@ CodelesslyEditor `references/lamplight/blockers.md`):
 - `ConfirmAction.title` defaults to empty text: a confirm that opens a
   dialog canvas (`dialogId`) doesn't need one.
 
-## 9.0.4
+### 9.0.4 (not published)
 
 - `AppIdentity`: a project's identity as a web app and a mobile app (name,
   short name, title template with per-page overrides, description, keywords,
