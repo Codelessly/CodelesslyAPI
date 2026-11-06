@@ -49,6 +49,23 @@ enum DragSourceStyle {
   };
 }
 
+/// Which point of the copy that follows the pointer sits under it.
+enum FeedbackAnchor {
+  /// The point that was grabbed: the copy keeps its place relative to the
+  /// pointer, as if the node itself were lifted.
+  grab,
+
+  /// The copy's centre: a feedback node of another size than the dragged
+  /// one (a label, a token) is held by its middle.
+  center;
+
+  /// Displayable string representation.
+  String get prettify => switch (this) {
+    FeedbackAnchor.grab => 'Where grabbed',
+    FeedbackAnchor.center => 'Centre',
+  };
+}
+
 /// Makes a node draggable: the user can pick it up and drop it on a node
 /// with a [DropTargetModel] that accepts its [group].
 ///
@@ -99,6 +116,10 @@ class DraggableModel with Equatable, SerializableMixin {
   /// stack showing `${drag.count} cards`). Empty for a copy.
   final String feedbackNodeId;
 
+  /// Which point of the copy that follows the pointer sits under it.
+  @JsonKey(unknownEnumValue: FeedbackAnchor.grab)
+  final FeedbackAnchor feedbackAnchor;
+
   /// Whether a drag that no target takes flies the node back to its place
   /// with a spring ([springStiffness], [springDamping]) instead of it
   /// reappearing there at once.
@@ -148,6 +169,7 @@ class DraggableModel with Equatable, SerializableMixin {
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
     this.feedbackNodeId = '',
+    this.feedbackAnchor = FeedbackAnchor.grab,
     this.returnSpring = true,
     this.springStiffness = 260,
     this.springDamping = 14,
@@ -168,6 +190,7 @@ class DraggableModel with Equatable, SerializableMixin {
     double? feedbackOpacity,
     double? feedbackElevation,
     String? feedbackNodeId,
+    FeedbackAnchor? feedbackAnchor,
     bool? returnSpring,
     double? springStiffness,
     double? springDamping,
@@ -186,6 +209,7 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity: feedbackOpacity ?? this.feedbackOpacity,
     feedbackElevation: feedbackElevation ?? this.feedbackElevation,
     feedbackNodeId: feedbackNodeId ?? this.feedbackNodeId,
+    feedbackAnchor: feedbackAnchor ?? this.feedbackAnchor,
     returnSpring: returnSpring ?? this.returnSpring,
     springStiffness: springStiffness ?? this.springStiffness,
     springDamping: springDamping ?? this.springDamping,
@@ -206,6 +230,7 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity,
     feedbackElevation,
     feedbackNodeId,
+    feedbackAnchor,
     returnSpring,
     springStiffness,
     springDamping,
@@ -256,6 +281,22 @@ enum DropSlot {
   };
 }
 
+/// How big the slot a drop target opens in its list is.
+enum DropSlotSize {
+  /// The size of the dragged node, so the list makes room for it.
+  dragged,
+
+  /// The slot node's own size ([DropTargetModel.slotNodeId]): an insertion
+  /// line a few pixels high between rows.
+  node;
+
+  /// Displayable string representation.
+  String get prettify => switch (this) {
+    DropSlotSize.dragged => 'Dragged node',
+    DropSlotSize.node => 'Slot node',
+  };
+}
+
 /// Makes a node a drop target: draggable nodes whose group it [accepts] can
 /// be dropped on it, which fires its `drop` reactions with the drop in
 /// `${result}` (and `${drag}`): `data`, `group`, `key`, `beforeId`,
@@ -293,6 +334,16 @@ class DropTargetModel with Equatable, SerializableMixin {
   /// The node drawn as the slot for [DropSlot.node].
   final String slotNodeId;
 
+  /// How big the slot is: the dragged node's size, or the slot node's own
+  /// (for [DropSlot.node]).
+  @JsonKey(unknownEnumValue: DropSlotSize.dragged)
+  final DropSlotSize slotSize;
+
+  /// Whether the list opens its slot for a drop [acceptIf] refuses. Off,
+  /// the list stays as it is until the drag is over it with something it
+  /// takes, so only accepted drops show where they'd land.
+  final bool slotWhenRefused;
+
   /// Milliseconds a drag must stay over this target before its `dragHover`
   /// reactions fire (e.g. to switch to a tab's page); 0 for never.
   final int hoverDelayMs;
@@ -300,7 +351,9 @@ class DropTargetModel with Equatable, SerializableMixin {
   /// A condition (`${= ...}` formula or `${...}` path) that, while it
   /// holds, makes the target take no drops at all: a slot that already has
   /// a tile. Unlike a refusing [acceptIf], letting go on a full target is
-  /// not a wrong answer: it doesn't fire `dropRejected`.
+  /// not a wrong answer: it fires `dropFull`, not `dropRejected`. While a
+  /// drag is over it, `drag.over` names it and `drag.full` is true, so a
+  /// binding can say why it won't take the drop.
   final String fullIf;
 
   /// Whether the target takes drops now. Bind `dropTarget.enabled` in the
@@ -318,6 +371,8 @@ class DropTargetModel with Equatable, SerializableMixin {
     this.listNodeId = '',
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
+    this.slotSize = DropSlotSize.dragged,
+    this.slotWhenRefused = true,
     this.hoverDelayMs = 0,
     this.fullIf = '',
     this.enabled = true,
@@ -334,6 +389,8 @@ class DropTargetModel with Equatable, SerializableMixin {
     String? listNodeId,
     DropSlot? slot,
     String? slotNodeId,
+    DropSlotSize? slotSize,
+    bool? slotWhenRefused,
     int? hoverDelayMs,
     String? fullIf,
     bool? enabled,
@@ -344,6 +401,8 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId: listNodeId ?? this.listNodeId,
     slot: slot ?? this.slot,
     slotNodeId: slotNodeId ?? this.slotNodeId,
+    slotSize: slotSize ?? this.slotSize,
+    slotWhenRefused: slotWhenRefused ?? this.slotWhenRefused,
     hoverDelayMs: hoverDelayMs ?? this.hoverDelayMs,
     fullIf: fullIf ?? this.fullIf,
     enabled: enabled ?? this.enabled,
@@ -357,6 +416,8 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId,
     slot,
     slotNodeId,
+    slotSize,
+    slotWhenRefused,
     hoverDelayMs,
     fullIf,
     enabled,
