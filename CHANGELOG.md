@@ -11,6 +11,52 @@
   `visitRunScriptAction`.
 - `ScriptModel.tests` holds sample runs (`ScriptTest`: arguments, sample
   variables and inputs, and the expected result or error type).
+- Transitions (see `CodelesslyEditor/docs/transitions_api.md`):
+  - `RouteTransition` is a composable route transition: `enter`, `exit`, `popEnter` and `popExit` sides, each a `MotionModel` (translate, shift, scale, opacity, rotate, rotateX/Y with perspective, blur) plus a circle or rect `reveal`, a curve, a delay and a duration.
+    - It also has a barrier colour, `opaque`, iOS `swipeBack`, and an interactive `dismiss` drag.
+    - Presets: shared axis X/Y/Z, fade through, iOS push and modal, circular reveal, zoom, cover vertical, cube and flip.
+  - `NavigationAction.routeTransition` and `ShowDialogAction.routeTransition`, used in place of the `transition` enum when set. Setting one on a dialog lets heroes fly into it.
+    - Every `PageTransition` value still works, and `PageTransition.asRouteTransition` describes it as a `RouteTransition`.
+  - New hero flights: `morph` (text style and colour morph), `fadeThrough` and `containerTransform`. New `BaseNode.heroPlaceholder` (`HeroPlaceholder`).
+  - New `BaseNode.flip` (`FlipModel`): a two-sided card that turns on tap, from a variable or by drag.
+  - New `BaseNode.tilt` (`TiltModel`): tilt on hover or drag, with parallax.
+  - New `PageViewProperties.pageMotion`: per-page 3D for coverflow, cube and carousel.
+  - These reuse `MotionModel`'s rotateX, rotateY and perspective.
+  - `TransitionSpring` is a provisional stand-in for the Gestures project's shared physics model.
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
+
+### Lists and pagination
+
+- `PaginationModel` (`ListViewNode.pagination`, `GridViewNode.pagination`):
+  a pagination controller over the list's bound data, its cloud query or an
+  API call, with page size, offset/page/cursor strategy, de-duplication by
+  key, page caching, pages or infinite (or two-way) scrolling, pull to
+  refresh and loading/error/end footer nodes. Its state is a map variable
+  named by `name` (`${contacts.page}`, `${contacts.hasMore}`...).
+- `PaginateAction` (`ActionType.paginate`): next, previous, go to, first,
+  last, refresh, retry and set page size. `ActionVisitor` gains
+  `visitPaginateAction`.
+- `PaginationNode` (`pagination`): page numbers with ellipses, previous and
+  next, first and last, page size select and a "Showing 21–40 of 312"
+  summary, bound to a controller by name. `PaginationProperties.pageItems`
+  computes the numbers.
+- `TableViewNode` (`tableView`): a table scrolling on both axes with a
+  pinned header row and column, cells built from template nodes.
+- `ListSectionsModel` (`ListViewNode.sections`): items grouped by a field
+  under section headers that can stay pinned, with an A–Z index bar.
+- `ReorderModel` (`ListViewNode.reorder`, `GridViewNode.reorder`): handle
+  or long press, moves between lists of a group, proxy styling, auto-scroll,
+  placeholder, per-item conditions, keyboard reorder and a built-in apply to
+  the bound variable or the cloud collection.
+- `SwipeActionsModel` (`ListViewNode.swipeActions`): start and end swipe
+  actions with reveal backgrounds and undo.
+- `TriggerType.refresh` and `TriggerType.swipeAction`.
+
 ## 9.3.0
 
 ### Added

@@ -39,6 +39,9 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
       PageTransition.platform,
   transitionMs: (json['transitionMs'] as num?)?.toInt(),
   reverseTransitionMs: (json['reverseTransitionMs'] as num?)?.toInt(),
+  routeTransition: json['routeTransition'] == null
+      ? null
+      : RouteTransition.fromJson(json['routeTransition'] as Object),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -56,6 +59,7 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) =>
       'transition': _$PageTransitionEnumMap[instance.transition]!,
       'transitionMs': ?instance.transitionMs,
       'reverseTransitionMs': ?instance.reverseTransitionMs,
+      'routeTransition': ?instance.routeTransition?.toJson(),
     };
 
 const _$NavigationTypeEnumMap = {
@@ -109,5 +113,6 @@ const _$ActionTypeEnumMap = {
   ActionType.playAnimation: 'playAnimation',
   ActionType.animateVariable: 'animateVariable',
   ActionType.haptic: 'haptic',
+  ActionType.paginate: 'paginate',
   ActionType.runScript: 'runScript',
 };
