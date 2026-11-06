@@ -107,12 +107,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# tablet 6dba557b
+# tablet f91e6453
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded
@@ -216,12 +217,13 @@ column "Screen" expanded/expanded
         row "Button Try again" shrinkWrap/fixed
           text "Label" shrinkWrap/shrinkWrap
 
-# desktop e0f4fed4
+# desktop f78f2a43
 column "Screen" expanded/expanded
   row "App bar" expanded/fixed
-    row "Icon button Back" fixed/fixed
-      icon "Icon arrow_back" fixed/fixed
-    text "App bar title" expanded/shrinkWrap
+    row "App bar content" expanded/expanded
+      row "Icon button Back" fixed/fixed
+        icon "Icon arrow_back" fixed/fixed
+      text "App bar title" expanded/shrinkWrap
   variance "States" expanded/expanded
     variant content
       column "Scroll" expanded/expanded

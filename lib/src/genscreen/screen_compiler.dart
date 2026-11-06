@@ -295,6 +295,16 @@ class ScreenCompiler {
 
   String _hex(String token) => _color(token).nodeHex;
 
+  /// [token], or onSurfaceVariant when it can hardly be told from
+  /// [background] (an off switch's track on paper).
+  String _visibleOn(String token, String background) {
+    final KitColor c = _color(token);
+    final KitColor bg = kit.color(background) ?? const KitColor(255, 255, 255);
+    final KitColor page = kit.color('background') ?? bg;
+    final double ratio = c.contrastWith(bg) < c.contrastWith(page) ? c.contrastWith(bg) : c.contrastWith(page);
+    return ratio >= 1.5 ? token : 'onSurfaceVariant';
+  }
+
   /// Brand colors that text may not be readable in.
   static const Set<String> _brandTokens = <String>{'primary', 'secondary', 'accent', 'success', 'warning', 'error'};
 
@@ -312,6 +322,8 @@ class ScreenCompiler {
   }
 
   double _space(String? token, [String fallback = 'md']) {
+    // "none" is no space at all.
+    if (token == 'none') return 0;
     final String t = token ?? fallback;
     final double? v = kit.space(t);
     if (v != null) {
@@ -771,7 +783,20 @@ class ScreenCompiler {
 
   // ------------------------------------------------------------- the screen
 
+  /// The content column's max width on this screen and breakpoint.
+  double _contentMaxWidth = 1200;
+
+  double _maxWidthFor(Map<String, dynamic> plan) {
+    final String pattern = '${plan['pattern'] ?? 'custom'}';
+    final bool narrowForm = const ['form', 'auth', 'onboarding'].contains(pattern) || (pattern == 'checkout' && _bp.mobile);
+    if (!narrowForm || _bp.mobile) return _bp.grid.maxContent;
+    final double form = double.tryParse(RegExp(r'\d+').firstMatch(kit.layout['formWidth'] ?? '')?[0] ?? '') ?? 460;
+    final bool twoColumns = ((plan['sections'] as List?) ?? const []).any((dynamic s) => s is Map && s['area'] == 'aside');
+    return twoColumns ? (form * 2 + _space(_bp.grid.gutter, 'lg')).clamp(0, _bp.grid.maxContent).toDouble() : form;
+  }
+
   Map<String, dynamic> _screen(Map<String, dynamic> plan) {
+    _contentMaxWidth = _maxWidthFor(plan);
     final Map<String, dynamic>? nav = plan['nav'] as Map<String, dynamic>?;
     final KitGuide navKit = _comp('navBar');
     final String desktopNav = _prop(navKit, 'desktop', 'rail');
@@ -830,12 +855,34 @@ class ScreenCompiler {
         children.add(_spacer(_num(_comp('button'), 'height', 48)));
       }
     }
+    final List<num> padding = _pad(margin - (leading != null && leading != 'none' ? 12 : 0), 0, margin - 8, 0);
+    final Map<String, dynamic>? borderExtra = border == null
+        ? null
+        : <String, dynamic>{
+            'strokes': <Map<String, dynamic>>[_paint(border)],
+            'strokeWeight': _num(k, 'borderWidth', 1),
+            'strokeAlign': 'inside',
+            'strokeSide': 'bottom',
+          };
+    if (!_bp.mobile && nav == null) {
+      // The title lines up with the content column, which is centered at
+      // its max width on wide screens.
+      final Map<String, dynamic> inner = _row('App bar content', children,
+          v: 'expanded',
+          gap: _space('sm'),
+          padding: padding,
+          extra: <String, dynamic>{
+            'constraints': <String, dynamic>{'maxWidth': _contentMaxWidth + 2 * margin},
+          });
+      return _row('App bar', <Map<String, dynamic>>[inner],
+          v: 'fixed', height: _num(k, 'height', 64), main: 'center', cross: 'stretch', fill: fill, extra: borderExtra);
+    }
     return _row('App bar', children,
         v: 'fixed',
         height: _num(k, 'height', 64),
         gap: _space('sm'),
         fill: fill,
-        padding: _pad(margin - (leading != null && leading != 'none' ? 12 : 0), 0, margin - 8, 0),
+        padding: padding,
         extra: border == null
             ? null
             : <String, dynamic>{
@@ -1416,9 +1463,12 @@ class ScreenCompiler {
     for (final n in nodes) {
       if (n['flex'] == null) n.remove('flex');
     }
+    // Wraps rather than overflows when the buttons don't fit the column.
     return _row('Buttons', nodes,
         gap: _space('sm'),
-        main: '${c['align'] ?? 'start'}' == 'end' ? 'end' : (c['align'] == 'center' ? 'center' : 'start'));
+        wrap: !_bp.mobile && nodes.length > 1,
+        main: _mainAxis(c['align']),
+        extra: <String, dynamic>{'runSpacing': _space('sm')});
   }
 
   Map<String, dynamic> _input(Map<String, dynamic> c) {
@@ -1524,7 +1574,7 @@ class ScreenCompiler {
       'variables': <String, dynamic>{'value': '\${$bind}'},
       'properties': <String, dynamic>{
         'activeTrackColor': _hex(_prop(k, 'active', 'primary')),
-        'inactiveTrackColor': _hex(_prop(k, 'inactive', 'outline')),
+        'inactiveTrackColor': _hex(_visibleOn(_prop(k, 'inactive', 'outline'), 'surface')),
         'activeThumbColor': _hex('surface'),
         'inactiveThumbColor': _hex('surface'),
       },
@@ -1583,6 +1633,11 @@ class ScreenCompiler {
     final KitGuide k = _comp(c['underline'] == true ? 'tabs' : 'chip');
     final String bind = '${c['bind']}';
     final List<String> options = <String>[for (final dynamic o in c['options'] as List) o is Map ? '${o['label'] ?? o['value']}' : '$o'];
+    // Labels too long for equal segments read better as chips.
+    final int longest = options.fold(0, (int m, String o) => o.length > m ? o.length : m);
+    if (c['underline'] != true && (longest > 12 || options.length > 4)) {
+      return _chips(<String, dynamic>{'items': options, 'bind': bind});
+    }
     final bool underline = c['underline'] == true;
     final String selFill = _colorProp(k, 'selectedFill', underline ? null : 'secondary') ?? 'surface';
     final String selTextToken = _colorProp(k, underline ? 'active' : 'selectedText', underline ? (_comp('navBar')['active'] ?? 'primary') : 'onSecondary') ?? 'primary';
@@ -1622,15 +1677,21 @@ class ScreenCompiler {
       cells.add(_wire(cell, <String, dynamic>{'type': 'set', 'variable': bind, 'value': o}));
       // A set action on a declared variable: counts as one wired control.
     }
+    // On wide screens the control is as wide as its segments need, not
+    // the whole column.
+    final double segment = 150;
     final Map<String, dynamic>? cap = underline || _bp.mobile
         ? null
-        : <String, dynamic>{'constraints': <String, dynamic>{'maxWidth': 180.0 * options.length}};
+        : <String, dynamic>{'basicBoxLocal': <num>[0, 0, segment * options.length + 8, 44]};
+    final String? border = underline ? null : _colorProp(k, 'border', null);
     return _row(underline ? 'Tabs' : 'Segmented', cells,
         gap: underline ? 0 : _space('xs', 'sm'),
         padding: underline ? null : _pad(4, 4, 4, 4),
         fill: underline ? null : 'surfaceVariant',
         radius: underline ? null : _radius('pill'),
-        h: 'expanded',
+        stroke: border,
+        strokeWeight: _num(k, 'borderWidth', 1.5),
+        h: underline || _bp.mobile ? 'expanded' : 'fixed',
         extra: underline
             ? <String, dynamic>{
                 'strokes': <Map<String, dynamic>>[_paint('outline')],
@@ -1641,7 +1702,7 @@ class ScreenCompiler {
             : cap);
   }
 
-  Map<String, dynamic> _chip(String label, {bool selected = false, Object? action, String? icon}) {
+  Map<String, dynamic> _chip(String label, {bool selected = false, Object? action, String? icon, String? selectedWhen}) {
     final KitGuide k = _comp('chip');
     final String fill = selected ? (_colorProp(k, 'selectedFill', 'secondary') ?? 'secondary') : (_colorProp(k, 'fill', 'surfaceVariant') ?? 'surfaceVariant');
     final String text = selected ? (_colorProp(k, 'selectedText', 'onSecondary') ?? 'onSecondary') : (_colorProp(k, 'text', 'onSurface') ?? 'onSurface');
@@ -1651,6 +1712,17 @@ class ScreenCompiler {
     ], h: 'shrinkWrap', v: 'fixed', height: _num(k, 'height', 32), main: 'center', gap: _space('xs', 'sm'),
         padding: _pad(_space('md'), 0, _space('md'), 0), radius: _radius(k['radius'], 'pill'), fill: fill,
         stroke: _colorProp(k, 'border', null), strokeWeight: _num(k, 'borderWidth', 1.5));
+    if (selectedWhen != null) {
+      // Selected while the formula holds: fill and label colors follow it.
+      final String on = _hex(_colorProp(k, 'selectedFill', 'secondary') ?? 'secondary');
+      final String off = _hex(_colorProp(k, 'fill', 'surfaceVariant') ?? 'surfaceVariant');
+      final String onText = _hex(_colorProp(k, 'selectedText', 'onSecondary') ?? 'onSecondary');
+      final String offText = _hex(_colorProp(k, 'text', 'onSurface') ?? 'onSurface');
+      final String paintId = '${((node['fills'] as List).first as Map)['id']}';
+      node['variables'] = <String, dynamic>{'fill-$paintId': '\${= $selectedWhen ? \'$on\' : \'$off\'}'};
+      final Map<String, dynamic> labelNode = (node['children'] as List).last as Map<String, dynamic>;
+      labelNode['variables'] = <String, dynamic>{...?labelNode['variables'] as Map<String, dynamic>?, 'textColor': '\${= $selectedWhen ? \'$onText\' : \'$offText\'}'};
+    }
     if (action != null) _wire(node, action);
     return node;
   }
@@ -1659,7 +1731,7 @@ class ScreenCompiler {
     final Object? items = c['items'];
     final String? bind = c['bind'] as String?;
     if (items is String) {
-      final Map<String, dynamic> chip = _chip(r'${item}');
+      final Map<String, dynamic> chip = _chip(r'${item}', selectedWhen: bind == null ? null : '$bind == item');
       if (bind != null) _wire(chip, <String, dynamic>{'type': 'set', 'variable': bind, 'value': r'${item}'});
       return _list(<String, dynamic>{'items': items, 'wrap': true, 'itemNode': chip});
     }
@@ -1673,7 +1745,12 @@ class ScreenCompiler {
               : bind != null
               ? <String, dynamic>{'type': 'set', 'variable': bind, 'value': label}
               : null;
-          return _chip(label, selected: selected, action: action, icon: raw is Map ? raw['icon'] as String? : null);
+          final String quoted = label.replaceAll("'", r"\'");
+          return _chip(label,
+              selected: selected,
+              action: action,
+              icon: raw is Map ? raw['icon'] as String? : null,
+              selectedWhen: bind == null ? null : "$bind == '$quoted'");
         }(),
     ];
     return _row('Chips', chips, gap: _space('sm'), wrap: true,
@@ -2264,15 +2341,17 @@ class ScreenCompiler {
     final String color = kit.colors.containsKey('accent') ? 'accent' : 'warning';
     final List<Map<String, dynamic>> stars = <Map<String, dynamic>>[];
     for (int i = 1; i <= max; i++) {
-      final Map<String, dynamic> star = _icon('star', size: 18, color: color);
       if (value is num) {
-        if (value < i - 0.5) {
-          stars.add(_icon('star_border', size: 18, color: color));
-          continue;
-        }
-      } else if (value is String) {
+        stars.add(_icon(value >= i - 0.25 ? 'star' : value >= i - 0.75 ? 'star_half' : 'star_border', size: 18, color: color));
+        continue;
+      }
+      final Map<String, dynamic> star = _icon('star', size: 18, color: color);
+      if (value is String) {
+        // Full, half or empty by the bound value.
         final String expr = value.replaceAll(RegExp(r'^\$\{=?\s*|\}$'), '');
-        star['variables'] = <String, dynamic>{'iconColor': '\${= ($expr) >= ${i - 0.5} ? \'${_hex(color)}\' : \'${_hex('outline')}\'}'};
+        star['variables'] = <String, dynamic>{
+          'iconName': '\${= ($expr) >= ${i - 0.25} ? \'star\' : ($expr) >= ${i - 0.75} ? \'star_half\' : \'star_border\'}',
+        };
       }
       stars.add(star);
     }
@@ -2292,9 +2371,9 @@ class ScreenCompiler {
     // than run off the edge.
     final bool rigid = children.every((Map<String, dynamic> n) => n['flex'] == null && n['horizontalFit'] != 'expanded');
     final Map<String, dynamic> node = row
-        ? _row('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align == 'stretch' ? 'center' : align,
-            main: '${c['justify'] ?? 'start'}', wrap: c['wrap'] == true || (!_bp.desktop && rigid && children.length > 1))
-        : _column('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align);
+        ? _row('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: align == 'stretch' ? 'center' : _crossAxis(align),
+            main: _mainAxis(c['justify']), wrap: c['wrap'] == true || (!_bp.desktop && rigid && children.length > 1))
+        : _column('Group', children, gap: _space(c['gap'] as String?, 'sm'), cross: _crossAxis(align));
     if (c['surface'] == true) {
       final KitGuide k = _comp('card');
       final double pad = _space(k['padding'], 'md');
@@ -2304,6 +2383,31 @@ class ScreenCompiler {
     }
     if (c['action'] != null) _wire(node, c['action']);
     return node;
+  }
+
+  /// A main-axis alignment from a plan word (`space-between`, `between`,
+  /// `spaceBetween`, `left`...), `start` when unknown.
+  static String _mainAxis(Object? word) {
+    final String w = '${word ?? 'start'}'.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
+    return switch (w) {
+      'center' || 'middle' => 'center',
+      'end' || 'right' || 'flexend' || 'bottom' => 'end',
+      'spacebetween' || 'between' => 'spaceBetween',
+      'spacearound' || 'around' => 'spaceAround',
+      'spaceevenly' || 'evenly' => 'spaceEvenly',
+      _ => 'start',
+    };
+  }
+
+  /// A cross-axis alignment from a plan word, `start` when unknown.
+  static String _crossAxis(Object? word) {
+    final String w = '${word ?? 'start'}'.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
+    return switch (w) {
+      'center' || 'middle' => 'center',
+      'end' || 'right' || 'flexend' || 'bottom' => 'end',
+      'stretch' => 'stretch',
+      _ => 'start',
+    };
   }
 
   /// A number from a plan field that may be a number, a numeric string or

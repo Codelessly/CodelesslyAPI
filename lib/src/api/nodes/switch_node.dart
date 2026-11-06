@@ -200,6 +200,30 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: false)
   late bool fillTrack;
 
+  /// Drop shadows the thumb casts on the track, e.g. a toggle's white knob
+  /// lifted by `BoxShadow(color: 0x33000000, blurRadius: 4, offset: (0, 1))`
+  /// (each effect's `radius` is the blur radius). Material's switch draws
+  /// no thumb shadow, so a switch with one is drawn as a plain toggle (see
+  /// [thumbInset]). Only a switch with [fillTrack] draws them.
+  @JsonKey(defaultValue: <Effect>[])
+  late List<Effect> thumbShadows;
+
+  /// The gap in logical pixels between the thumb and the edges of a track
+  /// that fills the node ([fillTrack]): the thumb is the node's height less
+  /// twice this, e.g. 3 for a 24 px knob in a 50×30 toggle. A switch with
+  /// one (or with [thumbShadows]) is drawn as a plain toggle that keeps its
+  /// thumb round at any node size, sliding between the gaps, its colors
+  /// easing between off and on. Null keeps Material's switch, scaled to
+  /// the node (its 24 px thumb in a 32 px track: a 22.5 px thumb, slightly
+  /// oval, in a 50×30 node).
+  late double? thumbInset;
+
+  /// Whether this switch is drawn as a plain toggle rather than Material's
+  /// switch: its track fills the node and it has [thumbShadows] or a
+  /// [thumbInset].
+  bool get drawsPlainToggle =>
+      fillTrack && (thumbShadows.isNotEmpty || thumbInset != null);
+
   /// Creates a [SwitchProperties] instance with the given data.
   SwitchProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -216,7 +240,9 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.useMaterial3 = true,
     this.uniformThumb = false,
     this.fillTrack = false,
-  });
+    List<Effect>? thumbShadows,
+    this.thumbInset,
+  }) : thumbShadows = thumbShadows ?? <Effect>[];
 
   /// Duplicates this [SwitchProperties] instance with the given data
   /// overrides.
@@ -237,6 +263,9 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     bool? useMaterial3,
     bool? uniformThumb,
     bool? fillTrack,
+    List<Effect>? thumbShadows,
+    double? thumbInset,
+    bool clearThumbInset = false,
   }) {
     return SwitchProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -257,6 +286,8 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
       useMaterial3: useMaterial3 ?? this.useMaterial3,
       uniformThumb: uniformThumb ?? this.uniformThumb,
       fillTrack: fillTrack ?? this.fillTrack,
+      thumbShadows: thumbShadows ?? List<Effect>.of(this.thumbShadows),
+      thumbInset: clearThumbInset ? null : thumbInset ?? this.thumbInset,
     );
   }
 
@@ -372,6 +403,13 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
         if (value != null) fillTrack = value;
       },
     ),
+    'thumbInset': NumFieldAccess<double?>(
+      'Thumb Inset',
+      'The gap between the thumb and the edges of a track that fills the '
+          'node.',
+      () => thumbInset,
+      (double? value) => thumbInset = value,
+    ),
   };
 
   @override
@@ -390,6 +428,8 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     useMaterial3,
     uniformThumb,
     fillTrack,
+    thumbShadows,
+    thumbInset,
   ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.

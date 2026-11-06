@@ -25,6 +25,8 @@ Map<String, dynamic> _$DraggableModelOmitDefaults(
   if (isJsonDefault(instance.feedbackElevation, 24))
     json.remove('feedbackElevation');
   if (isJsonDefault(instance.feedbackNodeId, '')) json.remove('feedbackNodeId');
+  if (isJsonDefault(instance.feedbackAnchor, FeedbackAnchor.grab))
+    json.remove('feedbackAnchor');
   if (isJsonDefault(instance.returnSpring, true)) json.remove('returnSpring');
   if (isJsonDefault(instance.springStiffness, 260))
     json.remove('springStiffness');
@@ -43,7 +45,10 @@ Map<String, dynamic> _$DropTargetModelOmitDefaults(
   if (isJsonDefault(instance.listNodeId, '')) json.remove('listNodeId');
   if (isJsonDefault(instance.slot, DropSlot.gap)) json.remove('slot');
   if (isJsonDefault(instance.slotNodeId, '')) json.remove('slotNodeId');
-  if (isJsonDefault(instance.slotExtent, 0)) json.remove('slotExtent');
+  if (isJsonDefault(instance.slotSize, DropSlotSize.dragged))
+    json.remove('slotSize');
+  if (isJsonDefault(instance.slotWhenRefused, true))
+    json.remove('slotWhenRefused');
   if (isJsonDefault(instance.hoverDelayMs, 0)) json.remove('hoverDelayMs');
   if (isJsonDefault(instance.fullIf, '')) json.remove('fullIf');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
@@ -84,6 +89,13 @@ DraggableModel _$DraggableModelFromJson(Map json) => DraggableModel(
   feedbackOpacity: (json['feedbackOpacity'] as num?)?.toDouble() ?? 1,
   feedbackElevation: (json['feedbackElevation'] as num?)?.toDouble() ?? 24,
   feedbackNodeId: json['feedbackNodeId'] as String? ?? '',
+  feedbackAnchor:
+      $enumDecodeNullable(
+        _$FeedbackAnchorEnumMap,
+        json['feedbackAnchor'],
+        unknownValue: FeedbackAnchor.grab,
+      ) ??
+      FeedbackAnchor.grab,
   returnSpring: json['returnSpring'] as bool? ?? true,
   springStiffness: (json['springStiffness'] as num?)?.toDouble() ?? 260,
   springDamping: (json['springDamping'] as num?)?.toDouble() ?? 14,
@@ -103,6 +115,7 @@ Map<String, dynamic> _$DraggableModelToJson(DraggableModel instance) =>
       'feedbackOpacity': instance.feedbackOpacity,
       'feedbackElevation': instance.feedbackElevation,
       'feedbackNodeId': instance.feedbackNodeId,
+      'feedbackAnchor': _$FeedbackAnchorEnumMap[instance.feedbackAnchor]!,
       'returnSpring': instance.returnSpring,
       'springStiffness': instance.springStiffness,
       'springDamping': instance.springDamping,
@@ -127,6 +140,11 @@ const _$DragSourceStyleEnumMap = {
   DragSourceStyle.keep: 'keep',
 };
 
+const _$FeedbackAnchorEnumMap = {
+  FeedbackAnchor.grab: 'grab',
+  FeedbackAnchor.center: 'center',
+};
+
 DropTargetModel _$DropTargetModelFromJson(Map json) => DropTargetModel(
   accepts:
       (json['accepts'] as List<dynamic>?)?.map((e) => e as String).toList() ??
@@ -142,7 +160,14 @@ DropTargetModel _$DropTargetModelFromJson(Map json) => DropTargetModel(
       ) ??
       DropSlot.gap,
   slotNodeId: json['slotNodeId'] as String? ?? '',
-  slotExtent: (json['slotExtent'] as num?)?.toDouble() ?? 0,
+  slotSize:
+      $enumDecodeNullable(
+        _$DropSlotSizeEnumMap,
+        json['slotSize'],
+        unknownValue: DropSlotSize.dragged,
+      ) ??
+      DropSlotSize.dragged,
+  slotWhenRefused: json['slotWhenRefused'] as bool? ?? true,
   hoverDelayMs: (json['hoverDelayMs'] as num?)?.toInt() ?? 0,
   fullIf: json['fullIf'] as String? ?? '',
   enabled: json['enabled'] as bool? ?? true,
@@ -156,7 +181,8 @@ Map<String, dynamic> _$DropTargetModelToJson(DropTargetModel instance) =>
       'listNodeId': instance.listNodeId,
       'slot': _$DropSlotEnumMap[instance.slot]!,
       'slotNodeId': instance.slotNodeId,
-      'slotExtent': instance.slotExtent,
+      'slotSize': _$DropSlotSizeEnumMap[instance.slotSize]!,
+      'slotWhenRefused': instance.slotWhenRefused,
       'hoverDelayMs': instance.hoverDelayMs,
       'fullIf': instance.fullIf,
       'enabled': instance.enabled,
@@ -166,4 +192,9 @@ const _$DropSlotEnumMap = {
   DropSlot.none: 'none',
   DropSlot.gap: 'gap',
   DropSlot.node: 'node',
+};
+
+const _$DropSlotSizeEnumMap = {
+  DropSlotSize.dragged: 'dragged',
+  DropSlotSize.node: 'node',
 };

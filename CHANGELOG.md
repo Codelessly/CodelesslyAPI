@@ -1,5 +1,53 @@
 ## Unreleased
 
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
+- `VariableData.remember` (`extra.remember: true`): the running app keeps the
+  value on the device between visits.
+
+## 9.2.0
+
+Fields added while recreating the Lamplight reference app (see
+CodelesslyEditor `references/lamplight/blockers.md`):
+
+- `TextNode.fontFeatures`: OpenType feature settings (`lnum`, `tnum`,
+  `ss01`, `liga=0`); `tabularFigures` still means `tnum`.
+- `BaseNode.key`: the insert key round-trips, so exported trees keep keys.
+- `ColorStop.bindingKey`: bindable stops on any fill, stroke or foreground
+  paint.
+- Drag tracks: optional `variable` (bind `track.value`), `hitArea`,
+  `input: both`, `wheelStep`, `keyStep`, `doubleTapValues`, `units:
+  parent` and bindable geometry.
+- `AnimateVariableAction` (play, pause, resume, stop, seek a variable).
+- Confirm dialog: per-button borders, icon/disc, `centered`,
+  `expandButtons`, `width`, `maxWidth`, `insets`, `padding`,
+  `buttonHeight`.
+- Pulse `phase` and `delayMs`; row/column `fillViewport`; switch
+  `thumbShadows` and `thumbInset`.
+- Colours read as hex text in formulas.
+
+## 9.1.0
+
+- `motion.keyframes` binds to a list of `{t, translateX, translateY, ...}`
+  maps (or that list as JSON): keyframes that follow data, such as wind
+  gusts along a route that changes when it is redrawn
+  (`MotionModel.keyframesProperty`).
+- `ShowToastAction.rotation`, `enterCurve` and `enterOffset`: a toast can be
+  tilted (a sticky note stuck on crooked) and come in on any motion curve
+  from further away (dropping in on easeOutBack). Left out of JSON at their
+  defaults.
+- `LineHeight.leadingDistribution` (`proportional`, the default, or
+  `even`): where a text sits in its line height. Flutter's Material 3 text
+  theme uses `even`; left out of JSON at the default.
+- `ConfirmAction.title` defaults to empty text: a confirm that opens a
+  dialog canvas (`dialogId`) doesn't need one.
+
+## 9.0.4
+
 - `AppIdentity`: a project's identity as a web app and a mobile app (name,
   short name, title template with per-page overrides, description, keywords,
   canonical URL, favicon/icon sources, theme and background colors, social
@@ -26,16 +74,31 @@
     `screenCacheKey`, `extractPlanJson`.
   - `tool/genscreen.dart`: prompt, validate, compile and kit checks from the
     command line.
-- `MotionModel.arc` (bindable as `motion.arc`): a change of position
-  travels along a quadratic curve this share of the distance off the
-  straight line, to the right of the direction of travel (negative: left).
-- `MotionModel.named`: values given on purpose, kept even at their
-  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
-  replay); JSON keeps them.
-- `DropTargetModel.slotExtent`: the length of a list drop slot in px (0:
-  the dragged node's), for a thin insertion marker.
-- `VariableData.remember` (`extra.remember: true`): the running app keeps the
-  value on the device between visits.
+- Drag tracks gain a fine mode (`fineStep`, `finePixelsPerRange`,
+  `fineHoldMs`, `fineVariable`; `track.fine`), click-in animation
+  (`snapMs`, `snapCurve`) and `write` (false: the track shows its variable,
+  which may be computed, and its reactions do the writing).
+- A row or column made from `type: row/column` keeps `ignorePointer`,
+  `keepAspect` and `floating` (they were dropped).
+
+Found recreating Chairlift (a ski-resort status board) in the editor:
+
+- `MotionModel.paused` (bindable `motion.paused`): freezes a running loop and
+  spin where they are and resumes from there (chairs stop where they hang
+  when a lift goes on hold).
+- `MotionModel.loopStart` takes every value `enterFrom` moves, including a
+  path's `pathProgress`: a path loop with `enterFrom: {pathProgress: 0}`
+  ran from its end to its end and sat there.
+- `MotionModel.phase` (bindable `motion.phase`): a loop starts that far
+  through its cycle, so the items of one list can share a looping path
+  spread round it.
+- `DragTrackModel.viewBoxWidth/viewBoxHeight`: a path track drawn in its
+  frame's box, stretched with the frame. `jumpOnTap` now also works on arc
+  tracks (a dial turns to the tapped angle).
+- `ScrollToAction.axis`: scroll only horizontal or vertical scroll views.
+- `ShowToastAction.actionBackgroundColor`, `actionBorder`, `actionShadows`,
+  `actionCornerRadius`: the toast's action as a styled button.
+- For-each docs: `${loop.item}` / `${loop.index}`.
 
 ## 9.0.3
 
