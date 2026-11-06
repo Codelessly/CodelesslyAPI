@@ -155,6 +155,16 @@ class VariableData
   /// formula reads changes.
   final String formula;
 
+  /// The [extra] key that marks a variable kept across app launches.
+  static const String persistKey = 'persist';
+
+  /// Whether the app keeps this variable's value on the device: at launch
+  /// it starts from the value it had last time (from local storage), not
+  /// from [value], and every change is saved. For app and page variables,
+  /// e.g. a draft or a list the user builds up. Computed variables can't
+  /// persist.
+  bool get persists => extra[persistKey] == true && !isComputed;
+
   /// Whether this variable has a separate [formula] or a formula in [value].
   bool get isComputed => formula.trim().isNotEmpty || isFormulaValue(value);
 

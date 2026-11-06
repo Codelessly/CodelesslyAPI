@@ -216,4 +216,5 @@ const _$MotionLoopEnumMap = {
   MotionLoop.none: 'none',
   MotionLoop.restart: 'restart',
   MotionLoop.reverse: 'reverse',
+  MotionLoop.swing: 'swing',
 };

@@ -102,13 +102,19 @@ enum MotionLoop {
   restart,
 
   /// From rest to its values and back, over and over (a pulse).
-  reverse;
+  reverse,
+
+  /// Swings around rest on a sine, to its values and as far the other way,
+  /// one swing each [MotionModel.durationMs]: a door's wheel rocking ±20°,
+  /// a pendulum, a needle sweeping a gauge. It rests at rest, not at an end.
+  swing;
 
   /// Displayable name.
   String get prettify => switch (this) {
     MotionLoop.none => 'No loop',
     MotionLoop.restart => 'Loop',
     MotionLoop.reverse => 'Back and forth',
+    MotionLoop.swing => 'Swing around rest',
   };
 }
 
