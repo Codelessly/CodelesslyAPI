@@ -8,7 +8,11 @@ part 'trigger.g.dart';
 
 /// Types of triggers.
 enum TriggerType {
-  /// Triggered when the user clicks on the target.
+  /// Triggered when the user clicks on the target. `${result}` says where:
+  /// `x`, `y` in pixels from the target's top left, `globalX`, `globalY` on
+  /// screen, the target's `width` and `height`, and `fx`, `fy`, the spot as
+  /// a share (0 to 1) of the target's width and height, e.g. to place a pin
+  /// where a map that resizes with the screen was tapped.
   click,
 
   /// Triggered when text is changed inside a text input field.
@@ -22,7 +26,9 @@ enum TriggerType {
   /// on a one-line field, the keyboard's done/go key).
   submitted,
 
-  /// Triggered when the user long presses on a target.
+  /// Triggered when the user long presses on a target. `${result}` says
+  /// where, as for [click]: `x`, `y`, `globalX`, `globalY`, `fx`, `fy`,
+  /// `width`, `height`.
   longPress,
 
   /// Triggered each time the mouse cursor moves over the target, after it
@@ -42,9 +48,13 @@ enum TriggerType {
   cursorExit,
 
   /// Triggered when a pointer down event is received on the target.
+  /// `${result}` says where, as for [click] (`x`, `y`, `globalX`,
+  /// `globalY`, `fx`, `fy`, `width`, `height`), plus `button` and the
+  /// modifier keys.
   pointerDown,
 
-  /// Triggered when a pointer up event is received on the target.
+  /// Triggered when a pointer up event is received on the target, with the
+  /// same `${result}` as [pointerDown].
   pointerUp,
 
   /// Triggered when the canvas is loaded.
@@ -78,6 +88,7 @@ enum TriggerType {
   /// Triggered when the user taps the target twice in quick succession.
   /// A node with a double tap reaction delays its single taps ([click]) by
   /// the double tap timeout (300ms), the way Flutter tells the two apart.
+  /// `${result}` says where, as for [click].
   doubleTap,
 
   /// Triggered when the user presses and holds the target for the trigger's
@@ -114,7 +125,9 @@ enum TriggerType {
 
   /// Triggered when the user right-clicks the target (or taps it with two
   /// fingers on a trackpad). `${result.x}` and `${result.y}` are where, in
-  /// screen coordinates, e.g. to open a context menu there.
+  /// screen coordinates, e.g. to open a context menu there; `localX`,
+  /// `localY` are in the target, `fx`, `fy` a share (0 to 1) of its `width`
+  /// and `height`.
   secondaryClick,
 
   /// Triggered on a draggable node when the user picks it up. The actions

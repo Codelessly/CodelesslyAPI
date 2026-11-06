@@ -48,6 +48,24 @@ enum DragSourceStyle {
   };
 }
 
+/// Where the copy that follows the pointer is held while a
+/// [DraggableModel] node is dragged.
+enum DragFeedbackAnchor {
+  /// Where the node was grabbed: the copy moves with the pointer as if
+  /// picked up at that spot.
+  grab,
+
+  /// By its centre: the copy's centre is under the pointer, so the pointer
+  /// is the drop point (a pin dropped on a map lands where the finger is).
+  center;
+
+  /// Displayable string representation.
+  String get prettify => switch (this) {
+    DragFeedbackAnchor.grab => 'Grab point',
+    DragFeedbackAnchor.center => 'Center',
+  };
+}
+
 /// Makes a node draggable: the user can pick it up and drop it on a node
 /// with a [DropTargetModel] that accepts its [group].
 ///
@@ -97,8 +115,18 @@ class DraggableModel with Equatable, SerializableMixin {
   final double feedbackElevation;
 
   /// A node to draw under the pointer instead of a copy of this one (e.g. a
-  /// stack showing `${drag.count} cards`). Empty for a copy.
+  /// stack showing `${drag.count} cards`). Empty for a copy. It is built by
+  /// id, with this node's data (its list item), so it need not be shown
+  /// anywhere: keep it hidden, or off the screen.
   final String feedbackNodeId;
+
+  /// Where the copy that follows the pointer is held: where the node was
+  /// grabbed, or by its centre, so its centre is under the pointer. With
+  /// [DragFeedbackAnchor.center], `drag.x`, `drag.y`, `drag.fx` and
+  /// `drag.fy` are where the pointer is over the target, which is also the
+  /// centre of the copy.
+  @JsonKey(unknownEnumValue: DragFeedbackAnchor.grab)
+  final DragFeedbackAnchor feedbackAnchor;
 
   /// Whether a drag that no target takes flies the node back to its place
   /// with a spring ([springStiffness], [springDamping]) instead of it
@@ -131,6 +159,7 @@ class DraggableModel with Equatable, SerializableMixin {
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
     this.feedbackNodeId = '',
+    this.feedbackAnchor = DragFeedbackAnchor.grab,
     this.returnSpring = true,
     this.springStiffness = 260,
     this.springDamping = 14,
@@ -150,6 +179,7 @@ class DraggableModel with Equatable, SerializableMixin {
     double? feedbackOpacity,
     double? feedbackElevation,
     String? feedbackNodeId,
+    DragFeedbackAnchor? feedbackAnchor,
     bool? returnSpring,
     double? springStiffness,
     double? springDamping,
@@ -166,6 +196,7 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity: feedbackOpacity ?? this.feedbackOpacity,
     feedbackElevation: feedbackElevation ?? this.feedbackElevation,
     feedbackNodeId: feedbackNodeId ?? this.feedbackNodeId,
+    feedbackAnchor: feedbackAnchor ?? this.feedbackAnchor,
     returnSpring: returnSpring ?? this.returnSpring,
     springStiffness: springStiffness ?? this.springStiffness,
     springDamping: springDamping ?? this.springDamping,
@@ -185,6 +216,7 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity,
     feedbackElevation,
     feedbackNodeId,
+    feedbackAnchor,
     returnSpring,
     springStiffness,
     springDamping,
