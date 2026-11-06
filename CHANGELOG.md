@@ -26,6 +26,13 @@
     `screenCacheKey`, `extractPlanJson`.
   - `tool/genscreen.dart`: prompt, validate, compile and kit checks from the
     command line.
+- Drag tracks gain a fine mode (`fineStep`, `finePixelsPerRange`,
+  `fineHoldMs`, `fineVariable`; `track.fine`), click-in animation
+  (`snapMs`, `snapCurve`) and `write` (false: the track shows its variable,
+  which may be computed, and its reactions do the writing).
+- A row or column made from `type: row/column` keeps `ignorePointer`,
+  `keepAspect` and `floating` (they were dropped).
+
 
 ## 9.0.3
 
