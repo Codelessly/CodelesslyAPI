@@ -21,7 +21,14 @@ enum DragCommand {
   reset,
 
   /// Wiggles the node sideways once, as a hint that it can't go yet.
-  shake;
+  shake,
+
+  /// Turns a drag track control ([DragTrackModel]) by
+  /// [ControlDragAction.steps] of its step, as if dragged there: it moves
+  /// (smoothly when the track is smooth), runs its `changed` reactions with
+  /// every step it crosses and its `changeEnd` reactions when it comes to
+  /// rest. A dial's nudge buttons and arrow keys.
+  step;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -29,6 +36,7 @@ enum DragCommand {
     DragCommand.returnFrom => 'Return from',
     DragCommand.reset => 'Reset',
     DragCommand.shake => 'Shake',
+    DragCommand.step => 'Step a track',
   };
 }
 
@@ -47,11 +55,16 @@ class ControlDragAction extends ActionModel with Equatable, SerializableMixin {
   /// The direction to fling toward or return from.
   final DragDirection direction;
 
+  /// For [DragCommand.step]: how many steps to turn, negative toward the
+  /// track's start; a number or a formula.
+  final String steps;
+
   /// Creates a [ControlDragAction].
   ControlDragAction({
     this.nodeId = '',
     this.command = DragCommand.fling,
     this.direction = DragDirection.right,
+    this.steps = '1',
     super.nonBlocking,
     super.enabled,
   }) : super(type: ActionType.controlDrag);
@@ -61,20 +74,24 @@ class ControlDragAction extends ActionModel with Equatable, SerializableMixin {
     String? nodeId,
     DragCommand? command,
     DragDirection? direction,
+    String? steps,
   }) => ControlDragAction(
     nodeId: nodeId ?? this.nodeId,
     command: command ?? this.command,
     direction: direction ?? this.direction,
+    steps: steps ?? this.steps,
     nonBlocking: nonBlocking,
     enabled: enabled,
   );
 
   @override
-  List<Object?> get props => [nodeId, command, direction];
+  List<Object?> get props => [nodeId, command, direction, steps];
 
   /// Creates an instance from a JSON object.
-  factory ControlDragAction.fromJson(Map json) =>
-      _$ControlDragActionFromJson(json);
+  factory ControlDragAction.fromJson(Map json) => _$ControlDragActionFromJson({
+    ...json,
+    if (json['steps'] is num) 'steps': '${json['steps']}',
+  });
 
   @override
   Map toJson() =>
