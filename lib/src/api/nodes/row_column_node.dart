@@ -50,6 +50,15 @@ class RowColumnNode extends ParentNode
   @JsonKey(defaultValue: true)
   bool clipsScrollContent = true;
 
+  /// Whether children that overflow this row/column's main axis shrink to
+  /// fit it (by how far each can shrink, never below its content), as the
+  /// editor lays them out. False lays them out at their own sizes and lets
+  /// them run past its end, as a Flutter `Row`/`Column` does: a screen whose
+  /// content is a couple of pixels taller than its column keeps every piece
+  /// at its size.
+  @JsonKey(defaultValue: true)
+  bool squeezeChildren = true;
+
   /// Whether a row/column that scrolls ([isScrollable]) makes its content at
   /// least as long as its viewport, as Flutter's `ConstrainedBox(minHeight:
   /// viewport)` around an `IntrinsicHeight` column in a
@@ -397,7 +406,5 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.foregroundFills = source.foregroundFills;
   target.clipsScrollContent = source.clipsScrollContent;
   target.fillViewport = source.fillViewport;
-  target.ignorePointer = source.ignorePointer;
-  target.keepAspect = source.keepAspect;
-  target.floating = source.floating;
+  target.squeezeChildren = source.squeezeChildren;
 }
