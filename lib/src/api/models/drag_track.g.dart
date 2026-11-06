@@ -35,6 +35,7 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.settleMs, 0)) json.remove('settleMs');
   if (isJsonDefault(instance.settleCurve, MotionCurve.easeOutCubic))
     json.remove('settleCurve');
+  if (isJsonDefault(instance.keyboard, true)) json.remove('keyboard');
   return json;
 }
 
@@ -74,6 +75,8 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   settleCurve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['settleCurve']) ??
       MotionCurve.easeOutCubic,
+  parkedProgress: (json['parkedProgress'] as num?)?.toDouble(),
+  keyboard: json['keyboard'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -103,6 +106,8 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'overscroll': instance.overscroll,
       'settleMs': instance.settleMs,
       'settleCurve': _$MotionCurveEnumMap[instance.settleCurve]!,
+      'parkedProgress': ?instance.parkedProgress,
+      'keyboard': instance.keyboard,
     };
 
 const _$DragTrackShapeEnumMap = {
