@@ -48,6 +48,8 @@ Map<String, dynamic> _$MotionModelOmitDefaults(
     json.remove('backfaceHidden');
   if (isJsonDefault(instance.pathProgress, 0)) json.remove('pathProgress');
   if (isJsonDefault(instance.orientToPath, false)) json.remove('orientToPath');
+  if (isJsonDefault(instance.paused, false)) json.remove('paused');
+  if (isJsonDefault(instance.phase, 0)) json.remove('phase');
   if (isJsonDefault(instance.pathPacing, MotionPathPacing.length))
     json.remove('pathPacing');
   if (isJsonDefault(instance.pathFocusX, 0)) json.remove('pathFocusX');
@@ -131,6 +133,8 @@ MotionModel _$MotionModelFromJson(Map json) => MotionModel(
   path: json['path'] as String?,
   pathProgress: (json['pathProgress'] as num?)?.toDouble() ?? 0,
   orientToPath: json['orientToPath'] as bool? ?? false,
+  paused: json['paused'] as bool? ?? false,
+  phase: (json['phase'] as num?)?.toDouble() ?? 0,
   pathPacing:
       $enumDecodeNullable(_$MotionPathPacingEnumMap, json['pathPacing']) ??
       MotionPathPacing.length,
@@ -181,6 +185,8 @@ Map<String, dynamic> _$MotionModelToJson(MotionModel instance) =>
       'path': ?instance.path,
       'pathProgress': instance.pathProgress,
       'orientToPath': instance.orientToPath,
+      'paused': instance.paused,
+      'phase': instance.phase,
       'pathPacing': _$MotionPathPacingEnumMap[instance.pathPacing]!,
       'pathFocusX': instance.pathFocusX,
       'pathFocusY': instance.pathFocusY,
@@ -207,14 +213,14 @@ const _$MotionCurveEnumMap = {
   MotionCurve.step: 'step',
 };
 
-const _$MotionPathPacingEnumMap = {
-  MotionPathPacing.length: 'length',
-  MotionPathPacing.area: 'area',
-};
-
 const _$MotionLoopEnumMap = {
   MotionLoop.none: 'none',
   MotionLoop.restart: 'restart',
   MotionLoop.reverse: 'reverse',
   MotionLoop.swing: 'swing',
+};
+
+const _$MotionPathPacingEnumMap = {
+  MotionPathPacing.length: 'length',
+  MotionPathPacing.area: 'area',
 };
