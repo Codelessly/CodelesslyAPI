@@ -46,9 +46,9 @@ class RunScriptAction extends ActionModel with Equatable, SerializableMixin {
     List<ActionModel>? onError,
     super.nonBlocking,
     super.enabled,
-  })  : arguments = arguments ?? {},
-        onError = onError ?? [],
-        super(type: ActionType.runScript);
+  }) : arguments = arguments ?? {},
+       onError = onError ?? [],
+       super(type: ActionType.runScript);
 
   @override
   List<Object?> get props => [scriptId, arguments, resultVariable, onError];
@@ -60,16 +60,16 @@ class RunScriptAction extends ActionModel with Equatable, SerializableMixin {
     String? resultVariable,
     bool clearResultVariable = false,
     List<ActionModel>? onError,
-  }) =>
-      RunScriptAction(
-        scriptId: scriptId ?? this.scriptId,
-        arguments: arguments ?? this.arguments,
-        resultVariable:
-            clearResultVariable ? null : resultVariable ?? this.resultVariable,
-        onError: onError ?? this.onError,
-        nonBlocking: nonBlocking,
-        enabled: enabled,
-      );
+  }) => RunScriptAction(
+    scriptId: scriptId ?? this.scriptId,
+    arguments: arguments ?? this.arguments,
+    resultVariable: clearResultVariable
+        ? null
+        : resultVariable ?? this.resultVariable,
+    onError: onError ?? this.onError,
+    nonBlocking: nonBlocking,
+    enabled: enabled,
+  );
 
   /// Creates a [RunScriptAction] from JSON.
   factory RunScriptAction.fromJson(Map json) => _$RunScriptActionFromJson(json);
