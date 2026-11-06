@@ -161,6 +161,26 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   /// Whether the two buttons share the width of the dialog equally.
   final bool expandButtons;
 
+  /// Width of the built-in centered dialog, in logical pixels, within
+  /// [maxWidth] and the screen less [insets]. Null hugs its content up to
+  /// [maxWidth].
+  final double? width;
+
+  /// The widest the built-in centered dialog gets. Null is 400.
+  final double? maxWidth;
+
+  /// Space kept between the built-in centered dialog and the screen's
+  /// edges, e.g. 20 on each side. Null is 24 on each side.
+  final EdgeInsetsModel? insets;
+
+  /// Space between the built-in dialog's edge and its icon, texts and
+  /// buttons, e.g. `{l: 24, t: 26, r: 24, b: 22}`. Null is 24 on top and
+  /// the sides and 16 at the bottom.
+  final EdgeInsetsModel? padding;
+
+  /// Height of the built-in dialog's buttons. Null is 44.
+  final double? buttonHeight;
+
   /// How the dialog is presented: centered, as a bottom sheet or as a side
   /// sheet. See [ShowDialogAction.presentation].
   @JsonKey(unknownEnumValue: DialogPresentation.dialog)
@@ -192,7 +212,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
   final double enterScale;
   /// Color bindings: a color field's name (one of [bindableColors]) to a
   /// variable path or formula that gives a color, e.g. `${pal.surface}` or
-  /// `${= alpha(pal.ink, 0.22)}`.
+  /// `${= alpha(pal.ink, 0.22)}`; also the size fields of [bindableSizes].
   final Map<String, String> variables;
 
   /// The color fields [variables] can bind. `titleColor` and `messageColor`
@@ -216,6 +236,19 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     'iconColor',
     'iconDiscColor',
     'iconDiscBorderColor',
+  ];
+
+  /// The size fields [variables] can bind too, to a number (`width`,
+  /// `maxWidth`, `buttonHeight`) or, for `insets` and `padding`, a number
+  /// for every side, `[horizontal, vertical]` or `[left, top, right,
+  /// bottom]`, e.g. `{"width": "${= screen.isMobile ? 340 : 380}"}`. A
+  /// binding that gives nothing keeps the field.
+  static const List<String> bindableSizes = <String>[
+    'width',
+    'maxWidth',
+    'buttonHeight',
+    'insets',
+    'padding',
   ];
 
   /// The key of the "Navigate back" params that answers a [dialogId] dialog.
@@ -277,6 +310,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     this.iconDiscBorder,
     this.centered = false,
     this.expandButtons = false,
+    this.width,
+    this.maxWidth,
+    this.insets,
+    this.padding,
+    this.buttonHeight,
     this.presentation = DialogPresentation.dialog,
     this.sheetWidth,
     this.maxHeightFactor = 1,
@@ -356,6 +394,16 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     bool clearIconDiscBorder = false,
     bool? centered,
     bool? expandButtons,
+    double? width,
+    bool clearWidth = false,
+    double? maxWidth,
+    bool clearMaxWidth = false,
+    EdgeInsetsModel? insets,
+    bool clearInsets = false,
+    EdgeInsetsModel? padding,
+    bool clearPadding = false,
+    double? buttonHeight,
+    bool clearButtonHeight = false,
     DialogPresentation? presentation,
     double? sheetWidth,
     bool clearSheetWidth = false,
@@ -418,6 +466,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
         : iconDiscBorder ?? this.iconDiscBorder,
     centered: centered ?? this.centered,
     expandButtons: expandButtons ?? this.expandButtons,
+    width: clearWidth ? null : width ?? this.width,
+    maxWidth: clearMaxWidth ? null : maxWidth ?? this.maxWidth,
+    insets: clearInsets ? null : insets ?? this.insets,
+    padding: clearPadding ? null : padding ?? this.padding,
+    buttonHeight: clearButtonHeight ? null : buttonHeight ?? this.buttonHeight,
     presentation: presentation ?? this.presentation,
     sheetWidth: clearSheetWidth ? null : sheetWidth ?? this.sheetWidth,
     maxHeightFactor: maxHeightFactor ?? this.maxHeightFactor,
@@ -470,6 +523,11 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
     iconDiscBorder,
     centered,
     expandButtons,
+    width,
+    maxWidth,
+    insets,
+    padding,
+    buttonHeight,
     presentation,
     sheetWidth,
     maxHeightFactor,
