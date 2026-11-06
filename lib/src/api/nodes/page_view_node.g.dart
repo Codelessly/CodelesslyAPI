@@ -265,6 +265,16 @@ PageViewNode _$PageViewNodeFromJson(Map json) =>
         _$HeroFlightEnumMap,
         json['heroFlight'],
       )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
       ..key = json['key'] as String?
       ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
       ..sizeTransition = json['sizeTransition'] == null
@@ -339,6 +349,9 @@ Map<String, dynamic> _$PageViewNodeToJson(
   'floating': instance.floating,
   'heroTag': ?instance.heroTag,
   'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
   'key': ?instance.key,
   'layoutAspectRatio': ?instance.layoutAspectRatio,
   'sizeTransition': ?instance.sizeTransition?.toJson(),
@@ -411,6 +424,14 @@ const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
   HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
@@ -425,6 +446,9 @@ PageViewProperties _$PageViewPropertiesFromJson(Map json) => PageViewProperties(
   animationCurve:
       $enumDecodeNullable(_$MotionCurveEnumMap, json['animationCurve']) ??
       MotionCurve.easeOutCubic,
+  pageMotion: json['pageMotion'] == null
+      ? null
+      : MotionModel.fromJson(json['pageMotion'] as Map),
 );
 
 Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
@@ -438,6 +462,7 @@ Map<String, dynamic> _$PageViewPropertiesToJson(PageViewProperties instance) =>
       'allowImplicitScrolling': instance.allowImplicitScrolling,
       'animationDurationMs': instance.animationDurationMs,
       'animationCurve': _$MotionCurveEnumMap[instance.animationCurve]!,
+      'pageMotion': ?instance.pageMotion?.toJson(),
     };
 
 const _$MotionCurveEnumMap = {

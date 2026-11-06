@@ -13,13 +13,20 @@ part 'color_stop.g.dart';
 /// paint (`fill-<paint id>`, `stroke-paint-<paint id>` or
 /// `foreground-<paint id>`) followed by `-stop-<index>`, e.g.
 /// `"fill-g1-stop-0": "${pal.bg}"`. [color] is then what shows until the
-/// binding gives a color.
+/// binding gives a color. Its [position] binds the same way, under
+/// [positionBindingKey] (`-stop-position-<index>`).
 @JsonSerializable()
 class ColorStop extends Equatable with SerializableMixin {
   /// The key of a node's `variables` that binds the color of stop [index]
   /// of the gradient paint whose own binding key is [paintKey].
   static String bindingKey(String paintKey, int index) =>
       '$paintKey-stop-$index';
+
+  /// The key of a node's `variables` that binds the [position] (0 to 1) of
+  /// stop [index] of the gradient paint whose own binding key is
+  /// [paintKey], e.g. `"fill-g1-stop-position-1": "${= share}"`.
+  static String positionBindingKey(String paintKey, int index) =>
+      '$paintKey-stop-position-$index';
 
   /// Value between 0 and 1 representing position along gradient axis.
   final double position;

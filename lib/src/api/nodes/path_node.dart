@@ -45,6 +45,22 @@ class PathNode extends DefaultShapeNode {
   /// How the outline's segments meet at corners.
   StrokeJoinEnum strokeJoin;
 
+  /// Colours of the path's shapes, one per closed subpath (an `M ... Z` of
+  /// [pathData]) in the order they are drawn, as `#RRGGBB` or `#AARRGGBB`.
+  /// The list repeats when it is shorter than the path's shapes: one colour
+  /// per shape colours each by index, `['#E8762C', '#D9452B']` alternates.
+  /// It replaces the colour of the node's solid fills (keeping each fill's
+  /// opacity), so one path node of pollen cells paints every cell its own
+  /// colour; gradient fills are painted as they are (a per-shape radial
+  /// over the colours shades every cell). An entry that is not a colour
+  /// keeps the fill's own colour for that shape. Subpaths inside the
+  /// previous shape's bounds (holes) belong to that shape.
+  ///
+  /// Bindable as `subpathColors`: a list of colours, or a formula
+  /// returning one (or a comma-separated string), e.g. a colour per cell
+  /// worked out from the layout.
+  List<String> subpathColors;
+
   /// Creates a new [PathNode] with the given data.
   PathNode({
     required super.id,
@@ -83,6 +99,7 @@ class PathNode extends DefaultShapeNode {
     this.trimStart = 0,
     this.trimEnd = 1,
     this.strokeJoin = StrokeJoinEnum.round,
+    this.subpathColors = const [],
   });
 
   /// The properties that can be bound to variables or formulas through
@@ -91,6 +108,7 @@ class PathNode extends DefaultShapeNode {
     'pathData',
     'trimStart',
     'trimEnd',
+    'subpathColors',
   ];
 
   /// Creates a new [PathNode] from a JSON data.

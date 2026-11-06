@@ -91,6 +91,9 @@ ShowDialogAction _$ShowDialogActionFromJson(Map json) => ShowDialogAction(
   barrierBlur: (json['barrierBlur'] as num?)?.toDouble() ?? 0,
   enterScale: (json['enterScale'] as num?)?.toDouble() ?? 1,
   sheetBelowWidth: (json['sheetBelowWidth'] as num?)?.toDouble() ?? 600,
+  routeTransition: json['routeTransition'] == null
+      ? null
+      : RouteTransition.fromJson(json['routeTransition'] as Object),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -119,6 +122,7 @@ Map<String, dynamic> _$ShowDialogActionToJson(ShowDialogAction instance) =>
       'barrierBlur': instance.barrierBlur,
       'enterScale': instance.enterScale,
       'sheetBelowWidth': instance.sheetBelowWidth,
+      'routeTransition': ?instance.routeTransition?.toJson(),
     };
 
 const _$DialogPresentationEnumMap = {
@@ -189,4 +193,5 @@ const _$ActionTypeEnumMap = {
   ActionType.playAnimation: 'playAnimation',
   ActionType.animateVariable: 'animateVariable',
   ActionType.haptic: 'haptic',
+  ActionType.paginate: 'paginate',
 };
