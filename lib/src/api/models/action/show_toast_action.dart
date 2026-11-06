@@ -203,6 +203,11 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
   /// Null draws none.
   final List<Effect>? actionShadows;
 
+  /// Shadows of the icon's disc, or of the icon itself when it has no
+  /// disc: a soft halo (offset 0) makes a small round icon a lit lamp.
+  /// Null draws none.
+  final List<Effect>? iconShadows;
+
   /// Corner radius of the action button. Null keeps the default.
   final double? actionCornerRadius;
 
@@ -307,6 +312,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     this.actionBackgroundColor,
     this.actionBorder,
     this.actionShadows,
+    this.iconShadows,
     this.actionCornerRadius,
     this.showClose = false,
     this.closeColor,
@@ -384,6 +390,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actionBackgroundColor,
     actionBorder,
     actionShadows,
+    iconShadows,
     actionCornerRadius,
     showClose,
     closeColor,
@@ -440,6 +447,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     ColorRGBA? actionBackgroundColor,
     BorderSideModel? actionBorder,
     List<Effect>? actionShadows,
+    List<Effect>? iconShadows,
     double? actionCornerRadius,
     bool? showClose,
     ColorRGBA? closeColor,
@@ -506,6 +514,7 @@ class ShowToastAction extends ActionModel with Equatable, SerializableMixin {
     actionBackgroundColor: actionBackgroundColor ?? this.actionBackgroundColor,
     actionBorder: actionBorder ?? this.actionBorder,
     actionShadows: actionShadows ?? this.actionShadows,
+    iconShadows: iconShadows ?? this.iconShadows,
     actionCornerRadius: actionCornerRadius ?? this.actionCornerRadius,
     showClose: showClose ?? this.showClose,
     closeColor: clearCloseColor ? null : closeColor ?? this.closeColor,
