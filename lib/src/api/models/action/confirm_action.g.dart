@@ -10,6 +10,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
   ConfirmAction instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.title, '')) json.remove('title');
   if (isJsonDefault(instance.caption, '')) json.remove('caption');
   if (isJsonDefault(instance.message, '')) json.remove('message');
   if (isJsonDefault(instance.confirmLabel, 'OK')) json.remove('confirmLabel');
@@ -46,7 +47,7 @@ Map<String, dynamic> _$ConfirmActionOmitDefaults(
 // **************************************************************************
 
 ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
-  title: json['title'] as String,
+  title: json['title'] as String? ?? '',
   caption: json['caption'] as String? ?? '',
   captionStyle: json['captionStyle'] == null
       ? null
@@ -213,7 +214,7 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'insets': ?instance.insets?.toJson(),
       'padding': ?instance.padding?.toJson(),
       'buttonHeight': ?instance.buttonHeight,
-      'presentation':_$DialogPresentationEnumMap[instance.presentation]!,
+      'presentation': _$DialogPresentationEnumMap[instance.presentation]!,
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
       'showDragHandle': instance.showDragHandle,
@@ -283,4 +284,6 @@ const _$ActionTypeEnumMap = {
   ActionType.scrollTo: 'scrollTo',
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
 };

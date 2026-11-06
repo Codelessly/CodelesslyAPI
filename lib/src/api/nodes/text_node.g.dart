@@ -331,6 +331,9 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
   'data': instance.data,
   'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
   'textAlignHorizontal':
@@ -341,16 +344,13 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'paragraphSpacing': instance.paragraphSpacing,
   'maxLines': ?instance.maxLines,
   'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
-  'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
-  'margin': instance.margin.toJson(),
-  'padding': instance.padding.toJson(),
-  'rotation': instance.rotationDegrees,
   'widthFactor': ?instance.widthFactor,
   'heightFactor': ?instance.heightFactor,
+  'softWrap': instance.softWrap,
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'textScaleFactor': ?instance.textScaleFactor,
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
@@ -486,4 +486,5 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };

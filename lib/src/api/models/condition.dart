@@ -796,6 +796,9 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [SpeakAction].
   R? visitSpeakAction(SpeakAction action);
 
+  /// Visits a [HapticAction].
+  R? visitHapticAction(HapticAction action);
+
   /// Visits a [ScrollToAction].
   R? visitScrollToAction(ScrollToAction action);
   /// Visits a [PlaySoundAction].
