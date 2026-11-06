@@ -1213,6 +1213,9 @@
                 },
                 "allowImplicitScrolling": {
                   "type": "boolean"
+                },
+                "animationDurationMs": {
+                  "type": "integer"
                 }
               }
             }
@@ -1220,6 +1223,67 @@
           "required": [
             "component",
             "children"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyPagination": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyPagination"
+            },
+            "controller": {
+              "type": "string"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "showFirstLast": {
+                  "type": "boolean"
+                },
+                "showPrevNext": {
+                  "type": "boolean"
+                },
+                "showPageNumbers": {
+                  "type": "boolean"
+                },
+                "siblingCount": {
+                  "type": "integer"
+                },
+                "boundaryCount": {
+                  "type": "integer"
+                },
+                "showPageSize": {
+                  "type": "boolean"
+                },
+                "showSummary": {
+                  "type": "boolean"
+                },
+                "summaryText": {
+                  "type": "string"
+                },
+                "fontSize": {
+                  "type": "number"
+                },
+                "textColor": {
+                  "type": "object"
+                },
+                "activeColor": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "controller"
           ]
         }
       ],
@@ -1758,6 +1822,12 @@
                 },
                 "trackOutlineWidth": {
                   "type": "number"
+                },
+                "uniformThumb": {
+                  "type": "boolean"
+                },
+                "fillTrack": {
+                  "type": "boolean"
                 }
               }
             }
@@ -1792,6 +1862,40 @@
           },
           "required": [
             "component"
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "CodelesslyTableView": {
+      "allOf": [
+        {
+          "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ComponentCommon"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "component": {
+              "const": "CodelesslyTableView"
+            },
+            "children": {
+              "$ref": "https://a2ui.org/specification/v0_9_1/common_types.json#/$defs/ChildList"
+            },
+            "properties": {
+              "type": "object",
+              "properties": {
+                "rowHeight": {
+                  "type": "number"
+                },
+                "columnWidth": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "required": [
+            "component",
+            "children"
           ]
         }
       ],
@@ -3234,6 +3338,9 @@
           "$ref": "#/components/PageView"
         },
         {
+          "$ref": "#/components/CodelesslyPagination"
+        },
+        {
           "$ref": "#/components/CodelesslyPath"
         },
         {
@@ -3283,6 +3390,9 @@
         },
         {
           "$ref": "#/components/TabBar"
+        },
+        {
+          "$ref": "#/components/CodelesslyTableView"
         },
         {
           "$ref": "#/components/CodelesslyTabs"

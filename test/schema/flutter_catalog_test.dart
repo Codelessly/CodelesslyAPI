@@ -171,6 +171,7 @@ void main() {
         'textAlignHorizontal',
         'overflow',
         'tabularFigures',
+        'fontFeatures',
         'textMixedProps[].fontSize',
         'textMixedProps[].fontName',
         'textMixedProps[].lineHeight',
@@ -477,7 +478,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 72);
+    expect(catalog.components.length, 74);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,

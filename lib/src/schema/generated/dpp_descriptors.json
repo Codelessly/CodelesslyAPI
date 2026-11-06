@@ -92,7 +92,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -280,7 +280,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -488,7 +488,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -736,7 +736,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -1142,7 +1142,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -1398,7 +1398,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -1500,6 +1500,18 @@
       "nodeType": "barcode",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Persisted edge-pin object; distances are relative to parent edges.",
+      "fieldPath": "edgePins",
+      "group": "Position",
+      "control": "edgePins",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
       "fieldPath": "horizontalFit",
       "group": "Fit",
@@ -1531,6 +1543,66 @@
       "schemaType": "boolean",
       "defaultSource": null,
       "bindable": true
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+      "fieldPath": "margin",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+      "fieldPath": "padding",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+      "fieldPath": "rotation",
+      "group": "Transform",
+      "control": "angle",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly blend opacity applied by the node renderer, not a parent widget constructor parameter.",
+      "fieldPath": "opacity",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Serialized node effects; individual shadow fields live in list items.",
+      "fieldPath": "effects",
+      "group": "Effects",
+      "control": "list",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
     },
     {
       "nodeType": "barcode",
@@ -1586,6 +1658,126 @@
       "nodeType": "barcode",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+      "fieldPath": "inkWell.overlayColor",
+      "group": "InkWell",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+      "fieldPath": "inkWell.highlightColor",
+      "group": "InkWell",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+      "fieldPath": "inkWell.splashColor",
+      "group": "InkWell",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+      "fieldPath": "inkWell.hoverColor",
+      "group": "InkWell",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nested InkWell styling, not a constructor parameter of the parent node widget.",
+      "fieldPath": "inkWell.focusColor",
+      "group": "InkWell",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent left edge.",
+      "fieldPath": "edgePins.left",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent top edge.",
+      "fieldPath": "edgePins.top",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent right edge.",
+      "fieldPath": "edgePins.right",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent bottom edge.",
+      "fieldPath": "edgePins.bottom",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly opacity transition timing, not a parent widget constructor parameter.",
+      "fieldPath": "transition.durationMillis",
+      "group": "Appearance",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "barcode",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
       "fieldPath": "pulse.minOpacity",
       "group": "Effects",
@@ -1698,7 +1890,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -2106,7 +2298,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -2514,7 +2706,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -2922,7 +3114,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -3328,7 +3520,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -3736,7 +3928,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -4279,7 +4471,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -4463,7 +4655,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -4661,7 +4853,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -4889,7 +5081,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -5097,7 +5289,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -5315,7 +5507,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -5523,7 +5715,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -5751,7 +5943,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -5939,7 +6131,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -6147,7 +6339,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -6325,7 +6517,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -6569,7 +6761,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -7107,7 +7299,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -7532,7 +7724,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -7725,7 +7917,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -7899,7 +8091,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -8195,7 +8387,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -8469,7 +8661,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -8647,7 +8839,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -8931,7 +9123,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -9227,7 +9419,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -9605,7 +9797,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -9773,7 +9965,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -9927,6 +10119,16 @@
     },
     {
       "nodeType": "pageView",
+      "flutterName": "animationDurationMs",
+      "fieldPath": "properties.animationDurationMs",
+      "group": "Interaction",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pageView",
       "flutterName": null,
       "flutterParam": null,
       "note": "Nullable distance from the parent left edge.",
@@ -9987,6 +10189,294 @@
     },
     {
       "nodeType": "pageView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.durationMillis",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "controller",
+      "fieldPath": "controller",
+      "group": "Pagination",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+      "fieldPath": "visible",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Persisted edge-pin object; distances are relative to parent edges.",
+      "fieldPath": "edgePins",
+      "group": "Position",
+      "control": "edgePins",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "horizontalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "verticalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+      "fieldPath": "enabled",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+      "fieldPath": "margin",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+      "fieldPath": "padding",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+      "fieldPath": "rotation",
+      "group": "Transform",
+      "control": "angle",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showFirstLast",
+      "fieldPath": "properties.showFirstLast",
+      "group": "Parts",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPrevNext",
+      "fieldPath": "properties.showPrevNext",
+      "group": "Parts",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPageNumbers",
+      "fieldPath": "properties.showPageNumbers",
+      "group": "Parts",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "siblingCount",
+      "fieldPath": "properties.siblingCount",
+      "group": "Parts",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "boundaryCount",
+      "fieldPath": "properties.boundaryCount",
+      "group": "Parts",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPageSize",
+      "fieldPath": "properties.showPageSize",
+      "group": "Parts",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showSummary",
+      "fieldPath": "properties.showSummary",
+      "group": "Parts",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "summaryText",
+      "fieldPath": "properties.summaryText",
+      "group": "Parts",
+      "control": "text",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "fontSize",
+      "fieldPath": "properties.fontSize",
+      "group": "Style",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "textColor",
+      "fieldPath": "properties.textColor",
+      "group": "Style",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "activeColor",
+      "fieldPath": "properties.activeColor",
+      "group": "Style",
+      "control": "color",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent left edge.",
+      "fieldPath": "edgePins.left",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent top edge.",
+      "fieldPath": "edgePins.top",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent right edge.",
+      "fieldPath": "edgePins.right",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent bottom edge.",
+      "fieldPath": "edgePins.bottom",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.minOpacity",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "pagination",
       "flutterName": null,
       "flutterParam": null,
       "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
@@ -10089,7 +10579,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -10505,7 +10995,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -10692,7 +11182,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -10876,7 +11366,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -11074,7 +11564,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -11272,7 +11762,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -11704,7 +12194,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -12122,7 +12612,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -12680,7 +13170,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -13238,7 +13728,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -13455,7 +13945,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -13659,7 +14149,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -13865,7 +14355,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -14053,7 +14543,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -14271,7 +14761,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -14449,7 +14939,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -14480,6 +14970,30 @@
       "group": "Appearance",
       "control": "number",
       "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.",
+      "fieldPath": "properties.uniformThumb",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "switch",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.",
+      "fieldPath": "properties.fillTrack",
+      "group": "Appearance",
+      "control": "switch",
+      "schemaType": "boolean",
       "defaultSource": null,
       "bindable": false
     },
@@ -14647,7 +15161,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -14819,6 +15333,216 @@
     },
     {
       "nodeType": "tabBar",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.durationMillis",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "integer",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
+      "fieldPath": "visible",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Persisted edge-pin object; distances are relative to parent edges.",
+      "fieldPath": "edgePins",
+      "group": "Position",
+      "control": "edgePins",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly horizontal layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "horizontalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly vertical layout fit, not a Flutter constructor parameter.",
+      "fieldPath": "verticalFit",
+      "group": "Fit",
+      "control": "fitChips",
+      "schemaType": "string",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly node enablement; Flutter parent widget constructors differ.",
+      "fieldPath": "enabled",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": true
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized margin object, not a Flutter constructor parameter.",
+      "fieldPath": "margin",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly serialized padding object, not a Flutter constructor parameter.",
+      "fieldPath": "padding",
+      "group": "Spacing",
+      "control": "edgeInsets",
+      "schemaType": "object",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.",
+      "fieldPath": "rotation",
+      "group": "Transform",
+      "control": "angle",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": "children",
+      "fieldPath": "children",
+      "group": "Layout",
+      "control": "children",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly child clip toggle, not a Stack constructor parameter.",
+      "fieldPath": "clipsContent",
+      "group": "Visibility",
+      "control": "switch",
+      "schemaType": "boolean",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": "rowHeight",
+      "fieldPath": "properties.rowHeight",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": "columnWidth",
+      "fieldPath": "properties.columnWidth",
+      "group": "Layout",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent left edge.",
+      "fieldPath": "edgePins.left",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent top edge.",
+      "fieldPath": "edgePins.top",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent right edge.",
+      "fieldPath": "edgePins.right",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Nullable distance from the parent bottom edge.",
+      "fieldPath": "edgePins.bottom",
+      "group": "Position",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": null,
+      "flutterParam": null,
+      "note": "Codelessly relative opacity pulse setting, not a Flutter widget constructor parameter.",
+      "fieldPath": "pulse.minOpacity",
+      "group": "Effects",
+      "control": "number",
+      "schemaType": "number",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "tableView",
       "flutterName": null,
       "flutterParam": null,
       "note": "Codelessly relative opacity pulse timing, not a Flutter widget constructor parameter.",
@@ -15099,7 +15823,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -15271,6 +15995,18 @@
       "nodeType": "text",
       "flutterName": null,
       "flutterParam": null,
+      "note": "Codelessly OpenType feature tags (e.g. \"lnum\", \"liga=0\") applied to every span; TextStyle.fontFeatures in Flutter.",
+      "fieldPath": "fontFeatures",
+      "group": "Text",
+      "control": "list",
+      "schemaType": "array",
+      "defaultSource": null,
+      "bindable": false
+    },
+    {
+      "nodeType": "text",
+      "flutterName": null,
+      "flutterParam": null,
       "note": "Codelessly node visibility; Flutter parent widget constructors differ.",
       "fieldPath": "visible",
       "group": "Visibility",
@@ -15359,7 +16095,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -15783,7 +16519,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -15961,7 +16697,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -16139,7 +16875,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -16337,7 +17073,7 @@
       "fieldPath": "rotation",
       "group": "Transform",
       "control": "angle",
-      "schemaType": "integer",
+      "schemaType": "number",
       "defaultSource": null,
       "bindable": false
     },
@@ -16796,6 +17532,66 @@
       "fieldPath": "properties.allowImplicitScrolling"
     },
     {
+      "nodeType": "pageView",
+      "flutterName": "animationDurationMs",
+      "fieldPath": "properties.animationDurationMs"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showFirstLast",
+      "fieldPath": "properties.showFirstLast"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPrevNext",
+      "fieldPath": "properties.showPrevNext"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPageNumbers",
+      "fieldPath": "properties.showPageNumbers"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "siblingCount",
+      "fieldPath": "properties.siblingCount"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "boundaryCount",
+      "fieldPath": "properties.boundaryCount"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showPageSize",
+      "fieldPath": "properties.showPageSize"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "showSummary",
+      "fieldPath": "properties.showSummary"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "summaryText",
+      "fieldPath": "properties.summaryText"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "fontSize",
+      "fieldPath": "properties.fontSize"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "textColor",
+      "fieldPath": "properties.textColor"
+    },
+    {
+      "nodeType": "pagination",
+      "flutterName": "activeColor",
+      "fieldPath": "properties.activeColor"
+    },
+    {
       "nodeType": "progressBar",
       "flutterName": "maxValue",
       "fieldPath": "properties.maxValue"
@@ -16887,6 +17683,16 @@
       "nodeType": "tabBar",
       "flutterName": "indicatorWeight",
       "fieldPath": "properties.indicatorWeight"
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": "rowHeight",
+      "fieldPath": "properties.rowHeight"
+    },
+    {
+      "nodeType": "tableView",
+      "flutterName": "columnWidth",
+      "fieldPath": "properties.columnWidth"
     },
     {
       "nodeType": "textField",
