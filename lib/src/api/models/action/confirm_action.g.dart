@@ -130,6 +130,15 @@ ConfirmAction _$ConfirmActionFromJson(Map json) => ConfirmAction(
       : BorderSideModel.fromJson(json['iconDiscBorder'] as Map),
   centered: json['centered'] as bool? ?? false,
   expandButtons: json['expandButtons'] as bool? ?? false,
+  width: (json['width'] as num?)?.toDouble(),
+  maxWidth: (json['maxWidth'] as num?)?.toDouble(),
+  insets: json['insets'] == null
+      ? null
+      : EdgeInsetsModel.fromJson(json['insets']),
+  padding: json['padding'] == null
+      ? null
+      : EdgeInsetsModel.fromJson(json['padding']),
+  buttonHeight: (json['buttonHeight'] as num?)?.toDouble(),
   presentation:
       $enumDecodeNullable(
         _$DialogPresentationEnumMap,
@@ -199,6 +208,11 @@ Map<String, dynamic> _$ConfirmActionToJson(ConfirmAction instance) =>
       'iconDiscBorder': ?instance.iconDiscBorder?.toJson(),
       'centered': instance.centered,
       'expandButtons': instance.expandButtons,
+      'width': ?instance.width,
+      'maxWidth': ?instance.maxWidth,
+      'insets': ?instance.insets?.toJson(),
+      'padding': ?instance.padding?.toJson(),
+      'buttonHeight': ?instance.buttonHeight,
       'presentation':_$DialogPresentationEnumMap[instance.presentation]!,
       'sheetWidth': ?instance.sheetWidth,
       'maxHeightFactor': instance.maxHeightFactor,
