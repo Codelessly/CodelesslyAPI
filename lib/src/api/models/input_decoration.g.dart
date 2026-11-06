@@ -22,6 +22,9 @@ Map<String, dynamic> _$InputDecorationModelOmitDefaults(
     json.remove('floatingLabelBehavior');
   if (isJsonDefault(instance.isCollapsed, false)) json.remove('isCollapsed');
   if (isJsonDefault(instance.isDense, true)) json.remove('isDense');
+  if (isJsonDefault(instance.affixesAlwaysVisible, false)) {
+    json.remove('affixesAlwaysVisible');
+  }
   if (isJsonDefault(
     instance.prefixIconConstraints,
     const BoxConstraintsModel(),
@@ -130,6 +133,7 @@ InputDecorationModel _$InputDecorationModelFromJson(Map json) =>
           ? null
           : ReactiveIconModel.fromJson(json['suffixIcon'] as Map),
       suffixText: json['suffixText'] as String?,
+      affixesAlwaysVisible: json['affixesAlwaysVisible'] as bool? ?? false,
       suffixStyle: json['suffixStyle'] == null
           ? null
           : TextProp.fromJson(json['suffixStyle'] as Map),
@@ -215,6 +219,7 @@ Map<String, dynamic> _$InputDecorationModelToJson(
   'prefixIcon': instance.prefixIcon.toJson(),
   'prefixIconConstraints': instance.prefixIconConstraints.toJson(),
   'suffixText': ?instance.suffixText,
+  'affixesAlwaysVisible': instance.affixesAlwaysVisible,
   'suffixStyle': instance.suffixStyle.toJson(),
   'suffixIcon': instance.suffixIcon.toJson(),
   'suffixIconConstraints': instance.suffixIconConstraints.toJson(),
