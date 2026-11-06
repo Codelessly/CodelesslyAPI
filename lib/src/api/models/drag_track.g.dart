@@ -31,6 +31,11 @@ Map<String, dynamic> _$DragTrackModelOmitDefaults(
   if (isJsonDefault(instance.relative, false)) json.remove('relative');
   if (isJsonDefault(instance.jumpOnTap, false)) json.remove('jumpOnTap');
   if (isJsonDefault(instance.wheel, true)) json.remove('wheel');
+  if (isJsonDefault(instance.endless, false)) json.remove('endless');
+  if (isJsonDefault(instance.momentum, false)) json.remove('momentum');
+  if (isJsonDefault(instance.friction, 2.6)) json.remove('friction');
+  if (isJsonDefault(instance.smooth, false)) json.remove('smooth');
+  if (isJsonDefault(instance.gain, 1)) json.remove('gain');
   return json;
 }
 
@@ -65,6 +70,11 @@ DragTrackModel _$DragTrackModelFromJson(Map json) => DragTrackModel(
   relative: json['relative'] as bool? ?? false,
   jumpOnTap: json['jumpOnTap'] as bool? ?? false,
   wheel: json['wheel'] as bool? ?? true,
+  endless: json['endless'] as bool? ?? false,
+  momentum: json['momentum'] as bool? ?? false,
+  friction: (json['friction'] as num?)?.toDouble() ?? 2.6,
+  smooth: json['smooth'] as bool? ?? false,
+  gain: (json['gain'] as num?)?.toDouble() ?? 1,
 );
 
 Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
@@ -91,6 +101,11 @@ Map<String, dynamic> _$DragTrackModelToJson(DragTrackModel instance) =>
       'relative': instance.relative,
       'jumpOnTap': instance.jumpOnTap,
       'wheel': instance.wheel,
+      'endless': instance.endless,
+      'momentum': instance.momentum,
+      'friction': instance.friction,
+      'smooth': instance.smooth,
+      'gain': instance.gain,
     };
 
 const _$DragTrackShapeEnumMap = {
