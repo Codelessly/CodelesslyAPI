@@ -8,7 +8,11 @@ part 'trigger.g.dart';
 
 /// Types of triggers.
 enum TriggerType {
-  /// Triggered when the user clicks on the target.
+  /// Triggered when the user clicks on the target. `${result}` says where:
+  /// `x`, `y` in pixels from the target's top left, `globalX`, `globalY` on
+  /// screen, the target's `width` and `height`, and `fx`, `fy`, the spot as
+  /// a share (0 to 1) of the target's width and height, e.g. to place a pin
+  /// where a map that resizes with the screen was tapped.
   click,
 
   /// Triggered when text is changed inside a text input field.
@@ -22,7 +26,9 @@ enum TriggerType {
   /// on a one-line field, the keyboard's done/go key).
   submitted,
 
-  /// Triggered when the user long presses on a target.
+  /// Triggered when the user long presses on a target. `${result}` says
+  /// where, as for [click]: `x`, `y`, `globalX`, `globalY`, `fx`, `fy`,
+  /// `width`, `height`.
   longPress,
 
   /// Triggered each time the mouse cursor moves over the target, after it
@@ -42,9 +48,13 @@ enum TriggerType {
   cursorExit,
 
   /// Triggered when a pointer down event is received on the target.
+  /// `${result}` says where, as for [click] (`x`, `y`, `globalX`,
+  /// `globalY`, `fx`, `fy`, `width`, `height`), plus `button` and the
+  /// modifier keys.
   pointerDown,
 
-  /// Triggered when a pointer up event is received on the target.
+  /// Triggered when a pointer up event is received on the target, with the
+  /// same `${result}` as [pointerDown].
   pointerUp,
 
   /// Triggered when the canvas is loaded.
@@ -60,7 +70,8 @@ enum TriggerType {
 
   /// Triggered when a key is pressed while the canvas is shown. The key is
   /// [TriggerModel.key], a logical key label such as `Arrow Right`, `Enter`
-  /// or `A`.
+  /// or `A`, compared without case: `a` and `A` are both the A key, pressed
+  /// with or without Shift.
   keyPress,
 
   /// Triggered when the user swipes the target to the left.
@@ -78,6 +89,7 @@ enum TriggerType {
   /// Triggered when the user taps the target twice in quick succession.
   /// A node with a double tap reaction delays its single taps ([click]) by
   /// the double tap timeout (300ms), the way Flutter tells the two apart.
+  /// `${result}` says where, as for [click].
   doubleTap,
 
   /// Triggered when the user presses and holds the target for the trigger's
@@ -114,7 +126,9 @@ enum TriggerType {
 
   /// Triggered when the user right-clicks the target (or taps it with two
   /// fingers on a trackpad). `${result.x}` and `${result.y}` are where, in
-  /// screen coordinates, e.g. to open a context menu there.
+  /// screen coordinates, e.g. to open a context menu there; `localX`,
+  /// `localY` are in the target, `fx`, `fy` a share (0 to 1) of its `width`
+  /// and `height`.
   secondaryClick,
 
   /// Triggered on a draggable node when the user picks it up. The actions
@@ -127,8 +141,11 @@ enum TriggerType {
 
   /// Triggered on a drop target when a drag it accepts is dropped on it.
   /// `${result}` (and `${drag}`) hold `data`, `group`, `count`, `key`,
-  /// `beforeId`, `before` (the item it lands before), `index` and
-  /// `accepted`. A drop its `acceptIf` refuses doesn't fire it.
+  /// `beforeId`, `before` (the item it lands before), `index`,
+  /// `accepted`, and where the dragged node's centre landed on the target:
+  /// `x`, `y` in pixels from its top left and `fx`, `fy` as a share of its
+  /// size (0 to 1), e.g. a pin dropped on a map. A drop its `acceptIf`
+  /// refuses doesn't fire it.
   drop,
 
   /// Triggered on a drop target when a drag it accepts moves onto it.
@@ -175,7 +192,9 @@ enum TriggerType {
   /// Triggered when a row of a data list has been dragged to a new place by
   /// this node, its reorder handle ([DragModel.reorder]). The actions read
   /// `${result.from}` and `${result.to}`: the row's old index and its index
-  /// in the new order.
+  /// in the new order. A list with a `ReorderModel` also fires it, on the
+  /// list, with `${result.item}` (the moved item) and `${result.fromList}`
+  /// and `${result.toList}` (the lists' keys; the same within one list).
   reorder,
 
   /// Triggered on every scroll update of a scrolling row, column or
@@ -229,7 +248,29 @@ enum TriggerType {
   /// is visible falls below [TriggerModel.visibleFraction] after it was in
   /// view (see [enterViewport]). For example, gives a sticky header its
   /// "scrolled" style once the hero scrolls away.
-  exitViewport;
+  exitViewport,
+
+  /// Triggered when the user pulls a list or grid past its start to
+  /// refresh it (its pagination's `pullToRefresh`). The list's pagination
+  /// controller, if any, reloads its first page; these reactions run too,
+  /// to reload anything else. The indicator spins until they finish.
+  refresh,
+
+  /// Triggered when a swipe action of a list item runs (the list's
+  /// `SwipeActionsModel`). The actions read `${result.action}` (the
+  /// action's id), `${result.label}`, `${result.item}` and `${result.index}`.
+  swipeAction,
+
+  /// Triggered on a screen (canvas) when the user tries to leave it with the
+  /// browser's back button, the system back button or gesture (Android,
+  /// iOS swipe back) or Escape on a dialog, while the screen's
+  /// [CanvasNode.blockBackVariable] binding (`variables['blockBack']`, e.g.
+  /// `${= dirty}`) is true. The screen then stays, and these actions run
+  /// instead, e.g. a "Discard changes?" confirm whose agreeing branch leaves
+  /// with a Navigation pop, which the block does not stop. While the binding
+  /// is false (or the canvas has none), back leaves as usual and this
+  /// trigger doesn't fire.
+  backPressed;
 
   /// The triggers for the target entering and leaving the view.
   static const List<TriggerType> viewport = [
@@ -369,6 +410,12 @@ enum TriggerType {
         return 'Enter Viewport';
       case TriggerType.exitViewport:
         return 'Exit Viewport';
+      case TriggerType.refresh:
+        return 'Pull to Refresh';
+      case TriggerType.swipeAction:
+        return 'Swipe Action';
+      case TriggerType.backPressed:
+        return 'Back Pressed';
     }
   }
 }
@@ -402,8 +449,14 @@ class TriggerModel with Equatable, SerializableMixin {
 
   /// The key a [TriggerType.keyPress], [TriggerType.keyDown] or
   /// [TriggerType.keyUp] listens for.
-  /// Key down labels (e.g. `ArrowLeft`) are case-insensitive; null listens
+  /// Key labels (e.g. `ArrowLeft`) are case-insensitive; null listens
   /// for every key.
+  ///
+  /// A key is a key of the keyboard, not the character it types, so a
+  /// letter matches without case: `f` and `F` both name the F key, and both
+  /// match it pressed with or without Shift. Two reactions for `f` and `F`
+  /// are two reactions for the same key and both run on one press. To act
+  /// on Shift+F only, name the modifier: `Shift+F` (key down and key up).
   ///
   /// A key down key can name modifiers before the key, joined by `+`:
   /// `Meta+Enter` (`Meta` is Command or Control, so the same shortcut works
@@ -550,7 +603,10 @@ class TriggerModel with Equatable, SerializableMixin {
 ///
 /// The last part is the key, compared without case or spaces, so
 /// `Arrow Down`, `ArrowDown` and `arrowdown` are the same key. `Esc` reads
-/// as `Escape` and `Return` as `Enter`.
+/// as `Escape` and `Return` as `Enter`. A letter is the key, not the
+/// character: `F` is the F key, as `f` is, and not Shift+F; write
+/// `Shift+F` for that. A one-character key without `Shift` also matches
+/// with Shift held (see [matches]).
 class KeyCombo with Equatable {
   /// The key, lower case and without spaces: `enter`, `arrowdown`, `b`.
   final String key;

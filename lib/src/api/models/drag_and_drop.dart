@@ -71,7 +71,9 @@ enum FeedbackAnchor {
 ///
 /// While a drag is in progress the predefined `drag` variable describes it
 /// (`drag.active`, `drag.group`, `drag.data`, `drag.count`, `drag.over`,
-/// `drag.beforeId`, `drag.index`, `drag.accepted`, ...), so any node can
+/// `drag.beforeId`, `drag.index`, `drag.accepted`, and `drag.x`, `drag.y`,
+/// `drag.fx`, `drag.fy`: where the dragged node's centre is over the target
+/// under it, in pixels and as a share of the target's size), so any node can
 /// bind to it to highlight targets or show where the drop will land.
 @JsonSerializable()
 class DraggableModel with Equatable, SerializableMixin {
@@ -113,7 +115,9 @@ class DraggableModel with Equatable, SerializableMixin {
   final double feedbackElevation;
 
   /// A node to draw under the pointer instead of a copy of this one (e.g. a
-  /// stack showing `${drag.count} cards`). Empty for a copy.
+  /// stack showing `${drag.count} cards`). Empty for a copy. It is built by
+  /// id, with this node's data (its list item), so it need not be shown
+  /// anywhere: keep it hidden, or off the screen.
   final String feedbackNodeId;
 
   /// Which point of the copy that follows the pointer sits under it.
