@@ -419,8 +419,17 @@ class V1Node {
       final x = _axis(p, horizontal: true), y = _axis(p, horizontal: false);
       if (!(x.length == 1 && x['start'] == 0)) l['x'] = x;
       if (!(y.length == 1 && y['start'] == 0)) l['y'] = y;
-    } else if (p == null || p is CanvasNode) {
-      // Top-level canvases and canvas bodies: where v1 stored them.
+    } else if (p == null) {
+      // Top-level nodes (canvases): where the v1 editor places them, by
+      // their left and top pins (a node without pins is pinned at 0, 0);
+      // their box is only used for a side that isn't pinned. Pages whose
+      // pins and boxes disagree show as the v1 editor showed them.
+      final o = n.basicBoxLocal;
+      final x = n.edgePins.left ?? o.x, y = n.edgePins.top ?? o.y;
+      if (x != 0) l['x'] = {'start': roundNum(x)};
+      if (y != 0) l['y'] = {'start': roundNum(y)};
+    } else if (p is CanvasNode) {
+      // Canvas bodies: where v1 stored them.
       final o = n.basicBoxLocal;
       if (o.x != 0) l['x'] = {'start': roundNum(o.x)};
       if (o.y != 0) l['y'] = {'start': roundNum(o.y)};
