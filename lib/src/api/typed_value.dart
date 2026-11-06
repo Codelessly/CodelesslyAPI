@@ -24,6 +24,9 @@ extension ObjectExt on Object? {
       const (String) =>
         (value is List || value is Map
                     ? encodeJsonValue(value)
+                    // A colour reads as its hex, as text shows it.
+                    : value is ColorRGB
+                    ? colorHexText(value)
                     : value.toString())
                 .tryCast<R>() ??
             defaultValue,
