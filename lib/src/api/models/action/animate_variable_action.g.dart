@@ -74,6 +74,22 @@ const _$AnimateVariableModeEnumMap = {
   AnimateVariableMode.seek: 'seek',
 };
 
+const _$MotionCurveEnumMap = {
+  MotionCurve.linear: 'linear',
+  MotionCurve.easeInOut: 'easeInOut',
+  MotionCurve.easeOut: 'easeOut',
+  MotionCurve.easeIn: 'easeIn',
+  MotionCurve.easeOutBack: 'easeOutBack',
+  MotionCurve.easeOutCubic: 'easeOutCubic',
+  MotionCurve.easeInOutSine: 'easeInOutSine',
+  MotionCurve.spring: 'spring',
+  MotionCurve.elasticOut: 'elasticOut',
+  MotionCurve.bounceOut: 'bounceOut',
+  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
+  MotionCurve.easeInOutCubic: 'easeInOutCubic',
+  MotionCurve.step: 'step',
+};
+
 const _$ActionTypeEnumMap = {
   ActionType.navigation: 'navigation',
   ActionType.showDialog: 'showDialog',
@@ -107,20 +123,5 @@ const _$ActionTypeEnumMap = {
   ActionType.playSound: 'playSound',
   ActionType.playAnimation: 'playAnimation',
   ActionType.animateVariable: 'animateVariable',
-};
-
-const _$MotionCurveEnumMap = {
-  MotionCurve.linear: 'linear',
-  MotionCurve.easeInOut: 'easeInOut',
-  MotionCurve.easeOut: 'easeOut',
-  MotionCurve.easeIn: 'easeIn',
-  MotionCurve.easeOutBack: 'easeOutBack',
-  MotionCurve.easeOutCubic: 'easeOutCubic',
-  MotionCurve.easeInOutSine: 'easeInOutSine',
-  MotionCurve.spring: 'spring',
-  MotionCurve.elasticOut: 'elasticOut',
-  MotionCurve.bounceOut: 'bounceOut',
-  MotionCurve.fastOutSlowIn: 'fastOutSlowIn',
-  MotionCurve.easeInOutCubic: 'easeInOutCubic',
-  MotionCurve.step: 'step',
+  ActionType.haptic: 'haptic',
 };

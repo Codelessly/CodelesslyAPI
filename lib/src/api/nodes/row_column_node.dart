@@ -366,6 +366,9 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.componentVersion = source.componentVersion;
   target.componentSchema = source.componentSchema;
   target.squeezable = source.squeezable;
+  target.ignorePointer = source.ignorePointer;
+  target.keepAspect = source.keepAspect;
+  target.floating = source.floating;
   target.widthFactor = source.widthFactor;
   target.heightFactor = source.heightFactor;
   target.interactionStates = source.interactionStates;

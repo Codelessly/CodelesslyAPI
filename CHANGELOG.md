@@ -1,4 +1,4 @@
-## 9.1.0
+## 9.2.0
 
 Fields added while recreating the Lamplight reference app (see
 CodelesslyEditor `references/lamplight/blockers.md`):
@@ -17,8 +17,77 @@ CodelesslyEditor `references/lamplight/blockers.md`):
   `buttonHeight`.
 - Pulse `phase` and `delayMs`; row/column `fillViewport`; switch
   `thumbShadows` and `thumbInset`.
-- Rows and columns keep `ignorePointer`, `keepAspect` and `floating`.
 - Colours read as hex text in formulas.
+
+## 9.1.0
+
+- `motion.keyframes` binds to a list of `{t, translateX, translateY, ...}`
+  maps (or that list as JSON): keyframes that follow data, such as wind
+  gusts along a route that changes when it is redrawn
+  (`MotionModel.keyframesProperty`).
+- `ShowToastAction.rotation`, `enterCurve` and `enterOffset`: a toast can be
+  tilted (a sticky note stuck on crooked) and come in on any motion curve
+  from further away (dropping in on easeOutBack). Left out of JSON at their
+  defaults.
+- `LineHeight.leadingDistribution` (`proportional`, the default, or
+  `even`): where a text sits in its line height. Flutter's Material 3 text
+  theme uses `even`; left out of JSON at the default.
+- `ConfirmAction.title` defaults to empty text: a confirm that opens a
+  dialog canvas (`dialogId`) doesn't need one.
+
+## 9.0.4
+
+- `AppIdentity`: a project's identity as a web app and a mobile app (name,
+  short name, title template with per-page overrides, description, keywords,
+  canonical URL, favicon/icon sources, theme and background colors, social
+  card, PWA manifest, splash, language, robots, mobile display name, adaptive
+  icon, status bar). Hand-written lenient JSON with migrations from legacy
+  flat shapes, `merge` for patches, `checklist()` for the pre-publish
+  warnings, `toWebManifest()`, and `IdentityAssets`, the list of every
+  generated favicon, icon, splash and social image size.
+- New `package:codelessly_api/genscreen.dart`: screens generated from a
+  one-line prompt and a DESIGN.md design kit (see the editor's
+  `docs/design_md_spec.md`).
+  - DESIGN.md parser and writer (`DesignMdParser`, `DesignMdWriter`,
+    `DesignKit`), with line-numbered issues, WCAG contrast checks and a
+    content fingerprint for cache keys.
+  - Kit bridge: `kitThemeTokens`, `kitStyles` (styles for `styles.add`),
+    `kitComponentLibrary`, and `exportDesignKit` (a kit read back from a
+    project's styles and nodes).
+  - Screen plans: `ScreenPlanValidator`, `screenPlanJsonSchema`,
+    `normalizePlan` (runtime-name clashes, type aliases).
+  - `ScreenCompiler`: responsive trees (mobile, tablet, desktop) with
+    content, skeleton loading, empty and error states, built only from kit
+    tokens; components include a swipeable, flippable `deck`.
+  - `checkOnBrand`, `ScreenPrompt` (system, user, fix and review prompts),
+    `screenCacheKey`, `extractPlanJson`.
+  - `tool/genscreen.dart`: prompt, validate, compile and kit checks from the
+    command line.
+- Drag tracks gain a fine mode (`fineStep`, `finePixelsPerRange`,
+  `fineHoldMs`, `fineVariable`; `track.fine`), click-in animation
+  (`snapMs`, `snapCurve`) and `write` (false: the track shows its variable,
+  which may be computed, and its reactions do the writing).
+- A row or column made from `type: row/column` keeps `ignorePointer`,
+  `keepAspect` and `floating` (they were dropped).
+
+Found recreating Chairlift (a ski-resort status board) in the editor:
+
+- `MotionModel.paused` (bindable `motion.paused`): freezes a running loop and
+  spin where they are and resumes from there (chairs stop where they hang
+  when a lift goes on hold).
+- `MotionModel.loopStart` takes every value `enterFrom` moves, including a
+  path's `pathProgress`: a path loop with `enterFrom: {pathProgress: 0}`
+  ran from its end to its end and sat there.
+- `MotionModel.phase` (bindable `motion.phase`): a loop starts that far
+  through its cycle, so the items of one list can share a looping path
+  spread round it.
+- `DragTrackModel.viewBoxWidth/viewBoxHeight`: a path track drawn in its
+  frame's box, stretched with the frame. `jumpOnTap` now also works on arc
+  tracks (a dial turns to the tapped angle).
+- `ScrollToAction.axis`: scroll only horizontal or vertical scroll views.
+- `ShowToastAction.actionBackgroundColor`, `actionBorder`, `actionShadows`,
+  `actionCornerRadius`: the toast's action as a styled button.
+- For-each docs: `${loop.item}` / `${loop.index}`.
 
 ## 9.0.3
 

@@ -337,6 +337,7 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };
 
 M3NavigationBarProperties _$M3NavigationBarPropertiesFromJson(Map json) =>

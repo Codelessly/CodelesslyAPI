@@ -87,7 +87,7 @@ Map<String, dynamic> _$SwitchPropertiesOmitDefaults(
   if (isJsonDefault(instance.useMaterial3, false)) json.remove('useMaterial3');
   if (isJsonDefault(instance.uniformThumb, false)) json.remove('uniformThumb');
   if (isJsonDefault(instance.fillTrack, false)) json.remove('fillTrack');
-  if (isJsonDefault(instance.thumbShadows, const []))
+  if (isJsonDefault(instance.thumbShadows, <Effect>[]))
     json.remove('thumbShadows');
   return json;
 }
@@ -238,7 +238,6 @@ SwitchNode _$SwitchNodeFromJson(Map json) =>
 Map<String, dynamic> _$SwitchNodeToJson(
   SwitchNode instance,
 ) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -255,6 +254,7 @@ Map<String, dynamic> _$SwitchNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -325,6 +325,7 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };
 
 SwitchProperties _$SwitchPropertiesFromJson(Map json) => SwitchProperties(

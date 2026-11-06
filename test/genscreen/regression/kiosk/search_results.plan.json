@@ -1,0 +1,101 @@
+{
+  "title": "Search results",
+  "summary": "Shows a filterable, sortable product grid of running shoes matching the search.",
+  "pattern": "search",
+  "appBar": {
+    "title": "Search",
+    "leading": "back",
+    "actions": [
+      {"icon": "shopping_bag", "label": "Bag", "action": {"type": "navigate", "to": "Cart"}}
+    ]
+  },
+  "nav": {
+    "items": [
+      {"icon": "home", "label": "Shop", "action": {"type": "navigate", "to": "Home"}},
+      {"icon": "search", "label": "Search", "active": true, "action": {"type": "navigate", "to": "Search"}},
+      {"icon": "shopping_bag", "label": "Bag", "action": {"type": "navigate", "to": "Cart"}},
+      {"icon": "person", "label": "You", "action": {"type": "navigate", "to": "Profile"}}
+    ]
+  },
+  "data": {
+    "meta": {"count": "24 results"},
+    "results": [
+      {"name": "Sprint Loud 2", "brand": "Kiosk Run", "price": "$128.00", "tag": "New", "image": "https://picsum.photos/seed/sprintloud/600/600", "rating": 4.6},
+      {"name": "Pavement Pounder", "brand": "Stride Co.", "price": "$110.00", "tag": "", "image": "https://picsum.photos/seed/pavementpounder/600/600", "rating": 4.4},
+      {"name": "Night Lap Reflective", "brand": "Kiosk Run", "price": "$96.00", "tag": "-20%", "image": "https://picsum.photos/seed/nightlap/600/600", "rating": 4.7},
+      {"name": "Trail Goblin GTX", "brand": "Mudline", "price": "$145.00", "tag": "", "image": "https://picsum.photos/seed/trailgoblin/600/600", "rating": 4.5},
+      {"name": "Tempo Neon", "brand": "Stride Co.", "price": "$118.00", "tag": "Hot", "image": "https://picsum.photos/seed/temponeon/600/600", "rating": 4.3},
+      {"name": "Marathon Mule", "brand": "Longhaul", "price": "$160.00", "tag": "", "image": "https://picsum.photos/seed/marathonmule/600/600", "rating": 4.8},
+      {"name": "Daily Jog Lite", "brand": "Kiosk Run", "price": "$78.00", "tag": "-15%", "image": "https://picsum.photos/seed/dailyjog/600/600", "rating": 4.1},
+      {"name": "Track Rat Spike", "brand": "Mudline", "price": "$102.00", "tag": "", "image": "https://picsum.photos/seed/trackrat/600/600", "rating": 4.2}
+    ]
+  },
+  "variables": [
+    {"name": "query", "type": "text", "value": "running shoes"},
+    {"name": "filter", "type": "text", "value": "All"},
+    {"name": "sort", "type": "text", "value": "Best match"}
+  ],
+  "sections": [
+    {
+      "id": "search",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {"type": "input", "label": "Search", "kind": "search", "bind": "query", "hint": "Search Kiosk", "icon": "search"},
+        {"type": "chips", "bind": "filter", "items": [
+          {"label": "All", "selected": true, "action": {"type": "set", "variable": "filter", "value": "All"}},
+          {"label": "Road", "action": {"type": "set", "variable": "filter", "value": "Road"}},
+          {"label": "Trail", "action": {"type": "set", "variable": "filter", "value": "Trail"}},
+          {"label": "Track", "action": {"type": "set", "variable": "filter", "value": "Track"}},
+          {"label": "On sale", "icon": "local_offer", "action": {"type": "set", "variable": "filter", "value": "On sale"}}
+        ]}
+      ]
+    },
+    {
+      "id": "toolbar",
+      "area": "full",
+      "layout": "row",
+      "children": [
+        {"type": "text", "text": "${meta.count} for \"${query}\"", "style": "subtitle"},
+        {"type": "group", "direction": "row", "gap": "sm", "justify": "end", "children": [
+          {"type": "button", "label": "Sort", "icon": "sort", "variant": "outline", "size": "small", "action": {"type": "set", "variable": "sort", "value": "Price: low to high", "then": {"type": "toast", "message": "Sorted by price"}}},
+          {"type": "button", "label": "Filter", "icon": "tune", "variant": "outline", "size": "small", "action": {"type": "navigate", "to": "Filters"}}
+        ]}
+      ]
+    },
+    {
+      "id": "results",
+      "area": "full",
+      "children": [
+        {
+          "type": "grid",
+          "items": "${results}",
+          "columns": {"mobile": 2, "desktop": 4},
+          "item": {
+            "type": "card",
+            "image": "${item.image}",
+            "aspect": "1:1",
+            "eyebrow": "${item.brand}",
+            "title": "${item.name}",
+            "price": "${item.price}",
+            "meta": "${item.tag}",
+            "action": {"type": "navigate", "to": "Product details", "params": {"name": "${item.name}"}}
+          }
+        }
+      ]
+    },
+    {
+      "id": "more",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {"type": "button", "label": "Load more", "variant": "outline", "icon": "expand_more", "action": {"type": "toast", "message": "Loading 16 more"}}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "search", "title": "No shoes found", "message": "Try a shorter search or clear your filters.", "action": {"label": "Clear filters", "action": {"type": "set", "variable": "filter", "value": "All"}}},
+    "error": {"icon": "error_outline", "title": "Search tripped", "message": "We couldn't load results. Try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

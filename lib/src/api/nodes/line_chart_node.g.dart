@@ -341,6 +341,7 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };
 
 LineChartProperties _$LineChartPropertiesFromJson(Map json) =>

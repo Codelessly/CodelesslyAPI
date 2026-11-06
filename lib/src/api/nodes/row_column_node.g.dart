@@ -429,11 +429,11 @@ Map<String, dynamic> _$RowColumnNodeToJson(
   'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
   'dashPattern': instance.dashPattern,
   'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'clipsContent': instance.clipsContent,
   'cornerSmoothing': instance.cornerSmoothing,
   'cornerRadius': instance.cornerRadius.toJson(),
   'notches': instance.notches.map((e) => e.toJson()).toList(),
-  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
   'rowColumnType': _$RowColumnTypeEnumMap[instance.rowColumnType]!,
   'mainAxisAlignment': _$MainAxisAlignmentCEnumMap[instance.mainAxisAlignment]!,
   'crossAxisAlignment':
@@ -571,4 +571,5 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };

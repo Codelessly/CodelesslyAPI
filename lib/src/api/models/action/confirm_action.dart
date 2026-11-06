@@ -272,7 +272,7 @@ class ConfirmAction extends ActionModel with Equatable, SerializableMixin {
 
   /// Creates a [ConfirmAction].
   ConfirmAction({
-    required this.title,
+    this.title = '',
     this.caption = '',
     this.captionStyle,
     this.message = '',

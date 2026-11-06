@@ -204,6 +204,7 @@ PlaceholderNode _$PlaceholderNodeFromJson(Map json) =>
 Map<String, dynamic> _$PlaceholderNodeToJson(
   PlaceholderNode instance,
 ) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -220,7 +221,6 @@ Map<String, dynamic> _$PlaceholderNodeToJson(
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'ignorePointer': instance.ignorePointer,
   'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
@@ -291,4 +291,5 @@ const _$InteractionStateEnumMap = {
 const _$HeroFlightEnumMap = {
   HeroFlight.standard: 'standard',
   HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
 };

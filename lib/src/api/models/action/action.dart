@@ -100,7 +100,10 @@ enum ActionType {
 
   /// Animates a number variable over time (play, pause, resume, stop,
   /// seek); see [AnimateVariableAction].
-  animateVariable;
+  animateVariable,
+
+  /// Buzzes the device; see [HapticAction].
+  haptic;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -169,6 +172,8 @@ enum ActionType {
         return 'Play Animation';
       case ActionType.animateVariable:
         return 'Animate Variable';
+      case ActionType.haptic:
+        return 'Haptic Feedback';
     }
   }
 }
@@ -282,6 +287,8 @@ abstract class ActionModel with SerializableMixin {
         return PlayAnimationAction.fromJson(json);
       case ActionType.animateVariable:
         return AnimateVariableAction.fromJson(json);
+      case ActionType.haptic:
+        return HapticAction.fromJson(json);
     }
   }
 
