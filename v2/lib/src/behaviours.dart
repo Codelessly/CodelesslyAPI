@@ -2003,6 +2003,7 @@ final class EffectAnimation extends _Value {
     this.originY = 0,
     this.playOnAppear = false,
     this.cycles = 0,
+    this.playKey,
   });
 
   final String name;
@@ -2014,6 +2015,10 @@ final class EffectAnimation extends _Value {
   /// How many times a shake, wiggle or jelly swings (and a flash blinks)
   /// over the effect; 0 uses the type's own count (a shake swings 4 times).
   final double cycles;
+
+  /// A cue the node's bindings set (`effectAnimations[i].playKey`): the
+  /// effect plays each time it changes (not when it first shows).
+  final String? playKey;
 
   static EffectAnimation? fromJson(Object? json) {
     final m = readMap(json);
@@ -2029,6 +2034,7 @@ final class EffectAnimation extends _Value {
       originY: r.d('originY', 0),
       playOnAppear: r.b('playOnAppear', false),
       cycles: math.max(0, r.d('cycles', 0)),
+      playKey: m['playKey']?.toString(),
     );
   }
 
@@ -2039,10 +2045,11 @@ final class EffectAnimation extends _Value {
     ..d('originX', originX, 0)
     ..d('originY', originY, 0)
     ..b('playOnAppear', playOnAppear, false)
-    ..d('cycles', cycles, 0);
+    ..d('cycles', cycles, 0)
+    ..s('playKey', playKey);
 
   @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles];
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
 }
 
 enum ParticleShape { square, circle, strip, star }
@@ -2065,6 +2072,7 @@ final class ParticleEmitter extends _Value {
     this.gravity = 900,
     this.lifetime = 2600,
     this.playOnAppear = false,
+    this.playKey,
   });
 
   static const List<Color> defaultColors = [
@@ -2081,6 +2089,10 @@ final class ParticleEmitter extends _Value {
   final double size, originX, originY, originWidth, direction, spread, speed, gravity;
   final int lifetime;
   final bool playOnAppear;
+
+  /// A cue the node's bindings set (`particles.playKey`): the particles
+  /// burst each time it changes.
+  final String? playKey;
 
   static ParticleEmitter? fromJson(Object? json) {
     final m = readMap(json);
@@ -2108,6 +2120,7 @@ final class ParticleEmitter extends _Value {
       gravity: r.d('gravity', 900),
       lifetime: r.ms('lifetime', 2600),
       playOnAppear: r.b('playOnAppear', false),
+      playKey: m['playKey']?.toString(),
     );
   }
 
@@ -2129,13 +2142,14 @@ final class ParticleEmitter extends _Value {
       ..d('speed', speed, 700)
       ..d('gravity', gravity, 900)
       ..i('lifetime', lifetime, 2600)
-      ..b('playOnAppear', playOnAppear, false);
+      ..b('playOnAppear', playOnAppear, false)
+      ..s('playKey', playKey);
   }
 
   @override
   List<Object?> get props => [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear,
+    lifetime, playOnAppear, playKey,
   ];
 }
 
