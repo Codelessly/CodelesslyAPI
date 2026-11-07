@@ -248,7 +248,8 @@ void main() {
       containsAll([
         'Motion', 'MotionKeyframe', 'LoopAnimation', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles', //
         'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
-        'EffectAnimation', 'ParticleEmitter',
+        'EffectAnimation', 'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
+        'FlipSpring', 'Tilt', 'TransformGesture', 'TransformHandles',
       ]),
     );
   });
