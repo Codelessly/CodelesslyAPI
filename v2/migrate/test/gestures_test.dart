@@ -294,4 +294,27 @@ void main() {
     expect(c['bind'], {'flip.flipped': r'${showBack}', 'transformGesture.scale': r'${zoomLevel}'});
     expect(node(out, 'arc')['hero'], {'tag': 'planet', 'flight': 'arc'});
   });
+
+  test('drag and drop switches and a drag\'s rest bind', () {
+    final out = migrated({
+      'card': {
+        'type': 'frame',
+        'drag': const DragModel(release: DragRelease.dismiss).toJson(),
+        'variables': {
+          'drag.enabled': r'${canSwipe}',
+          'drag.restX': r'${peek}',
+          'drag.restY': r'${= peek / 2}',
+          'draggable.enabled': r'${canPick}',
+          'dropTarget.enabled': r'${open}',
+        },
+      },
+    });
+    expect(node(out, 'card')['bind'], {
+      'drag.enabled': r'${canSwipe}',
+      'drag.restX': r'${peek}',
+      'drag.restY': r'${= peek / 2}',
+      'draggable.enabled': r'${canPick}',
+      'dropTarget.enabled': r'${open}',
+    });
+  });
 }

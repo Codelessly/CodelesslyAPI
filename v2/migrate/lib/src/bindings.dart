@@ -117,6 +117,12 @@ const Map<String, String> _common = {
   'flightKey': 'flightKey',
   'tooltip': 'tooltip',
   'draggable.data': 'draggable.data',
+  // A behaviour's switch and a drag's resting offset, from data.
+  'draggable.enabled': 'draggable.enabled',
+  'dropTarget.enabled': 'dropTarget.enabled',
+  'drag.enabled': 'drag.enabled',
+  'drag.restX': 'drag.restX',
+  'drag.restY': 'drag.restY',
   // Not modelled by v2 yet: kept under reserved paths.
   'semanticLabel': 'semantics.label',
   'semanticSelected': 'semantics.selected',
