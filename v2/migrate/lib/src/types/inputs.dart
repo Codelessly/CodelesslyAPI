@@ -152,6 +152,10 @@ Json _textField(V1Node m) {
   _put(deco, 'semanticCounterText', _nonEmpty(d.semanticCounterText));
   if (label != null) deco['alignLabelWithHint'] = d.alignLabelWithHint;
   _put(deco, 'constraints', _constraints(d.constraints));
+  if (d.prefixIconPadding case final EdgeInsetsModel e) deco['prefixIconPadding'] = V1Node.insets(e);
+  if (d.suffixIconPadding case final EdgeInsetsModel e) deco['suffixIconPadding'] = V1Node.insets(e);
+  _put(deco, 'affixesAlwaysVisible', d.affixesAlwaysVisible, false);
+  _put(deco, 'paddingIncludesBorder', d.paddingIncludesBorder, false);
   out['decoration'] = deco;
 
   out['style'] = _style(p.inputStyle);
