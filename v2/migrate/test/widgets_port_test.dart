@@ -8,11 +8,26 @@ import 'inputs_test.dart' show page, props;
 
 Map<String, Object?> node(Map<String, Object?> v2, String id) => ((v2['nodes'] as Map)[id] as Map).cast();
 
-/// Unmapped keys reported for [id].
-List<String> unmapped(MigrationReport r, String id) =>
+/// Unmapped keys reported, apart from editor metadata.
+List<String> unmapped(MigrationReport r) =>
     [for (final k in r.unmapped.keys) if (k.split('.').last != 'createdTimestamp') k];
 
 void main() {
+  test('rows and columns: squeezeChildren and fillViewport', () {
+    final report = MigrationReport();
+    final v2 = migrateDocument(page({
+      'c': {'type': 'rowColumn', 'rowColumnType': 'column', 'squeezeChildren': false, 'fillViewport': true,
+            'isScrollable': true, 'children': []},
+      // Not scrolling: fillViewport is inert.
+      'r': {'type': 'rowColumn', 'rowColumnType': 'row', 'fillViewport': true, 'children': []},
+    }), report: report);
+    expect(props(v2, 'c'), containsPair('squeezeChildren', false));
+    expect(props(v2, 'c'), containsPair('fillViewport', true));
+    expect(props(v2, 'r'), isNot(contains('fillViewport')));
+    expect(props(v2, 'r'), isNot(contains('squeezeChildren')));
+    expect(unmapped(report), isEmpty);
+  });
+
   group('text and values', () {
     test('font features, leading distribution and unit spellings', () {
       final report = MigrationReport();
@@ -35,7 +50,7 @@ void main() {
       expect(style['height'], 1.5);
       expect(style['leadingDistribution'], 'even');
       expect(style['letterSpacing'], 2);
-      expect(unmapped(report, 't'), isEmpty);
+      expect(unmapped(report), isEmpty);
     });
 
     test('input decoration: icon padding, always-visible affixes, padding with the border', () {
@@ -59,7 +74,7 @@ void main() {
       expect(d['paddingIncludesBorder'], true);
       expect(d['prefixIconPadding'], [12, 0, 8, 0]);
       expect(d['suffixIconPadding'], 4);
-      expect(unmapped(report, 'f'), isEmpty);
+      expect(unmapped(report), isEmpty);
     });
 
     test('an icon image given as imageUrl', () {
