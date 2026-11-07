@@ -24,6 +24,7 @@ AxisPosition? _positionIn(Object? j) => readMap(j) == null ? null : AxisPosition
 ImagePaint? _imageIn(Object? j) => ImagePaint.fromJson(j);
 ColorStop? _stopIn(Object? j) => ColorStop.fromJson(j);
 List<double>? _rectIn(Object? j) => _doublesIn(j).let((l) => l != null && l.length == 4 ? l : null);
+String? _featureIn(Object? j) => OpenTypeFeature.tryParse(j)?.toString();
 List<double>? _doublesIn(Object? j) => readList(j)?.map(readDouble).nonNulls.toList();
 
 /// `AxisSize`: a design size and how it fits (`SizedBox` / `Expanded` /
@@ -71,9 +72,22 @@ abstract final class TextStyleFields {
   static const tabularFigures = PropDef<bool?>('tabularFigures', Codecs.optionalBool, null);
   static const shadows = PropDef<List<Effect>>('shadows', Codecs.effects, []);
 
+  /// OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`).
+  static const fontFeatures = PropDef<List<String>>(
+    'fontFeatures',
+    ListCodec(ValueCodec<String>(_featureIn, _same, PropType.value('FontFeature'))),
+    [],
+  );
+  static const leadingDistribution = PropDef<TextLeadingDistribution?>(
+    'leadingDistribution',
+    OptionalEnumCodec(TextLeadingDistribution.values),
+    null,
+  );
+
   static const List<PropDef<Object?>> all = [
     fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
-    decorationColor, decorationStyle, decorationThickness, tabularFigures, shadows,
+    decorationColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
+    shadows,
   ];
 }
 
@@ -168,6 +182,8 @@ abstract final class PaintFields {
     ValueCodec(_imageIn, _out, PropType.object('ImagePaint', imagePaintFields)),
     null,
   );
+  /// A path paints the gradient in each of its shapes.
+  static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -179,6 +195,7 @@ abstract final class PaintFields {
     transform,
     tileMode,
     image,
+    gradientPerSubpath,
   ];
 }
 

@@ -62,6 +62,10 @@ Json _inputBorder(InputBorderModel b) => {
       if (b.gapPadding != 4) 'gapPadding': roundNum(b.gapPadding),
     };
 
+/// [icon]'s glyph as v2's icon JSON (the icon node's `icon` prop), for
+/// other groups' icons (a swipe action's).
+Json migrateGlyph(MultiSourceIconModel icon) => _glyph(icon);
+
 /// The glyph as the icon node's `icon` prop.
 Json _glyph(MultiSourceIconModel icon) => {
       'source': icon.type.name,
@@ -152,6 +156,10 @@ Json _textField(V1Node m) {
   _put(deco, 'semanticCounterText', _nonEmpty(d.semanticCounterText));
   if (label != null) deco['alignLabelWithHint'] = d.alignLabelWithHint;
   _put(deco, 'constraints', _constraints(d.constraints));
+  if (d.prefixIconPadding case final EdgeInsetsModel e) deco['prefixIconPadding'] = V1Node.insets(e);
+  if (d.suffixIconPadding case final EdgeInsetsModel e) deco['suffixIconPadding'] = V1Node.insets(e);
+  _put(deco, 'affixesAlwaysVisible', d.affixesAlwaysVisible, false);
+  _put(deco, 'paddingIncludesBorder', d.paddingIncludesBorder, false);
   out['decoration'] = deco;
 
   out['style'] = _style(p.inputStyle);
@@ -253,6 +261,9 @@ Json _switch(V1Node m) {
   _put(out, 'trackOutlineWidth', p.trackOutlineWidth, 2.0);
   _put(out, 'uniformThumb', p.uniformThumb, false);
   _put(out, 'fillTrack', p.fillTrack, false);
+  final shadows = [...p.thumbShadows.map(V1Node.effect).nonNulls];
+  if (shadows.isNotEmpty) out['thumbShadows'] = shadows;
+  _put(out, 'thumbInset', p.thumbInset);
   return out;
 }
 

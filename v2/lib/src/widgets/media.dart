@@ -22,6 +22,20 @@ const _json = Codecs.json;
 const _optionalColor = Codecs.optionalColor;
 const _strings = Codecs.strings;
 
+/// Colors one per entry, an entry that isn't a color kept as null (so the
+/// others keep their index): a list, or text separated by commas, spaces or
+/// semicolons (as a binding may give).
+List<Color?>? _colorsIn(Object? j) {
+  final items = switch (j) {
+    final List l => l,
+    final String s => s.split(RegExp(r'[\s,;]+')).where((e) => e.isNotEmpty).toList(),
+    _ => null,
+  };
+  return items?.map((e) => Color.fromJson(e is String ? e.trim() : e)).toList();
+}
+
+Object? _colorsOut(List<Color?> v) => [for (final c in v) c?.toJson()];
+
 /// An SVG path, filled and stroked with the node's decoration
 /// (Flutter `CustomPaint`).
 abstract final class PathProps {
@@ -39,8 +53,20 @@ abstract final class PathProps {
   /// How segments meet when stroked (`Paint.strokeJoin`).
   static const strokeJoin = PropDef<StrokeJoin>('strokeJoin', EnumCodec(StrokeJoin.values), StrokeJoin.miter);
 
+  /// Colors of the path's shapes, one per closed subpath (`M ... Z`) in
+  /// drawing order, repeating when shorter; a subpath inside the previous
+  /// shape's bounds (a hole) belongs to it. They replace the solid fills'
+  /// color (keeping each fill's opacity); null keeps the fill's color.
+  static const subpathColors = PropDef<List<Color?>>(
+    'subpathColors',
+    ValueCodec(_colorsIn, _colorsOut, PropType.list(PropTypes.color)),
+    [],
+  );
+
   static const spec = WidgetSpec('path',
-      props: [data, viewBox, trimStart, trimEnd, strokeJoin], decorated: true, doc: 'Flutter `CustomPaint` of an SVG path.');
+      props: [data, viewBox, trimStart, trimEnd, strokeJoin, subpathColors],
+      decorated: true,
+      doc: 'Flutter `CustomPaint` of an SVG path.');
 }
 
 /// A network video (`video_player`'s `VideoPlayer`).
