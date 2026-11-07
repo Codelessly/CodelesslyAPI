@@ -35,6 +35,18 @@ String? v2BindPath(BaseNode n, String v2Type, String key) {
     return 'transformGesture.${key.substring('transform.'.length)}';
   }
   if (key == 'flip.flipped') return key;
+  // A shared element's tag (`pass-${item.id}`).
+  if (key == 'heroTag') return 'hero.tag';
+  // A one-shot effect's cue and delay, by its name; the particles' cue.
+  if (key.startsWith('animations.')) {
+    for (final (suffix, field) in const [('.playKey', 'playKey'), ('.delayMs', 'delay')]) {
+      if (!key.endsWith(suffix)) continue;
+      final name = key.substring('animations.'.length, key.length - suffix.length);
+      final i = n.effectAnimations.indexWhere((e) => e.name == name);
+      if (i >= 0) return 'effectAnimations[$i].$field';
+    }
+  }
+  if (key == 'particles.playKey' && n.particles != null) return key;
   // A pulse is a loop after the node's loop animation.
   if (key == 'pulsePhase' || key == 'pulseDelayMs') {
     return 'loops[${n.loopAnimation == null ? 0 : 1}].${key == 'pulsePhase' ? 'phase' : 'lag'}';

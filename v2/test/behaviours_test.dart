@@ -179,4 +179,24 @@ void main() {
     expect(t.decoration.fills, isEmpty);
     expect([for (final e in t.decoration.effects) e.type], [EffectType.layerBlur]);
   });
+
+  test('bound hero tags and effect and particle cues', () {
+    final n = Node.fromJson({
+      'type': 'box',
+      'hero': {'tag': '', 'flight': 'arc'},
+      'effectAnimations': [
+        {'name': 'pop', 'type': 'pop'},
+        {'name': 'nudge', 'type': 'shake'},
+      ],
+      'particles': {'count': 10},
+    }, id: 'n')!;
+    final tagged = BindPaths.apply(n, 'hero.tag', 'pass-7');
+    expect(tagged.behaviours.hero, const HeroTag('pass-7', flight: HeroFlightShuttle.arc));
+    final cued = BindPaths.apply(n, 'effectAnimations[1].playKey', 3);
+    expect(cued.behaviours.effectAnimations[1].playKey, '3');
+    expect(cued.behaviours.effectAnimations[0].playKey, isNull);
+    expect(BindPaths.apply(n, 'effectAnimations[1].delay', 250).behaviours.effectAnimations[1].delay, 250);
+    expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviours.particles!.playKey, 'w1');
+    expect(EffectAnimation.fromJson(cued.behaviours.effectAnimations[1].toJson())!.playKey, '3');
+  });
 }
