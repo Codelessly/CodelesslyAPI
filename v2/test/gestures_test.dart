@@ -211,4 +211,15 @@ void main() {
     expect(_node({'zoomable': true}).behaviours.effectiveTransformGesture, TransformGesture.zoomable);
     expect(_node({'flip': <String, Object?>{}}).toJson()['flip'], isEmpty);
   });
+
+  test('a bound switch of a drag, a drag source and a drop target reads loosely', () {
+    for (final (v, on) in [(0, false), (1, true), ('true', true), ('off', false), ('?', true)]) {
+      expect(DragMotion.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+      expect(DragSource.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+      expect(DropTarget.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+    }
+    final n = BindPaths.apply(_node({'drag': <String, Object?>{}}), 'drag.enabled', 0);
+    expect(n.behaviours.drag!.enabled, isFalse);
+    expect(BindPaths.apply(n, 'drag.restX', '40').behaviours.drag!.restX, 40);
+  });
 }
