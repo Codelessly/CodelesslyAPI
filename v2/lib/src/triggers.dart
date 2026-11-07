@@ -79,6 +79,15 @@ enum TriggerType {
   /// A screen appeared (set on its canvas).
   load,
 
+  /// On a screen (its canvas): the user tried to leave it (the system or
+  /// browser back button, a back gesture, Escape on a dialog) while the
+  /// canvas's `blockBack` holds (`props.blockBack`, usually bound:
+  /// `${= dirty}`). The screen stays and these actions run instead, e.g. a
+  /// "Discard changes?" confirm that leaves with a navigate pop, which the
+  /// block doesn't stop. While `blockBack` is false, back leaves as usual
+  /// and this doesn't fire.
+  backPressed,
+
   /// Variable [Trigger.variable] changed while the screen shows.
   valueChanged,
 
@@ -108,8 +117,8 @@ enum TriggerType {
   exitViewport,
 
   /// Drag and drop: on a draggable (start, cancel, completed) and on a drop
-  /// target (drop, enter, exit, hover, rejected). `${result}` and
-  /// `${drag}` hold the drag.
+  /// target (drop, enter, exit, hover, rejected; full: [dropFull]).
+  /// `${result}` and `${drag}` hold the drag.
   dragStart,
   dragCancel,
   dragCompleted,
@@ -118,6 +127,11 @@ enum TriggerType {
   dragExit,
   dragHover,
   dropRejected,
+
+  /// On a drop target that is full (its `fullIf` holds) when a drag of a
+  /// group it accepts is let go on it: the drag springs back and these
+  /// run, reading the drop as [drop] does; `${drag.full}` is true.
+  dropFull,
 
   /// A data list row was dragged to a new place by this node, its reorder
   /// handle (`${result.from}`, `${result.to}`).
@@ -134,7 +148,7 @@ enum TriggerType {
   };
 
   /// The triggers of a screen: they fire while it shows, wherever they're set.
-  static const Set<TriggerType> screen = {load, valueChanged, timer, clock, keyDown, keyUp};
+  static const Set<TriggerType> screen = {load, valueChanged, timer, clock, keyDown, keyUp, backPressed};
 
   /// The triggers an input fires.
   static const Set<TriggerType> input = {changed, changeEnd, submitted, editingComplete, focusGained, focusLost};
