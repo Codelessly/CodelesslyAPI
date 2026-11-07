@@ -296,13 +296,15 @@ codelessly_sdk/lib/src/
 
 A node's behaviours are layers of its render chain, outermost first, as SDK
 8.x wrapped a node: (a running app's drag follow) → margin → constraints →
-track pose → motion → shimmer → flip face → tilt → flip card → scale →
-rotation → (drag source → drop target → reactions → hover/press tracking)
-→ loops → opacity → blurs → stroke path → content. A drag's follow and
-release physics and drag and drop run in `runtime/gestures` (one release
-physics, `physics.dart`, for every gesture). Not run yet (modelled and
-migrated): a track's interaction, transform gestures, hero flights and
-one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
+track pose → transform gesture → motion → shimmer → flip face → tilt → flip
+card → scale → rotation → (drag source → drop target → reactions →
+hover/press tracking) → loops → opacity → blurs → stroke path → content. A
+drag's follow and release physics and drag and drop run in
+`runtime/gestures` (one release physics, `physics.dart`, for every
+gesture). A running app drags a track (its variable written, `changed` /
+`dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
+cards by tap, drag and variable. Not run yet (modelled and migrated): hero
+flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
@@ -350,8 +352,11 @@ A text node's own `props.text` may hold `${...}`: it is interpolated run by
 run. Names come from scopes: the screen's variables, the list item (`item`,
 `index`, `parent`), what the app provides (`route`, `screen`,
 `storage`, `auth`, `data`, `drag`: the layout's drag and drop session...),
-and what a node gives itself and the nodes inside it (a `LocalScope`: a
-dragged node's live `drag` values over the session's).
+and what a node gives itself and the nodes inside it: a dragged node's live
+`drag` values over the session's (a `LocalScope`), a drag track's `track`
+(`value`, `progress`, `dragging`, `fine`, `focused`), a transform gesture's
+`transform` (the pose, `active`, `selected`), a flip card's `flip`
+(`flipped`, `progress`) and a tilt's `tilt` (`x`, `y`, `active`).
 
 **Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/bindings.dart`):
 a path into the node's v2 JSON, with `[i]` for a list index, a paint or
