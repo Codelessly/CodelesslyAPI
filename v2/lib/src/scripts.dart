@@ -12,34 +12,37 @@ import 'json.dart';
 /// JSON: the capability's [id].
 enum ScriptCapability {
   /// `vars.get(name)`, `vars.has(name)`, `vars.all()`.
-  variablesRead('variables.read'),
+  variablesRead('variables.read', 'Read variables'),
 
   /// `vars.set(name, value)`.
-  variablesWrite('variables.write'),
+  variablesWrite('variables.write', 'Change variables'),
 
   /// `nodes.value(id)`: the values of inputs on screen.
-  nodesRead('nodes.read'),
+  nodesRead('nodes.read', 'Read input values'),
 
   /// `app.navigate(page, params)`, `app.back(result)`.
-  navigation('navigation'),
+  navigation('navigation', 'Navigate'),
 
   /// `app.callApi(name, inputs)`.
-  api('api'),
+  api('api', 'Call APIs'),
 
   /// `app.cloudData(request)`.
-  cloud('cloud'),
+  cloud('cloud', 'Cloud data'),
 
   /// `app.runAction(action)`, `app.toast(text)`, `app.delay(ms)`.
-  actions('actions'),
+  actions('actions', 'Run actions'),
 
   /// `Date.now()`, `new Date()`. Without it a script's result depends
   /// only on its inputs.
-  clock('clock');
+  clock('clock', 'Read the clock');
 
-  const ScriptCapability(this.id);
+  const ScriptCapability(this.id, this.label);
 
   /// The name scripts and the runner use (`variables.read`).
   final String id;
+
+  /// A short label for the editor.
+  final String label;
 
   /// The capability named [v] (its [id] or its name); null for one this
   /// version doesn't know.
@@ -184,6 +187,65 @@ final class ScriptDef {
   /// The editor page whose screens use it; null: every screen of the project.
   final String? pageId;
   final List<ScriptTest> tests;
+
+  /// Names a script or parameter can't have: they're the host APIs.
+  static const Set<String> reservedNames = {'vars', 'nodes', 'app', 'console', 'fmt', 'script', 'params', 'main'};
+
+  static const Set<String> _jsReserved = {
+    'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger', //
+    'default', 'delete', 'do', 'else', 'export', 'extends', 'finally', 'for',
+    'function', 'if', 'import', 'in', 'instanceof', 'new', 'return', 'super',
+    'switch', 'this', 'throw', 'try', 'typeof', 'var', 'void', 'while',
+    'with', 'yield', 'let', 'static', 'enum', 'await', 'implements',
+    'package', 'protected', 'interface', 'private', 'public', 'null', 'true',
+    'false', 'undefined', 'NaN', 'Infinity', 'arguments', 'eval',
+  };
+
+  /// Whether [name] can name a script or a parameter: a JavaScript
+  /// identifier, not a keyword or one of [reservedNames].
+  static bool isValidName(String name) =>
+      RegExp(r'^[A-Za-z_$][A-Za-z0-9_$]*$').hasMatch(name) && !reservedNames.contains(name) && !_jsReserved.contains(name);
+
+  /// What's wrong with this script's name, params or limits; empty when
+  /// nothing is. Doesn't check the source (the engine does).
+  List<String> validate() => [
+        if (!isValidName(name)) 'Name "$name" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
+        for (final p in params)
+          if (!isValidName(p.name))
+            'Parameter "${p.name}" must be a JavaScript identifier and not one of ${reservedNames.join(', ')}.',
+        if (params.map((p) => p.name).toSet().length != params.length) 'Parameter names must be unique.',
+        if (timeoutMs < 1 || timeoutMs > maxTimeoutMs) 'timeoutMs must be from 1 to $maxTimeoutMs.',
+        if (memoryLimitMb < 1 || memoryLimitMb > 256) 'memoryLimitMb must be from 1 to 256.',
+      ];
+
+  /// A copy with the given fields replaced.
+  ScriptDef copyWith({
+    String? id,
+    String? name,
+    String? description,
+    List<ScriptParam>? params,
+    String? source,
+    int? version,
+    List<ScriptCapability>? capabilities,
+    int? timeoutMs,
+    int? memoryLimitMb,
+    String? pageId,
+    bool clearPageId = false,
+    List<ScriptTest>? tests,
+  }) =>
+      ScriptDef(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description ?? this.description,
+        params: params ?? this.params,
+        source: source ?? this.source,
+        version: version ?? this.version,
+        capabilities: capabilities ?? this.capabilities,
+        timeoutMs: timeoutMs ?? this.timeoutMs,
+        memoryLimitMb: memoryLimitMb ?? this.memoryLimitMb,
+        pageId: clearPageId ? null : pageId ?? this.pageId,
+        tests: tests ?? this.tests,
+      );
 
   bool get isProjectScope => pageId == null;
 

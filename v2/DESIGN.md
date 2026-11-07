@@ -486,8 +486,14 @@ runs, in its document's `scripts` list (project scripts, then page scripts
 with a `pageId`; a page script wins by name): `name`, `params`
 (`{name, defaultValue}`), `source`, `capabilities` (`variables.read`,
 `variables.write`, `nodes.read`, `navigation`, `api`, `cloud`, `actions`,
-`clock`), `timeoutMs`, `memoryLimitMb`, `tests`. The SDK asks the app's
-`ScriptRunner` (`Services.scripts`) to run one; none by default.
+`clock`), `timeoutMs`, `memoryLimitMb`, `tests`; `validate()` checks names
+(`isValidName`: an identifier, not a keyword or a host API in
+`reservedNames`), params and limits. A publish layout keeps `scripts` in its
+document. The SDK asks the app's `ScriptRunner` (`Services.scripts`) to run
+one: by default `SandboxScriptRunner`, SDK 8.x's driver in QuickJS
+(`codelessly_quickjs`, which the app adds) or a Web Worker. Formulas call
+them as `script.name(args)` (params in order, read capabilities only; the
+path `script` is declared by the screen's `ScriptsScope`).
 
 **Variables** can `persist`: the app keeps the value on the device
 (starting from it next time, saving every change). The publish model

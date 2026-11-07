@@ -100,6 +100,21 @@ void main() {
       expect(doc.script('s1')!.id, 's1');
       expect(doc.script('nope'), isNull);
     });
+
+    test('validate: names are identifiers that are not host APIs; params unique', () {
+      expect(const ScriptDef(id: 'a', name: 'ok', params: [ScriptParam(name: 'x')]).validate(), isEmpty);
+      expect(const ScriptDef(id: 'a', name: 'vars').validate(), isNotEmpty);
+      expect(const ScriptDef(id: 'a', name: 'return').validate(), isNotEmpty);
+      expect(const ScriptDef(id: 'a', name: '1x').validate(), isNotEmpty);
+      expect(const ScriptDef(id: 'a', name: 'ok', params: [ScriptParam(name: 'x'), ScriptParam(name: 'x')]).validate(),
+          isNotEmpty);
+      expect(const ScriptDef(id: 'a', name: 'ok', timeoutMs: 0).validate(), isNotEmpty);
+      final s = ScriptDef.fromJson({...json, 'pageId': 'p1'})!;
+      expect(s.copyWith(version: 4).version, 4);
+      expect(s.copyWith(clearPageId: true).pageId, isNull);
+      expect(s.copyWith(name: 'x').pageId, 'p1');
+      expect(ScriptCapability.clock.label, 'Read the clock');
+    });
   });
 
   test('a variable persists, unless computed', () {
