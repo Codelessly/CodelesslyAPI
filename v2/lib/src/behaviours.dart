@@ -1294,7 +1294,7 @@ final class DragSource extends _Value {
       returnSpring: r.b('returnSpring', true),
       springStiffness: r.d('springStiffness', 260),
       springDamping: r.d('springDamping', 14),
-      enabled: r.b('enabled', true),
+      enabled: _loose(m['enabled']) ?? true,
       physics: GesturePhysics.fromJson(m['physics']),
     );
   }
@@ -1386,7 +1386,7 @@ final class DropTarget extends _Value {
       slotWhenRefused: r.b('slotWhenRefused', true),
       hoverDelay: r.ms('hoverDelay', 0),
       fullIf: r.s('fullIf'),
-      enabled: r.b('enabled', true),
+      enabled: _loose(m['enabled']) ?? true,
     );
   }
 
@@ -1916,7 +1916,7 @@ final class DragMotion extends _Value {
       flyOutCurve: r.curve('flyOutCurve', AnimationCurve.easeIn),
       flyOutDistance: r.dn('flyOutDistance'),
       flyOutRotate: r.d('flyOutRotate', 0),
-      enabled: r.b('enabled', true),
+      enabled: _loose(m['enabled']) ?? true,
       shakeWhenDisabled: r.b('shakeWhenDisabled', false),
       disabledFollow: r.d('disabledFollow', 0),
       shareAs: r.s('shareAs'),
