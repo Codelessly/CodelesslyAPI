@@ -5,14 +5,16 @@ import 'package:test/test.dart';
 
 /// One JSON per action type, with its fields set.
 final samples = <Json>[
-  {'type': 'navigate', 'mode': 'reset', 'to': 'home', 'params': {'id': r'${item.id}'}, 'base': 'start', 'transition': 'fade', 'transitionMs': 200},
-  {'type': 'openModal', 'to': 'd', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'aboveEnd', 'barrierColor': '#80000000', 'insets': [8, 8, 8, 8]},
+  {'type': 'navigate', 'mode': 'reset', 'to': 'home', 'params': {'id': r'${item.id}'}, 'base': 'start', 'transition': 'fade', 'transitionMs': 200,
+   'routeTransition': {'preset': 'cube', 'exit': {'motion': {'opacity': 0}, 'reveal': {'shape': 'rect', 'origin': 'node'}, 'delayMs': 20, 'durationMs': 90}, 'barrierColor': '#33000000', 'opaque': false, 'swipeBack': 'never',
+                       'dismiss': {'direction': 'right', 'distance': 0.4, 'spring': {'stiffness': 200}}}},
+  {'type': 'openModal', 'to': 'd', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'aboveEnd', 'barrierColor': '#80000000', 'insets': [8, 8, 8, 8], 'routeTransition': {'preset': 'iosModal'}},
   {'type': 'closeModal', 'result': {'ok': true}},
   {'type': 'openLink', 'url': 'https://x'},
   {'type': 'submitForm', 'service': 'mailchimp', 'emailField': 'e', 'apiKey': 'k', 'listId': 'l'},
   {'type': 'setValue', 'node': 'c', 'values': [{'path': 'props.value', 'mode': 'toggle'}, {'path': 'visible', 'value': false}]},
   {'type': 'setVariant', 'node': 'v', 'variant': 'b'},
-  {'type': 'setVariable', 'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'index': '0'},
+  {'type': 'setVariable', 'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'index': '0', 'animateMs': '3600', 'curve': 'easeOutCubic'},
   {'type': 'callFunction', 'name': 'f', 'params': {'a': 1}},
   {'type': 'callApi', 'api': 'tides', 'params': {'day': r'${day}'}, 'onSuccess': [{'type': 'openLink', 'url': 'a'}], 'onError': [{'type': 'delay', 'ms': 5}]},
   {'type': 'setStorage', 'key': 'prefs.theme', 'valueType': 'map', 'op': 'update', 'value': 'dark', 'mapKey': 'mode', 'skipIfExists': true},
@@ -31,11 +33,14 @@ final samples = <Json>[
   {'type': 'editText', 'node': 'f', 'operation': 'wrap', 'before': '**'},
   {'type': 'paywall', 'operation': 'purchase', 'slot': 'annual'},
   {'type': 'focus', 'node': 'f', 'selectAll': true},
-  {'type': 'controlDrag', 'node': 'card', 'command': 'reset', 'direction': 'left'},
+  {'type': 'controlDrag', 'node': 'card', 'command': 'step', 'direction': 'left', 'steps': '-2'},
   {'type': 'speak', 'text': 'Hello', 'rate': '0.8'},
-  {'type': 'scrollTo', 'node': 's', 'durationMs': 0, 'alignment': 0.5},
+  {'type': 'scrollTo', 'node': 's', 'durationMs': 0, 'alignment': 0.5, 'axis': 'horizontal'},
   {'type': 'playSound', 'sound': 'bell', 'at': r'${result.at}'},
   {'type': 'playAnimation', 'node': 'n', 'animation': 'confetti'},
+  {'type': 'animateVariable', 'variable': 't', 'mode': 'seek', 'from': '0', 'to': '0.5', 'durationMs': 3600, 'duration': r'${= slow ? 6000 : 3600}', 'curve': 'easeInOut'},
+  {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
+  {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
 ];
 
 void main() {

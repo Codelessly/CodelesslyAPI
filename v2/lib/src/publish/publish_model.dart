@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../document.dart';
 import '../json.dart';
+import 'app_identity.dart';
 import 'publish_layout.dart';
 import 'theme.dart';
 
@@ -225,6 +226,7 @@ final class PublishModel {
     this.fonts = const {},
     this.apis = const {},
     this.variables = const {},
+    this.appIdentity,
     this.lastUpdated,
     this.extra = const {},
   });
@@ -264,6 +266,10 @@ final class PublishModel {
   /// Variables shared by every screen of the app, as published: variable
   /// id → variable.
   final Json variables;
+
+  /// The app's name, screen titles and description, icons, social card,
+  /// manifest and splash; null when it has none.
+  final AppIdentity? appIdentity;
 
   final DateTime? lastUpdated;
 
@@ -364,6 +370,7 @@ final class PublishModel {
       },
       apis: readMap(m['apis']) ?? const {},
       variables: readMap(m['variables']) ?? const {},
+      appIdentity: AppIdentity.fromJson(m['appIdentity']),
       lastUpdated: readTimestamp(m['lastUpdated']),
       extra: {
         for (final e in m.entries)
@@ -374,7 +381,7 @@ final class PublishModel {
 
   static const Set<String> _keys = {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
-    'layoutIDMap', 'disabledLayouts', 'theme', 'fonts', 'apis', 'variables', 'lastUpdated',
+    'layoutIDMap', 'disabledLayouts', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'lastUpdated',
   };
 
   /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion].
@@ -404,6 +411,7 @@ final class PublishModel {
         if (fonts.isNotEmpty) 'fonts': {for (final e in fonts.entries) e.key: e.value.toJson()},
         if (apis.isNotEmpty) 'apis': apis,
         if (variables.isNotEmpty) 'variables': variables,
+        'appIdentity': ?appIdentity?.toJson(),
         'lastUpdated': ?lastUpdated?.let(writeTimestamp),
         ...extra,
       };
@@ -422,6 +430,7 @@ final class PublishModel {
     Map<String, PublishFont>? fonts,
     Json? apis,
     Json? variables,
+    AppIdentity? appIdentity,
     DateTime? lastUpdated,
     Json? extra,
   }) =>
@@ -439,6 +448,7 @@ final class PublishModel {
         fonts: fonts ?? this.fonts,
         apis: apis ?? this.apis,
         variables: variables ?? this.variables,
+        appIdentity: appIdentity ?? this.appIdentity,
         lastUpdated: lastUpdated ?? this.lastUpdated,
         extra: extra ?? this.extra,
       );
