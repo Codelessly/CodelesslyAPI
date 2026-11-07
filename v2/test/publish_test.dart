@@ -46,6 +46,18 @@ void main() {
       expect(LayoutDocument.fromJson(layoutJson).roots, ['m', 'd']);
     });
 
+    test('its scripts stay in the document, where the runtime reads them', () {
+      final l = PublishLayout.fromJson({
+        ...layoutJson,
+        'scripts': [
+          {'id': 's1', 'name': 'pay', 'source': 'return 1'},
+        ],
+      });
+      expect(l.document.scripts.single.name, 'pay');
+      expect(l.extra, {'future': {'kept': true}});
+      expect(PublishLayout.fromJson(l.toJson()).document.scripts, l.document.scripts);
+    });
+
     test('round-trips', () {
       final l = PublishLayout.fromJson(layoutJson);
       final again = PublishLayout.fromJson(jsonDecode(jsonEncode(l.toJson())));
