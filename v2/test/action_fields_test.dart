@@ -36,7 +36,7 @@ Object? _anySample(String type, String key) => switch (key) {
       'condition' => {'left': 'a', 'op': 'equalsTo', 'right': 'b'},
       'icon' => {'codepoint': 1},
       'look' => {'a': 1},
-      'variables' => {'a': 'x'},
+      'variables' || 'arguments' => {'a': 'x'},
       _ => throw StateError('No Codecs.any sample for $type.$key'),
     };
 
@@ -47,6 +47,18 @@ Object? _sample(String type, PropDef<Object?> def) {
   if (identical(codec, Codecs.optionalColor) || identical(codec, Codecs.color)) return '#FF112233';
   if (identical(codec, Codecs.doubles)) return [for (final _ in def.defaultValue! as List) 0.5];
   if (identical(codec, Codecs.strings)) return ['x'];
+  if (identical(codec, routeTransitionCodec)) {
+    return {
+      'preset': 'iosPush',
+      'enter': {
+        'motion': {'shiftX': 1},
+        'curve': 'easeOutCubic',
+      },
+      'durationMs': 500,
+    };
+  }
+  if (codec is AnimationCurveCodec) return def.defaultValue == AnimationCurve.linear ? 'easeOut' : 'linear';
+  if (codec is OptionalEnumCodec) return codec.values.last.name;
   if (codec is EnumCodec) {
     // A write op that keeps its value.
     if (def.key == 'op') return 'add';
