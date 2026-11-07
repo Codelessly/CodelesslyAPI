@@ -6,6 +6,7 @@ import '../values/border.dart';
 import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';
+import '../values/paint.dart';
 import '../values/text.dart';
 import 'inputs_models.dart';
 
@@ -203,10 +204,21 @@ abstract final class SwitchProps {
   /// The track is stretched to the box (no padding or tap target around it).
   static const fillTrack = PropDef<bool>('fillTrack', Codecs.bool, false);
 
+  /// Drop shadows the thumb casts on a filled track ([fillTrack]).
+  /// Material's switch has none, so a switch with one is drawn as a plain
+  /// toggle (see [thumbInset]).
+  static const thumbShadows = PropDef<List<Effect>>('thumbShadows', Codecs.effects, []);
+
+  /// The gap between the thumb and the edges of a filled track: the thumb
+  /// is the height less twice this. With one (or [thumbShadows]) the switch
+  /// is a plain toggle whose thumb stays round at any size; null keeps
+  /// Material's switch scaled to the box.
+  static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
+
   static const spec = WidgetSpec('switch', props: [
     value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack,
+    fillTrack, thumbShadows, thumbInset,
   ], doc: 'Flutter `Switch`.');
 }
 
