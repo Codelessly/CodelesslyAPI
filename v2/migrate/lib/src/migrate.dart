@@ -244,6 +244,8 @@ class V1Node {
         handler != null || n is RowColumnMixin || n is FreeformPlaceholderNode || portedV1Types.contains(n.type);
     final out = <String, Object?>{'type': type};
     if (n.name.isNotEmpty) out['name'] = n.name;
+    // The node's name in the tree it was inserted with (editor API).
+    if (take('key') case final String key when key.isNotEmpty) out['key'] = key;
 
     // Children.
     if (n is CanvasNode) {

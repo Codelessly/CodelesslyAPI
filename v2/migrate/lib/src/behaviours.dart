@@ -10,7 +10,8 @@ import 'migrate.dart';
 const List<String> behaviourKeys = [
   'motion', 'drawScale', 'loopAnimation', 'pulse', 'transitionMs', 'transition', 'sizeTransition', 'inkWell', //
   'interactionStates', 'tooltip', 'ignorePointer', 'zoomable', 'floating', 'heroTag', 'heroFlight', 'flightKey',
-  'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'effectAnimations', 'particles',
+  'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'effectAnimations', 'particles', 'heroPlaceholder',
+  'flip', 'tilt', 'transformGesture',
 ];
 
 /// [j] with its keys renamed by [names] (others kept).
@@ -34,6 +35,37 @@ Json _motion(MotionModel m) {
     // On a path the entrance starts at its progress even when it's 0.
     if (m.hasPath) f['pathProgress'] = from.pathProgress;
     j['enterFrom'] = f;
+  }
+  if (m.shimmer case final MotionShimmer sh) {
+    final s = _renamed(sh.toJson(), const {'durationMs': 'duration'});
+    final color = _hex(sh.color);
+    if (color == null || color == '#FFFFFFFF') {
+      s.remove('color');
+    } else {
+      s['color'] = color;
+    }
+    // v1 writes every field; v2 is sparse.
+    const defaults = {'strength': 0.8, 'width': 0.44, 'duration': 1400, 'angle': 0};
+    defaults.forEach((k, v) {
+      if (s[k] == v) s.remove(k);
+    });
+    j['shimmer'] = s;
+  }
+  return j;
+}
+
+/// The shared release physics: `durationMs` is `duration`, snap points
+/// `[x, y]`.
+Json _physics(PhysicsModel p) {
+  final j = _renamed(p.toJson(), const {'durationMs': 'duration'});
+  if (p.snap case final SnapModel snap) {
+    final s = Map<String, Object?>.from(snap.toJson());
+    if (snap.points.isNotEmpty) {
+      s['points'] = [
+        for (final pt in snap.points) [pt.x, pt.y],
+      ];
+    }
+    j['snap'] = s;
   }
   return j;
 }
@@ -62,7 +94,7 @@ Json _pulse(PulseModel p) => switch (p) {
     'curve': 'easeInOut',
     'opacityFrom': p.minOpacity,
   },
-};
+}..addAll({if (p.phase != 0) 'phase': p.phase, if (p.delayMs != 0) 'lag': p.delayMs});
 
 Json _transition(NodeTransition t) => {'duration': t.durationMillis, 'curve': t.curve.name};
 
@@ -82,7 +114,32 @@ Json _strokePath(StrokePath p) {
 
 Json _drag(DragModel d) {
   final j = _renamed(d.toJson(), const {'snapBackMs': 'snapBack', 'flyOutMs': 'flyOut'});
-  if (d.track case final DragTrackModel t) j['track'] = Map<String, Object?>.from(t.toJson());
+  if (d.track case final DragTrackModel t) {
+    j['track'] = _renamed(t.toJson(), const {'settleMs': 'settle', 'snapMs': 'snap', 'fineHoldMs': 'fineHold'});
+  }
+  if (d.physics case final PhysicsModel p) j['physics'] = _physics(p);
+  return j;
+}
+
+Json _tilt(TiltModel t) {
+  final j = _renamed(t.toJson(), const {'resetMs': 'reset'});
+  if (j.containsKey('max')) j['max'] = _motion(t.max);
+  return j;
+}
+
+Json _transformGesture(TransformGestureModel t) {
+  final j = Map<String, Object?>.from(t.toJson());
+  if (t.physics case final PhysicsModel p) j['physics'] = _physics(p);
+  if (t.handles case final TransformHandlesModel h) {
+    final hj = Map<String, Object?>.from(h.toJson());
+    final color = _hex(h.color);
+    if (color == null || color == '#FF2F80ED') {
+      hj.remove('color');
+    } else {
+      hj['color'] = color;
+    }
+    j['handles'] = hj;
+  }
   return j;
 }
 
@@ -139,10 +196,20 @@ Json migrateBehaviours(V1Node m, {bool states = true}) {
   if (n.floating) out['floating'] = true;
   if (n.heroTag case final String tag when tag.isNotEmpty) {
     final flight = n.heroFlight ?? HeroFlight.standard;
-    out['hero'] = flight == HeroFlight.standard ? tag : {'tag': tag, 'flight': flight.name};
+    final placeholder = n.heroPlaceholder ?? HeroPlaceholder.none;
+    out['hero'] = flight == HeroFlight.standard && placeholder == HeroPlaceholder.none
+        ? tag
+        : {
+            'tag': tag,
+            if (flight != HeroFlight.standard) 'flight': flight.name,
+            if (placeholder != HeroPlaceholder.none) 'placeholder': placeholder.name,
+          };
   }
   if (n.flightKey.isNotEmpty) out['flightKey'] = n.flightKey;
-  if (n.draggable case final DraggableModel d) out['draggable'] = Map<String, Object?>.from(d.toJson());
+  if (n.draggable case final DraggableModel d) {
+    final j = out['draggable'] = Map<String, Object?>.from(d.toJson());
+    if (d.physics case final PhysicsModel p) j['physics'] = _physics(p);
+  }
   if (n.dropTarget case final DropTargetModel d) {
     out['dropTarget'] = _renamed(d.toJson(), const {'hoverDelayMs': 'hoverDelay'});
   }
@@ -157,6 +224,9 @@ Json migrateBehaviours(V1Node m, {bool states = true}) {
     ];
   }
   if (n.particles case final ParticleEmitter p) out['particles'] = _particles(p);
+  if (n.flip case final FlipModel f) out['flip'] = Map<String, Object?>.from(f.toJson());
+  if (n.tilt case final TiltModel t) out['tilt'] = _tilt(t);
+  if (n.transformGesture case final TransformGestureModel t) out['transformGesture'] = _transformGesture(t);
   return out;
 }
 
