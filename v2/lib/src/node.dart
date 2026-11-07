@@ -23,6 +23,7 @@ final class Node {
     required this.id,
     required this.type,
     this.name = '',
+    this.key = '',
     this.children = const [],
     this.slots = const {},
     this.visible = true,
@@ -42,6 +43,12 @@ final class Node {
   /// The widget type: a key of [Widgets].
   final String type;
   final String name;
+
+  /// The node's name within the tree it was inserted with, unique in that
+  /// tree (`"content"`): a stable handle the tree's own actions and states
+  /// name it by before it has an id, kept so an export gives the tree back
+  /// with its keys. Empty for none; it doesn't affect rendering.
+  final String key;
 
   /// Ordered children.
   final List<String> children;
@@ -99,6 +106,7 @@ final class Node {
         id: id,
         type: type,
         name: name,
+        key: key,
         children: children,
         slots: slots,
         visible: visible,
@@ -117,6 +125,7 @@ final class Node {
     String? id,
     String? type,
     String? name,
+    String? key,
     List<String>? children,
     Map<String, String>? slots,
     bool? visible,
@@ -134,6 +143,7 @@ final class Node {
         id: id ?? this.id,
         type: type ?? this.type,
         name: name ?? this.name,
+        key: key ?? this.key,
         children: children ?? this.children,
         slots: slots ?? this.slots,
         visible: visible ?? this.visible,
@@ -149,7 +159,7 @@ final class Node {
       );
 
   static const _keys = {
-    'id', 'type', 'name', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
+    'id', 'type', 'name', 'key', 'children', 'slots', 'visible', 'opacity', 'layout', 'decoration', 'props', 'bind', //
     'actions', 'component',
   };
 
@@ -170,6 +180,7 @@ final class Node {
       id: id ?? readString(m['id']) ?? '',
       type: type,
       name: readString(m['name']) ?? '',
+      key: readString(m['key']) ?? '',
       children: readStrings(m['children']),
       slots: {
         if (slots != null)
@@ -203,6 +214,7 @@ final class Node {
   Json toJson() {
     final j = <String, Object?>{'id': id, 'type': type};
     if (name.isNotEmpty) j['name'] = name;
+    if (key.isNotEmpty) j['key'] = key;
     if (children.isNotEmpty) j['children'] = children;
     if (slots.isNotEmpty) j['slots'] = slots;
     if (!visible) j['visible'] = false;
@@ -225,6 +237,7 @@ final class Node {
           other.id == id &&
           other.type == type &&
           other.name == name &&
+          other.key == key &&
           jsonEquality.equals(other.children, children) &&
           jsonEquality.equals(other.slots, slots) &&
           other.visible == visible &&

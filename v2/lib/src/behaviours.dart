@@ -6,6 +6,7 @@
 // `"tooltip": "..."`).
 //
 // Durations are whole milliseconds (`duration`, `delay`).
+import 'dart:convert' show jsonDecode;
 import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
@@ -14,6 +15,8 @@ import 'json.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
+
+part 'gestures.dart';
 
 /// An easing curve, by the name of its Flutter `Curves` constant. `spring`
 /// is a damped spring (see [Motion.springStiffness]); `step` jumps half way.
@@ -161,6 +164,28 @@ extension on Json {
 
 double _lerp(double a, double b, double t) => a + (b - a) * t;
 
+/// [v], or the JSON [v] holds as text (a bound list given as JSON text).
+Object? _jsonText(Object? v) {
+  if (v is! String) return v;
+  try {
+    return jsonDecode(v);
+  } catch (_) {
+    return null;
+  }
+}
+
+/// A bound switch read loosely: true, 1, `on`, `true`.
+bool? _loose(Object? v) => switch (v) {
+  final bool b => b,
+  final num n => n != 0,
+  final String s => switch (s.trim().toLowerCase()) {
+    'true' || 'on' || '1' => true,
+    'false' || 'off' || '0' || '' => false,
+    _ => null,
+  },
+  _ => null,
+};
+
 // --- motion -------------------------------------------------------------------
 
 /// How a [Motion] repeats.
@@ -173,6 +198,77 @@ enum MotionLoop {
 
   /// Back and forth.
   reverse,
+
+  /// Swings around rest on a sine, to its values and as far the other way,
+  /// one swing per [Motion.duration]: a pendulum, a needle sweeping a
+  /// gauge. It rests at rest, not at an end.
+  swing,
+}
+
+/// How [Motion.pathProgress] maps to a point on [Motion.path].
+enum MotionPathPacing {
+  /// The share of the path's length: even speed along the curve.
+  length,
+
+  /// The share of the area swept by a line from the focus
+  /// ([Motion.pathFocusX], [Motion.pathFocusY], in the path's coordinates)
+  /// to the node: Kepler's second law, an orbit that speeds up near its
+  /// Sun.
+  area,
+}
+
+/// A band of light sweeping across what the node paints, over and over (a
+/// loading skeleton's shimmer). Blended over the node's own pixels only.
+/// The design canvas draws it still, halfway across.
+@immutable
+final class MotionShimmer extends _Value {
+  const MotionShimmer({
+    this.color = Color.white,
+    this.strength = 0.8,
+    this.width = 0.44,
+    this.duration = 1400,
+    this.angle = 0,
+  });
+
+  final Color color;
+
+  /// How strongly the band's centre blends the colour in (0–1).
+  final double strength;
+
+  /// The band's width, a share of the node's size along the sweep.
+  final double width;
+
+  /// One sweep across (ms).
+  final int duration;
+
+  /// The sweep's direction in degrees: 0 left to right, 90 top to bottom.
+  final double angle;
+
+  static MotionShimmer? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return MotionShimmer(
+      color: r.color('color') ?? Color.white,
+      strength: r.d('strength', 0.8),
+      width: r.d('width', 0.44),
+      duration: r.ms('duration', 1400),
+      angle: r.d('angle', 0),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{};
+    if (color != Color.white) j['color'] = color.toJson();
+    return j
+      ..d('strength', strength, 0.8)
+      ..d('width', width, 0.44)
+      ..i('duration', duration, 1400)
+      ..d('angle', angle, 0);
+  }
+
+  @override
+  List<Object?> get props => [color, strength, width, duration, angle];
 }
 
 /// The values a [Motion] passes through at [t] (0–1) between its start and
@@ -307,6 +403,16 @@ final class Motion extends _Value {
     this.pulseKey,
     this.revealOnScroll = false,
     this.revealFraction = 0.15,
+    this.orientUpright = false,
+    this.arc = 0,
+    this.paused = false,
+    this.phase = 0,
+    this.pathPacing = MotionPathPacing.length,
+    this.pathFocusX = 0,
+    this.pathFocusY = 0,
+    this.pathWrap = false,
+    this.shimmer,
+    this.named = const {},
   });
 
   static const Motion none = Motion();
@@ -358,6 +464,41 @@ final class Motion extends _Value {
   /// Waits to enter until [revealFraction] of the node scrolls into view.
   final bool revealOnScroll;
   final double revealFraction;
+
+  /// With [orientToPath], never upside down: the path's direction folded
+  /// into -90–90 degrees.
+  final bool orientUpright;
+
+  /// Bends every change of position (translate, shift) into a quadratic
+  /// curve whose middle sits this share of the distance off the straight
+  /// line, to the right of the direction of travel (negative: left).
+  final double arc;
+
+  /// Freezes the loop and the spin where they are; false carries on from
+  /// there (bindable as `motion.paused`).
+  final bool paused;
+
+  /// Where a [loop] starts in its cycle (0–1): nodes sharing one motion
+  /// spread round it (`motion.phase`: `${= index / count}`).
+  final double phase;
+
+  /// How [pathProgress] maps to a point on [path]: by length or by area
+  /// swept about ([pathFocusX], [pathFocusY]).
+  final MotionPathPacing pathPacing;
+  final double pathFocusX, pathFocusY;
+
+  /// Reads [pathProgress] modulo 1 (a closed path goes round and round); a
+  /// transition goes the short way round.
+  final bool pathWrap;
+
+  /// A band of light sweeping across the node; null for none.
+  final MotionShimmer? shimmer;
+
+  /// The animating values (of [properties]) its JSON gives explicitly, even
+  /// at their defaults: an [enterFrom] of `{"opacity": 1}` enters from full
+  /// opacity. Read from the JSON's keys and written back; not a key of its
+  /// own, and not part of equality.
+  final Set<String> named;
 
   /// The properties that animate.
   static const List<String> properties = [
@@ -444,6 +585,16 @@ final class Motion extends _Value {
       pulseKey: pulseKey,
       revealOnScroll: revealOnScroll,
       revealFraction: revealFraction,
+      orientUpright: orientUpright,
+      arc: arc,
+      paused: paused,
+      phase: phase,
+      pathPacing: pathPacing,
+      pathFocusX: pathFocusX,
+      pathFocusY: pathFocusY,
+      pathWrap: pathWrap,
+      shimmer: shimmer,
+      named: named,
     );
   }
 
@@ -465,9 +616,43 @@ final class Motion extends _Value {
     for (final p in properties) {
       if (p == 'spin') continue;
       final v = from.valueOf(p);
+      if (v != none.valueOf(p) || from.named.contains(p) || p == 'pathProgress' && hasPath) {
+        start = start.withValue(p, v);
+      }
+    }
+    return start;
+  }
+
+  /// Where a [loop] starts: every value [enterFrom] moves, and the path
+  /// progress of a path (rest without one).
+  Motion get loopStart {
+    final from = enterFrom;
+    if (from == null) return atRest;
+    var start = this;
+    for (final p in properties) {
+      if (p == 'spin') continue;
+      final v = from.valueOf(p);
       if (v != none.valueOf(p) || p == 'pathProgress' && hasPath) start = start.withValue(p, v);
     }
     return start;
+  }
+
+  /// [progress] as a [pathWrap] path reads it: modulo 1, 1 kept as the end.
+  static double wrapProgress(double progress) {
+    if (!progress.isFinite) return 0;
+    if (progress >= 0 && progress <= 1) return progress;
+    final r = progress % 1;
+    return r < 0 ? r + 1 : r;
+  }
+
+  /// A path direction [radians] folded into -90–90 degrees (turned half
+  /// round where it heads left), for [orientUpright].
+  static double uprightAngle(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    if (a > math.pi / 2) return a - math.pi;
+    if (a < -math.pi / 2) return a + math.pi;
+    return a;
   }
 
   /// The pose [t] (0–1, already eased) of the way from [a] to [b], through
@@ -576,17 +761,34 @@ final class Motion extends _Value {
       path: r.sn('path'),
       pathProgress: r.d('pathProgress', 0),
       orientToPath: r.b('orientToPath', false),
-      keyframes: [...?readList(m['keyframes'])?.map(MotionKeyframe.fromJson).nonNulls],
+      keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
       pulseKey: r.sn('pulseKey'),
       revealOnScroll: r.b('revealOnScroll', false),
       revealFraction: r.d('revealFraction', 0.15),
+      orientUpright: r.b('orientUpright', false),
+      arc: r.d('arc', 0),
+      paused: _loose(m['paused']) ?? false,
+      phase: r.d('phase', 0),
+      pathPacing: r.e(MotionPathPacing.values, 'pathPacing', MotionPathPacing.length),
+      pathFocusX: r.d('pathFocusX', 0),
+      pathFocusY: r.d('pathFocusY', 0),
+      pathWrap: r.b('pathWrap', false),
+      shimmer: MotionShimmer.fromJson(m['shimmer']),
+      named: {
+        for (final p in properties)
+          if (readDouble(m[p]) != null) p,
+      },
     );
   }
 
   Json toJson() {
     final j = <String, Object?>{};
     for (final p in properties) {
-      j.d(p, valueOf(p), none.valueOf(p));
+      if (named.contains(p)) {
+        j[p] = writeDouble(valueOf(p));
+      } else {
+        j.d(p, valueOf(p), none.valueOf(p));
+      }
     }
     j
       ..d('perspective', perspective, 1)
@@ -616,7 +818,16 @@ final class Motion extends _Value {
     j
       ..s('pulseKey', pulseKey)
       ..b('revealOnScroll', revealOnScroll, false)
-      ..d('revealFraction', revealFraction, 0.15);
+      ..d('revealFraction', revealFraction, 0.15)
+      ..b('orientUpright', orientUpright, false)
+      ..d('arc', arc, 0)
+      ..b('paused', paused, false)
+      ..d('phase', phase, 0)
+      ..e('pathPacing', pathPacing, MotionPathPacing.length)
+      ..d('pathFocusX', pathFocusX, 0)
+      ..d('pathFocusY', pathFocusY, 0)
+      ..b('pathWrap', pathWrap, false);
+    if (shimmer != null) j['shimmer'] = shimmer!.toJson();
     return j;
   }
 
@@ -625,7 +836,8 @@ final class Motion extends _Value {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, revealFraction,
+    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
+    pathFocusY, pathWrap, shimmer,
   ];
 }
 
@@ -674,6 +886,8 @@ final class LoopAnimation extends _Value {
     this.turns = 1,
     this.distance = 10,
     this.angle = 4,
+    this.phase = 0,
+    this.lag = 0,
   });
 
   final LoopAnimationType type;
@@ -684,6 +898,26 @@ final class LoopAnimation extends _Value {
   final bool reverse;
   final AnimationCurve curve;
   final double scaleFrom, scaleTo, opacityFrom, opacityTo, turns, distance, angle;
+
+  /// Where in its loop it starts, a share (0–1) of one whole loop ([loop],
+  /// there and back with [reverse]): loading dots that ripple in sequence
+  /// at phases 0, 0.15 and 0.3. Bindable as `loops[i].phase`.
+  final double phase;
+
+  /// How far (ms) it runs behind a loop without it: [phase] less
+  /// `lag / loop`. Unlike [delay] it doesn't wait. Bindable as
+  /// `loops[i].lag` (`${= index * 160}`).
+  final int lag;
+
+  /// One whole loop (ms): a run, or a run there and back with [reverse].
+  int get loop => (reverse ? 2 : 1) * math.max(1, duration);
+
+  /// The share (0–1) of a whole loop it starts at: [phase] and [lag].
+  double get startFraction {
+    final raw = (phase.isFinite ? phase : 0) - lag / loop;
+    final w = raw % 1;
+    return w < 0 ? w + 1 : w;
+  }
 
   /// The pose at [t] (0–1, before the curve) of a run. 0 is the first frame.
   LoopPose poseAt(double t) {
@@ -719,6 +953,8 @@ final class LoopAnimation extends _Value {
       turns: r.d('turns', 1),
       distance: r.d('distance', 10),
       angle: r.d('angle', 4),
+      phase: r.d('phase', 0),
+      lag: r.i('lag', 0),
     );
   }
 
@@ -734,7 +970,9 @@ final class LoopAnimation extends _Value {
     ..d('opacityTo', opacityTo, 1)
     ..d('turns', turns, 1)
     ..d('distance', distance, 10)
-    ..d('angle', angle, 4);
+    ..d('angle', angle, 4)
+    ..d('phase', phase, 0)
+    ..i('lag', lag, 0);
 
   @override
   List<Object?> get props => [
@@ -751,6 +989,8 @@ final class LoopAnimation extends _Value {
     turns,
     distance,
     angle,
+    phase,
+    lag,
   ];
 }
 
@@ -984,6 +1224,10 @@ enum DragStart { press, longPress, auto }
 /// What the node shows where it was picked up while dragged.
 enum DragSourceStyle { ghost, hidden, keep }
 
+/// Which point of the copy that follows the pointer sits under it: where
+/// it was grabbed, or its centre (a feedback node of another size).
+enum FeedbackAnchor { grab, center }
+
 /// Lets the user pick the node up and drop it on a [DropTarget] that takes
 /// its [group] (Flutter's `Draggable`).
 @immutable
@@ -1000,10 +1244,12 @@ final class DragSource extends _Value {
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
     this.feedbackNodeId = '',
+    this.feedbackAnchor = FeedbackAnchor.grab,
     this.returnSpring = true,
     this.springStiffness = 260,
     this.springDamping = 14,
     this.enabled = true,
+    this.physics,
   });
 
   final String group, data;
@@ -1014,9 +1260,19 @@ final class DragSource extends _Value {
 
   /// The node drawn under the pointer instead of this one.
   final String feedbackNodeId;
+  final FeedbackAnchor feedbackAnchor;
   final bool returnSpring;
   final double springStiffness, springDamping;
   final bool enabled;
+
+  /// The return spring of a drag no target takes; null uses
+  /// [returnSpring], [springStiffness] and [springDamping].
+  final GesturePhysics? physics;
+
+  /// The spring it flies back on, or null for none (it reappears at once).
+  GesturePhysics? get effectivePhysics =>
+      physics ??
+      (returnSpring ? GesturePhysics(stiffness: springStiffness, damping: springDamping, fling: false) : null);
 
   static DragSource? fromJson(Object? json) {
     final m = readMap(json);
@@ -1034,39 +1290,50 @@ final class DragSource extends _Value {
       feedbackOpacity: r.d('feedbackOpacity', 1),
       feedbackElevation: r.d('feedbackElevation', 24),
       feedbackNodeId: r.s('feedbackNodeId'),
+      feedbackAnchor: r.e(FeedbackAnchor.values, 'feedbackAnchor', FeedbackAnchor.grab),
       returnSpring: r.b('returnSpring', true),
       springStiffness: r.d('springStiffness', 260),
       springDamping: r.d('springDamping', 14),
       enabled: r.b('enabled', true),
+      physics: GesturePhysics.fromJson(m['physics']),
     );
   }
 
-  Json toJson() => <String, Object?>{}
-    ..s('group', group)
-    ..s('data', data)
-    ..e('start', start, DragStart.auto)
-    ..e('axis', axis, DragAxis.free)
-    ..e('whileDragging', whileDragging, DragSourceStyle.ghost)
-    ..d('ghostOpacity', ghostOpacity, 0.35)
-    ..d('feedbackRotation', feedbackRotation, -2)
-    ..d('feedbackScale', feedbackScale, 1)
-    ..d('feedbackOpacity', feedbackOpacity, 1)
-    ..d('feedbackElevation', feedbackElevation, 24)
-    ..s('feedbackNodeId', feedbackNodeId)
-    ..b('returnSpring', returnSpring, true)
-    ..d('springStiffness', springStiffness, 260)
-    ..d('springDamping', springDamping, 14)
-    ..b('enabled', enabled, true);
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..s('group', group)
+      ..s('data', data)
+      ..e('start', start, DragStart.auto)
+      ..e('axis', axis, DragAxis.free)
+      ..e('whileDragging', whileDragging, DragSourceStyle.ghost)
+      ..d('ghostOpacity', ghostOpacity, 0.35)
+      ..d('feedbackRotation', feedbackRotation, -2)
+      ..d('feedbackScale', feedbackScale, 1)
+      ..d('feedbackOpacity', feedbackOpacity, 1)
+      ..d('feedbackElevation', feedbackElevation, 24)
+      ..s('feedbackNodeId', feedbackNodeId)
+      ..e('feedbackAnchor', feedbackAnchor, FeedbackAnchor.grab)
+      ..b('returnSpring', returnSpring, true)
+      ..d('springStiffness', springStiffness, 260)
+      ..d('springDamping', springDamping, 14)
+      ..b('enabled', enabled, true);
+    if (physics != null) j['physics'] = physics!.toJson();
+    return j;
+  }
 
   @override
   List<Object?> get props => [
     group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, returnSpring, springStiffness, springDamping, enabled,
+    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, springStiffness, springDamping, enabled, physics,
   ];
 }
 
 /// Where a [DropTarget] inserts what's dropped on a list.
 enum DropSlot { none, gap, node }
+
+/// How big the slot a [DropTarget] opens in its list is: the dragged
+/// node's size, or the slot node's own (an insertion line).
+enum DropSlotSize { dragged, node }
 
 /// Takes [DragSource]s of the groups it [accepts] (Flutter's `DragTarget`).
 @immutable
@@ -1078,6 +1345,8 @@ final class DropTarget extends _Value {
     this.listNodeId = '',
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
+    this.slotSize = DropSlotSize.dragged,
+    this.slotWhenRefused = true,
     this.hoverDelay = 0,
     this.fullIf = '',
     this.enabled = true,
@@ -1093,6 +1362,11 @@ final class DropTarget extends _Value {
   final String listNodeId;
   final DropSlot slot;
   final String slotNodeId;
+  final DropSlotSize slotSize;
+
+  /// Whether the list opens its slot for a drop [acceptIf] refuses; off,
+  /// only accepted drops show where they'd land.
+  final bool slotWhenRefused;
   final int hoverDelay;
   final String fullIf;
   final bool enabled;
@@ -1108,6 +1382,8 @@ final class DropTarget extends _Value {
       listNodeId: r.s('listNodeId'),
       slot: r.e(DropSlot.values, 'slot', DropSlot.gap),
       slotNodeId: r.s('slotNodeId'),
+      slotSize: r.e(DropSlotSize.values, 'slotSize', DropSlotSize.dragged),
+      slotWhenRefused: r.b('slotWhenRefused', true),
       hoverDelay: r.ms('hoverDelay', 0),
       fullIf: r.s('fullIf'),
       enabled: r.b('enabled', true),
@@ -1120,12 +1396,16 @@ final class DropTarget extends _Value {
     ..s('listNodeId', listNodeId)
     ..e('slot', slot, DropSlot.gap)
     ..s('slotNodeId', slotNodeId)
+    ..e('slotSize', slotSize, DropSlotSize.dragged)
+    ..b('slotWhenRefused', slotWhenRefused, true)
     ..i('hoverDelay', hoverDelay, 0)
     ..s('fullIf', fullIf)
     ..b('enabled', enabled, true);
 
   @override
-  List<Object?> get props => [accepts, key, acceptIf, listNodeId, slot, slotNodeId, hoverDelay, fullIf, enabled];
+  List<Object?> get props => [
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, hoverDelay, fullIf, enabled, //
+  ];
 }
 
 /// What a dragged node does when let go.
@@ -1136,17 +1416,34 @@ enum DragDirection { left, right, up, down }
 /// The shape of a [DragTrack].
 enum DragTrackShape { line, arc, path }
 
-/// How the pointer moves along a [DragTrack].
-enum DragTrackInput { follow, vertical, horizontal }
+/// How the pointer moves along a [DragTrack]: following it, or dragging
+/// up/down, left/right, or either (up or right raises it: dx − dy).
+enum DragTrackInput { follow, vertical, horizontal, both }
+
+/// Where a [DragTrack]'s node takes the pointer: on itself, or anywhere in
+/// its parent (a knob turned from anywhere in its box).
+enum DragTrackHitArea { self, parent }
+
+/// What a [DragTrack]'s geometry is measured in: pixels, or fractions of
+/// the parent's size (x values of its width, y of its height).
+enum DragTrackUnits { pixels, parent }
 
 /// Makes a dragged node a value control (a knob, a fader): it moves along
 /// the track as variable [variable] goes from [min] to [max], and the
-/// design canvas draws it at the variable's value.
+/// design canvas draws it at the variable's value. Dragging it writes the
+/// variable (unless [write] is off); a double tap goes to [defaultValue]
+/// (or through [doubleTapValues]), the wheel and arrow keys step it. Inside
+/// it `${track.value}`, `${track.progress}`, `${track.dragging}`,
+/// `${track.fine}` and `${track.focused}` can be read.
+///
+/// Its settings and geometry are bindable as `drag.track.<field>`
+/// (`drag.track.x2`: `${= parent.width - 26}`); `drag.track.value` gives
+/// the value the node is drawn at in place of reading [variable].
 @immutable
 final class DragTrack extends _Value {
   const DragTrack({
     this.shape = DragTrackShape.line,
-    required this.variable,
+    this.variable = '',
     this.min = 0,
     this.max = 1,
     this.step = 0,
@@ -1166,30 +1463,216 @@ final class DragTrack extends _Value {
     this.orientToPath = false,
     this.jumpOnTap = false,
     this.wheel = true,
+    this.value,
+    this.orientUpright = false,
+    this.detent = 0,
+    this.overscroll = 0,
+    this.settle = 0,
+    this.settleCurve = AnimationCurve.easeOutCubic,
+    this.settleStiffness = 380,
+    this.settleDamping = 20,
+    this.parkedProgress,
+    this.keyboard = true,
+    this.viewBoxWidth = 0,
+    this.viewBoxHeight = 0,
+    this.relative = false,
+    this.wheelStep,
+    this.doubleTapValues = const [],
+    this.keyStep,
+    this.hitArea = DragTrackHitArea.self,
+    this.units = DragTrackUnits.pixels,
+    this.fineStep = 0,
+    this.finePixelsPerRange = 0,
+    this.fineHold = 380,
+    this.fineVariable = '',
+    this.snap = 0,
+    this.snapCurve = AnimationCurve.easeOutBack,
+    this.write = true,
+    this.endless = false,
+    this.momentum = false,
+    this.friction = 2.6,
+    this.smooth = false,
+    this.gain = 1,
   });
 
   final DragTrackShape shape;
+
+  /// The variable it reads and writes; empty when `drag.track.value` is
+  /// bound and its reactions write the value.
   final String variable;
   final double min, max, step;
+
+  /// What a double tap resets to (bindable as `drag.track.defaultValue`).
   final double? defaultValue;
   final DragTrackInput input;
   final double pixelsPerRange;
 
-  /// A line's ends, from the node's place (pixels).
+  /// A line's ends, from the node's place (pixels, or with [relative]
+  /// multiples of the node's size, with [units] parent of the parent's).
   final double x1, y1, x2, y2;
 
-  /// An arc's angles (degrees) about the pivot (from the node's centre).
+  /// An arc's angles (degrees, clockwise, 0 up) about the pivot (from the
+  /// node's centre).
   final double startAngle, endAngle, pivotX, pivotY;
 
   /// Turns the node with the arc.
   final bool rotate;
   final String? path;
-  final bool orientToPath, jumpOnTap, wheel;
+  final bool orientToPath;
 
-  /// Where [value] is along the track (0–1).
-  double progressOf(double value) => max == min ? 0 : ((value - min) / (max - min)).clamp(0.0, 1.0);
+  /// Pressing anywhere along the track (or the [hitArea]) moves the node
+  /// there, then the drag goes on (only for [DragTrackInput.follow]).
+  final bool jumpOnTap;
 
-  double angleAt(double progress) => startAngle + (endAngle - startAngle) * progress.clamp(0.0, 1.0);
+  /// Whether the mouse wheel steps the value.
+  final bool wheel;
+
+  /// The value the node is drawn at, from a binding (`drag.track.value`);
+  /// null reads [variable].
+  final double? value;
+
+  /// With [orientToPath], never upside down (as [Motion.orientUpright]).
+  final bool orientUpright;
+
+  /// How magnetic [step]s are while dragging (0–1): 0 jumps from step to
+  /// step; above 0 the node follows that share of the way past a step.
+  final double detent;
+
+  /// How far it can be dragged past an end, a share of the pointer's
+  /// travel there (0–1); it springs back on release.
+  final double overscroll;
+
+  /// The glide to its value's place when not following the pointer (ms; 0
+  /// jumps), its curve, and the spring of [AnimationCurve.spring] (mass 1),
+  /// which a release mid-fling starts at the pointer's speed.
+  final int settle;
+  final AnimationCurve settleCurve;
+  final double settleStiffness, settleDamping;
+
+  /// Where the node parks while the value is out of range or empty, as a
+  /// progress that may lie outside 0–1 (an unrated dial parks below its
+  /// first mark); null draws such a value at the nearest end.
+  final double? parkedProgress;
+
+  /// Takes keyboard focus: arrows step by [keyStep] (else [step], else 1%
+  /// of the range), Page Up/Down by 10 steps, Home and End to the ends.
+  final bool keyboard;
+
+  /// With both above 0, [path] is drawn in the box of the frame the node
+  /// sits in, in these units, stretched to the frame's size.
+  final double viewBoxWidth, viewBoxHeight;
+
+  /// A line's ends are multiples of the node's own size (a full-width scrub
+  /// area: `x1: -0.5, x2: 0.5`).
+  final bool relative;
+
+  /// One wheel notch, one arrow key (null: [step], else 1% of the range).
+  final double? wheelStep, keyStep;
+
+  /// Values a double tap moves between, in order (empty: [defaultValue]).
+  final List<double> doubleTapValues;
+  final DragTrackHitArea hitArea;
+  final DragTrackUnits units;
+
+  /// A finer step while Shift is held or after the pointer is held still
+  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
+  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
+  /// boolean variable, is kept true while fine.
+  final double fineStep, finePixelsPerRange;
+  final int fineHold;
+  final String fineVariable;
+
+  /// Animates the node to each new value over [snap] ms along [snapCurve]
+  /// (a knob clicking from detent to detent); 0 jumps.
+  final int snap;
+  final AnimationCurve snapCurve;
+
+  /// Whether dragging writes [variable]; off, it only shows it and its
+  /// reactions set what changes from `${result.value}`.
+  final bool write;
+
+  /// An arc that keeps turning past its ends, the value unbounded (a
+  /// combination dial).
+  final bool endless;
+
+  /// Let go while moving, it coasts, slowing by [friction] per second, then
+  /// settles on a [step].
+  final bool momentum;
+  final double friction;
+
+  /// Draws the node between [step]s while dragged or coasting, springing
+  /// onto the nearest when it rests (the variable only holds steps).
+  final bool smooth;
+
+  /// How far the node moves per pointer movement (0.5 fine, 2 coarse).
+  final double gain;
+
+  /// Whether the value is unbounded ([endless] on an arc).
+  bool get unbounded => endless && shape == DragTrackShape.arc;
+
+  bool get hasVariable => variable.trim().isNotEmpty;
+  bool get hasFine => fineStep > 0;
+  bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+  double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
+
+  /// Where [value] is along the track (0–1; past them on an endless arc).
+  double progressOf(double value) {
+    if (max == min) return 0;
+    final p = (value - min) / (max - min);
+    return unbounded ? p : p.clamp(0.0, 1.0);
+  }
+
+  /// Whether [value] is drawn at [parkedProgress] (out of range, or NaN for
+  /// an empty variable).
+  bool isParked(double value) {
+    if (parkedProgress == null) return false;
+    if (value.isNaN) return true;
+    final lo = math.min(min, max), hi = math.max(min, max);
+    return value < lo || value > hi;
+  }
+
+  /// Where the node is drawn for [value].
+  double restProgressOf(double value) => isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
+
+  /// [progress] held to the track (any progress on an endless arc).
+  double clampProgress(double progress) => unbounded ? progress : progress.clamp(0.0, 1.0);
+
+  /// [v] snapped to [by] (from [min]; 0 continuous) and kept in range.
+  double snapTo(double v, double by) {
+    final lo = math.min(min, max), hi = math.max(min, max);
+    var out = unbounded ? v : v.clamp(lo, hi).toDouble();
+    if (by > 0) {
+      out = min + ((out - min) / by).round() * by;
+      if (!unbounded) out = out.clamp(lo, hi).toDouble();
+      // Keep 0.1 steps from turning into 0.30000000000000004.
+      out = double.parse(out.toStringAsFixed(6));
+    }
+    return out;
+  }
+
+  double snapValue(double v) => snapTo(v, step);
+
+  /// The value at [progress], snapped to [step].
+  double valueAt(double progress) => snapValue(min + (max - min) * clampProgress(progress));
+
+  double get effectiveWheelStep => (wheelStep ?? 0) > 0 ? wheelStep! : (step > 0 ? step : (max - min).abs() / 100);
+
+  /// Null with [keyboard] off.
+  double? get effectiveKeyStep =>
+      !keyboard ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
+
+  /// The value a double tap moves to from [v], or null when it does nothing.
+  double? doubleTapTarget(double v) {
+    final cycle = doubleTapValues.isNotEmpty ? doubleTapValues : [?defaultValue];
+    if (cycle.isEmpty) return null;
+    final current = snapValue(v);
+    for (var i = 0; i < cycle.length; i++) {
+      if ((snapValue(cycle[i]) - current).abs() < 1e-6) return snapValue(cycle[(i + 1) % cycle.length]);
+    }
+    return snapValue(cycle.first);
+  }
+
+  double angleAt(double progress) => startAngle + (endAngle - startAngle) * clampProgress(progress);
 
   static DragTrack? fromJson(Object? json) {
     final m = readMap(json);
@@ -1200,7 +1683,7 @@ final class DragTrack extends _Value {
       variable: r.s('variable'),
       min: r.d('min', 0),
       max: r.d('max', 1),
-      step: r.d('step', 0),
+      step: math.max(0, r.d('step', 0)),
       defaultValue: r.dn('defaultValue'),
       input: r.e(DragTrackInput.values, 'input', DragTrackInput.follow),
       pixelsPerRange: r.d('pixelsPerRange', 200),
@@ -1217,35 +1700,102 @@ final class DragTrack extends _Value {
       orientToPath: r.b('orientToPath', false),
       jumpOnTap: r.b('jumpOnTap', false),
       wheel: r.b('wheel', true),
+      value: r.dn('value'),
+      orientUpright: r.b('orientUpright', false),
+      detent: r.d('detent', 0),
+      overscroll: r.d('overscroll', 0),
+      settle: r.ms('settle', 0),
+      settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
+      settleStiffness: r.d('settleStiffness', 380),
+      settleDamping: r.d('settleDamping', 20),
+      parkedProgress: r.dn('parkedProgress'),
+      keyboard: r.b('keyboard', true),
+      viewBoxWidth: r.d('viewBoxWidth', 0),
+      viewBoxHeight: r.d('viewBoxHeight', 0),
+      relative: r.b('relative', false),
+      wheelStep: r.dn('wheelStep'),
+      doubleTapValues: r.doubles('doubleTapValues'),
+      keyStep: r.dn('keyStep'),
+      hitArea: r.e(DragTrackHitArea.values, 'hitArea', DragTrackHitArea.self),
+      units: r.e(DragTrackUnits.values, 'units', DragTrackUnits.pixels),
+      fineStep: r.d('fineStep', 0),
+      finePixelsPerRange: r.d('finePixelsPerRange', 0),
+      fineHold: r.ms('fineHold', 380),
+      fineVariable: r.s('fineVariable'),
+      snap: r.ms('snap', 0),
+      snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
+      write: r.b('write', true),
+      endless: r.b('endless', false),
+      momentum: _loose(m['momentum']) ?? false,
+      friction: r.d('friction', 2.6),
+      smooth: _loose(m['smooth']) ?? false,
+      gain: r.d('gain', 1),
     );
   }
 
-  Json toJson() => <String, Object?>{'variable': variable}
-    ..e('shape', shape, DragTrackShape.line)
-    ..d('min', min, 0)
-    ..d('max', max, 1)
-    ..d('step', step, 0)
-    ..dn('defaultValue', defaultValue)
-    ..e('input', input, DragTrackInput.follow)
-    ..d('pixelsPerRange', pixelsPerRange, 200)
-    ..d('x1', x1, 0)
-    ..d('y1', y1, 0)
-    ..d('x2', x2, 0)
-    ..d('y2', y2, -100)
-    ..d('startAngle', startAngle, -135)
-    ..d('endAngle', endAngle, 135)
-    ..d('pivotX', pivotX, 0)
-    ..d('pivotY', pivotY, 0)
-    ..b('rotate', rotate, true)
-    ..s('path', path)
-    ..b('orientToPath', orientToPath, false)
-    ..b('jumpOnTap', jumpOnTap, false)
-    ..b('wheel', wheel, true);
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..s('variable', variable)
+      ..e('shape', shape, DragTrackShape.line)
+      ..d('min', min, 0)
+      ..d('max', max, 1)
+      ..d('step', step, 0)
+      ..dn('defaultValue', defaultValue)
+      ..e('input', input, DragTrackInput.follow)
+      ..d('pixelsPerRange', pixelsPerRange, 200)
+      ..d('x1', x1, 0)
+      ..d('y1', y1, 0)
+      ..d('x2', x2, 0)
+      ..d('y2', y2, -100)
+      ..d('startAngle', startAngle, -135)
+      ..d('endAngle', endAngle, 135)
+      ..d('pivotX', pivotX, 0)
+      ..d('pivotY', pivotY, 0)
+      ..b('rotate', rotate, true)
+      ..s('path', path)
+      ..b('orientToPath', orientToPath, false)
+      ..b('jumpOnTap', jumpOnTap, false)
+      ..b('wheel', wheel, true)
+      ..dn('value', value)
+      ..b('orientUpright', orientUpright, false)
+      ..d('detent', detent, 0)
+      ..d('overscroll', overscroll, 0)
+      ..i('settle', settle, 0)
+      ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic)
+      ..d('settleStiffness', settleStiffness, 380)
+      ..d('settleDamping', settleDamping, 20)
+      ..dn('parkedProgress', parkedProgress)
+      ..b('keyboard', keyboard, true)
+      ..d('viewBoxWidth', viewBoxWidth, 0)
+      ..d('viewBoxHeight', viewBoxHeight, 0)
+      ..b('relative', relative, false)
+      ..dn('wheelStep', wheelStep);
+    if (doubleTapValues.isNotEmpty) j['doubleTapValues'] = doubleTapValues.map(writeDouble).toList();
+    return j
+      ..dn('keyStep', keyStep)
+      ..e('hitArea', hitArea, DragTrackHitArea.self)
+      ..e('units', units, DragTrackUnits.pixels)
+      ..d('fineStep', fineStep, 0)
+      ..d('finePixelsPerRange', finePixelsPerRange, 0)
+      ..i('fineHold', fineHold, 380)
+      ..s('fineVariable', fineVariable)
+      ..i('snap', snap, 0)
+      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
+      ..b('write', write, true)
+      ..b('endless', endless, false)
+      ..b('momentum', momentum, false)
+      ..d('friction', friction, 2.6)
+      ..b('smooth', smooth, false)
+      ..d('gain', gain, 1);
+  }
 
   @override
   List<Object?> get props => [
     shape, variable, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
-    pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel,
+    pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
+    settleCurve, settleStiffness, settleDamping, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
+    wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
+    snapCurve, write, endless, momentum, friction, smooth, gain,
   ];
 }
 
@@ -1282,6 +1832,12 @@ final class DragMotion extends _Value {
     this.follow = true,
     this.xVariable = '',
     this.yVariable = '',
+    this.physics,
+    this.bounds = GestureBounds.none,
+    this.minX,
+    this.maxX,
+    this.minY,
+    this.maxY,
   });
 
   final DragAxis axis;
@@ -1312,6 +1868,26 @@ final class DragMotion extends _Value {
   final DragTrack? track;
   final bool reorder, follow;
   final String xVariable, yVariable;
+
+  /// How it moves on its own after release (a fling, a spring settle, snap
+  /// points, overscroll). Null keeps the curve-timed [snapBack] release;
+  /// see [effectivePhysics].
+  final GesturePhysics? physics;
+
+  /// What it's kept inside of while dragged and flung, narrowed by the
+  /// offsets from rest [minX]...[maxY] (null: no limit). A bottom sheet
+  /// opening 560px: `minY: -560, maxY: 0`.
+  final GestureBounds bounds;
+  final double? minX, maxX, minY, maxY;
+
+  bool get hasBounds => bounds != GestureBounds.none || minX != null || maxX != null || minY != null || maxY != null;
+
+  /// [physics], or what the release settings amount to: a spring snap back
+  /// is a spring settling in [snapBack] with a little bounce. Null for a
+  /// curve-timed release.
+  GesturePhysics? get effectivePhysics =>
+      physics ??
+      (snapCurve == AnimationCurve.spring ? GesturePhysics(bounce: 0.25, duration: snapBack, fling: false) : null);
 
   static DragMotion? fromJson(Object? json) {
     final m = readMap(json);
@@ -1351,6 +1927,12 @@ final class DragMotion extends _Value {
       follow: r.b('follow', true),
       xVariable: r.s('xVariable'),
       yVariable: r.s('yVariable'),
+      physics: GesturePhysics.fromJson(m['physics']),
+      bounds: r.e(GestureBounds.values, 'bounds', GestureBounds.none),
+      minX: r.dn('minX'),
+      maxX: r.dn('maxX'),
+      minY: r.dn('minY'),
+      maxY: r.dn('maxY'),
     );
   }
 
@@ -1385,14 +1967,21 @@ final class DragMotion extends _Value {
       ..b('follow', follow, true)
       ..s('xVariable', xVariable)
       ..s('yVariable', yVariable);
-    return j;
+    if (physics != null) j['physics'] = physics!.toJson();
+    return j
+      ..e('bounds', bounds, GestureBounds.none)
+      ..dn('minX', minX)
+      ..dn('maxX', maxX)
+      ..dn('minY', minY)
+      ..dn('maxY', maxY);
   }
 
   @override
   List<Object?> get props => [
     axis, release, directions, distanceThreshold, verticalThreshold, velocityThreshold, rotateFactor, originX, //
     originY, resistance, snapBack, snapCurve, flyOut, flyOutCurve, flyOutDistance, flyOutRotate, enabled,
-    shakeWhenDisabled, disabledFollow, shareAs, restX, restY, track, reorder, follow, xVariable, yVariable,
+    shakeWhenDisabled, disabledFollow, shareAs, restX, restY, track, reorder, follow, xVariable, yVariable, physics,
+    bounds, minX, maxX, minY, maxY,
   ];
 }
 
@@ -1413,6 +2002,7 @@ final class EffectAnimation extends _Value {
     this.originX = 0,
     this.originY = 0,
     this.playOnAppear = false,
+    this.cycles = 0,
   });
 
   final String name;
@@ -1420,6 +2010,10 @@ final class EffectAnimation extends _Value {
   final int duration, delay;
   final double amount, originX, originY;
   final bool playOnAppear;
+
+  /// How many times a shake, wiggle or jelly swings (and a flash blinks)
+  /// over the effect; 0 uses the type's own count (a shake swings 4 times).
+  final double cycles;
 
   static EffectAnimation? fromJson(Object? json) {
     final m = readMap(json);
@@ -1434,6 +2028,7 @@ final class EffectAnimation extends _Value {
       originX: r.d('originX', 0),
       originY: r.d('originY', 0),
       playOnAppear: r.b('playOnAppear', false),
+      cycles: math.max(0, r.d('cycles', 0)),
     );
   }
 
@@ -1443,10 +2038,11 @@ final class EffectAnimation extends _Value {
     ..d('amount', amount, 1)
     ..d('originX', originX, 0)
     ..d('originY', originY, 0)
-    ..b('playOnAppear', playOnAppear, false);
+    ..b('playOnAppear', playOnAppear, false)
+    ..d('cycles', cycles, 0);
 
   @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear];
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles];
 }
 
 enum ParticleShape { square, circle, strip, star }
@@ -1648,29 +2244,62 @@ enum HeroFlightShuttle {
 
   /// Also morphs the corner radius from one box to the other.
   morphCorners,
+
+  /// Along a curve (Material's arc), turning upright as it lands, with a
+  /// halo in the colour of its first drop shadow (soft white without one).
+  arc,
+
+  /// Both nodes fly fitted to the box in between, the leaving one fading
+  /// out as the arriving one fades in, corners morphing.
+  morph,
+
+  /// [morph], the leaving node gone over the first 35% (Material fade
+  /// through).
+  fadeThrough,
+
+  /// Material container transform: a card grows into a whole screen (tag
+  /// the card and the destination's root the same); the card fades out over
+  /// the first 30%.
+  containerTransform;
+
+  /// Whether both nodes are drawn during the flight, cross-fading.
+  bool get crossFades => this == morph || this == fadeThrough || this == containerTransform;
 }
 
 /// Makes the node a shared element (Flutter's `Hero`): it flies between
 /// its places on two screens with the same [tag] while a navigation plays.
 @immutable
 final class HeroTag extends _Value {
-  const HeroTag(this.tag, {this.flight = HeroFlightShuttle.standard});
+  const HeroTag(this.tag, {this.flight = HeroFlightShuttle.standard, this.placeholder = HeroPlaceholder.none});
 
   final String tag;
   final HeroFlightShuttle flight;
+
+  /// What the destination shows until its own image has loaded.
+  final HeroPlaceholder placeholder;
 
   static HeroTag? fromJson(Object? json) {
     if (json is String) return json.isEmpty ? null : HeroTag(json);
     final m = readMap(json);
     final tag = readString(m?['tag']);
     if (m == null || tag == null) return null;
-    return HeroTag(tag, flight: readEnum(HeroFlightShuttle.values, m['flight'], HeroFlightShuttle.standard));
+    return HeroTag(
+      tag,
+      flight: readEnum(HeroFlightShuttle.values, m['flight'], HeroFlightShuttle.standard),
+      placeholder: readEnum(HeroPlaceholder.values, m['placeholder'], HeroPlaceholder.none),
+    );
   }
 
-  Object toJson() => flight == HeroFlightShuttle.standard ? tag : {'tag': tag, 'flight': flight.name};
+  Object toJson() => flight == HeroFlightShuttle.standard && placeholder == HeroPlaceholder.none
+      ? tag
+      : {
+          'tag': tag,
+          if (flight != HeroFlightShuttle.standard) 'flight': flight.name,
+          if (placeholder != HeroPlaceholder.none) 'placeholder': placeholder.name,
+        };
 
   @override
-  List<Object?> get props => [tag, flight];
+  List<Object?> get props => [tag, flight, placeholder];
 }
 
 // --- all together -----------------------------------------------------------------
@@ -1699,6 +2328,9 @@ final class Behaviours extends _Value {
     this.effectAnimations = const [],
     this.particles,
     this.textDirection,
+    this.flip,
+    this.tilt,
+    this.transformGesture,
   });
 
   static const Behaviours none = Behaviours();
@@ -1750,11 +2382,25 @@ final class Behaviours extends _Value {
   /// null inherits. Bindable as `textDirection`.
   final TextDirection? textDirection;
 
+  /// A two-sided card that turns over (first child front, second back).
+  final FlipCard? flip;
+
+  /// Tilts in 3D toward the pointer.
+  final Tilt? tilt;
+
+  /// Pinch, pan and rotate, with fling physics and optional handles (over
+  /// [zoomable]: see [effectiveTransformGesture]).
+  final TransformGesture? transformGesture;
+
+  /// [transformGesture], or what [zoomable] amounts to.
+  TransformGesture? get effectiveTransformGesture =>
+      transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
+
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
     'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
-    'effectAnimations', 'particles', 'textDirection',
+    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture',
   };
 
   bool get isNone => this == none;
@@ -1787,6 +2433,9 @@ final class Behaviours extends _Value {
       textDirection: m['textDirection'] is String
           ? r.e(TextDirection.values, 'textDirection', TextDirection.ltr)
           : null,
+      flip: FlipCard.fromJson(m['flip']),
+      tilt: Tilt.fromJson(m['tilt']),
+      transformGesture: TransformGesture.fromJson(m['transformGesture']),
     );
   }
 
@@ -1813,6 +2462,9 @@ final class Behaviours extends _Value {
     if (effectAnimations.isNotEmpty) j['effectAnimations'] = [for (final e in effectAnimations) e.toJson()];
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
+    if (flip != null) j['flip'] = flip!.toJson();
+    if (tilt != null) j['tilt'] = tilt!.toJson();
+    if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
   }
 
   Behaviours copyWith({
@@ -1836,6 +2488,9 @@ final class Behaviours extends _Value {
     List<EffectAnimation>? effectAnimations,
     ParticleEmitter? particles,
     TextDirection? textDirection,
+    FlipCard? flip,
+    Tilt? tilt,
+    TransformGesture? transformGesture,
   }) => Behaviours(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
@@ -1857,11 +2512,15 @@ final class Behaviours extends _Value {
     effectAnimations: effectAnimations ?? this.effectAnimations,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
+    flip: flip ?? this.flip,
+    tilt: tilt ?? this.tilt,
+    transformGesture: transformGesture ?? this.transformGesture,
   );
 
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection,
+    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
+    tilt, transformGesture,
   ];
 }
