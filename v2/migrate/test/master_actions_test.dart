@@ -99,10 +99,10 @@ void main() {
     final look = one(ShowToastAction(
       message: 'Saved',
       actionBackgroundColor: ColorRGBA.white,
-      actionBorder: BorderSideModel(color: ColorRGBA.black, width: 2),
+      actionBorder: const BorderSideModel(color: ColorRGBA.black, width: 2),
       actionCornerRadius: 6,
-      actionShadows: [Effect(id: 'e1', type: EffectType.dropShadow, color: ColorRGBA.black, offset: Vec(3, 3), radius: 0, spread: 0)],
-      iconShadows: [Effect(id: 'e2', type: EffectType.dropShadow, color: ColorRGBA.white, offset: Vec(0, 0), radius: 8, spread: 0)],
+      actionShadows: [Effect(id: 'e1', type: EffectType.dropShadow, color: ColorRGBA.black, offset: const Vec(3, 3), radius: 0, spread: 0)],
+      iconShadows: [Effect(id: 'e2', type: EffectType.dropShadow, color: ColorRGBA.white, offset: const Vec(0, 0), radius: 8, spread: 0)],
       rotation: -1.5,
       enterCurve: 'easeOutBack',
       enterOffset: 1,
@@ -119,20 +119,20 @@ void main() {
 
   test('confirm cosmetics go in its look; the title defaults to empty', () {
     final out = one(ConfirmAction(
-      confirmBorder: BorderSideModel(color: ColorRGBA.black),
-      cancelBorder: BorderSideModel(color: ColorRGBA.white, width: 2),
+      confirmBorder: const BorderSideModel(color: ColorRGBA.black),
+      cancelBorder: const BorderSideModel(color: ColorRGBA.white, width: 2),
       icon: MultiSourceIconModel.icon(show: true, icon: MaterialIcon(codepoint: 0xe000, name: 'lamp', style: MaterialIconStyle.values.first)),
       iconSize: 30,
       iconColor: ColorRGBA.black,
       iconDiscColor: ColorRGBA.white,
       iconDiscSize: 60,
-      iconDiscBorder: BorderSideModel(color: ColorRGBA.black),
+      iconDiscBorder: const BorderSideModel(color: ColorRGBA.black),
       centered: true,
       expandButtons: true,
       width: 340,
       maxWidth: 380,
-      insets: EdgeInsetsModel.all(20),
-      padding: EdgeInsetsModel.only(left: 24, top: 26, right: 24, bottom: 22),
+      insets: const EdgeInsetsModel.all(20),
+      padding: const EdgeInsetsModel.only(left: 24, top: 26, right: 24, bottom: 22),
       buttonHeight: 48,
     ));
     expect(out['title'], '');
@@ -150,9 +150,9 @@ void main() {
   });
 
   test('route transitions on navigation and dialogs', () {
-    final t = RouteTransition(
+    const t = RouteTransition(
       preset: RouteTransitionPreset.iosModal,
-      enter: const TransitionSide(
+      enter: TransitionSide(
         motion: MotionModel(shiftY: 1, opacity: 0),
         reveal: TransitionReveal(origin: RevealOrigin.node, shape: RevealShape.rect),
         curve: MotionCurve.easeOutCubic,
@@ -160,10 +160,10 @@ void main() {
         durationMs: 300,
       ),
       durationMs: 450,
-      barrierColor: const ColorRGBA(r: 0, g: 0, b: 0, a: 0.2),
+      barrierColor: ColorRGBA(r: 0, g: 0, b: 0, a: 0.2),
       opaque: false,
       swipeBack: RouteSwipeBack.never,
-      dismiss: const RouteDismiss(direction: DragDirection.right, spring: TransitionSpring(stiffness: 200)),
+      dismiss: RouteDismiss(direction: DragDirection.right, spring: TransitionSpring(stiffness: 200)),
     );
     final expected = {
       'preset': 'iosModal',
