@@ -6,6 +6,7 @@
 // JSON (it decodes as an unknown action) and is reported.
 import 'package:codelessly_api/codelessly_api.dart';
 
+import 'behaviours.dart' show migrateMotion;
 import 'bindings.dart';
 import 'logic.dart';
 import 'migrate.dart';
@@ -106,6 +107,7 @@ class ActionMigration {
             if (a.transition != PageTransition.platform) 'transition': a.transition.name,
             'transitionMs': ?a.transitionMs,
             'reverseTransitionMs': ?a.reverseTransitionMs,
+            'routeTransition': ?a.routeTransition?.let(routeTransition),
           },
         ShowDialogAction() => {
             'type': 'openModal',
@@ -128,6 +130,7 @@ class ActionMigration {
             if (a.maxHeightFactor != 1) 'maxHeightFactor': roundNum(a.maxHeightFactor),
             if (a.fullHeight) 'fullHeight': true,
             if (a.enterScale != 1) 'enterScale': roundNum(a.enterScale),
+            'routeTransition': ?a.routeTransition?.let(routeTransition),
           },
         CloseModalAction() => {'type': 'closeModal', if (a.params.isNotEmpty) 'result': a.params},
         LinkAction() => {'type': 'openLink', 'url': a.url},
@@ -153,6 +156,8 @@ class ActionMigration {
             'type': 'setVariable',
             'variable': a.variable.name,
             ..._write(a.variable.type, a),
+            if (a.animateMs.trim().isNotEmpty && a.animateMs.trim() != '0') 'animateMs': a.animateMs,
+            if (a.curve != MotionCurve.linear) 'curve': a.curve.name,
           },
         CallFunctionAction() => {'type': 'callFunction', 'name': a.name, if (a.params.isNotEmpty) 'params': a.params},
         ApiCallAction() => {
@@ -250,6 +255,7 @@ class ActionMigration {
             'node': a.nodeId,
             if (a.command != DragCommand.fling) 'command': a.command.name,
             if (a.direction != DragDirection.right) 'direction': a.direction.name,
+            if (a.steps != '1') 'steps': a.steps,
           },
         SpeakAction() => {
             'type': 'speak',
@@ -266,6 +272,7 @@ class ActionMigration {
             if (a.curve != MotionCurve.easeInOut) 'curve': a.curve.name,
             if (a.alignment != 0) 'alignment': roundNum(a.alignment),
             if (a.offset != 0) 'offset': roundNum(a.offset),
+            if (a.axis case 'horizontal' || 'vertical') 'axis': a.axis,
           },
         PlaySoundAction() => {
             'type': 'playSound',
@@ -280,8 +287,78 @@ class ActionMigration {
             'node': a.nodeId,
             if (a.animation.isNotEmpty) 'animation': a.animation,
           },
+        AnimateVariableAction() => {
+            'type': 'animateVariable',
+            'variable': a.variable,
+            if (a.mode != AnimateVariableMode.play) 'mode': a.mode.name,
+            if (a.from.isNotEmpty) 'from': a.from,
+            if (a.to != '1') 'to': a.to,
+            if (a.durationMs != 1000) 'durationMs': a.durationMs,
+            if ((a.duration ?? '').trim().isNotEmpty) 'duration': a.duration,
+            if (a.curve != MotionCurve.linear) 'curve': a.curve.name,
+          },
+        // The haptic's own `when` formula (off when it gives nothing, false,
+        // 0 or null) is v2's common `when` predicate.
+        HapticAction() => {
+            'type': 'haptic',
+            if (a.kind != HapticKind.selection) 'kind': a.kind.name,
+            if (a.when.trim().isNotEmpty) 'when': {'left': a.when, 'op': 'isTrue'},
+          },
+        RunScriptAction() => {
+            'type': 'runScript',
+            'script': a.scriptId,
+            if (a.arguments.isNotEmpty) 'arguments': a.arguments,
+            if ((a.resultVariable ?? '').isNotEmpty) 'resultVariable': a.resultVariable,
+            if (a.onError.isNotEmpty) 'onError': actions(a.onError),
+          },
         _ => _unknown(a),
       };
+
+  /// A v1 route transition as v2 `RouteTransition` JSON (colors `#AARRGGBB`,
+  /// motions v2 `Motion`s).
+  static Json routeTransition(RouteTransition t) {
+    Json? side(TransitionSide? s) => s == null
+        ? null
+        : {
+            if (s.motion != MotionModel.none) 'motion': migrateMotion(s.motion),
+            if (s.reveal case final TransitionReveal r)
+              'reveal': {
+                if (r.shape != RevealShape.circle) 'shape': r.shape.name,
+                if (r.origin != RevealOrigin.tap) 'origin': r.origin.name,
+                if (r.x != 0) 'x': roundNum(r.x),
+                if (r.y != 0) 'y': roundNum(r.y),
+                if (r.startRadius != 0) 'startRadius': roundNum(r.startRadius),
+              },
+            if (s.curve != MotionCurve.fastOutSlowIn) 'curve': s.curve.name,
+            if (s.delayMs != 0) 'delayMs': s.delayMs,
+            'durationMs': ?s.durationMs,
+          };
+    final d = t.dismiss;
+    return {
+      'preset': ?t.preset?.name,
+      'enter': ?side(t.enter),
+      'exit': ?side(t.exit),
+      'popEnter': ?side(t.popEnter),
+      'popExit': ?side(t.popExit),
+      'durationMs': ?t.durationMs,
+      'reverseDurationMs': ?t.reverseDurationMs,
+      'barrierColor': ?_color(t.barrierColor),
+      'opaque': ?t.opaque,
+      'swipeBack': ?t.swipeBack?.name,
+      if (d != null)
+        'dismiss': {
+          if (d.direction != DragDirection.down) 'direction': d.direction.name,
+          if (d.distance != 0.25) 'distance': roundNum(d.distance),
+          if (d.velocity != 700) 'velocity': roundNum(d.velocity),
+          if (d.spring != const TransitionSpring())
+            'spring': {
+              if (d.spring.stiffness != 380) 'stiffness': roundNum(d.spring.stiffness),
+              if (d.spring.damping != 36) 'damping': roundNum(d.spring.damping),
+              if (d.spring.mass != 1) 'mass': roundNum(d.spring.mass),
+            },
+        },
+    };
+  }
 
   Json _unknown(ActionModel a) {
     report.unmapped.update('action.${a.type.name}', (v) => v + 1, ifAbsent: () => 1);
@@ -428,6 +505,14 @@ class ActionMigration {
       if (a.sideMargin != 16) 'sideMargin': roundNum(a.sideMargin),
       if (a.sideMargins.isNotEmpty) 'sideMargins': {for (final e in a.sideMargins.entries) e.key.name: roundNum(e.value)},
       if (a.offset.isNotEmpty) 'offset': a.offset,
+      'actionBackgroundColor': ?_color(a.actionBackgroundColor),
+      'actionBorder': ?a.actionBorder?.let(_side),
+      'actionCornerRadius': ?a.actionCornerRadius?.let(roundNum),
+      if ((a.actionShadows ?? const []).isNotEmpty) 'actionShadows': [...a.actionShadows!.map(V1Node.effect).nonNulls],
+      if ((a.iconShadows ?? const []).isNotEmpty) 'iconShadows': [...a.iconShadows!.map(V1Node.effect).nonNulls],
+      if (a.rotation != 0) 'rotation': roundNum(a.rotation),
+      if (a.enterCurve != 'easeOutCubic') 'enterCurve': a.enterCurve,
+      if (a.enterOffset != 0.25) 'enterOffset': roundNum(a.enterOffset),
     };
     return {
       'type': 'showToast',
@@ -469,6 +554,21 @@ class ActionMigration {
       if (a.showDragHandle) 'showDragHandle': true,
       if (a.barrierBlur != 0) 'barrierBlur': roundNum(a.barrierBlur),
       if (a.enterScale != 1) 'enterScale': roundNum(a.enterScale),
+      'confirmBorder': ?a.confirmBorder?.let(_side),
+      'cancelBorder': ?a.cancelBorder?.let(_side),
+      if (a.icon case final MultiSourceIconModel i) 'icon': ?_glyph(i),
+      if (a.iconSize != 24) 'iconSize': roundNum(a.iconSize),
+      'iconColor': ?_color(a.iconColor),
+      'iconDiscColor': ?_color(a.iconDiscColor),
+      if (a.iconDiscSize != 52) 'iconDiscSize': roundNum(a.iconDiscSize),
+      'iconDiscBorder': ?a.iconDiscBorder?.let(_side),
+      if (a.centered) 'centered': true,
+      if (a.expandButtons) 'expandButtons': true,
+      'width': ?a.width?.let(roundNum),
+      'maxWidth': ?a.maxWidth?.let(roundNum),
+      'insets': ?a.insets?.let(_insets),
+      'padding': ?a.padding?.let(_insets),
+      'buttonHeight': ?a.buttonHeight?.let(roundNum),
     };
     return {
       'type': 'confirm',
