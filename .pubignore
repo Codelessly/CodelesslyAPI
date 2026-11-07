@@ -75,4 +75,4 @@ build/
 !**/ios/**/default.perspectivev3
 
 pubspec.lock
-pubspec_overrides.yaml
+pubspec_overrides.yamlv2/
