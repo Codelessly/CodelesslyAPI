@@ -132,12 +132,28 @@ metadata the editor's panels and the SDK use.
 | `icon` | Icon / SVG | `icon` |
 | `spacer` | Spacer / SizedBox | `spacer` |
 | `variance` | variant switcher | `variance` |
+| `pagination` | page controls for a list's pagination | `pagination` |
+| `tableView` | TableView (two_dimensional_scrollables); slots `cell`, `columnHeader`, `rowHeader`, `corner` | `tableView` |
 | ... | one per remaining v1 type | |
 
 Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `BorderRadius`, `Alignment`, `BoxConstraints`, `TextStyle`, `BoxShadow`,
 `Gradient`, and enums with Flutter's value names and defaults
-(`MainAxisAlignment.start`, not v1's `center`).
+(`MainAxisAlignment.start`, not v1's `center`). `TextStyle` also holds
+`fontFeatures` (OpenType settings, `"lnum"`, `"liga=0"`; `tnum` as
+`tabularFigures`) and `leadingDistribution`; a gradient `Paint` with
+`gradientPerSubpath` (JSON also `gradientUnits: "subpath"`) is laid out in
+each shape of a path.
+
+**Lists**: `listView` and `gridView` take `pagination` (a controller named
+by its `name`: source, mode, page size, pull to refresh), `reorder`
+(dragging items, between lists of a `group`), and a list `sections` and
+`swipeActions`. Their footers, section header and placeholder are the
+list's slots (`loading`, `error`, `end`, `sectionHeader`,
+`reorderPlaceholder`); the first child stays the item template. A row or
+column's `squeezeChildren: false` lets children overflow as Flutter's
+does; a scrolling one's `fillViewport` makes its content at least the
+viewport long.
 
 `BorderRadius` corners are circular or elliptical, as Flutter's `Radius`:
 `8` (every corner), `[16, 8]` (every corner 16 across, 8 down) or
@@ -333,6 +349,8 @@ effect id for the item with that id, and `*` for every item.
 | `decoration.fills.<paintId>.color` | a color (opacity kept) | |
 | `decoration.fills.<paintId>.image.url` | the image | `fill-image-<id>` |
 | `decoration.fills[0].stops[i].color` | `#RRGGBB` keeps the stop's alpha | `fill-stop-<i>` |
+| `decoration.fills[0].stops[i].position` | 0–1 | `fill-stop-position-<i>` |
+| `decoration.{fills,strokes,foregroundFills}.<paintId>.stops[i].color` / `.position` | a stop of that paint | `fill-<id>-stop-<i>`, `stroke-paint-<id>-stop-position-<i>`, `foreground-<id>-stop-<i>` |
 | `decoration.strokes[0]`, `decoration.strokes.<paintId>` | a stroke paint | `stroke`, `stroke-paint-<id>` |
 | `decoration.strokeWidth`, `decoration.radius` | number; radius also `[x, y]` or `[tl, tr, br, bl]` (each n or `[x, y]`) | `strokeWeight`, `cornerRadius` |
 | `decoration.effects.*.visible`, `.<effectId>.visible` | bool | `effectsVisible`, `effect-visible-<id>` |
@@ -375,7 +393,8 @@ node to one trigger run as one chain.
 (`scroll`, `scrollEnd`, `enterViewport`, `exitViewport`), drag and drop and
 `reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
 `key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`/
-`lookaheadMs`, `visibleFraction`.
+`lookaheadMs`, `visibleFraction`. A list fires `refresh` (pulled to
+refresh) and `swipeAction` (`${result.action}`, `${result.item}`).
 
 **Actions** (`ActionDef`, sealed, one immutable class per type,
 `lib/src/actions.dart`): `navigate` (push, pop, replace, reset; params,
@@ -388,7 +407,9 @@ add, subtract, insert, insertAll, removeAt, remove, update; `index`,
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach`, `delay`, `showToast`, `confirm`,
 `copyToClipboard`, `editText`, `focus`, `scrollTo`, `speak`, `playSound`,
-`paywall`, `controlDrag`, `playAnimation`. Every action can be off
+`paywall`, `controlDrag`, `playAnimation`, `paginate` (a list's
+pagination by name: next, previous, goTo, first, last, refresh, retry,
+setPageSize). Every action can be off
 (`enabled: false`), not awaited (`nonBlocking`), or run only while a
 predicate holds (`when`, §5.1's `Predicate`). Text fields are expressions;
 `${result}` is what the previous action gave (the trigger's event first).
