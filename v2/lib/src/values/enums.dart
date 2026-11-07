@@ -21,6 +21,9 @@ enum FontStyle { normal, italic }
 
 enum TextDecoration { none, underline, overline, lineThrough }
 
+/// How a line's extra height is shared above and below its glyphs.
+enum TextLeadingDistribution { proportional, even }
+
 enum TextDecorationStyle { solid, double, dotted, dashed, wavy }
 
 /// Where a stroke sits relative to the box edge (Flutter's

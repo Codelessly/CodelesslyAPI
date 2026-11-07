@@ -23,6 +23,8 @@ final class TextStyle {
     this.decorationStyle,
     this.decorationThickness,
     this.tabularFigures,
+    this.fontFeatures = const [],
+    this.leadingDistribution,
     this.shadows = const [],
   });
 
@@ -52,8 +54,18 @@ final class TextStyle {
   final TextDecorationStyle? decorationStyle;
   final double? decorationThickness;
 
-  /// Fixed-width digits (`FontFeature.tabularFigures`).
+  /// Fixed-width digits (`OpenTypeFeature.tabularFigures`).
   final bool? tabularFigures;
+
+  /// OpenType feature settings (`TextStyle.fontFeatures`): a four-character
+  /// tag alone turns it on (`"lnum"`, `"ss01"`), `tag=value` sets it
+  /// (`"liga=0"` turns ligatures off, `"salt=2"`). A later entry for a tag
+  /// wins; `tnum` is the same as [tabularFigures].
+  final List<String> fontFeatures;
+
+  /// Where a line's extra (or missing) height goes (`TextStyle
+  /// .leadingDistribution`); null is Flutter's default, proportional.
+  final TextLeadingDistribution? leadingDistribution;
 
   /// Text shadows (drop shadows only).
   final List<Effect> shadows;
@@ -77,6 +89,8 @@ final class TextStyle {
       decorationStyle: other.decorationStyle ?? decorationStyle,
       decorationThickness: other.decorationThickness ?? decorationThickness,
       tabularFigures: other.tabularFigures ?? tabularFigures,
+      fontFeatures: other.fontFeatures.isNotEmpty ? other.fontFeatures : fontFeatures,
+      leadingDistribution: other.leadingDistribution ?? leadingDistribution,
       shadows: other.shadows.isNotEmpty ? other.shadows : shadows,
     );
   }
@@ -102,6 +116,10 @@ final class TextStyle {
           : readEnum(TextDecorationStyle.values, m['decorationStyle'], TextDecorationStyle.solid),
       decorationThickness: readDouble(m['decorationThickness']),
       tabularFigures: readBool(m['tabularFigures']),
+      fontFeatures: readFontFeatures(m['fontFeatures']),
+      leadingDistribution: m['leadingDistribution'] == null
+          ? null
+          : readEnum(TextLeadingDistribution.values, m['leadingDistribution'], TextLeadingDistribution.proportional),
       shadows: Effect.listFromJson(m['shadows']),
     );
   }
@@ -121,6 +139,8 @@ final class TextStyle {
         if (decorationStyle != null) 'decorationStyle': decorationStyle!.name,
         if (decorationThickness != null) 'decorationThickness': writeDouble(decorationThickness!),
         if (tabularFigures != null) 'tabularFigures': tabularFigures,
+        if (fontFeatures.isNotEmpty) 'fontFeatures': fontFeatures,
+        if (leadingDistribution != null) 'leadingDistribution': leadingDistribution!.name,
         if (shadows.isNotEmpty) 'shadows': [for (final e in shadows) e.toJson()],
       };
 
@@ -140,14 +160,88 @@ final class TextStyle {
       other.decorationStyle == decorationStyle &&
       other.decorationThickness == decorationThickness &&
       other.tabularFigures == tabularFigures &&
+      listEquals(other.fontFeatures, fontFeatures) &&
+      other.leadingDistribution == leadingDistribution &&
       listEquals(other.shadows, shadows);
 
   @override
   int get hashCode => Object.hash(fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
-      height, decoration, decorationColor, decorationStyle, decorationThickness, tabularFigures);
+      height, decoration, decorationColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution);
 
   @override
   String toString() => 'TextStyle(${toJson()})';
+}
+
+/// An OpenType feature setting: a four-character [tag] and its [value]
+/// (1 on, 0 off, n an alternate). JSON is a string, `"lnum"` or `"liga=0"`.
+@immutable
+final class OpenTypeFeature {
+  const OpenTypeFeature(this.tag, [this.value = 1]);
+
+  final String tag;
+  final int value;
+
+  static final RegExp _tag = RegExp(r'^[\x20-\x7E]{4}$');
+
+  /// One setting from `"lnum"`, `"liga = 0"` or `{"tag": "liga", "value":
+  /// 0}` (`true`/`false` are 1/0), or null when it isn't one.
+  static OpenTypeFeature? tryParse(Object? entry) {
+    String? tag;
+    int? value;
+    switch (entry) {
+      case final String text:
+        final t = text.trim(), eq = t.indexOf('=');
+        tag = eq < 0 ? t : t.substring(0, eq).trim();
+        value = eq < 0 ? 1 : int.tryParse(t.substring(eq + 1).trim());
+      case final Map m:
+        tag = (m['tag'] as Object?) is String ? (m['tag'] as String).trim() : null;
+        final v = m['value'] ?? 1;
+        value = switch (v) {
+          true => 1,
+          false => 0,
+          final num n when n == n.roundToDouble() => n.toInt(),
+          final String s => int.tryParse(s.trim()),
+          _ => null,
+        };
+    }
+    if (tag == null || value == null || value < 0 || !_tag.hasMatch(tag)) return null;
+    return OpenTypeFeature(tag, value);
+  }
+
+  /// The settings a style's [TextStyle.fontFeatures] list holds, one per
+  /// tag (the last wins), in order of first appearance.
+  static List<OpenTypeFeature> resolve(Iterable<String> entries) {
+    final byTag = <String, OpenTypeFeature>{};
+    for (final e in entries) {
+      if (tryParse(e) case final OpenTypeFeature f) byTag[f.tag] = f;
+    }
+    return byTag.values.toList();
+  }
+
+  @override
+  bool operator ==(Object other) => other is OpenTypeFeature && other.tag == tag && other.value == value;
+
+  @override
+  int get hashCode => Object.hash(tag, value);
+
+  /// As stored: `"lnum"` when on, else `"liga=0"`.
+  @override
+  String toString() => value == 1 ? tag : '$tag=$value';
+}
+
+/// A `fontFeatures` list read loosely: a list of settings (strings or
+/// `{tag, value}` maps) or one string of them separated by commas or spaces,
+/// as canonical strings; settings that aren't valid are dropped.
+List<String> readFontFeatures(Object? json) {
+  final Iterable<Object?> entries = switch (json) {
+    final String s => s.split(RegExp(r'[,\s]+')).where((e) => e.isNotEmpty),
+    final List l => l,
+    _ => const [],
+  };
+  return [
+    for (final e in entries)
+      if (OpenTypeFeature.tryParse(e) case final OpenTypeFeature f) f.toString(),
+  ];
 }
 
 /// A styled range of a text's characters, `[start, end)`.
