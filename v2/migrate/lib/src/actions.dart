@@ -280,6 +280,13 @@ class ActionMigration {
             'node': a.nodeId,
             if (a.animation.isNotEmpty) 'animation': a.animation,
           },
+        PaginateAction() => {
+            'type': 'paginate',
+            'controller': a.controller,
+            if (a.command != PaginateCommand.next) 'command': a.command.name,
+            if (a.page != '1') 'page': a.page,
+            if (a.pageSize != '20') 'pageSize': a.pageSize,
+          },
         _ => _unknown(a),
       };
 

@@ -411,6 +411,15 @@ abstract final class PlayAnimationFields {
   static const List<PropDef<Object?>> all = [node, animation];
 }
 
+/// [PaginateAction].
+abstract final class PaginateFields {
+  static const controller = PropDef<String>('controller', Codecs.string, '', doc: 'The pagination\'s name.');
+  static const command = PropDef<PaginateCommand>('command', EnumCodec(PaginateCommand.values), PaginateCommand.next);
+  static const page = PropDef<String>('page', Codecs.string, '1', doc: 'For goTo: a number or an expression.');
+  static const pageSize = PropDef<String>('pageSize', Codecs.string, '20', doc: 'For setPageSize.');
+  static const List<PropDef<Object?>> all = [controller, command, page, pageSize];
+}
+
 /// Every action type an editor can make, by JSON type.
 abstract final class ActionSpecs {
   static final Map<String, ActionSpec> _all = {
@@ -446,6 +455,7 @@ abstract final class ActionSpecs {
       const ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all),
       const ActionSpec(PlaySoundAction.typeName, label: 'Play sound', fields: PlaySoundFields.all),
       const ActionSpec(PlayAnimationAction.typeName, label: 'Play animation', fields: PlayAnimationFields.all),
+      const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
     ])
       s.type: s,
   };

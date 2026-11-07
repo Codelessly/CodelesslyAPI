@@ -123,6 +123,86 @@ void main() {
     });
   });
 
+  group('lists', () {
+    test('a list: pagination, reorder, sections and swipe actions; their nodes are slots', () {
+      final report = MigrationReport();
+      final v2 = migrateDocument(page({
+        'l': {
+          'type': 'listView',
+          'children': ['item', 'more', 'done', 'header', 'ph'],
+          'properties': {},
+          'pagination': {
+            'name': 'contacts', 'mode': 'pages', 'source': 'api', 'pageSize': 50, 'apiId': 'a1',
+            'parameters': {'p': r'${page.page}'}, 'pullToRefresh': true, 'refreshColor': {'r': 1, 'g': 0, 'b': 0, 'a': 1},
+            'loadingNodeId': 'more', 'endNodeId': 'done', 'errorNodeId': 'gone',
+          },
+          'reorder': {'start': 'longPress', 'group': 'board', 'apply': 'variable', 'placeholder': 'node', 'placeholderNodeId': 'ph'},
+          'sections': {'groupBy': 'letter', 'headerNodeId': 'header', 'indexBar': true},
+          'swipeActions': {
+            'endActions': [{'id': 'delete', 'label': 'Delete'}],
+            'startActions': [{'id': 'flag', 'label': 'Flag', 'removes': false, 'background': {'r': 0, 'g': 0, 'b': 1, 'a': 1}}],
+            'undoMs': 3000,
+          },
+          'reactions': [
+            {'trigger': {'type': 'refresh'}, 'action': {'type': 'paginate', 'controller': 'contacts', 'command': 'refresh'}},
+            {'trigger': {'type': 'swipeAction'}, 'action': {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}'}},
+          ],
+        },
+        for (final id in ['item', 'more', 'done', 'header', 'ph']) id: {'type': 'rectangle', 'parentID': 'l'},
+      }), report: report);
+      final l = node(v2, 'l');
+      expect(l['children'], ['item']);
+      expect(l['slots'], {'loading': 'more', 'end': 'done', 'sectionHeader': 'header', 'reorderPlaceholder': 'ph'});
+      final p = l['props'] as Map;
+      expect(p['pagination'], {
+        'name': 'contacts', 'mode': 'pages', 'source': 'api', 'pageSize': 50, 'apiId': 'a1',
+        'parameters': {'p': r'${page.page}'}, 'pullToRefresh': true, 'refreshColor': '#FFFF0000',
+      });
+      expect(p['reorder'], {'start': 'longPress', 'group': 'board', 'placeholder': 'node', 'apply': 'variable'});
+      expect(p['sections'], {'groupBy': 'letter', 'indexBar': true});
+      expect(p['swipeActions'], {
+        'startActions': [{'id': 'flag', 'label': 'Flag', 'background': '#FF0000FF', 'removes': false}],
+        'endActions': [{'id': 'delete', 'label': 'Delete'}],
+        'undoMs': 3000,
+      });
+      final reactions = l['actions'] as List;
+      expect([for (final r in reactions) (r['trigger'] as Map)['type']], ['refresh', 'swipeAction']);
+      expect((reactions[0]['actions'] as List).single, {'type': 'paginate', 'controller': 'contacts', 'command': 'refresh'});
+      expect((reactions[1]['actions'] as List).single,
+          {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}'});
+      expect(unmapped(report), isEmpty);
+    });
+
+    test('a grid: pagination and reorder', () {
+      final report = MigrationReport();
+      final v2 = migrateDocument(page({
+        'g': {
+          'type': 'gridView',
+          'children': ['i', 'more'],
+          'properties': {'gridDelegate': {'type': 'fixedCrossAxisCount', 'crossAxisCount': 3}},
+          'pagination': {'name': 'photos', 'loadingNodeId': 'more'},
+          'reorder': {'enabled': false},
+        },
+        'i': {'type': 'rectangle', 'parentID': 'g'},
+        'more': {'type': 'rectangle', 'parentID': 'g'},
+      }), report: report);
+      final g = node(v2, 'g');
+      expect(g['children'], ['i']);
+      expect(g['slots'], {'loading': 'more'});
+      expect((g['props'] as Map)['pagination'], {'name': 'photos'});
+      expect((g['props'] as Map)['reorder'], {'enabled': false});
+      expect(unmapped(report), isEmpty);
+    });
+
+    test('a list saved with overlay is a positional stack', () {
+      final v2 = migrateDocument(page({
+        'l': {'type': 'listView', 'children': ['i'], 'properties': {'overlay': true}},
+        'i': {'type': 'rectangle', 'parentID': 'l'},
+      }));
+      expect(props(v2, 'l')['layout'], 'stack');
+    });
+  });
+
   group('text and values', () {
     test('font features, leading distribution and unit spellings', () {
       final report = MigrationReport();
