@@ -257,6 +257,9 @@ Json _switch(V1Node m) {
   _put(out, 'trackOutlineWidth', p.trackOutlineWidth, 2.0);
   _put(out, 'uniformThumb', p.uniformThumb, false);
   _put(out, 'fillTrack', p.fillTrack, false);
+  final shadows = [...p.thumbShadows.map(V1Node.effect).nonNulls];
+  if (shadows.isNotEmpty) out['thumbShadows'] = shadows;
+  _put(out, 'thumbInset', p.thumbInset);
   return out;
 }
 

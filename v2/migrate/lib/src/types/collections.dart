@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:codelessly_api/codelessly_api.dart';
 
+import '../behaviours.dart' show migrateMotion;
 import '../migrate.dart';
 
 /// By v1 node type.
@@ -188,6 +189,7 @@ Json _pageView(V1Node m) {
     if (p.allowImplicitScrolling) 'allowImplicitScrolling': true,
     if (p.animationDurationMs != 0) 'animationDuration': p.animationDurationMs,
     if (p.animationCurve.name != 'easeOutCubic') 'animationCurve': p.animationCurve.name,
+    if (p.pageMotion case final MotionModel motion) 'pageMotion': migrateMotion(motion),
   };
 }
 

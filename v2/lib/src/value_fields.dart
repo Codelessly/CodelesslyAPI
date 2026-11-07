@@ -182,6 +182,8 @@ abstract final class PaintFields {
     ValueCodec(_imageIn, _out, PropType.object('ImagePaint', imagePaintFields)),
     null,
   );
+  /// A path paints the gradient in each of its shapes.
+  static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -193,6 +195,7 @@ abstract final class PaintFields {
     transform,
     tileMode,
     image,
+    gradientPerSubpath,
   ];
 }
 
