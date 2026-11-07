@@ -203,6 +203,54 @@ void main() {
     });
   });
 
+  group('new widget types', () {
+    test('a pagination node', () {
+      final report = MigrationReport();
+      final v2 = migrateDocument(page({
+        'p': {
+          'type': 'pagination',
+          'controller': 'contacts',
+          'properties': {'showPageSize': true, 'siblingCount': 2, 'alignment': 'center',
+                         'activeColor': {'r': 1, 'g': 0, 'b': 0, 'a': 1}},
+        },
+      }), report: report);
+      final p = node(v2, 'p');
+      expect(p['type'], 'pagination');
+      expect(p['props'], {
+        'controller': 'contacts', 'siblingCount': 2, 'showPageSize': true, 'alignment': 'center',
+        'activeColor': '#FFFF0000',
+      });
+      expect(unmapped(report), isEmpty);
+    });
+
+    test('a table view: its cell templates are slots, its data binds', () {
+      final report = MigrationReport();
+      final v2 = migrateDocument(page({
+        't': {
+          'type': 'tableView',
+          'children': ['cell', 'head', 'extra'],
+          'clipsContent': false,
+          'properties': {
+            'columns': [{'key': 'name', 'label': 'Name', 'width': 200}, {'key': 'age'}],
+            'cellNodeId': 'cell', 'columnHeaderNodeId': 'head', 'rowHeight': 32, 'stripeColor': {'r': 0, 'g': 0, 'b': 0, 'a': 1},
+          },
+          'variables': {'data': r'${people}', 'columns': r'${cols}'},
+        },
+        for (final id in ['cell', 'head', 'extra']) id: {'type': 'rectangle', 'parentID': 't'},
+      }), report: report);
+      final t = node(v2, 't');
+      expect(t['type'], 'tableView');
+      expect(t['slots'], {'cell': 'cell', 'columnHeader': 'head'});
+      expect(t['children'], ['extra']);
+      expect(t['props'], {
+        'columns': [{'key': 'name', 'label': 'Name', 'width': 200}, {'key': 'age'}],
+        'rowHeight': 32, 'stripeColor': '#FF000000', 'clipBehavior': 'none',
+      });
+      expect(t['bind'], {'data': r'${people}', 'props.columns': r'${cols}'});
+      expect(unmapped(report), isEmpty);
+    });
+  });
+
   group('text and values', () {
     test('font features, leading distribution and unit spellings', () {
       final report = MigrationReport();

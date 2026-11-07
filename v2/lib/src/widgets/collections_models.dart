@@ -418,3 +418,43 @@ abstract final class SwipeActionsFields {
 
 const _swipeAction = ValueCodec<SwipeAction>(_swipeActionIn, _valueOut, PropType.record('SwipeAction', SwipeActionFields.spec));
 SwipeAction? _swipeActionIn(Object? j) => SwipeAction.fromJson(j);
+
+// --- Table columns ---------------------------------------------------------------
+
+/// One column of a table view: the row field its cells show ([key], read
+/// as `${item.value}`), its header text ([label], `${item.label}`) and its
+/// width (null: the table's `columnWidth`).
+final class TableColumn extends FieldValue {
+  const TableColumn._(super.fields);
+
+  factory TableColumn({required String key, String label = '', double? width}) => TableColumn._(Props.empty
+      .set(TableColumnFields.key, key)
+      .set(TableColumnFields.label, label)
+      .set(TableColumnFields.width, width));
+
+  /// A column from JSON, or from a bound value: a map like this one's JSON,
+  /// or any other value as the column's key and label.
+  static TableColumn? fromJson(Object? json) => switch (json) {
+        null => null,
+        final Map m => TableColumn._(Props.fromJson(TableColumnFields.spec, m)),
+        final v => TableColumn(key: '$v', label: '$v'),
+      };
+
+  @override
+  WidgetSpec get spec => TableColumnFields.spec;
+
+  String get key => get(TableColumnFields.key);
+  String get label => get(TableColumnFields.label);
+  double? get width => get(TableColumnFields.width);
+}
+
+abstract final class TableColumnFields {
+  static const key = PropDef<String>('key', Codecs.string, '');
+  static const label = PropDef<String>('label', Codecs.string, '');
+  static const width = PropDef<double?>('width', Codecs.optionalPositive, null);
+  static const spec = WidgetSpec('TableColumn', props: [key, label, width], doc: 'A table view\'s column.');
+}
+
+const tableColumnCodec =
+    ValueCodec<TableColumn>(_tableColumnIn, _valueOut, PropType.record('TableColumn', TableColumnFields.spec));
+TableColumn? _tableColumnIn(Object? j) => TableColumn.fromJson(j);
