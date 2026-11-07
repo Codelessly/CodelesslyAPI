@@ -295,11 +295,13 @@ codelessly_sdk/lib/src/
 ```
 
 A node's behaviours are layers of its render chain, outermost first, as SDK
-8.x wrapped a node: margin → constraints → track pose → motion → shimmer →
-flip face → tilt → flip card → scale → rotation → (hover/press tracking) →
-loops → opacity → blurs → stroke path → content. Not run yet (modelled and
-migrated): a drag's follow and release physics, a track's interaction,
-drag and drop, transform gestures, hero flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
+8.x wrapped a node: margin → constraints → track pose → transform gesture
+→ motion → shimmer → flip face → tilt → flip card → scale → rotation →
+(hover/press tracking) → loops → opacity → blurs → stroke path → content.
+A running app drags a track (its variable written, `changed` / `dragEnd` /
+`changeEnd` fired), runs transform gestures and turns flip cards by tap,
+drag and variable. Not run yet (modelled and migrated): a drag's follow
+and release physics, drag and drop, hero flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
@@ -345,8 +347,12 @@ formula language, unchanged). A binding that is exactly one of them gives
 the value as is (a list stays a list); any other text with `${...}` is text.
 A text node's own `props.text` may hold `${...}`: it is interpolated run by
 run. Names come from scopes: the screen's variables, the list item (`item`,
-`index`, `parent`), and what the app provides (`route`, `screen`,
-`storage`, `auth`, `data`...).
+`index`, `parent`), what the app provides (`route`, `screen`,
+`storage`, `auth`, `data`...), and the behaviours around a node, which
+it and the nodes inside it read: a drag track's `track` (`value`,
+`progress`, `dragging`, `fine`, `focused`), a transform gesture's
+`transform` (the pose, `active`, `selected`), a flip card's `flip`
+(`flipped`, `progress`) and a tilt's `tilt` (`x`, `y`, `active`).
 
 **Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/bindings.dart`):
 a path into the node's v2 JSON, with `[i]` for a list index, a paint or
