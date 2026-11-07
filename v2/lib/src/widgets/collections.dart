@@ -13,6 +13,9 @@ import '../values/color.dart';
 import '../values/enums.dart';
 import '../values/geometry.dart';
 import '../values/text.dart';
+import 'collections_models.dart';
+
+export 'collections_models.dart';
 
 
 
@@ -143,14 +146,28 @@ abstract final class ListViewProps {
   /// Every item as thick across the list as the thickest beside it.
   static const stretchItems = PropDef<bool>('stretchItems', Codecs.bool, false);
 
+  /// Loads the items page by page, with pull to refresh (its footers are
+  /// the `loading`, `error` and `end` slots).
+  static const pagination = PropDef<Pagination?>('pagination', CollectionCodecs.pagination, null);
+
+  /// Lets the user drag the items to a new place.
+  static const reorder = PropDef<ListReorder?>('reorder', CollectionCodecs.reorder, null);
+
+  /// Groups the items under headers (the `sectionHeader` slot).
+  static const sections = PropDef<ListSections?>('sections', CollectionCodecs.sections, null);
+
+  /// Actions revealed behind a swiped item.
+  static const swipeActions = PropDef<SwipeActions?>('swipeActions', CollectionCodecs.swipeActions, null);
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
-      wrapAlignment, wrapCrossAlignment, stretchItems,
+      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions,
     ],
     children: ChildModel.list,
+    slots: CollectionSlots.list,
     childFits: listChildFits,
     doc: 'Flutter `ListView`; the first child is the item.',
   );
@@ -172,12 +189,19 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
+  /// Loads the items page by page (see [ListViewProps.pagination]).
+  static const pagination = ListViewProps.pagination;
+
+  /// Lets the user drag the items to a new place.
+  static const reorder = ListViewProps.reorder;
+
   static const spec = WidgetSpec(
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, pagination, reorder,
     ],
+    slots: CollectionSlots.grid,
     children: ChildModel.list,
     childFits: cellChildFits,
     doc: 'Flutter `GridView`; the first child is the item.',
