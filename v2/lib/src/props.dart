@@ -312,7 +312,10 @@ Offset? _offsetIn(Object? j) => readList(j)?.length == 2 ? Offset.fromJson(j) : 
 BoxConstraints? _constraintsIn(Object? j) => readMap(j) == null ? null : BoxConstraints.fromJson(j);
 TextRun? _runIn(Object? j) => TextRun.fromJson(j);
 Json? _jsonIn(Object? j) => readMap(j);
-Json? _glyphIn(Object? j) => readMap(j).let((m) => m == null || m.isEmpty ? null : m);
+Json? _glyphIn(Object? j) => _iconIn(j).let((m) => m == null || m.isEmpty ? null : m);
+Json? _iconIn(Object? j) => readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
+    ? m
+    : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
 List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 TextStyle? _styleIn(Object? j) => TextStyle.fromJson(j);
 BorderSide? _sideIn(Object? j) => BorderSide.fromJson(j);
@@ -418,7 +421,9 @@ abstract final class Codecs {
 
   /// An icon glyph (`IconData`, or an SVG / image): `{"source", "name",
   /// "codepoint", ...}` or `{"svg"|"image": url}`.
-  static const icon = ValueCodec<Json>(_jsonIn, _same, PropTypes.icon);
+  /// An image icon's URL may also come as `imageUrl` (as JSON written by
+  /// hand often names it); it's read as `image`.
+  static const icon = ValueCodec<Json>(_iconIn, _same, PropTypes.icon);
   static const optionalIcon = ValueCodec<Json?>(_glyphIn, _same, PropTypes.icon);
 
   /// A free-form JSON object.

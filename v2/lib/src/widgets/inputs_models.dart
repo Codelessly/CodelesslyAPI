@@ -238,6 +238,10 @@ final class InputDecoration extends FieldValue {
   String? get semanticCounterText => get(InputDecorationFields.semanticCounterText);
   bool? get alignLabelWithHint => get(InputDecorationFields.alignLabelWithHint);
   BoxConstraints get constraints => get(InputDecorationFields.constraints);
+  EdgeInsets? get prefixIconPadding => get(InputDecorationFields.prefixIconPadding);
+  EdgeInsets? get suffixIconPadding => get(InputDecorationFields.suffixIconPadding);
+  bool get affixesAlwaysVisible => get(InputDecorationFields.affixesAlwaysVisible);
+  bool get paddingIncludesBorder => get(InputDecorationFields.paddingIncludesBorder);
 }
 
 abstract final class InputDecorationFields {
@@ -288,13 +292,28 @@ abstract final class InputDecorationFields {
   static const alignLabelWithHint = PropDef<bool?>('alignLabelWithHint', Codecs.bool, null);
   static const constraints = PropDef<BoxConstraints>('constraints', InputCodecs.constraints, BoxConstraints.none);
 
+  /// Space around the prefix icon inside its box: places it at a set inset
+  /// instead of Material's centred 48 px box; null keeps Material's layout.
+  static const prefixIconPadding = PropDef<EdgeInsets?>('prefixIconPadding', Codecs.optionalInsets, null);
+
+  /// Space around the suffix icon inside its box; see [prefixIconPadding].
+  static const suffixIconPadding = PropDef<EdgeInsets?>('suffixIconPadding', Codecs.optionalInsets, null);
+
+  /// Shows [prefixText] and [suffixText] all the time, not only once the
+  /// field is focused or has text (a unit such as "kWh").
+  static const affixesAlwaysVisible = PropDef<bool>('affixesAlwaysVisible', Codecs.bool, false);
+
+  /// The active border's width adds to [contentPadding], as a container's
+  /// border adds to its padding (Flutter draws an outline over the padding).
+  static const paddingIncludesBorder = PropDef<bool>('paddingIncludesBorder', Codecs.bool, false);
+
   static const spec = WidgetSpec('InputDecoration', props: [
     icon, labelText, labelStyle, floatingLabelStyle, helperText, helperStyle, helperMaxLines, hintText, hintStyle, //
     hintMaxLines, errorText, errorStyle, errorMaxLines, floatingLabelBehavior, isCollapsed, isDense, contentPadding,
     prefixIcon, prefixIconConstraints, prefixText, prefixStyle, suffixIcon, suffixIconConstraints, suffixText,
     suffixStyle, counterText, counterStyle, filled, fillColor, focusColor, hoverColor, errorBorder, focusedBorder,
     focusedErrorBorder, disabledBorder, enabledBorder, border, enabled, semanticCounterText, alignLabelWithHint,
-    constraints,
+    constraints, prefixIconPadding, suffixIconPadding, affixesAlwaysVisible, paddingIncludesBorder,
   ], doc: 'Flutter `InputDecoration`.');
 }
 

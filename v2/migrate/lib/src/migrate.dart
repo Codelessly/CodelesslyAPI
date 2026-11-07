@@ -774,7 +774,7 @@ class V1Node {
     final t = n as TextNode;
     for (final k in const [
       'data', 'textMixedProps', 'textAlignHorizontal', 'textAlignVertical', 'maxLines', 'overflow',
-      'tabularFigures', 'selectable',
+      'tabularFigures', 'fontFeatures', 'selectable',
     ]) {
       take(k);
     }
@@ -801,6 +801,8 @@ class V1Node {
     final raw = this.raw;
     final base = <String, Object?>{
       if (raw['tabularFigures'] == true) 'tabularFigures': true,
+      // OpenType features go on every span (TextUtils.fontFeaturesOf).
+      if (t.fontFeatures.isNotEmpty) 'fontFeatures': [...t.fontFeatures],
     };
     // Node drop shadows are text shadows (retrieveTextStyle).
     take('effects');
@@ -843,6 +845,7 @@ class V1Node {
             LineHeightUnitEnum.auto => null,
           };
     if (height != null) s['height'] = height;
+    if (lh.leadingDistribution == LeadingDistributionEnum.even) s['leadingDistribution'] = 'even';
     if (r.textDecoration != TextDecorationEnum.none) {
       s['decoration'] = r.textDecoration == TextDecorationEnum.strikethrough ? 'lineThrough' : r.textDecoration.name;
     }
