@@ -198,10 +198,14 @@ Json migrateBehaviours(V1Node m, {bool states = true}) {
   if (n.ignorePointer) out['ignorePointer'] = true;
   if (n.zoomable) out['zoomable'] = true;
   if (n.floating) out['floating'] = true;
-  if (n.heroTag case final String tag when tag.isNotEmpty) {
+  // A tag bound through `heroTag` keeps the hero (its flight and
+  // placeholder) in the object form, which the binding sets the tag of.
+  final heroBound = n.variables.containsKey('heroTag');
+  if ((n.heroTag ?? '').isNotEmpty || heroBound) {
+    final tag = n.heroTag ?? '';
     final flight = n.heroFlight ?? HeroFlight.standard;
     final placeholder = n.heroPlaceholder ?? HeroPlaceholder.none;
-    out['hero'] = flight == HeroFlight.standard && placeholder == HeroPlaceholder.none
+    out['hero'] = flight == HeroFlight.standard && placeholder == HeroPlaceholder.none && !heroBound
         ? tag
         : {
             'tag': tag,
