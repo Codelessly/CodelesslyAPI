@@ -16,7 +16,7 @@ const v2Types = {
   'navigate', 'openModal', 'closeModal', 'openLink', 'submitForm', 'setValue', 'setVariant', 'setVariable', //
   'callFunction', 'callApi', 'setStorage', 'cloudDocuments', 'loadCloudData', 'auth', 'if', 'forEach', 'cloudFiles',
   'showToast', 'confirm', 'delay', 'cloudData', 'cloudBatch', 'copyToClipboard', 'editText', 'paywall', 'focus',
-  'controlDrag', 'speak', 'scrollTo', 'playSound', 'playAnimation',
+  'controlDrag', 'speak', 'scrollTo', 'playSound', 'playAnimation', 'animateVariable', 'haptic', 'runScript',
 };
 
 Json one(ActionModel a, {Map<String, BaseNode> nodes = const {}}) => ActionMigration(nodes: nodes).action(a);

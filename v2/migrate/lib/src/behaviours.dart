@@ -257,3 +257,6 @@ bool _eq(Object? a, Object? b) {
   if (a is Map && b is Map) return _diff(a, b) == null && a.length == b.length;
   return a == b;
 }
+
+/// A v1 motion model as v2 `Motion` JSON (a route transition's side).
+Json migrateMotion(MotionModel m) => _motion(m);
