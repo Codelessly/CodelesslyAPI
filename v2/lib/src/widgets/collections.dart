@@ -414,6 +414,144 @@ abstract final class ExpansionTileProps {
 
 
 
+/// Page controls for a list's pagination (found by its name,
+/// [controller]): first, previous, page numbers with ellipses
+/// (1 … 4 5 6 … 16), next, last, a page size select and a summary. Choosing
+/// a page fires the node's `changed` reactions with `${value}`, the page.
+abstract final class PaginationProps {
+  /// The `Pagination.name` of the list this shows and moves (an expression).
+  static const controller = PropDef<String>('controller', Codecs.string, '');
+  static const showFirstLast = PropDef<bool>('showFirstLast', Codecs.bool, true);
+  static const showPrevNext = PropDef<bool>('showPrevNext', Codecs.bool, true);
+  static const showPageNumbers = PropDef<bool>('showPageNumbers', Codecs.bool, true);
+
+  /// Page numbers on each side of the current one before an ellipsis.
+  static const siblingCount = PropDef<int>('siblingCount', IntCodec(min: 0), 1);
+
+  /// Page numbers always shown at each end.
+  static const boundaryCount = PropDef<int>('boundaryCount', IntCodec(min: 0), 1);
+
+  /// A page size select, offering the pagination's `pageSizeOptions`.
+  static const showPageSize = PropDef<bool>('showPageSize', Codecs.bool, false);
+  static const showSummary = PropDef<bool>('showSummary', Codecs.bool, true);
+
+  /// `{from}`, `{to}`, `{total}`, `{page}`, `{pageCount}` are replaced; an
+  /// unknown total shows as "many".
+  static const summaryText = PropDef<String>('summaryText', Codecs.string, 'Showing {from}–{to} of {total}');
+  static const pageSizeLabel = PropDef<String>('pageSizeLabel', Codecs.string, 'Rows per page');
+  static const firstLabel = PropDef<String>('firstLabel', Codecs.string, '«');
+  static const previousLabel = PropDef<String>('previousLabel', Codecs.string, '‹');
+  static const nextLabel = PropDef<String>('nextLabel', Codecs.string, '›');
+  static const lastLabel = PropDef<String>('lastLabel', Codecs.string, '»');
+
+  /// How the parts are placed along the node (as a `Wrap`'s alignment).
+  static const alignment = PropDef<WrapAlignment>('alignment', EnumCodec(WrapAlignment.values), WrapAlignment.spaceBetween);
+  static const fontSize = PropDef<double>('fontSize', DoubleCodec(min: 1), 14);
+  static const fontWeight = PropDef<int>('fontWeight', IntCodec(min: 100), 400);
+  static const textColor = PropDef<Color>('textColor', Codecs.color, Color(0xFF333842));
+  static const buttonColor = PropDef<Color?>('buttonColor', _optionalColor, null);
+  static const activeColor = PropDef<Color>('activeColor', Codecs.color, Color(0xFF2663EA));
+  static const activeTextColor = PropDef<Color>('activeTextColor', Codecs.color, Color.white);
+  /// A button's outline; transparent for none.
+  static const borderColor = PropDef<Color>('borderColor', Codecs.color, Color(0xFFD8DDE5));
+  static const borderWidth = PropDef<double>('borderWidth', Codecs.positive, 1);
+  static const cornerRadius = PropDef<double>('cornerRadius', Codecs.positive, 6);
+
+  /// The least width and height of a button.
+  static const buttonSize = PropDef<double>('buttonSize', Codecs.positive, 32);
+  static const spacing = PropDef<double>('spacing', Codecs.positive, 4);
+
+  /// A button that can't be pressed (previous on page 1).
+  static const disabledOpacity = PropDef<double>('disabledOpacity', DoubleCodec(min: 0, max: 1), 0.4);
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  static const spec = WidgetSpec(
+    'pagination',
+    props: [
+      controller, showFirstLast, showPrevNext, showPageNumbers, siblingCount, boundaryCount, showPageSize, //
+      showSummary, summaryText, pageSizeLabel, firstLabel, previousLabel, nextLabel, lastLabel, alignment, fontSize,
+      fontWeight, textColor, buttonColor, activeColor, activeTextColor, borderColor, borderWidth, cornerRadius,
+      buttonSize, spacing, disabledOpacity, enabled,
+    ],
+    doc: 'Page controls for a list\'s pagination.',
+  );
+
+  /// The page numbers to show for [page] of [pageCount], null where an
+  /// ellipsis goes: page 5 of 16 with one sibling and one boundary page is
+  /// `[1, null, 4, 5, 6, null, 16]`. An ellipsis never stands for one page.
+  static List<int?> pageItems({required int page, required int pageCount, int siblingCount = 1, int boundaryCount = 1}) {
+    if (pageCount <= 0) return const [];
+    final current = page.clamp(1, pageCount);
+    final shown = <int>{
+      for (var i = 1; i <= boundaryCount && i <= pageCount; i++) i,
+      for (var i = pageCount - boundaryCount + 1; i <= pageCount; i++)
+        if (i >= 1) i,
+      for (var i = current - siblingCount; i <= current + siblingCount; i++)
+        if (i >= 1 && i <= pageCount) i,
+    };
+    final result = <int?>[];
+    for (final number in shown.toList()..sort()) {
+      if (result.isNotEmpty) {
+        final previous = result.last!;
+        if (number - previous == 2) {
+          result.add(previous + 1);
+        } else if (number - previous > 2) {
+          result.add(null);
+        }
+      }
+      result.add(number);
+    }
+    return result;
+  }
+}
+
+/// Flutter's `TableView` (two_dimensional_scrollables): a table that
+/// scrolls on both axes, with a header row and column that stay pinned.
+/// Rows are the bound `data` (or [rowCount]); columns are [columns] (or
+/// bound `props.columns`). Its slots are templates built per cell with
+/// `${item}`: `cell` (`{value, row, column, rowIndex, columnIndex}`),
+/// `columnHeader` (`{label, column, columnIndex}`), `rowHeader` (`{row,
+/// rowIndex}`) and `corner`.
+abstract final class TableViewProps {
+  static const columns = PropDef<List<TableColumn>>('columns', ListCodec<TableColumn>(tableColumnCodec), []);
+
+  /// The rows when no data is bound.
+  static const rowCount = PropDef<int?>('rowCount', OptionalIntCodec(), null);
+  static const rowHeight = PropDef<double>('rowHeight', Codecs.positive, 40);
+  static const headerHeight = PropDef<double>('headerHeight', Codecs.positive, 44);
+
+  /// A column's width unless it sets its own.
+  static const columnWidth = PropDef<double>('columnWidth', Codecs.positive, 120);
+  static const rowHeaderWidth = PropDef<double>('rowHeaderWidth', Codecs.positive, 120);
+  static const pinHeaderRow = PropDef<bool>('pinHeaderRow', Codecs.bool, true);
+  static const pinHeaderColumn = PropDef<bool>('pinHeaderColumn', Codecs.bool, true);
+
+  /// The lines between cells; transparent for none.
+  static const gridLineColor = PropDef<Color>('gridLineColor', Codecs.color, Color(0xFFE0E2E8));
+  static const gridLineWidth = PropDef<double>('gridLineWidth', Codecs.positive, 1);
+
+  /// Every other body row's background.
+  static const stripeColor = PropDef<Color?>('stripeColor', _optionalColor, null);
+
+  /// The header row's and column's background.
+  static const headerColor = PropDef<Color?>('headerColor', _optionalColor, null);
+  static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
+  static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
+
+  static const cell = 'cell', columnHeader = 'columnHeader', rowHeader = 'rowHeader', corner = 'corner';
+
+  static const spec = WidgetSpec(
+    'tableView',
+    props: [
+      columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
+    ],
+    children: ChildModel.slots,
+    slots: [cell, columnHeader, rowHeader, corner],
+    doc: 'Flutter `TableView`; its slots are the cell templates.',
+  );
+}
+
 const List<WidgetSpec> collectionsSpecs = [
   ListViewProps.spec,
   GridViewProps.spec,
@@ -422,4 +560,6 @@ const List<WidgetSpec> collectionsSpecs = [
   TabBarProps.spec,
   AccordionProps.spec,
   ExpansionTileProps.spec,
+  PaginationProps.spec,
+  TableViewProps.spec,
 ];
