@@ -104,4 +104,31 @@ void main() {
     expect((v2['nodes'] as Map)['t']['decoration'], {'effects': [{'type': 'layerBlur', 'blurRadius': 3.0}]});
     expect(report.unmapped.keys.where((k) => k != 'canvas.createdTimestamp'), isEmpty);
   });
+
+  test('bound hero tags, effect cues and delays, particle cues', () {
+    final report = MigrationReport();
+    final v2 = migrateDocument(page({
+      'r': {'type': 'rectangle', 'parentID': 'f', 'heroFlight': 'arc',
+            'variables': {
+              'heroTag': r'pass-${item.id}',
+              'animations.nudge.playKey': r'${nudges}',
+              'animations.nudge.delayMs': r'${wait}',
+              'particles.playKey': r'${wins}',
+            },
+            'effectAnimations': [
+              {'name': 'pop', 'type': 'pop'},
+              {'name': 'nudge', 'type': 'shake', 'cycles': 6},
+            ],
+            'particles': {'count': 10}},
+    }), report: report);
+    final r = (v2['nodes'] as Map)['r'] as Map;
+    expect(r['hero'], {'tag': '', 'flight': 'arc'});
+    expect(r['bind'], {
+      'hero.tag': r'pass-${item.id}',
+      'effectAnimations[1].playKey': r'${nudges}',
+      'effectAnimations[1].delay': r'${wait}',
+      'particles.playKey': r'${wins}',
+    });
+    expect(report.unmapped.keys.where((k) => k != 'canvas.createdTimestamp'), isEmpty);
+  });
 }
