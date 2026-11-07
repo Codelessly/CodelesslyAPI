@@ -19,7 +19,7 @@ final Map<String, TypeMigration> mediaMigrations = {
 
 Json _path(V1Node m) {
   final n = m.n as PathNode;
-  for (final k in const ['pathData', 'viewBoxWidth', 'viewBoxHeight', 'trimStart', 'trimEnd', 'strokeJoin']) {
+  for (final k in const ['pathData', 'viewBoxWidth', 'viewBoxHeight', 'trimStart', 'trimEnd', 'strokeJoin', 'subpathColors']) {
     m.take(k);
   }
   // Not drawn by SDK 8.x's path: a mask flag and the miter limit (its joins
@@ -33,7 +33,16 @@ Json _path(V1Node m) {
     if (n.trimStart != 0) 'trimStart': roundNum(n.trimStart),
     if (n.trimEnd != 1) 'trimEnd': roundNum(n.trimEnd),
     if (n.strokeJoin.name != 'miter') 'strokeJoin': n.strokeJoin.name,
+    if (n.subpathColors.isNotEmpty) 'subpathColors': [for (final c in n.subpathColors) _hexColor(c)],
   };
+}
+
+/// A v1 `#RRGGBB` / `#AARRGGBB` color as v2's `#AARRGGBB`, or null for one
+/// that isn't a color (the fill's own color for that shape).
+String? _hexColor(String c) {
+  final h = c.trim().replaceFirst('#', '').toUpperCase();
+  final full = h.length == 6 ? 'FF$h' : h;
+  return full.length == 8 && int.tryParse(full, radix: 16) != null ? '#$full' : null;
 }
 
 Json _video(V1Node m) {

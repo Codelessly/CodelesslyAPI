@@ -57,6 +57,7 @@ Object? sample(PropType type, [PropDef<Object?>? def]) {
         'IconData' => {'source': 'material', 'name': 'home', 'codepoint': 59530},
         'Size' => [10, 20],
         'FontWeight' => 700,
+        'FontFeature' => 'liga=0',
         'Rect' => [1, 2, 30, 40],
         'AxisSize' => {'fill': 10},
         'AxisPosition' => {'end': 5},

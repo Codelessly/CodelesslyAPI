@@ -53,12 +53,12 @@ sealed class ActionDef {
   }
 
   Json toJson() => {
-        'type': type,
-        ..._fields,
-        if (!enabled) 'enabled': false,
-        if (nonBlocking) 'nonBlocking': true,
-        if (when != null) 'when': when!.toJson(),
-      };
+    'type': type,
+    ..._fields,
+    if (!enabled) 'enabled': false,
+    if (nonBlocking) 'nonBlocking': true,
+    if (when != null) 'when': when!.toJson(),
+  };
 
   /// Decodes an action; null for anything that isn't a JSON object with a
   /// type. A type this version doesn't know is an [UnknownAction].
@@ -91,9 +91,9 @@ sealed class ActionDef {
 /// The fields every action has.
 final class _Common {
   _Common(Json m)
-      : enabled = readBool(m['enabled']) ?? true,
-        nonBlocking = readBool(m['nonBlocking']) ?? false,
-        when = Predicate.fromJson(m['when']);
+    : enabled = readBool(m['enabled']) ?? true,
+      nonBlocking = readBool(m['nonBlocking']) ?? false,
+      when = Predicate.fromJson(m['when']);
   final bool enabled, nonBlocking;
   final Predicate? when;
 }
@@ -135,16 +135,17 @@ final Map<String, _Decoder> _decoders = {
   AnimateVariableAction.typeName: AnimateVariableAction._fromJson,
   HapticAction.typeName: HapticAction._fromJson,
   RunScriptAction.typeName: RunScriptAction._fromJson,
+  PaginateAction.typeName: PaginateAction._fromJson,
 };
 
 // --- reading helpers -------------------------------------------------------------
 
 String _s(Json m, String k, [String def = '']) => switch (m[k]) {
-      final String s => s,
-      final num n => '$n',
-      final bool b => '$b',
-      _ => def,
-    };
+  final String s => s,
+  final num n => '$n',
+  final bool b => '$b',
+  _ => def,
+};
 String? _sOrNull(Json m, String k) => m[k] == null ? null : _s(m, k);
 int _i(Json m, String k, int def) => readInt(m[k]) ?? def;
 double _d(Json m, String k, double def) => readDouble(m[k]) ?? def;
@@ -224,32 +225,32 @@ final class NavigateAction extends ActionDef {
   final RouteTransition? routeTransition;
 
   static NavigateAction _fromJson(Json m, _Common c) => NavigateAction(
-        mode: _e(NavigationMode.values, m, 'mode', NavigationMode.push),
-        to: _s(m, 'to'),
-        params: _map(m, 'params'),
-        base: _s(m, 'base'),
-        baseParams: _map(m, 'baseParams'),
-        transition: _e(PageTransition.values, m, 'transition', PageTransition.platform),
-        transitionMs: readInt(m['transitionMs']),
-        reverseTransitionMs: readInt(m['reverseTransitionMs']),
-        routeTransition: RouteTransition.fromJson(m['routeTransition']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    mode: _e(NavigationMode.values, m, 'mode', NavigationMode.push),
+    to: _s(m, 'to'),
+    params: _map(m, 'params'),
+    base: _s(m, 'base'),
+    baseParams: _map(m, 'baseParams'),
+    transition: _e(PageTransition.values, m, 'transition', PageTransition.platform),
+    transitionMs: readInt(m['transitionMs']),
+    reverseTransitionMs: readInt(m['reverseTransitionMs']),
+    routeTransition: RouteTransition.fromJson(m['routeTransition']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (mode != NavigationMode.push) 'mode': mode.name,
-        if (to.isNotEmpty) 'to': to,
-        if (params.isNotEmpty) 'params': params,
-        if (base.isNotEmpty) 'base': base,
-        if (baseParams.isNotEmpty) 'baseParams': baseParams,
-        if (transition != PageTransition.platform) 'transition': transition.name,
-        'transitionMs': ?transitionMs,
-        'reverseTransitionMs': ?reverseTransitionMs,
-        'routeTransition': ?routeTransition?.toJson(),
-      };
+    if (mode != NavigationMode.push) 'mode': mode.name,
+    if (to.isNotEmpty) 'to': to,
+    if (params.isNotEmpty) 'params': params,
+    if (base.isNotEmpty) 'base': base,
+    if (baseParams.isNotEmpty) 'baseParams': baseParams,
+    if (transition != PageTransition.platform) 'transition': transition.name,
+    'transitionMs': ?transitionMs,
+    'reverseTransitionMs': ?reverseTransitionMs,
+    'routeTransition': ?routeTransition?.toJson(),
+  };
 }
 
 /// How a modal shows.
@@ -275,8 +276,22 @@ enum ModalPresentation {
 
 /// Where a popover sits relative to its anchor.
 enum PopoverPlacement {
-  belowStart, belowCenter, belowEnd, aboveStart, aboveCenter, aboveEnd, //
-  rightStart, rightCenter, rightEnd, leftStart, leftCenter, leftEnd, center, bottomSheet, adaptive, anchored,
+  belowStart,
+  belowCenter,
+  belowEnd,
+  aboveStart,
+  aboveCenter,
+  aboveEnd, //
+  rightStart,
+  rightCenter,
+  rightEnd,
+  leftStart,
+  leftCenter,
+  leftEnd,
+  center,
+  bottomSheet,
+  adaptive,
+  anchored,
 }
 
 /// What a popover is anchored to.
@@ -349,54 +364,54 @@ final class OpenModalAction extends ActionDef {
   final RouteTransition? routeTransition;
 
   static OpenModalAction _fromJson(Json m, _Common c) => OpenModalAction(
-        to: _s(m, 'to'),
-        params: _map(m, 'params'),
-        presentation: _e(ModalPresentation.values, m, 'presentation', ModalPresentation.dialog),
-        barrierDismissible: _b(m, 'barrierDismissible', true),
-        barrierColor: Color.fromJson(m['barrierColor']),
-        barrierBlur: _d(m, 'barrierBlur', 0),
-        showCloseButton: _b(m, 'showCloseButton', false),
-        showDragHandle: _b(m, 'showDragHandle', false),
-        alignment: _doubles(m['alignment'], 2) ?? const [0, 0],
-        anchor: _e(ModalAnchor.values, m, 'anchor', ModalAnchor.none),
-        placement: _e(PopoverPlacement.values, m, 'placement', PopoverPlacement.belowStart),
-        anchorGap: _d(m, 'anchorGap', 4),
-        anchorOffset: _d(m, 'anchorOffset', 0),
-        insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
-        sheetWidth: _dOrNull(m, 'sheetWidth'),
-        sheetBelowWidth: _d(m, 'sheetBelowWidth', 600),
-        maxHeightFactor: _d(m, 'maxHeightFactor', 1),
-        fullHeight: _b(m, 'fullHeight', false),
-        enterScale: _d(m, 'enterScale', 1),
-        routeTransition: RouteTransition.fromJson(m['routeTransition']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    to: _s(m, 'to'),
+    params: _map(m, 'params'),
+    presentation: _e(ModalPresentation.values, m, 'presentation', ModalPresentation.dialog),
+    barrierDismissible: _b(m, 'barrierDismissible', true),
+    barrierColor: Color.fromJson(m['barrierColor']),
+    barrierBlur: _d(m, 'barrierBlur', 0),
+    showCloseButton: _b(m, 'showCloseButton', false),
+    showDragHandle: _b(m, 'showDragHandle', false),
+    alignment: _doubles(m['alignment'], 2) ?? const [0, 0],
+    anchor: _e(ModalAnchor.values, m, 'anchor', ModalAnchor.none),
+    placement: _e(PopoverPlacement.values, m, 'placement', PopoverPlacement.belowStart),
+    anchorGap: _d(m, 'anchorGap', 4),
+    anchorOffset: _d(m, 'anchorOffset', 0),
+    insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
+    sheetWidth: _dOrNull(m, 'sheetWidth'),
+    sheetBelowWidth: _d(m, 'sheetBelowWidth', 600),
+    maxHeightFactor: _d(m, 'maxHeightFactor', 1),
+    fullHeight: _b(m, 'fullHeight', false),
+    enterScale: _d(m, 'enterScale', 1),
+    routeTransition: RouteTransition.fromJson(m['routeTransition']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (to.isNotEmpty) 'to': to,
-        if (params.isNotEmpty) 'params': params,
-        if (presentation != ModalPresentation.dialog) 'presentation': presentation.name,
-        if (!barrierDismissible) 'barrierDismissible': false,
-        'barrierColor': ?barrierColor?.toJson(),
-        if (barrierBlur != 0) 'barrierBlur': writeDouble(barrierBlur),
-        if (showCloseButton) 'showCloseButton': true,
-        if (showDragHandle) 'showDragHandle': true,
-        if (alignment.any((v) => v != 0)) 'alignment': [for (final v in alignment) writeDouble(v)],
-        if (anchor != ModalAnchor.none) 'anchor': anchor.name,
-        if (placement != PopoverPlacement.belowStart) 'placement': placement.name,
-        if (anchorGap != 4) 'anchorGap': writeDouble(anchorGap),
-        if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
-        if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
-        if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
-        if (sheetBelowWidth != 600) 'sheetBelowWidth': writeDouble(sheetBelowWidth),
-        if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
-        if (fullHeight) 'fullHeight': true,
-        if (enterScale != 1) 'enterScale': writeDouble(enterScale),
-        'routeTransition': ?routeTransition?.toJson(),
-      };
+    if (to.isNotEmpty) 'to': to,
+    if (params.isNotEmpty) 'params': params,
+    if (presentation != ModalPresentation.dialog) 'presentation': presentation.name,
+    if (!barrierDismissible) 'barrierDismissible': false,
+    'barrierColor': ?barrierColor?.toJson(),
+    if (barrierBlur != 0) 'barrierBlur': writeDouble(barrierBlur),
+    if (showCloseButton) 'showCloseButton': true,
+    if (showDragHandle) 'showDragHandle': true,
+    if (alignment.any((v) => v != 0)) 'alignment': [for (final v in alignment) writeDouble(v)],
+    if (anchor != ModalAnchor.none) 'anchor': anchor.name,
+    if (placement != PopoverPlacement.belowStart) 'placement': placement.name,
+    if (anchorGap != 4) 'anchorGap': writeDouble(anchorGap),
+    if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
+    if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
+    if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
+    if (sheetBelowWidth != 600) 'sheetBelowWidth': writeDouble(sheetBelowWidth),
+    if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
+    if (fullHeight) 'fullHeight': true,
+    if (enterScale != 1) 'enterScale': writeDouble(enterScale),
+    'routeTransition': ?routeTransition?.toJson(),
+  };
 }
 
 List<double>? _doubles(Object? json, int length) {
@@ -471,28 +486,28 @@ final class SubmitFormAction extends ActionDef {
   final String apiKey, dataCenter, listId;
 
   static SubmitFormAction _fromJson(Json m, _Common c) => SubmitFormAction(
-        service: _e(FormService.values, m, 'service', FormService.mailchimp),
-        emailField: _s(m, 'emailField'),
-        apiKey: _s(m, 'apiKey'),
-        dataCenter: _s(m, 'dataCenter'),
-        listId: _s(m, 'listId'),
-        firstNameField: _s(m, 'firstNameField'),
-        lastNameField: _s(m, 'lastNameField'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    service: _e(FormService.values, m, 'service', FormService.mailchimp),
+    emailField: _s(m, 'emailField'),
+    apiKey: _s(m, 'apiKey'),
+    dataCenter: _s(m, 'dataCenter'),
+    listId: _s(m, 'listId'),
+    firstNameField: _s(m, 'firstNameField'),
+    lastNameField: _s(m, 'lastNameField'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'service': service.name,
-        'emailField': emailField,
-        if (apiKey.isNotEmpty) 'apiKey': apiKey,
-        if (dataCenter.isNotEmpty) 'dataCenter': dataCenter,
-        if (listId.isNotEmpty) 'listId': listId,
-        if (firstNameField.isNotEmpty) 'firstNameField': firstNameField,
-        if (lastNameField.isNotEmpty) 'lastNameField': lastNameField,
-      };
+    'service': service.name,
+    'emailField': emailField,
+    if (apiKey.isNotEmpty) 'apiKey': apiKey,
+    if (dataCenter.isNotEmpty) 'dataCenter': dataCenter,
+    if (listId.isNotEmpty) 'listId': listId,
+    if (firstNameField.isNotEmpty) 'firstNameField': firstNameField,
+    if (lastNameField.isNotEmpty) 'lastNameField': lastNameField,
+  };
 }
 
 // --- values -----------------------------------------------------------------------
@@ -526,7 +541,11 @@ final class NodeValue {
     return NodeValue(path, value: m['value'], mode: readEnum(NodeValueMode.values, m['mode'], NodeValueMode.set));
   }
 
-  Json toJson() => {'path': path, if (mode == NodeValueMode.set) 'value': value, if (mode != NodeValueMode.set) 'mode': mode.name};
+  Json toJson() => {
+    'path': path,
+    if (mode == NodeValueMode.set) 'value': value,
+    if (mode != NodeValueMode.set) 'mode': mode.name,
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -549,15 +568,18 @@ final class SetValueAction extends ActionDef {
   final List<NodeValue> values;
 
   static SetValueAction _fromJson(Json m, _Common c) => SetValueAction(
-        node: _s(m, 'node'),
-        values: [...?readList(m['values'])?.map(NodeValue.fromJson).nonNulls],
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    values: [...?readList(m['values'])?.map(NodeValue.fromJson).nonNulls],
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
-  Json get _fields => {'node': node, 'values': [for (final v in values) v.toJson()]};
+  Json get _fields => {
+    'node': node,
+    'values': [for (final v in values) v.toJson()],
+  };
 }
 
 /// Shows variant [variant] of variance node [node].
@@ -574,12 +596,12 @@ final class SetVariantAction extends ActionDef {
   final String variant;
 
   static SetVariantAction _fromJson(Json m, _Common c) => SetVariantAction(
-        node: _s(m, 'node'),
-        variant: _s(m, 'variant'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    variant: _s(m, 'variant'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'node': node, 'variant': variant};
@@ -631,18 +653,18 @@ final class ValueWrite {
   final String mapKey;
 
   static ValueWrite fromJson(Json m) => ValueWrite(
-        op: _e(WriteOp.values, m, 'op', WriteOp.set),
-        value: _s(m, 'value'),
-        index: _s(m, 'index'),
-        mapKey: _s(m, 'mapKey'),
-      );
+    op: _e(WriteOp.values, m, 'op', WriteOp.set),
+    value: _s(m, 'value'),
+    index: _s(m, 'index'),
+    mapKey: _s(m, 'mapKey'),
+  );
 
   Json toJson() => {
-        if (op != WriteOp.set) 'op': op.name,
-        if (op != WriteOp.toggle && op != WriteOp.removeAt) 'value': value,
-        if (index.isNotEmpty) 'index': index,
-        if (mapKey.isNotEmpty) 'mapKey': mapKey,
-      };
+    if (op != WriteOp.set) 'op': op.name,
+    if (op != WriteOp.toggle && op != WriteOp.removeAt) 'value': value,
+    if (index.isNotEmpty) 'index': index,
+    if (mapKey.isNotEmpty) 'mapKey': mapKey,
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -685,22 +707,22 @@ final class SetVariableAction extends ActionDef {
   final AnimationCurve curve;
 
   static SetVariableAction _fromJson(Json m, _Common c) => SetVariableAction(
-        variable: _s(m, 'variable'),
-        write: ValueWrite.fromJson(m),
-        animateMs: _s(m, 'animateMs').trim() == '0' ? '' : _s(m, 'animateMs'),
-        curve: _curve(m, 'curve', AnimationCurve.linear),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    variable: _s(m, 'variable'),
+    write: ValueWrite.fromJson(m),
+    animateMs: _s(m, 'animateMs').trim() == '0' ? '' : _s(m, 'animateMs'),
+    curve: _curve(m, 'curve', AnimationCurve.linear),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'variable': variable,
-        ...write.toJson(),
-        if (animateMs.isNotEmpty) 'animateMs': animateMs,
-        if (curve != AnimationCurve.linear) 'curve': curve.name,
-      };
+    'variable': variable,
+    ...write.toJson(),
+    if (animateMs.isNotEmpty) 'animateMs': animateMs,
+    if (curve != AnimationCurve.linear) 'curve': curve.name,
+  };
 }
 
 /// What an [AnimateVariableAction] does.
@@ -761,28 +783,28 @@ final class AnimateVariableAction extends ActionDef {
   final AnimationCurve curve;
 
   static AnimateVariableAction _fromJson(Json m, _Common c) => AnimateVariableAction(
-        variable: _s(m, 'variable'),
-        mode: _e(AnimateVariableMode.values, m, 'mode', AnimateVariableMode.play),
-        from: _s(m, 'from'),
-        to: _s(m, 'to', '1'),
-        durationMs: _i(m, 'durationMs', 1000),
-        duration: _s(m, 'duration'),
-        curve: _curve(m, 'curve', AnimationCurve.linear),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    variable: _s(m, 'variable'),
+    mode: _e(AnimateVariableMode.values, m, 'mode', AnimateVariableMode.play),
+    from: _s(m, 'from'),
+    to: _s(m, 'to', '1'),
+    durationMs: _i(m, 'durationMs', 1000),
+    duration: _s(m, 'duration'),
+    curve: _curve(m, 'curve', AnimationCurve.linear),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'variable': variable,
-        if (mode != AnimateVariableMode.play) 'mode': mode.name,
-        if (from.isNotEmpty) 'from': from,
-        if (to != '1') 'to': to,
-        if (durationMs != 1000) 'durationMs': durationMs,
-        if (duration.isNotEmpty) 'duration': duration,
-        if (curve != AnimationCurve.linear) 'curve': curve.name,
-      };
+    'variable': variable,
+    if (mode != AnimateVariableMode.play) 'mode': mode.name,
+    if (from.isNotEmpty) 'from': from,
+    if (to != '1') 'to': to,
+    if (durationMs != 1000) 'durationMs': durationMs,
+    if (duration.isNotEmpty) 'duration': duration,
+    if (curve != AnimationCurve.linear) 'curve': curve.name,
+  };
 }
 
 /// Calls a function the app registered by [name] with [params] (text
@@ -798,12 +820,12 @@ final class CallFunctionAction extends ActionDef {
   final Json params;
 
   static CallFunctionAction _fromJson(Json m, _Common c) => CallFunctionAction(
-        name: _s(m, 'name'),
-        params: _map(m, 'params'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    name: _s(m, 'name'),
+    params: _map(m, 'params'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'name': name, if (params.isNotEmpty) 'params': params};
@@ -837,22 +859,24 @@ final class CallApiAction extends ActionDef {
   List<ActionDef> get nested => [...onSuccess, ...onError];
 
   static CallApiAction _fromJson(Json m, _Common c) => CallApiAction(
-        api: _s(m, 'api'),
-        params: {for (final e in _map(m, 'params').entries) e.key: e.value is String ? e.value as String : '${e.value ?? ''}'},
-        onSuccess: _list(m, 'onSuccess'),
-        onError: _list(m, 'onError'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    api: _s(m, 'api'),
+    params: {
+      for (final e in _map(m, 'params').entries) e.key: e.value is String ? e.value as String : '${e.value ?? ''}',
+    },
+    onSuccess: _list(m, 'onSuccess'),
+    onError: _list(m, 'onError'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'api': api,
-        if (params.isNotEmpty) 'params': params,
-        if (onSuccess.isNotEmpty) 'onSuccess': _actionsJson(onSuccess),
-        if (onError.isNotEmpty) 'onError': _actionsJson(onError),
-      };
+    'api': api,
+    if (params.isNotEmpty) 'params': params,
+    if (onSuccess.isNotEmpty) 'onSuccess': _actionsJson(onSuccess),
+    if (onError.isNotEmpty) 'onError': _actionsJson(onError),
+  };
 }
 
 /// What a [SetStorageAction] does.
@@ -896,26 +920,26 @@ final class SetStorageAction extends ActionDef {
   final bool skipIfExists;
 
   static SetStorageAction _fromJson(Json m, _Common c) => SetStorageAction(
-        operation: _e(StorageOperation.values, m, 'operation', StorageOperation.write),
-        key: _s(m, 'key'),
-        valueType: _e(VariableType.values, m, 'valueType', VariableType.text),
-        write: ValueWrite.fromJson(m),
-        skipIfExists: _b(m, 'skipIfExists', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(StorageOperation.values, m, 'operation', StorageOperation.write),
+    key: _s(m, 'key'),
+    valueType: _e(VariableType.values, m, 'valueType', VariableType.text),
+    write: ValueWrite.fromJson(m),
+    skipIfExists: _b(m, 'skipIfExists', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (operation != StorageOperation.write) 'operation': operation.name,
-        if (operation != StorageOperation.clear) 'key': key,
-        if (operation == StorageOperation.write) ...{
-          if (valueType != VariableType.text) 'valueType': valueType.name,
-          ...write.toJson(),
-          if (skipIfExists) 'skipIfExists': true,
-        },
-      };
+    if (operation != StorageOperation.write) 'operation': operation.name,
+    if (operation != StorageOperation.clear) 'key': key,
+    if (operation == StorageOperation.write) ...{
+      if (valueType != VariableType.text) 'valueType': valueType.name,
+      ...write.toJson(),
+      if (skipIfExists) 'skipIfExists': true,
+    },
+  };
 }
 
 // --- cloud data ------------------------------------------------------------------
@@ -999,46 +1023,46 @@ final class CloudDocumentsAction extends ActionDef {
   final bool merge, replaceCollection;
 
   static CloudDocumentsAction _fromJson(Json m, _Common c) => CloudDocumentsAction(
-        operation: _e(CloudDocumentsOperation.values, m, 'operation', CloudDocumentsOperation.add),
-        path: _s(m, 'path'),
-        id: _s(m, 'id'),
-        autoId: _b(m, 'autoId', false),
-        skipIfExists: _b(m, 'skipIfExists', true),
-        value: _s(m, 'document'),
-        raw: _b(m, 'raw', false),
-        field: _s(m, 'field'),
-        valueType: _e(VariableType.values, m, 'valueType', VariableType.text),
-        write: ValueWrite.fromJson(m),
-        ids: _s(m, 'ids'),
-        where: [...?readList(m['whereFilters'])?.map(WhereFilter.fromJson).nonNulls],
-        idField: _s(m, 'idField', 'id'),
-        merge: _b(m, 'merge', false),
-        replaceCollection: _b(m, 'replaceCollection', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(CloudDocumentsOperation.values, m, 'operation', CloudDocumentsOperation.add),
+    path: _s(m, 'path'),
+    id: _s(m, 'id'),
+    autoId: _b(m, 'autoId', false),
+    skipIfExists: _b(m, 'skipIfExists', true),
+    value: _s(m, 'document'),
+    raw: _b(m, 'raw', false),
+    field: _s(m, 'field'),
+    valueType: _e(VariableType.values, m, 'valueType', VariableType.text),
+    write: ValueWrite.fromJson(m),
+    ids: _s(m, 'ids'),
+    where: [...?readList(m['whereFilters'])?.map(WhereFilter.fromJson).nonNulls],
+    idField: _s(m, 'idField', 'id'),
+    merge: _b(m, 'merge', false),
+    replaceCollection: _b(m, 'replaceCollection', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'operation': operation.name,
-        'path': path,
-        if (id.isNotEmpty) 'id': id,
-        if (autoId) 'autoId': true,
-        if (operation == CloudDocumentsOperation.add && !skipIfExists) 'skipIfExists': false,
-        if (value.isNotEmpty) 'document': value,
-        if (raw) 'raw': true,
-        if (operation == CloudDocumentsOperation.update) ...{
-          'field': field,
-          if (valueType != VariableType.text) 'valueType': valueType.name,
-          ...write.toJson(),
-        },
-        if (ids.isNotEmpty) 'ids': ids,
-        if (where.isNotEmpty) 'whereFilters': [for (final w in where) w.toJson()],
-        if (idField != 'id') 'idField': idField,
-        if (merge) 'merge': true,
-        if (replaceCollection) 'replaceCollection': true,
-      };
+    'operation': operation.name,
+    'path': path,
+    if (id.isNotEmpty) 'id': id,
+    if (autoId) 'autoId': true,
+    if (operation == CloudDocumentsOperation.add && !skipIfExists) 'skipIfExists': false,
+    if (value.isNotEmpty) 'document': value,
+    if (raw) 'raw': true,
+    if (operation == CloudDocumentsOperation.update) ...{
+      'field': field,
+      if (valueType != VariableType.text) 'valueType': valueType.name,
+      ...write.toJson(),
+    },
+    if (ids.isNotEmpty) 'ids': ids,
+    if (where.isNotEmpty) 'whereFilters': [for (final w in where) w.toJson()],
+    if (idField != 'id') 'idField': idField,
+    if (merge) 'merge': true,
+    if (replaceCollection) 'replaceCollection': true,
+  };
 }
 
 /// Streams a cloud document, or a collection query's documents, into
@@ -1070,22 +1094,22 @@ final class LoadCloudDataAction extends ActionDef {
   final CloudQueryDef query;
 
   static LoadCloudDataAction _fromJson(Json m, _Common c) => LoadCloudDataAction(
-        variable: _s(m, 'variable'),
-        single: _b(m, 'single', true),
-        id: _s(m, 'id'),
-        query: CloudQueryDef.fromJson(m['query']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    variable: _s(m, 'variable'),
+    single: _b(m, 'single', true),
+    id: _s(m, 'id'),
+    query: CloudQueryDef.fromJson(m['query']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'variable': variable,
-        if (!single) 'single': false,
-        if (id.isNotEmpty) 'id': id,
-        'query': query.toJson(),
-      };
+    'variable': variable,
+    if (!single) 'single': false,
+    if (id.isNotEmpty) 'id': id,
+    'query': query.toJson(),
+  };
 }
 
 /// What a [CloudDataAction] does.
@@ -1107,15 +1131,18 @@ final class CloudFieldWrite {
     final m = readMap(json);
     final field = readString(m?['field']);
     if (m == null || field == null) return null;
-    return CloudFieldWrite(field, _s(m, 'value'),
-        operation: readEnum(CloudFieldOperation.values, m['operation'], CloudFieldOperation.set));
+    return CloudFieldWrite(
+      field,
+      _s(m, 'value'),
+      operation: readEnum(CloudFieldOperation.values, m['operation'], CloudFieldOperation.set),
+    );
   }
 
   Json toJson() => {
-        'field': field,
-        if (value.isNotEmpty) 'value': value,
-        if (operation != CloudFieldOperation.set) 'operation': operation.name,
-      };
+    'field': field,
+    if (value.isNotEmpty) 'value': value,
+    if (operation != CloudFieldOperation.set) 'operation': operation.name,
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -1163,42 +1190,48 @@ final class CloudDataAction extends ActionDef {
   final String resultVariable;
 
   static CloudDataAction _fromJson(Json m, _Common c) => CloudDataAction(
-        operation: _e(CloudDataOperation.values, m, 'operation', CloudDataOperation.create),
-        collection: _s(m, 'collection'),
-        id: _s(m, 'id'),
-        fields: [...?readList(m['fields'])?.map(CloudFieldWrite.fromJson).nonNulls],
-        where: [...?readList(m['whereFilters'])?.map(WhereFilter.fromJson).nonNulls],
-        orderBy: [...?readList(m['orderByFilters'])?.map(OrderBy.fromJson).nonNulls],
-        limit: readInt(m['limit']),
-        aggregateField: _s(m, 'aggregateField'),
-        loadRelated: readStrings(m['loadRelated']),
-        deleteSubcollections: readStrings(m['deleteSubcollections']),
-        resultVariable: _s(m, 'resultVariable'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(CloudDataOperation.values, m, 'operation', CloudDataOperation.create),
+    collection: _s(m, 'collection'),
+    id: _s(m, 'id'),
+    fields: [...?readList(m['fields'])?.map(CloudFieldWrite.fromJson).nonNulls],
+    where: [...?readList(m['whereFilters'])?.map(WhereFilter.fromJson).nonNulls],
+    orderBy: [...?readList(m['orderByFilters'])?.map(OrderBy.fromJson).nonNulls],
+    limit: readInt(m['limit']),
+    aggregateField: _s(m, 'aggregateField'),
+    loadRelated: readStrings(m['loadRelated']),
+    deleteSubcollections: readStrings(m['deleteSubcollections']),
+    resultVariable: _s(m, 'resultVariable'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'operation': operation.name,
-        'collection': collection,
-        if (id.isNotEmpty) 'id': id,
-        if (fields.isNotEmpty) 'fields': [for (final f in fields) f.toJson()],
-        if (where.isNotEmpty) 'whereFilters': [for (final w in where) w.toJson()],
-        if (orderBy.isNotEmpty) 'orderByFilters': [for (final o in orderBy) o.toJson()],
-        'limit': ?limit,
-        if (aggregateField.isNotEmpty) 'aggregateField': aggregateField,
-        if (loadRelated.isNotEmpty) 'loadRelated': loadRelated,
-        if (deleteSubcollections.isNotEmpty) 'deleteSubcollections': deleteSubcollections,
-        if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
-      };
+    'operation': operation.name,
+    'collection': collection,
+    if (id.isNotEmpty) 'id': id,
+    if (fields.isNotEmpty) 'fields': [for (final f in fields) f.toJson()],
+    if (where.isNotEmpty) 'whereFilters': [for (final w in where) w.toJson()],
+    if (orderBy.isNotEmpty) 'orderByFilters': [for (final o in orderBy) o.toJson()],
+    'limit': ?limit,
+    if (aggregateField.isNotEmpty) 'aggregateField': aggregateField,
+    if (loadRelated.isNotEmpty) 'loadRelated': loadRelated,
+    if (deleteSubcollections.isNotEmpty) 'deleteSubcollections': deleteSubcollections,
+    if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
+  };
 }
 
 /// Several [CloudDataAction] writes at once; in a [transaction], all or
 /// none.
 final class CloudBatchAction extends ActionDef {
-  const CloudBatchAction({this.steps = const [], this.transaction = false, super.enabled, super.nonBlocking, super.when});
+  const CloudBatchAction({
+    this.steps = const [],
+    this.transaction = false,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'cloudBatch';
   @override
@@ -1208,12 +1241,12 @@ final class CloudBatchAction extends ActionDef {
   final bool transaction;
 
   static CloudBatchAction _fromJson(Json m, _Common c) => CloudBatchAction(
-        steps: [...ActionDef.listFromJson(m['steps']).whereType<CloudDataAction>()],
-        transaction: _b(m, 'transaction', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    steps: [...ActionDef.listFromJson(m['steps']).whereType<CloudDataAction>()],
+    transaction: _b(m, 'transaction', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'steps': _actionsJson(steps), if (transaction) 'transaction': true};
@@ -1268,38 +1301,49 @@ final class CloudFilesAction extends ActionDef {
   List<ActionDef> get nested => actions;
 
   static CloudFilesAction _fromJson(Json m, _Common c) => CloudFilesAction(
-        operation: _e(CloudFilesOperation.values, m, 'operation', CloudFilesOperation.upload),
-        path: _s(m, 'path'),
-        kind: _e(CloudFileKind.values, m, 'kind', CloudFileKind.image),
-        allowMultiple: _b(m, 'allowMultiple', true),
-        maxSizeMB: _d(m, 'maxSizeMB', 10),
-        progressVariable: _s(m, 'progressVariable'),
-        access: _e(CloudFileAccess.values, m, 'access', CloudFileAccess.public),
-        actions: _list(m, 'actions'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(CloudFilesOperation.values, m, 'operation', CloudFilesOperation.upload),
+    path: _s(m, 'path'),
+    kind: _e(CloudFileKind.values, m, 'kind', CloudFileKind.image),
+    allowMultiple: _b(m, 'allowMultiple', true),
+    maxSizeMB: _d(m, 'maxSizeMB', 10),
+    progressVariable: _s(m, 'progressVariable'),
+    access: _e(CloudFileAccess.values, m, 'access', CloudFileAccess.public),
+    actions: _list(m, 'actions'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (operation != CloudFilesOperation.upload) 'operation': operation.name,
-        'path': path,
-        if (kind != CloudFileKind.image) 'kind': kind.name,
-        if (!allowMultiple) 'allowMultiple': false,
-        if (maxSizeMB != 10) 'maxSizeMB': writeDouble(maxSizeMB),
-        if (progressVariable.isNotEmpty) 'progressVariable': progressVariable,
-        if (access != CloudFileAccess.public) 'access': access.name,
-        if (actions.isNotEmpty) 'actions': _actionsJson(actions),
-      };
+    if (operation != CloudFilesOperation.upload) 'operation': operation.name,
+    'path': path,
+    if (kind != CloudFileKind.image) 'kind': kind.name,
+    if (!allowMultiple) 'allowMultiple': false,
+    if (maxSizeMB != 10) 'maxSizeMB': writeDouble(maxSizeMB),
+    if (progressVariable.isNotEmpty) 'progressVariable': progressVariable,
+    if (access != CloudFileAccess.public) 'access': access.name,
+    if (actions.isNotEmpty) 'actions': _actionsJson(actions),
+  };
 }
 
 // --- auth -------------------------------------------------------------------------
 
 /// What an [AuthAction] does.
 enum AuthOperation {
-  signIn, signUp, signOut, updateProfile, sendPasswordResetEmail, sendEmailVerification, updatePassword, //
-  deleteAccount, signInWithGoogle, signInWithApple, sendSignInLink, completeSignInLink, updatePhoto,
+  signIn,
+  signUp,
+  signOut,
+  updateProfile,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  updatePassword, //
+  deleteAccount,
+  signInWithGoogle,
+  signInWithApple,
+  sendSignInLink,
+  completeSignInLink,
+  updatePhoto,
 }
 
 /// Signs app users in, up and out, and manages their account. A failure's
@@ -1326,26 +1370,26 @@ final class AuthAction extends ActionDef {
   final String errorVariable;
 
   static AuthAction _fromJson(Json m, _Common c) => AuthAction(
-        operation: _e(AuthOperation.values, m, 'operation', AuthOperation.signIn),
-        email: _s(m, 'email'),
-        password: _s(m, 'password'),
-        displayName: _s(m, 'displayName'),
-        photoUrl: _s(m, 'photoUrl'),
-        errorVariable: _s(m, 'errorVariable'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(AuthOperation.values, m, 'operation', AuthOperation.signIn),
+    email: _s(m, 'email'),
+    password: _s(m, 'password'),
+    displayName: _s(m, 'displayName'),
+    photoUrl: _s(m, 'photoUrl'),
+    errorVariable: _s(m, 'errorVariable'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'operation': operation.name,
-        if (email.isNotEmpty) 'email': email,
-        if (password.isNotEmpty) 'password': password,
-        if (displayName.isNotEmpty) 'displayName': displayName,
-        if (photoUrl.isNotEmpty) 'photoUrl': photoUrl,
-        if (errorVariable.isNotEmpty) 'errorVariable': errorVariable,
-      };
+    'operation': operation.name,
+    if (email.isNotEmpty) 'email': email,
+    if (password.isNotEmpty) 'password': password,
+    if (displayName.isNotEmpty) 'displayName': displayName,
+    if (photoUrl.isNotEmpty) 'photoUrl': photoUrl,
+    if (errorVariable.isNotEmpty) 'errorVariable': errorVariable,
+  };
 }
 
 // --- flow ---------------------------------------------------------------------------
@@ -1353,7 +1397,14 @@ final class AuthAction extends ActionDef {
 /// Runs [then] when [condition] holds, else [orElse]. JSON: `{"type": "if",
 /// "condition": {...}, "then": [...], "else": [...]}`.
 final class IfAction extends ActionDef {
-  const IfAction({this.condition, this.then = const [], this.orElse = const [], super.enabled, super.nonBlocking, super.when});
+  const IfAction({
+    this.condition,
+    this.then = const [],
+    this.orElse = const [],
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'if';
   @override
@@ -1367,20 +1418,20 @@ final class IfAction extends ActionDef {
   List<ActionDef> get nested => [...then, ...orElse];
 
   static IfAction _fromJson(Json m, _Common c) => IfAction(
-        condition: Predicate.fromJson(m['condition']),
-        then: _list(m, 'then'),
-        orElse: _list(m, 'else'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    condition: Predicate.fromJson(m['condition']),
+    then: _list(m, 'then'),
+    orElse: _list(m, 'else'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (condition != null) 'condition': condition!.toJson(),
-        if (then.isNotEmpty) 'then': _actionsJson(then),
-        if (orElse.isNotEmpty) 'else': _actionsJson(orElse),
-      };
+    if (condition != null) 'condition': condition!.toJson(),
+    if (then.isNotEmpty) 'then': _actionsJson(then),
+    if (orElse.isNotEmpty) 'else': _actionsJson(orElse),
+  };
 }
 
 /// Runs [actions] once per item of list [items] (a path or expression).
@@ -1401,12 +1452,12 @@ final class ForEachAction extends ActionDef {
   List<ActionDef> get nested => actions;
 
   static ForEachAction _fromJson(Json m, _Common c) => ForEachAction(
-        items: _s(m, 'items'),
-        actions: _list(m, 'actions'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    items: _s(m, 'items'),
+    actions: _list(m, 'actions'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'items': items, if (actions.isNotEmpty) 'actions': _actionsJson(actions)};
@@ -1425,12 +1476,12 @@ final class DelayAction extends ActionDef {
   final String duration;
 
   static DelayAction _fromJson(Json m, _Common c) => DelayAction(
-        ms: _i(m, 'ms', 500),
-        duration: _s(m, 'duration'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    ms: _i(m, 'ms', 500),
+    duration: _s(m, 'duration'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'ms': ms, if (duration.isNotEmpty) 'duration': duration};
@@ -1490,42 +1541,42 @@ final class ShowToastAction extends ActionDef {
   List<ActionDef> get nested => actions;
 
   static ShowToastAction _fromJson(Json m, _Common c) => ShowToastAction(
-        message: _s(m, 'message'),
-        title: _s(m, 'title'),
-        durationMs: _i(m, 'durationMs', 2600),
-        toastStyle: _e(ToastStyle.values, m, 'style', ToastStyle.neutral),
-        position: _e(ToastPosition.values, m, 'position', ToastPosition.bottom),
-        actionLabel: _s(m, 'actionLabel'),
-        actions: _list(m, 'actions'),
-        showClose: _b(m, 'showClose', false),
-        icon: readMap(m['icon']),
-        style: _map(m, 'look'),
-        variables: _strings(m['variables']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    message: _s(m, 'message'),
+    title: _s(m, 'title'),
+    durationMs: _i(m, 'durationMs', 2600),
+    toastStyle: _e(ToastStyle.values, m, 'style', ToastStyle.neutral),
+    position: _e(ToastPosition.values, m, 'position', ToastPosition.bottom),
+    actionLabel: _s(m, 'actionLabel'),
+    actions: _list(m, 'actions'),
+    showClose: _b(m, 'showClose', false),
+    icon: readMap(m['icon']),
+    style: _map(m, 'look'),
+    variables: _strings(m['variables']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'message': message,
-        if (title.isNotEmpty) 'title': title,
-        if (durationMs != 2600) 'durationMs': durationMs,
-        if (toastStyle != ToastStyle.neutral) 'style': toastStyle.name,
-        if (position != ToastPosition.bottom) 'position': position.name,
-        if (actionLabel.isNotEmpty) 'actionLabel': actionLabel,
-        if (actions.isNotEmpty) 'actions': _actionsJson(actions),
-        if (showClose) 'showClose': true,
-        'icon': ?icon,
-        if (style.isNotEmpty) 'look': style,
-        if (variables.isNotEmpty) 'variables': variables,
-      };
+    'message': message,
+    if (title.isNotEmpty) 'title': title,
+    if (durationMs != 2600) 'durationMs': durationMs,
+    if (toastStyle != ToastStyle.neutral) 'style': toastStyle.name,
+    if (position != ToastPosition.bottom) 'position': position.name,
+    if (actionLabel.isNotEmpty) 'actionLabel': actionLabel,
+    if (actions.isNotEmpty) 'actions': _actionsJson(actions),
+    if (showClose) 'showClose': true,
+    'icon': ?icon,
+    if (style.isNotEmpty) 'look': style,
+    if (variables.isNotEmpty) 'variables': variables,
+  };
 }
 
 Map<String, String> _strings(Object? json) => {
-      for (final e in (readMap(json) ?? const {}).entries)
-        if (e.value is String) e.key: e.value as String,
-    };
+  for (final e in (readMap(json) ?? const {}).entries)
+    if (e.value is String) e.key: e.value as String,
+};
 
 /// Asks the user to confirm; runs [actions] when they do, [cancelActions]
 /// when they don't. With [dialog] (a screen id), that screen is the dialog
@@ -1576,44 +1627,44 @@ final class ConfirmAction extends ActionDef {
   List<ActionDef> get nested => [...actions, ...cancelActions];
 
   static ConfirmAction _fromJson(Json m, _Common c) => ConfirmAction(
-        title: _s(m, 'title'),
-        message: _s(m, 'message'),
-        caption: _s(m, 'caption'),
-        confirmLabel: _s(m, 'confirmLabel', 'OK'),
-        cancelLabel: _s(m, 'cancelLabel', 'Cancel'),
-        destructive: _b(m, 'destructive', false),
-        actions: _list(m, 'actions'),
-        cancelActions: _list(m, 'cancelActions'),
-        dialog: _s(m, 'dialog'),
-        params: _map(m, 'params'),
-        presentation: _e(ModalPresentation.values, m, 'presentation', ModalPresentation.dialog),
-        placement: _e(PopoverPlacement.values, m, 'placement', PopoverPlacement.belowStart),
-        barrierDismissible: _b(m, 'barrierDismissible', true),
-        style: _map(m, 'look'),
-        variables: _strings(m['variables']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    title: _s(m, 'title'),
+    message: _s(m, 'message'),
+    caption: _s(m, 'caption'),
+    confirmLabel: _s(m, 'confirmLabel', 'OK'),
+    cancelLabel: _s(m, 'cancelLabel', 'Cancel'),
+    destructive: _b(m, 'destructive', false),
+    actions: _list(m, 'actions'),
+    cancelActions: _list(m, 'cancelActions'),
+    dialog: _s(m, 'dialog'),
+    params: _map(m, 'params'),
+    presentation: _e(ModalPresentation.values, m, 'presentation', ModalPresentation.dialog),
+    placement: _e(PopoverPlacement.values, m, 'placement', PopoverPlacement.belowStart),
+    barrierDismissible: _b(m, 'barrierDismissible', true),
+    style: _map(m, 'look'),
+    variables: _strings(m['variables']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'title': title,
-        if (message.isNotEmpty) 'message': message,
-        if (caption.isNotEmpty) 'caption': caption,
-        if (confirmLabel != 'OK') 'confirmLabel': confirmLabel,
-        if (cancelLabel != 'Cancel') 'cancelLabel': cancelLabel,
-        if (destructive) 'destructive': true,
-        if (actions.isNotEmpty) 'actions': _actionsJson(actions),
-        if (cancelActions.isNotEmpty) 'cancelActions': _actionsJson(cancelActions),
-        if (dialog.isNotEmpty) 'dialog': dialog,
-        if (params.isNotEmpty) 'params': params,
-        if (presentation != ModalPresentation.dialog) 'presentation': presentation.name,
-        if (placement != PopoverPlacement.belowStart) 'placement': placement.name,
-        if (!barrierDismissible) 'barrierDismissible': false,
-        if (style.isNotEmpty) 'look': style,
-        if (variables.isNotEmpty) 'variables': variables,
-      };
+    'title': title,
+    if (message.isNotEmpty) 'message': message,
+    if (caption.isNotEmpty) 'caption': caption,
+    if (confirmLabel != 'OK') 'confirmLabel': confirmLabel,
+    if (cancelLabel != 'Cancel') 'cancelLabel': cancelLabel,
+    if (destructive) 'destructive': true,
+    if (actions.isNotEmpty) 'actions': _actionsJson(actions),
+    if (cancelActions.isNotEmpty) 'cancelActions': _actionsJson(cancelActions),
+    if (dialog.isNotEmpty) 'dialog': dialog,
+    if (params.isNotEmpty) 'params': params,
+    if (presentation != ModalPresentation.dialog) 'presentation': presentation.name,
+    if (placement != PopoverPlacement.belowStart) 'placement': placement.name,
+    if (!barrierDismissible) 'barrierDismissible': false,
+    if (style.isNotEmpty) 'look': style,
+    if (variables.isNotEmpty) 'variables': variables,
+  };
 }
 
 /// Copies [text] (an expression) to the clipboard.
@@ -1655,24 +1706,24 @@ final class SpeakAction extends ActionDef {
   final bool stop;
 
   static SpeakAction _fromJson(Json m, _Common c) => SpeakAction(
-        text: _s(m, 'text'),
-        language: _s(m, 'language'),
-        rate: _s(m, 'rate', '1'),
-        pitch: _s(m, 'pitch'),
-        stop: _b(m, 'stop', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    text: _s(m, 'text'),
+    language: _s(m, 'language'),
+    rate: _s(m, 'rate', '1'),
+    pitch: _s(m, 'pitch'),
+    stop: _b(m, 'stop', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (text.isNotEmpty) 'text': text,
-        if (language.isNotEmpty) 'language': language,
-        if (rate != '1') 'rate': rate,
-        if (pitch.isNotEmpty) 'pitch': pitch,
-        if (stop) 'stop': true,
-      };
+    if (text.isNotEmpty) 'text': text,
+    if (language.isNotEmpty) 'language': language,
+    if (rate != '1') 'rate': rate,
+    if (pitch.isNotEmpty) 'pitch': pitch,
+    if (stop) 'stop': true,
+  };
 }
 
 /// Plays a synthesised [sound] (a voice name), now or [at] a time on the
@@ -1696,24 +1747,24 @@ final class PlaySoundAction extends ActionDef {
   final String sound, volume, pitch, at, url;
 
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
-        sound: _s(m, 'sound', 'wood'),
-        volume: _s(m, 'volume', '1'),
-        pitch: _s(m, 'pitch', '1'),
-        at: _s(m, 'at'),
-        url: _s(m, 'url'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    sound: _s(m, 'sound', 'wood'),
+    volume: _s(m, 'volume', '1'),
+    pitch: _s(m, 'pitch', '1'),
+    at: _s(m, 'at'),
+    url: _s(m, 'url'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        if (sound != 'wood') 'sound': sound,
-        if (volume != '1') 'volume': volume,
-        if (pitch != '1') 'pitch': pitch,
-        if (at.isNotEmpty) 'at': at,
-        if (url.isNotEmpty) 'url': url,
-      };
+    if (sound != 'wood') 'sound': sound,
+    if (volume != '1') 'volume': volume,
+    if (pitch != '1') 'pitch': pitch,
+    if (at.isNotEmpty) 'at': at,
+    if (url.isNotEmpty) 'url': url,
+  };
 }
 
 // --- purchases ----------------------------------------------------------------------
@@ -1724,7 +1775,14 @@ enum PaywallOperation { purchase, restore, selectProduct, closePaywall, openLega
 /// A paywall interaction: buy the selected (or [slot]'s) product, restore
 /// purchases, select a product, close the paywall, open a legal [url].
 final class PaywallAction extends ActionDef {
-  const PaywallAction({this.operation = PaywallOperation.purchase, this.slot, this.url, super.enabled, super.nonBlocking, super.when});
+  const PaywallAction({
+    this.operation = PaywallOperation.purchase,
+    this.slot,
+    this.url,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'paywall';
   @override
@@ -1735,13 +1793,13 @@ final class PaywallAction extends ActionDef {
   final String? url;
 
   static PaywallAction _fromJson(Json m, _Common c) => PaywallAction(
-        operation: _e(PaywallOperation.values, m, 'operation', PaywallOperation.purchase),
-        slot: _sOrNull(m, 'slot'),
-        url: _sOrNull(m, 'url'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    operation: _e(PaywallOperation.values, m, 'operation', PaywallOperation.purchase),
+    slot: _sOrNull(m, 'slot'),
+    url: _sOrNull(m, 'url'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'operation': operation.name, 'slot': ?slot, 'url': ?url};
@@ -1781,32 +1839,39 @@ final class EditTextAction extends ActionDef {
   final bool numbered;
 
   static EditTextAction _fromJson(Json m, _Common c) => EditTextAction(
-        node: _s(m, 'node'),
-        operation: _e(EditTextOperation.values, m, 'operation', EditTextOperation.insert),
-        text: _s(m, 'text'),
-        before: _s(m, 'before'),
-        after: _sOrNull(m, 'after'),
-        numbered: _b(m, 'numbered', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    operation: _e(EditTextOperation.values, m, 'operation', EditTextOperation.insert),
+    text: _s(m, 'text'),
+    before: _s(m, 'before'),
+    after: _sOrNull(m, 'after'),
+    numbered: _b(m, 'numbered', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'node': node,
-        'operation': operation.name,
-        if (text.isNotEmpty) 'text': text,
-        if (before.isNotEmpty) 'before': before,
-        'after': ?after,
-        if (numbered) 'numbered': true,
-      };
+    'node': node,
+    'operation': operation.name,
+    if (text.isNotEmpty) 'text': text,
+    if (before.isNotEmpty) 'before': before,
+    'after': ?after,
+    if (numbered) 'numbered': true,
+  };
 }
 
 /// Focuses text field [node] (selecting its text with [selectAll]), or
 /// takes the focus away ([unfocus]; from every field when [node] is empty).
 final class FocusAction extends ActionDef {
-  const FocusAction({this.node = '', this.unfocus = false, this.selectAll = false, super.enabled, super.nonBlocking, super.when});
+  const FocusAction({
+    this.node = '',
+    this.unfocus = false,
+    this.selectAll = false,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'focus';
   @override
@@ -1816,13 +1881,13 @@ final class FocusAction extends ActionDef {
   final bool unfocus, selectAll;
 
   static FocusAction _fromJson(Json m, _Common c) => FocusAction(
-        node: _s(m, 'node'),
-        unfocus: _b(m, 'unfocus', false),
-        selectAll: _b(m, 'selectAll', false),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    unfocus: _b(m, 'unfocus', false),
+    selectAll: _b(m, 'selectAll', false),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'node': node, if (unfocus) 'unfocus': true, if (selectAll) 'selectAll': true};
@@ -1859,22 +1924,22 @@ final class ControlDragAction extends ActionDef {
   final String steps;
 
   static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
-        node: _s(m, 'node'),
-        command: _e(DragCommand.values, m, 'command', DragCommand.fling),
-        direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
-        steps: _s(m, 'steps', '1'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    command: _e(DragCommand.values, m, 'command', DragCommand.fling),
+    direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
+    steps: _s(m, 'steps', '1'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'node': node,
-        if (command != DragCommand.fling) 'command': command.name,
-        if (direction != DragDirection.right) 'direction': direction.name,
-        if (steps != '1') 'steps': steps,
-      };
+    'node': node,
+    if (command != DragCommand.fling) 'command': command.name,
+    if (direction != DragDirection.right) 'direction': direction.name,
+    if (steps != '1') 'steps': steps,
+  };
 }
 
 /// Scrolls node [node] into view: [alignment] 0 puts it at the start of the
@@ -1907,36 +1972,36 @@ final class ScrollToAction extends ActionDef {
   final ScrollAxis? axis;
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
-        node: _s(m, 'node'),
-        durationMs: _i(m, 'durationMs', 400),
-        curve: _s(m, 'curve', 'easeInOut'),
-        alignment: _d(m, 'alignment', 0),
-        offset: _d(m, 'offset', 0),
-        axis: _axis(m['axis']),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    durationMs: _i(m, 'durationMs', 400),
+    curve: _s(m, 'curve', 'easeInOut'),
+    alignment: _d(m, 'alignment', 0),
+    offset: _d(m, 'offset', 0),
+    axis: _axis(m['axis']),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'node': node,
-        if (durationMs != 400) 'durationMs': durationMs,
-        if (curve != 'easeInOut') 'curve': curve,
-        if (alignment != 0) 'alignment': writeDouble(alignment),
-        if (offset != 0) 'offset': writeDouble(offset),
-        'axis': ?axis?.name,
-      };
+    'node': node,
+    if (durationMs != 400) 'durationMs': durationMs,
+    if (curve != 'easeInOut') 'curve': curve,
+    if (alignment != 0) 'alignment': writeDouble(alignment),
+    if (offset != 0) 'offset': writeDouble(offset),
+    'axis': ?axis?.name,
+  };
 }
 
 /// The scroll views a [ScrollToAction] moves.
 enum ScrollAxis { horizontal, vertical }
 
 ScrollAxis? _axis(Object? v) => switch (v) {
-      'horizontal' => ScrollAxis.horizontal,
-      'vertical' => ScrollAxis.vertical,
-      _ => null,
-    };
+  'horizontal' => ScrollAxis.horizontal,
+  'vertical' => ScrollAxis.vertical,
+  _ => null,
+};
 
 /// Plays node [node]'s one-shot animation (or particles) named [animation].
 final class PlayAnimationAction extends ActionDef {
@@ -1949,12 +2014,12 @@ final class PlayAnimationAction extends ActionDef {
   final String node, animation;
 
   static PlayAnimationAction _fromJson(Json m, _Common c) => PlayAnimationAction(
-        node: _s(m, 'node'),
-        animation: _s(m, 'animation'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    node: _s(m, 'node'),
+    animation: _s(m, 'animation'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {'node': node, if (animation.isNotEmpty) 'animation': animation};
@@ -1986,11 +2051,11 @@ final class HapticAction extends ActionDef {
   final HapticKind kind;
 
   static HapticAction _fromJson(Json m, _Common c) => HapticAction(
-        kind: _e(HapticKind.values, m, 'kind', HapticKind.selection),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    kind: _e(HapticKind.values, m, 'kind', HapticKind.selection),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {if (kind != HapticKind.selection) 'kind': kind.name};
@@ -2026,40 +2091,40 @@ final class RunScriptAction extends ActionDef {
   List<ActionDef> get nested => onError;
 
   static RunScriptAction _fromJson(Json m, _Common c) => RunScriptAction(
-        script: _s(m, 'script'),
-        arguments: {
-          for (final e in _map(m, 'arguments').entries)
-            if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
-        },
-        resultVariable: _s(m, 'resultVariable'),
-        onError: _list(m, 'onError'),
-        enabled: c.enabled,
-        nonBlocking: c.nonBlocking,
-        when: c.when,
-      );
+    script: _s(m, 'script'),
+    arguments: {
+      for (final e in _map(m, 'arguments').entries)
+        if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
+    },
+    resultVariable: _s(m, 'resultVariable'),
+    onError: _list(m, 'onError'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
 
   @override
   Json get _fields => {
-        'script': script,
-        if (arguments.isNotEmpty) 'arguments': arguments,
-        if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
-        if (onError.isNotEmpty) 'onError': _actionsJson(onError),
-      };
+    'script': script,
+    if (arguments.isNotEmpty) 'arguments': arguments,
+    if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
+    if (onError.isNotEmpty) 'onError': _actionsJson(onError),
+  };
 }
 
 /// An action of a type this version doesn't know: its JSON, kept. Running
 /// it does nothing.
 final class UnknownAction extends ActionDef {
   UnknownAction(this.unknownType, Json json)
-      : json = {
-          for (final e in json.entries)
-            if (!const {'type', 'enabled', 'nonBlocking', 'when'}.contains(e.key)) e.key: e.value,
-        },
-        super(
-          enabled: readBool(json['enabled']) ?? true,
-          nonBlocking: readBool(json['nonBlocking']) ?? false,
-          when: Predicate.fromJson(json['when']),
-        );
+    : json = {
+        for (final e in json.entries)
+          if (!const {'type', 'enabled', 'nonBlocking', 'when'}.contains(e.key)) e.key: e.value,
+      },
+      super(
+        enabled: readBool(json['enabled']) ?? true,
+        nonBlocking: readBool(json['nonBlocking']) ?? false,
+        when: Predicate.fromJson(json['when']),
+      );
 
   final String unknownType;
   final Json json;
@@ -2073,3 +2138,75 @@ final class UnknownAction extends ActionDef {
 
 /// [actions] in order: equal when every action is.
 bool actionsEqual(List<ActionDef> a, List<ActionDef> b) => listEquals(a, b);
+
+/// What a [PaginateAction] does to a pagination controller.
+enum PaginateCommand {
+  /// The next page (or, when the list scrolls, loads it).
+  next,
+
+  /// The page before, or in a list that loads both ways, the page before
+  /// the first one loaded.
+  previous,
+
+  /// Page [PaginateAction.page].
+  goTo,
+  first,
+
+  /// The last page, once the page count is known.
+  last,
+
+  /// Forgets the loaded pages and loads the first again.
+  refresh,
+
+  /// Loads again the page that failed.
+  retry,
+
+  /// A page holds [PaginateAction.pageSize] items, keeping the first item
+  /// shown on screen.
+  setPageSize,
+}
+
+/// Moves the pagination controller of a list or grid (its `pagination`,
+/// by [controller], the pagination's name).
+final class PaginateAction extends ActionDef {
+  const PaginateAction({
+    this.controller = '',
+    this.command = PaginateCommand.next,
+    this.page = '1',
+    this.pageSize = '20',
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'paginate';
+  @override
+  String get type => typeName;
+
+  final String controller;
+  final PaginateCommand command;
+
+  /// [PaginateCommand.goTo]'s page, from 1: a number or an expression.
+  final String page;
+
+  /// [PaginateCommand.setPageSize]'s size: a number or an expression.
+  final String pageSize;
+
+  static PaginateAction _fromJson(Json m, _Common c) => PaginateAction(
+    controller: _s(m, 'controller'),
+    command: _e(PaginateCommand.values, m, 'command', PaginateCommand.next),
+    page: _s(m, 'page', '1'),
+    pageSize: _s(m, 'pageSize', '20'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {
+    'controller': controller,
+    if (command != PaginateCommand.next) 'command': command.name,
+    if (page != '1') 'page': page,
+    if (pageSize != '20') 'pageSize': pageSize,
+  };
+}

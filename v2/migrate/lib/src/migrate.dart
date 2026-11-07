@@ -523,6 +523,7 @@ class V1Node {
     if (p.gradientTransform case final List<num> t when t.isNotEmpty) j['transform'] = t;
     if (p.gradientTileMode != GradientTileMode.clamp) j['tileMode'] = p.gradientTileMode.name;
     if (type == 'image') j['image'] = imagePaint(p, node);
+    if (p.gradientPerSubpath && type != 'solid' && type != 'image') j['gradientPerSubpath'] = true;
     return j;
   }
 
@@ -714,6 +715,13 @@ class V1Node {
     if (rc.spacing != 0) p['spacing'] = roundNum(rc.spacing);
     if (rc.wrap) p['wrap'] = true;
     if (rc.runSpacing != 0) p['runSpacing'] = roundNum(rc.runSpacing);
+    if (rc is RowColumnNode) {
+      take('squeezeChildren');
+      take('fillViewport');
+      if (!rc.squeezeChildren) p['squeezeChildren'] = false;
+      // Inert unless it scrolls.
+      if (rc.fillViewport && rc.isScrollable) p['fillViewport'] = true;
+    }
     return {...p, ...scrollProps()};
   }
 
@@ -776,7 +784,7 @@ class V1Node {
     final t = n as TextNode;
     for (final k in const [
       'data', 'textMixedProps', 'textAlignHorizontal', 'textAlignVertical', 'maxLines', 'overflow',
-      'tabularFigures', 'selectable',
+      'tabularFigures', 'fontFeatures', 'selectable',
     ]) {
       take(k);
     }
@@ -803,6 +811,8 @@ class V1Node {
     final raw = this.raw;
     final base = <String, Object?>{
       if (raw['tabularFigures'] == true) 'tabularFigures': true,
+      // OpenType features go on every span (TextUtils.fontFeaturesOf).
+      if (t.fontFeatures.isNotEmpty) 'fontFeatures': [...t.fontFeatures],
     };
     // Node drop shadows are text shadows (retrieveTextStyle).
     take('effects');
@@ -845,6 +855,7 @@ class V1Node {
             LineHeightUnitEnum.auto => null,
           };
     if (height != null) s['height'] = height;
+    if (lh.leadingDistribution == LeadingDistributionEnum.even) s['leadingDistribution'] = 'even';
     if (r.textDecoration != TextDecorationEnum.none) {
       s['decoration'] = r.textDecoration == TextDecorationEnum.strikethrough ? 'lineThrough' : r.textDecoration.name;
     }

@@ -148,6 +148,7 @@ final class Paint {
     this.transform,
     this.tileMode = TileMode.clamp,
     this.image,
+    this.gradientPerSubpath = false,
   });
 
   const Paint.solid(Color this.color, {this.id, this.opacity = 1})
@@ -157,7 +158,8 @@ final class Paint {
         stops = const [],
         transform = null,
         tileMode = TileMode.clamp,
-        image = null;
+        image = null,
+        gradientPerSubpath = false;
 
   final PaintType type;
 
@@ -181,6 +183,12 @@ final class Paint {
   /// Image (type `image`).
   final ImagePaint? image;
 
+  /// A gradient laid out in each shape of a path (every closed subpath,
+  /// with the holes inside it) instead of across the box: one path of many
+  /// cells shades each alike. Only paths paint per shape. JSON also reads
+  /// SVG's `gradientUnits: "subpath"`.
+  final bool gradientPerSubpath;
+
   bool get isGradient => type != PaintType.solid && type != PaintType.image;
 
   /// The solid color with the paint's opacity applied.
@@ -201,6 +209,8 @@ final class Paint {
       transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList(),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
       image: type == PaintType.image ? ImagePaint.fromJson(m['image']) : null,
+      gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
+          (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
     );
   }
 
@@ -218,6 +228,7 @@ final class Paint {
     put(j, 'transform', transform?.map(writeDouble).toList());
     put(j, 'tileMode', tileMode.name, TileMode.clamp.name);
     put(j, 'image', image?.toJson());
+    put(j, 'gradientPerSubpath', gradientPerSubpath, false);
     return j;
   }
 
@@ -233,10 +244,11 @@ final class Paint {
       _listEq(other.stops, stops) &&
       _listEq(other.transform, transform) &&
       other.tileMode == tileMode &&
-      other.image == image;
+      other.image == image &&
+      other.gradientPerSubpath == gradientPerSubpath;
 
   @override
-  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image);
+  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }

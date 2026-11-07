@@ -263,6 +263,17 @@ abstract final class BindPaths {
       j['stops'] = stops;
       return Paint.fromJson(j);
     }
+    // A stop's position, 0 to 1.
+    if (keys.length == 3 && keys[0] == 'stops' && keys[1] is int && keys[2] == 'position') {
+      final i = keys[1] as int;
+      final at = BindValue.number(value);
+      if (i >= p.stops.length || at == null) return null;
+      final j = p.toJson();
+      final stops = [for (final st in p.stops) st.toJson()];
+      stops[i] = {...stops[i], 'position': at.clamp(0.0, 1.0)};
+      j['stops'] = stops;
+      return Paint.fromJson(j);
+    }
     final j = setJsonPath(p.toJson(), keys, _jsonValue(value));
     return j == null ? null : Paint.fromJson(j);
   }
