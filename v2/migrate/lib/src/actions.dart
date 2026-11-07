@@ -632,11 +632,27 @@ class ActionMigration {
       IconTypeEnum.icon when icon.icon != null => {
         'source': icon.type.name,
         ...Map<String, Object?>.from(icon.icon!.toJson()),
+        ..._glyphLook(icon),
       },
-      IconTypeEnum.image when icon.iconImage != null => {'source': icon.type.name, 'image': icon.iconImage},
+      IconTypeEnum.image when icon.iconImage != null => {
+        'source': icon.type.name,
+        'image': icon.iconImage,
+        if (icon.scale != 1) 'scale': icon.scale,
+        ..._glyphLook(icon),
+      },
       _ => null,
     };
   }
+
+  /// The size, color and symbol axes the toast and dialog icons draw with.
+  static Json _glyphLook(MultiSourceIconModel icon) => {
+    'size': ?icon.size?.let(roundNum),
+    'color': ?_color(icon.color),
+    'fill': ?icon.fill,
+    'weight': ?icon.weight,
+    'grade': ?icon.grade,
+    'opticalSize': ?icon.opticalSize,
+  };
 }
 
 extension<T> on T {
