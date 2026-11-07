@@ -60,12 +60,20 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 Parents are derived from `children` and `slots`; they are never stored.
 
+`key` is v1's `BaseNode.key`: the editor API's `nodes.insertTree` gives each
+node of a tree it inserts a name, so the tree's own actions and states can
+name a node before it has an id, and `nodes.export` gives the tree back
+with its keys. It is a node's identity in its tree, like `id` and `name`,
+not a behaviour or a widget parameter, so it is a top-level node field
+(not in `props`, not in `extra`); it doesn't affect rendering.
+
 ### 2.3 Every node
 
 | Key | Type | Meaning |
 |---|---|---|
 | `type` | string | Widget type (`row`, `text`, ...). |
 | `name` | string | Display name. |
+| `key` | string | The node's name in the tree it was inserted with (`"content"`), unique in that tree. See below. |
 | `children` | `[id]` | Ordered children (row, column, stack, list...). |
 | `slots` | `{name: id}` | Named children (`body`, `appBar`, `leading`...). |
 | `visible` | bool | `false` hides the node; default `true`. |
@@ -184,16 +192,24 @@ flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
-| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values, an entrance (`enter`, `enterFrom`), a loop, a spin, keyframes. Its values are the rest pose. |
+| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the centre; layout unchanged. |
-| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first. v1's `pulse` and `loopAnimation` both migrate here. |
+| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. v1's `pulse` and `loopAnimation` both migrate here (a pulse's `delayMs` is `lag`). |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
 | `inkWell` | `InkWellStyle` | `InkWell` colours: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's v2 JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
-| `hero`, `flightKey` | tag or `{tag, flight}`; string | `Hero`; flying in from where the node with the same key was. |
-| `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable`, `DragTarget`; a node that follows the pointer (swipe, spring back), or with a `DragTrack` a value control (knob, fader). |
+| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads; v1's `heroPlaceholder`); flying in from where the node with the same key was. |
+| `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable` (`feedbackAnchor`, a `physics` return), `DragTarget` (`slotSize`, `slotWhenRefused`); a node that follows the pointer (swipe, spring back; `physics`, `bounds`, `minX`...`maxY`), or with a `DragTrack` a value control (knob, fader, dial: detents, fine mode, momentum, settle, keyboard, parked, relative or parent units, viewBox paths). |
+| `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
+| `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
 | `reveal`, `strokePath`, `effectAnimations`, `particles`, `textDirection` | | Scroll into view; a line through points; one-shot effects; confetti; `Directionality`. |
+
+A release's motion is one model wherever it is: `GesturePhysics` (a fling
+with `friction`, `overscroll` past `bounds`, a spring by `stiffness`/
+`damping`/`mass` or `bounce`/`duration`, a `snap` to points, a grid or the
+edges; `{"preset": "bouncy"}` reads as a preset) for `drag.physics`,
+`draggable.physics` and `transformGesture.physics`.
 
 Blur effects (`layerBlur`, `backgroundBlur`) stay in `decoration.effects`, which
 a type without a box decoration (text, icon) keeps for its blurs only: they act
@@ -263,9 +279,11 @@ codelessly_sdk/lib/src/
 ```
 
 A node's behaviours are layers of its render chain, outermost first, as SDK
-8.x wrapped a node: margin → constraints → track pose → motion → scale →
-rotation → (hover/press tracking) → loops → opacity → blurs → stroke path →
-content. A design canvas draws them at rest (the motion's values, each loop's
+8.x wrapped a node: margin → constraints → track pose → motion → shimmer →
+flip face → tilt → flip card → scale → rotation → (hover/press tracking) →
+loops → opacity → blurs → stroke path → content. Not run yet (modelled and
+migrated): a drag's follow and release physics, a track's interaction,
+drag and drop, transform gestures, hero flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
@@ -341,7 +359,10 @@ effect id for the item with that id, and `*` for every item.
 | `props.<prop>.<field>` | a field of a structured prop | `fillColor` → `props.decoration.fillColor` |
 | `props.style.<field>` (text) | the base style and every run's | `fill`/`textColor` → `props.style.color`, `fontSize`, `fontWeight`... |
 | `data` | the items a list, grid or page view builds one per (its item count follows) | `data` |
-| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1) | `drawScale`, `layoutDirection`, `motion.*` |
+| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text | `drawScale`, `layoutDirection`, `motion.*` |
+| `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at | `track.*`, `dragTrack.*` |
+| `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) | `pulsePhase`, `pulseDelayMs` |
+| `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face | `transform.*`, `flip.flipped` |
 | `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet | `selected`, `semanticLabel`, `node_enabled` |
 
 Values are read loosely, as v1 read them (`"12"` is a number, `1` true,
