@@ -36,9 +36,68 @@ Json migrateLayoutLogic({
     ];
     if (list.isNotEmpty) conds[e.key] = list;
   }
+  final scripts = _scripts(variables, rep);
   return {
     if (vars.isNotEmpty) 'variables': vars,
     if (conds.isNotEmpty) 'conditions': conds,
+    if (scripts.isNotEmpty) 'scripts': scripts,
+  };
+}
+
+/// The scripts of the publish model's layout variables (`{id, variables,
+/// scripts: {scope: {id: script}}}`), project scripts first, as v2
+/// `ScriptDef` JSON: one list, a page script marked by its `pageId`.
+List<Json> _scripts(Object? json, MigrationReport report) {
+  if (json is! Map || json['scripts'] is! Map) return const [];
+  final scopes = (json['scripts'] as Map).cast<String, Object?>();
+  final ordered = [
+    ?scopes['app_variables'],
+    ?scopes['page_variables'],
+    for (final e in scopes.entries)
+      if (e.key != 'app_variables' && e.key != 'page_variables') e.value,
+  ];
+  return [
+    for (final scope in ordered)
+      for (final s in _entries(scope))
+        if (_script(s, report) case final Json j) j,
+  ];
+}
+
+Json? _script(Map<String, dynamic> json, MigrationReport report) {
+  final ScriptModel s;
+  try {
+    s = ScriptModel.fromJson(json);
+  } catch (error) {
+    report.undecodable['script ${json['id'] ?? json['name']}'] = '$error';
+    return null;
+  }
+  return {
+    'id': s.id,
+    'name': s.name,
+    if (s.description.isNotEmpty) 'description': s.description,
+    if (s.params.isNotEmpty)
+      'params': [
+        for (final p in s.params)
+          {'name': p.name, if (p.description.isNotEmpty) 'description': p.description, 'defaultValue': ?p.defaultValue},
+      ],
+    if (s.source.isNotEmpty) 'source': s.source,
+    if (s.version != 1) 'version': s.version,
+    if (s.capabilities.isNotEmpty) 'capabilities': s.capabilityIds,
+    if (s.timeoutMs != ScriptModel.defaultTimeoutMs) 'timeoutMs': s.timeoutMs,
+    if (s.memoryLimitMb != ScriptModel.defaultMemoryLimitMb) 'memoryLimitMb': s.memoryLimitMb,
+    'pageId': ?s.pageId,
+    if (s.tests.isNotEmpty)
+      'tests': [
+        for (final t in s.tests)
+          {
+            if (t.name.isNotEmpty) 'name': t.name,
+            if (t.args.isNotEmpty) 'args': t.args,
+            if (t.vars.isNotEmpty) 'vars': t.vars,
+            if (t.nodes.isNotEmpty) 'nodes': t.nodes,
+            'expect': ?t.expect,
+            'expectError': ?t.expectError,
+          },
+      ],
   };
 }
 
@@ -78,7 +137,9 @@ Json? _variable(Map<String, dynamic> json, MigrationReport report) {
   final formula = v.formula.trim().isNotEmpty
       ? _unwrapFormula(v.formula)
       : (isFormulaValue(v.value) ? _unwrapFormula(v.value) : '');
-  final extra = {...v.extra}..remove(VariableData.optionsKey);
+  final extra = {...v.extra}
+    ..remove(VariableData.optionsKey)
+    ..remove(VariableData.persistKey);
   final options = (v.extra[VariableData.optionsKey] as List?) ?? const [];
   Object? value;
   if (formula.isEmpty && v.value.isNotEmpty) {
@@ -97,6 +158,7 @@ Json? _variable(Map<String, dynamic> json, MigrationReport report) {
     if (formula.isNotEmpty) 'formula': formula,
     if (v.parameters.isNotEmpty) 'parameters': v.parameters,
     if (options.isNotEmpty) 'options': options,
+    if (v.persists) 'persist': true,
     ...extra,
   };
 }

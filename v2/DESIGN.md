@@ -392,9 +392,12 @@ node to one trigger run as one chain.
 `hover`, `cursorEnter`/`Exit`, `swipeLeft`/`Right`/`Up`/`Down`, `drag`,
 `dragEnd`, `wheel`, `pinch`), an input's (`changed`, `changeEnd`,
 `submitted`, `editingComplete`, `focusGained`/`Lost`), a screen's (`load`,
-`valueChanged`, `timer`, `clock`, `keyDown`/`Up`), scrolling and viewport
-(`scroll`, `scrollEnd`, `enterViewport`, `exitViewport`), drag and drop and
-`reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
+`valueChanged`, `timer`, `clock`, `keyDown`/`Up`, `backPressed`: back was
+pressed while the canvas's `props.blockBack` holds, usually bound to
+`${= dirty}`; the screen stays and these run, a navigate pop from them is
+never blocked), scrolling and viewport (`scroll`, `scrollEnd`,
+`enterViewport`, `exitViewport`), drag and drop (`dropFull`: let go on a
+target whose `fullIf` holds) and `reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
 `key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`/
 `lookaheadMs`, `visibleFraction`.
 
@@ -405,15 +408,43 @@ base, transition), `openModal` (dialog, sheets, full screen, popover),
 `submitForm`, `setValue` (node properties at binding paths: set, toggle,
 sync), `setVariant`, `setVariable` (a `ValueWrite`: `op` set, toggle,
 add, subtract, insert, insertAll, removeAt, remove, update; `index`,
-`mapKey`), `callFunction`, `callApi` (`onSuccess` / `onError`),
+`mapKey`; a number glides over `animateMs` along `curve`, the chain
+waiting), `animateVariable` (a number variable's timeline: play, pause,
+resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
+`onError` reads `${result.error}`), `callApi` (`onSuccess` / `onError`),
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
-`cloudFiles`, `auth`, `if`, `forEach`, `delay`, `showToast`, `confirm`,
-`copyToClipboard`, `editText`, `focus`, `scrollTo`, `speak`, `playSound`,
-`paywall`, `controlDrag`, `playAnimation`. Every action can be off
+`cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
+`${loop.index}`), `delay`, `showToast`, `confirm` (their cosmetics in
+`look`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
+the scroll views along it), `speak`, `playSound`, `paywall`,
+`controlDrag` (`step` turns a drag track `steps`), `playAnimation`,
+`haptic` (`HapticFeedback`: selection, light, medium, heavy, vibrate).
+`navigate` and `openModal` take a `routeTransition` (`RouteTransition`,
+`lib/src/route_transition.dart`; or a bare preset name): the incoming
+screen's `enter` and the covered one's `exit` sides (a `Motion`, a
+`reveal` clip, a curve, `delayMs`, `durationMs`), `popEnter`/`popExit`
+for closing, `durationMs`, `barrierColor`, `opaque`, `swipeBack`, a
+`dismiss` drag; a `preset` (`iosPush`, `sharedAxisX`, `cube`...) fills in
+what's left out. Every action can be off
 (`enabled: false`), not awaited (`nonBlocking`), or run only while a
 predicate holds (`when`, §5.1's `Predicate`). Text fields are expressions;
 `${result}` is what the previous action gave (the trigger's event first).
 An unknown type decodes as `UnknownAction` and round-trips.
+
+**Scripts** (`ScriptDef`, `lib/src/scripts.dart`): JavaScript a layout
+runs, in its document's `scripts` list (project scripts, then page scripts
+with a `pageId`; a page script wins by name): `name`, `params`
+(`{name, defaultValue}`), `source`, `capabilities` (`variables.read`,
+`variables.write`, `nodes.read`, `navigation`, `api`, `cloud`, `actions`,
+`clock`), `timeoutMs`, `memoryLimitMb`, `tests`. The SDK asks the app's
+`ScriptRunner` (`Services.scripts`) to run one; none by default.
+
+**Variables** can `persist`: the app keeps the value on the device
+(starting from it next time, saving every change). The publish model
+carries the app's `appIdentity` (`AppIdentity`: name, title template,
+description, theme color, per-page overrides, and the web host's icons,
+social card, manifest and splash kept as they are, in its own JSON:
+colors CSS hex).
 
 The SDK runs them (`runtime/actions`): `CodelesslyActions` (the
 `ActionRunner`) with one typed handler per type over an `ActionContext`
@@ -457,7 +488,13 @@ mapped (`navigation` → `navigate`, `showDialog` → `openModal`, `link` →
 `openLink`, `conditional` → `if`, `setCloudStorage` → `cloudDocuments`,
 `loadFromCloudStorage` → `loadCloudData`, the `interval` trigger → `timer`,
 `keyPress` → `keyDown`; a set variable's typed operation → its `op`; a set
-value's property names → the target node's binding paths). Publish
+value's property names → the target node's binding paths; a toast's and
+a confirm's cosmetics → their `look`; a haptic's `when` formula → the
+common `when`, `isTrue`; a canvas's `blockBack` binding →
+`props.blockBack`). A publish layout's `SDKLayoutVariables.scripts`
+become its document's `scripts`, `VariableData.persists` a variable's
+`persist`, the model's `appIdentity` the v2 one (normalized by v1's
+decoder). Publish
 layouts carry their variables and conditions this way too, and the publish
 model's APIs as v2 `HttpApi`s.
 

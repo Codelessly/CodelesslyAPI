@@ -8,9 +8,10 @@
 // for-each's item), or the trigger's event.
 import 'package:meta/meta.dart';
 
-import 'behaviours.dart' show DragDirection;
+import 'behaviours.dart' show AnimationCurve, DragDirection;
 import 'conditions.dart';
 import 'json.dart';
+import 'route_transition.dart';
 import 'services/cloud.dart';
 import 'values/color.dart';
 import 'values/paint.dart' show listEquals;
@@ -131,6 +132,9 @@ final Map<String, _Decoder> _decoders = {
   ScrollToAction.typeName: ScrollToAction._fromJson,
   PlaySoundAction.typeName: PlaySoundAction._fromJson,
   PlayAnimationAction.typeName: PlayAnimationAction._fromJson,
+  AnimateVariableAction.typeName: AnimateVariableAction._fromJson,
+  HapticAction.typeName: HapticAction._fromJson,
+  RunScriptAction.typeName: RunScriptAction._fromJson,
 };
 
 // --- reading helpers -------------------------------------------------------------
@@ -150,6 +154,7 @@ T _e<T extends Enum>(List<T> values, Json m, String k, T def) => readEnum(values
 List<ActionDef> _list(Json m, String k) => ActionDef.listFromJson(m[k]);
 Json _map(Json m, String k) => readMap(m[k]) ?? const {};
 List<Json> _actionsJson(List<ActionDef> l) => [for (final a in l) a.toJson()];
+AnimationCurve _curve(Json m, String k, AnimationCurve def) => AnimationCurve.parse(m[k]) ?? def;
 
 // --- navigation ----------------------------------------------------------------
 
@@ -186,6 +191,7 @@ final class NavigateAction extends ActionDef {
     this.transition = PageTransition.platform,
     this.transitionMs,
     this.reverseTransitionMs,
+    this.routeTransition,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -212,6 +218,11 @@ final class NavigateAction extends ActionDef {
   final PageTransition transition;
   final int? transitionMs, reverseTransitionMs;
 
+  /// A custom transition for both screens (3D, reveals, a barrier, a drag
+  /// that dismisses); when set it replaces [transition], [transitionMs] and
+  /// [reverseTransitionMs]. Null plays [transition].
+  final RouteTransition? routeTransition;
+
   static NavigateAction _fromJson(Json m, _Common c) => NavigateAction(
         mode: _e(NavigationMode.values, m, 'mode', NavigationMode.push),
         to: _s(m, 'to'),
@@ -221,6 +232,7 @@ final class NavigateAction extends ActionDef {
         transition: _e(PageTransition.values, m, 'transition', PageTransition.platform),
         transitionMs: readInt(m['transitionMs']),
         reverseTransitionMs: readInt(m['reverseTransitionMs']),
+        routeTransition: RouteTransition.fromJson(m['routeTransition']),
         enabled: c.enabled,
         nonBlocking: c.nonBlocking,
         when: c.when,
@@ -236,6 +248,7 @@ final class NavigateAction extends ActionDef {
         if (transition != PageTransition.platform) 'transition': transition.name,
         'transitionMs': ?transitionMs,
         'reverseTransitionMs': ?reverseTransitionMs,
+        'routeTransition': ?routeTransition?.toJson(),
       };
 }
 
@@ -294,6 +307,7 @@ final class OpenModalAction extends ActionDef {
     this.maxHeightFactor = 1,
     this.fullHeight = false,
     this.enterScale = 1,
+    this.routeTransition,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -329,6 +343,11 @@ final class OpenModalAction extends ActionDef {
   final bool fullHeight;
   final double enterScale;
 
+  /// A custom transition for the modal: its entrance, what the screen
+  /// behind does, its barrier color (over [barrierColor]) and a drag that
+  /// dismisses it. Null opens it the way [presentation] says.
+  final RouteTransition? routeTransition;
+
   static OpenModalAction _fromJson(Json m, _Common c) => OpenModalAction(
         to: _s(m, 'to'),
         params: _map(m, 'params'),
@@ -349,6 +368,7 @@ final class OpenModalAction extends ActionDef {
         maxHeightFactor: _d(m, 'maxHeightFactor', 1),
         fullHeight: _b(m, 'fullHeight', false),
         enterScale: _d(m, 'enterScale', 1),
+        routeTransition: RouteTransition.fromJson(m['routeTransition']),
         enabled: c.enabled,
         nonBlocking: c.nonBlocking,
         when: c.when,
@@ -375,6 +395,7 @@ final class OpenModalAction extends ActionDef {
         if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
         if (fullHeight) 'fullHeight': true,
         if (enterScale != 1) 'enterScale': writeDouble(enterScale),
+        'routeTransition': ?routeTransition?.toJson(),
       };
 }
 
@@ -633,11 +654,15 @@ final class ValueWrite {
 
 /// Changes variable [variable] (of the screen, or the app): [write]. JSON:
 /// `{"type": "setVariable", "variable": "count", "op": "add", "value": "1"}`.
-/// A computed variable can't be set.
+/// A computed variable can't be set. A number can glide to its new value
+/// ([animateMs], [curve]): the variable changes every frame (what's bound
+/// to it moves with it), and the chain goes on when it arrives.
 final class SetVariableAction extends ActionDef {
   const SetVariableAction({
     this.variable = '',
     this.write = const ValueWrite(),
+    this.animateMs = '',
+    this.curve = AnimationCurve.linear,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -652,16 +677,112 @@ final class SetVariableAction extends ActionDef {
   final String variable;
   final ValueWrite write;
 
+  /// A number: milliseconds to glide to the new value (a number or an
+  /// expression); empty or 0 sets it at once.
+  final String animateMs;
+
+  /// The easing of an [animateMs] glide.
+  final AnimationCurve curve;
+
   static SetVariableAction _fromJson(Json m, _Common c) => SetVariableAction(
         variable: _s(m, 'variable'),
         write: ValueWrite.fromJson(m),
+        animateMs: _s(m, 'animateMs').trim() == '0' ? '' : _s(m, 'animateMs'),
+        curve: _curve(m, 'curve', AnimationCurve.linear),
         enabled: c.enabled,
         nonBlocking: c.nonBlocking,
         when: c.when,
       );
 
   @override
-  Json get _fields => {'variable': variable, ...write.toJson()};
+  Json get _fields => {
+        'variable': variable,
+        ...write.toJson(),
+        if (animateMs.isNotEmpty) 'animateMs': animateMs,
+        if (curve != AnimationCurve.linear) 'curve': curve.name,
+      };
+}
+
+/// What an [AnimateVariableAction] does.
+enum AnimateVariableMode {
+  /// Animates from [AnimateVariableAction.from] (empty: the current value)
+  /// to [AnimateVariableAction.to], restarting one already running.
+  play,
+
+  /// Holds the running animation where it is.
+  pause,
+
+  /// Goes on with a paused animation.
+  resume,
+
+  /// Ends the animation, leaving the variable where it is.
+  stop,
+
+  /// Sets the variable to [AnimateVariableAction.to]; its timeline goes
+  /// on from there (or stays paused there).
+  seek,
+}
+
+/// Animates number variable [variable] over time: plays it from [from] to
+/// [to] over [durationMs] (or [duration], an expression giving
+/// milliseconds) along [curve], or pauses, resumes, stops or seeks the
+/// animation it runs. A play (or a resume) completes when its timeline
+/// ends: make it non-blocking to go on at once. Resume with nothing paused
+/// plays from where the value is.
+final class AnimateVariableAction extends ActionDef {
+  const AnimateVariableAction({
+    this.variable = '',
+    this.mode = AnimateVariableMode.play,
+    this.from = '',
+    this.to = '1',
+    this.durationMs = 1000,
+    this.duration = '',
+    this.curve = AnimationCurve.linear,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'animateVariable';
+  @override
+  String get type => typeName;
+
+  final String variable;
+  final AnimateVariableMode mode;
+
+  /// Expressions: where play starts (empty: the variable's value now) and
+  /// ends; for seek, [to] is the value to jump to.
+  final String from, to;
+  final int durationMs;
+
+  /// An expression giving milliseconds, over [durationMs] when it gives a
+  /// number.
+  final String duration;
+  final AnimationCurve curve;
+
+  static AnimateVariableAction _fromJson(Json m, _Common c) => AnimateVariableAction(
+        variable: _s(m, 'variable'),
+        mode: _e(AnimateVariableMode.values, m, 'mode', AnimateVariableMode.play),
+        from: _s(m, 'from'),
+        to: _s(m, 'to', '1'),
+        durationMs: _i(m, 'durationMs', 1000),
+        duration: _s(m, 'duration'),
+        curve: _curve(m, 'curve', AnimationCurve.linear),
+        enabled: c.enabled,
+        nonBlocking: c.nonBlocking,
+        when: c.when,
+      );
+
+  @override
+  Json get _fields => {
+        'variable': variable,
+        if (mode != AnimateVariableMode.play) 'mode': mode.name,
+        if (from.isNotEmpty) 'from': from,
+        if (to != '1') 'to': to,
+        if (durationMs != 1000) 'durationMs': durationMs,
+        if (duration.isNotEmpty) 'duration': duration,
+        if (curve != AnimationCurve.linear) 'curve': curve.name,
+      };
 }
 
 /// Calls a function the app registered by [name] with [params] (text
@@ -1262,8 +1383,10 @@ final class IfAction extends ActionDef {
       };
 }
 
-/// Runs [actions] once per item of list [items] (a path or expression),
-/// each run reading `${result.item}` and `${result.index}`.
+/// Runs [actions] once per item of list [items] (a path or expression).
+/// Every action of a turn reads the item and its index as `${loop.item}`
+/// and `${loop.index}`; `${result.item}` and `${result.index}` hold them
+/// too, until an action of the turn gives a result of its own.
 final class ForEachAction extends ActionDef {
   const ForEachAction({this.items = '', this.actions = const [], super.enabled, super.nonBlocking, super.when});
 
@@ -1705,15 +1828,19 @@ final class FocusAction extends ActionDef {
   Json get _fields => {'node': node, if (unfocus) 'unfocus': true, if (selectAll) 'selectAll': true};
 }
 
-/// What a [ControlDragAction] does to a draggable node.
-enum DragCommand { fling, returnFrom, reset, shake }
+/// What a [ControlDragAction] does to a draggable node. [step] turns a
+/// drag track control by [ControlDragAction.steps] of its step, as if
+/// dragged there (a dial's nudge buttons and arrow keys).
+enum DragCommand { fling, returnFrom, reset, shake, step }
 
-/// Flings, returns, resets or shakes draggable node [node] (a swipe card).
+/// Flings, returns, resets or shakes draggable node [node] (a swipe card),
+/// or steps a drag track.
 final class ControlDragAction extends ActionDef {
   const ControlDragAction({
     this.node = '',
     this.command = DragCommand.fling,
     this.direction = DragDirection.right,
+    this.steps = '1',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1727,10 +1854,15 @@ final class ControlDragAction extends ActionDef {
   final DragCommand command;
   final DragDirection direction;
 
+  /// [DragCommand.step]: how many steps to turn, negative toward the
+  /// track's start; a number or an expression.
+  final String steps;
+
   static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
         node: _s(m, 'node'),
         command: _e(DragCommand.values, m, 'command', DragCommand.fling),
         direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
+        steps: _s(m, 'steps', '1'),
         enabled: c.enabled,
         nonBlocking: c.nonBlocking,
         when: c.when,
@@ -1741,11 +1873,14 @@ final class ControlDragAction extends ActionDef {
         'node': node,
         if (command != DragCommand.fling) 'command': command.name,
         if (direction != DragDirection.right) 'direction': direction.name,
+        if (steps != '1') 'steps': steps,
       };
 }
 
 /// Scrolls node [node] into view: [alignment] 0 puts it at the start of the
-/// view, 1 at the end; [offset] moves it further.
+/// view, 1 at the end; [offset] moves it further. [axis] limits it to the
+/// scroll views along one axis (a map in a sideways window centres a point
+/// without scrolling the page under it); null scrolls every one around it.
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
     this.node = '',
@@ -1753,6 +1888,7 @@ final class ScrollToAction extends ActionDef {
     this.curve = 'easeInOut',
     this.alignment = 0,
     this.offset = 0,
+    this.axis,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1768,6 +1904,7 @@ final class ScrollToAction extends ActionDef {
   /// A `Curves` name.
   final String curve;
   final double alignment, offset;
+  final ScrollAxis? axis;
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
         node: _s(m, 'node'),
@@ -1775,6 +1912,7 @@ final class ScrollToAction extends ActionDef {
         curve: _s(m, 'curve', 'easeInOut'),
         alignment: _d(m, 'alignment', 0),
         offset: _d(m, 'offset', 0),
+        axis: _axis(m['axis']),
         enabled: c.enabled,
         nonBlocking: c.nonBlocking,
         when: c.when,
@@ -1787,8 +1925,18 @@ final class ScrollToAction extends ActionDef {
         if (curve != 'easeInOut') 'curve': curve,
         if (alignment != 0) 'alignment': writeDouble(alignment),
         if (offset != 0) 'offset': writeDouble(offset),
+        'axis': ?axis?.name,
       };
 }
+
+/// The scroll views a [ScrollToAction] moves.
+enum ScrollAxis { horizontal, vertical }
+
+ScrollAxis? _axis(Object? v) => switch (v) {
+      'horizontal' => ScrollAxis.horizontal,
+      'vertical' => ScrollAxis.vertical,
+      _ => null,
+    };
 
 /// Plays node [node]'s one-shot animation (or particles) named [animation].
 final class PlayAnimationAction extends ActionDef {
@@ -1810,6 +1958,93 @@ final class PlayAnimationAction extends ActionDef {
 
   @override
   Json get _fields => {'node': node, if (animation.isNotEmpty) 'animation': animation};
+}
+
+/// How strong a [HapticAction] buzz is (Flutter's `HapticFeedback`).
+enum HapticKind {
+  /// The faint tick of a picker or a dial detent.
+  selection,
+
+  /// A light, medium or heavy knock.
+  light,
+  medium,
+  heavy,
+
+  /// A long buzz: an error, an alarm.
+  vibrate,
+}
+
+/// Buzzes the device (`HapticFeedback`, on phones that support it; nothing
+/// elsewhere). Its common `when` buzzes only while a setting holds.
+final class HapticAction extends ActionDef {
+  const HapticAction({this.kind = HapticKind.selection, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'haptic';
+  @override
+  String get type => typeName;
+
+  final HapticKind kind;
+
+  static HapticAction _fromJson(Json m, _Common c) => HapticAction(
+        kind: _e(HapticKind.values, m, 'kind', HapticKind.selection),
+        enabled: c.enabled,
+        nonBlocking: c.nonBlocking,
+        when: c.when,
+      );
+
+  @override
+  Json get _fields => {if (kind != HapticKind.selection) 'kind': kind.name};
+}
+
+/// Runs script [script] (a layout's `scripts`, by id) with [arguments] (by
+/// parameter name; expressions: one `${...}` passes its value as is, other
+/// text passes as JSON when it is JSON, else as text). Its result is the
+/// chain's `${result}` (and goes in [resultVariable] when set). When it
+/// fails, [onError] runs with `${result}` `{error: {type, message, line,
+/// column}, logs}`; without [onError] a failure stops the chain.
+final class RunScriptAction extends ActionDef {
+  const RunScriptAction({
+    this.script = '',
+    this.arguments = const {},
+    this.resultVariable = '',
+    this.onError = const [],
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'runScript';
+  @override
+  String get type => typeName;
+
+  final String script;
+  final Map<String, String> arguments;
+  final String resultVariable;
+  final List<ActionDef> onError;
+
+  @override
+  List<ActionDef> get nested => onError;
+
+  static RunScriptAction _fromJson(Json m, _Common c) => RunScriptAction(
+        script: _s(m, 'script'),
+        arguments: {
+          for (final e in _map(m, 'arguments').entries)
+            if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
+        },
+        resultVariable: _s(m, 'resultVariable'),
+        onError: _list(m, 'onError'),
+        enabled: c.enabled,
+        nonBlocking: c.nonBlocking,
+        when: c.when,
+      );
+
+  @override
+  Json get _fields => {
+        'script': script,
+        if (arguments.isNotEmpty) 'arguments': arguments,
+        if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
+        if (onError.isNotEmpty) 'onError': _actionsJson(onError),
+      };
 }
 
 /// An action of a type this version doesn't know: its JSON, kept. Running

@@ -15,7 +15,7 @@
 import 'dart:convert';
 import 'dart:io' show gzip;
 
-import 'package:codelessly_api/codelessly_api.dart' show ThemeTokens, ColorRGBA;
+import 'package:codelessly_api/codelessly_api.dart' show AppIdentity, ColorRGBA, ThemeTokens;
 
 import 'migrate.dart';
 import 'services.dart';
@@ -226,6 +226,9 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
         for (final e in a.entries)
           if (e.value is Map) e.key: ?migrateHttpApi(e.value as Map),
       },
+    // The identity keeps its own JSON (shared with the web host), read and
+    // normalized by v1's decoder: legacy shapes become the current ones.
+    if (v1Model['appIdentity'] case final Map identity) 'appIdentity': AppIdentity.fromJson(identity).toJson(),
     if (v1Model['lastUpdated'] is num) 'lastUpdated': (v1Model['lastUpdated'] as num).round(),
     for (final k in privacyKeys)
       if (v1Model.containsKey(k)) k: v1Model[k],

@@ -113,6 +113,7 @@ final class VariableOption {
 /// {"id": "v1", "name": "count", "type": "integer", "value": 3}
 /// {"id": "v2", "name": "total", "type": "decimal", "formula": "price * qty"}
 /// {"id": "v3", "name": "clamp01", "formula": "min(1, max(0, v))", "parameters": ["v"]}
+/// {"id": "v4", "name": "draft", "value": "", "persist": true}
 /// ```
 @immutable
 final class Variable {
@@ -124,6 +125,7 @@ final class Variable {
     this.formula = '',
     this.parameters = const [],
     this.options = const [],
+    this.persist = false,
     this.extra = const {},
   });
 
@@ -150,10 +152,19 @@ final class Variable {
   /// The options of a [VariableType.choice] variable.
   final List<VariableOption> options;
 
+  /// Whether the app keeps the value on the device: it starts from the
+  /// value it had last time (not [value]) and every change is saved. A
+  /// draft, a list the user builds up. A computed variable can't persist
+  /// ([persists]).
+  final bool persist;
+
   /// Keys this version doesn't model, round-tripped.
   final Json extra;
 
   bool get isComputed => formula.trim().isNotEmpty;
+
+  /// Whether its value is kept on the device: [persist], and not computed.
+  bool get persists => persist && !isComputed;
   bool get isFunction => isComputed && parameters.isNotEmpty;
 
   Variable copyWith({
@@ -164,6 +175,7 @@ final class Variable {
     String? formula,
     List<String>? parameters,
     List<VariableOption>? options,
+    bool? persist,
     Json? extra,
   }) =>
       Variable(
@@ -174,10 +186,11 @@ final class Variable {
         formula: formula ?? this.formula,
         parameters: parameters ?? this.parameters,
         options: options ?? this.options,
+        persist: persist ?? this.persist,
         extra: extra ?? this.extra,
       );
 
-  static const _keys = {'id', 'name', 'type', 'value', 'formula', 'parameters', 'options'};
+  static const _keys = {'id', 'name', 'type', 'value', 'formula', 'parameters', 'options', 'persist'};
 
   /// Decodes a variable; null only without a name.
   static Variable? fromJson(Object? json) {
@@ -193,6 +206,7 @@ final class Variable {
       formula: readString(m['formula']) ?? '',
       parameters: readStrings(m['parameters']),
       options: [...?readList(m['options'])?.map(VariableOption.fromJson).nonNulls],
+      persist: readBool(m['persist']) ?? false,
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key)) e.key: e.value,
@@ -210,6 +224,7 @@ final class Variable {
         if (formula.isNotEmpty) 'formula': formula,
         if (parameters.isNotEmpty) 'parameters': parameters,
         if (options.isNotEmpty) 'options': [for (final o in options) o.toJson()],
+        if (persist) 'persist': true,
         ...extra,
       };
 
@@ -224,6 +239,7 @@ final class Variable {
           other.formula == formula &&
           jsonEquality.equals(other.parameters, parameters) &&
           jsonEquality.equals(other.options, options) &&
+          other.persist == persist &&
           jsonEquality.equals(other.extra, extra);
 
   @override
