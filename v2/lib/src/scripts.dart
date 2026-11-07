@@ -12,34 +12,37 @@ import 'json.dart';
 /// JSON: the capability's [id].
 enum ScriptCapability {
   /// `vars.get(name)`, `vars.has(name)`, `vars.all()`.
-  variablesRead('variables.read'),
+  variablesRead('variables.read', 'Read variables'),
 
   /// `vars.set(name, value)`.
-  variablesWrite('variables.write'),
+  variablesWrite('variables.write', 'Change variables'),
 
   /// `nodes.value(id)`: the values of inputs on screen.
-  nodesRead('nodes.read'),
+  nodesRead('nodes.read', 'Read input values'),
 
   /// `app.navigate(page, params)`, `app.back(result)`.
-  navigation('navigation'),
+  navigation('navigation', 'Navigate'),
 
   /// `app.callApi(name, inputs)`.
-  api('api'),
+  api('api', 'Call APIs'),
 
   /// `app.cloudData(request)`.
-  cloud('cloud'),
+  cloud('cloud', 'Cloud data'),
 
   /// `app.runAction(action)`, `app.toast(text)`, `app.delay(ms)`.
-  actions('actions'),
+  actions('actions', 'Run actions'),
 
   /// `Date.now()`, `new Date()`. Without it a script's result depends
   /// only on its inputs.
-  clock('clock');
+  clock('clock', 'Read the clock');
 
-  const ScriptCapability(this.id);
+  const ScriptCapability(this.id, this.label);
 
   /// The name scripts and the runner use (`variables.read`).
   final String id;
+
+  /// A short label for the editor.
+  final String label;
 
   /// The capability named [v] (its [id] or its name); null for one this
   /// version doesn't know.

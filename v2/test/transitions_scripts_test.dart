@@ -113,6 +113,7 @@ void main() {
       expect(s.copyWith(version: 4).version, 4);
       expect(s.copyWith(clearPageId: true).pageId, isNull);
       expect(s.copyWith(name: 'x').pageId, 'p1');
+      expect(ScriptCapability.clock.label, 'Read the clock');
     });
   });
 
