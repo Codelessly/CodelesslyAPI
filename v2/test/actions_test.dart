@@ -41,6 +41,7 @@ final samples = <Json>[
   {'type': 'animateVariable', 'variable': 't', 'mode': 'seek', 'from': '0', 'to': '0.5', 'durationMs': 3600, 'duration': r'${= slow ? 6000 : 3600}', 'curve': 'easeInOut'},
   {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
   {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
+  {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
 ];
 
 void main() {

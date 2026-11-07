@@ -570,6 +570,15 @@ abstract final class RunScriptFields {
   static const List<PropDef<Object?>> all = [script, arguments, resultVariable, onError];
 }
 
+/// [PaginateAction].
+abstract final class PaginateFields {
+  static const controller = PropDef<String>('controller', Codecs.string, '', doc: 'The pagination\'s name.');
+  static const command = PropDef<PaginateCommand>('command', EnumCodec(PaginateCommand.values), PaginateCommand.next);
+  static const page = PropDef<String>('page', Codecs.string, '1', doc: 'For goTo: a number or an expression.');
+  static const pageSize = PropDef<String>('pageSize', Codecs.string, '20', doc: 'For setPageSize.');
+  static const List<PropDef<Object?>> all = [controller, command, page, pageSize];
+}
+
 /// Every action type an editor can make, by JSON type.
 abstract final class ActionSpecs {
   static final Map<String, ActionSpec> _all = {
@@ -608,6 +617,7 @@ abstract final class ActionSpecs {
       const ActionSpec(AnimateVariableAction.typeName, label: 'Animate variable', fields: AnimateVariableFields.all),
       const ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all),
       const ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all),
+      const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
     ])
       s.type: s,
   };

@@ -70,6 +70,10 @@ Json _physics(PhysicsModel p) {
   return j;
 }
 
+/// A v1 motion as v2's `Motion` JSON, for a field that holds one (a page
+/// view's `pageMotion`, a route transition's side).
+Json migrateMotion(MotionModel m) => _motion(m);
+
 Json _loop(LoopAnimation l) =>
     _renamed(l.toJson(), const {'durationMs': 'duration', 'delayMs': 'delay'})..['type'] = l.type.name;
 
@@ -328,5 +332,3 @@ bool _eq(Object? a, Object? b) {
   return a == b;
 }
 
-/// A v1 motion model as v2 `Motion` JSON (a route transition's side).
-Json migrateMotion(MotionModel m) => _motion(m);
