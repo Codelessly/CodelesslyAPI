@@ -120,8 +120,19 @@ enum TriggerType {
   dropRejected,
 
   /// A data list row was dragged to a new place by this node, its reorder
-  /// handle (`${result.from}`, `${result.to}`).
-  reorder;
+  /// handle (`${result.from}`, `${result.to}`). A list with a `reorder`
+  /// fires it too, with `${result.item}`, `${result.fromList}`,
+  /// `${result.toList}`.
+  reorder,
+
+  /// A list or grid was pulled past its start to refresh (its pagination's
+  /// `pullToRefresh`); its pagination reloads its first page too.
+  refresh,
+
+  /// A swipe action of a list item ran (the list's `swipeActions`):
+  /// `${result.action}`, `${result.label}`, `${result.item}`,
+  /// `${result.index}`.
+  swipeAction;
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [swipeLeft, swipeRight, swipeUp, swipeDown];

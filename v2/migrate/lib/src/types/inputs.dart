@@ -62,6 +62,10 @@ Json _inputBorder(InputBorderModel b) => {
       if (b.gapPadding != 4) 'gapPadding': roundNum(b.gapPadding),
     };
 
+/// [icon]'s glyph as v2's icon JSON (the icon node's `icon` prop), for
+/// other groups' icons (a swipe action's).
+Json migrateGlyph(MultiSourceIconModel icon) => _glyph(icon);
+
 /// The glyph as the icon node's `icon` prop.
 Json _glyph(MultiSourceIconModel icon) => {
       'source': icon.type.name,

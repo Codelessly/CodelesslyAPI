@@ -5,11 +5,12 @@ import 'package:codelessly_api/codelessly_api.dart';
 
 import '../behaviours.dart' show migrateMotion;
 import '../migrate.dart';
+import 'inputs.dart' show migrateGlyph;
 
 /// By v1 node type.
 final Map<String, TypeMigration> collectionsMigrations = {
-  'listView': TypeMigration(type: (_) => 'listView', props: _listView),
-  'gridView': TypeMigration(type: (_) => 'gridView', props: _gridView),
+  'listView': TypeMigration(type: (_) => 'listView', props: _listView, children: _items, slots: _listSlots),
+  'gridView': TypeMigration(type: (_) => 'gridView', props: _gridView, children: _items, slots: _listSlots),
   'pageView': TypeMigration(type: (_) => 'pageView', props: _pageView),
   'tabs': TypeMigration(type: (_) => 'tabs', props: _tabs),
   'tabBar': TypeMigration(type: (_) => 'tabBar', props: _tabBar),
@@ -30,6 +31,137 @@ final Map<String, TypeMigration> collectionsMigrations = {
     },
   ),
 };
+
+// --- pagination, reorder, sections, swipe actions -------------------------------
+
+/// A list's or grid's slots: its pagination footers, section header and
+/// reorder placeholder (v1 children named by id), when they are its children.
+Map<String, String> _listSlots(V1Node m) {
+  final n = m.n;
+  final (pagination, reorder, sections) = switch (n) {
+    ListViewNode() => (n.pagination, n.reorder, n.sections),
+    GridViewNode() => (n.pagination, n.reorder, null),
+    _ => (null, null, null),
+  };
+  final children = (n as ChildrenMixin).children;
+  return {
+    for (final (slot, id) in [
+      ('loading', pagination?.loadingNodeId),
+      ('error', pagination?.errorNodeId),
+      ('end', pagination?.endNodeId),
+      ('sectionHeader', sections?.headerNodeId),
+      ('reorderPlaceholder', reorder?.placeholderNodeId),
+    ])
+      if (id != null && id.isNotEmpty && children.contains(id) && m.nodes.containsKey(id)) slot: id,
+  };
+}
+
+/// A list's or grid's ordered children: the item template and any others,
+/// without the ones in its slots.
+List<String> _items(V1Node m) {
+  final slotted = _listSlots(m).values.toSet();
+  return [for (final c in (m.n as ChildrenMixin).children) if (!slotted.contains(c)) c];
+}
+
+/// v2 `Pagination` JSON (sparse), without its footer ids (slots).
+Json _pagination(PaginationModel p) {
+  String? color(ColorRGBA? c) => c == null ? null : V1Node.rgba(c);
+  return {
+    'name': p.name,
+    if (p.mode != PaginationMode.infinite) 'mode': p.mode.name,
+    if (p.source != PaginationSource.data) 'source': p.source.name,
+    if (p.pageSize != 20) 'pageSize': math.max(1, p.pageSize),
+    if (!_sameInts(p.pageSizeOptions, const [10, 20, 50, 100])) 'pageSizeOptions': p.pageSizeOptions,
+    if (p.strategy != PaginationStrategy.offset) 'strategy': p.strategy.name,
+    if (p.keyPath != 'id') 'keyPath': p.keyPath,
+    if (p.initialPage != 1) 'initialPage': math.max(1, p.initialPage),
+    if (p.thresholdItems != 5) 'thresholdItems': math.max(0, p.thresholdItems),
+    if (p.thresholdPixels != 0) 'thresholdPixels': _r(p.thresholdPixels),
+    if (!p.cachePages) 'cachePages': false,
+    'apiId': ?p.apiId,
+    if (p.parameters.isNotEmpty) 'parameters': {...p.parameters},
+    if (p.itemsPath.isNotEmpty) 'itemsPath': p.itemsPath,
+    if (p.totalPath.isNotEmpty) 'totalPath': p.totalPath,
+    if (p.cursorPath.isNotEmpty) 'cursorPath': p.cursorPath,
+    if (p.pullToRefresh) 'pullToRefresh': true,
+    'refreshColor': ?color(p.refreshColor),
+    'refreshBackgroundColor': ?color(p.refreshBackgroundColor),
+    if (p.refreshDisplacement != 40) 'refreshDisplacement': _r(p.refreshDisplacement),
+  };
+}
+
+bool _sameInts(List<int> a, List<int> b) => a.length == b.length && [for (var i = 0; i < a.length; i++) a[i] == b[i]].every((x) => x);
+
+/// v2 `ListReorder` JSON (sparse), without its placeholder id (a slot).
+Json _reorder(ReorderModel r) => {
+      if (!r.enabled) 'enabled': false,
+      if (r.start != ReorderStart.handle) 'start': r.start.name,
+      if (r.group.isNotEmpty) 'group': r.group,
+      if (r.listKey.isNotEmpty) 'listKey': r.listKey,
+      if (r.canReorderIf.isNotEmpty) 'canReorderIf': r.canReorderIf,
+      if (r.canDropIf.isNotEmpty) 'canDropIf': r.canDropIf,
+      if (r.proxyElevation != 6) 'proxyElevation': _r(r.proxyElevation),
+      if (r.proxyScale != 1) 'proxyScale': _r(r.proxyScale),
+      if (r.proxyOpacity != 1) 'proxyOpacity': _r(r.proxyOpacity),
+      if (r.placeholder != ReorderPlaceholder.gap) 'placeholder': r.placeholder.name,
+      if (!r.autoScroll) 'autoScroll': false,
+      if (r.autoScrollEdge != 48) 'autoScrollEdge': _r(r.autoScrollEdge),
+      if (!r.keyboard) 'keyboard': false,
+      if (r.apply != ListApply.none) 'apply': r.apply.name,
+      if (r.orderField != 'order') 'orderField': r.orderField,
+      if (r.listField.isNotEmpty) 'listField': r.listField,
+    };
+
+/// v2 `ListSections` JSON (sparse), without its header id (a slot).
+Json _sections(ListSectionsModel s) => {
+      if (s.groupBy.isNotEmpty) 'groupBy': s.groupBy,
+      if (!s.sticky) 'sticky': false,
+      if (s.indexBar) 'indexBar': true,
+    };
+
+Json _swipeAction(SwipeActionModel a) {
+  final background = V1Node.rgba(a.background), foreground = V1Node.rgba(a.foreground);
+  return {
+    if (a.id.isNotEmpty) 'id': a.id,
+    if (a.label.isNotEmpty) 'label': a.label,
+    if (a.icon case final MultiSourceIconModel icon when icon.show && !icon.isEmpty) 'icon': migrateGlyph(icon),
+    if (background != '#FFDB2626') 'background': background,
+    if (foreground != '#FFFFFFFF') 'foreground': foreground,
+    if (!a.removes) 'removes': false,
+  };
+}
+
+/// v2 `SwipeActions` JSON (sparse).
+Json _swipeActions(SwipeActionsModel s) => {
+      if (!s.enabled) 'enabled': false,
+      if (s.startActions.isNotEmpty) 'startActions': [for (final a in s.startActions) _swipeAction(a)],
+      if (s.endActions.isNotEmpty) 'endActions': [for (final a in s.endActions) _swipeAction(a)],
+      if (s.threshold != 0.4) 'threshold': _r(s.threshold),
+      if (!s.undo) 'undo': false,
+      if (s.undoMs != 4000) 'undoMs': math.max(0, s.undoMs),
+      if (s.undoMessage != r'${result.label}') 'undoMessage': s.undoMessage,
+      if (s.apply != ListApply.none) 'apply': s.apply.name,
+    };
+
+/// The list features a list or grid shares: pagination and reorder (and a
+/// list's sections and swipe actions).
+Json _listFeatures(V1Node m) {
+  final n = m.n;
+  for (final k in const ['pagination', 'reorder', 'sections', 'swipeActions']) {
+    m.take(k);
+  }
+  final (pagination, reorder) = switch (n) {
+    ListViewNode() => (n.pagination, n.reorder),
+    GridViewNode() => (n.pagination, n.reorder),
+    _ => (null, null),
+  };
+  return {
+    if (pagination != null) 'pagination': _pagination(pagination),
+    if (reorder != null) 'reorder': _reorder(reorder),
+    if (n is ListViewNode && n.sections != null) 'sections': _sections(n.sections!),
+    if (n is ListViewNode && n.swipeActions != null) 'swipeActions': _swipeActions(n.swipeActions!),
+  };
+}
 
 /// Editor metadata: what may be dropped into the node.
 const _editorKeys = ['allowedTypes', 'deniedTypes', 'useFlutterListView', 'ephemeral'];
@@ -141,6 +273,7 @@ Json _listView(V1Node m) {
   }
   if (p.reversePaintOrder) out['reversePaintOrder'] = true;
   if (p.stretchItems && !p.stacked && p.layout == ListLayout.list) out['stretchItems'] = true;
+  out.addAll(_listFeatures(m));
   return out;
 }
 
@@ -168,6 +301,7 @@ Json _gridView(V1Node m) {
     if (d.childAspectRatio != 1) 'childAspectRatio': d.childAspectRatio,
     if (d.mainAxisExtent != null) 'mainAxisExtent': _r(d.mainAxisExtent!),
     if (d.shrinkWrapRows) 'shrinkWrapRows': true,
+    ..._listFeatures(m),
   };
 }
 

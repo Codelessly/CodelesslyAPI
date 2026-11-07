@@ -36,6 +36,7 @@ final samples = <Json>[
   {'type': 'scrollTo', 'node': 's', 'durationMs': 0, 'alignment': 0.5},
   {'type': 'playSound', 'sound': 'bell', 'at': r'${result.at}'},
   {'type': 'playAnimation', 'node': 'n', 'animation': 'confetti'},
+  {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
 ];
 
 void main() {

@@ -131,6 +131,7 @@ final Map<String, _Decoder> _decoders = {
   ScrollToAction.typeName: ScrollToAction._fromJson,
   PlaySoundAction.typeName: PlaySoundAction._fromJson,
   PlayAnimationAction.typeName: PlayAnimationAction._fromJson,
+  PaginateAction.typeName: PaginateAction._fromJson,
 };
 
 // --- reading helpers -------------------------------------------------------------
@@ -1810,6 +1811,78 @@ final class PlayAnimationAction extends ActionDef {
 
   @override
   Json get _fields => {'node': node, if (animation.isNotEmpty) 'animation': animation};
+}
+
+/// What a [PaginateAction] does to a pagination controller.
+enum PaginateCommand {
+  /// The next page (or, when the list scrolls, loads it).
+  next,
+
+  /// The page before, or in a list that loads both ways, the page before
+  /// the first one loaded.
+  previous,
+
+  /// Page [PaginateAction.page].
+  goTo,
+  first,
+
+  /// The last page, once the page count is known.
+  last,
+
+  /// Forgets the loaded pages and loads the first again.
+  refresh,
+
+  /// Loads again the page that failed.
+  retry,
+
+  /// A page holds [PaginateAction.pageSize] items, keeping the first item
+  /// shown on screen.
+  setPageSize,
+}
+
+/// Moves the pagination controller of a list or grid (its `pagination`,
+/// by [controller], the pagination's name).
+final class PaginateAction extends ActionDef {
+  const PaginateAction({
+    this.controller = '',
+    this.command = PaginateCommand.next,
+    this.page = '1',
+    this.pageSize = '20',
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'paginate';
+  @override
+  String get type => typeName;
+
+  final String controller;
+  final PaginateCommand command;
+
+  /// [PaginateCommand.goTo]'s page, from 1: a number or an expression.
+  final String page;
+
+  /// [PaginateCommand.setPageSize]'s size: a number or an expression.
+  final String pageSize;
+
+  static PaginateAction _fromJson(Json m, _Common c) => PaginateAction(
+        controller: _s(m, 'controller'),
+        command: _e(PaginateCommand.values, m, 'command', PaginateCommand.next),
+        page: _s(m, 'page', '1'),
+        pageSize: _s(m, 'pageSize', '20'),
+        enabled: c.enabled,
+        nonBlocking: c.nonBlocking,
+        when: c.when,
+      );
+
+  @override
+  Json get _fields => {
+        'controller': controller,
+        if (command != PaginateCommand.next) 'command': command.name,
+        if (page != '1') 'page': page,
+        if (pageSize != '20') 'pageSize': pageSize,
+      };
 }
 
 /// An action of a type this version doesn't know: its JSON, kept. Running
