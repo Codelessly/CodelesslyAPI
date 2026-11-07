@@ -283,7 +283,7 @@ abstract final class AnimateVariableFields {
   static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'A number variable.');
   static const mode = PropDef<AnimateVariableMode>('mode', EnumCodec(AnimateVariableMode.values), AnimateVariableMode.play);
   static const from = PropDef<String>('from', Codecs.string, '', doc: 'Play: the start (empty: the value now).');
-  static const to = PropDef<String>('to', Codecs.string, '1', doc: 'Play: the end; seek: the share of the way (0-1).');
+  static const to = PropDef<String>('to', Codecs.string, '1', doc: 'Play: the end; seek: the value to jump to.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 1000);
   static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'An expression giving milliseconds.');
   static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);

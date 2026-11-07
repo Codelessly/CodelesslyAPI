@@ -718,16 +718,17 @@ enum AnimateVariableMode {
   /// Ends the animation, leaving the variable where it is.
   stop,
 
-  /// Jumps the animation to [AnimateVariableAction.to], a share (0–1) of
-  /// its way: the variable takes the value there.
+  /// Sets the variable to [AnimateVariableAction.to]; its timeline goes
+  /// on from there (or stays paused there).
   seek,
 }
 
 /// Animates number variable [variable] over time: plays it from [from] to
 /// [to] over [durationMs] (or [duration], an expression giving
 /// milliseconds) along [curve], or pauses, resumes, stops or seeks the
-/// animation it runs. Play doesn't wait for the end: the chain goes on (a
-/// set variable with `animateMs` glides and waits).
+/// animation it runs. A play (or a resume) completes when its timeline
+/// ends: make it non-blocking to go on at once. Resume with nothing paused
+/// plays from where the value is.
 final class AnimateVariableAction extends ActionDef {
   const AnimateVariableAction({
     this.variable = '',
@@ -750,7 +751,7 @@ final class AnimateVariableAction extends ActionDef {
   final AnimateVariableMode mode;
 
   /// Expressions: where play starts (empty: the variable's value now) and
-  /// ends; for seek, [to] is the share of the way.
+  /// ends; for seek, [to] is the value to jump to.
   final String from, to;
   final int durationMs;
 
