@@ -309,6 +309,24 @@ first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
 
+**Running lists.** A design canvas draws every list, grid and table at rest
+(render objects, its slots not shown). A running app builds as islands
+(scrolling Flutter widgets over the template's node boxes) a list that
+pages, groups into `sections` or has `swipeActions` (a `CustomScrollView`;
+a grid that pages, a `SliverGrid`), a list that reorders (a
+`ReorderableListView`; with a reorder `group`, Draggables into a
+DragTarget per list), and a `tableView` (a `TableView` over its bound
+`data` and `columns`, pinned headers). Each repeat is a box in the scope
+its widget gives it (`ProvidedItem` instances: a row's `${item}`/`${index}`,
+a section header's `{key, count, index, start}`, a table cell's `{value,
+row, column, rowIndex, columnIndex}`, a column header's `{label, column,
+columnIndex}`, a row header's `{row, rowIndex}`). A pagination is a
+controller per screen by its `name` (data, API or cloud source; offset,
+page or cursor; pages, infinite or both ways), publishing its state as that
+map variable (declared when the screen's variables are); `paginate`
+actions and `pagination` nodes move it, and a pagination node fires its
+`changed` reactions with the page as `${result}`.
+
 The render layer comes from the prototype's `api_tree.dart`, with v1's
 `SizeFit`, pins and boxes replaced by §3's layout. The layout render objects
 (`RenderFitBox`, `RenderCodelesslyFlex`, `RenderFreeformLayout`,
