@@ -20,13 +20,28 @@ abstract final class FlexProps {
   /// Space between runs when wrapping.
   static const runSpacing = PropDef<double>('runSpacing', Codecs.positive, 0);
 
+  /// Children that overflow a bounded main axis shrink to fit it (by how
+  /// far each can, never below its content), as the editor lays them out;
+  /// false lays them out at their own sizes and lets them run past the end,
+  /// as Flutter's `Row`/`Column` does.
+  static const squeezeChildren = PropDef<bool>('squeezeChildren', Codecs.bool, true);
+
+  /// A scrolling row/column's content is at least as long as its viewport
+  /// (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`):
+  /// alignment and expanded children use the whole viewport while it fits.
+  /// Already so when it centres or spreads its children or has a flex
+  /// child; this makes it so in every case.
+  static const fillViewport = PropDef<bool>('fillViewport', Codecs.bool, false);
+
   static const List<PropDef<Object?>> all = [
     mainAxisAlignment,
     crossAxisAlignment,
     spacing,
     wrap,
     runSpacing,
+    squeezeChildren,
     ...ScrollProps.all,
+    fillViewport,
   ];
 
   /// What a row/column reads from a child: its flex share (`Expanded` /

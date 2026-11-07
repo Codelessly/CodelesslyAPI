@@ -712,6 +712,13 @@ class V1Node {
     if (rc.spacing != 0) p['spacing'] = roundNum(rc.spacing);
     if (rc.wrap) p['wrap'] = true;
     if (rc.runSpacing != 0) p['runSpacing'] = roundNum(rc.runSpacing);
+    if (rc is RowColumnNode) {
+      take('squeezeChildren');
+      take('fillViewport');
+      if (!rc.squeezeChildren) p['squeezeChildren'] = false;
+      // Inert unless it scrolls.
+      if (rc.fillViewport && rc.isScrollable) p['fillViewport'] = true;
+    }
     return {...p, ...scrollProps()};
   }
 
