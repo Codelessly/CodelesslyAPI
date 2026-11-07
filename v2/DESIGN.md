@@ -381,6 +381,8 @@ effect id for the item with that id, and `*` for every item.
 | `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at | `track.*`, `dragTrack.*` |
 | `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) | `pulsePhase`, `pulseDelayMs` |
 | `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face | `transform.*`, `flip.flipped` |
+| `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) | `heroTag` |
+| `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue | `animations.<name>.playKey`, `animations.<name>.delayMs`, `particles.playKey` |
 | `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet | `selected`, `semanticLabel`, `node_enabled` |
 
 Values are read loosely, as v1 read them (`"12"` is a number, `1` true,
@@ -434,7 +436,10 @@ resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
 `${loop.index}`), `delay`, `showToast`, `confirm` (their cosmetics in
-`look`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
+`look`, v1's field names; their `variables` bind look colors, sizes, the
+`icon` name and a toast's `duration`; a confirm's `dialog` screen answers
+by closing with `{confirmed: true, ...values}`, the values its actions'
+`${result}`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
 the scroll views along it), `speak`, `playSound`, `paywall`,
 `controlDrag` (`step` turns a drag track `steps`), `playAnimation`,
 `haptic` (`HapticFeedback`: selection, light, medium, heavy, vibrate),
