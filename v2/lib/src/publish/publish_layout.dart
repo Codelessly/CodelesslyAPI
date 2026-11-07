@@ -4,6 +4,7 @@ import '../document.dart';
 import '../conditions.dart';
 import '../json.dart';
 import '../logic.dart';
+import '../scripts.dart';
 import '../variables.dart';
 import 'theme.dart';
 
@@ -181,8 +182,12 @@ final class PublishLayout {
     final docExtra = document.extra;
     return PublishLayout(
       // The layout's keys the document doesn't know go in [extra], not the
-      // document's.
-      document: document.copyWith(extra: const {}),
+      // document's; its `scripts` stay the document's
+      // ([LayoutDocumentScripts]).
+      document: document.copyWith(extra: {
+        for (final e in docExtra.entries)
+          if (e.key == LayoutDocumentScripts.key) e.key: e.value,
+      }),
       pageId: readString(m['pageId']) ?? '',
       projectId: readString(m['projectId']) ?? '',
       breakpoints: [...?readList(m['breakpoints'])?.map(Breakpoint.fromJson).nonNulls],
@@ -197,7 +202,10 @@ final class PublishLayout {
       theme: m['theme'] == null ? null : ThemeTokens.fromJson(m['theme']),
       lastUpdated: readTimestamp(m['lastUpdated']),
       hidden: readBool(m['hidden']) ?? false,
-      extra: docExtra,
+      extra: {
+        for (final e in docExtra.entries)
+          if (e.key != LayoutDocumentScripts.key) e.key: e.value,
+      },
     );
   }
 
