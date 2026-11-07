@@ -38,6 +38,10 @@ Json _motion(MotionModel m) {
   return j;
 }
 
+/// A v1 motion as v2's `Motion` JSON, for a widget prop that holds one (a
+/// page view's `pageMotion`).
+Json migrateMotion(MotionModel m) => _motion(m);
+
 Json _loop(LoopAnimation l) =>
     _renamed(l.toJson(), const {'durationMs': 'duration', 'delayMs': 'delay'})..['type'] = l.type.name;
 

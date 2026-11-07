@@ -4,6 +4,8 @@
 // Lists, grids and page views repeat their first child (the item template)
 // once per item; tabs, accordions and expansion tiles show some of their
 // children.
+import '../behaviour_fields.dart';
+import '../behaviours.dart';
 import '../json.dart';
 import '../child_fits.dart';
 import '../props.dart';
@@ -182,6 +184,8 @@ abstract final class GridViewProps {
   );
 }
 
+Object? _motionOut(Motion? m) => m?.toJson();
+
 /// Flutter `PageView`: its first child repeated per page.
 abstract final class PageViewProps {
   static const pageSnapping = PropDef<bool>('pageSnapping', Codecs.bool, true);
@@ -197,13 +201,21 @@ abstract final class PageViewProps {
   /// The curve of that animation, by `Curves` name.
   static const animationCurve = PropDef<String>('animationCurve', Codecs.string, 'easeOutCubic');
 
+  /// A 3D look for the pages as they scroll (coverflow, cube, carousel):
+  /// the motion a page has one page after the current one. The current page
+  /// is at rest, pages between are interpolated by their distance (clamped
+  /// to two pages) and pages before are mirrored (`translateX`, `shiftX`,
+  /// `rotate`, `rotateY`, `originX` change sign). Null: flat pages.
+  static const pageMotion =
+      PropDef<Motion?>('pageMotion', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
+
   static const spec = WidgetSpec(
     'pageView',
     props: [
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
       pageSnapping, padEnds, keepPage, initialPage, viewportFraction, allowImplicitScrolling, animationDuration,
-      animationCurve,
+      animationCurve, pageMotion,
     ],
     children: ChildModel.list,
     childFits: cellChildFits,

@@ -521,6 +521,7 @@ class V1Node {
     if (p.gradientTransform case final List<num> t when t.isNotEmpty) j['transform'] = t;
     if (p.gradientTileMode != GradientTileMode.clamp) j['tileMode'] = p.gradientTileMode.name;
     if (type == 'image') j['image'] = imagePaint(p, node);
+    if (p.gradientPerSubpath && type != 'solid' && type != 'image') j['gradientPerSubpath'] = true;
     return j;
   }
 

@@ -6,6 +6,12 @@ import 'package:codelessly_api/codelessly_api.dart';
 /// [v2Type]), or null when v2 has no path for it (the binding is then kept
 /// under its v1 key and reported).
 String? v2BindPath(BaseNode n, String v2Type, String key) {
+  // A gradient stop of a paint by id (`fill-g1-stop-0`,
+  // `stroke-paint-g1-stop-position-1`, `foreground-g1-stop-2`).
+  if (_paintStop.firstMatch(key) case final RegExpMatch m) {
+    final list = switch (m[1]) { 'fill' => 'fills', 'stroke-paint' => 'strokes', _ => 'foregroundFills' };
+    return 'decoration.$list.${m[2]}.stops[${m[4]}].${m[3] == null ? 'color' : 'position'}';
+  }
   // Per-paint, per-effect and per-stop keys.
   for (final (prefix, path) in _prefixed) {
     if (key.startsWith(prefix) && key.length > prefix.length) {
@@ -36,8 +42,11 @@ String? v2BindPath(BaseNode n, String v2Type, String key) {
   return null;
 }
 
+final RegExp _paintStop = RegExp(r'^(fill|stroke-paint|foreground)-(.+?)-stop-(position-)?(\d+)$');
+
 final List<(String, String Function(String))> _prefixed = [
   ('fill-image-', (id) => 'decoration.fills.$id.image.url'),
+  ('fill-stop-position-', (i) => 'decoration.fills[0].stops[$i].position'),
   ('fill-stop-', (i) => 'decoration.fills[0].stops[$i].color'),
   ('fill-', (id) => 'decoration.fills.$id'),
   ('stroke-paint-', (id) => 'decoration.strokes.$id'),
@@ -126,6 +135,8 @@ const Map<String, Map<String, String>> _byType = {
     'error': 'props.decoration.errorText',
   },
   'dropdown': {'data': 'props.items'},
+  // A grid's column count from data (GridViewNode.crossAxisCountVariable).
+  'gridView': {'crossAxisCount': 'props.crossAxisCount'},
   'checkbox': {'value': 'props.value'},
   'switch': {'value': 'props.value'},
   'radio': {'value': 'props.value', 'groupValue': 'props.groupValue'},
