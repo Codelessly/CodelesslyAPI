@@ -16,6 +16,23 @@ String? v2BindPath(BaseNode n, String v2Type, String key) {
     final field = key.substring('motion.'.length);
     return 'motion.${_motionFields[field] ?? field}';
   }
+  // A drag track's settings and geometry (`track.x2`, `dragTrack.endAngle`)
+  // and the value it's drawn at (`track.value`).
+  for (final prefix in const ['track.', 'dragTrack.']) {
+    if (key.startsWith(prefix) && key.length > prefix.length) {
+      final field = key.substring(prefix.length);
+      return 'drag.track.${_trackFields[field] ?? field}';
+    }
+  }
+  // A transform gesture's pose from data, and its switch.
+  if (key.startsWith('transform.') && key.length > 'transform.'.length) {
+    return 'transformGesture.${key.substring('transform.'.length)}';
+  }
+  if (key == 'flip.flipped') return key;
+  // A pulse is a loop after the node's loop animation.
+  if (key == 'pulsePhase' || key == 'pulseDelayMs') {
+    return 'loops[${n.loopAnimation == null ? 0 : 1}].${key == 'pulsePhase' ? 'phase' : 'lag'}';
+  }
   final isText = n is TextNode;
   // The type's own cases first: the same v1 name means different things
   // per type.
@@ -47,6 +64,10 @@ final List<(String, String Function(String))> _prefixed = [
 ];
 
 const _motionFields = {'durationMs': 'duration', 'delayMs': 'delay'};
+
+const _trackFields = {'settleMs': 'settle', 'snapMs': 'snap', 'fineHoldMs': 'fineHold'};
+
+final RegExp _number = RegExp(r'^-?(\d+\.?\d*|\.\d+)$');
 
 const _collections = {'listView', 'gridView', 'pageView'};
 
@@ -144,6 +165,8 @@ final RegExp _iconName = RegExp(r'^[a-z0-9_]+$');
 String? v2BindExpression(String? path, String value) {
   if (value.contains(r'${')) return value;
   final t = value.trim();
+  // A drag track reads a number written as is (`"track.step": "0.5"`).
+  if (path != null && path.startsWith('drag.track.') && _number.hasMatch(t)) return t;
   if (!_barePath.hasMatch(t)) return null;
   if (path == 'props.icon.name' && _iconName.hasMatch(t)) return "\${= coalesce($t, '$t')}";
   return '\${$t}';
