@@ -132,6 +132,8 @@ const Map<String, String> _textKeys = {
 
 /// Keys whose v2 prop has another name, by v1 type.
 const Map<String, Map<String, String>> _byType = {
+  // CanvasNode.blockBackVariable: keeps the user on the screen on back.
+  'canvas': {'blockBack': 'props.blockBack'},
   'icon': {'icon': 'props.icon.name', 'iconName': 'props.icon.name', 'iconColor': 'props.color', 'color': 'props.color'},
   'row': {'spacing': 'props.spacing', 'runSpacing': 'props.runSpacing'},
   'column': {'spacing': 'props.spacing', 'runSpacing': 'props.runSpacing'},

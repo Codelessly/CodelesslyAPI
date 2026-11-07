@@ -148,6 +148,8 @@ Iterable<PropDef<Object?>> get _everyTopDef sync* {
   yield* DecorationFields.all;
   yield* NodeFields.all;
   yield* BehaviourFields.all;
+  // Models actions hold.
+  yield NavigateFields.routeTransition;
 }
 
 void main() {
@@ -250,6 +252,7 @@ void main() {
         'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
         'EffectAnimation', 'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'FlipSpring', 'Tilt', 'TransformGesture', 'TransformHandles',
+        'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'TransitionSpring',
       ]),
     );
   });
