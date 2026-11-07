@@ -57,7 +57,7 @@ final List<(String, String Function(String))> _prefixed = [
 
 const _motionFields = {'durationMs': 'duration', 'delayMs': 'delay'};
 
-const _collections = {'listView', 'gridView', 'pageView'};
+const _collections = {'listView', 'gridView', 'pageView', 'tableView'};
 
 /// Types whose props are declared by the core (no per-type properties
 /// beyond the tables here).

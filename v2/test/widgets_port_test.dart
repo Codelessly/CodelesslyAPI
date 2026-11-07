@@ -44,6 +44,46 @@ void main() {
     });
   });
 
+  group('lists and new widget types', () {
+    test('list features are sparse records', () {
+      final p = Props.fromJson(ListViewProps.spec, {
+        'pagination': {'name': 'c', 'source': 'cloud', 'strategy': 'page'},
+        'reorder': {},
+        'swipeActions': {'endActions': [{'id': 'delete'}]},
+      });
+      final pagination = p.get(ListViewProps.pagination)!;
+      expect(pagination.name, 'c');
+      // A cloud source pages by cursor.
+      expect(pagination.strategy, PaginationStrategy.cursor);
+      expect(pagination.pageSize, 20);
+      expect(p.get(ListViewProps.reorder), ListReorder.standard);
+      expect(p.get(ListViewProps.swipeActions)!.endActions.single.background, const Color(0xFFDB2626));
+      expect(p.toJson(ListViewProps.spec)['swipeActions'], {'endActions': [{'id': 'delete'}]});
+      expect(ListViewProps.spec.slots, containsAll(['loading', 'sectionHeader', 'reorderPlaceholder']));
+    });
+
+    test('paginate action and the list triggers', () {
+      final a = ActionDef.fromJson({'type': 'paginate', 'controller': 'c', 'command': 'setPageSize', 'pageSize': '50'});
+      expect(a, isA<PaginateAction>());
+      expect((a as PaginateAction).command, PaginateCommand.setPageSize);
+      expect(Trigger.fromJson({'type': 'refresh'})?.type, TriggerType.refresh);
+      expect(Trigger.fromJson({'type': 'swipeAction'})?.type, TriggerType.swipeAction);
+    });
+
+    test('pagination page numbers, with ellipses that never hide one page', () {
+      expect(PaginationProps.pageItems(page: 5, pageCount: 16), [1, null, 4, 5, 6, null, 16]);
+      expect(PaginationProps.pageItems(page: 3, pageCount: 16), [1, 2, 3, 4, null, 16]);
+      expect(PaginationProps.pageItems(page: 1, pageCount: 0), isEmpty);
+    });
+
+    test('table columns, also from bound values', () {
+      expect(TableColumn.fromJson('name')!.label, 'name');
+      final c = TableColumn.fromJson({'key': 'a', 'width': 80})!;
+      expect((c.key, c.label, c.width), ('a', '', 80));
+      expect(Props.fromJson(TableViewProps.spec, {'columns': [{'key': 'a'}, 'b']}).get(TableViewProps.columns).length, 2);
+    });
+  });
+
   group('text and values', () {
     test('font features read loosely, stored canonical; leading distribution', () {
       final s = TextStyle.fromJson({

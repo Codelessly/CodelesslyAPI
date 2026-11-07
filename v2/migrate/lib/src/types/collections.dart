@@ -15,6 +15,16 @@ final Map<String, TypeMigration> collectionsMigrations = {
   'tabs': TypeMigration(type: (_) => 'tabs', props: _tabs),
   'tabBar': TypeMigration(type: (_) => 'tabBar', props: _tabBar),
   'accordion': TypeMigration(type: (_) => 'accordion', props: _accordion),
+  'pagination': TypeMigration(type: (_) => 'pagination', props: _paginationNode),
+  'tableView': TypeMigration(
+    type: (_) => 'tableView',
+    props: _tableView,
+    children: (m) {
+      final slotted = _tableSlots(m).values.toSet();
+      return [for (final c in (m.n as TableViewNode).children) if (!slotted.contains(c)) c];
+    },
+    slots: _tableSlots,
+  ),
   'expansionTile': TypeMigration(
     type: (_) => 'expansionTile',
     props: _expansionTile,
@@ -160,6 +170,96 @@ Json _listFeatures(V1Node m) {
     if (reorder != null) 'reorder': _reorder(reorder),
     if (n is ListViewNode && n.sections != null) 'sections': _sections(n.sections!),
     if (n is ListViewNode && n.swipeActions != null) 'swipeActions': _swipeActions(n.swipeActions!),
+  };
+}
+
+// --- pagination and table view nodes -------------------------------------------
+
+Json _paginationNode(V1Node m) {
+  final n = m.n as PaginationNode;
+  m.take('controller');
+  m.take('properties');
+  m.take('enabled');
+  final p = n.properties;
+  final textColor = V1Node.rgba(p.textColor), activeColor = V1Node.rgba(p.activeColor);
+  final activeText = V1Node.rgba(p.activeTextColor);
+  // None is transparent (v2 can't store null over a default).
+  final border = p.borderColor == null ? '#00000000' : V1Node.rgba(p.borderColor!);
+  return {
+    if (n.controller.isNotEmpty) 'controller': n.controller,
+    if (!p.showFirstLast) 'showFirstLast': false,
+    if (!p.showPrevNext) 'showPrevNext': false,
+    if (!p.showPageNumbers) 'showPageNumbers': false,
+    if (p.siblingCount != 1) 'siblingCount': math.max(0, p.siblingCount),
+    if (p.boundaryCount != 1) 'boundaryCount': math.max(0, p.boundaryCount),
+    if (p.showPageSize) 'showPageSize': true,
+    if (!p.showSummary) 'showSummary': false,
+    if (p.summaryText != 'Showing {from}–{to} of {total}') 'summaryText': p.summaryText,
+    if (p.pageSizeLabel != 'Rows per page') 'pageSizeLabel': p.pageSizeLabel,
+    if (p.firstLabel != '«') 'firstLabel': p.firstLabel,
+    if (p.previousLabel != '‹') 'previousLabel': p.previousLabel,
+    if (p.nextLabel != '›') 'nextLabel': p.nextLabel,
+    if (p.lastLabel != '»') 'lastLabel': p.lastLabel,
+    // MainAxisAlignment as the Wrap's alignment it was drawn with.
+    if (p.alignment != MainAxisAlignmentC.spaceBetween) 'alignment': p.alignment.name,
+    if (p.fontSize != 14) 'fontSize': _r(p.fontSize),
+    if (p.fontWeight != 400) 'fontWeight': p.fontWeight,
+    if (textColor != '#FF333842') 'textColor': textColor,
+    if (p.buttonColor case final ColorRGBA c) 'buttonColor': V1Node.rgba(c),
+    if (activeColor != '#FF2663EA') 'activeColor': activeColor,
+    if (activeText != '#FFFFFFFF') 'activeTextColor': activeText,
+    if (border != '#FFD8DDE5') 'borderColor': border,
+    if (p.borderWidth != 1) 'borderWidth': _r(p.borderWidth),
+    if (p.cornerRadius != 6) 'cornerRadius': _r(p.cornerRadius),
+    if (p.buttonSize != 32) 'buttonSize': _r(p.buttonSize),
+    if (p.spacing != 4) 'spacing': _r(p.spacing),
+    if (p.disabledOpacity != 0.4) 'disabledOpacity': _r(p.disabledOpacity),
+    if (!n.enabled) 'enabled': false,
+  };
+}
+
+Map<String, String> _tableSlots(V1Node m) {
+  final n = m.n as TableViewNode;
+  final p = n.properties;
+  return {
+    for (final (slot, id) in [
+      ('cell', p.cellNodeId),
+      ('columnHeader', p.columnHeaderNodeId),
+      ('rowHeader', p.rowHeaderNodeId),
+      ('corner', p.cornerNodeId),
+    ])
+      if (id.isNotEmpty && n.children.contains(id) && m.nodes.containsKey(id)) slot: id,
+  };
+}
+
+Json _tableView(V1Node m) {
+  final n = m.n as TableViewNode;
+  _takeAll(m, const ['properties', 'clipsContent', 'allowedTypes', 'deniedTypes', 'maxAllowedSize', 'ephemeral']);
+  final p = n.properties;
+  final grid = p.gridLineColor == null ? '#00000000' : V1Node.rgba(p.gridLineColor!);
+  return {
+    if (p.columns.isNotEmpty)
+      'columns': [
+        for (final c in p.columns)
+          {
+            if (c.key.isNotEmpty) 'key': c.key,
+            if (c.label.isNotEmpty) 'label': c.label,
+            if (c.width case final double w) 'width': _r(w),
+          },
+      ],
+    'rowCount': ?p.rowCount,
+    if (p.rowHeight != 40) 'rowHeight': _r(p.rowHeight),
+    if (p.headerHeight != 44) 'headerHeight': _r(p.headerHeight),
+    if (p.columnWidth != 120) 'columnWidth': _r(p.columnWidth),
+    if (p.rowHeaderWidth != 120) 'rowHeaderWidth': _r(p.rowHeaderWidth),
+    if (!p.pinHeaderRow) 'pinHeaderRow': false,
+    if (!p.pinHeaderColumn) 'pinHeaderColumn': false,
+    if (grid != '#FFE0E2E8') 'gridLineColor': grid,
+    if (p.gridLineWidth != 1) 'gridLineWidth': _r(p.gridLineWidth),
+    if (p.stripeColor case final ColorRGBA c) 'stripeColor': V1Node.rgba(c),
+    if (p.headerColor case final ColorRGBA c) 'headerColor': V1Node.rgba(c),
+    if (p.cacheExtent case final double e) 'cacheExtent': _r(e),
+    if (!n.clipsContent) 'clipBehavior': 'none',
   };
 }
 
