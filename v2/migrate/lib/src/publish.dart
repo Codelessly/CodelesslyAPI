@@ -10,8 +10,8 @@
 // `canvasPaths`, `variables`, `conditions`) moves next to the layout it
 // belongs to.
 //
-// The result is written to the v2 storage paths (`publish_v2/...`), so apps
-// on SDK 8.x keep reading the v1 publish.
+// The result replaces the v1 publish in place (`publish/{project}` and its
+// `layouts/*`; the conversion job in codelessly_v2_storage writes it).
 import 'dart:convert';
 import 'dart:io' show gzip;
 
