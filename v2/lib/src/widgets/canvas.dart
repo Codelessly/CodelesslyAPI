@@ -27,12 +27,8 @@ abstract final class CanvasProps {
   /// its own.
   static const screen = PropDef<String>('screen', Codecs.string, '', doc: 'The screen it is a breakpoint of.');
 
-  /// Where this canvas starts showing in its screen when not at its
-  /// breakpoint's min width (a v1 layout group's lower bound).
-  static const breakpointMinWidth =
-      PropDef<double?>('breakpointMinWidth', Codecs.optionalPositive, null, doc: 'Its own switch point.');
   static const spec = WidgetSpec('canvas',
-      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
+      props: [scaleMode, blockBack, breakpoint, screen], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
       decorated: true, doc: 'Flutter `Scaffold`.');
 }
 
@@ -44,36 +40,12 @@ abstract final class VarianceProps {
   static const variants = PropDef<List<Json>>('variants', Codecs.jsonList, []);
   static const current = PropDef<String>('current', Codecs.string, '');
 
-  /// A responsive variance's own switch points: breakpoint id → the width
-  /// it shows that breakpoint's variant from, when not the project's.
-  static const minWidths = PropDef<Map<String, double>>('minWidths', BreakpointWidthsCodec(), {},
-      doc: 'Its own switch points, by breakpoint.');
   static const spec = WidgetSpec('variance',
-      props: [variants, current, minWidths],
+      props: [variants, current],
       children: ChildModel.list,
       decorated: true,
       childFields: [LayoutFields.x, LayoutFields.y],
       doc: 'Variant switcher.');
-}
-
-/// Breakpoint id → width (a variance's own switch points).
-final class BreakpointWidthsCodec extends PropCodec<Map<String, double>> {
-  const BreakpointWidthsCodec();
-  @override
-  Map<String, double>? decode(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    return {
-      for (final e in m.entries)
-        if (readDouble(e.value) case final double w when w >= 0) e.key: w,
-    };
-  }
-
-  @override
-  Object encode(Map<String, double> value) => {for (final e in value.entries) e.key: writeDouble(e.value)};
-
-  @override
-  PropType get type => const PropType.json('Map<String, double>');
 }
 
 /// A variance node's responsive layout (DESIGN.md §5.3).
@@ -90,11 +62,6 @@ extension VarianceBreakpoints on Node {
   static String? breakpointOfVariant(Json v) =>
       v['breakpoint'] is String && (v['breakpoint'] as String).isNotEmpty ? v['breakpoint'] as String : null;
 
-  /// The breakpoint this responsive variance shows at [width] of
-  /// [breakpoints], by its own switch points ([VarianceProps.minWidths]).
-  Breakpoint breakpointForWidth(double width, Breakpoints breakpoints) =>
-      breakpoints.forWidth(width, prop(VarianceProps.minWidths));
-
   /// The variant shown: [VarianceProps.current]'s, else the first.
   Json? get currentVarianceVariant {
     final vs = varianceVariants;
@@ -107,9 +74,10 @@ extension VarianceBreakpoints on Node {
 
   /// The variant this variance shows on a screen [width] wide: a responsive
   /// one, the variant of the breakpoint the width resolves to, else of the
-  /// nearest one (the narrower on a tie); any other, its current one.
+  /// widest narrower breakpoint that has one, else the narrowest
+  /// ([variantIdForBreakpoint]); any other, its current one.
   Json? variantForWidth(double width, Breakpoints breakpoints) {
-    final target = variantIdForBreakpoint(breakpointForWidth(width, breakpoints).id, breakpoints);
+    final target = variantIdForBreakpoint(breakpoints.forWidth(width).id, breakpoints);
     if (target != null) {
       for (final v in varianceVariants) {
         if (v['id'] == target) return v;
@@ -118,16 +86,18 @@ extension VarianceBreakpoints on Node {
     return currentVarianceVariant;
   }
 
-  /// The id of the variant for breakpoint [breakpointId]: its own, else the
-  /// nearest breakpoint's that has one. Null when no variant names a
-  /// breakpoint of [breakpoints].
+  /// The id of the variant for breakpoint [breakpointId]: a variant shows
+  /// from its breakpoint up to the next variant's (min-width semantics, as
+  /// a screen's canvases), so its own, else the widest narrower one's
+  /// ([Breakpoints.governing]); below every variant, the narrowest. Null
+  /// when no variant names a breakpoint of [breakpoints].
   String? variantIdForBreakpoint(String breakpointId, Breakpoints breakpoints) {
     final byBreakpoint = <String, String>{};
     for (final v in varianceVariants) {
       final b = breakpointOfVariant(v);
       if (b != null && v['id'] is String) byBreakpoint.putIfAbsent(b, () => v['id'] as String);
     }
-    final nearest = breakpoints.nearest(breakpointId, byBreakpoint.keys);
-    return nearest == null ? null : byBreakpoint[nearest];
+    final governing = breakpoints.governing(breakpointId, byBreakpoint.keys);
+    return governing == null ? null : byBreakpoint[governing];
   }
 }

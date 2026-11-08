@@ -30,8 +30,15 @@ The editor builds on all three; the API and SDK know nothing about it.
   any older v2 schema on load, so the format can keep improving without
   breaking stored data.
 * v1 data is **not** read by the v2 SDK. Existing layouts move to v2 through a
-  one-time batch migration (`v2/migrate`, §6). Published v2 layouts go to their
-  own storage path, so apps on SDK 8.x keep reading their v1 publish untouched.
+  one-time batch migration (`v2/migrate`, §6). v2 replaces v1's publish in
+  place (owner decision): a converted project's publish model is
+  `publish/{projectId}` and each layout `publish/{projectId}/layouts/{id}`
+  (`publish_preview/...` for the editor's preview, `templates/...` for
+  templates), in the v2 format with `"schema": 2`; a layout too large for one
+  Firestore document keeps its nodes gzipped and base64 encoded in
+  `compressedNodes` (`{"nodes": {...}}`). SDK 8.x apps can't read a converted
+  project's publish; SDK 20 fails on an unconverted one with a clear message
+  (§5.4).
 * **Decoding is total.** Unknown keys round-trip in `extra`. Unknown node types
   decode as `UnknownNode` (they render as an empty box of their size). Bad
   values fall back to the default. A malformed field never throws.
@@ -533,16 +540,18 @@ editor stores per-project data, a page's document carries the project's set
 (`LayoutDocumentBreakpoints`, key `breakpoints`), as it carries project
 scripts; publish copies it to the model.
 
-**Local switch points (the only override).** A responsive variance
-(`VarianceProps.minWidths`, `{breakpointId: width}`) and a screen's canvas
-(`CanvasProps.breakpointMinWidth`) may move where *they* switch to one of the
-project's breakpoints, nothing else. v1 had both (a responsive node's
-`tabletMinWidth`/`desktopMinWidth`; layout groups' arbitrary canvas ranges),
-so migrated projects keep switching where they did, and a component can
-switch later than the app (a sidebar that stays narrow up to 1100). Inside a
-variance with its own switch points, `${screen}` follows them (v1's
-`ResponsiveWidthsScope`), so `screen.isTablet` agrees with the layout on
-show.
+**No local switch points.** Nothing moves where it switches: a responsive
+variance switches where its variants' breakpoints start, a screen where its
+canvases' do, an adaptive modal where its `sheetBelow` breakpoint does, and
+`${screen}` is the project's inside every node. A width that matters is a
+breakpoint of the project. (v1 moved widths locally: a responsive node's
+`tabletMinWidth`/`desktopMinWidth`, layout groups' arbitrary canvas ranges,
+an adaptive dialog's `sheetBelowWidth`. The migration turns all of them into
+project breakpoints, below. An earlier v2 kept them as overrides,
+`VarianceProps.minWidths` and `CanvasProps.breakpointMinWidth`; they are
+gone: two widths for "tablet" in one project made `${screen.isTablet}`
+disagree with the layout on show, and a component that must switch later
+than the app is a breakpoint the project names.)
 
 **Shape.** `Breakpoint {id, name, minWidth, width, height}`:
 
@@ -569,19 +578,26 @@ variance with any is responsive). A canvas: `props.breakpoint` (the
 breakpoint it is the design for) and `props.screen` (canvases with the same
 value are one screen, one canvas per breakpoint; empty: a screen of its
 own). A published layout lists its canvases' breakpoints:
-`"breakpoints": [{"canvas", "breakpoint", "minWidth"?}]` (`minWidth`: the
-canvas's own switch point).
+`"breakpoints": [{"canvas", "breakpoint"}]`. An Open Modal action:
+`sheetBelow: "<id>"` (adaptive: a bottom sheet on breakpoints narrower than
+that one, a dialog from it up; empty, or a breakpoint since removed: the
+project's second breakpoint, i.e. a sheet on the narrowest only; with one
+breakpoint, always a dialog). An adaptive confirm uses that default.
 
 **Resolving a width.** `Breakpoints.forWidth(w)`: the one with the highest
 `minWidth` at or below `w` (inclusive), else the first. A screen shows the
-canvas whose switch point (its own, else its breakpoint's) is the highest at
-or below the width, else its narrowest. A responsive variance shows the
-variant of the breakpoint the width resolves to (by the project's set with
-its own switch points), else the nearest one in order, the narrower on a tie
-(v1's rule over the enum, now over the list), else `current`. The width is
-the screen's: the width the layout is shown at (v1's canvas width), and in a
-dialog, sheet or popover the device's (v1's `BreakpointWidthScope`), never
-the variance's own box.
+canvas whose breakpoint starts the highest at or below the width, else its
+narrowest. A responsive variance shows the variant of the breakpoint the
+width resolves to, else the one of the widest narrower breakpoint that has
+a variant, else its narrowest (`Breakpoints.governing`): each variant covers
+from its breakpoint up to the next variant's, min-width semantics like the
+canvases'. On the default three this is exactly v1's rule (the nearest, the
+narrower on a tie: the same for every combination of variants), and it
+makes a breakpoint no variant names transparent: adding one never moves
+where an existing variance switches (v1's nearest rule over a longer list
+would). Else `current`. The width is the screen's: the width the layout is
+shown at (v1's canvas width), and in a dialog, sheet or popover the
+device's (v1's `BreakpointWidthScope`), never the variance's own box.
 
 **`${screen}`** (`screenValues`): `width`, `height`, `orientation`,
 `isPortrait`, `isLandscape`, `brightness`, `isDark`; `breakpoint` (the
@@ -597,12 +613,77 @@ win over a generated one.
 `bottomOffsets`) are keyed by breakpoint id (a name also matches); a
 breakpoint with no entry uses the single value.
 
-**Migration.** A v1 project gets the defaults (v1 has no project set). A
-responsive node's custom widths become its `minWidths` (`tablet`, `desktop`),
-not project breakpoints: promoting one node's widths would move every other
-screen, node and `${screen}` in the project. A layout group's canvas gets the
-breakpoint its lower bound falls in, and its lower bound as its own switch
-point when it differs from the breakpoint's.
+**Migration: v1's widths become the project's breakpoints**
+(`migrate/lib/src/breakpoints.dart`). v1 had one fixed set (mobile 0,
+tablet 600, desktop 1024, `ScreenBreakpoint`) and three local overrides.
+The conversion job builds the project's set from every page first
+(`migrateProjectBreakpoints(documents, layoutGroups:, logic:)`), writes it
+to the project's data and publish model, and converts each page against it
+(`migrateDocument(..., breakpoints:)`):
+
+1. *Switch points.* Every width v1 actually switched at is collected, with
+   the v1 class it starts: a responsive node's tablet and desktop widths
+   (its own, else 600 / 1024), only for classes it has a variant for and
+   whose range isn't empty; each layout-group canvas's lower bound; an
+   adaptive dialog's `sheetBelowWidth` (600 when unset); and 600 and 1024
+   once for each read of the global classes (a formula reading
+   `screen.is…`/`screen.breakpoint`, a toast's per-breakpoint look).
+2. *The named three.* The most used tablet width becomes `tablet`'s min
+   width and the most used desktop width `desktop`'s (a tie goes to v1's
+   600 / 1024, then the narrower); `mobile` starts at 0. The ids stay v1's
+   class names, so variants, toast keys and `isTablet` formulas keep their
+   names, and a project that never moved a width gets exactly the defaults.
+3. *Every other width is a breakpoint too.* When pages disagree (one node
+   switches to desktop at 1100, the rest at 1024), each remaining width
+   becomes a breakpoint of its own, `<class><width>` named "Desktop 1024",
+   between the others. Why not keep the most common widths only and move the
+   rest? Because then some page switches somewhere else after the
+   conversion, silently. Why not per-node overrides? They are what made
+   one device two breakpoints at once (above). An added breakpoint that a
+   page doesn't name changes nothing for it (the governing rule), so each
+   page still switches exactly where it did: the cost is a longer list in
+   the editor, which the owner can merge by hand, and that
+   `${screen.breakpoint}` / `${screen.isTablet}` read the narrower range of
+   the breakpoint now split (`MigratedBreakpoints.added` lists them for the
+   report).
+4. *References.* A responsive variant names the breakpoint that starts where
+   v1 showed it (a variant of a range v1 never showed loses its
+   breakpoint); a layout group's canvas the one starting at its lower bound;
+   an adaptive Open Modal's `sheetBelow` the one starting at its v1
+   `sheetBelowWidth` (left out when that is the second, the default); a
+   toast's per-breakpoint look gets an entry for every breakpoint, the
+   value of the v1 class it starts in.
+
+A page converted without its project's set (the editor's snippet import)
+uses the defaults and resolves a width the set lacks to the breakpoint it
+falls in. A published v1 layout converted without the job's set builds one
+from the publish's own layouts (`publishBreakpoints`).
+
+### 5.4 Loading published apps
+
+`Codelessly` loads through a `PublishLoader` (model, then each layout when
+first shown) and keeps what it loaded in a `PublishCache` (keys: the
+publish paths), opening on the cached copy and refreshing in the
+background, as SDK 8.x did. Loaders: `FirestorePublishLoader`
+(`package:codelessly_sdk/firebase.dart`), the default for Codelessly's
+Firebase (`codelesslyOnFirebase`); `HttpPublishLoader` (a slug's bundle,
+`publish/{slug}.json` in storage); `AssetPublishLoader`;
+`MemoryPublishLoader` (tests).
+
+The Firestore loader reads what the conversion job and the v2 editor write
+(§2.1): the document `PublishSource.modelPath` and each
+`PublishSource.layoutPath`, `compressedNodes` expanded, Firestore
+timestamps as milliseconds. With the app's project token
+(`CodelesslyConfig.authToken`) it authenticates first (`ProjectAuth`:
+anonymous sign-in, the backend's `verifyProjectAuthToken` names the token's
+project and grants the claim the publish paths' rules check); a template
+project reads `templates`. `CodelesslyConfig.publishSource: preview` reads
+`publish_preview`. It is a `LivePublishLoader`: `Codelessly` follows the
+model document (`CodelesslyConfig.liveUpdates`, on by default), and a
+layout whose entry got newer is dropped and loads again when shown, so a
+publish (or a preview save) reaches running apps, as v1's stream did. A
+document without `"schema": 2` is a project nobody converted: loading fails
+with a `PublishLoadException` saying so (SDK 20 reads v2 only).
 
 ## 6. Migration from v1
 

@@ -197,39 +197,49 @@ final class Breakpoints {
   int indexOf(String? id) => list.indexWhere((b) => b.id == id);
 
   /// The breakpoint [width] falls in: the last one, in order, whose min
-  /// width is at or below it, else the first. [minWidths] (id → min width)
-  /// moves some breakpoints' switch points (a node's or canvas's own); the
-  /// order stays the set's.
-  Breakpoint forWidth(double width, [Map<String, double> minWidths = const {}]) {
+  /// width is at or below it, else the first.
+  Breakpoint forWidth(double width) {
     var best = list.first;
     for (var i = 1; i < list.length; i++) {
       final b = list[i];
-      if (width >= (minWidths[b.id] ?? b.minWidth)) best = b;
+      if (width >= b.minWidth) best = b;
     }
     return best;
   }
 
-  /// Of [candidates] (breakpoint ids), the one nearest to [id] in order:
-  /// [id] itself, else the fewest steps away, the narrower on a tie (a
-  /// narrower layout fits a wider screen better than the reverse). Ids not
-  /// in the set are ignored. Null when none is.
-  String? nearest(String id, Iterable<String> candidates) {
+  /// The breakpoint whose min width is exactly [width], if any.
+  Breakpoint? at(double width) {
+    for (final b in list) {
+      if (b.minWidth == width) return b;
+    }
+    return null;
+  }
+
+  /// Of [candidates] (breakpoint ids: what a responsive variance's variants
+  /// or a per-breakpoint value name), the one that governs breakpoint [id]:
+  /// [id] itself, else the widest one narrower than it, else the narrowest
+  /// (each covers from its breakpoint up to the next candidate's: min-width
+  /// semantics, as a screen's canvases). On the default three it is v1's
+  /// rule (the nearest, the narrower on a tie), and a breakpoint no
+  /// candidate names changes nothing. Ids not in the set are ignored; null
+  /// when none is in it (or [id] isn't).
+  String? governing(String id, Iterable<String> candidates) {
     final want = indexOf(id);
     if (want < 0) return null;
-    String? best;
-    var bestIndex = -1;
-    var bestDistance = 1 << 30;
+    String? below, above;
+    var belowIndex = -1, aboveIndex = 1 << 30;
     for (final c in candidates) {
       final i = indexOf(c);
       if (i < 0) continue;
-      final d = (i - want).abs();
-      if (d < bestDistance || (d == bestDistance && i < bestIndex)) {
-        best = c;
-        bestIndex = i;
-        bestDistance = d;
+      if (i <= want && i > belowIndex) {
+        below = c;
+        belowIndex = i;
+      } else if (i > want && i < aboveIndex) {
+        above = c;
+        aboveIndex = i;
       }
     }
-    return best;
+    return below ?? above;
   }
 
   /// A new id for a breakpoint of this set.
