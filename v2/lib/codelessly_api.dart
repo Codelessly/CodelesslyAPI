@@ -25,6 +25,7 @@ export 'src/services/config.dart';
 export 'src/services/http_api.dart';
 export 'src/services/paywall.dart';
 export 'src/publish/app_identity.dart';
+export 'src/publish/breakpoints.dart';
 export 'src/publish/publish_layout.dart';
 export 'src/publish/publish_model.dart';
 export 'src/publish/theme.dart';

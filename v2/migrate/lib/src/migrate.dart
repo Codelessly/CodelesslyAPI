@@ -8,6 +8,7 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'actions.dart';
 import 'behaviours.dart';
 import 'bindings.dart';
+import 'breakpoints.dart';
 import 'components.dart';
 import 'logic.dart';
 import 'page_schema.dart';
@@ -774,9 +775,17 @@ class V1Node {
     final v = n as VarianceNode;
     take('variants');
     take('currentVariantId');
+    // A responsive node's own switch widths (DESIGN.md §5.3); its variants'
+    // v1 breakpoint names are v2's default breakpoint ids.
+    take('properties');
+    final minWidths = varianceMinWidths(
+      tabletMinWidth: v.properties.tabletMinWidth,
+      desktopMinWidth: v.properties.desktopMinWidth,
+    );
     return {
       'variants': [for (final variant in v.variants) Map<String, Object?>.from(variant.toJson())],
       'current': v.currentVariantId,
+      if (minWidths.isNotEmpty) 'minWidths': minWidths,
     };
   }
 

@@ -15,8 +15,8 @@ void main() {
     'pageId': 'page',
     'projectId': 'p',
     'breakpoints': [
-      {'canvas': 'm'},
-      {'canvas': 'd', 'minWidth': 1024},
+      {'canvas': 'm', 'breakpoint': 'mobile'},
+      {'canvas': 'd', 'breakpoint': 'desktop'},
     ],
     'paths': {'m': 'home'},
     'variables': {
@@ -37,7 +37,7 @@ void main() {
       expect(l.document['d']!.type, 'canvas');
       expect(l.document.extra, isEmpty);
       expect(l.pageId, 'page');
-      expect(l.breakpoints, [const Breakpoint(canvasId: 'm'), const Breakpoint(canvasId: 'd', minWidth: 1024)]);
+      expect(l.breakpoints, [const CanvasBreakpoint(canvasId: 'm', breakpointId: 'mobile'), const CanvasBreakpoint(canvasId: 'd', breakpointId: 'desktop')]);
       expect(l.paths, {'m': 'home'});
       expect(l.variablesOf('m').single.value, 3);
       expect(l.lastUpdated, DateTime.fromMillisecondsSinceEpoch(1700000000000, isUtc: true));
@@ -73,10 +73,31 @@ void main() {
       expect(l.canvasForWidth(3000), 'd');
       // Below every range: the narrowest.
       final shifted = l.copyWith(breakpoints: [
-        const Breakpoint(canvasId: 'm', minWidth: 300),
-        const Breakpoint(canvasId: 'd', minWidth: 1024),
+        const CanvasBreakpoint(canvasId: 'm', minWidth: 300),
+        const CanvasBreakpoint(canvasId: 'd', minWidth: 1024),
       ]);
       expect(shifted.canvasForWidth(100), 'm');
+      // By the project's breakpoints: desktop from 1200 here.
+      final project = Breakpoints.defaults.update('desktop', (b) => b.copyWith(minWidth: 1200));
+      expect(l.canvasForWidth(1100, project), 'm');
+      expect(l.canvasForWidth(1200, project), 'd');
+      // A canvas's own switch point wins over its breakpoint's.
+      final own = l.copyWith(breakpoints: [
+        const CanvasBreakpoint(canvasId: 'm', breakpointId: 'mobile'),
+        const CanvasBreakpoint(canvasId: 'd', breakpointId: 'desktop', minWidth: 900),
+      ]);
+      expect(own.canvasForWidth(950), 'd');
+      expect(own.toJson()['breakpoints'], [
+        {'canvas': 'm', 'breakpoint': 'mobile'},
+        {'canvas': 'd', 'breakpoint': 'desktop', 'minWidth': 900},
+      ]);
+      // v2 data from before breakpoints had ids: ranges by min width.
+      final legacy = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
+        {'canvas': 'm'},
+        {'canvas': 'd', 'minWidth': 1024, 'maxWidth': 99999},
+      ]});
+      expect(legacy.canvasForWidth(1023), 'm');
+      expect(legacy.canvasForWidth(1024), 'd');
       // A single canvas needs no breakpoints.
       final one = PublishLayout(document: LayoutDocument(id: 'x', roots: const ['c'], nodes: {'c': const Node(id: 'c', type: 'canvas')}));
       expect(one.canvasForWidth(9999), 'c');
