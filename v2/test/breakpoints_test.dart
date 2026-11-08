@@ -56,23 +56,39 @@ void main() {
       expect(b.ids, ['a', 'b']);
     });
 
-    test('a node or canvas may move switch points, keeping the order', () {
-      final d = Breakpoints.defaults;
-      expect(d.forWidth(1050, const {'desktop': 1100}).id, 'tablet');
-      expect(d.forWidth(1100, const {'desktop': 1100}).id, 'desktop');
-      expect(d.forWidth(650, const {'tablet': 700}).id, 'mobile');
-      // Unknown ids are ignored.
-      expect(d.forWidth(650, const {'nope': 10}).id, 'tablet');
+    test('at: the breakpoint starting at a width', () {
+      expect(Breakpoints.defaults.at(600)!.id, 'tablet');
+      expect(Breakpoints.defaults.at(0)!.id, 'mobile');
+      expect(Breakpoints.defaults.at(700), isNull);
     });
 
-    test('nearest: itself, else fewest steps away, the narrower on a tie', () {
+    test('governing: itself, else the widest narrower, else the narrowest', () {
       final d = Breakpoints.defaults;
-      expect(d.nearest('tablet', ['mobile', 'tablet']), 'tablet');
-      expect(d.nearest('tablet', ['mobile', 'desktop']), 'mobile');
-      expect(d.nearest('tablet', ['desktop']), 'desktop');
-      expect(d.nearest('desktop', ['mobile']), 'mobile');
-      expect(d.nearest('desktop', ['gone']), isNull);
-      expect(d.nearest('gone', ['mobile']), isNull);
+      expect(d.governing('tablet', ['mobile', 'tablet']), 'tablet');
+      expect(d.governing('tablet', ['mobile', 'desktop']), 'mobile');
+      expect(d.governing('tablet', ['desktop']), 'desktop');
+      expect(d.governing('desktop', ['mobile']), 'mobile');
+      expect(d.governing('mobile', ['desktop', 'tablet']), 'tablet');
+      expect(d.governing('desktop', ['gone']), isNull);
+      expect(d.governing('gone', ['mobile']), isNull);
+      // On the defaults, v1's rule (nearest, the narrower on a tie), for
+      // every set of variants.
+      const ids = ['mobile', 'tablet', 'desktop'];
+      for (var mask = 1; mask < 8; mask++) {
+        final have = [for (var i = 0; i < 3; i++) if (mask & (1 << i) != 0) ids[i]];
+        for (var want = 0; want < 3; want++) {
+          var best = -1;
+          for (var i = 0; i < 3; i++) {
+            if (!have.contains(ids[i])) continue;
+            if (best < 0 || (i - want).abs() < (best - want).abs()) best = i;
+          }
+          expect(d.governing(ids[want], have), ids[best], reason: '$have at ${ids[want]}');
+        }
+      }
+      // A breakpoint nobody names changes nothing: between tablet and
+      // desktop, tablet's still governs.
+      final more = d.add(const Breakpoint(id: 'mid', minWidth: 800));
+      expect(more.governing('mid', ['mobile', 'tablet', 'desktop']), 'tablet');
     });
 
     test('add, rename, remove, move', () {
@@ -125,7 +141,7 @@ void main() {
   });
 
   group('responsive variance', () {
-    Node variance({Map<String, double> minWidths = const {}, String current = 'm'}) => Node(
+    Node variance({String current = 'm'}) => Node(
           id: 'v',
           type: 'variance',
           props: Props.fromJson(VarianceProps.spec, {
@@ -135,34 +151,34 @@ void main() {
               {'id': 'err', 'name': 'Error', 'children': []},
             ],
             'current': current,
-            if (minWidths.isNotEmpty) 'minWidths': minWidths,
           }),
         );
 
-    test('shows the variant of the breakpoint the width resolves to, else the nearest', () {
+    test('shows the variant of the breakpoint the width resolves to, else the governing one', () {
       final v = variance();
       final d = Breakpoints.defaults;
       expect(v.isResponsive, isTrue);
       expect(v.variantForWidth(390, d)!['id'], 'm');
-      // Tablet has no variant: the narrower of the two nearest.
+      // Tablet has no variant: mobile's covers it.
       expect(v.variantForWidth(800, d)!['id'], 'm');
       expect(v.variantForWidth(1440, d)!['id'], 'd');
+      // A breakpoint added between doesn't move the switch.
+      final more = d.add(const Breakpoint(id: 'wide', minWidth: 1200));
+      expect(v.variantForWidth(1300, more)!['id'], 'd');
+      final narrow = d.add(const Breakpoint(id: 'small', minWidth: 300));
+      expect(v.variantForWidth(350, narrow)!['id'], 'm');
     });
 
-    test('by its own switch points', () {
-      final v = variance(minWidths: const {'desktop': 1200});
-      expect(v.prop(VarianceProps.minWidths), {'desktop': 1200});
-      expect(v.breakpointForWidth(1100, Breakpoints.defaults).id, 'tablet');
-      expect(v.variantForWidth(1100, Breakpoints.defaults)!['id'], 'm');
-      expect(v.variantForWidth(1200, Breakpoints.defaults)!['id'], 'd');
-      expect(v.toJson()['props'], containsPair('minWidths', {'desktop': 1200}));
+    test('no local switch points: the variance follows the project set', () {
+      expect(VarianceProps.spec.props.map((p) => p.key), ['variants', 'current']);
+      expect(CanvasProps.spec.props.map((p) => p.key), isNot(contains('breakpointMinWidth')));
     });
 
     test('a variance with no breakpoints of the project shows its current variant', () {
       final v = variance(current: 'err');
       final other = Breakpoints([const Breakpoint(id: 'a'), const Breakpoint(id: 'b', minWidth: 500)]);
       expect(v.variantForWidth(800, other)!['id'], 'err');
-      final plain = const Node(id: 'x', type: 'variance');
+      const plain = Node(id: 'x', type: 'variance');
       expect(plain.isResponsive, isFalse);
     });
   });

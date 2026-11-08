@@ -61,6 +61,8 @@ Json compressCanvases(Json v1Layout) {
 /// [variables] and [conditions] are the layout's entries of the v1 model's
 /// `variables` / `conditions` (`{id, variables: {canvas: {id: var}}}`), and
 /// [fonts] / [apis] the font and API ids the v1 model listed for it.
+/// [breakpoints] is the project's set ([migrateProjectBreakpoints]; default:
+/// the defaults).
 Json migratePublishLayout(
   Json v1Layout, {
   Object? variables,
@@ -68,18 +70,19 @@ Json migratePublishLayout(
   Iterable<String> fonts = const [],
   Iterable<String> apis = const [],
   MigrationReport? report,
+  MigratedBreakpoints? breakpoints,
 }) {
   final layout = expandCompressedCanvases(v1Layout);
   final id = layout['id'] is String ? layout['id'] as String : '';
   final canvases = _map(layout['canvases']);
-  final breakpoints = [
+  final groups = [
     for (final b in (layout['breakpoints'] is List ? layout['breakpoints'] as List : const []))
       if (b is Map && b['nodeId'] is String) b,
   ]..sort((a, b) => _num(a['lowerBound'], 0).compareTo(_num(b['lowerBound'], 0)));
 
   // Canvases in breakpoint order (narrowest first), then the rest.
   final order = <String>[
-    for (final b in breakpoints)
+    for (final b in groups)
       if (canvases.containsKey(b['nodeId'])) b['nodeId'] as String,
   ];
   for (final c in canvases.keys) {
@@ -99,7 +102,8 @@ Json migratePublishLayout(
     if (path is String && path.trim().isNotEmpty) paths[c] = path.trim();
   }
 
-  final out = migrateDocument(page, id: id, report: report, variables: variables, conditions: conditions);
+  final out = migrateDocument(page,
+      id: id, report: report, variables: variables, conditions: conditions, breakpoints: breakpoints);
   void putString(String key) {
     final v = layout[key];
     if (v is String && v.isNotEmpty) out[key] = v;
@@ -110,7 +114,9 @@ Json migratePublishLayout(
   // The canvases' project breakpoints (DESIGN.md §5.3): a layout of
   // several canvases is one screen, one canvas per breakpoint.
   final v2Breakpoints = order.length > 1
-      ? (migrateLayoutGroups(out, {id: [for (final b in breakpoints) if (canvases.containsKey(b['nodeId'])) b]})[id] ?? const [])
+      ? (migrateLayoutGroups(out, {id: [for (final b in groups) if (canvases.containsKey(b['nodeId'])) b]},
+                  breakpoints: breakpoints)[id] ??
+          const [])
       : const <Json>[];
   if (order.length > 1 && v2Breakpoints.isNotEmpty) out['breakpoints'] = v2Breakpoints;
   if (paths.isNotEmpty) out['paths'] = paths;
@@ -135,7 +141,14 @@ Json migratePublishLayout(
 ///
 /// Layouts the model lists but neither holds keep their entry (canvases,
 /// paths, fonts) in the model, to be migrated when their v1 layout is.
-Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, MigrationReport? report}) {
+///
+/// [breakpoints] is the project's set, as the conversion job made it from
+/// the project's pages ([migrateProjectBreakpoints]) so the publish agrees
+/// with the editor's; without it, the set is made from the published
+/// layouts themselves. The model carries it (`breakpoints`, unless it's the
+/// defaults).
+Json migratePublishModel(Json v1Model,
+    {Map<String, Json> layouts = const {}, MigrationReport? report, MigratedBreakpoints? breakpoints}) {
   final updates = _map(v1Model['updates']);
   final layoutFonts = _map(updates['layoutFonts']);
   final layoutApis = _map(updates['layoutApis']);
@@ -150,6 +163,7 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
       if (e.value is Map) e.key: _map(e.value),
     ...layouts,
   };
+  final set = breakpoints ?? publishBreakpoints(v1Layouts.values, variables: variables, conditions: conditions);
   final v2Layouts = <String, Json>{
     for (final e in v1Layouts.entries)
       e.key: migratePublishLayout(
@@ -159,6 +173,7 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
         fonts: _strings(layoutFonts[e.key]),
         apis: _strings(layoutApis[e.key]),
         report: report,
+        breakpoints: set,
       ),
   };
 
@@ -226,10 +241,29 @@ Json migratePublishModel(Json v1Model, {Map<String, Json> layouts = const {}, Mi
     // normalized by v1's decoder: legacy shapes become the current ones.
     if (v1Model['appIdentity'] case final Map identity) 'appIdentity': AppIdentity.fromJson(identity).toJson(),
     if (v1Model['lastUpdated'] is num) 'lastUpdated': (v1Model['lastUpdated'] as num).round(),
+    if (!set.isDefault) 'breakpoints': set.json,
     for (final k in privacyKeys)
       if (v1Model.containsKey(k)) k: v1Model[k],
   };
   return {'schema': publishSchema, 'model': model, 'layouts': v2Layouts};
+}
+
+/// The project breakpoints of v1 published [layouts] (their canvases'
+/// nodes, layout groups and the model's [variables] / [conditions]), as
+/// [migrateProjectBreakpoints] makes them from pages.
+MigratedBreakpoints publishBreakpoints(Iterable<Json> layouts, {Object? variables, Object? conditions}) {
+  final expanded = [for (final l in layouts) expandCompressedCanvases(l)];
+  return migrateProjectBreakpoints(
+    [
+      for (final l in expanded)
+        {
+          for (final c in _map(l['canvases']).values)
+            for (final e in _map(c).entries) e.key: e.value,
+        },
+    ],
+    layoutGroups: [for (final l in expanded) l['breakpoints']],
+    logic: [variables, conditions],
+  );
 }
 
 /// A v1 publish font (`{id, url, family, weight: "w700", style: "Italic"}`)

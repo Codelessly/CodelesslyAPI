@@ -8,7 +8,7 @@ final samples = <Json>[
   {'type': 'navigate', 'mode': 'reset', 'to': 'home', 'params': {'id': r'${item.id}'}, 'base': 'start', 'transition': 'fade', 'transitionMs': 200,
    'routeTransition': {'preset': 'cube', 'exit': {'motion': {'opacity': 0}, 'reveal': {'shape': 'rect', 'origin': 'node'}, 'delayMs': 20, 'durationMs': 90}, 'barrierColor': '#33000000', 'opaque': false, 'swipeBack': 'never',
                        'dismiss': {'direction': 'right', 'distance': 0.4, 'spring': {'stiffness': 200}}}},
-  {'type': 'openModal', 'to': 'd', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'aboveEnd', 'barrierColor': '#80000000', 'insets': [8, 8, 8, 8], 'routeTransition': {'preset': 'iosModal'}},
+  {'type': 'openModal', 'to': 'd', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'aboveEnd', 'barrierColor': '#80000000', 'insets': [8, 8, 8, 8], 'sheetBelow': 'tablet', 'routeTransition': {'preset': 'iosModal'}},
   {'type': 'closeModal', 'result': {'ok': true}},
   {'type': 'openLink', 'url': 'https://x'},
   {'type': 'submitForm', 'service': 'mailchimp', 'emailField': 'e', 'apiKey': 'k', 'listId': 'l'},
@@ -66,6 +66,18 @@ void main() {
     final branch = ActionDef.fromJson(samples[14])! as IfAction;
     expect(branch.condition, isA<Comparison>());
     expect(branch.selfAndNested.map((a) => a.type), ['if', 'openLink', 'openLink']);
+  });
+
+  test('an adaptive modal is a sheet below a project breakpoint', () {
+    const d = OpenModalAction(presentation: ModalPresentation.adaptive);
+    expect(d.sheetBelowWidthIn(Breakpoints.defaults), 600, reason: 'empty: the second breakpoint');
+    expect(const OpenModalAction(sheetBelow: 'desktop').sheetBelowWidthIn(Breakpoints.defaults), 1024);
+    expect(const OpenModalAction(sheetBelow: 'gone').sheetBelowWidthIn(Breakpoints.defaults), 600);
+    final moved = Breakpoints.defaults.update('tablet', (b) => b.copyWith(minWidth: 700));
+    expect(const OpenModalAction(sheetBelow: 'tablet').sheetBelowWidthIn(moved), 700, reason: 'by reference');
+    expect(d.sheetBelowWidthIn(Breakpoints([const Breakpoint(id: 'only')])), 0, reason: 'one breakpoint: never');
+    expect(OpenModalFields.all.map((f) => f.key), contains('sheetBelow'));
+    expect(OpenModalFields.all.map((f) => f.key), isNot(contains('sheetBelowWidth')));
   });
 
   test('every action can be off, non blocking, or conditional', () {

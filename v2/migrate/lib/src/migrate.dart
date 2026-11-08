@@ -66,12 +66,17 @@ const Set<String> portedV1Types = {'canvas', 'frame', 'rectangle', 'rowColumn', 
 /// The layout's v1 [variables] and [conditions] (canvas id → (id → JSON), as
 /// the publish model and the editor store them) become its `variables` and
 /// `conditions` keys (see logic.dart).
+///
+/// [breakpoints] is the project's set ([migrateProjectBreakpoints] of all
+/// its pages; default: the defaults): responsive variants and adaptive
+/// modals reference the breakpoint starting where v1 switched (breakpoints.dart).
 Json migrateDocument(
   Map<String, Object?> v1Document, {
   String id = '',
   MigrationReport? report,
   Object? variables,
   Object? conditions,
+  MigratedBreakpoints? breakpoints,
 }) {
   final wrapped = <String, dynamic>{'document': {...v1Document}};
   MigrationHandler.migrateJson(wrapped);
@@ -105,18 +110,27 @@ Json migrateDocument(
     nodes[r]!.parentID = kRootNode;
   }
 
+  final set = breakpoints ?? MigratedBreakpoints.defaults;
   final out = <String, Object?>{};
   for (final n in nodes.values) {
     final parent = nodes[parents[n.id]];
-    out[n.id] = V1Node(n, parent, nodes, rep).run();
+    final migrated = V1Node(n, parent, nodes, rep).run();
+    if (n is VarianceNode && migrated['props'] is Map) {
+      final props = {...(migrated['props'] as Map).cast<String, Object?>()};
+      remapVarianceBreakpoints(props, n, set);
+      migrated['props'] = props;
+    }
+    out[n.id] = migrated;
   }
-  return {
+  final result = {
     'schema': 2,
     if (id.isNotEmpty) 'id': id,
     'roots': roots,
     'nodes': out,
     ...migrateLayoutLogic(variables: variables, conditions: conditions, nodes: nodes, report: rep),
   };
+  applyProjectBreakpoints(result, set);
+  return result;
 }
 
 List<String> ownedChildren(BaseNode node) {
@@ -775,17 +789,13 @@ class V1Node {
     final v = n as VarianceNode;
     take('variants');
     take('currentVariantId');
-    // A responsive node's own switch widths (DESIGN.md §5.3); its variants'
-    // v1 breakpoint names are v2's default breakpoint ids.
+    // A responsive node's own switch widths (`properties`) are project
+    // breakpoints in v2 (DESIGN.md §5.3): [migrateDocument] points each
+    // variant at the one starting where v1 showed it.
     take('properties');
-    final minWidths = varianceMinWidths(
-      tabletMinWidth: v.properties.tabletMinWidth,
-      desktopMinWidth: v.properties.desktopMinWidth,
-    );
     return {
       'variants': [for (final variant in v.variants) Map<String, Object?>.from(variant.toJson())],
       'current': v.currentVariantId,
-      if (minWidths.isNotEmpty) 'minWidths': minWidths,
     };
   }
 
