@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../document.dart';
 import '../json.dart';
 import 'app_identity.dart';
+import 'breakpoints.dart';
 import 'publish_layout.dart';
 import 'theme.dart';
 
@@ -227,9 +228,10 @@ final class PublishModel {
     this.apis = const {},
     this.variables = const {},
     this.appIdentity,
+    Breakpoints? breakpoints,
     this.lastUpdated,
     this.extra = const {},
-  });
+  }) : breakpoints = breakpoints ?? Breakpoints.defaults;
 
   final String projectId;
 
@@ -270,6 +272,10 @@ final class PublishModel {
   /// The app's name, screen titles and description, icons, social card,
   /// manifest and splash; null when it has none.
   final AppIdentity? appIdentity;
+
+  /// The project's breakpoints (DESIGN.md §5.3): which canvas of a screen
+  /// shows, which variant a responsive layout shows, and `${screen}`.
+  final Breakpoints breakpoints;
 
   final DateTime? lastUpdated;
 
@@ -371,6 +377,7 @@ final class PublishModel {
       apis: readMap(m['apis']) ?? const {},
       variables: readMap(m['variables']) ?? const {},
       appIdentity: AppIdentity.fromJson(m['appIdentity']),
+      breakpoints: Breakpoints.fromJson(m['breakpoints']),
       lastUpdated: readTimestamp(m['lastUpdated']),
       extra: {
         for (final e in m.entries)
@@ -381,7 +388,7 @@ final class PublishModel {
 
   static const Set<String> _keys = {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
-    'layoutIDMap', 'disabledLayouts', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'lastUpdated',
+    'layoutIDMap', 'disabledLayouts', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
   };
 
   /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion].
@@ -412,6 +419,7 @@ final class PublishModel {
         if (apis.isNotEmpty) 'apis': apis,
         if (variables.isNotEmpty) 'variables': variables,
         'appIdentity': ?appIdentity?.toJson(),
+        if (!breakpoints.isDefault) 'breakpoints': breakpoints.toJson(),
         'lastUpdated': ?lastUpdated?.let(writeTimestamp),
         ...extra,
       };
@@ -431,6 +439,7 @@ final class PublishModel {
     Json? apis,
     Json? variables,
     AppIdentity? appIdentity,
+    Breakpoints? breakpoints,
     DateTime? lastUpdated,
     Json? extra,
   }) =>
@@ -449,6 +458,7 @@ final class PublishModel {
         apis: apis ?? this.apis,
         variables: variables ?? this.variables,
         appIdentity: appIdentity ?? this.appIdentity,
+        breakpoints: breakpoints ?? this.breakpoints,
         lastUpdated: lastUpdated ?? this.lastUpdated,
         extra: extra ?? this.extra,
       );

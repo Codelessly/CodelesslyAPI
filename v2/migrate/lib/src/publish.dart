@@ -17,6 +17,7 @@ import 'dart:io' show gzip;
 
 import 'package:codelessly_api/codelessly_api.dart' show AppIdentity, ColorRGBA, ThemeTokens;
 
+import 'breakpoints.dart';
 import 'migrate.dart';
 import 'services.dart';
 
@@ -106,16 +107,11 @@ Json migratePublishLayout(
 
   putString('pageId');
   putString('projectId');
-  final v2Breakpoints = [
-    for (final b in breakpoints)
-      if (canvases.containsKey(b['nodeId']))
-        {
-          'canvas': b['nodeId'],
-          if (_num(b['lowerBound'], 0) case final lo when lo > 0) 'minWidth': roundNum(lo),
-          if (_num(b['upperBound'], double.infinity) case final hi when hi.isFinite && hi < 1e9) 'maxWidth': roundNum(hi),
-        },
-  ];
-  // A layout of one canvas needs none.
+  // The canvases' project breakpoints (DESIGN.md §5.3): a layout of
+  // several canvases is one screen, one canvas per breakpoint.
+  final v2Breakpoints = order.length > 1
+      ? (migrateLayoutGroups(out, {id: [for (final b in breakpoints) if (canvases.containsKey(b['nodeId'])) b]})[id] ?? const [])
+      : const <Json>[];
   if (order.length > 1 && v2Breakpoints.isNotEmpty) out['breakpoints'] = v2Breakpoints;
   if (paths.isNotEmpty) out['paths'] = paths;
   final fontIds = {...fonts};
