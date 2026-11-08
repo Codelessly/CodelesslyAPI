@@ -198,9 +198,9 @@ void main() {
     });
 
     test('sources have their own storage paths, apart from v1', () {
-      expect(PublishSource.publish.modelPath('p'), 'publish_v2/p');
-      expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview_v2/p/layouts/l');
-      expect(PublishSource.template.bundlePath('slug'), 'templates_v2/slug.json');
+      expect(PublishSource.publish.modelPath('p'), 'publish/p');
+      expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');
+      expect(PublishSource.template.bundlePath('slug'), 'templates/slug.json');
       for (final s in PublishSource.values) {
         expect(const {'publish', 'publish_preview', 'templates'}.contains(s.collection), isFalse);
       }
