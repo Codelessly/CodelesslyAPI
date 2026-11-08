@@ -6,64 +6,82 @@ import '../json.dart';
 import '../logic.dart';
 import '../scripts.dart';
 import '../variables.dart';
+import 'breakpoints.dart';
 import 'theme.dart';
 
-/// The width range a canvas of a layout shows at. A layout with several
-/// canvases (one per screen size) picks the one whose breakpoint covers the
-/// width it's shown at (see [BreakpointsForWidth.forWidth]).
+/// Which project breakpoint a canvas of a layout is the design for
+/// (DESIGN.md §5.3). A layout with several canvases (one screen, one canvas
+/// per breakpoint) shows the one whose switch point is the highest at or
+/// below the width it's shown at (see [CanvasBreakpointsForWidth.forWidth]).
 @immutable
-final class Breakpoint {
-  const Breakpoint({required this.canvasId, this.minWidth = 0, this.maxWidth});
+final class CanvasBreakpoint {
+  const CanvasBreakpoint({required this.canvasId, this.breakpointId, this.minWidth});
 
-  /// The canvas shown in this range.
+  /// The canvas.
   final String canvasId;
 
-  /// The narrowest width, inclusive.
-  final double minWidth;
+  /// The project breakpoint ([Breakpoint.id]) it is the design for; null
+  /// when it names none (its [minWidth] alone places it).
+  final String? breakpointId;
 
-  /// The widest width, inclusive; null: no limit.
-  final double? maxWidth;
+  /// Where this canvas starts showing when not at its breakpoint's min width
+  /// (a v1 layout group's lower bound): its own switch point.
+  final double? minWidth;
 
-  bool covers(double width) => width >= minWidth && (maxWidth == null || width <= maxWidth!);
+  /// The width this canvas starts showing at, by the project's [breakpoints].
+  double minWidthIn(Breakpoints breakpoints) => minWidth ?? breakpoints.byId(breakpointId)?.minWidth ?? 0;
 
-  static Breakpoint? fromJson(Object? json) {
+  static CanvasBreakpoint? fromJson(Object? json) {
     final m = readMap(json);
     final canvas = readString(m?['canvas']);
     if (m == null || canvas == null) return null;
-    return Breakpoint(canvasId: canvas, minWidth: readDouble(m['minWidth']) ?? 0, maxWidth: readDouble(m['maxWidth']));
+    final id = readString(m['breakpoint']);
+    final min = readDouble(m['minWidth']);
+    return CanvasBreakpoint(
+      canvasId: canvas,
+      breakpointId: id == null || id.isEmpty ? null : id,
+      // Without a breakpoint, the range's start is the switch point (0 too).
+      minWidth: min ?? (id == null || id.isEmpty ? 0 : null),
+    );
   }
 
-  Json toJson() {
-    final j = <String, Object?>{'canvas': canvasId};
-    put(j, 'minWidth', writeDouble(minWidth), 0);
-    put(j, 'maxWidth', maxWidth?.let(writeDouble));
-    return j;
-  }
+  Json toJson() => {
+        'canvas': canvasId,
+        'breakpoint': ?breakpointId,
+        if (minWidth case final double w when breakpointId != null || w != 0) 'minWidth': writeDouble(w),
+      };
 
   @override
   bool operator ==(Object other) =>
-      other is Breakpoint && other.canvasId == canvasId && other.minWidth == minWidth && other.maxWidth == maxWidth;
+      other is CanvasBreakpoint && other.canvasId == canvasId && other.breakpointId == breakpointId && other.minWidth == minWidth;
 
   @override
-  int get hashCode => Object.hash(canvasId, minWidth, maxWidth);
+  int get hashCode => Object.hash(canvasId, breakpointId, minWidth);
 
   @override
-  String toString() => 'Breakpoint($canvasId, $minWidth..${maxWidth ?? '∞'})';
+  String toString() => 'CanvasBreakpoint($canvasId, ${breakpointId ?? '-'}${minWidth == null ? '' : ' ≥$minWidth'})';
 }
 
-extension BreakpointsForWidth on Iterable<Breakpoint> {
-  /// The breakpoint for [width]: the one with the highest [Breakpoint.minWidth]
-  /// at or below it. A gap between ranges (an upper bound of 599 and a lower
-  /// bound of 600) belongs to the narrower one, and a width below every range
-  /// gets the narrowest. Null when there are none.
-  Breakpoint? forWidth(double width) {
+extension CanvasBreakpointsForWidth on Iterable<CanvasBreakpoint> {
+  /// The entry for [width]: the one whose switch point (by [breakpoints]) is
+  /// the highest at or below it, else the narrowest. Null when there are
+  /// none.
+  CanvasBreakpoint? forWidth(double width, Breakpoints breakpoints) {
     if (isEmpty) return null;
-    final sorted = [...this]..sort((a, b) => a.minWidth.compareTo(b.minWidth));
-    Breakpoint? best;
-    for (final b in sorted) {
-      if (width >= b.minWidth) best = b;
+    CanvasBreakpoint? best, narrowest;
+    double bestMin = double.negativeInfinity, narrowestMin = double.infinity;
+    for (final c in this) {
+      final min = c.minWidthIn(breakpoints);
+      if (min < narrowestMin) {
+        narrowest = c;
+        narrowestMin = min;
+      }
+      if (width >= min && min > bestMin) {
+        best = c;
+        bestMin = min;
+      }
     }
-    return best ?? sorted.first;
+    return best ?? narrowest;
   }
 }
 
@@ -104,8 +122,9 @@ final class PublishLayout {
   final String pageId;
   final String projectId;
 
-  /// Which canvas shows at which width; empty for a layout of one canvas.
-  final List<Breakpoint> breakpoints;
+  /// The project breakpoint each canvas is the design for; empty for a
+  /// layout of one canvas.
+  final List<CanvasBreakpoint> breakpoints;
 
   /// The URL path pattern of each canvas that has one (`guide/:id`): canvas
   /// id → path.
@@ -145,17 +164,17 @@ final class PublishLayout {
   };
 
   /// The canvas shown at [width]: the only canvas of a single-canvas layout,
-  /// else the one whose breakpoint covers [width]. Null for a layout with no
-  /// canvas.
-  String? canvasForWidth(double width) {
+  /// else the one for [width] by the project's [breakpoints] (default:
+  /// [Breakpoints.defaults]). Null for a layout with no canvas.
+  String? canvasForWidth(double width, [Breakpoints? breakpoints]) {
     if (canvasIds.isEmpty) return null;
     if (canvasIds.length == 1) return canvasIds.first;
-    final picked = breakpoints.where((b) => canvasIds.contains(b.canvasId)).forWidth(width);
+    final picked = this.breakpoints.where((b) => canvasIds.contains(b.canvasId)).forWidth(width, breakpoints ?? Breakpoints.defaults);
     return picked?.canvasId ?? canvasIds.first;
   }
 
-  /// The breakpoint of [canvasId], if it has one.
-  Breakpoint? breakpointOf(String canvasId) {
+  /// The breakpoint entry of [canvasId], if it has one.
+  CanvasBreakpoint? breakpointOf(String canvasId) {
     for (final b in breakpoints) {
       if (b.canvasId == canvasId) return b;
     }
@@ -190,7 +209,7 @@ final class PublishLayout {
       }),
       pageId: readString(m['pageId']) ?? '',
       projectId: readString(m['projectId']) ?? '',
-      breakpoints: [...?readList(m['breakpoints'])?.map(Breakpoint.fromJson).nonNulls],
+      breakpoints: [...?readList(m['breakpoints'])?.map(CanvasBreakpoint.fromJson).nonNulls],
       paths: {
         for (final e in (readMap(m['paths']) ?? const {}).entries)
           if (e.value case final String p when p.isNotEmpty) e.key: p,
@@ -230,7 +249,7 @@ final class PublishLayout {
     LayoutDocument? document,
     String? pageId,
     String? projectId,
-    List<Breakpoint>? breakpoints,
+    List<CanvasBreakpoint>? breakpoints,
     Map<String, String>? paths,
     Json? variables,
     Json? conditions,

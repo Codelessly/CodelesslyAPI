@@ -515,6 +515,95 @@ action stops its chain and is reported; a chain stops when its node leaves
 the tree. `TreeReactions` wires triggers into the render tree of an
 interactive `NodeView`.
 
+### 5.3 Breakpoints
+
+A project defines its own breakpoints: the screen size classes its screens,
+responsive layouts, `${screen}` and per-breakpoint values (a toast's
+alignment) all speak of. Nothing in API v2, SDK v2 or the v2 editor knows
+mobile, tablet, desktop, 600 or 1024 except as the default *data* below.
+
+**Where they're defined: the project.** One set per project
+(`PublishModel.breakpoints`, `Breakpoints` in
+`lib/src/publish/breakpoints.dart`). One device is one breakpoint
+everywhere: the screen it sees, the variant its responsive layouts show,
+`${screen.breakpoint}` and the toast's alignment must agree, and moving
+between screens must not change it. So a layout (screen) can't redefine
+the set, and nothing adds or renames a breakpoint locally. Until the v2
+editor stores per-project data, a page's document carries the project's set
+(`LayoutDocumentBreakpoints`, key `breakpoints`), as it carries project
+scripts; publish copies it to the model.
+
+**Local switch points (the only override).** A responsive variance
+(`VarianceProps.minWidths`, `{breakpointId: width}`) and a screen's canvas
+(`CanvasProps.minWidth`) may move where *they* switch to one of the
+project's breakpoints, nothing else. v1 had both (a responsive node's
+`tabletMinWidth`/`desktopMinWidth`; layout groups' arbitrary canvas ranges),
+so migrated projects keep switching where they did, and a component can
+switch later than the app (a sidebar that stays narrow up to 1100). Inside a
+variance with its own switch points, `${screen}` follows them (v1's
+`ResponsiveWidthsScope`), so `screen.isTablet` agrees with the layout on
+show.
+
+**Shape.** `Breakpoint {id, name, minWidth, width, height}`:
+
+| Field | Meaning |
+|---|---|
+| `id` | Stable; what everything refers to. Robust to renames. |
+| `name` | Shown in the editor; `${screen}` exposes it too. |
+| `minWidth` | The narrowest width it covers, inclusive. |
+| `width`, `height` | The design size a canvas for it takes (and the preview). |
+
+The set is ordered by `minWidth`, narrowest first, and min widths are
+unique; that order is the only order (reordering in the editor swaps two
+breakpoints' ranges), so "nearest breakpoint" and "narrowest" never
+disagree with the widths. The first covers everything below the second,
+whatever width it starts at (its `minWidth` is stored as 0).
+
+**Defaults** (`Breakpoints.defaults`, editable data): `mobile` 0 (390 × 844),
+`tablet` 600 (834 × 1112), `desktop` 1024 (1440 × 900). Their ids are v1's
+`ScreenBreakpoint` names, so v1 variants' `breakpoint` and toast keys are
+already ids. New breakpoints get a generated id.
+
+**References, by id.** A variance variant: `{"breakpoint": "<id>"}` (a
+variance with any is responsive). A canvas: `props.breakpoint` (the
+breakpoint it is the design for) and `props.screen` (canvases with the same
+value are one screen, one canvas per breakpoint; empty: a screen of its
+own). A published layout lists its canvases' breakpoints:
+`"breakpoints": [{"canvas", "breakpoint", "minWidth"?}]` (`minWidth`: the
+canvas's own switch point).
+
+**Resolving a width.** `Breakpoints.forWidth(w)`: the one with the highest
+`minWidth` at or below `w` (inclusive), else the first. A screen shows the
+canvas whose switch point (its own, else its breakpoint's) is the highest at
+or below the width, else its narrowest. A responsive variance shows the
+variant of the breakpoint the width resolves to (by the project's set with
+its own switch points), else the nearest one in order, the narrower on a tie
+(v1's rule over the enum, now over the list), else `current`. The width is
+the screen's: the width the layout is shown at (v1's canvas width), and in a
+dialog, sheet or popover the device's (v1's `BreakpointWidthScope`), never
+the variance's own box.
+
+**`${screen}`** (`screenValues`): `width`, `height`, `orientation`,
+`isPortrait`, `isLandscape`, `brightness`, `isDark`; `breakpoint` (the
+current id), `breakpointName`, `breakpointIndex`; `is` and `atLeast`, maps by
+id and by name key (lower camel case: "Large desktop" → `largeDesktop`) to
+booleans (`${screen.is.tablet}`, `${screen.atLeast.tablet}`); `breakpoints`,
+the set (`[{id, name, minWidth}]`); and `is<Key>` for each id and name
+(`isMobile`, `isTablet`, `isDesktop` for the defaults, so migrated formulas
+keep working, also after a rename, since ids don't change). The fixed keys
+win over a generated one.
+
+**Per-breakpoint values** (a toast look's `alignments`, `sideMargins`,
+`bottomOffsets`) are keyed by breakpoint id (a name also matches); a
+breakpoint with no entry uses the single value.
+
+**Migration.** A v1 project gets the defaults (v1 has no project set). A
+responsive node's custom widths become its `minWidths` (`tablet`, `desktop`),
+not project breakpoints: promoting one node's widths would move every other
+screen, node and `${screen}` in the project. A layout group's canvas gets the
+breakpoint its lower bound falls in, and its lower bound as its own switch
+point when it differs from the breakpoint's.
+
 ## 6. Migration from v1
 
 `v2/migrate` is a separate package. It depends on the v1 API, so it can use

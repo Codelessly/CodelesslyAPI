@@ -162,9 +162,10 @@ void main() {
     expect(h['id'], 'home');
     // Narrowest canvas first.
     expect(h['roots'], ['hm', 'hd']);
+    // Each canvas is the design for a project breakpoint (by id).
     expect(h['breakpoints'], [
-      {'canvas': 'hm', 'maxWidth': 1023},
-      {'canvas': 'hd', 'minWidth': 1024},
+      {'canvas': 'hm', 'breakpoint': 'mobile'},
+      {'canvas': 'hd', 'breakpoint': 'desktop'},
     ]);
     expect(h['paths'], {'hm': '/home'});
     expect((h['variables'] as Map)['hm'], isNotEmpty);
@@ -216,7 +217,7 @@ void main() {
     final bundle = jsonDecode(utf8.decode(gzip.decode(out.readAsBytesSync()))) as Map;
     final layouts = bundle['layouts'] as Map;
     final today = layouts.values.firstWhere((l) => ((l['nodes'] as Map)[(l['roots'] as List).first] as Map)['name'] == 'Today · M') as Map;
-    expect((today['breakpoints'] as List).map((b) => (b as Map)['minWidth'] ?? 0), [0, 600, 1024]);
+    expect((today['breakpoints'] as List).map((b) => (b as Map)['breakpoint']), ['mobile', 'tablet', 'desktop']);
     expect((bundle['model'] as Map)['entryLayoutId'], isNotNull);
   });
 }
