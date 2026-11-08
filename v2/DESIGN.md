@@ -535,7 +535,7 @@ scripts; publish copies it to the model.
 
 **Local switch points (the only override).** A responsive variance
 (`VarianceProps.minWidths`, `{breakpointId: width}`) and a screen's canvas
-(`CanvasProps.minWidth`) may move where *they* switch to one of the
+(`CanvasProps.breakpointMinWidth`) may move where *they* switch to one of the
 project's breakpoints, nothing else. v1 had both (a responsive node's
 `tabletMinWidth`/`desktopMinWidth`; layout groups' arbitrary canvas ranges),
 so migrated projects keep switching where they did, and a component can
