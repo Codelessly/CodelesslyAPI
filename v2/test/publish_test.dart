@@ -73,31 +73,25 @@ void main() {
       expect(l.canvasForWidth(3000), 'd');
       // Below every range: the narrowest.
       final shifted = l.copyWith(breakpoints: [
-        const CanvasBreakpoint(canvasId: 'm', minWidth: 300),
-        const CanvasBreakpoint(canvasId: 'd', minWidth: 1024),
+        const CanvasBreakpoint(canvasId: 'm', breakpointId: 'tablet'),
+        const CanvasBreakpoint(canvasId: 'd', breakpointId: 'desktop'),
       ]);
       expect(shifted.canvasForWidth(100), 'm');
       // By the project's breakpoints: desktop from 1200 here.
       final project = Breakpoints.defaults.update('desktop', (b) => b.copyWith(minWidth: 1200));
       expect(l.canvasForWidth(1100, project), 'm');
       expect(l.canvasForWidth(1200, project), 'd');
-      // A canvas's own switch point wins over its breakpoint's.
-      final own = l.copyWith(breakpoints: [
-        const CanvasBreakpoint(canvasId: 'm', breakpointId: 'mobile'),
-        const CanvasBreakpoint(canvasId: 'd', breakpointId: 'desktop', minWidth: 900),
-      ]);
-      expect(own.canvasForWidth(950), 'd');
-      expect(own.toJson()['breakpoints'], [
+      // Canvases switch where their breakpoints start: no own switch
+      // points (an old `minWidth` is ignored).
+      final own = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
         {'canvas': 'm', 'breakpoint': 'mobile'},
         {'canvas': 'd', 'breakpoint': 'desktop', 'minWidth': 900},
-      ]);
-      // v2 data from before breakpoints had ids: ranges by min width.
-      final legacy = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
-        {'canvas': 'm'},
-        {'canvas': 'd', 'minWidth': 1024, 'maxWidth': 99999},
       ]});
-      expect(legacy.canvasForWidth(1023), 'm');
-      expect(legacy.canvasForWidth(1024), 'd');
+      expect(own.canvasForWidth(950), 'm');
+      expect(own.toJson()['breakpoints'], [
+        {'canvas': 'm', 'breakpoint': 'mobile'},
+        {'canvas': 'd', 'breakpoint': 'desktop'},
+      ]);
       // A single canvas needs no breakpoints.
       final one = PublishLayout(document: LayoutDocument(id: 'x', roots: const ['c'], nodes: {'c': const Node(id: 'c', type: 'canvas')}));
       expect(one.canvasForWidth(9999), 'c');
@@ -197,13 +191,10 @@ void main() {
       });
     });
 
-    test('sources have their own storage paths, apart from v1', () {
+    test('sources read the existing publish paths (v2 replaces v1 in place)', () {
       expect(PublishSource.publish.modelPath('p'), 'publish/p');
       expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');
       expect(PublishSource.template.bundlePath('slug'), 'templates/slug.json');
-      for (final s in PublishSource.values) {
-        expect(const {'publish', 'publish_preview', 'templates'}.contains(s.collection), isFalse);
-      }
     });
   });
 

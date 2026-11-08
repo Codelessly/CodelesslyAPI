@@ -11,6 +11,7 @@ import 'package:meta/meta.dart';
 import 'behaviours.dart' show AnimationCurve, DragDirection;
 import 'conditions.dart';
 import 'json.dart';
+import 'publish/breakpoints.dart' show Breakpoint, Breakpoints;
 import 'route_transition.dart';
 import 'services/cloud.dart';
 import 'values/color.dart';
@@ -318,7 +319,7 @@ final class OpenModalAction extends ActionDef {
     this.anchorOffset = 0,
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
-    this.sheetBelowWidth = 600,
+    this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
     this.enterScale = 1,
@@ -352,8 +353,18 @@ final class OpenModalAction extends ActionDef {
   final List<double> insets;
   final double? sheetWidth;
 
-  /// [ModalPresentation.adaptive]: below this screen width, a bottom sheet.
-  final double sheetBelowWidth;
+  /// [ModalPresentation.adaptive]: a bottom sheet on screens whose
+  /// breakpoint is narrower than this one (a project [Breakpoint.id],
+  /// DESIGN.md §5.3), a dialog from it up. Empty (or a breakpoint the
+  /// project no longer has): the project's second breakpoint, i.e. a sheet
+  /// on the narrowest breakpoint only (a dialog everywhere when the project
+  /// has one breakpoint). See [sheetBelowWidthIn].
+  final String sheetBelow;
+
+  /// The screen width below which [ModalPresentation.adaptive] is a bottom
+  /// sheet, by the project's [breakpoints]: [sheetBelow]'s min width.
+  double sheetBelowWidthIn(Breakpoints breakpoints) =>
+      breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
   final bool fullHeight;
   final double enterScale;
@@ -379,7 +390,7 @@ final class OpenModalAction extends ActionDef {
     anchorOffset: _d(m, 'anchorOffset', 0),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
-    sheetBelowWidth: _d(m, 'sheetBelowWidth', 600),
+    sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
     enterScale: _d(m, 'enterScale', 1),
@@ -406,7 +417,7 @@ final class OpenModalAction extends ActionDef {
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
-    if (sheetBelowWidth != 600) 'sheetBelowWidth': writeDouble(sheetBelowWidth),
+    if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
