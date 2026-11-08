@@ -16,18 +16,22 @@ const int kPublishSchemaVersion = 2;
 /// converts it once.
 const Map<int, SchemaMigration> publishSchemaMigrations = {};
 
-/// Where published data comes from. Each has its own storage path, separate
-/// from v1's (`publish`, `publish_preview`, `templates`), so apps on SDK 8.x
-/// keep reading the v1 publish untouched.
+/// Where published data comes from: the existing publish paths (owner
+/// decision: v2 replaces v1's publish in place). A converted project's
+/// publish model is `publish/{projectId}` (a Firestore document) and each
+/// layout `publish/{projectId}/layouts/{layoutId}`, in the v2 format with
+/// `schema: 2`; the preview's and the templates' the same under
+/// `publish_preview` and `templates`. A slug's bundle is the storage file
+/// `publish/{slug}.json`.
 enum PublishSource {
   /// What the project published.
-  publish('publish_v2'),
+  publish('publish'),
 
   /// The editor's preview of unpublished changes.
-  preview('publish_preview_v2'),
+  preview('publish_preview'),
 
   /// The template gallery.
-  template('templates_v2');
+  template('templates');
 
   const PublishSource(this.collection);
 
