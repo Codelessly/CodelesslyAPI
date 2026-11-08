@@ -36,7 +36,7 @@ final class Breakpoint {
   double get designWidth => width > 0 ? width : (minWidth > 0 ? minWidth : 390);
 
   /// The height a canvas designed for it takes.
-  double get designHeight => height > 0 ? height : (designWidth < 600 ? 844 : 900);
+  double get designHeight => height > 0 ? height : 900;
 
   static const idDef = PropDef<String>('id', Codecs.string, '', doc: 'Stable id.');
   static const nameDef = PropDef<String>('name', Codecs.string, '', doc: 'Name.');
