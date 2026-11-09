@@ -44,6 +44,24 @@ void main() {
     expect(style['height'], 16 / 13);
   });
 
+  test('a child v1 can\'t decode is dropped from its parent too', () {
+    final report = MigrationReport();
+    final v2 = migrateDocument({
+      'rootNode': {'children': ['c']},
+      'c': {'id': 'c', 'type': 'canvas', 'name': 'Home', 'parentID': 'rootNode', 'basicBoxLocal': [0, 0, 400, 300],
+            'properties': {'bodyId': 'f'}, 'children': ['f']},
+      'f': {'id': 'f', 'name': 'f', 'parentID': 'c', 'type': 'frame', 'basicBoxLocal': [0, 0, 400, 300], 'children': ['p', 'bad']},
+      'p': {'id': 'p', 'name': 'p', 'parentID': 'f', 'type': 'rectangle', 'basicBoxLocal': [0, 0, 50, 50]},
+      // An icon with properties but no icon: v1 throws decoding it.
+      'bad': {'id': 'bad', 'name': 'bad', 'parentID': 'f', 'type': 'icon', 'basicBoxLocal': [0, 0, 24, 24],
+              'properties': <String, Object?>{}},
+    }, report: report);
+    final nodes = v2['nodes'] as Map;
+    expect(report.undecodable.keys, contains('bad'));
+    expect(nodes.containsKey('bad'), isFalse);
+    expect(nodes['f']['children'], ['p']);
+  });
+
   test('elliptical corners keep their x and y; a linked elliptical radius is the box ellipse', () {
     Map<String, Object?> rect(String id, Object radius, {double w = 80, double h = 40}) => {
           'id': id, 'name': id, 'parentID': 'f', 'type': 'rectangle', 'basicBoxLocal': [0, 0, w, h], 'cornerRadius': radius,
