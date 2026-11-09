@@ -102,4 +102,15 @@ void main() {
     expect(nodes['card']['component']['settings'][0]['targets'], [{'node': 'label', 'path': 'props.text'}]);
     expect(nodes['label']['props']['text'], 'Hello');
   });
+
+  test('a public component keeps its top node at the top level', () {
+    final out = migrateComponent({
+      'id': 'pub',
+      'name': 'Pub',
+      'parentId': 'card',
+      'data': {'width': 120, 'height': 60, 'nodes': _nodes()},
+    });
+    expect((out['document'] as Map)['roots'], ['card']);
+    expect(out.containsKey('v1'), isFalse);
+  });
 }
