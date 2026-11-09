@@ -126,6 +126,7 @@ Json migrateDocument(
     }
     out[n.id] = migrated;
   }
+  dropMissingChildren(out);
   final result = {
     'schema': 2,
     if (id.isNotEmpty) 'id': id,
@@ -135,6 +136,34 @@ Json migrateDocument(
   };
   applyProjectBreakpoints(result, set);
   return result;
+}
+
+/// Removes, from every node in [out] (id → v2 node JSON), the slots, children
+/// and variant children naming a node that isn't in [out]: one v1 couldn't
+/// decode (its editor dropped it on load too, but its parent still listed it).
+void dropMissingChildren(Map<String, Object?> out) {
+  bool has(Object? id) => id is String && out.containsKey(id);
+  for (final node in out.values) {
+    if (node is! Map) continue;
+    final children = node['children'];
+    if (children is List && !children.every(has)) {
+      final kept = children.where(has).toList();
+      kept.isEmpty ? node.remove('children') : node['children'] = kept;
+    }
+    final slots = node['slots'];
+    if (slots is Map && !slots.values.every(has)) {
+      slots.removeWhere((_, v) => !has(v));
+      if (slots.isEmpty) node.remove('slots');
+    }
+    final props = node['props'];
+    if (props is Map && props['variants'] is List) {
+      for (final v in props['variants'] as List) {
+        if (v is Map && v['children'] is List) {
+          v['children'] = (v['children'] as List).where(has).toList();
+        }
+      }
+    }
+  }
 }
 
 List<String> ownedChildren(BaseNode node) {
