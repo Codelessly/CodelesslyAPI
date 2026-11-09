@@ -155,7 +155,7 @@ void main() {
         'c': [
           {'id': 'v1', 'name': 'count', 'type': 'integer', 'value': 3},
           {'id': 'v4', 'name': 'items', 'type': 'list', 'value': [1, 2]},
-          {'id': 'v10', 'name': 'name'},
+          {'id': 'v10', 'name': 'name', 'value': ''},
           {'id': 'v6', 'name': 'ok', 'type': 'boolean', 'formula': 'count > 2'},
           {'id': 'v3', 'name': 'on', 'type': 'boolean', 'value': true},
           {'id': 'v2', 'name': 'price', 'type': 'decimal', 'value': 4.5},

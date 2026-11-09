@@ -142,7 +142,10 @@ Json? _variable(Map<String, dynamic> json, MigrationReport report) {
     ..remove(VariableData.persistKey);
   final options = (v.extra[VariableData.optionsKey] as List?) ?? const [];
   Object? value;
-  if (formula.isEmpty && v.value.isNotEmpty) {
+  if (formula.isEmpty && v.value.isEmpty && (v.type == VariableType.text || v.type == VariableType.choice)) {
+    // v1 read an empty text as '' (a filter's `query == ''`), not null.
+    value = '';
+  } else if (formula.isEmpty && v.value.isNotEmpty) {
     value = switch (v.type) {
       // A text that isn't one formula is text, `${...}` and all.
       VariableType.text || VariableType.image || VariableType.choice => v.value,

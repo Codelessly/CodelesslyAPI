@@ -188,6 +188,18 @@ void main() {
         ['routeTransition'], {'preset': 'zoom'});
   });
 
+  test('an empty text variable is the empty text, as v1 read it', () {
+    final logic = migrateLayoutLogic(variables: {
+      'c': {
+        'q': {'id': 'q', 'name': 'query', 'type': 'text', 'value': ''},
+        'n': {'id': 'n', 'name': 'count', 'type': 'integer', 'value': ''},
+      },
+    });
+    final vars = {for (final v in (logic['variables'] as Map)['c'] as List) v['name']: v};
+    expect(vars['query'], containsPair('value', ''));
+    expect((vars['count'] as Map).containsKey('value'), isFalse);
+  });
+
   test('layout variables persist; scripts move to the document, page scripts last', () {
     final report = MigrationReport();
     final logic = migrateLayoutLogic(
