@@ -115,10 +115,14 @@ Json migrateDocument(
   for (final n in nodes.values) {
     final parent = nodes[parents[n.id]];
     final migrated = V1Node(n, parent, nodes, rep).run();
-    if (n is VarianceNode && migrated['props'] is Map) {
-      final props = {...(migrated['props'] as Map).cast<String, Object?>()};
-      remapVarianceBreakpoints(props, n, set);
-      migrated['props'] = props;
+    if (n is VarianceNode && n.isResponsive && migrated['props'] is Map) {
+      // Its own switch widths, where they differ from the project's.
+      final own = varianceMinWidths(
+        tabletMinWidth: n.properties.tabletMinWidth,
+        desktopMinWidth: n.properties.desktopMinWidth,
+        breakpoints: set,
+      );
+      if (own.isNotEmpty) migrated['props'] = {...(migrated['props'] as Map).cast<String, Object?>(), 'minWidths': own};
     }
     out[n.id] = migrated;
   }
@@ -789,9 +793,9 @@ class V1Node {
     final v = n as VarianceNode;
     take('variants');
     take('currentVariantId');
-    // A responsive node's own switch widths (`properties`) are project
-    // breakpoints in v2 (DESIGN.md §5.3): [migrateDocument] points each
-    // variant at the one starting where v1 showed it.
+    // A responsive node's own switch widths (`properties`): its v2
+    // `minWidths` against the project's set, which [migrateDocument] adds
+    // (DESIGN.md §5.3). Its variants' v1 breakpoint names are v2's ids.
     take('properties');
     return {
       'variants': [for (final variant in v.variants) Map<String, Object?>.from(variant.toJson())],
