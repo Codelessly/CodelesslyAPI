@@ -98,7 +98,13 @@ Json settingTarget(String v1Path, Map<String, BaseNode> nodes, MigrationReport r
 Json migrateComponent(Map<String, Object?> v1, {MigrationReport? report}) {
   final data = (v1['data'] as Map?)?.cast<String, Object?>() ?? const {};
   final nodes = (data['nodes'] as Map?)?.cast<String, Object?>() ?? const {};
-  final root = data['parentId'] is String ? data['parentId'] as String : '';
+  // A project component keeps its top node in `data.parentId`; a public
+  // component (PublicComponent) at the top level.
+  final root = switch ((data['parentId'], v1['parentId'])) {
+    (final String r, _) when r.isNotEmpty => r,
+    (_, final String r) when r.isNotEmpty => r,
+    _ => '',
+  };
   final document = migrateDocument(
     {
       'rootNode': {
@@ -111,7 +117,7 @@ Json migrateComponent(Map<String, Object?> v1, {MigrationReport? report}) {
     conditions: data['conditions'],
   )..remove('schema');
   num n(Object? v) => v is num ? roundNum(v) : 0;
-  const known = {'id', 'name', 'version', 'data', 'previewUrl', 'blurhash', 'projectId', 'pageId', 'createdAt'};
+  const known = {'id', 'name', 'version', 'data', 'previewUrl', 'blurhash', 'projectId', 'pageId', 'createdAt', 'parentId'};
   final leftover = {
     for (final e in v1.entries)
       if (!known.contains(e.key)) e.key: e.value,
