@@ -28,6 +28,7 @@ export 'src/publish/app_identity.dart';
 export 'src/publish/breakpoints.dart';
 export 'src/publish/publish_layout.dart';
 export 'src/publish/publish_model.dart';
+export 'src/publish/style_sheet.dart';
 export 'src/publish/theme.dart';
 export 'src/values/border.dart';
 export 'src/values/color.dart';
