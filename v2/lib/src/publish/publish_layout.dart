@@ -11,49 +11,60 @@ import 'theme.dart';
 
 /// Which project breakpoint a canvas of a layout is the design for
 /// (DESIGN.md §5.3). A layout with several canvases (one screen, one canvas
-/// per breakpoint) shows the one whose breakpoint's min width is the highest
-/// at or below the width it's shown at (see
-/// [CanvasBreakpointsForWidth.forWidth]). A canvas switches where its
-/// breakpoint starts: there are no local switch points (DESIGN.md §5.3).
+/// per breakpoint) shows the one whose switch point is the highest at or
+/// below the width it's shown at (see [CanvasBreakpointsForWidth.forWidth]).
 @immutable
 final class CanvasBreakpoint {
-  const CanvasBreakpoint({required this.canvasId, this.breakpointId});
+  const CanvasBreakpoint({required this.canvasId, this.breakpointId, this.minWidth});
 
   /// The canvas.
   final String canvasId;
 
   /// The project breakpoint ([Breakpoint.id]) it is the design for; null
-  /// when it names none (it then shows from 0).
+  /// when it names none (its [minWidth] alone places it).
   final String? breakpointId;
 
-  /// The width this canvas starts showing at, by the project's [breakpoints]:
-  /// its breakpoint's min width (0 for none, or one not in the set).
-  double minWidthIn(Breakpoints breakpoints) => breakpoints.byId(breakpointId)?.minWidth ?? 0;
+  /// Where this canvas starts showing when not at its breakpoint's min width
+  /// (a v1 layout group's lower bound): its own switch point.
+  final double? minWidth;
+
+  /// The width this canvas starts showing at, by the project's [breakpoints].
+  double minWidthIn(Breakpoints breakpoints) => minWidth ?? breakpoints.byId(breakpointId)?.minWidth ?? 0;
 
   static CanvasBreakpoint? fromJson(Object? json) {
     final m = readMap(json);
     final canvas = readString(m?['canvas']);
     if (m == null || canvas == null) return null;
     final id = readString(m['breakpoint']);
-    return CanvasBreakpoint(canvasId: canvas, breakpointId: id == null || id.isEmpty ? null : id);
+    final min = readDouble(m['minWidth']);
+    return CanvasBreakpoint(
+      canvasId: canvas,
+      breakpointId: id == null || id.isEmpty ? null : id,
+      // Without a breakpoint, the range's start is the switch point (0 too).
+      minWidth: min ?? (id == null || id.isEmpty ? 0 : null),
+    );
   }
 
-  Json toJson() => {'canvas': canvasId, 'breakpoint': ?breakpointId};
+  Json toJson() => {
+        'canvas': canvasId,
+        'breakpoint': ?breakpointId,
+        if (minWidth case final double w when breakpointId != null || w != 0) 'minWidth': writeDouble(w),
+      };
 
   @override
   bool operator ==(Object other) =>
-      other is CanvasBreakpoint && other.canvasId == canvasId && other.breakpointId == breakpointId;
+      other is CanvasBreakpoint && other.canvasId == canvasId && other.breakpointId == breakpointId && other.minWidth == minWidth;
 
   @override
-  int get hashCode => Object.hash(canvasId, breakpointId);
+  int get hashCode => Object.hash(canvasId, breakpointId, minWidth);
 
   @override
-  String toString() => 'CanvasBreakpoint($canvasId, ${breakpointId ?? '-'})';
+  String toString() => 'CanvasBreakpoint($canvasId, ${breakpointId ?? '-'}${minWidth == null ? '' : ' ≥$minWidth'})';
 }
 
 extension CanvasBreakpointsForWidth on Iterable<CanvasBreakpoint> {
-  /// The entry for [width]: the one whose breakpoint (by [breakpoints])
-  /// starts the highest at or below it, else the narrowest. Null when there are
+  /// The entry for [width]: the one whose switch point (by [breakpoints]) is
+  /// the highest at or below it, else the narrowest. Null when there are
   /// none.
   CanvasBreakpoint? forWidth(double width, Breakpoints breakpoints) {
     if (isEmpty) return null;

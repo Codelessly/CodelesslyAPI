@@ -32,6 +32,9 @@ Map<String, Object?> _page(List<Map<String, Object?>> variances, {String canvas 
       for (final v in variances) v['id'] as String: v,
     };
 
+Map<String, Object?>? _minWidths(Map<String, Object?> doc, String id) =>
+    ((((doc['nodes'] as Map)[id] as Map)['props'] as Map)['minWidths'] as Map?)?.cast<String, Object?>();
+
 List<Object?> _variantBreakpoints(Map<String, Object?> doc, String id) => [
       for (final v in (((doc['nodes'] as Map)[id] as Map)['props'] as Map)['variants'] as List) (v as Map)['breakpoint'],
     ];
@@ -57,19 +60,18 @@ void main() {
     ];
     final b = migrateProjectBreakpoints(pages);
     // Two nodes switch to desktop at 1100, one at 1024: desktop is 1100,
-    // and 1024 stays a breakpoint of its own so that node switches there.
-    expect(_ids(b), [('mobile', 0), ('tablet', 600), ('desktop1024', 1024), ('desktop', 1100)]);
-    expect(b.added, ['desktop1024']);
-    expect(b.json[2]['name'], 'Desktop 1024');
+    // and the node at 1024 keeps that as its own switch point.
+    expect(_ids(b), [('mobile', 0), ('tablet', 600), ('desktop', 1100)]);
+    expect(b.added, isEmpty);
 
-    // Each page's variants point at the breakpoint starting where v1
-    // switched them.
     final first = migrateDocument(pages[0], breakpoints: b);
     expect(_variantBreakpoints(first, 'a'), ['mobile', 'desktop']);
+    expect(_minWidths(first, 'a'), isNull, reason: 'switches where the project does');
     final second = migrateDocument(pages[1], breakpoints: b);
-    expect(_variantBreakpoints(second, 'd'), ['mobile', 'desktop1024']);
-    final v = ((second['nodes'] as Map)['d'] as Map)['props'] as Map;
-    expect(v.containsKey('minWidths'), isFalse, reason: 'no local switch points');
+    expect(_variantBreakpoints(second, 'd'), ['mobile', 'desktop']);
+    expect(_minWidths(second, 'd'), {'desktop': 1024});
+    // Without the project's set: against the defaults, as before.
+    expect(_minWidths(migrateDocument(pages[0]), 'a'), {'desktop': 1100});
   });
 
   test('disagreeing tablet widths: each v1 switch point is a breakpoint', () {
@@ -80,7 +82,10 @@ void main() {
         _variance('x', 'c-b', tablet: 500, breakpoints: ['mobile', 'tablet']),
       ]),
     ]);
-    expect(_ids(b), [('mobile', 0), ('tablet500', 500), ('tablet', 700), ('desktop', 1024)]);
+    expect(_ids(b), [('mobile', 0), ('tablet', 700), ('desktop', 1024)]);
+    expect(b.added, isEmpty);
+    final doc = migrateDocument(_page([_variance('x', 'c-b', tablet: 500, breakpoints: ['mobile', 'tablet'])]), breakpoints: b);
+    expect(_minWidths(doc, 'x'), {'tablet': 500});
     // A width only an unused class has doesn't count: b's desktop (1024)
     // is no switch point for it, x's 600 neither.
     expect(b.votes, {700: 2, 1024: 1, 500: 1});
@@ -92,11 +97,11 @@ void main() {
     expect(_ids(b), [('mobile', 0), ('tablet', 800), ('desktop', 1300)]);
     final doc = migrateDocument(page, breakpoints: b);
     expect(_variantBreakpoints(doc, 'v'), ['mobile', 'tablet', 'desktop']);
-    // A tablet range v1 never showed (tablet at or above desktop): the
-    // variant keeps no breakpoint.
+    expect(_minWidths(doc, 'v'), isNull);
+    // A tablet range v1 never showed (tablet at or above desktop): both
+    // widths kept, so desktop stays at 1100.
     final empty = _page([_variance('e', 'c-b', tablet: 1200, desktop: 1100, breakpoints: ['mobile', 'tablet', 'desktop'])]);
-    final eb = migrateProjectBreakpoints([empty]);
-    expect(_variantBreakpoints(migrateDocument(empty, breakpoints: eb), 'e'), ['mobile', null, 'desktop']);
+    expect(_minWidths(migrateDocument(empty), 'e'), {'tablet': 1200, 'desktop': 1100});
   });
 
   test('a stored set reads back for later pages', () {
@@ -105,6 +110,7 @@ void main() {
     expect(again.json, b.json);
     expect(again.idAt(1100), 'desktop');
     expect(again.idNear(1050), 'tablet', reason: 'a width the set lacks: the one it falls in');
+    expect(again.minWidthOf('desktop'), 1100);
     expect(MigratedBreakpoints.fromJson(null).isDefault, isTrue);
   });
 
@@ -141,6 +147,51 @@ void main() {
     expect((nodes['t'] as Map)['props'], containsPair('screen', 'g'));
     expect((nodes['t'] as Map)['props'], isNot(contains('breakpointMinWidth')));
     expect(((nodes['solo'] as Map)['props'] as Map?) ?? const {}, isNot(contains('breakpoint')));
+
+    // Against the defaults, the tablet canvas keeps 768 as its own switch
+    // point.
+    final plain = migrateDocument(v1);
+    expect(migrateLayoutGroups(plain, groups)['g'], [
+      {'canvas': 'm', 'breakpoint': 'mobile'},
+      {'canvas': 't', 'breakpoint': 'tablet', 'minWidth': 768},
+      {'canvas': 'd', 'breakpoint': 'desktop'},
+    ]);
+    expect(((plain['nodes'] as Map)['t'] as Map)['props'], containsPair('breakpointMinWidth', 768));
+  });
+
+  test('a layout group with more canvases than breakpoints adds one', () {
+    final v1 = {
+      'rootNode': {'children': ['a', 'b', 'c', 'd']},
+      for (final id in ['a', 'b', 'c', 'd']) ...{id: _canvas(id, 390), '$id-b': _frame('$id-b', id)},
+    };
+    final groups = {
+      'g': [
+        {'nodeId': 'a', 'lowerBound': 0},
+        {'nodeId': 'b', 'lowerBound': 400},
+        {'nodeId': 'c', 'lowerBound': 800},
+        {'nodeId': 'd', 'lowerBound': 1200},
+      ],
+    };
+    final set = migrateProjectBreakpoints([v1], layoutGroups: [groups]);
+    // The group's own bounds vote: tablet at 800, desktop at 1200; the
+    // 400 canvas has no breakpoint of its own left, so one is added there.
+    expect(_ids(set), [('mobile', 0), ('mobile400', 400), ('tablet', 800), ('desktop', 1200)]);
+    expect(set.added, ['mobile400']);
+    final out = migrateLayoutGroups(migrateDocument(v1, breakpoints: set), groups, breakpoints: set);
+    expect(out['g'], [
+      {'canvas': 'a', 'breakpoint': 'mobile'},
+      {'canvas': 'b', 'breakpoint': 'mobile400'},
+      {'canvas': 'c', 'breakpoint': 'tablet'},
+      {'canvas': 'd', 'breakpoint': 'desktop'},
+    ]);
+    // Against the defaults (no room): canvases shift up, keeping their
+    // bounds as their own switch points; the last repeats the widest.
+    expect(migrateLayoutGroups(migrateDocument(v1), groups)['g'], [
+      {'canvas': 'a', 'breakpoint': 'mobile'},
+      {'canvas': 'b', 'breakpoint': 'tablet', 'minWidth': 400},
+      {'canvas': 'c', 'breakpoint': 'desktop', 'minWidth': 800},
+      {'canvas': 'd', 'breakpoint': 'desktop', 'minWidth': 1200},
+    ]);
   });
 
   test("formulas reading screen keep v1's global widths in the set", () {
@@ -148,9 +199,10 @@ void main() {
     final c = page['c-b'] as Map<String, Object?>;
     page['c-b'] = {...c, 'variables': {'visible': r'${screen.isTablet}'}};
     final b = migrateProjectBreakpoints([page]);
-    // 768 (the node) and 600 (the formula's) tie: 600 stays tablet.
-    expect(_ids(b), [('mobile', 0), ('tablet', 600), ('tablet768', 768), ('desktop', 1024)]);
-    expect(_variantBreakpoints(migrateDocument(page, breakpoints: b), 'a'), ['mobile', 'tablet768']);
+    // 768 (the node) and 600 (the formula's) tie: 600 stays tablet, the
+    // node keeps 768.
+    expect(_ids(b), [('mobile', 0), ('tablet', 600), ('desktop', 1024)]);
+    expect(_minWidths(migrateDocument(page, breakpoints: b), 'a'), {'tablet': 768});
   });
 
   test("an adaptive dialog's sheet width is a breakpoint reference", () {
@@ -189,7 +241,10 @@ void main() {
     // A custom width: a breakpoint of the project at it.
     final custom = page(900);
     final set = migrateProjectBreakpoints([custom]);
+    // An action has no switch points: the one case a project breakpoint
+    // is added.
     expect(_ids(set), [('mobile', 0), ('tablet', 600), ('tablet900', 900), ('desktop', 1024)]);
+    expect(set.added, ['tablet900']);
     expect(modal(migrateDocument(custom, breakpoints: set))['sheetBelow'], 'tablet900');
   });
 
@@ -207,8 +262,8 @@ void main() {
     };
     final set = migrateProjectBreakpoints([p]);
     // The toast reads v1's global classes (600) and the node switches at
-    // 700: one vote each, so tablet stays at 600 and 700 is its own.
-    expect(_ids(set), [('mobile', 0), ('tablet', 600), ('tablet700', 700), ('desktop', 1024)]);
+    // 700: one vote each, so tablet stays at 600; the node keeps 700.
+    expect(_ids(set), [('mobile', 0), ('tablet', 600), ('desktop', 1024)]);
     Map? look;
     void walk(Object? v) {
       if (v is Map && v['type'] == 'showToast') look = v['look'] as Map?;
@@ -217,7 +272,7 @@ void main() {
     }
 
     walk(migrateDocument(p, breakpoints: set)['nodes']);
-    expect(look!['alignments'], {'mobile': 'start', 'tablet': 'end', 'tablet700': 'end'});
+    expect(look!['alignments'], {'mobile': 'start', 'tablet': 'end'});
   });
 
   test('a v1 publish: the model carries the set its layouts need', () {
@@ -234,12 +289,13 @@ void main() {
     expect((model['breakpoints'] as List)[2], containsPair('minWidth', 1200));
     final l = (bundle['layouts'] as Map)['l'] as Map<String, Object?>;
     expect(_variantBreakpoints(l, 'v'), ['mobile', 'desktop']);
+    expect(_minWidths(l, 'v'), isNull);
     // Given the project's set (from its pages), the publish uses it.
     final set = migrateProjectBreakpoints([page, _page([_variance('w', 'c-b', breakpoints: ['mobile', 'desktop'])])]);
     final withSet = migratePublishModel({'projectId': 'p', 'layouts': {'l': layout}}, breakpoints: set);
     final l2 = (withSet['layouts'] as Map)['l'] as Map<String, Object?>;
-    expect(_ids(set), [('mobile', 0), ('tablet', 600), ('desktop', 1024), ('desktop1200', 1200)]);
-    expect(_variantBreakpoints(l2, 'v'), ['mobile', 'desktop1200']);
+    expect(_ids(set), [('mobile', 0), ('tablet', 600), ('desktop', 1024)]);
+    expect(_minWidths(l2, 'v'), {'desktop': 1200});
     // The defaults are stored as nothing.
     expect((migratePublishModel({'projectId': 'p', 'layouts': {}})['model'] as Map).containsKey('breakpoints'), isFalse);
   });

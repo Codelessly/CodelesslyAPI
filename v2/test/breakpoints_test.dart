@@ -56,6 +56,22 @@ void main() {
       expect(b.ids, ['a', 'b']);
     });
 
+    test('a node or canvas may move switch points, keeping the order', () {
+      final d = Breakpoints.defaults;
+      expect(d.forWidth(1050, const {'desktop': 1100}).id, 'tablet');
+      expect(d.forWidth(1100, const {'desktop': 1100}).id, 'desktop');
+      expect(d.forWidth(650, const {'tablet': 700}).id, 'mobile');
+      // Unknown ids are ignored.
+      expect(d.forWidth(650, const {'nope': 10}).id, 'tablet');
+    });
+
+    test('nearest: itself, else fewest steps away, the narrower on a tie', () {
+      final d = Breakpoints.defaults;
+      expect(d.nearest('tablet', ['mobile', 'desktop']), 'mobile');
+      expect(d.nearest('tablet', ['desktop']), 'desktop');
+      expect(d.nearest('gone', ['mobile']), isNull);
+    });
+
     test('at: the breakpoint starting at a width', () {
       expect(Breakpoints.defaults.at(600)!.id, 'tablet');
       expect(Breakpoints.defaults.at(0)!.id, 'mobile');
@@ -141,7 +157,7 @@ void main() {
   });
 
   group('responsive variance', () {
-    Node variance({String current = 'm'}) => Node(
+    Node variance({Map<String, double> minWidths = const {}, String current = 'm'}) => Node(
           id: 'v',
           type: 'variance',
           props: Props.fromJson(VarianceProps.spec, {
@@ -151,6 +167,7 @@ void main() {
               {'id': 'err', 'name': 'Error', 'children': []},
             ],
             'current': current,
+            if (minWidths.isNotEmpty) 'minWidths': minWidths,
           }),
         );
 
@@ -169,9 +186,21 @@ void main() {
       expect(v.variantForWidth(350, narrow)!['id'], 'm');
     });
 
-    test('no local switch points: the variance follows the project set', () {
-      expect(VarianceProps.spec.props.map((p) => p.key), ['variants', 'current']);
-      expect(CanvasProps.spec.props.map((p) => p.key), isNot(contains('breakpointMinWidth')));
+    test('by its own switch points', () {
+      final v = variance(minWidths: const {'desktop': 1200});
+      expect(v.prop(VarianceProps.minWidths), {'desktop': 1200});
+      expect(v.breakpointForWidth(1100, Breakpoints.defaults).id, 'tablet');
+      expect(v.variantForWidth(1100, Breakpoints.defaults)!['id'], 'm');
+      expect(v.variantForWidth(1200, Breakpoints.defaults)!['id'], 'd');
+      expect(v.toJson()['props'], containsPair('minWidths', {'desktop': 1200}));
+      // Composes with a breakpoint no variant names: the override moves
+      // where its own variants switch, the added one changes nothing.
+      final more = Breakpoints.defaults.add(const Breakpoint(id: 'wide', minWidth: 1100));
+      expect(v.variantForWidth(1150, more)!['id'], 'm');
+      expect(v.variantForWidth(1250, more)!['id'], 'd');
+      // The panel edits them.
+      expect(VarianceProps.spec.props.map((p) => p.key), contains('minWidths'));
+      expect(CanvasProps.spec.props.map((p) => p.key), contains('breakpointMinWidth'));
     });
 
     test('a variance with no breakpoints of the project shows its current variant', () {

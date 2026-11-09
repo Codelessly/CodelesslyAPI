@@ -540,18 +540,18 @@ editor stores per-project data, a page's document carries the project's set
 (`LayoutDocumentBreakpoints`, key `breakpoints`), as it carries project
 scripts; publish copies it to the model.
 
-**No local switch points.** Nothing moves where it switches: a responsive
-variance switches where its variants' breakpoints start, a screen where its
-canvases' do, an adaptive modal where its `sheetBelow` breakpoint does, and
-`${screen}` is the project's inside every node. A width that matters is a
-breakpoint of the project. (v1 moved widths locally: a responsive node's
-`tabletMinWidth`/`desktopMinWidth`, layout groups' arbitrary canvas ranges,
-an adaptive dialog's `sheetBelowWidth`. The migration turns all of them into
-project breakpoints, below. An earlier v2 kept them as overrides,
-`VarianceProps.minWidths` and `CanvasProps.breakpointMinWidth`; they are
-gone: two widths for "tablet" in one project made `${screen.isTablet}`
-disagree with the layout on show, and a component that must switch later
-than the app is a breakpoint the project names.)
+**Two levels: the project's set, and a node's or screen's own switch
+points.** The set names the size classes; a responsive variance
+(`VarianceProps.minWidths`, `{breakpointId: width}`) and a screen's canvas
+(`CanvasProps.breakpointMinWidth`, published as `CanvasBreakpoint.minWidth`)
+may move where *they* switch to one of the project's breakpoints. An
+override is user-authored content (the editor's switch-point fields, the
+generated panel edits both): a sidebar that stays narrow up to 1100, a
+screen whose tablet design starts at 768. It never adds, removes or renames
+a breakpoint, and moves nothing outside its node: other nodes, other
+screens, toasts and modals keep the project's widths. v1 had both (a
+responsive node's `tabletMinWidth`/`desktopMinWidth`; layout groups'
+canvas ranges), so migrated pages keep switching where they did.
 
 **Shape.** `Breakpoint {id, name, minWidth, width, height}`:
 
@@ -578,26 +578,34 @@ variance with any is responsive). A canvas: `props.breakpoint` (the
 breakpoint it is the design for) and `props.screen` (canvases with the same
 value are one screen, one canvas per breakpoint; empty: a screen of its
 own). A published layout lists its canvases' breakpoints:
-`"breakpoints": [{"canvas", "breakpoint"}]`. An Open Modal action:
+`"breakpoints": [{"canvas", "breakpoint", "minWidth"?}]` (`minWidth`: the
+canvas's own switch point). An Open Modal action:
 `sheetBelow: "<id>"` (adaptive: a bottom sheet on breakpoints narrower than
 that one, a dialog from it up; empty, or a breakpoint since removed: the
 project's second breakpoint, i.e. a sheet on the narrowest only; with one
 breakpoint, always a dialog). An adaptive confirm uses that default.
 
-**Resolving a width.** `Breakpoints.forWidth(w)`: the one with the highest
-`minWidth` at or below `w` (inclusive), else the first. A screen shows the
-canvas whose breakpoint starts the highest at or below the width, else its
-narrowest. A responsive variance shows the variant of the breakpoint the
-width resolves to, else the one of the widest narrower breakpoint that has
-a variant, else its narrowest (`Breakpoints.governing`): each variant covers
-from its breakpoint up to the next variant's, min-width semantics like the
-canvases'. On the default three this is exactly v1's rule (the nearest, the
-narrower on a tie: the same for every combination of variants), and it
-makes a breakpoint no variant names transparent: adding one never moves
-where an existing variance switches (v1's nearest rule over a longer list
-would). Else `current`. The width is the screen's: the width the layout is
+**Resolving a width.** The width is the screen's: the width the layout is
 shown at (v1's canvas width), and in a dialog, sheet or popover the
 device's (v1's `BreakpointWidthScope`), never the variance's own box.
+
+1. *Project:* `Breakpoints.forWidth(w)`: the one with the highest
+   `minWidth` at or below `w` (inclusive), else the first.
+2. *With a node's own switch points:* `forWidth(w, minWidths)`: the same
+   walk in the set's order, each breakpoint starting at its override when it
+   has one; a breakpoint without one starts no earlier than the one before
+   it as moved (a node moving desktop to 1200 isn't on a wider project
+   breakpoint at 1150). The order stays the set's.
+3. *Screen:* the canvas whose switch point (its own `minWidth`, else its
+   breakpoint's) is the highest at or below the width, else its narrowest.
+4. *Responsive variance:* step 2 with its `minWidths` gives a breakpoint;
+   it shows that breakpoint's variant, else the one of the widest narrower
+   breakpoint that has a variant, else its narrowest (`Breakpoints.governing`:
+   each variant covers from its breakpoint, as the node moves it, up to the
+   next variant's), else `current`. On the default three this is exactly
+   v1's rule (the nearest, the narrower on a tie, for every combination of
+   variants), and a project breakpoint no variant names never moves where
+   an existing variance switches.
 
 **`${screen}`** (`screenValues`): `width`, `height`, `orientation`,
 `isPortrait`, `isLandscape`, `brightness`, `isDark`; `breakpoint` (the
@@ -609,55 +617,67 @@ the set (`[{id, name, minWidth}]`); and `is<Key>` for each id and name
 keep working, also after a rename, since ids don't change). The fixed keys
 win over a generated one.
 
+**`${screen}` inside an overriding node.** Inside a variance with its own
+switch points (its subtree, its bindings), `${screen}` is restated by
+step 2 with its `minWidths` (`ResponsiveScreenScope`, v1's
+`ResponsiveWidthsScope`): `breakpoint`, `is`, `atLeast` and `is<Key>` agree
+with the variant on show; `width`, `height` and the rest are the device's.
+Everywhere else `${screen}` is the project's.
+
 **Per-breakpoint values** (a toast look's `alignments`, `sideMargins`,
 `bottomOffsets`) are keyed by breakpoint id (a name also matches); a
 breakpoint with no entry uses the single value.
 
-**Migration: v1's widths become the project's breakpoints**
-(`migrate/lib/src/breakpoints.dart`). v1 had one fixed set (mobile 0,
-tablet 600, desktop 1024, `ScreenBreakpoint`) and three local overrides.
-The conversion job builds the project's set from every page first
-(`migrateProjectBreakpoints(documents, layoutGroups:, logic:)`), writes it
-to the project's data and publish model, and converts each page against it
-(`migrateDocument(..., breakpoints:)`):
+**Migration: both levels** (`migrate/lib/src/breakpoints.dart`). v1 had one
+fixed set (mobile 0, tablet 600, desktop 1024, `ScreenBreakpoint`) and
+local widths. The conversion job builds the project's set from every page
+first (`migrateProjectBreakpoints(documents, layoutGroups:, logic:)`),
+writes it to the project's data and publish model, and converts each page
+against it (`migrateDocument(..., breakpoints:)`,
+`migrateLayoutGroups(doc, groups, breakpoints:)`):
 
-1. *Switch points.* Every width v1 actually switched at is collected, with
-   the v1 class it starts: a responsive node's tablet and desktop widths
-   (its own, else 600 / 1024), only for classes it has a variant for and
-   whose range isn't empty; each layout-group canvas's lower bound; an
-   adaptive dialog's `sheetBelowWidth` (600 when unset); and 600 and 1024
-   once for each read of the global classes (a formula reading
-   `screen.is…`/`screen.breakpoint`, a toast's per-breakpoint look).
-2. *The named three.* The most used tablet width becomes `tablet`'s min
-   width and the most used desktop width `desktop`'s (a tie goes to v1's
-   600 / 1024, then the narrower); `mobile` starts at 0. The ids stay v1's
-   class names, so variants, toast keys and `isTablet` formulas keep their
-   names, and a project that never moved a width gets exactly the defaults.
-3. *Every other width is a breakpoint too.* When pages disagree (one node
-   switches to desktop at 1100, the rest at 1024), each remaining width
-   becomes a breakpoint of its own, `<class><width>` named "Desktop 1024",
-   between the others. Why not keep the most common widths only and move the
-   rest? Because then some page switches somewhere else after the
-   conversion, silently. Why not per-node overrides? They are what made
-   one device two breakpoints at once (above). An added breakpoint that a
-   page doesn't name changes nothing for it (the governing rule), so each
-   page still switches exactly where it did: the cost is a longer list in
-   the editor, which the owner can merge by hand, and that
-   `${screen.breakpoint}` / `${screen.isTablet}` read the narrower range of
-   the breakpoint now split (`MigratedBreakpoints.added` lists them for the
-   report).
-4. *References.* A responsive variant names the breakpoint that starts where
-   v1 showed it (a variant of a range v1 never showed loses its
-   breakpoint); a layout group's canvas the one starting at its lower bound;
-   an adaptive Open Modal's `sheetBelow` the one starting at its v1
-   `sheetBelowWidth` (left out when that is the second, the default); a
-   toast's per-breakpoint look gets an entry for every breakpoint, the
+1. *The project set: the widths most of the project uses.* Each width v1
+   switched at votes, with the v1 class it starts: a responsive node's
+   tablet and desktop widths (its own, else 600 / 1024; only for classes it
+   has a variant for); each layout-group canvas's lower bound; an adaptive
+   dialog's `sheetBelowWidth`; and 600 and 1024 once for each read of the
+   global classes (a formula reading `screen.is…`/`screen.breakpoint`, a
+   toast's per-breakpoint look). The most voted tablet width is `tablet`'s
+   min width and the most voted desktop width `desktop`'s (a tie goes to
+   600 / 1024, then the narrower); `mobile` starts at 0. Ids stay v1's
+   class names, so variants, toast keys and `isTablet` formulas keep
+   their names; a project that never moved a width gets the defaults.
+2. *Everything else is an override.* A responsive node whose effective
+   widths differ from the set's keeps them as `minWidths` (both when its
+   tablet is at or above its desktop, which v1 never showed, so desktop
+   stays put); a layout-group canvas gets the breakpoint its lower bound
+   falls in (the next one when a narrower canvas of the group took it) and
+   its lower bound as `breakpointMinWidth` when it isn't that breakpoint's.
+   `${screen}` inside such a node follows its widths, as v1's did.
+3. *Added project breakpoints, only where an override can't say it*
+   (`MigratedBreakpoints.added`, normally empty; `<class><width>`, "Tablet
+   900"): an adaptive Open Modal's v1 `sheetBelowWidth` that no breakpoint
+   starts at (an action has no switch points: `sheetBelow` references a
+   breakpoint), and a layout group with more canvases than the set has
+   breakpoints (a screen has one canvas per breakpoint; the breakpoint is
+   added at the first canvas that had to share one). A breakpoint no variant
+   names doesn't move any variance (step 4), but `${screen.breakpoint}`
+   names it in its range: the report lists them.
+4. *References.* An adaptive Open Modal's `sheetBelow` is the breakpoint
+   starting at its v1 width (left out when that's the second, the default);
+   a toast's per-breakpoint look gets an entry for every breakpoint, the
    value of the v1 class it starts in.
 
+What moves: global reads (`${screen}` outside overriding nodes, toasts,
+modals) follow the project set, so a project whose nodes mostly moved tablet
+to 768 sees `screen.isTablet` from 768 where v1 said 600. That is the point
+of a project set; the votes from global reads keep 600 / 1024 unless the
+project's own layouts mostly said otherwise.
+
 A page converted without its project's set (the editor's snippet import)
-uses the defaults and resolves a width the set lacks to the breakpoint it
-falls in. A published v1 layout converted without the job's set builds one
-from the publish's own layouts (`publishBreakpoints`).
+is resolved against the defaults: its widths become overrides as before. A
+published v1 layout converted without the job's set builds one from the
+publish's own layouts (`publishBreakpoints`).
 
 ### 5.4 Loading published apps
 

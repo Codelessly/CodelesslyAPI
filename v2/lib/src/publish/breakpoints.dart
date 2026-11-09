@@ -197,12 +197,20 @@ final class Breakpoints {
   int indexOf(String? id) => list.indexWhere((b) => b.id == id);
 
   /// The breakpoint [width] falls in: the last one, in order, whose min
-  /// width is at or below it, else the first.
-  Breakpoint forWidth(double width) {
+  /// width is at or below it, else the first. [minWidths] (id → min width)
+  /// moves some breakpoints' switch points (a node's or canvas's own,
+  /// DESIGN.md §5.3); the order stays the set's, and a breakpoint it
+  /// doesn't move starts no earlier than the one before it as moved (a node
+  /// that moves desktop to 1200 isn't on a wider breakpoint at 1150).
+  Breakpoint forWidth(double width, [Map<String, double> minWidths = const {}]) {
     var best = list.first;
+    var floor = 0.0;
     for (var i = 1; i < list.length; i++) {
       final b = list[i];
-      if (width >= b.minWidth) best = b;
+      final own = minWidths[b.id];
+      final start = own ?? (b.minWidth < floor ? floor : b.minWidth);
+      if (own != null || start > floor) floor = start;
+      if (width >= start) best = b;
     }
     return best;
   }
@@ -240,6 +248,29 @@ final class Breakpoints {
       }
     }
     return below ?? above;
+  }
+
+  /// Of [candidates] (breakpoint ids), the one nearest to [id] in order:
+  /// [id] itself, else the fewest steps away, the narrower on a tie. Ids not
+  /// in the set are ignored. Null when none is. (Variances resolve by
+  /// [governing], which agrees with this on three breakpoints.)
+  String? nearest(String id, Iterable<String> candidates) {
+    final want = indexOf(id);
+    if (want < 0) return null;
+    String? best;
+    var bestIndex = -1;
+    var bestDistance = 1 << 30;
+    for (final c in candidates) {
+      final i = indexOf(c);
+      if (i < 0) continue;
+      final d = (i - want).abs();
+      if (d < bestDistance || (d == bestDistance && i < bestIndex)) {
+        best = c;
+        bestIndex = i;
+        bestDistance = d;
+      }
+    }
+    return best;
   }
 
   /// A new id for a breakpoint of this set.
