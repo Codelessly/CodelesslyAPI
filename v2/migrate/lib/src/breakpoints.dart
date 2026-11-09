@@ -1,17 +1,18 @@
-// v1 breakpoints → v2's project breakpoints (CodelesslyAPI/v2/DESIGN.md §5.3).
+// v1 breakpoints → v2's two levels (CodelesslyAPI/v2/DESIGN.md §5.3): the
+// project's breakpoints, and a node's or screen canvas's own switch points.
 //
 // v1 had no project set: the screen size classes were the fixed
 // `ScreenBreakpoint`s (mobile, tablet, desktop at 0, 600, 1024), and
 // widths were moved locally: a responsive node's `tabletMinWidth` /
 // `desktopMinWidth`, a layout group's canvas ranges, an adaptive dialog's
-// `sheetBelowWidth`. v2 has no local switch points: every width anything
-// switches at is one of the project's breakpoints. So the project's set is
-// made from every switch point its pages use ([migrateProjectBreakpoints]):
-// the most common tablet and desktop widths take the `tablet` and `desktop`
-// ids, and every other width v1 switched at becomes a breakpoint of its own,
-// so each migrated page still switches exactly where it did. Migrated
-// variants, canvases and modals then reference the breakpoint that starts at
-// their v1 width ([MigratedBreakpoints.idAt]).
+// `sheetBelowWidth`. The project's set takes the widths most of the project
+// uses ([migrateProjectBreakpoints]: `tablet` and `desktop` at the most
+// common v1 widths); a node or layout group switching elsewhere keeps its
+// widths as its own switch points (`minWidths`, a canvas's
+// `breakpointMinWidth`). A project breakpoint is added only for a width no
+// override can say: an adaptive dialog's sheet width (an action has no
+// switch points of its own), or a layout group with more canvases than the
+// set has breakpoints.
 import 'package:codelessly_api/codelessly_api.dart'
     show DialogPresentation, NodeJsonConverter, ScreenBreakpoint, VarianceNode;
 
@@ -50,9 +51,10 @@ final class MigratedBreakpoints {
   /// publish model.
   final List<_Json> json;
 
-  /// Ids of the breakpoints added for v1 widths that weren't the chosen
-  /// tablet's or desktop's: a project's `${screen.breakpoint}` and
-  /// `${screen.isTablet}` now name these between the others (report them).
+  /// Ids of the breakpoints added for v1 widths no override can say (an
+  /// adaptive dialog's sheet width no breakpoint starts at; a layout group
+  /// with more canvases than breakpoints): normally none. Where there are,
+  /// `${screen.breakpoint}` names them between the others (report them).
   final List<String> added;
 
   /// How many uses each v1 switch width had (width → count), for reports.
@@ -84,6 +86,9 @@ final class MigratedBreakpoints {
   /// project's set) the breakpoint it falls in.
   String idNear(num width) => idAt(width) ?? idFor(width);
 
+  /// The position of breakpoint [id] (narrowest 0), or -1.
+  int indexOf(String id) => json.indexWhere((b) => b['id'] == id);
+
   /// The min width of breakpoint [id] (0 for the first or one not in the set).
   num minWidthOf(String id) {
     for (final b in json) {
@@ -104,21 +109,26 @@ typedef _Vote = ({String slot, num width});
 /// upperBound}]`, or a published layout's list of them); [logic] any other
 /// v1 JSON holding actions or formulas (canvas variables, conditions).
 ///
-/// Every width v1 switched at is a switch point: a responsive node's tablet
-/// and desktop widths (its own or v1's 600 / 1024; only for the variants it
-/// has), each layout group canvas's lower bound, an adaptive dialog's
-/// `sheetBelowWidth`, and 600 and 1024 wherever the global classes were
-/// read (`screen.` in a formula, a toast's per-breakpoint look). The most
-/// used tablet width (600 on a tie) is `tablet`'s, the most used desktop
-/// width (1024 on a tie) `desktop`'s; each other width becomes a breakpoint
-/// of its own, `<class><width>` ("Tablet 700"), so every page switches
-/// where it did. With none of them, the defaults.
+/// The widths v1 switched at vote: a responsive node's tablet and desktop
+/// widths (its own or v1's 600 / 1024; only for the classes it has a
+/// variant for), each layout group canvas's lower bound, an adaptive
+/// dialog's `sheetBelowWidth`, and 600 and 1024 wherever the global classes
+/// were read (`screen.is…` in a formula, a toast's per-breakpoint look). The
+/// most used tablet width (600 on a tie) is `tablet`'s, the most used
+/// desktop width (1024 on a tie) `desktop`'s. Nodes and groups switching
+/// elsewhere keep their widths as overrides ([varianceMinWidths],
+/// [migrateLayoutGroups]). Added ([MigratedBreakpoints.added], `<class><width>`,
+/// "Tablet 700") only: an adaptive dialog's sheet width no breakpoint starts
+/// at, and a lower bound of a layout group with more canvases than the set
+/// has breakpoints (one canvas per breakpoint).
 MigratedBreakpoints migrateProjectBreakpoints(
   Iterable<Map<String, Object?>> documents, {
   Iterable<Object?> layoutGroups = const [],
   Iterable<Object?> logic = const [],
 }) {
   final votes = <_Vote>[];
+  final sheets = <num>{};
+  final groupBounds = <List<num>>[];
   void vote(String slot, num width) {
     if (width.isFinite && width > 0) votes.add((slot: slot, width: _round(width)));
   }
@@ -128,7 +138,12 @@ MigratedBreakpoints migrateProjectBreakpoints(
     vote(ScreenBreakpoint.desktop.name, ScreenBreakpoint.desktop.minWidth);
   }
 
-  void scan(Object? json) => _scanJson(json, vote, voteGlobal);
+  void sheet(num width) {
+    vote(ScreenBreakpoint.forWidth(width.toDouble()).name, width);
+    if (width > 0) sheets.add(_round(width));
+  }
+
+  void scan(Object? json) => _scanJson(json, sheet, voteGlobal);
 
   for (final doc in documents) {
     final wrapped = <String, dynamic>{'document': {...doc}};
@@ -151,15 +166,18 @@ MigratedBreakpoints migrateProjectBreakpoints(
     scan(doc);
   }
   for (final groups in layoutGroups) {
-    for (final b in _groupEntries(groups)) {
-      final lb = _num(b['lowerBound']);
-      vote(ScreenBreakpoint.forWidth(lb.toDouble()).name, lb);
+    for (final g in _groups(groups)) {
+      final bounds = [for (final b in g) _round(_num(b['lowerBound']))]..sort();
+      if (bounds.length > 1) groupBounds.add(bounds);
+      for (final lb in bounds) {
+        vote(ScreenBreakpoint.forWidth(lb.toDouble()).name, lb);
+      }
     }
   }
   for (final l in logic) {
     scan(l);
   }
-  return _choose(votes);
+  return _choose(votes, sheets: sheets, groups: groupBounds);
 }
 
 /// A responsive v1 [node]'s variant ranges: each breakpoint class it has a
@@ -178,39 +196,63 @@ List<({String slot, num start})> _ranges(VarianceNode node) {
   return out;
 }
 
-/// The variants of v2 variance props [props] (migrated from v1 [node]) with
-/// each `breakpoint` the project breakpoint starting where v1 showed it
-/// from, by [set]; a variant v1 never showed (an empty range) loses it.
-void remapVarianceBreakpoints(_Json props, VarianceNode node, MigratedBreakpoints set) {
-  final variants = props['variants'];
-  if (variants is! List || !node.isResponsive) return;
-  final starts = {for (final r in _ranges(node)) r.slot: r.start};
-  props['variants'] = [
-    for (final v in variants)
-      if (v is Map && v['breakpoint'] is String)
-        {
-          for (final e in v.entries)
-            if (e.key != 'breakpoint') '${e.key}': e.value,
-          if (starts[v['breakpoint']] case final num start) 'breakpoint': set.idNear(start),
-        }
-      else
-        v,
-  ];
+/// A responsive variance's v1 `tabletMinWidth` / `desktopMinWidth` (v1's
+/// 600 / 1024 when unset) as its v2 own switch points (`minWidths`,
+/// breakpoint id → width) against the project's [breakpoints] (default:
+/// the defaults): the ones that differ from the project's. Empty when it
+/// switches where the project does. A tablet at or above desktop (v1 never
+/// showed tablet) keeps both, so desktop stays where v1 had it.
+Map<String, num> varianceMinWidths({double? tabletMinWidth, double? desktopMinWidth, MigratedBreakpoints? breakpoints}) {
+  final set = breakpoints ?? MigratedBreakpoints.defaults;
+  final t = _round(tabletMinWidth ?? ScreenBreakpoint.tablet.minWidth);
+  final d = _round(desktopMinWidth ?? ScreenBreakpoint.desktop.minWidth);
+  final both = t >= d;
+  return {
+    if (both || t != set.minWidthOf('tablet')) 'tablet': t,
+    if (both || d != set.minWidthOf('desktop')) 'desktop': d,
+  };
 }
 
-/// The v2 breakpoint entry of a canvas whose v1 range starts at [lowerBound]:
-/// `{canvas, breakpoint}`, the project breakpoint starting there (by [set]).
-_Json canvasBreakpoint(String canvasId, num lowerBound, [MigratedBreakpoints? set]) =>
-    {'canvas': canvasId, 'breakpoint': (set ?? MigratedBreakpoints.defaults).idNear(lowerBound)};
+/// Which project breakpoint each canvas of a layout group is the design
+/// for, by [set]: the one its lower bound falls in, else (taken by a
+/// narrower canvas of the group) the next one, in order; `minWidth` when
+/// its lower bound isn't that breakpoint's (its own switch point). Null
+/// when the group has more canvases than [set] has breakpoints left.
+List<({String breakpoint, num? minWidth})>? _assign(List<num> bounds, MigratedBreakpoints set) {
+  final out = <({String breakpoint, num? minWidth})>[];
+  var last = -1;
+  for (final lb in bounds) {
+    var i = set.indexOf(set.idFor(lb));
+    if (i <= last) i = last + 1;
+    if (i >= set.json.length) return null;
+    last = i;
+    final b = set.json[i];
+    final min = _num(b['minWidth']);
+    out.add((breakpoint: b['id'] as String, minWidth: lb == min || (i == 0 && lb <= 0) ? null : lb));
+  }
+  return out;
+}
+
+/// The v2 breakpoint entry of a canvas whose v1 range starts at [lowerBound]
+/// (a canvas of its own): `{canvas, breakpoint, minWidth?}`, the project
+/// breakpoint ([set]; default: the defaults) it falls in, and its own switch
+/// point when that isn't the breakpoint's.
+_Json canvasBreakpoint(String canvasId, num lowerBound, [MigratedBreakpoints? set]) {
+  final a = _assign([_round(lowerBound)], set ?? MigratedBreakpoints.defaults)!.single;
+  return {'canvas': canvasId, 'breakpoint': a.breakpoint, 'minWidth': ?a.minWidth};
+}
 
 /// Gives the canvases of each v1 layout group in v2 document [doc] (its
-/// `nodes`) their breakpoint and screen: [groups] is v1's page metadata
-/// `breakpoints` (group id → `[{nodeId, lowerBound, upperBound}]`). A group
-/// of one canvas is a screen of its own and gets nothing. Each canvas gets
-/// the project breakpoint ([set], from [migrateProjectBreakpoints]; default:
-/// the defaults) that starts at its lower bound. Returns each group's
-/// entries, narrowest first, as a published layout lists them.
+/// `nodes`) their breakpoint, screen and own switch point: [groups] is v1's
+/// page metadata `breakpoints` (group id → `[{nodeId, lowerBound,
+/// upperBound}]`). A group of one canvas is a screen of its own and gets
+/// nothing. Each canvas gets the project breakpoint ([breakpoints], from
+/// [migrateProjectBreakpoints]; default: the defaults) its lower bound falls
+/// in (the next one when a narrower canvas took it) and its lower bound as
+/// `breakpointMinWidth` when it isn't that breakpoint's. Returns each
+/// group's entries, narrowest first, as a published layout lists them.
 Map<String, List<_Json>> migrateLayoutGroups(_Json doc, Object? groups, {MigratedBreakpoints? breakpoints}) {
+  final set = breakpoints ?? MigratedBreakpoints.defaults;
   final nodes = doc['nodes'];
   final out = <String, List<_Json>>{};
   if (nodes is! Map || groups is! Map) return out;
@@ -220,15 +262,24 @@ Map<String, List<_Json>> migrateLayoutGroups(_Json doc, Object? groups, {Migrate
         if (nodes[b['nodeId']] is Map) b,
     ]..sort((a, b) => _num(a['lowerBound']).compareTo(_num(b['lowerBound'])));
     if (entries.length < 2) continue;
+    final bounds = [for (final b in entries) _round(_num(b['lowerBound']))];
+    // A set without room (a page migrated without its project's set): the
+    // widest breakpoint repeats, each canvas at its own switch point.
+    final assigned = _assign(bounds, set) ??
+        [
+          for (var i = 0; i < bounds.length; i++)
+            (_assign(bounds.sublist(0, i + 1), set)?.last ?? (breakpoint: set.json.last['id'] as String, minWidth: bounds[i])),
+        ];
     final list = <_Json>[];
-    for (final b in entries) {
-      final id = b['nodeId'] as String;
-      final e = canvasBreakpoint(id, _num(b['lowerBound']), breakpoints);
-      list.add(e);
+    for (var i = 0; i < entries.length; i++) {
+      final id = entries[i]['nodeId'] as String;
+      final a = assigned[i];
+      list.add({'canvas': id, 'breakpoint': a.breakpoint, 'minWidth': ?a.minWidth});
       final node = (nodes[id] as Map).cast<String, Object?>();
       final props = {...?(node['props'] as Map?)?.cast<String, Object?>()};
-      props['breakpoint'] = e['breakpoint'];
+      props['breakpoint'] = a.breakpoint;
       props['screen'] = '${g.key}';
+      if (a.minWidth != null) props['breakpointMinWidth'] = a.minWidth;
       nodes[id] = {...node, 'props': props};
     }
     out['${g.key}'] = list;
@@ -287,14 +338,14 @@ void applyProjectBreakpoints(Object? json, MigratedBreakpoints set) {
 /// Votes [json]'s v1 uses of breakpoint widths: adaptive dialogs' sheet
 /// widths, and the global classes where `screen` or a toast's
 /// per-breakpoint look reads them.
-void _scanJson(Object? json, void Function(String slot, num width) vote, void Function() voteGlobal) {
+void _scanJson(Object? json, void Function(num width) sheet, void Function() voteGlobal) {
   if (json is String) {
     if (_readsClass.hasMatch(json)) voteGlobal();
     return;
   }
   if (json is List) {
     for (final v in json) {
-      _scanJson(v, vote, voteGlobal);
+      _scanJson(v, sheet, voteGlobal);
     }
     return;
   }
@@ -302,18 +353,18 @@ void _scanJson(Object? json, void Function(String slot, num width) vote, void Fu
   if (json['type'] == 'showDialog' && json['presentation'] == DialogPresentation.adaptive.name) {
     final w = json['sheetBelowWidth'];
     final width = w is num ? w : ScreenBreakpoint.tablet.minWidth;
-    vote(ScreenBreakpoint.forWidth(width.toDouble()).name, width);
+    sheet(width);
   }
   if (json['type'] == 'showToast' && _perBreakpointLookKeys.any((k) => json[k] is Map && (json[k] as Map).isNotEmpty)) {
     voteGlobal();
   }
   for (final v in json.values) {
-    _scanJson(v, vote, voteGlobal);
+    _scanJson(v, sheet, voteGlobal);
   }
 }
 
 /// The set for [votes]; see [migrateProjectBreakpoints].
-MigratedBreakpoints _choose(List<_Vote> votes) {
+MigratedBreakpoints _choose(List<_Vote> votes, {Set<num> sheets = const {}, List<List<num>> groups = const []}) {
   final counts = <num, int>{};
   final slots = <num, Map<String, int>>{};
   for (final v in votes) {
@@ -346,22 +397,54 @@ MigratedBreakpoints _choose(List<_Vote> votes) {
     desktop: {'id': 'desktop', 'name': 'Desktop'},
   };
   final added = <String>[];
-  for (final w in counts.keys) {
-    if (byWidth.containsKey(w)) continue;
-    final slot = (slots[w]!.entries.toList()..sort((a, b) => b.value.compareTo(a.value))).first.key;
+  bool add(num w) {
+    if (byWidth.containsKey(w) || w <= 0) return false;
+    final slot = ScreenBreakpoint.forWidth(w.toDouble()).name;
     final label = '${slot[0].toUpperCase()}${slot.substring(1)}';
     final key = '$w'.replaceAll('.', '_');
     byWidth[w] = {'id': '$slot$key', 'name': '$label $w', 'slot': slot};
     added.add('$slot$key');
+    return true;
   }
+
+  // An adaptive dialog's sheet width: a breakpoint must start there.
+  for (final w in sheets) {
+    add(w);
+  }
+  var set = _build(byWidth, added, counts);
+  // A layout group needs a breakpoint per canvas.
+  for (var changed = true; changed;) {
+    changed = false;
+    for (final bounds in groups) {
+      if (_assign(bounds, set) != null) continue;
+      // A breakpoint at the lower bound of the first canvas that shares its
+      // breakpoint with a narrower one (it was moved to the next), else of
+      // the first without one left.
+      final candidates = [
+        for (var i = 1; i < bounds.length; i++)
+          if (set.idFor(bounds[i]) == set.idFor(bounds[i - 1])) bounds[i],
+        ...bounds,
+      ];
+      for (final w in candidates) {
+        if (add(w)) {
+          set = _build(byWidth, added, counts);
+          changed = true;
+          break;
+        }
+      }
+    }
+  }
+  return set;
+}
+
+MigratedBreakpoints _build(Map<num, _Json> byWidth, List<String> added, Map<num, int> counts) {
   final widths = byWidth.keys.toList()..sort();
   final json = <_Json>[];
   for (var i = 0; i < widths.length; i++) {
     final w = widths[i];
     final next = i + 1 < widths.length ? widths[i + 1] : double.infinity;
     final b = byWidth[w]!;
-    final size = _designSizes[b['id']] ?? _designSizes[b.remove('slot')];
-    b.remove('slot');
+    final size = _designSizes[b['id']] ?? _designSizes[b['slot']];
     final out = <String, Object?>{'id': b['id'], 'name': b['name'], if (w != 0) 'minWidth': w};
     // A design size inside the breakpoint's range (else its min width).
     if (size != null && size.$1 >= w && size.$1 < next) {
@@ -372,7 +455,19 @@ MigratedBreakpoints _choose(List<_Vote> votes) {
     }
     json.add(out);
   }
-  return MigratedBreakpoints._(json, added, counts);
+  return MigratedBreakpoints._(json, [...added], counts);
+}
+
+/// Each layout group's entries (`[{nodeId, lowerBound}]`) of v1 [groups]: a
+/// page's metadata map (group id → list), or one published layout's list.
+Iterable<List<Map>> _groups(Object? groups) sync* {
+  final lists = groups is Map ? groups.values : (groups is List ? [groups] : const []);
+  for (final l in lists) {
+    yield [
+      for (final b in (l is List ? l : const []))
+        if (b is Map && b['nodeId'] is String) b,
+    ];
+  }
 }
 
 Iterable<Map> _groupEntries(Object? groups) sync* {
