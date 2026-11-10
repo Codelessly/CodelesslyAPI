@@ -9,6 +9,9 @@ part 'for_each_action.g.dart';
 /// Runs [actions] once for every item of a list.
 ///
 /// [items] is a variable path that resolves to a list, e.g. `${photos}`.
+/// Every action of a turn reads the current item and its position as
+/// `${loop.item}` and `${loop.index}`. (`${result.item}` holds them too, but
+/// only until an action of the turn produces a result of its own.)
 /// While the actions run, `${result.item}` is the current item and
 /// `${result.index}` its index.
 @JsonSerializable()

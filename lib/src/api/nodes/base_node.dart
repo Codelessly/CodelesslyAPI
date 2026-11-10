@@ -92,6 +92,15 @@ abstract class BaseNode
 
   /// Edge Pins apply to the [outerBoxLocal].
   /// See [EdgePinsModel] for more info on how to define the edge pins.
+  @FlutterProp(
+    'edgePins',
+    type: 'object',
+    group: 'Position',
+    control: 'edgePins',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted edge-pin object; distances are relative to parent edges.',
+  )
   EdgePinsModel edgePins;
 
   /// [PositioningMode] defines if the node positions itself using [alignment]
@@ -165,6 +174,20 @@ abstract class BaseNode
   /// other fits ([SizeFit.flexible] is the same for a fixed size).
   @JsonKey(defaultValue: false)
   bool squeezable = false;
+
+  /// Lets taps, drags and the mouse pass through this node and everything in
+  /// it to what lies under it, so a decorative layer (pieces drawn over a
+  /// board, a glow, a ghost following a drag) doesn't block the controls
+  /// below.
+  @JsonKey(defaultValue: false)
+  bool ignorePointer = false;
+
+  /// The width-to-height ratio the node keeps when the app runs; 0 keeps
+  /// none. The side that stretches (expanded or flexible) decides the size
+  /// and the other follows, so a board that fills the screen's width stays
+  /// square on every phone. A node fixed on both sides keeps its size.
+  @JsonKey(defaultValue: 0)
+  double keepAspect = 0;
 
   /// Whether the node preserves its aspect ratio while resizing.
   bool aspectRatioLock;
@@ -349,6 +372,15 @@ abstract class BaseNode
   /// The margin applied outside the node.
   ///
   /// Replicates the behavior of Flutter's [Padding] widget.
+  @FlutterProp(
+    'margin',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized margin object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get margin => _margin;
 
   EdgeInsetsModel _padding;
@@ -357,15 +389,34 @@ abstract class BaseNode
   ///
   /// Replicates the behavior of [padding] property of Flutter's [Container]
   /// widget.
+  @FlutterProp(
+    'padding',
+    type: 'object',
+    group: 'Spacing',
+    control: 'edgeInsets',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly serialized padding object, not a Flutter constructor parameter.',
+  )
   EdgeInsetsModel get padding => _padding;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int _rotationDegrees;
+  num _rotationDegrees;
 
   /// The rotation in degrees. This is the rotation of the node's
   /// [middleBoxLocal], represented by the [middleRotatedBoxLocal].
   @JsonKey(name: 'rotation', fromJson: castRotation)
-  int get rotationDegrees => _rotationDegrees;
+  @FlutterProp(
+    'rotation',
+    type: 'number',
+    group: 'Transform',
+    control: 'angle',
+    field: 'rotation',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted rotation in degrees; rotationDegrees is the Dart getter, not the wire key.',
+  )
+  num get rotationDegrees => _rotationDegrees;
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   double _rotationRadians;
@@ -380,7 +431,7 @@ abstract class BaseNode
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
   /// an optimization and convenience.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  int globalRotationDegrees;
+  num globalRotationDegrees;
 
   /// The global rotation in radians. It is not stored on the server and is
   /// computed whenever [rotationDegrees] is updated. It is meant purely as
@@ -485,6 +536,114 @@ abstract class BaseNode
   /// spin. Null for a node that doesn't move. See [MotionModel].
   MotionModel? motion;
 
+  /// One-shot effects the node plays on cue (shake, bounce, pop, ...).
+  /// See [EffectAnimation].
+  @JsonKey(defaultValue: [])
+  List<EffectAnimation> effectAnimations = [];
+
+  /// Confetti or stars the node bursts with on cue. Null for none. See
+  /// [ParticleEmitter].
+  ParticleEmitter? particles;
+
+  /// Flies the node into place from where another node with the same key
+  /// just was, like a shared element: a letter tile tapped in the tray
+  /// disappears there and the slot's tile, with the same key, appears
+  /// flying from the tray into the slot. A draggable node's key also
+  /// remembers where it was let go, so dropped content flies in from the
+  /// drop point. Bindable as `flightKey` (e.g. `tile-${item.id}`); empty
+  /// for none. The flight uses the node's [MotionModel] spring settings
+  /// when it has them.
+  @JsonKey(defaultValue: '')
+  String flightKey = '';
+
+  /// A line drawn through points in the node's box, behind its children
+  /// (a dotted trail, a connector). Null for none. See [StrokePath].
+  StrokePath? strokePath;
+
+  /// Scrolls the node into view when it appears (or when `reveal.when`
+  /// turns true). Null for none. See [RevealModel].
+  RevealModel? reveal;
+
+  /// Makes the node draggable: it follows the pointer, tilts, and springs
+  /// back, stays or flies off on release. Null for a node that can't be
+  /// dragged. See [DragModel].
+  DragModel? drag;
+
+  /// Makes the node (or its content) pannable, zoomable and rotatable, with
+  /// fling physics, bounds, double-tap and wheel zoom, two-way pose
+  /// variables and optional transform handles. Null for none; see
+  /// [effectiveTransformGesture] for [zoomable]. See [TransformGestureModel].
+  TransformGestureModel? transformGesture;
+
+  /// [transformGesture], or [TransformGestureModel.zoomable] for a node
+  /// that only has the first switch, [zoomable].
+  TransformGestureModel? get effectiveTransformGesture =>
+      transformGesture ?? (zoomable ? TransformGestureModel.zoomable : null);
+
+  /// Whether the node floats above the screen at runtime: drawn where its
+  /// layout puts it, but over every other node, not clipped by its parents,
+  /// and tappable even outside them, like a menu attached to a field (a
+  /// type-ahead's matches under its text field). It still takes its place
+  /// in the layout, so put it in a stack (frame) next to what it hangs from
+  /// to keep it out of the flow. The design canvas draws it in place.
+  @JsonKey(defaultValue: false, includeIfNull: false)
+  bool floating = false;
+
+  /// Tag that makes this node a shared element (a Flutter `Hero`): when a
+  /// navigation pushes or pops a screen that has a node with the same tag,
+  /// this node flies between its place on both screens while the route
+  /// transition plays.
+  ///
+  /// Null or empty for none. Bindable through `variables['heroTag']`, e.g.
+  /// `pass-${item.id}` in a list item; a binding that resolves to an empty
+  /// string turns the shared element off for that node (for example on every
+  /// list item but the front one). Tags must be unique on a screen.
+  String? heroTag;
+
+  /// How this shared element flies when [heroTag] is set. Null flies the
+  /// standard way ([HeroFlight.standard]).
+  HeroFlight? heroFlight;
+
+  /// What the destination of this shared element shows until its own image
+  /// has loaded. Null for [HeroPlaceholder.none].
+  HeroPlaceholder? heroPlaceholder;
+
+  /// Makes this node a two-sided card that turns over: its first child is
+  /// the front, its second the back. Null for none. See [FlipModel].
+  FlipModel? flip;
+
+  /// Tilts this node in 3D toward the pointer. Null for none. See
+  /// [TiltModel].
+  TiltModel? tilt;
+  /// A name for this node that its tree gives it, unique within the tree
+  /// (e.g. `"content"` for the slot a layout fills). The editor API's
+  /// `nodes.insertTree` reads it so actions and interaction states of the
+  /// same tree can name the node before it has an ID, and keeps it so
+  /// `nodes.export` gives the tree back with its keys. Null for none; it
+  /// does not affect rendering.
+  String? key;
+
+  /// Width divided by height that the node keeps at runtime, e.g.
+  /// `340 / 214` for a card: when its width follows its parent (it fills,
+  /// is expanded or pinned on both sides) its height is that width over
+  /// this ratio, and when only its height follows its parent its width is
+  /// that height times this ratio. The result stays within what the parent
+  /// allows. Null (the default) sizes each axis on its own.
+  ///
+  /// Unlike [aspectRatioLock], which only keeps the ratio while resizing in
+  /// the editor, this sizes the node in the app. It is separate from the
+  /// built-in ratio of nodes such as icons ([FixedAspectRatioMixin]).
+  double? layoutAspectRatio;
+  /// How the node animates when its size changes at runtime: content it
+  /// shrink-wraps appearing (an FAQ answer opening), or a bound width or
+  /// height changing (a toggle's thumb). Null jumps to the new size.
+  ///
+  /// On an axis the node hugs (shrinkWrap) the box grows or shrinks over
+  /// the duration and clips its content meanwhile; on any other axis the
+  /// node is laid out at each size in between. The design canvas shows the
+  /// final size.
+  NodeTransition? sizeTransition;
+
   /// Whether the node is sized in fraction of the parent's size.
   bool get isFractionallySized => widthFactor != null || heightFactor != null;
 
@@ -502,7 +661,7 @@ abstract class BaseNode
     OuterNodeBox? outerBoxLocal,
     NodeBox? retainedOuterBoxLocal,
     this.visible = true,
-    int rotationDegrees = 0,
+    num rotationDegrees = 0,
     this._alignment = AlignmentModel.none,
     EdgeInsetsModel margin = EdgeInsetsModel.zero,
     this._padding = EdgeInsetsModel.zero,

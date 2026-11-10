@@ -4,6 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 import 'package:equatable/equatable.dart';
 
 import '../../../codelessly_api.dart';
+import '../../schema/flutter_prop.dart';
 
 part 'paint.g.dart';
 
@@ -116,9 +117,68 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// 16 px. Null (the default) stretches the gradient across the box.
   final double? gradientRepeatEvery;
 
+  /// Centre of a radial or angular gradient in the box: (-1, -1) is the top
+  /// left, (0, 0) the centre, (1, 1) the bottom right. An off-centre radial
+  /// highlight is how a lit dome (a knob cap, a lamp) is drawn.
+  ///
+  /// Also read from `gradientCenter: [x, y]`, the form Hookline's pages
+  /// were saved with.
+  @JsonKey(defaultValue: 0.0, readValue: _readGradientCenter)
+  final double gradientCenterX;
+
+  /// See [gradientCenterX].
+  @JsonKey(defaultValue: 0.0, readValue: _readGradientCenter)
+  final double gradientCenterY;
+
+  /// Radius of a radial gradient as a fraction of the box's shorter side;
+  /// 0.5 reaches its edges from the centre.
+  @JsonKey(defaultValue: 0.5)
+  final double gradientRadius;
+
+  /// Where a linear gradient starts (its first stop), as an alignment in the
+  /// box: -1 is the left edge, 0 the centre, 1 the right edge.
+  /// [gradientBeginY] is the same from top (-1) to bottom (1). With
+  /// [gradientEndX] and [gradientEndY] it places the gradient between two
+  /// handles, as design tools do, instead of turning it by
+  /// [gradientTransform]: begin (-1, -1) and end (1, 1) runs corner to
+  /// corner on a box of any proportions. Null (the default) keeps the
+  /// rotation in [gradientTransform]. A missing coordinate is the centre.
+  final double? gradientBeginX;
+
+  /// See [gradientBeginX].
+  final double? gradientBeginY;
+
+  /// Where a linear gradient ends (its last stop); see [gradientBeginX].
+  final double? gradientEndX;
+
+  /// See [gradientEndX].
+  final double? gradientEndY;
+
+  /// Whether this linear gradient is placed between begin and end handles
+  /// ([gradientBeginX] and the others) rather than by its transform.
+  bool get hasGradientHandles =>
+      gradientBeginX != null ||
+      gradientBeginY != null ||
+      gradientEndX != null ||
+      gradientEndY != null;
+
   /// How the gradient paints beyond its handles. [GradientTileMode.repeated]
   /// with hard stops makes stripes (hazard tape, hatching).
   final GradientTileMode gradientTileMode;
+
+  /// Whether the gradient is laid out in each shape of a path node instead
+  /// of across the node's box: every closed subpath (an `M ... Z` of the
+  /// node's `pathData`) gets the whole gradient, with its handles, centre
+  /// and radius in that shape's own bounds, so one path node of 300 hex
+  /// cells shades every cell alike (a radial highlight per cell). Subpaths
+  /// that lie inside the previous shape's bounds (a hole, the counter of an
+  /// "O") belong to that shape. Only path nodes paint per shape; other
+  /// nodes ignore it.
+  ///
+  /// JSON: `gradientPerSubpath: true`, also read from
+  /// `gradientUnits: 'subpath'`.
+  @JsonKey(defaultValue: false, readValue: _readGradientPerSubpath)
+  final bool gradientPerSubpath;
 
   // For image paint:
 
@@ -130,6 +190,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// translation, rotation, and skew.
   ///
   /// The identity transform is [[1, 0, 0], [0, 1, 0]].
+  @FlutterProp(
+    'imageTransform',
+    type: 'array',
+    group: 'Image Fill',
+    control: 'matrix',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted affine image transform in a paint item.',
+  )
   final List<List<num>>? imageTransform;
 
   /// Memory bytes to load the image.
@@ -153,6 +222,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
 
   /// The sizing behavior the image will use to fit inside its view.
   /// This is 1-1 with Flutter's [BoxFit].
+  @FlutterProp(
+    'fit',
+    type: 'string',
+    group: 'Image Fill',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted image fill fit mode in a paint item.',
+  )
   final Fit fit;
 
   /// The alignment positioning of the image relative to its view.
@@ -160,10 +238,39 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// right corner of the view, and [0, 0] being the center of the view.
   ///
   /// This corresponds to Flutter's [Alignment].
+  @FlutterProp(
+    'alignment',
+    type: 'object',
+    group: 'Image Fill',
+    control: 'alignment',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted image alignment object in a paint item.',
+  )
   final AlignmentModel alignment;
 
   /// The image scale per-axis.
-  final double scaleX, scaleY;
+  @FlutterProp(
+    'scaleX',
+    type: 'number',
+    group: 'Image Fill',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted horizontal image scale or flip sign in a paint item.',
+  )
+  final double scaleX;
+
+  @FlutterProp(
+    'scaleY',
+    type: 'number',
+    group: 'Image Fill',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted vertical image scale or flip sign in a paint item.',
+  )
+  final double scaleY;
 
   /// Image scale.
   double get scale => min(scaleX, scaleY);
@@ -184,6 +291,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   bool get isNonUniformScale => scaleX.abs() != scaleY.abs();
 
   /// Stores information about the crop of an image.
+  @FlutterProp(
+    'cropData',
+    type: 'object',
+    group: 'Image Fill',
+    control: 'crop',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted crop object in a paint item.',
+  )
   final CropData? cropData;
 
   /// URL of the cropped image.
@@ -199,11 +315,25 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   final double? sourceHeight;
 
   /// Tile mode for image fill.
+  @FlutterProp(
+    'imageRepeat',
+    type: 'string',
+    group: 'Image Fill',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted repeat mode for an image paint item.',
+  )
   final ImageRepeatEnum imageRepeat;
 
   /// Color saturation of an image fill: 1 keeps the image's colors, 0 makes
   /// it greyscale, values between fade the colors.
   final double saturation;
+
+  /// A color every pixel of an image fill takes, keeping its transparency:
+  /// a one-ink image (a stamp, a postmark ring) drawn in another ink.
+  /// Null keeps the image's colors.
+  final ColorRGBA? imageTint;
 
   /// Whether image fill type has source size.
   bool get hasImageSourceSize => sourceWidth != null && sourceHeight != null;
@@ -291,6 +421,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientTransform = null,
        gradientStops = null,
        gradientTileMode = GradientTileMode.clamp,
+       gradientPerSubpath = false,
        imageTransform = null,
        imageName = null,
        fit = Fit.none,
@@ -299,10 +430,18 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        scaleY = 1,
        imageRepeat = ImageRepeatEnum.noRepeat,
        saturation = 1,
+       imageTint = null,
        sourceWidth = null,
        sourceHeight = null,
        assetID = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientCenterX = 0,
+       gradientCenterY = 0,
+       gradientRadius = 0.5,
+       gradientBeginX = null,
+       gradientBeginY = null,
+       gradientEndX = null,
+       gradientEndY = null;
 
   /// Create an Image Paint with only the required properties.
   PaintModel.image({
@@ -322,6 +461,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.croppedImageURL,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
     this.saturation = 1,
+    this.imageTint,
     this.imageName,
     required this.sourceWidth,
     required this.sourceHeight,
@@ -335,7 +475,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        gradientStops = null,
        color = null,
        gradientRepeatEvery = null,
-       gradientTileMode = GradientTileMode.clamp;
+       gradientCenterX = 0,
+       gradientCenterY = 0,
+       gradientRadius = 0.5,
+       gradientBeginX = null,
+       gradientBeginY = null,
+       gradientEndX = null,
+       gradientEndY = null,
+       gradientTileMode = GradientTileMode.clamp,
+       gradientPerSubpath = false;
 
   /// Creates [PaintModel] with linear gradient.
   PaintModel.linearGradient({
@@ -345,7 +493,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientRepeatEvery,
+    this.gradientCenterX = 0,
+    this.gradientCenterY = 0,
+    this.gradientRadius = 0.5,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
+    this.gradientBeginX,
+    this.gradientBeginY,
+    this.gradientEndX,
+    this.gradientEndY,
 
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientLinear,
@@ -362,6 +518,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        cropData = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
        saturation = 1,
+       imageTint = null,
        croppedImageURL = null,
        sourceWidth = null,
        sourceHeight = null,
@@ -375,6 +532,10 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
+    this.gradientCenterX = 0,
+    this.gradientCenterY = 0,
+    this.gradientRadius = 0.5,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientRadial,
        color = null,
@@ -391,10 +552,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        croppedImageURL = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
        saturation = 1,
+       imageTint = null,
        sourceWidth = null,
        sourceHeight = null,
        assetID = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientBeginX = null,
+       gradientBeginY = null,
+       gradientEndX = null,
+       gradientEndY = null;
 
   /// Creates [PaintModel] with angular gradient.
   PaintModel.angularGradient({
@@ -404,6 +570,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
     this.blendMode = BlendModeC.srcOver,
   }) : type = PaintType.gradientAngular,
        color = null,
@@ -415,6 +582,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        imageName = null,
        imageRepeat = ImageRepeatEnum.noRepeat,
        saturation = 1,
+       imageTint = null,
        alignment = AlignmentModel.none,
        scaleX = 1,
        scaleY = 1,
@@ -423,7 +591,14 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
        sourceWidth = null,
        sourceHeight = null,
        assetID = null,
-       gradientRepeatEvery = null;
+       gradientRepeatEvery = null,
+       gradientCenterX = 0,
+       gradientCenterY = 0,
+       gradientRadius = 0.5,
+       gradientBeginX = null,
+       gradientBeginY = null,
+       gradientEndX = null,
+       gradientEndY = null;
 
   /// Creates [PaintModel] with given data.
   PaintModel({
@@ -436,7 +611,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.gradientTransform,
     this.gradientStops,
     this.gradientRepeatEvery,
+    this.gradientCenterX = 0,
+    this.gradientCenterY = 0,
+    this.gradientRadius = 0.5,
+    this.gradientBeginX,
+    this.gradientBeginY,
+    this.gradientEndX,
+    this.gradientEndY,
     this.gradientTileMode = GradientTileMode.clamp,
+    this.gradientPerSubpath = false,
 
     this.imageTransform,
     this.hasImageBytes = false,
@@ -454,6 +637,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     this.assetID,
     this.imageRepeat = ImageRepeatEnum.noRepeat,
     this.saturation = 1,
+    this.imageTint,
   });
 
   /// Duplicates this instance with given data overrides.
@@ -466,8 +650,17 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     List<num>? gradientTransform,
     List<ColorStop>? gradientStops,
     double? gradientRepeatEvery,
+    double? gradientCenterX,
+    double? gradientCenterY,
+    double? gradientRadius,
     bool clearGradientRepeat = false,
+    double? gradientBeginX,
+    double? gradientBeginY,
+    double? gradientEndX,
+    double? gradientEndY,
+    bool clearGradientGeometry = false,
     GradientTileMode? gradientTileMode,
+    bool? gradientPerSubpath,
 
     List<List<num>>? imageTransform,
     double? scalingFactor,
@@ -488,6 +681,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     double? sourceHeight,
     ImageRepeatEnum? imageRepeat,
     double? saturation,
+    ColorRGBA? imageTint,
     bool forceSourceSize = false,
   }) => PaintModel(
     id: id,
@@ -501,7 +695,29 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientRepeatEvery: clearGradientRepeat
         ? null
         : gradientRepeatEvery ?? this.gradientRepeatEvery,
+    gradientCenterX: clearGradientGeometry
+        ? 0
+        : gradientCenterX ?? this.gradientCenterX,
+    gradientCenterY: clearGradientGeometry
+        ? 0
+        : gradientCenterY ?? this.gradientCenterY,
+    gradientRadius: clearGradientGeometry
+        ? 0.5
+        : gradientRadius ?? this.gradientRadius,
+    gradientBeginX: clearGradientGeometry
+        ? null
+        : gradientBeginX ?? this.gradientBeginX,
+    gradientBeginY: clearGradientGeometry
+        ? null
+        : gradientBeginY ?? this.gradientBeginY,
+    gradientEndX: clearGradientGeometry
+        ? null
+        : gradientEndX ?? this.gradientEndX,
+    gradientEndY: clearGradientGeometry
+        ? null
+        : gradientEndY ?? this.gradientEndY,
     gradientTileMode: gradientTileMode ?? this.gradientTileMode,
+    gradientPerSubpath: gradientPerSubpath ?? this.gradientPerSubpath,
 
     imageTransform: imageTransform ?? this.imageTransform,
     hasImageBytes: hasImageBytes ?? this.hasImageBytes,
@@ -525,6 +741,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     assetID: assetID ?? this.assetID,
     imageRepeat: imageRepeat ?? this.imageRepeat,
     saturation: saturation ?? this.saturation,
+    imageTint: imageTint ?? this.imageTint,
   );
 
   /// [PaintModel] can store all types of paints at the same time to allow
@@ -555,7 +772,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
           gradientStops: gradientStops,
           gradientTransform: gradientTransform,
           gradientRepeatEvery: gradientRepeatEvery,
+          gradientCenterX: gradientCenterX,
+          gradientCenterY: gradientCenterY,
+          gradientRadius: gradientRadius,
+          gradientBeginX: gradientBeginX,
+          gradientBeginY: gradientBeginY,
+          gradientEndX: gradientEndX,
+          gradientEndY: gradientEndY,
           gradientTileMode: gradientTileMode,
+          gradientPerSubpath: gradientPerSubpath,
         );
       case PaintType.image:
         return PaintModel.image(
@@ -597,7 +822,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     if (gradientTransform != other.gradientTransform) return false;
     if (gradientStops != other.gradientStops) return false;
     if (gradientRepeatEvery != other.gradientRepeatEvery) return false;
+    if (gradientCenterX != other.gradientCenterX) return false;
+    if (gradientCenterY != other.gradientCenterY) return false;
+    if (gradientRadius != other.gradientRadius) return false;
+    if (gradientBeginX != other.gradientBeginX) return false;
+    if (gradientBeginY != other.gradientBeginY) return false;
+    if (gradientEndX != other.gradientEndX) return false;
+    if (gradientEndY != other.gradientEndY) return false;
     if (gradientTileMode != other.gradientTileMode) return false;
+    if (gradientPerSubpath != other.gradientPerSubpath) return false;
     if (imageTransform != other.imageTransform) return false;
     if (hasImageBytes != other.hasImageBytes) return false;
     if (downloadUrl != other.downloadUrl) return false;
@@ -628,7 +861,15 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     gradientTransform,
     gradientStops,
     gradientRepeatEvery,
+    gradientCenterX,
+    gradientCenterY,
+    gradientRadius,
+    gradientBeginX,
+    gradientBeginY,
+    gradientEndX,
+    gradientEndY,
     gradientTileMode,
+    gradientPerSubpath,
 
     imageTransform,
     hasImageBytes,
@@ -641,6 +882,7 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
     scaleY,
     imageRepeat,
     saturation,
+    imageTint,
     assetID,
     sourceWidth,
     sourceHeight,
@@ -708,4 +950,26 @@ class CropData with Equatable, SerializableMixin {
 
   @override
   Map toJson() => _$CropDataOmitDefaults(this, _$CropDataToJson(this));
+}
+
+/// Reads [key] (`gradientCenterX` or `gradientCenterY`) of paint JSON, or
+/// its coordinate of the earlier `gradientCenter: [x, y]` (or `{x, y}`).
+Object? _readGradientCenter(Map json, String key) {
+  if (json[key] != null) return json[key];
+  final bool isX = key == 'gradientCenterX';
+  return switch (json['gradientCenter']) {
+    [final num x, final num y] => isX ? x : y,
+    {'x': final num x, 'y': final num y} => isX ? x : y,
+    _ => null,
+  };
+}
+
+/// Reads `gradientPerSubpath`, or `gradientUnits: 'subpath'` (SVG's
+/// `gradientUnits` naming: `'box'` is the default).
+Object? _readGradientPerSubpath(Map json, String key) {
+  if (json[key] != null) return json[key];
+  return switch (json['gradientUnits']) {
+    final String units => units.toLowerCase() == 'subpath',
+    _ => null,
+  };
 }

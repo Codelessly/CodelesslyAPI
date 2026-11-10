@@ -28,6 +28,22 @@ class FrameNode extends DefaultShapeNode
   /// on one axis.
   AlignmentModel contentAlignment;
 
+  /// The design size of the content box that [contentFit] scales from: the
+  /// children are laid out in a box this big (inside the padding) and then
+  /// scaled into the box the frame gets. Null takes the frame's own content
+  /// box (its size minus padding), which changes whenever the frame is
+  /// resized.
+  ///
+  /// Set it to scale a frame whose size follows its parent, e.g. a card
+  /// drawn at 340x214 that fills the width it gets
+  /// (`"horizontalFit": "expanded"`, `"layoutAspectRatio": 1.5888`) and scales
+  /// its children with it. The children's boxes are in this design space.
+  SizeC? contentSize;
+
+  /// The size the children are laid out at before [contentFit] scales them:
+  /// [contentSize] when set, otherwise the frame's content box.
+  SizeC get contentDesignSize => contentSize ?? innerBoxLocal.size;
+
   /// Frame is a Rectangle with children, which can be clipped.
   FrameNode({
     required super.id,
@@ -51,6 +67,7 @@ class FrameNode extends DefaultShapeNode
     super.strokeCap,
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     super.dashPattern,
     super.alignment,
     super.padding,
@@ -88,9 +105,11 @@ class FrameNode extends DefaultShapeNode
     bool showPortal = false,
     this.contentFit,
     this.contentAlignment = AlignmentModel.center,
+    this.contentSize,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
@@ -129,8 +148,13 @@ class FrameNode extends DefaultShapeNode
     TriggerType.hold,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   /// Creates a [FrameNode] from a JSON data.

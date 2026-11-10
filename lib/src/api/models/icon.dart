@@ -63,7 +63,9 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
   /// and [iconImage] allows for retention of user selection for both cases. So,
   /// when the user toggles the type, previous selection is preserved.
   ///
-  /// [iconImage] is the URL of a network image.
+  /// [iconImage] is the URL of a network image. JSON may also give it as
+  /// `imageUrl`.
+  @JsonKey(readValue: _readIconImage)
   final String? iconImage;
 
   /// Holds information about the font based icon.
@@ -247,3 +249,8 @@ class MultiSourceIconModel with Equatable, SerializableMixin {
     _$MultiSourceIconModelToJson(this),
   );
 }
+
+/// [MultiSourceIconModel.iconImage] from `iconImage`, or `imageUrl` as JSON
+/// written by hand often names it (`{"type": "image", "imageUrl": ...}`).
+Object? _readIconImage(Map json, String key) =>
+    json[key] ?? json['imageUrl'];

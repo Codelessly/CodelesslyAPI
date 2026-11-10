@@ -29,6 +29,9 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -45,6 +48,10 @@ Map<String, dynamic> _$GridViewNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -193,6 +200,12 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             : VariableData.fromJson(
                 Map<String, dynamic>.from(json['statusVariable'] as Map),
               ),
+        pagination: json['pagination'] == null
+            ? null
+            : PaginationModel.fromJson(json['pagination'] as Map),
+        reorder: json['reorder'] == null
+            ? null
+            : ReorderModel.fromJson(json['reorder'] as Map),
         useCloudDatabase: json['useCloudDatabase'] as bool? ?? false,
         collectionPath: json['collectionPath'] as String?,
         limit: (json['limit'] as num?)?.toInt() ?? 20,
@@ -232,6 +245,7 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             ScrollViewKeyboardDismissBehaviorC.manual,
         shouldAlwaysScroll: json['shouldAlwaysScroll'] as bool? ?? true,
       )
+      ..squeezable = json['squeezable'] as bool? ?? false
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
         _$ComponentMarkerTypeEnumMap,
@@ -243,7 +257,8 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
-      ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -276,6 +291,49 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
+      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..allowedTypes =
           (json['allowedTypes'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -289,7 +347,6 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
       ..maxAllowedSize = json['maxAllowedSize'] == null
           ? null
           : SizeC.fromJson(json['maxAllowedSize'] as Map)
-      ..ephemeral = json['ephemeral'] as bool? ?? false
       ..paging =
           $enumDecodeNullable(_$QueryPagingEnumMap, json['paging']) ??
           QueryPaging.scroll
@@ -300,73 +357,94 @@ GridViewNode _$GridViewNodeFromJson(Map json) =>
           []
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$GridViewNodeToJson(GridViewNode instance) =>
-    <String, dynamic>{
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'squeezable': instance.squeezable,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'aspectRatioLock': instance.aspectRatioLock,
-      'alignment': instance.alignment.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'widthFactor': ?instance.widthFactor,
-      'heightFactor': ?instance.heightFactor,
-      'interactionStates': instance.interactionStates.map(
-        (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
-      ),
-      'tooltip': instance.tooltip,
-      'zoomable': instance.zoomable,
-      'loopAnimation': ?instance.loopAnimation?.toJson(),
-      'transitionMs': instance.transitionMs,
-      'drawScale': instance.drawScale,
-      'pulse': ?instance.pulse?.toJson(),
-      'draggable': ?instance.draggable?.toJson(),
-      'dropTarget': ?instance.dropTarget?.toJson(),
-      'enabled': instance.enabled,
-      'motion': ?instance.motion?.toJson(),
-      'children': instance.children,
-      'allowedTypes': instance.allowedTypes,
-      'deniedTypes': instance.deniedTypes,
-      'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
-      'clipsContent': instance.clipsContent,
-      'ephemeral': instance.ephemeral,
-      'isScrollable': instance.isScrollable,
-      'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
-      'reverse': instance.reverse,
-      'primary': instance.primary,
-      'physics': _$ScrollPhysicsCEnumMap[instance.physics]!,
-      'keyboardDismissBehavior':
-          _$ScrollViewKeyboardDismissBehaviorCEnumMap[instance
-              .keyboardDismissBehavior]!,
-      'useFlutterListView': instance.useFlutterListView,
-      'shouldAlwaysScroll': instance.shouldAlwaysScroll,
-      'useCloudDatabase': instance.useCloudDatabase,
-      'collectionPath': ?instance.collectionPath,
-      'limit': ?instance.limit,
-      'paging': _$QueryPagingEnumMap[instance.paging]!,
-      'loadRelated': instance.loadRelated,
-      'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
-      'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
-      'type': instance.type,
-      'properties': instance.properties.toJson(),
-      'statusVariable': ?instance.statusVariable?.toJson(),
-    };
+Map<String, dynamic> _$GridViewNodeToJson(
+  GridViewNode instance,
+) => <String, dynamic>{
+  'id': instance.id,
+  'name': instance.name,
+  'visible': instance.visible,
+  'constraints': instance.constraints.toJson(),
+  'edgePins': instance.edgePins.toJson(),
+  'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+  'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+  'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+  'flex': instance.flex,
+  'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
+  'aspectRatioLock': instance.aspectRatioLock,
+  'alignment': instance.alignment.toJson(),
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
+  'widthFactor': ?instance.widthFactor,
+  'heightFactor': ?instance.heightFactor,
+  'interactionStates': instance.interactionStates.map(
+    (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+  ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
+  'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
+  'children': instance.children,
+  'clipsContent': instance.clipsContent,
+  'ephemeral': instance.ephemeral,
+  'allowedTypes': instance.allowedTypes,
+  'deniedTypes': instance.deniedTypes,
+  'maxAllowedSize': ?instance.maxAllowedSize?.toJson(),
+  'isScrollable': instance.isScrollable,
+  'scrollDirection': _$AxisCEnumMap[instance.scrollDirection]!,
+  'reverse': instance.reverse,
+  'primary': instance.primary,
+  'physics': _$ScrollPhysicsCEnumMap[instance.physics]!,
+  'keyboardDismissBehavior':
+      _$ScrollViewKeyboardDismissBehaviorCEnumMap[instance
+          .keyboardDismissBehavior]!,
+  'useFlutterListView': instance.useFlutterListView,
+  'shouldAlwaysScroll': instance.shouldAlwaysScroll,
+  'useCloudDatabase': instance.useCloudDatabase,
+  'collectionPath': ?instance.collectionPath,
+  'limit': ?instance.limit,
+  'paging': _$QueryPagingEnumMap[instance.paging]!,
+  'loadRelated': instance.loadRelated,
+  'whereFilters': instance.whereFilters.map((e) => e.toJson()).toList(),
+  'orderByFilters': instance.orderByFilters.map((e) => e.toJson()).toList(),
+  'type': instance.type,
+  'properties': instance.properties.toJson(),
+  'statusVariable': ?instance.statusVariable?.toJson(),
+  'pagination': ?instance.pagination?.toJson(),
+  'reorder': ?instance.reorder?.toJson(),
+};
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',
@@ -410,6 +488,21 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 const _$QueryPagingEnumMap = {

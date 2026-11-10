@@ -162,11 +162,47 @@ class AudioPlayerProperties extends CustomProperties with FieldsHolder {
   )
   bool showControls;
 
+  /// Starts again from the beginning when the end is reached, for ambient
+  /// loops such as rain or waves.
+  @FlutterProp(
+    'loop',
+    type: 'boolean',
+    group: 'Playback',
+    control: 'switch',
+    field: 'properties.loop',
+  )
+  bool loop;
+
+  /// Playback volume, 0 (silent) to 1 (full). Bind `volume` in the node's
+  /// variables to follow a slider.
+  @FlutterProp(
+    'volume',
+    type: 'number',
+    group: 'Playback',
+    control: 'number',
+    field: 'properties.volume',
+  )
+  double volume;
+
+  /// Plays without drawing a player: a sound source driven by state (bind
+  /// `playing`, `volume` and `playKey`) instead of by its own controls.
+  @FlutterProp(
+    'background',
+    type: 'boolean',
+    group: 'Playback',
+    control: 'switch',
+    field: 'properties.background',
+  )
+  bool background;
+
   AudioPlayerProperties({
     String? url,
     this.description,
     this.autoPlay = false,
     this.showControls = true,
+    this.loop = false,
+    this.volume = 1,
+    this.background = false,
   }) : url = validateAudioUrl(url);
 
   @override
@@ -196,10 +232,47 @@ class AudioPlayerProperties extends CustomProperties with FieldsHolder {
       () => showControls,
       (value) => showControls = value,
     ),
+    'loop': BoolFieldAccess(
+      'Loop',
+      'Start again from the beginning at the end.',
+      () => loop,
+      (value) => loop = value,
+    ),
+    'volume': NumFieldAccess<double>(
+      'Volume',
+      'Playback volume, 0 to 1.',
+      () => volume,
+      (value) => volume = value.clamp(0, 1).toDouble(),
+      min: 0,
+      max: 1,
+    ),
+    'background': BoolFieldAccess(
+      'Background',
+      'Play without showing a player.',
+      () => background,
+      (value) => background = value,
+    ),
   };
 
+  /// Node variable keys that drive playback from state.
+  ///
+  /// * `url`: the audio URL, e.g. `${sounds.rain}`.
+  /// * `volume`: 0..1, e.g. `${rain}` for a mixer slider.
+  /// * `playing`: plays while true and pauses while false.
+  /// * `playKey`: plays from the start whenever its value changes (a chime
+  ///   on every phase change: `${phase}`).
+  static const List<String> bindableKeys = ['url', 'volume', 'playing', 'playKey'];
+
   @override
-  List<Object?> get props => [url, description, autoPlay, showControls];
+  List<Object?> get props => [
+    url,
+    description,
+    autoPlay,
+    showControls,
+    loop,
+    volume,
+    background,
+  ];
 
   factory AudioPlayerProperties.fromJson(Map json) =>
       _$AudioPlayerPropertiesFromJson(json);

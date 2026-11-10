@@ -1,3 +1,201 @@
+## 10.0.0
+
+- Scripts: `ScriptModel` describes a JavaScript script a project or Editor
+  page can run, with its parameters, source, version, capabilities
+  (`ScriptCapability`: `variables.read`, `variables.write`, `nodes.read`,
+  `navigation`, `api`, `cloud`, `actions`, `clock`) and time and memory
+  limits. Capabilities this version doesn't know are dropped when reading.
+- `RunScriptAction` (`ActionType.runScript`) runs a script with arguments;
+  its result is the chain's `${result}`, optionally stored in a variable,
+  and its `onError` actions run when it fails. `ActionVisitor` gains
+  `visitRunScriptAction`.
+- `ScriptModel.tests` holds sample runs (`ScriptTest`: arguments, sample
+  variables and inputs, and the expected result or error type).
+- One gesture API (see CodelesslyEditor `docs/gestures_api.md`):
+  - `PhysicsModel`: a spring given as stiffness, damping and mass or as
+    bounce and duration (Flutter's `withDurationAndBounce`), a friction
+    fling, overscroll at the bounds and `SnapModel` snap points (points, a
+    grid or the parent's edges), picked by velocity projection. Shared by
+    `DragModel.physics`, `TransformGestureModel.physics` and
+    `DraggableModel.physics`. `{"preset": "bouncy"}` reads as a preset.
+  - `TransformGestureModel` (`BaseNode.transformGesture`): pan, pinch-zoom
+    and two-finger rotate of a node or its content, with min and max scale,
+    `GestureBounds` (none, contain, cover), double-tap zoom, wheel and
+    ctrl+wheel zoom, rotation snap, two-way pose variables and
+    `TransformHandlesModel` corner, edge and rotate handles.
+    `BaseNode.zoomable` reads as `TransformGestureModel.zoomable`
+    (`effectiveTransformGesture`).
+  - `DragModel` gains `physics`, `bounds` and `minX`, `maxX`, `minY`, `maxY`.
+    Old JSON loads unchanged; `effectivePhysics` maps the first
+    `snapBackMs`/`snapCurve` and `DraggableModel.returnSpring` settings.
+  - `TriggerType.resultDoc` / `triggerResultDocs`: what each trigger's
+    actions read in `${result}`.
+  - `GesturePresets`: photo viewer, map canvas, bottom sheet fling, sticker
+    and puck.
+- Transitions (see `CodelesslyEditor/docs/transitions_api.md`):
+  - `RouteTransition` is a composable route transition: `enter`, `exit`, `popEnter` and `popExit` sides, each a `MotionModel` (translate, shift, scale, opacity, rotate, rotateX/Y with perspective, blur) plus a circle or rect `reveal`, a curve, a delay and a duration.
+    - It also has a barrier colour, `opaque`, iOS `swipeBack`, and an interactive `dismiss` drag.
+    - Presets: shared axis X/Y/Z, fade through, iOS push and modal, circular reveal, zoom, cover vertical, cube and flip.
+  - `NavigationAction.routeTransition` and `ShowDialogAction.routeTransition`, used in place of the `transition` enum when set. Setting one on a dialog lets heroes fly into it.
+    - Every `PageTransition` value still works, and `PageTransition.asRouteTransition` describes it as a `RouteTransition`.
+  - New hero flights: `morph` (text style and colour morph), `fadeThrough` and `containerTransform`. New `BaseNode.heroPlaceholder` (`HeroPlaceholder`).
+  - New `BaseNode.flip` (`FlipModel`): a two-sided card that turns on tap, from a variable or by drag.
+  - New `BaseNode.tilt` (`TiltModel`): tilt on hover or drag, with parallax.
+  - New `PageViewProperties.pageMotion`: per-page 3D for coverflow, cube and carousel.
+  - These reuse `MotionModel`'s rotateX, rotateY and perspective.
+  - `TransitionSpring` is a provisional stand-in for the Gestures project's shared physics model.
+- `MotionModel.arc` (bindable as `motion.arc`): a change of position
+  travels along a quadratic curve this share of the distance off the
+  straight line, to the right of the direction of travel (negative: left).
+- `MotionModel.named`: values given on purpose, kept even at their
+  defaults, so an entrance can start from `{"opacity": 1}` (a fade out on
+  replay); JSON keeps them.
+
+### Lists and pagination
+
+- `PaginationModel` (`ListViewNode.pagination`, `GridViewNode.pagination`):
+  a pagination controller over the list's bound data, its cloud query or an
+  API call, with page size, offset/page/cursor strategy, de-duplication by
+  key, page caching, pages or infinite (or two-way) scrolling, pull to
+  refresh and loading/error/end footer nodes. Its state is a map variable
+  named by `name` (`${contacts.page}`, `${contacts.hasMore}`...).
+- `PaginateAction` (`ActionType.paginate`): next, previous, go to, first,
+  last, refresh, retry and set page size. `ActionVisitor` gains
+  `visitPaginateAction`.
+- `PaginationNode` (`pagination`): page numbers with ellipses, previous and
+  next, first and last, page size select and a "Showing 21–40 of 312"
+  summary, bound to a controller by name. `PaginationProperties.pageItems`
+  computes the numbers.
+- `TableViewNode` (`tableView`): a table scrolling on both axes with a
+  pinned header row and column, cells built from template nodes.
+- `ListSectionsModel` (`ListViewNode.sections`): items grouped by a field
+  under section headers that can stay pinned, with an A–Z index bar.
+- `ReorderModel` (`ListViewNode.reorder`, `GridViewNode.reorder`): handle
+  or long press, moves between lists of a group, proxy styling, auto-scroll,
+  placeholder, per-item conditions, keyboard reorder and a built-in apply to
+  the bound variable or the cloud collection.
+- `SwipeActionsModel` (`ListViewNode.swipeActions`): start and end swipe
+  actions with reveal backgrounds and undo.
+- `TriggerType.refresh` and `TriggerType.swipeAction`.
+
+## 9.3.0
+
+### Added
+
+- `AppIdentity`: a project's web and mobile app identity (name, short name,
+  title template with per-page overrides, description, keywords, canonical
+  URL, icons, theme and background colors, social card, PWA manifest,
+  splash screen, language, robots, adaptive icon and status bar), with
+  `merge`, `checklist()`, `toWebManifest()` and `IdentityAssets`.
+- `package:codelessly_api/genscreen.dart`: generates screens from a prompt
+  and a DESIGN.md design kit.
+  - `DesignMdParser`, `DesignMdWriter` and `DesignKit`, with line-numbered
+    issues, WCAG contrast checks and a content fingerprint.
+  - `kitThemeTokens`, `kitStyles`, `kitComponentLibrary` and
+    `exportDesignKit`.
+  - `ScreenPlanValidator`, `screenPlanJsonSchema` and `normalizePlan`.
+  - `ScreenCompiler`: responsive mobile, tablet and desktop trees with
+    content, loading, empty and error states.
+  - `checkOnBrand`, `ScreenPrompt`, `screenCacheKey` and `extractPlanJson`.
+  - `tool/genscreen.dart` command-line tool.
+- `AnimateVariableAction`: play, pause, resume, stop and seek a variable.
+- `MotionModel.keyframes` can be bound (`motion.keyframes`) to a list of
+  keyframe maps or its JSON.
+- `MotionModel.paused` and `MotionModel.phase`, both bindable.
+- `TextNode.fontFeatures`: OpenType feature settings such as `lnum`, `tnum`,
+  `ss01` and `liga=0`.
+- `LineHeight.leadingDistribution`: `proportional` (default) or `even`.
+- `BaseNode.key` is kept in JSON.
+- `ColorStop.bindingKey`: bindable gradient stops on fills, strokes and
+  foreground paints.
+- Drag tracks:
+  - Fine adjustment: `fineStep`, `finePixelsPerRange`, `fineHoldMs`,
+    `fineVariable` and `track.fine`.
+  - Animated value changes: `snapMs` and `snapCurve`.
+  - `write`, an optional `variable` (bindable through `track.value`),
+    `hitArea`, `input: both`, `wheelStep`, `keyStep`, `doubleTapValues` and
+    `units: parent`.
+  - Bindable geometry and range.
+  - `viewBoxWidth` / `viewBoxHeight` for path tracks drawn in their frame's
+    view box.
+  - `jumpOnTap` on arc tracks.
+- `ConfirmAction`: per-button borders, an icon, `centered`, `expandButtons`,
+  `width`, `maxWidth`, `insets`, `padding` and `buttonHeight`.
+- `ShowToastAction`: `rotation`, `enterCurve` and `enterOffset`; the action
+  button takes `actionBackgroundColor`, `actionBorder`, `actionShadows` and
+  `actionCornerRadius`.
+- `ScrollToAction.axis`: scroll only horizontal or vertical scroll views.
+- Pulse effects: `phase` and `delayMs`.
+- Rows and columns: `fillViewport`.
+- Switches: `thumbShadows` and `thumbInset`.
+- Hex colors are read as colors in formulas.
+
+### Changed
+
+- `ConfirmAction.title` defaults to an empty string.
+
+### Fixed
+
+- Rows and columns created with `type: row` or `type: column` keep
+  `ignorePointer`, `keepAspect` and `floating`.
+- `MotionModel.loopStart` applies every `enterFrom` value, including
+  `pathProgress`.
+
+## 9.0.3
+
+- An icon's click reactions run when it is tapped, and an icon with one
+  reads as a button. They were saved but never ran, since icons were
+  taken to handle their own taps.
+
+## 9.0.2
+
+- A `padding` stored on a text node no longer pads it. A text node has no
+  padding (`supportsPadding` is false and the editor's panel hides it), and
+  the SDK never drew it, but `resolvedPadding` and the inner box still
+  counted it, so the editor's canvas sized such a text larger than the
+  published site showed it. Use `margin` for space around text.
+
+## 9.0.1
+
+- A list saved with `overlay: true` (6.1.0 and before) reads as
+  `layout: stack`, so items placed by their position variables (pins on a
+  floor plan) stay layered instead of running down one column.
+
+## 9.0.0
+
+The first release on pub.dev since 6.1.0, numbered to match
+`codelessly_sdk` 9.0.0, which it is released with. It includes everything
+listed below for 6.3.0 and 6.2.0, which were never published, and merges
+the Meridian and Hookline lines into one API. Documents that use the new
+nodes, actions and fields need `codelessly_sdk` 9.0.0 to render.
+
+### Breaking changes from 6.1.0
+
+- `NodeProcessor.resolveConstraints` applies the constraints a parent
+  relegates to its children (a ListTile's minimum leading width, GridView
+  item extents, ListView `itemExtent`, placeholders), which it dropped
+  before. Layout code that reads resolved constraints can now see tighter
+  limits.
+
+### Also new since 6.3.0
+
+- Transition curves `easeInOutSine`, `spring`, `elasticOut`, `bounceOut`
+  and `fastOutSlowIn`.
+- `generateId` keeps its state between calls, so IDs made in the same
+  millisecond sort in the order they were made.
+- `NavigationAction.transition` (slide up, fade, none), screens whose link
+  parameters set their variables (`paramsSetVariables`), the scroll
+  trigger, `ScrollToAction`, frosted dialogs (`barrierBlur`, `enterScale`),
+  `ShowDialogAction.sheetBelowWidth`, card toasts, `floating` nodes, the
+  dragged interaction state, drag follow and keyed stacked lists, motion
+  keyframes, `TextOverflowC.scaleDown`, linear gradient handles, SVG
+  rectangle paths, chart, gauge, slider, switch and text field additions.
+- `wheel`, `pinch` and `keyUp` triggers, for pan and zoom canvases and held
+  keys.
+- `VarianceProperties.tabletMinWidth` and `desktopMinWidth` move where a
+  responsive layout switches layouts (600 and 1024 by default);
+  `ScreenBreakpoint.forWidth` takes them.
+
 ## 6.3.0
 
 This candidate includes the changes documented below for 6.2.0, which has
@@ -6,6 +204,22 @@ post-merge compatibility guards: ambiguous legacy gauge, chart and signature
 payloads fail closed without discarding the original document JSON; direct
 node decoding rejects contradictory variant signatures; and list stack modes
 cannot both be enabled in a document.
+
+### Speak action (not published)
+
+- `SpeakAction` (`ActionType.speak`) speaks bound/formula `text` with
+  text-to-speech in a BCP-47 `language` at a bindable `rate` (and optional
+  `pitch`); `stop: true` stops any speech instead. Numeric `rate`/`pitch`
+  JSON values are read as strings.
+### Rich text composer additions (not published)
+
+- `TextFieldProperties.markdown` (`MarkdownStyle`, now with `copyWith`)
+  shows what's typed as live Markdown. Text fields take `keyDown` triggers.
+- `TriggerModel.key` names key combinations (`Meta+Enter`, `Shift+Enter`,
+  `Meta+b`; see `KeyCombo`) and `TriggerModel.when` limits a key reaction
+  to when a formula is true.
+- `EditTextAction` (`editText`) edits a text field at its cursor: wrap,
+  toggle a list, insert, replace the word being typed, set, clear, focus.
 
 ### PR49 additions (not published)
 

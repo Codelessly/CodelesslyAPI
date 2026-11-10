@@ -102,6 +102,26 @@ class SwitchNode extends SceneNode with CustomPropertiesMixin, ScalableMixin {
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     BoolValue(name: 'value', value: value),
+    // The switch's colors can follow data or a theme, e.g.
+    // `variables['activeTrackColor'] = r'${pal.ink}'`.
+    ColorValue(name: 'activeTrackColor', value: properties.activeTrackColor),
+    ColorValue(
+      name: 'inactiveTrackColor',
+      value: properties.inactiveTrackColor,
+    ),
+    ColorValue(name: 'activeThumbColor', value: properties.activeThumbColor),
+    ColorValue(
+      name: 'inactiveThumbColor',
+      value: properties.inactiveThumbColor,
+    ),
+    ColorValue(
+      name: 'activeTrackBorderColor',
+      value: properties.activeTrackBorderColor,
+    ),
+    ColorValue(
+      name: 'inactiveTrackBorderColor',
+      value: properties.inactiveTrackBorderColor,
+    ),
   ];
 
   /// Creates a [SwitchNode] instance from a JSON object.
@@ -158,6 +178,52 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
   @JsonKey(defaultValue: false)
   late bool useMaterial3;
 
+  /// Whether the thumb keeps its full size when the switch is off. A
+  /// Material 3 switch draws a smaller thumb when off (16 of its 32 px
+  /// track, 24 when on); with this it is 24 in both states, as a toggle
+  /// whose round knob only slides, by giving it an empty thumb icon
+  /// (Material's documented way to a full-size thumb). Pressed, it still
+  /// grows a little. A Material 2 switch's thumb never changes size.
+  @FlutterProp('uniformThumb', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.uniformThumb', flutterParam: false, note: 'Codelessly option: Switch.thumbIcon set to an empty icon in every state, so the Material 3 thumb is full size when off.')
+  @JsonKey(defaultValue: false)
+  late bool uniformThumb;
+
+  /// Whether the switch's track fills the node's bounds. By default the
+  /// whole Material switch box (its track plus the padding and tap target
+  /// around it, 59×40) is scaled to the node's width, so the track sits
+  /// inside the node with a margin and can't be flush with its edges. With
+  /// this the track (52×32 in Material 3, 33×14 in Material 2) is stretched
+  /// to the node's width and height, e.g. a 46×28 toggle in a 46×28 node.
+  /// Keep the node near the track's aspect ratio (1.625 in Material 3) so
+  /// the thumb stays round.
+  @FlutterProp('fillTrack', type: 'boolean', group: 'Appearance', control: 'switch', field: 'properties.fillTrack', flutterParam: false, note: 'Codelessly option: the switch has no padding or tap target margin and its track is scaled to the node bounds.')
+  @JsonKey(defaultValue: false)
+  late bool fillTrack;
+
+  /// Drop shadows the thumb casts on the track, e.g. a toggle's white knob
+  /// lifted by `BoxShadow(color: 0x33000000, blurRadius: 4, offset: (0, 1))`
+  /// (each effect's `radius` is the blur radius). Material's switch draws
+  /// no thumb shadow, so a switch with one is drawn as a plain toggle (see
+  /// [thumbInset]). Only a switch with [fillTrack] draws them.
+  @JsonKey(defaultValue: <Effect>[])
+  late List<Effect> thumbShadows;
+
+  /// The gap in logical pixels between the thumb and the edges of a track
+  /// that fills the node ([fillTrack]): the thumb is the node's height less
+  /// twice this, e.g. 3 for a 24 px knob in a 50×30 toggle. A switch with
+  /// one (or with [thumbShadows]) is drawn as a plain toggle that keeps its
+  /// thumb round at any node size, sliding between the gaps, its colors
+  /// easing between off and on. Null keeps Material's switch, scaled to
+  /// the node (its 24 px thumb in a 32 px track: a 22.5 px thumb, slightly
+  /// oval, in a 50×30 node).
+  late double? thumbInset;
+
+  /// Whether this switch is drawn as a plain toggle rather than Material's
+  /// switch: its track fills the node and it has [thumbShadows] or a
+  /// [thumbInset].
+  bool get drawsPlainToggle =>
+      fillTrack && (thumbShadows.isNotEmpty || thumbInset != null);
+
   /// Creates a [SwitchProperties] instance with the given data.
   SwitchProperties({
     this.activeTrackColor = ColorRGBA.black,
@@ -172,7 +238,11 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     this.inactiveTrackBorderColor = ColorRGBA.transparent,
     this.trackOutlineWidth = 2,
     this.useMaterial3 = true,
-  });
+    this.uniformThumb = false,
+    this.fillTrack = false,
+    List<Effect>? thumbShadows,
+    this.thumbInset,
+  }) : thumbShadows = thumbShadows ?? <Effect>[];
 
   /// Duplicates this [SwitchProperties] instance with the given data
   /// overrides.
@@ -191,6 +261,11 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     bool forceInactiveTrackBorderColor = false,
     double? trackOutlineWidth,
     bool? useMaterial3,
+    bool? uniformThumb,
+    bool? fillTrack,
+    List<Effect>? thumbShadows,
+    double? thumbInset,
+    bool clearThumbInset = false,
   }) {
     return SwitchProperties(
       activeTrackColor: activeTrackColor ?? this.activeTrackColor,
@@ -209,6 +284,10 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
           : inactiveTrackBorderColor ?? this.inactiveTrackBorderColor,
       trackOutlineWidth: trackOutlineWidth ?? this.trackOutlineWidth,
       useMaterial3: useMaterial3 ?? this.useMaterial3,
+      uniformThumb: uniformThumb ?? this.uniformThumb,
+      fillTrack: fillTrack ?? this.fillTrack,
+      thumbShadows: thumbShadows ?? List<Effect>.of(this.thumbShadows),
+      thumbInset: clearThumbInset ? null : thumbInset ?? this.thumbInset,
     );
   }
 
@@ -308,6 +387,29 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
         if (value != null) useMaterial3 = value;
       },
     ),
+    'uniformThumb': BoolFieldAccess(
+      'Uniform Thumb',
+      'Whether the thumb keeps its full size when the switch is off.',
+      () => uniformThumb,
+      (bool? value) {
+        if (value != null) uniformThumb = value;
+      },
+    ),
+    'fillTrack': BoolFieldAccess(
+      'Fill Track',
+      'Whether the track fills the node\'s bounds, with no margin around it.',
+      () => fillTrack,
+      (bool? value) {
+        if (value != null) fillTrack = value;
+      },
+    ),
+    'thumbInset': NumFieldAccess<double?>(
+      'Thumb Inset',
+      'The gap between the thumb and the edges of a track that fills the '
+          'node.',
+      () => thumbInset,
+      (double? value) => thumbInset = value,
+    ),
   };
 
   @override
@@ -324,6 +426,10 @@ class SwitchProperties extends CustomProperties with FieldsHolder {
     inactiveTrackBorderColor,
     trackOutlineWidth,
     useMaterial3,
+    uniformThumb,
+    fillTrack,
+    thumbShadows,
+    thumbInset,
   ];
 
   /// Creates a [SwitchProperties] instance from a JSON object.

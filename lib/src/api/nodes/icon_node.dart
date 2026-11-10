@@ -41,6 +41,11 @@ class IconNode extends SceneNode
   @override
   bool get supportsPadding => false;
 
+  /// Icons have no tap callback of their own, so click reactions are
+  /// handled by the renderer like on any other node.
+  @override
+  bool get handlesDefaultReactionsInternally => false;
+
   @override
   double get aspectRatio => 1;
 
@@ -111,8 +116,13 @@ class IconNode extends SceneNode
     TriggerType.cursorExit,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   /// Besides the shared style properties, an icon's color and which icon it
