@@ -225,7 +225,9 @@ class CanvasProperties extends CustomProperties {
 
   /// The URL path this screen opens at on a published site, relative to the
   /// site's root, such as `journal` or `guide/:id`. A `:name` segment matches
-  /// any value and passes it to the screen as the route param `name`. Null or
+  /// any value and passes it to the screen as the route param `name`. A last
+  /// segment `*` matches the rest of any path no other screen's path matches
+  /// (as the route param `path`), for a "page not found" screen. Null or
   /// empty means the screen has no URL path of its own.
   String? path;
 
