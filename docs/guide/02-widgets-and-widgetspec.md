@@ -125,7 +125,7 @@ such as `Breakpoint`, so one generic panel or generator covers them all.
 ## Adding a widget type
 
 Widget types are added in this package (a `...Props` class with its `spec`, listed in `Widgets.all`) and rendered
-in the SDK (a recipe per type; see the SDK's `v2/PORTING.md`). There is no runtime registry for third-party
+in the SDK (a recipe per type; see the SDK's `PORTING.md`). There is no runtime registry for third-party
 types. For app-specific widgets inside a layout, use the `external` type, which the SDK fills with a widget of
 the app's.
 

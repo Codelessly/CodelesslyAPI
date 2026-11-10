@@ -1,3 +1,20 @@
+## 20.1.0
+
+- The repository is the v2 package only: v1 (10.x and older) and the v1 to v2 converter are removed from the
+  source tree. 10.x stays available on pub.dev.
+- A README, an example and a guide to the model: https://github.com/Codelessly/CodelesslyAPI/tree/master/docs/guide.
+  No code changes.
+
+## 20.0.1
+
+- `StyleSheet`: a project's named text styles and color styles (`NamedTextStyle`, `NamedColorStyle`), and the theme
+  read from them by name (`StyleSheet.theme`).
+
+## 20.0.0
+
+- The new format (`"schema": 2`), from the v2 rewrite. Projects made with the v1 editor are converted to it; a
+  converted project can't be read by 10.x or older, and an unconverted one can't be read by 20.
+
 ## 10.0.0
 
 - Scripts: `ScriptModel` describes a JavaScript script a project or Editor
