@@ -404,7 +404,7 @@ abstract final class ShowToastFields {
   static const showClose = PropDef<bool>('showClose', Codecs.bool, false);
   static const icon = PropDef<Object?>('icon', Codecs.any, null, doc: 'An icon glyph\'s JSON.');
   static const look = PropDef<Object?>('look', Codecs.any, null,
-      doc: 'Cosmetics, v2 JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; '
+      doc: 'Cosmetics, JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; '
           'the button\'s actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; '
           'rotation (degrees), enterCurve, enterOffset (a share of its height).');
   static const variables = PropDef<Object?>('variables', Codecs.any, null, doc: 'Style values bound to expressions, by style key.');
@@ -430,7 +430,7 @@ abstract final class ConfirmFields {
   static const placement = PropDef<PopoverPlacement>('placement', EnumCodec(PopoverPlacement.values), PopoverPlacement.belowStart);
   static const barrierDismissible = PropDef<bool>('barrierDismissible', Codecs.bool, true);
   static const look = PropDef<Object?>('look', Codecs.any, null,
-      doc: 'Cosmetics, v2 JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; '
+      doc: 'Cosmetics, JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; '
           'confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, '
           'iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding.');
   static const variables = PropDef<Object?>('variables', Codecs.any, null, doc: 'Style values bound to expressions, by style key.');

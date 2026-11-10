@@ -9,7 +9,7 @@ const int kSchemaVersion = 2;
 /// One step that upgrades a document's JSON from schema `n - 1` to `n`.
 typedef SchemaMigration = Json Function(Json document);
 
-/// Upgrades for schemas after 2, by the version they produce. v1 (API 6.x)
+/// Upgrades for schemas after 2, by the version they produce. 10.x (API 6.x)
 /// data isn't read here: it was converted once.
 const Map<int, SchemaMigration> schemaMigrations = {};
 
@@ -60,7 +60,7 @@ final class LayoutDocument {
         extra: extra ?? this.extra,
       );
 
-  /// Decodes a document of any v2 schema, upgrading it first. Never throws:
+  /// Decodes a document of any schema, upgrading it first. Never throws:
   /// entries that aren't nodes are dropped.
   static LayoutDocument fromJson(Object? json) {
     var m = readMap(json) ?? const {};

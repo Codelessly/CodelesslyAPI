@@ -101,11 +101,11 @@ void main() {
 The [example](https://github.com/Codelessly/CodelesslyAPI/tree/master/example) builds a layout with the typed
 classes, round-trips it through JSON and wraps it as a publish bundle.
 
-## Version 20
+## Version 21
 
-Version 20 is a new format (`"schema": 2`): nodes use Flutter's own parameter names, types and defaults. Projects
+Version 21 is a new format (`"schema": 2`): nodes use Flutter's own parameter names, types and defaults. Projects
 made with the classic Codelessly Editor are converted to it. Apps on `codelessly_sdk` 10.x or older can't read a
-converted project's publish and must update to `codelessly_sdk` 20. The classes of 10.x (`BaseNode` and its
+converted project's publish and must update to `codelessly_sdk` 21. The classes of 10.x (`BaseNode` and its
 subclasses) are not in this version.
 
 ## Using it with Flutter

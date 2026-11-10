@@ -25,7 +25,7 @@ final class Color {
   double get opacity => alpha / 255;
 
   /// This color with its alpha multiplied by [factor] (truncated, as
-  /// Flutter's `Color.withOpacity` did and v1 colors were converted).
+  /// Flutter's `Color.withOpacity` did and 10.x colors were converted).
   Color multiplyOpacity(double factor) =>
       factor >= 1 ? this : Color.fromARGB((alpha * factor.clamp(0, 1)).toInt(), red, green, blue);
 

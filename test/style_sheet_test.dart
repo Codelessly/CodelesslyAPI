@@ -17,7 +17,7 @@ void main() {
       'defaultTextStyle': 't1',
     };
     final sheet = StyleSheet.fromJson(json);
-    expect(StyleSheet.isV2(json), isTrue);
+    expect(StyleSheet.isCurrentSchema(json), isTrue);
     expect(sheet.textStyles.map((s) => s.name), ['Body', 'Heading']);
     expect(sheet.toJson()['owner'], 'u');
     expect(StyleSheet.fromJson(sheet.toJson()).toJson(), sheet.toJson());
