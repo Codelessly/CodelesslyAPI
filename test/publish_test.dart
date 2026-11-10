@@ -21,7 +21,7 @@ void main() {
     'paths': {'m': 'home'},
     'variables': {
       'm': [
-        {'id': 'v1', 'name': 'count', 'type': 'integer', 'value': 3},
+        {'id': 'var1', 'name': 'count', 'type': 'integer', 'value': 3},
       ],
     },
     'fonts': ['inter'],
@@ -91,13 +91,13 @@ void main() {
         {'canvas': 'm', 'breakpoint': 'mobile'},
         {'canvas': 'd', 'breakpoint': 'desktop', 'minWidth': 900},
       ]);
-      // data from before breakpoints had ids: ranges by min width.
-      final legacy = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
+      // Breakpoints without ids: ranges by min width.
+      final unordered = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
         {'canvas': 'm'},
         {'canvas': 'd', 'minWidth': 1024, 'maxWidth': 99999},
       ]});
-      expect(legacy.canvasForWidth(1023), 'm');
-      expect(legacy.canvasForWidth(1024), 'd');
+      expect(unordered.canvasForWidth(1023), 'm');
+      expect(unordered.canvasForWidth(1024), 'd');
       // A single canvas needs no breakpoints.
       final one = PublishLayout(document: LayoutDocument(id: 'x', roots: const ['c'], nodes: {'c': const Node(id: 'c', type: 'canvas')}));
       expect(one.canvasForWidth(9999), 'c');
@@ -197,7 +197,7 @@ void main() {
       });
     });
 
-    test('sources read the existing publish paths (the format replaced 10.x publishes in place)', () {
+    test('sources read the existing publish paths ', () {
       expect(PublishSource.publish.modelPath('p'), 'publish/p');
       expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');
       expect(PublishSource.template.bundlePath('slug'), 'templates/slug.json');

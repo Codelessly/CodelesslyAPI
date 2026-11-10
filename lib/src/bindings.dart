@@ -2,7 +2,7 @@
 // there. See DESIGN.md §5.1 for the grammar and the catalogue.
 //
 // Values arrive as whatever an expression gave (a number, text, a bool, a
-// list, a map) and are read loosely, as 10.x read them: `"12"` is a number,
+// list, a map) and are read loosely: `"12"` is a number,
 // `1` is true, `"#F00"`... is a color. A value that can't be read leaves the
 // node as it was. The common paths (visibility, opacity, layout, paints,
 // radius, stroke width, top-level props, text style) are set on the typed
@@ -125,7 +125,7 @@ abstract final class BindPaths {
       next = switch (keys.first) {
         'width' => _axisSize(l.width, value)?.let((w) => l.copyWith(width: w)),
         'height' => _axisSize(l.height, value)?.let((h) => l.copyWith(height: h)),
-        // A row/column needs a positive flex (10.x: at least 1).
+        // A row/column needs a positive flex (at least 1).
         'flex' => BindValue.number(value)?.let((f) => l.copyWith(flex: f.round() < 1 ? 1 : f.round())),
         'rotation' => BindValue.number(value)?.let((r) => l.copyWith(rotation: r)),
         'margin' => BindValue.insets(value)?.let((m) => l.copyWith(margin: m)),
@@ -334,7 +334,7 @@ abstract final class BindPaths {
     final key = keys.first as String;
     final def = spec?.prop(key);
     final rest = keys.sublist(1);
-    // A text's style field is every run's too (10.x set every span).
+    // A text's style field is every run's too (every span is set).
     if (n.type == TextProps.spec.type && key == 'style' && rest.length == 1 && rest.first is String) {
       return _textStyle(n, rest.first as String, value);
     }
@@ -433,8 +433,7 @@ Object? setJsonPathValue(Object? root, List<PathKey> keys, Object? value) {
 /// [setJsonPathValue] for a JSON object root.
 Json? setJsonPath(Object? root, List<PathKey> keys, Object? value) => readMap(setJsonPathValue(root, keys, value));
 
-/// Loose readers for bound values (what an expression gave), as 10.x read
-/// them. Each returns null for a value it can't read.
+/// Loose readers for bound values (what an expression gave). Each returns null for a value it can't read.
 abstract final class BindValue {
   /// `true`/`false`, numbers (non-zero is true), and their text.
   static bool? boolean(Object? v) => switch (v) {

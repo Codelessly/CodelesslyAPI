@@ -148,8 +148,8 @@ void logic() {
     },
     'variables': {
       'home': [
-        {'id': 'v1', 'name': 'count', 'type': 'integer', 'value': 0},
-        {'id': 'v2', 'name': 'double', 'type': 'integer', 'formula': 'count * 2'},
+        {'id': 'var1', 'name': 'count', 'type': 'integer', 'value': 0},
+        {'id': 'var2', 'name': 'double', 'type': 'integer', 'formula': 'count * 2'},
       ],
     },
     'conditions': {

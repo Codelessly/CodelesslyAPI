@@ -2,11 +2,9 @@
 
 **Packages:** `codelessly_api` 21.x, `codelessly_sdk` 21.x
 
-Both packages were rebuilt from the ground up (released as 20.0.0) on the
-architecture the canvas prototype proved: immutable nodes with no layout
-results in them, rendered straight into Flutter render objects. The old
-packages (API 6.x to 10.x, SDK 8.x to 10.x) are no longer in the
-repositories; they stay on pub.dev.
+Both packages are built on the architecture the canvas prototype proved:
+immutable nodes with no layout results in them, rendered straight into
+Flutter render objects.
 
 ## 1. What each layer owns
 
@@ -22,19 +20,16 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 ### 2.1 Versions and storage
 
-* Every document carries `"schema": 2`. Decoders run `migrate(json)` from
+* Every document carries `"schema": 2`. Decoders run `LayoutDocument.migrateSchema` from
   any older schema on load, so the format can keep improving without
   breaking stored data.
-* 10.x data is **not** read by the SDK. Existing layouts were moved to this format by
-  a one-time batch migration (§6). the format replaced 10.x's publish in
-  place (owner decision): a converted project's publish model is
+* A project's publish model is
   `publish/{projectId}` and each layout `publish/{projectId}/layouts/{id}`
   (`publish_preview/...` for the editor's preview, `templates/...` for
   templates), in the current format with `"schema": 2`; a layout too large for one
   Firestore document keeps its nodes gzipped and base64 encoded in
-  `compressedNodes` (`{"nodes": {...}}`). SDK 8.x apps can't read a converted
-  project's publish; SDK 21 fails on an unconverted one with a clear message
-  (§5.4).
+  `compressedNodes` (`{"nodes": {...}}`). A document in any other format
+  fails to load with a clear message (§5.4).
 * **Decoding is total.** Unknown keys round-trip in `extra`. Unknown node types
   decode as `UnknownNode` (they render as an empty box of their size). Bad
   values fall back to the default. A malformed field never throws.
@@ -63,7 +58,7 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 Parents are derived from `children` and `slots`; they are never stored.
 
-`key` is 10.x's `BaseNode.key`: the editor API's `nodes.insertTree` gives each
+`key` is a node's name in its tree: the editor API's `nodes.insertTree` gives each
 node of a tree it inserts a name, so the tree's own actions and states can
 name a node before it has an id, and `nodes.export` gives the tree back
 with its keys. It is a node's identity in its tree, like `id` and `name`,
@@ -92,9 +87,8 @@ not a behaviour or a widget parameter, so it is a top-level node field
 
 ## 3. Layout
 
-10.x stored a box per node (`basicBoxLocal`, `outerBoxLocal`...) and re-derived
-placement from it on every render with a dozen fallbacks. The model stores the
-intent, in Flutter's terms, and nothing the renderer computes.
+The model stores the layout intent, in Flutter's terms, and nothing the
+renderer computes.
 
 ```json
 "layout": {
@@ -119,9 +113,7 @@ intent, in Flutter's terms, and nothing the renderer computes.
   `{"end": d}`, `{"start": a, "end": b}` (stretch between), `{"align": -1..1}`
   (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
   design size, keeping its share of the free space as the parent resizes).
-  These are distances in the parent's padded box, to the child's margin box. The
-  migration resolves 10.x's pins, positioning mode and stored boxes into exactly
-  one of these, once.
+  These are distances in the parent's padded box, to the child's margin box.
 * `flex` and `align` apply under row/column parents; `x` and `y` apply under
   freeform parents. Values for another kind of parent are kept, so moving a
   node back restores them, and the renderer ignores them.
@@ -133,24 +125,24 @@ defaults, and which slots it takes. From that one declaration a generator
 emits the props class (immutable, `==`, `copyWith`, sparse JSON) and the
 metadata the editor's panels and the SDK use.
 
-| Type | Flutter | 10.x type |
-|---|---|---|
-| `canvas` | Scaffold (screen) | `canvas` |
-| `stack` | Stack (freeform) | `frame`, `rectangle` with children, `freeformPlaceholder` |
-| `box` | Container (no children) | `rectangle` |
-| `row`, `column` | Row, Column | `rowColumn` |
-| `text` | Text.rich | `text` |
-| `icon` | Icon / SVG | `icon` |
-| `spacer` | Spacer / SizedBox | `spacer` |
-| `variance` | variant switcher | `variance` |
-| `pagination` | page controls for a list's pagination | `pagination` |
-| `tableView` | TableView (two_dimensional_scrollables); slots `cell`, `columnHeader`, `rowHeader`, `corner` | `tableView` |
-| ... | one per remaining 10.x type | |
+| Type | Flutter |
+|---|---|
+| `canvas` | Scaffold (screen) |
+| `stack` | Stack (freeform) |
+| `box` | Container (no children) |
+| `row`, `column` | Row, Column |
+| `text` | Text.rich |
+| `icon` | Icon / SVG |
+| `spacer` | Spacer / SizedBox |
+| `variance` | variant switcher |
+| `pagination` | page controls for a list's pagination |
+| `tableView` | TableView (two_dimensional_scrollables); slots `cell`, `columnHeader`, `rowHeader`, `corner` |
+| ... | one per remaining widget type |
 
 Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `BorderRadius`, `Alignment`, `BoxConstraints`, `TextStyle`, `BoxShadow`,
 `Gradient`, and enums with Flutter's value names and defaults
-(`MainAxisAlignment.start`, not 10.x's `center`). `TextStyle` also holds
+(`MainAxisAlignment.start`). `TextStyle` also holds
 `fontFeatures` (OpenType settings, `"lnum"`, `"liga=0"`; `tnum` as
 `tabularFigures`) and `leadingDistribution`; a gradient `Paint` with
 `gradientPerSubpath` (JSON also `gradientUnits: "subpath"`) is laid out in
@@ -213,12 +205,12 @@ flat in the node's JSON. Every key is optional and sparse.
 |---|---|---|
 | `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the centre; layout unchanged. |
-| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. 10.x's `pulse` and `loopAnimation` both migrate here (a pulse's `delayMs` is `lag`). |
+| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
 | `inkWell` | `InkWellStyle` | `InkWell` colours: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
-| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads; 10.x's `heroPlaceholder`); flying in from where the node with the same key was. |
+| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads); flying in from where the node with the same key was. |
 | `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable` (`feedbackAnchor`, a `physics` return), `DragTarget` (`slotSize`, `slotWhenRefused`); a node that follows the pointer (swipe, spring back; `physics`, `bounds`, `minX`...`maxY`), or with a `DragTrack` a value control (knob, fader, dial: detents, fine mode, momentum, settle, keyboard, parked, relative or parent units, viewBox paths). |
 | `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
@@ -238,33 +230,30 @@ Durations are whole milliseconds; curves are `AnimationCurve`, Flutter's
 `Curves` names. A behaviour bound to data keeps its binding in `bind` (`scale`,
 `textDirection`, `motion.rotate`, ...).
 
-**Editor state stays out.** 10.x's `aspectRatioLock` only locks the editor's
+**Editor state stays out.** An aspect-ratio lock only locks the editor's
 resize handles; it isn't a runtime property (`layout.aspectRatio` is), so the
-API doesn't model it: the migration drops its default (`false`) and leaves
-`true` under the node's `v1` key with the other editor metadata
-(`createdTimestamp`), for the editor to move into its own state.
+API doesn't model it. The editor keeps such state itself.
 
 ### 4.2 Components
 
 A component is a node tree saved to a project's library and placed as
 instances (`lib/src/components.dart`).
 
-* **`ComponentDefinition`** (the library entry, stored outside pages; 10.x's
-  `CustomComponent` / `PublicComponent`): `id`, `name`, `version`, `size`
+* **`ComponentDefinition`** (the library entry, stored outside pages): `id`, `name`, `version`, `size`
   (the root's design size), `document` (a `LayoutDocument` whose single
   root is the component's top node, with its nodes, variables and
   conditions), `preview` (`url`, `blurhash`), `source` (`project`, `page`,
   `node`: where it was made from) and `createdAt` (ms since the epoch).
 * **`ComponentLink`** (`Node.component`): on the component's main node
-  (`"role": "main"`, 10.x's `component` marker) and on the top node of each
+  (`"role": "main"`) and on the top node of each
   instance (`role` defaults to `instance`), with the component `id` and the
   `version` it was made from or last updated to; an instance below the
   definition's version has an update.
 * **An instance is a copy**: the component's nodes with their own ids under
   the linked top node. Editing them is overriding; updating an instance
   replaces its nodes with the definition's (keeping the top node's place
-  and sizing), as 10.x did.
-* **Settings** (`ComponentLink.settings`, 10.x's `componentSchema`): what the
+  and sizing).
+* **Settings** (`ComponentLink.settings`): what the
   component lets an instance customise, shown by the editor as a panel.
   Each is `{label, type, value, targets}`, or a `group` with its own
   `settings`; `type` names the control (`string`, `number`, `bool`,
@@ -297,8 +286,7 @@ codelessly_sdk/lib/src/
   app/       Codelessly, CodelesslyWidget, controllers, navigation
 ```
 
-A node's behaviours are layers of its render chain, outermost first, as SDK
-8.x wrapped a node: (a running app's drag follow) → margin → constraints →
+A node's behaviours are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
 track pose → transform gesture → motion → shimmer → flip face → tilt → flip
 card → scale → rotation → (drag source → drop target → reactions →
 hover/press tracking) → loops → opacity → blurs → stroke path → content. A
@@ -306,7 +294,7 @@ drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
-cards by tap, drag and variable. Not run yet (modelled and migrated): hero
+cards by tap, drag and variable. Not run yet (modelled only): hero
 flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
@@ -330,8 +318,8 @@ map variable (declared when the screen's variables are); `paginate`
 actions and `pagination` nodes move it, and a pagination node fires its
 `changed` reactions with the page as `${result}`.
 
-The render layer comes from the prototype's `api_tree.dart`, with 10.x's
-`SizeFit`, pins and boxes replaced by §3's layout. The layout render objects
+The render layer comes from the prototype's `api_tree.dart`, laid out by §3's
+layout. The layout render objects
 (`RenderFitBox`, `RenderCodelesslyFlex`, `RenderFreeformLayout`,
 `RenderHugCross`) are the SDK's own, moved over unchanged in behaviour.
 
@@ -342,17 +330,15 @@ The render layer comes from the prototype's `api_tree.dart`, with 10.x's
 `choice`) and a default `value` held as its type holds it (JSON-native:
 `3`, `4.5`, `true`, `"#FFFF0000"`, `[...]`, `{...}`), or a `formula` (what goes
 in `${= ...}`) that computes it; a formula with `parameters` is a function
-formulas call by name. Choice variables list their `options`. 10.x stored
-every value as text and a formula as a `${= ...}` value: the migration
-types them once.
+formulas call by name. Choice variables list their `options`.
 
 **Conditions** (`Condition`, `lib/src/conditions.dart`): an ordered list of
 branches, `if` / `else if` / `else`. A branch has a `when` (`Predicate`: a
-`Comparison` `{left, op, right}` with 10.x's loose operators, or a `Junction`
+`Comparison` `{left, op, right}` with loose operators (§5.1's loose reading), or a `Junction`
 `{"and"|"or": [...]}`; none for `else`) and `set`, the node properties it
 gives values (`{node, path, value}`; a string value is an expression). For a
 property, the first branch that holds and sets it wins; conditions win over
-the node's own binding, which wins over the node's value (10.x's precedence).
+the node's own binding, which wins over the node's value.
 
 **Where they live**: per screen, in the layout document next to the nodes
 (read typed through `LayoutLogic` / `doc.logic`):
@@ -366,8 +352,8 @@ the node's own binding, which wins over the node's value (10.x's precedence).
 ```
 
 **Expressions**: `${path}` reads a value (`user.name`, `cart[0].qty`,
-`title.length`, `pal[item.kind]`), `${= formula}` computes one (SDK 8.x's
-formula language, unchanged). A binding that is exactly one of them gives
+`title.length`, `pal[item.kind]`), `${= formula}` computes one (the
+formula language). A binding that is exactly one of them gives
 the value as is (a list stays a list); any other text with `${...}` is text.
 A text node's own `props.text` may hold `${...}`: it is interpolated run by
 run. Names come from scopes: the screen's variables, the list item (`item`,
@@ -383,41 +369,41 @@ and what a node gives itself and the nodes inside it: a dragged node's live
 a path into the node's JSON, with `[i]` for a list index, a paint or
 effect id for the item with that id, and `*` for every item.
 
-| Path | Value | 10.x key |
-|---|---|---|
-| `visible` | bool; false collapses the node (no space, no gap) | `visible` |
-| `opacity` | 0–1 | `opacity` |
-| `layout.width`, `layout.height` | a number (design size, fit kept) or `{"fill": n}`... | `width`, `height` |
-| `layout.flex` | int ≥ 1 | `flex` |
-| `layout.rotation` | degrees | `rotation`, `rotationDegrees` |
-| `layout.margin`, `layout.padding` | n, `[h, v]`, `[l, t, r, b]` or `{top: n}` | `margin`, `padding` |
-| `layout.x`, `layout.y` | distance from the start, or a position map | `x`, `y` |
-| `layout.<field>` | any other layout field, as its JSON | |
-| `decoration.fills[0]` | a color, image URL or paint: the first fill | `fill` (box types) |
-| `decoration.fills.<paintId>` | the same, for that paint | `fill-<id>` |
-| `decoration.fills.<paintId>.color` | a color (opacity kept) | |
-| `decoration.fills.<paintId>.image.url` | the image | `fill-image-<id>` |
-| `decoration.fills[0].stops[i].color` | `#RRGGBB` keeps the stop's alpha | `fill-stop-<i>` |
-| `decoration.fills[0].stops[i].position` | 0–1 | `fill-stop-position-<i>` |
-| `decoration.{fills,strokes,foregroundFills}.<paintId>.stops[i].color` / `.position` | a stop of that paint | `fill-<id>-stop-<i>`, `stroke-paint-<id>-stop-position-<i>`, `foreground-<id>-stop-<i>` |
-| `decoration.strokes[0]`, `decoration.strokes.<paintId>` | a stroke paint | `stroke`, `stroke-paint-<id>` |
-| `decoration.strokeWidth`, `decoration.radius` | number; radius also `[x, y]` or `[tl, tr, br, bl]` (each n or `[x, y]`) | `strokeWeight`, `cornerRadius` |
-| `decoration.effects.*.visible`, `.<effectId>.visible` | bool | `effectsVisible`, `effect-visible-<id>` |
-| `decoration.effects.*.color` / `.offset.dx` / `.offset.dy` / `.blurRadius` / `.spreadRadius` | shadows | `effectsColor`, `effectsOffsetX`... `shadow-color-<id>` |
-| `props.<prop>` | the widget's prop, by its declaration's codec | per type (`value`, `max`, `spacing`...) |
-| `props.<prop>.<field>` | a field of a structured prop | `fillColor` → `props.decoration.fillColor` |
-| `props.style.<field>` (text) | the base style and every run's | `fill`/`textColor` → `props.style.color`, `fontSize`, `fontWeight`... |
-| `data` | the items a list, grid or page view builds one per (its item count follows) | `data` |
-| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text | `drawScale`, `layoutDirection`, `motion.*` |
-| `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload | the same |
-| `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at | `track.*`, `dragTrack.*` |
-| `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) | `pulsePhase`, `pulseDelayMs` |
-| `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face | `transform.*`, `flip.flipped` |
-| `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) | `heroTag` |
-| `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue | `animations.<name>.playKey`, `animations.<name>.delayMs`, `particles.playKey` |
-| `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet | `selected`, `semanticLabel`, `node_enabled` |
+| Path | Value |
+|---|---|
+| `visible` | bool; false collapses the node (no space, no gap) |
+| `opacity` | 0–1 |
+| `layout.width`, `layout.height` | a number (design size, fit kept) or `{"fill": n}`... |
+| `layout.flex` | int ≥ 1 |
+| `layout.rotation` | degrees |
+| `layout.margin`, `layout.padding` | n, `[h, v]`, `[l, t, r, b]` or `{top: n}` |
+| `layout.x`, `layout.y` | distance from the start, or a position map |
+| `layout.<field>` | any other layout field, as its JSON |
+| `decoration.fills[0]` | a color, image URL or paint: the first fill |
+| `decoration.fills.<paintId>` | the same, for that paint |
+| `decoration.fills.<paintId>.color` | a color (opacity kept) |
+| `decoration.fills.<paintId>.image.url` | the image |
+| `decoration.fills[0].stops[i].color` | `#RRGGBB` keeps the stop's alpha |
+| `decoration.fills[0].stops[i].position` | 0–1 |
+| `decoration.{fills,strokes,foregroundFills}.<paintId>.stops[i].color` / `.position` | a stop of that paint |
+| `decoration.strokes[0]`, `decoration.strokes.<paintId>` | a stroke paint |
+| `decoration.strokeWidth`, `decoration.radius` | number; radius also `[x, y]` or `[tl, tr, br, bl]` (each n or `[x, y]`) |
+| `decoration.effects.*.visible`, `.<effectId>.visible` | bool |
+| `decoration.effects.*.color` / `.offset.dx` / `.offset.dy` / `.blurRadius` / `.spreadRadius` | shadows |
+| `props.<prop>` | the widget's prop, by its declaration's codec |
+| `props.<prop>.<field>` | a field of a structured prop |
+| `props.style.<field>` (text) | the base style and every run's |
+| `data` | the items a list, grid or page view builds one per (its item count follows) |
+| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text |
+| `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload |
+| `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at |
+| `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) |
+| `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face |
+| `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) |
+| `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue |
+| `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet |
 
-Values are read loosely, as 10.x read them (`"12"` is a number, `1` true,
+Values are read loosely (`"12"` is a number, `1` true,
 `"#F00F00"` a color); a value that can't be read leaves the property as it
 was. The SDK compiles a node's bindings once (`NodeBindings`) and applies
 them on the typed node (no JSON round trip for the common paths), watching
@@ -468,7 +454,7 @@ resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
 `${loop.index}`), `delay`, `showToast`, `confirm` (their cosmetics in
-`look`, 10.x's field names; their `variables` bind look colors, sizes, the
+`look`; their `variables` bind look colors, sizes, the
 `icon` name and a toast's `duration`; a confirm's `dialog` screen answers
 by closing with `{confirmed: true, ...values}`, the values its actions'
 `${result}`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
@@ -498,7 +484,7 @@ with a `pageId`; a page script wins by name): `name`, `params`
 (`isValidName`: an identifier, not a keyword or a host API in
 `reservedNames`), params and limits. A publish layout keeps `scripts` in its
 document. The SDK asks the app's `ScriptRunner` (`Services.scripts`) to run
-one: by default `SandboxScriptRunner`, SDK 8.x's driver in QuickJS
+one: by default `SandboxScriptRunner`, a driver in QuickJS
 (`codelessly_quickjs`, which the app adds) or a Web Worker. Formulas call
 them as `script.name(args)` (params in order, read capabilities only; the
 path `script` is declared by the screen's `ScriptsScope`).
@@ -545,9 +531,7 @@ override is user-authored content (the editor's switch-point fields, the
 generated panel edits both): a sidebar that stays narrow up to 1100, a
 screen whose tablet design starts at 768. It never adds, removes or renames
 a breakpoint, and moves nothing outside its node: other nodes, other
-screens, toasts and modals keep the project's widths. 10.x had both (a
-responsive node's `tabletMinWidth`/`desktopMinWidth`; layout groups'
-canvas ranges), so migrated pages keep switching where they did.
+screens, toasts and modals keep the project's widths.
 
 **Shape.** `Breakpoint {id, name, minWidth, width, height}`:
 
@@ -565,9 +549,7 @@ disagree with the widths. The first covers everything below the second,
 whatever width it starts at (its `minWidth` is stored as 0).
 
 **Defaults** (`Breakpoints.defaults`, editable data): `mobile` 0 (390 × 844),
-`tablet` 600 (834 × 1112), `desktop` 1024 (1440 × 900). Their ids are 10.x's
-`ScreenBreakpoint` names, so 10.x variants' `breakpoint` and toast keys are
-already ids. New breakpoints get a generated id.
+`tablet` 600 (834 × 1112), `desktop` 1024 (1440 × 900). New breakpoints get a generated id.
 
 **References, by id.** A variance variant: `{"breakpoint": "<id>"}` (a
 variance with any is responsive). A canvas: `props.breakpoint` (the
@@ -582,8 +564,8 @@ project's second breakpoint, i.e. a sheet on the narrowest only; with one
 breakpoint, always a dialog). An adaptive confirm uses that default.
 
 **Resolving a width.** The width is the screen's: the width the layout is
-shown at (10.x's canvas width), and in a dialog, sheet or popover the
-device's (10.x's `BreakpointWidthScope`), never the variance's own box.
+shown at, and in a dialog, sheet or popover the
+device's, never the variance's own box.
 
 1. *Project:* `Breakpoints.forWidth(w)`: the one with the highest
    `minWidth` at or below `w` (inclusive), else the first.
@@ -598,9 +580,9 @@ device's (10.x's `BreakpointWidthScope`), never the variance's own box.
    it shows that breakpoint's variant, else the one of the widest narrower
    breakpoint that has a variant, else its narrowest (`Breakpoints.governing`:
    each variant covers from its breakpoint, as the node moves it, up to the
-   next variant's), else `current`. On the default three this is exactly
-   10.x's rule (the nearest, the narrower on a tie, for every combination of
-   variants), and a project breakpoint no variant names never moves where
+   next variant's), else `current`. On the default three this is
+   the nearest breakpoint, the narrower on a tie, for every combination of
+   variants, and a project breakpoint no variant names never moves where
    an existing variance switches.
 
 **`${screen}`** (`screenValues`): `width`, `height`, `orientation`,
@@ -609,14 +591,13 @@ current id), `breakpointName`, `breakpointIndex`; `is` and `atLeast`, maps by
 id and by name key (lower camel case: "Large desktop" → `largeDesktop`) to
 booleans (`${screen.is.tablet}`, `${screen.atLeast.tablet}`); `breakpoints`,
 the set (`[{id, name, minWidth}]`); and `is<Key>` for each id and name
-(`isMobile`, `isTablet`, `isDesktop` for the defaults, so migrated formulas
-keep working, also after a rename, since ids don't change). The fixed keys
+(`isMobile`, `isTablet`, `isDesktop` for the defaults; they keep working
+after a rename, since ids don't change). The fixed keys
 win over a generated one.
 
 **`${screen}` inside an overriding node.** Inside a variance with its own
 switch points (its subtree, its bindings), `${screen}` is restated by
-step 2 with its `minWidths` (`ResponsiveScreenScope`, 10.x's
-`ResponsiveWidthsScope`): `breakpoint`, `is`, `atLeast` and `is<Key>` agree
+step 2 with its `minWidths` (`ResponsiveScreenScope`): `breakpoint`, `is`, `atLeast` and `is<Key>` agree
 with the variant on show; `width`, `height` and the rest are the device's.
 Everywhere else `${screen}` is the project's.
 
@@ -624,21 +605,18 @@ Everywhere else `${screen}` is the project's.
 `bottomOffsets`) are keyed by breakpoint id (a name also matches); a
 breakpoint with no entry uses the single value.
 
-Projects made with 10.x (one fixed breakpoint set and local widths) were
-converted once to this model; the converter has since been removed.
-
 ### 5.4 Loading published apps
 
 `Codelessly` loads through a `PublishLoader` (model, then each layout when
 first shown) and keeps what it loaded in a `PublishCache` (keys: the
 publish paths), opening on the cached copy and refreshing in the
-background, as SDK 8.x did. Loaders: `FirestorePublishLoader`
+background. Loaders: `FirestorePublishLoader`
 (`package:codelessly_sdk/firebase.dart`), the default for Codelessly's
 Firebase (`codelesslyOnFirebase`); `HttpPublishLoader` (a slug's bundle,
 `publish/{slug}.json` in storage); `AssetPublishLoader`;
 `MemoryPublishLoader` (tests).
 
-The Firestore loader reads what the conversion job and the editor write
+The Firestore loader reads what the editor writes
 (§2.1): the document `PublishSource.modelPath` and each
 `PublishSource.layoutPath`, `compressedNodes` expanded, Firestore
 timestamps as milliseconds. With the app's project token
@@ -649,25 +627,19 @@ project reads `templates`. `CodelesslyConfig.publishSource: preview` reads
 `publish_preview`. It is a `LivePublishLoader`: `Codelessly` follows the
 model document (`CodelesslyConfig.liveUpdates`, on by default), and a
 layout whose entry got newer is dropped and loads again when shown, so a
-publish (or a preview save) reaches running apps, as 10.x's stream did. A
-document without `"schema": 2` is a project nobody converted: loading fails
-with a `PublishLoadException` saying so (SDK 21 reads the current format only).
+publish (or a preview save) reaches running apps. A
+document without `"schema": 2` is not in this format: loading fails
+with a `PublishLoadException` saying so.
 
-## 6. Migration from 10.x
+## 6. Proving it: parity
 
-Every 10.x project has been converted to this format, once. The converter
-(`codelessly_migrate`) has been removed; 10.x data is not read anywhere.
+The SDK's layout is checked against stored goldens: each node's rect on every
+canvas of the 66 fixture pages (50,918 nodes), stored as JSON in
+`CodelesslySDK/test/goldens`. The tests render the pages and compare rects
+within 1 px, then pixels. A widget type counts as ported when it's at 100% on
+the fixtures.
 
-## 7. Proving it: parity
-
-The SDK has to render existing layouts the way 10.x does. Goldens come from 10.x (the
-SDK 8.x widget renderer): each node's rect on every canvas of the 66 fixture
-pages (50,918 nodes). They're stored as JSON in `CodelesslySDK/test/goldens`.
-The tests render the converted pages and compare rects within 1 px, then
-pixels. A widget type counts as ported when it's at 100% on the fixtures.
-
-## 8. Release
+## 7. Release
 
 The packages are released as `codelessly_api` and `codelessly_sdk` 21.x, from each
-repository's root. 10.x (10.x and older) is no longer in the repositories and
-stays available on pub.dev.
+repository's root.

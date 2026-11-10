@@ -24,8 +24,8 @@ A field that is exactly one expression keeps the value's type; any other text co
 `Variable`: a `name`, a `VariableType` and a default `value`, or a `formula` that computes it.
 
 ```json
-{"id": "v1", "name": "count", "type": "integer", "value": 3}
-{"id": "v2", "name": "total", "type": "decimal", "formula": "price * qty"}
+{"id": "var1", "name": "count", "type": "integer", "value": 3}
+{"id": "var2", "name": "total", "type": "decimal", "formula": "price * qty"}
 {"id": "v3", "name": "clamp01", "formula": "min(1, max(0, v))", "parameters": ["v"]}
 {"id": "v4", "name": "draft", "value": "", "persist": true}
 ```

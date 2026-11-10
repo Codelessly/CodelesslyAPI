@@ -15,7 +15,7 @@ import 'json.dart';
 
 /// What a node is to its component.
 enum ComponentRole {
-  /// The node the component was made from (10.x's `component` marker).
+  /// The node the component was made from.
   main,
 
   /// A copy placed from the component.
@@ -100,8 +100,7 @@ final class ComponentLink {
   String toString() => 'ComponentLink(${toJson()})';
 }
 
-/// One thing a component lets an instance customise (10.x's
-/// `componentSchema` properties), or a group of them.
+/// One thing a component lets an instance customise, or a group of them.
 ///
 /// JSON: `{"label": "Title", "type": "string", "value": "Hi",
 /// "targets": [{"node": "t1", "path": "props.text"}]}`; a group is
@@ -188,8 +187,9 @@ final class ComponentSetting {
 }
 
 /// Where a [ComponentSetting] writes: a node and a binding path into it
-/// (DESIGN.md §5.1), as a condition's `set` entries. A 10.x field path that
-/// has no current path is kept as [v1], under its stored key `v1`.
+/// (DESIGN.md §5.1), as a condition's `set` entries. A field path in the
+/// older `properties.*` form that has no binding path is kept as [v1] (the
+/// stored key's name).
 @immutable
 final class SettingTarget {
   const SettingTarget(this.node, this.path, {this.v1});
@@ -200,7 +200,8 @@ final class SettingTarget {
   /// only [v1] is known.
   final String? path;
 
-  /// The 10.x field path (`properties.label`), when it couldn't be mapped.
+  /// A field path in the older `properties.*` form (`properties.label`), kept
+  /// when it has no binding path.
   final String? v1;
 
   SettingTarget remapped(Map<String, String> ids) => SettingTarget(ids[node] ?? node, path, v1: v1);
@@ -225,7 +226,7 @@ final class SettingTarget {
   String toString() => 'SettingTarget($node, ${path ?? 'v1: $v1'})';
 }
 
-/// A component in a project's library (10.x's `CustomComponent`): its nodes
+/// A component in a project's library: its nodes
 /// as a layout document with one root, its design size, and where it was
 /// made from.
 ///
