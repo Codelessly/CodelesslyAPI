@@ -22,7 +22,7 @@ void main() {
     expect(sheet.toJson()['owner'], 'u');
     expect(StyleSheet.fromJson(sheet.toJson()).toJson(), sheet.toJson());
     final theme = sheet.theme;
-    expect(theme.primary, Color(0xFF2F6BFF));
+    expect(theme.primary, const Color(0xFF2F6BFF));
     expect(theme.onPrimary!.alpha, 128);
     expect(theme.fontFamily, 'Inter');
     expect(theme.titleFontFamily, 'Poppins');

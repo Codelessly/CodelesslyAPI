@@ -1,3 +1,6 @@
+> **Legacy.** This is the example of `codelessly_api` 10.x (v1). The example of the current version (20.x) is in
+> [`v2/example`](../v2/example).
+
 ### Creating a new node
 
 ```dart
