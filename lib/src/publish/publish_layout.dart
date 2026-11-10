@@ -25,7 +25,7 @@ final class CanvasBreakpoint {
   final String? breakpointId;
 
   /// Where this canvas starts showing when not at its breakpoint's min width
-  /// (a v1 layout group's lower bound): its own switch point.
+  /// (a 10.x layout group's lower bound): its own switch point.
   final double? minWidth;
 
   /// The width this canvas starts showing at, by the project's [breakpoints].
@@ -191,7 +191,7 @@ final class PublishLayout {
   /// The conditions of canvas [canvasId].
   List<Condition> conditionsOf(String canvasId) => logic.conditionsOf(canvasId);
 
-  /// Decodes a published layout of any v2 schema. Never throws.
+  /// Decodes a published layout of any schema. Never throws.
   static PublishLayout fromJson(Object? json) {
     final m = readMap(json) ?? const {};
     final document = LayoutDocument.fromJson({

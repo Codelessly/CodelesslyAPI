@@ -28,7 +28,7 @@ abstract final class CanvasProps {
   static const screen = PropDef<String>('screen', Codecs.string, '', doc: 'The screen it is a breakpoint of.');
 
   /// Where this canvas starts showing in its screen when not at its
-  /// breakpoint's min width (a v1 layout group's lower bound).
+  /// breakpoint's min width (a 10.x layout group's lower bound).
   static const breakpointMinWidth =
       PropDef<double?>('breakpointMinWidth', Codecs.optionalPositive, null, doc: 'Its own switch point.');
   static const spec = WidgetSpec('canvas',

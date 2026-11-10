@@ -15,7 +15,7 @@ import 'json.dart';
 
 /// What a node is to its component.
 enum ComponentRole {
-  /// The node the component was made from (v1's `component` marker).
+  /// The node the component was made from (10.x's `component` marker).
   main,
 
   /// A copy placed from the component.
@@ -59,7 +59,7 @@ final class ComponentLink {
   ComponentLink remapped(Map<String, String> ids) =>
       copyWith(settings: [for (final s in settings) s.remapped(ids)]);
 
-  /// Null without an id. Also reads the marker the v2 editor kept in a
+  /// Null without an id. Also reads the marker the editor kept in a
   /// node's `extra` before this model (`{"id", "marker": "component" |
   /// "instance", "version"}`).
   static ComponentLink? fromJson(Object? json) {
@@ -100,7 +100,7 @@ final class ComponentLink {
   String toString() => 'ComponentLink(${toJson()})';
 }
 
-/// One thing a component lets an instance customise (v1's
+/// One thing a component lets an instance customise (10.x's
 /// `componentSchema` properties), or a group of them.
 ///
 /// JSON: `{"label": "Title", "type": "string", "value": "Hi",
@@ -188,8 +188,8 @@ final class ComponentSetting {
 }
 
 /// Where a [ComponentSetting] writes: a node and a binding path into it
-/// (DESIGN.md §5.1), as a condition's `set` entries. A v1 field path that
-/// has no v2 path is kept as [v1] (the migration reports it).
+/// (DESIGN.md §5.1), as a condition's `set` entries. A 10.x field path that
+/// has no current path is kept as [v1], under its stored key `v1`.
 @immutable
 final class SettingTarget {
   const SettingTarget(this.node, this.path, {this.v1});
@@ -200,7 +200,7 @@ final class SettingTarget {
   /// only [v1] is known.
   final String? path;
 
-  /// The v1 field path (`properties.label`), when it couldn't be mapped.
+  /// The 10.x field path (`properties.label`), when it couldn't be mapped.
   final String? v1;
 
   SettingTarget remapped(Map<String, String> ids) => SettingTarget(ids[node] ?? node, path, v1: v1);
@@ -225,7 +225,7 @@ final class SettingTarget {
   String toString() => 'SettingTarget($node, ${path ?? 'v1: $v1'})';
 }
 
-/// A component in a project's library (v1's `CustomComponent`): its nodes
+/// A component in a project's library (10.x's `CustomComponent`): its nodes
 /// as a layout document with one root, its design size, and where it was
 /// made from.
 ///

@@ -1,16 +1,12 @@
-# Codelessly v2: API and SDK, rebuilt
+# Codelessly API and SDK: design
 
-**Status:** in development · **Packages:** `codelessly_api` 7.0.0-beta,
-`codelessly_sdk` 9.0.0-beta · **Date:** 2026-11-04
+**Packages:** `codelessly_api` 21.x, `codelessly_sdk` 21.x
 
-v2 rebuilds both packages from the ground up on the architecture the canvas
-prototype proved (`CodelesslyEditor/packages/codelessly_canvas`): immutable
-nodes with no layout results in them, rendered straight into Flutter render
-objects.
-
-v1 (API 6.x to 10.x, SDK 8.x to 10.x) has been removed from both repositories;
-it stays on pub.dev. v2 is each repository's root package (`codelessly_api`,
-`codelessly_sdk` 20.x).
+Both packages were rebuilt from the ground up (released as 20.0.0) on the
+architecture the canvas prototype proved: immutable nodes with no layout
+results in them, rendered straight into Flutter render objects. The old
+packages (API 6.x to 10.x, SDK 8.x to 10.x) are no longer in the
+repositories; they stay on pub.dev.
 
 ## 1. What each layer owns
 
@@ -26,18 +22,18 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 ### 2.1 Versions and storage
 
-* Every v2 document carries `"schema": 2`. Decoders run `migrate(json)` from
-  any older v2 schema on load, so the format can keep improving without
+* Every document carries `"schema": 2`. Decoders run `migrate(json)` from
+  any older schema on load, so the format can keep improving without
   breaking stored data.
-* v1 data is **not** read by the v2 SDK. Existing layouts were moved to v2 by
-  a one-time batch migration (§6). v2 replaces v1's publish in
+* 10.x data is **not** read by the SDK. Existing layouts were moved to this format by
+  a one-time batch migration (§6). the format replaced 10.x's publish in
   place (owner decision): a converted project's publish model is
   `publish/{projectId}` and each layout `publish/{projectId}/layouts/{id}`
   (`publish_preview/...` for the editor's preview, `templates/...` for
-  templates), in the v2 format with `"schema": 2`; a layout too large for one
+  templates), in the current format with `"schema": 2`; a layout too large for one
   Firestore document keeps its nodes gzipped and base64 encoded in
   `compressedNodes` (`{"nodes": {...}}`). SDK 8.x apps can't read a converted
-  project's publish; SDK 20 fails on an unconverted one with a clear message
+  project's publish; SDK 21 fails on an unconverted one with a clear message
   (§5.4).
 * **Decoding is total.** Unknown keys round-trip in `extra`. Unknown node types
   decode as `UnknownNode` (they render as an empty box of their size). Bad
@@ -67,7 +63,7 @@ The editor builds on all three; the API and SDK know nothing about it.
 
 Parents are derived from `children` and `slots`; they are never stored.
 
-`key` is v1's `BaseNode.key`: the editor API's `nodes.insertTree` gives each
+`key` is 10.x's `BaseNode.key`: the editor API's `nodes.insertTree` gives each
 node of a tree it inserts a name, so the tree's own actions and states can
 name a node before it has an id, and `nodes.export` gives the tree back
 with its keys. It is a node's identity in its tree, like `id` and `name`,
@@ -96,8 +92,8 @@ not a behaviour or a widget parameter, so it is a top-level node field
 
 ## 3. Layout
 
-v1 stored a box per node (`basicBoxLocal`, `outerBoxLocal`...) and re-derived
-placement from it on every render with a dozen fallbacks. v2 stores the
+10.x stored a box per node (`basicBoxLocal`, `outerBoxLocal`...) and re-derived
+placement from it on every render with a dozen fallbacks. The model stores the
 intent, in Flutter's terms, and nothing the renderer computes.
 
 ```json
@@ -124,7 +120,7 @@ intent, in Flutter's terms, and nothing the renderer computes.
   (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
   design size, keeping its share of the free space as the parent resizes).
   These are distances in the parent's padded box, to the child's margin box. The
-  migration resolves v1's pins, positioning mode and stored boxes into exactly
+  migration resolves 10.x's pins, positioning mode and stored boxes into exactly
   one of these, once.
 * `flex` and `align` apply under row/column parents; `x` and `y` apply under
   freeform parents. Values for another kind of parent are kept, so moving a
@@ -137,7 +133,7 @@ defaults, and which slots it takes. From that one declaration a generator
 emits the props class (immutable, `==`, `copyWith`, sparse JSON) and the
 metadata the editor's panels and the SDK use.
 
-| v2 type | Flutter | v1 type |
+| Type | Flutter | 10.x type |
 |---|---|---|
 | `canvas` | Scaffold (screen) | `canvas` |
 | `stack` | Stack (freeform) | `frame`, `rectangle` with children, `freeformPlaceholder` |
@@ -149,12 +145,12 @@ metadata the editor's panels and the SDK use.
 | `variance` | variant switcher | `variance` |
 | `pagination` | page controls for a list's pagination | `pagination` |
 | `tableView` | TableView (two_dimensional_scrollables); slots `cell`, `columnHeader`, `rowHeader`, `corner` | `tableView` |
-| ... | one per remaining v1 type | |
+| ... | one per remaining 10.x type | |
 
 Value types mirror Flutter: `Color` (`#AARRGGBB`), `EdgeInsets`,
 `BorderRadius`, `Alignment`, `BoxConstraints`, `TextStyle`, `BoxShadow`,
 `Gradient`, and enums with Flutter's value names and defaults
-(`MainAxisAlignment.start`, not v1's `center`). `TextStyle` also holds
+(`MainAxisAlignment.start`, not 10.x's `center`). `TextStyle` also holds
 `fontFeatures` (OpenType settings, `"lnum"`, `"liga=0"`; `tnum` as
 `tabularFigures`) and `leadingDistribution`; a gradient `Paint` with
 `gradientPerSubpath` (JSON also `gradientUnits: "subpath"`) is laid out in
@@ -217,12 +213,12 @@ flat in the node's JSON. Every key is optional and sparse.
 |---|---|---|
 | `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the centre; layout unchanged. |
-| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. v1's `pulse` and `loopAnimation` both migrate here (a pulse's `delayMs` is `lag`). |
+| `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. 10.x's `pulse` and `loopAnimation` both migrate here (a pulse's `delayMs` is `lag`). |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
 | `inkWell` | `InkWellStyle` | `InkWell` colours: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
-| `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's v2 JSON (`Node.patched`). |
+| `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
-| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads; v1's `heroPlaceholder`); flying in from where the node with the same key was. |
+| `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads; 10.x's `heroPlaceholder`); flying in from where the node with the same key was. |
 | `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable` (`feedbackAnchor`, a `physics` return), `DragTarget` (`slotSize`, `slotWhenRefused`); a node that follows the pointer (swipe, spring back; `physics`, `bounds`, `minX`...`maxY`), or with a `DragTrack` a value control (knob, fader, dial: detents, fine mode, momentum, settle, keyboard, parked, relative or parent units, viewBox paths). |
 | `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
@@ -242,7 +238,7 @@ Durations are whole milliseconds; curves are `AnimationCurve`, Flutter's
 `Curves` names. A behaviour bound to data keeps its binding in `bind` (`scale`,
 `textDirection`, `motion.rotate`, ...).
 
-**Editor state stays out.** v1's `aspectRatioLock` only locks the editor's
+**Editor state stays out.** 10.x's `aspectRatioLock` only locks the editor's
 resize handles; it isn't a runtime property (`layout.aspectRatio` is), so the
 API doesn't model it: the migration drops its default (`false`) and leaves
 `true` under the node's `v1` key with the other editor metadata
@@ -253,22 +249,22 @@ API doesn't model it: the migration drops its default (`false`) and leaves
 A component is a node tree saved to a project's library and placed as
 instances (`lib/src/components.dart`).
 
-* **`ComponentDefinition`** (the library entry, stored outside pages; v1's
+* **`ComponentDefinition`** (the library entry, stored outside pages; 10.x's
   `CustomComponent` / `PublicComponent`): `id`, `name`, `version`, `size`
   (the root's design size), `document` (a `LayoutDocument` whose single
   root is the component's top node, with its nodes, variables and
   conditions), `preview` (`url`, `blurhash`), `source` (`project`, `page`,
   `node`: where it was made from) and `createdAt` (ms since the epoch).
 * **`ComponentLink`** (`Node.component`): on the component's main node
-  (`"role": "main"`, v1's `component` marker) and on the top node of each
+  (`"role": "main"`, 10.x's `component` marker) and on the top node of each
   instance (`role` defaults to `instance`), with the component `id` and the
   `version` it was made from or last updated to; an instance below the
   definition's version has an update.
 * **An instance is a copy**: the component's nodes with their own ids under
   the linked top node. Editing them is overriding; updating an instance
   replaces its nodes with the definition's (keeping the top node's place
-  and sizing), as v1 did.
-* **Settings** (`ComponentLink.settings`, v1's `componentSchema`): what the
+  and sizing), as 10.x did.
+* **Settings** (`ComponentLink.settings`, 10.x's `componentSchema`): what the
   component lets an instance customise, shown by the editor as a panel.
   Each is `{label, type, value, targets}`, or a `group` with its own
   `settings`; `type` names the control (`string`, `number`, `bool`,
@@ -334,7 +330,7 @@ map variable (declared when the screen's variables are); `paginate`
 actions and `pagination` nodes move it, and a pagination node fires its
 `changed` reactions with the page as `${result}`.
 
-The render layer comes from the prototype's `api_tree.dart`, with v1's
+The render layer comes from the prototype's `api_tree.dart`, with 10.x's
 `SizeFit`, pins and boxes replaced by §3's layout. The layout render objects
 (`RenderFitBox`, `RenderCodelesslyFlex`, `RenderFreeformLayout`,
 `RenderHugCross`) are the SDK's own, moved over unchanged in behaviour.
@@ -346,17 +342,17 @@ The render layer comes from the prototype's `api_tree.dart`, with v1's
 `choice`) and a default `value` held as its type holds it (JSON-native:
 `3`, `4.5`, `true`, `"#FFFF0000"`, `[...]`, `{...}`), or a `formula` (what goes
 in `${= ...}`) that computes it; a formula with `parameters` is a function
-formulas call by name. Choice variables list their `options`. v1 stored
+formulas call by name. Choice variables list their `options`. 10.x stored
 every value as text and a formula as a `${= ...}` value: the migration
 types them once.
 
 **Conditions** (`Condition`, `lib/src/conditions.dart`): an ordered list of
 branches, `if` / `else if` / `else`. A branch has a `when` (`Predicate`: a
-`Comparison` `{left, op, right}` with v1's loose operators, or a `Junction`
+`Comparison` `{left, op, right}` with 10.x's loose operators, or a `Junction`
 `{"and"|"or": [...]}`; none for `else`) and `set`, the node properties it
 gives values (`{node, path, value}`; a string value is an expression). For a
 property, the first branch that holds and sets it wins; conditions win over
-the node's own binding, which wins over the node's value (v1's precedence).
+the node's own binding, which wins over the node's value (10.x's precedence).
 
 **Where they live**: per screen, in the layout document next to the nodes
 (read typed through `LayoutLogic` / `doc.logic`):
@@ -384,10 +380,10 @@ and what a node gives itself and the nodes inside it: a dragged node's live
 (`flipped`, `progress`) and a tilt's `tilt` (`x`, `y`, `active`).
 
 **Binding paths** (`Node.bind` keys, `BindPaths` in `lib/src/bindings.dart`):
-a path into the node's v2 JSON, with `[i]` for a list index, a paint or
+a path into the node's JSON, with `[i]` for a list index, a paint or
 effect id for the item with that id, and `*` for every item.
 
-| Path | Value | v1 key |
+| Path | Value | 10.x key |
 |---|---|---|
 | `visible` | bool; false collapses the node (no space, no gap) | `visible` |
 | `opacity` | 0–1 | `opacity` |
@@ -421,7 +417,7 @@ effect id for the item with that id, and `*` for every item.
 | `effectAnimations[i].playKey`, `effectAnimations[i].delay`, `particles.playKey` | a one-shot effect's cue (it plays each time the value changes, not when it first shows) and delay; the particles' cue | `animations.<name>.playKey`, `animations.<name>.delayMs`, `particles.playKey` |
 | `selected`, `disabled`, `semantics.*`, `enabled` | reserved: kept, not applied yet | `selected`, `semanticLabel`, `node_enabled` |
 
-Values are read loosely, as v1 read them (`"12"` is a number, `1` true,
+Values are read loosely, as 10.x read them (`"12"` is a number, `1` true,
 `"#F00F00"` a color); a value that can't be read leaves the property as it
 was. The SDK compiles a node's bindings once (`NodeBindings`) and applies
 them on the typed node (no JSON round trip for the common paths), watching
@@ -472,7 +468,7 @@ resume, stop, seek), `callFunction`, `runScript` (a layout script, below;
 `setStorage`, `cloudDocuments`, `loadCloudData`, `cloudData`, `cloudBatch`,
 `cloudFiles`, `auth`, `if`, `forEach` (each turn reads `${loop.item}`,
 `${loop.index}`), `delay`, `showToast`, `confirm` (their cosmetics in
-`look`, v1's field names; their `variables` bind look colors, sizes, the
+`look`, 10.x's field names; their `variables` bind look colors, sizes, the
 `icon` name and a toast's `duration`; a confirm's `dialog` screen answers
 by closing with `{confirmed: true, ...values}`, the values its actions'
 `${result}`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
@@ -526,7 +522,7 @@ interactive `NodeView`.
 
 A project defines its own breakpoints: the screen size classes its screens,
 responsive layouts, `${screen}` and per-breakpoint values (a toast's
-alignment) all speak of. Nothing in API v2, SDK v2 or the v2 editor knows
+alignment) all speak of. Nothing in the API, the SDK or the editor knows
 mobile, tablet, desktop, 600 or 1024 except as the default *data* below.
 
 **Where they're defined: the project.** One set per project
@@ -535,7 +531,7 @@ mobile, tablet, desktop, 600 or 1024 except as the default *data* below.
 everywhere: the screen it sees, the variant its responsive layouts show,
 `${screen.breakpoint}` and the toast's alignment must agree, and moving
 between screens must not change it. So a layout (screen) can't redefine
-the set, and nothing adds or renames a breakpoint locally. Until the v2
+the set, and nothing adds or renames a breakpoint locally. Until the
 editor stores per-project data, a page's document carries the project's set
 (`LayoutDocumentBreakpoints`, key `breakpoints`), as it carries project
 scripts; publish copies it to the model.
@@ -549,7 +545,7 @@ override is user-authored content (the editor's switch-point fields, the
 generated panel edits both): a sidebar that stays narrow up to 1100, a
 screen whose tablet design starts at 768. It never adds, removes or renames
 a breakpoint, and moves nothing outside its node: other nodes, other
-screens, toasts and modals keep the project's widths. v1 had both (a
+screens, toasts and modals keep the project's widths. 10.x had both (a
 responsive node's `tabletMinWidth`/`desktopMinWidth`; layout groups'
 canvas ranges), so migrated pages keep switching where they did.
 
@@ -569,8 +565,8 @@ disagree with the widths. The first covers everything below the second,
 whatever width it starts at (its `minWidth` is stored as 0).
 
 **Defaults** (`Breakpoints.defaults`, editable data): `mobile` 0 (390 × 844),
-`tablet` 600 (834 × 1112), `desktop` 1024 (1440 × 900). Their ids are v1's
-`ScreenBreakpoint` names, so v1 variants' `breakpoint` and toast keys are
+`tablet` 600 (834 × 1112), `desktop` 1024 (1440 × 900). Their ids are 10.x's
+`ScreenBreakpoint` names, so 10.x variants' `breakpoint` and toast keys are
 already ids. New breakpoints get a generated id.
 
 **References, by id.** A variance variant: `{"breakpoint": "<id>"}` (a
@@ -586,8 +582,8 @@ project's second breakpoint, i.e. a sheet on the narrowest only; with one
 breakpoint, always a dialog). An adaptive confirm uses that default.
 
 **Resolving a width.** The width is the screen's: the width the layout is
-shown at (v1's canvas width), and in a dialog, sheet or popover the
-device's (v1's `BreakpointWidthScope`), never the variance's own box.
+shown at (10.x's canvas width), and in a dialog, sheet or popover the
+device's (10.x's `BreakpointWidthScope`), never the variance's own box.
 
 1. *Project:* `Breakpoints.forWidth(w)`: the one with the highest
    `minWidth` at or below `w` (inclusive), else the first.
@@ -603,7 +599,7 @@ device's (v1's `BreakpointWidthScope`), never the variance's own box.
    breakpoint that has a variant, else its narrowest (`Breakpoints.governing`:
    each variant covers from its breakpoint, as the node moves it, up to the
    next variant's), else `current`. On the default three this is exactly
-   v1's rule (the nearest, the narrower on a tie, for every combination of
+   10.x's rule (the nearest, the narrower on a tie, for every combination of
    variants), and a project breakpoint no variant names never moves where
    an existing variance switches.
 
@@ -619,7 +615,7 @@ win over a generated one.
 
 **`${screen}` inside an overriding node.** Inside a variance with its own
 switch points (its subtree, its bindings), `${screen}` is restated by
-step 2 with its `minWidths` (`ResponsiveScreenScope`, v1's
+step 2 with its `minWidths` (`ResponsiveScreenScope`, 10.x's
 `ResponsiveWidthsScope`): `breakpoint`, `is`, `atLeast` and `is<Key>` agree
 with the variant on show; `width`, `height` and the rest are the device's.
 Everywhere else `${screen}` is the project's.
@@ -628,7 +624,7 @@ Everywhere else `${screen}` is the project's.
 `bottomOffsets`) are keyed by breakpoint id (a name also matches); a
 breakpoint with no entry uses the single value.
 
-Projects made with v1 (one fixed breakpoint set and local widths) were
+Projects made with 10.x (one fixed breakpoint set and local widths) were
 converted once to this model; the converter has since been removed.
 
 ### 5.4 Loading published apps
@@ -642,7 +638,7 @@ Firebase (`codelesslyOnFirebase`); `HttpPublishLoader` (a slug's bundle,
 `publish/{slug}.json` in storage); `AssetPublishLoader`;
 `MemoryPublishLoader` (tests).
 
-The Firestore loader reads what the conversion job and the v2 editor write
+The Firestore loader reads what the conversion job and the editor write
 (§2.1): the document `PublishSource.modelPath` and each
 `PublishSource.layoutPath`, `compressedNodes` expanded, Firestore
 timestamps as milliseconds. With the app's project token
@@ -653,25 +649,25 @@ project reads `templates`. `CodelesslyConfig.publishSource: preview` reads
 `publish_preview`. It is a `LivePublishLoader`: `Codelessly` follows the
 model document (`CodelesslyConfig.liveUpdates`, on by default), and a
 layout whose entry got newer is dropped and loads again when shown, so a
-publish (or a preview save) reaches running apps, as v1's stream did. A
+publish (or a preview save) reaches running apps, as 10.x's stream did. A
 document without `"schema": 2` is a project nobody converted: loading fails
-with a `PublishLoadException` saying so (SDK 20 reads v2 only).
+with a `PublishLoadException` saying so (SDK 21 reads the current format only).
 
-## 6. Migration from v1
+## 6. Migration from 10.x
 
-Every v1 project has been converted to this format, once. The converter
-(`codelessly_migrate`) has been removed; v1 data is not read anywhere.
+Every 10.x project has been converted to this format, once. The converter
+(`codelessly_migrate`) has been removed; 10.x data is not read anywhere.
 
 ## 7. Proving it: parity
 
-v2 has to render existing layouts the way v1 does. Goldens come from v1 (the
+The SDK has to render existing layouts the way 10.x does. Goldens come from 10.x (the
 SDK 8.x widget renderer): each node's rect on every canvas of the 66 fixture
 pages (50,918 nodes). They're stored as JSON in `CodelesslySDK/test/goldens`.
-v2's tests render the converted pages and compare rects within 1 px, then
+The tests render the converted pages and compare rects within 1 px, then
 pixels. A widget type counts as ported when it's at 100% on the fixtures.
 
 ## 8. Release
 
-v2 is released as `codelessly_api` and `codelessly_sdk` 20.x, from each
-repository's root. v1 (10.x and older) is no longer in the repositories and
+The packages are released as `codelessly_api` and `codelessly_sdk` 21.x, from each
+repository's root. 10.x (10.x and older) is no longer in the repositories and
 stays available on pub.dev.

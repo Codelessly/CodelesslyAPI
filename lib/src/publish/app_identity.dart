@@ -6,7 +6,7 @@
 //
 // The identity's JSON is shared with the web host (site.codelessly.com
 // reads it server-side to fill each page's <head>), so it keeps its own
-// format: colors are CSS hex (`#RRGGBB` / `#RRGGBBAA`), not v2's
+// format: colors are CSS hex (`#RRGGBB` / `#RRGGBBAA`), not the model's
 // `#AARRGGBB`.
 import 'package:meta/meta.dart';
 

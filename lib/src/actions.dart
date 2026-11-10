@@ -1509,7 +1509,7 @@ enum ToastPosition { bottom, top }
 /// Shows a short message (a snackbar). Its button ([actionLabel]) runs
 /// [actions] on the chain that showed it. Cosmetics beyond the fields
 /// below (colors, radius, shadows, text styles, offsets per breakpoint)
-/// are in [style], v2 JSON.
+/// are in [style], JSON.
 final class ShowToastAction extends ActionDef {
   const ShowToastAction({
     this.message = '',
@@ -1629,7 +1629,7 @@ final class ConfirmAction extends ActionDef {
   final PopoverPlacement placement;
   final bool barrierDismissible;
 
-  /// Cosmetics (colors, radius, border, shadows, text styles, sizes), v2
+  /// Cosmetics (colors, radius, border, shadows, text styles, sizes),
   /// JSON.
   final Json style;
   final Map<String, String> variables;

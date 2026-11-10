@@ -12,14 +12,14 @@ import 'theme.dart';
 const int kPublishSchemaVersion = 2;
 
 /// Upgrades of a publish model's (or bundle's) JSON for schemas after 2, by
-/// the version they produce. v1 publish data isn't read here: it was
+/// the version they produce. 10.x publish data isn't read here: it was
 /// converted once.
 const Map<int, SchemaMigration> publishSchemaMigrations = {};
 
 /// Where published data comes from: the existing publish paths (owner
-/// decision: v2 replaces v1's publish in place). A converted project's
+/// decision: the format replaced 10.x's publish in place). A converted project's
 /// publish model is `publish/{projectId}` (a Firestore document) and each
-/// layout `publish/{projectId}/layouts/{layoutId}`, in the v2 format with
+/// layout `publish/{projectId}/layouts/{layoutId}`, in the current format with
 /// `schema: 2`; the preview's and the templates' the same under
 /// `publish_preview` and `templates`. A slug's bundle is the storage file
 /// `publish/{slug}.json`.
@@ -350,7 +350,7 @@ final class PublishModel {
         for (final id in layouts[layoutId]?.fonts ?? const <String>[]) ?fonts[id],
       ];
 
-  /// Decodes a publish model of any v2 schema, upgrading it first. Never
+  /// Decodes a publish model of any schema, upgrading it first. Never
   /// throws.
   static PublishModel fromJson(Object? json) {
     var m = readMap(json) ?? const {};

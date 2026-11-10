@@ -100,8 +100,8 @@ final class StyleSheet {
     );
   }
 
-  /// Whether [json] is a v2 style sheet.
-  static bool isV2(Object? json) => readMap(json)?['schema'] == schema;
+  /// Whether [json] is a style sheet in the current format.
+  static bool isCurrentSchema(Object? json) => readMap(json)?['schema'] == schema;
 
   Json toJson() => {
         ...extra,
@@ -122,7 +122,7 @@ final class StyleSheet {
 
   /// The app's theme, from the styles by name: color styles named Primary,
   /// On Primary, Surface, On Surface, Error, Success and Warning, and text
-  /// styles named Body and Title (or Heading) for the fonts (as v1's
+  /// styles named Body and Title (or Heading) for the fonts (as 10.x's
   /// editor read its style sheet).
   ThemeTokens get theme {
     String key(String label) => label.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
