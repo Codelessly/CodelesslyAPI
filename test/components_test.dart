@@ -49,7 +49,7 @@ void main() {
     expect(n.toJson(), json);
     expect(Node.fromJson(n.toJson()), n);
 
-    // Sparse: an instance at version 1 is just its id.
+    // Sparse: an instance at the first version is just its id.
     final inst = n.withComponent(const ComponentLink(id: 'cmp1'));
     expect(inst.toJson()['component'], {'id': 'cmp1'});
     expect(n.withComponent(null).toJson().containsKey('component'), isFalse);

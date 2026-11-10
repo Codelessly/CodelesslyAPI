@@ -122,8 +122,7 @@ final class StyleSheet {
 
   /// The app's theme, from the styles by name: color styles named Primary,
   /// On Primary, Surface, On Surface, Error, Success and Warning, and text
-  /// styles named Body and Title (or Heading) for the fonts (as 10.x's
-  /// editor read its style sheet).
+  /// styles named Body and Title (or Heading) for the fonts.
   ThemeTokens get theme {
     String key(String label) => label.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
     Color? color(String name) => colorStyles.where((s) => key(s.name) == name).firstOrNull?.color;

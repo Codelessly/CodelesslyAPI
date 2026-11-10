@@ -417,7 +417,7 @@ abstract final class ExpansionTileProps {
 /// Page controls for a list's pagination (found by its name,
 /// [controller]): first, previous, page numbers with ellipses
 /// (1 … 4 5 6 … 16), next, last, a page size select and a summary. Choosing
-/// a page fires the node's `changed` reactions with the page as `${result}` (10.x read it as `${value}`).
+/// a page fires the node's `changed` reactions with the page as `${result}`.
 abstract final class PaginationProps {
   /// The `Pagination.name` of the list this shows and moves (an expression).
   static const controller = PropDef<String>('controller', Codecs.string, '');

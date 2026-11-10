@@ -227,8 +227,8 @@ final class Breakpoints {
   /// or a per-breakpoint value name), the one that governs breakpoint [id]:
   /// [id] itself, else the widest one narrower than it, else the narrowest
   /// (each covers from its breakpoint up to the next candidate's: min-width
-  /// semantics, as a screen's canvases). On the default three it is 10.x's
-  /// rule (the nearest, the narrower on a tie), and a breakpoint no
+  /// semantics, as a screen's canvases). On the default three it is the
+  /// nearest breakpoint (the narrower on a tie), and a breakpoint no
   /// candidate names changes nothing. Ids not in the set are ignored; null
   /// when none is in it (or [id] isn't).
   String? governing(String id, Iterable<String> candidates) {

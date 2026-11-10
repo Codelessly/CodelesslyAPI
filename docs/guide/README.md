@@ -1,6 +1,6 @@
 # codelessly_api guide
 
-For `codelessly_api` 21.x (this repository). The samples here run as
+For `codelessly_api` 21.x. The samples here run as
 [`example/example.dart`](../../example/example.dart) and
 [`example/guide.dart`](../../example/guide.dart) (`dart run --enable-asserts example/guide.dart`).
 
@@ -22,6 +22,3 @@ understand, build, check or transform layouts as data.
 | 5 | [Logic](05-logic.md) | Variables, conditions, bindings, reactions and actions, scripts |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.
-
-The repository holds 21.x only. 10.x (10.x) is no longer in the source tree; it stays available on pub.dev
-(`codelessly_api: ^10.0.0`). Every project stored by Codelessly has been converted to 21.x.
