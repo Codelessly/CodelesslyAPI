@@ -2147,7 +2147,7 @@ final class UnknownAction extends ActionDef {
   Json get _fields => json;
 }
 
-/// [actions] in order: equal when every action is.
+/// Whether [a] and [b] hold equal actions in the same order.
 bool actionsEqual(List<ActionDef> a, List<ActionDef> b) => listEquals(a, b);
 
 /// What a [PaginateAction] does to a pagination controller.
