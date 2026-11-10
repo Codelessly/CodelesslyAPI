@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Where the model sits -->
+<tut-stage name="hero" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">The data model of Codelessly</div><div class="s">What the Editor saves, what a publish contains and what the SDK renders. Pure Dart.</div></div>
+  <div class="dn" id="ed" style="left:40px;top:150px;width:160px"><div class="k">Editor</div><div class="d">saves layouts</div></div>
+  <div class="dn blue" id="api" style="left:270px;top:120px;width:260px;height:150px"><div class="k">codelessly_api</div><div class="t">Flutter's widgets as data</div><div class="d">Nodes, layouts, logic, publishes, with a JSON format. No Flutter, no network.</div></div>
+  <div class="dn purple" id="sdk" style="left:600px;top:150px;width:160px"><div class="k">codelessly_sdk</div><div class="d">renders it in Flutter</div></div>
+  <tut-connector from="#ed" to="#api" route="straight"></tut-connector>
+  <tut-connector from="#api" to="#sdk" route="straight"></tut-connector>
+  <div class="dn gray" id="you" style="left:270px;top:330px;width:260px"><div class="k">Your tools</div><div class="d">Servers, CLIs, code generators, tests: read, build, check or transform layouts.</div></div>
+  <tut-connector from="#you" to="#api" route="straight" from-side="top" to-side="bottom" heads="both"></tut-connector>
+  <div class="at" style="left:40px;top:340px;width:200px;font-size:12px;color:var(--fg1);line-height:1.5">Showing layouts in an app? Use the SDK: it exports this package.</div>
+</tut-stage>
+</body></html>

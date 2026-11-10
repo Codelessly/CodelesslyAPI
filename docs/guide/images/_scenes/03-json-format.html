@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: three rules -->
+<tut-stage name="hero" w="800" h="420" bg="solid">
+  <div class="hd"><div class="t">The JSON format: three rules</div><div class="s">They let an older app show a layout made by a newer Editor.</div></div>
+  <div class="dn blue" style="left:40px;top:110px;width:228px;height:220px"><div class="k">Versioned</div><div class="t m" style="font-size:14px">"schema": 2</div><div class="d" style="margin-top:8px">Older v2 schemas are upgraded on load. Schema 1 (10.x) is not read: the migrate package converts it once.</div></div>
+  <div class="dn green" style="left:286px;top:110px;width:228px;height:220px"><div class="k">Total decoding</div><div class="t m" style="font-size:14px">fromJson never throws</div><div class="d" style="margin-top:8px">Unknown keys, types and props are kept and written back; a bad value falls back to its default.</div></div>
+  <div class="dn purple" style="left:532px;top:110px;width:228px;height:220px"><div class="k">Sparse encoding</div><div class="t m" style="font-size:14px">defaults omitted</div><div class="d" style="margin-top:8px">JSON stays small and diffs readable. Doubles rounded to 4 decimals.</div></div>
+  <div class="at" style="left:40px;top:350px;width:720px;font-size:12.5px;color:var(--fg1)">The price of total decoding: decoding doesn't tell you a document is wrong. Checking is a separate step.</div>
+</tut-stage>
+
+<!-- Total decoding, annotated -->
+<tut-stage name="total-decoding" w="800" h="580" bg="solid">
+  <div class="hd"><div class="t">Total decoding, on a messy input</div><div class="s">The example from this page: what <span class="m">LayoutDocument.fromJson</span> keeps, defaults and drops.</div></div>
+  <tut-code-window class="xs" at="40,96" w="500" file="input" lang="json" highlight="3,12,15,16">
+'schema': 2,
+'id': 'L',
+'roots': ['c', 'missing'],
+'nodes': {
+  'c': {
+    'type': 'canvas',
+    'slots': {'body': 't'},
+    'layout': {'width': 390, 'height': 844},
+  },
+  't': {
+    'type': 'text',
+    'props': {'text': 'Hi', 'maxLines': 'two', 'futureProp': 1},
+    'futureKey': true,
+  },
+  'x': {'type': 'hologram', 'props': {'depth': 3}},
+  'junk': 'not a node',
+},
+  </tut-code-window>
+  <div class="dn red" style="left:560px;top:96px;width:200px"><div class="k">Dropped</div><div class="d">The root <span class="m">'missing'</span>, and the entry <span class="m">'junk'</span>.</div></div>
+  <div class="dn amber" style="left:560px;top:196px;width:200px"><div class="k">Default</div><div class="d"><span class="m">maxLines: 'two'</span> is not an int: <span class="m">null</span>.</div></div>
+  <div class="dn green" style="left:560px;top:296px;width:200px"><div class="k">Kept, written back</div><div class="d"><span class="m">futureProp</span> in <span class="m">props.unknown</span>, <span class="m">futureKey</span> in <span class="m">extra</span>.</div></div>
+  <div class="dn blue" style="left:560px;top:418px;width:200px"><div class="k">Unknown type</div><div class="d"><span class="m">hologram</span> decodes with <span class="m">spec == null</span> and round-trips.</div></div>
+  <div class="at" style="left:40px;top:540px;width:720px;font-size:12px;color:var(--fg2)">Excerpt of the map passed to <span class="m">LayoutDocument.fromJson</span> in the chapter's example.</div>
+</tut-stage>
+
+<!-- The publish format -->
+<tut-stage name="publish-format" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">The publish format</div><div class="s">A published project is a publish model and its layouts. A bundle is both in one file.</div></div>
+  <div class="grp blue" style="left:40px;top:110px;width:720px;height:330px"><span class="gl m">PublishBundle {"model": ..., "layouts": {...}}</span></div>
+  <div class="dn" id="pm" style="left:64px;top:140px;width:300px;height:276px"><div class="k">PublishModel</div><div class="d">Lists every layout without holding it:</div>
+    <ul class="m" style="font-size:12px;line-height:1.8;padding-left:16px"><li>entryLayoutId, layoutIDMap</li><li>layouts: canvases, paths, fonts, lastUpdated</li><li>fonts, theme, apis</li><li>variables, breakpoints, appIdentity</li></ul></div>
+  <div class="dn" id="l1" style="left:430px;top:140px;width:306px"><div class="k">PublishLayout</div><div class="m">home</div><div class="d">A layout document with its own keys: <span class="m">paths</span>, <span class="m">variables</span>, <span class="m">conditions</span>...</div></div>
+  <div class="dn" id="l2" style="left:430px;top:280px;width:306px"><div class="k">PublishLayout</div><div class="m">checkout</div><div class="d">Also decodes as a <span class="m">LayoutDocument</span>.</div></div>
+  <tut-connector from="#pm" to="#l1" route="straight" dashed></tut-connector>
+  <tut-connector from="#pm" to="#l2" route="straight" dashed></tut-connector>
+  <div class="at" style="left:40px;top:456px;width:720px;font-size:12.5px;color:var(--fg1)">A slug serves a bundle; <span class="m">Codelessly.asset</span> reads one. Layout ids <span class="m">home</span> and <span class="m">checkout</span> are examples.</div>
+</tut-stage>
+</body></html>

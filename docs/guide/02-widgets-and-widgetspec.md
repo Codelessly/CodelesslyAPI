@@ -6,6 +6,10 @@ Each widget type has **one declaration**, a `WidgetSpec`: its type name, its pro
 defaults, and how it takes children. Decoding, encoding, an editor's property panel and the SDK's renderer all
 read that one declaration.
 
+![One WidgetSpec, filledButton, read by decoding, encoding, an editor's property panel and the SDK's renderer](images/02-widgets-and-widgetspec/hero.png)
+
+*One declaration, read by everything.*
+
 ## `WidgetSpec`
 
 | Field | Meaning |
@@ -20,6 +24,10 @@ read that one declaration.
 | `doc` | The Flutter widget it stands for. |
 
 ## `PropDef`
+
+![Two TextProps PropDefs with their key, codec and default value](images/02-widgets-and-widgetspec/propdef.png)
+
+*A PropDef: key, codec, default.*
 
 A `PropDef<T>` is one prop: its JSON `key` (Flutter's parameter name), a codec, and `defaultValue` (Flutter's
 default; values equal to it aren't stored).

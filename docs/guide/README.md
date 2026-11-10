@@ -9,6 +9,10 @@ renders. It is pure Dart. To show layouts in a Flutter app you want the
 [SDK guide](https://github.com/Codelessly/CodelesslySDK/tree/master/docs/guide) instead; read this one to
 understand, build, check or transform layouts as data.
 
+![codelessly_api between the Editor, which saves layouts, and the SDK, which renders them; your tools read, build, check and transform layouts](images/index/hero.png)
+
+*The model, between the Editor and the SDK.*
+
 | # | Chapter | |
 |---|---|---|
 | 1 | [The data model](01-data-model.md) | Node, layout, decoration, props, document |

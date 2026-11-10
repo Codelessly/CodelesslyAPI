@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: one declaration, read by everything -->
+<tut-stage name="hero" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">One declaration per widget type</div><div class="s">A <span class="m">WidgetSpec</span>: its type name, its props with Flutter's types and defaults, how it takes children.</div></div>
+  <div class="dn blue" id="spec" style="left:270px;top:180px;width:260px;height:130px"><div class="k">WidgetSpec</div><div class="t m" style="font-size:14px">'filledButton'</div><div class="d m" style="font-size:12px">label · icon · spacing · enabled · style · tonal ...</div></div>
+  <div class="dn" id="r1" style="left:40px;top:110px;width:180px"><div class="k">Decoding</div><div class="m">Node.fromJson</div></div>
+  <div class="dn" id="r2" style="left:40px;top:300px;width:180px"><div class="k">Encoding</div><div class="m">node.toJson()</div></div>
+  <div class="dn" id="r3" style="left:580px;top:110px;width:180px"><div class="k">An editor</div><div class="d">Its property panel</div></div>
+  <div class="dn" id="r4" style="left:580px;top:300px;width:180px"><div class="k">The SDK</div><div class="d">Its renderer</div></div>
+  <tut-connector from="#spec" to="#r1"></tut-connector>
+  <tut-connector from="#spec" to="#r2"></tut-connector>
+  <tut-connector from="#spec" to="#r3"></tut-connector>
+  <tut-connector from="#spec" to="#r4"></tut-connector>
+  <div class="at" style="left:40px;top:420px;width:720px;font-size:12.5px;color:var(--fg1)"><span class="m">Widgets.all</span> lists every type this version declares; <span class="m">Widgets.of(type)</span> is null for one it doesn't know.</div>
+</tut-stage>
+
+<!-- PropDef anatomy -->
+<tut-stage name="propdef" w="800" h="420" bg="solid">
+  <div class="hd"><div class="t">A <span class="m" style="font-size:19px">PropDef</span>: one prop</div><div class="s">Each widget's props are constants on a <span class="m">...Props</span> class: <span class="m">TextProps</span>, <span class="m">FlexProps</span>, <span class="m">ButtonProps</span>...</div></div>
+  <tut-code-window class="sm" at="40,100" w="720" file="text_props.dart" highlight="1,2">
+  static const text = PropDef&lt;String&gt;('text', Codecs.string, '');
+  static const maxLines = PropDef&lt;int?&gt;('maxLines', OptionalIntCodec(), null);
+  </tut-code-window>
+  <div class="dn" style="left:40px;top:226px;width:228px"><div class="k">key</div><div class="d">Flutter's parameter name, in JSON.</div></div>
+  <div class="dn" style="left:286px;top:226px;width:228px"><div class="k">codec</div><div class="d">Reads and writes the value; checks it.</div></div>
+  <div class="dn" style="left:532px;top:226px;width:228px"><div class="k">defaultValue</div><div class="d">Flutter's default. Equal values aren't stored.</div></div>
+  <div class="at" style="left:40px;top:330px;width:720px;font-size:12.5px;color:var(--fg1);line-height:1.6"><span class="m">withProp(FlexProps.spacing, 12)</span> stores <span class="m">12.0</span>; a value the codec can't read throws an <span class="m">ArgumentError</span>.</div>
+</tut-stage>
+</body></html>
