@@ -1,5 +1,5 @@
 // Conditions: if / else-if / else rules that set node properties while a
-// predicate over variables holds (v1's condition groups of set-value
+// predicate over variables holds (10.x's condition groups of set-value
 // actions). Pure data; the SDK evaluates them over its bindings
 // (DESIGN.md §5.1).
 import 'package:meta/meta.dart';
@@ -8,7 +8,7 @@ import 'actions.dart';
 import 'json.dart';
 import 'values/paint.dart' show listEquals;
 
-/// How a [Comparison] compares its operands. Loose, as v1 compared: numbers
+/// How a [Comparison] compares its operands. Loose, as 10.x compared: numbers
 /// as numbers, booleans as booleans, anything else as case-insensitive text.
 enum ConditionOp {
   equalsTo,

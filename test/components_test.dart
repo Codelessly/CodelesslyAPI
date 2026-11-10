@@ -55,7 +55,7 @@ void main() {
     expect(n.withComponent(null).toJson().containsKey('component'), isFalse);
   });
 
-  test("the v2 editor's marker in extra reads as a link", () {
+  test("the editor's marker in extra reads as a link", () {
     final n = Node.fromJson({
       'id': 'x',
       'type': 'box',

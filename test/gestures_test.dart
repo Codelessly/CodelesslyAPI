@@ -1,4 +1,4 @@
-// The behaviours v1 master added: motion's shimmer, arc, phase, pause and
+// The behaviours 10.x master added: motion's shimmer, arc, phase, pause and
 // path pacing, loop phases, effect cycles, gesture physics and bounds,
 // drag tracks' new settings, flip cards, tilt, transform gestures, hero
 // placeholders, and a node's insert key.

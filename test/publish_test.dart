@@ -91,7 +91,7 @@ void main() {
         {'canvas': 'm', 'breakpoint': 'mobile'},
         {'canvas': 'd', 'breakpoint': 'desktop', 'minWidth': 900},
       ]);
-      // v2 data from before breakpoints had ids: ranges by min width.
+      // data from before breakpoints had ids: ranges by min width.
       final legacy = PublishLayout.fromJson({...layoutJson, 'breakpoints': [
         {'canvas': 'm'},
         {'canvas': 'd', 'minWidth': 1024, 'maxWidth': 99999},
@@ -197,7 +197,7 @@ void main() {
       });
     });
 
-    test('sources read the existing publish paths (v2 replaces v1 in place)', () {
+    test('sources read the existing publish paths (the format replaced 10.x publishes in place)', () {
       expect(PublishSource.publish.modelPath('p'), 'publish/p');
       expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');
       expect(PublishSource.template.bundlePath('slug'), 'templates/slug.json');

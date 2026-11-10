@@ -1,9 +1,16 @@
-## 20.1.0
+## 21.0.0
 
-- The repository is the v2 package only: v1 (10.x and older) and the v1 to v2 converter are removed from the
-  source tree. 10.x stays available on pub.dev.
+Breaking changes:
+
+- The repository holds this package only. The old 10.x source (v1), its JSON Schema files and the one-time v1
+  converter are removed from it, and the package is developed under its published name, `codelessly_api`, at the
+  repository root (where the 20.x source used to live in a subfolder and was renamed at publish). 10.x stays
+  available on pub.dev. The model and the JSON format (`"schema": 2`) are unchanged from 20.0.1.
+- Dependencies at their latest versions (`collection`, `meta`); the SDK constraint is Dart 3.12 or newer.
+
+Docs:
+
 - A README, an example and a guide to the model: https://github.com/Codelessly/CodelesslyAPI/tree/master/docs/guide.
-  No code changes.
 
 ## 20.0.1
 
