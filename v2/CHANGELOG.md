@@ -1,3 +1,8 @@
+## 20.0.2
+
+- A README, an example and a guide to the model: https://github.com/Codelessly/CodelesslyAPI/tree/master/docs/guide.
+  No code changes.
+
 ## 20.0.1
 
 - `StyleSheet`: a project's named text styles and color styles (`NamedTextStyle`, `NamedColorStyle`), and the theme

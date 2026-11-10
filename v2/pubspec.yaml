@@ -1,8 +1,17 @@
 name: codelessly_api_v2
-description: Flutter's widgets and layouts as plain, immutable data. The model behind the Codelessly editor and the Codelessly SDK.
-version: 20.0.1
+description: Flutter's widgets and layouts as plain, immutable data with a JSON format. The model behind the Codelessly Editor and the Codelessly SDK. Pure Dart.
+version: 20.0.2
 homepage: https://codelessly.com/
-repository: https://github.com/Codelessly/CodelesslyAPI
+repository: https://github.com/Codelessly/CodelesslyAPI/tree/master/v2
+issue_tracker: https://github.com/Codelessly/CodelesslyAPI/issues
+documentation: https://github.com/Codelessly/CodelesslyAPI/tree/master/docs/guide
+
+topics:
+  - server-driven-ui
+  - ui
+  - json
+  - widget
+  - design
 
 environment:
   sdk: ^3.12.0
