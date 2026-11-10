@@ -87,7 +87,7 @@ void main() {
       expect(d.governing('mobile', ['desktop', 'tablet']), 'tablet');
       expect(d.governing('desktop', ['gone']), isNull);
       expect(d.governing('gone', ['mobile']), isNull);
-      // On the defaults, 10.x's rule (nearest, the narrower on a tie), for
+      // On the defaults, the nearest breakpoint (the narrower on a tie), for
       // every set of variants.
       const ids = ['mobile', 'tablet', 'desktop'];
       for (var mask = 1; mask < 8; mask++) {

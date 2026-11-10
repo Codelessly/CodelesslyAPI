@@ -1,6 +1,6 @@
-// The behaviours 10.x master added: motion's shimmer, arc, phase, pause and
+// Behaviours: motion's shimmer, arc, phase, pause and
 // path pacing, loop phases, effect cycles, gesture physics and bounds,
-// drag tracks' new settings, flip cards, tilt, transform gestures, hero
+// drag tracks' settings, flip cards, tilt, transform gestures, hero
 // placeholders, and a node's insert key.
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';

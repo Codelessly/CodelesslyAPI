@@ -24,8 +24,8 @@ final class CanvasBreakpoint {
   /// when it names none (its [minWidth] alone places it).
   final String? breakpointId;
 
-  /// Where this canvas starts showing when not at its breakpoint's min width
-  /// (a 10.x layout group's lower bound): its own switch point.
+  /// Where this canvas starts showing when not at its breakpoint's min width:
+  /// its own switch point.
   final double? minWidth;
 
   /// The width this canvas starts showing at, by the project's [breakpoints].

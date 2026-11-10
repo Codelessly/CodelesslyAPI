@@ -13,9 +13,6 @@
 Every document carries `"schema": 2` (`kSchemaVersion`). Decoders upgrade any older schema on load
 (`LayoutDocument.migrateSchema`, `schemaMigrations`), so the format can evolve without breaking stored data.
 
-Schema 1 is the format of `codelessly_api` 10.x and older. It is **not** read by this version. Every project
-stored by Codelessly has already been converted.
-
 ### Total decoding
 
 ![The messy input from this section, with what is dropped, defaulted, kept and decoded without a spec](images/03-json-format/total-decoding.png)

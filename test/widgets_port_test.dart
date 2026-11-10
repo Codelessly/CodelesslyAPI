@@ -1,5 +1,5 @@
-// Fields master's 10.x added to text, values, rows/columns, lists and the new
-// widget types, as models.
+// Fields of text, values, rows/columns, lists and the newer widget types, as
+// models.
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 

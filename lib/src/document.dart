@@ -9,8 +9,7 @@ const int kSchemaVersion = 2;
 /// One step that upgrades a document's JSON from schema `n - 1` to `n`.
 typedef SchemaMigration = Json Function(Json document);
 
-/// Upgrades for schemas after 2, by the version they produce. 10.x (API 6.x)
-/// data isn't read here: it was converted once.
+/// Upgrades for schemas after 2, by the version they produce.
 const Map<int, SchemaMigration> schemaMigrations = {};
 
 /// A layout: a set of node trees (one per canvas/screen) in one flat map.
