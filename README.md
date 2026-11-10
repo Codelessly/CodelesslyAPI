@@ -1,3 +1,14 @@
+> [!IMPORTANT]
+> **This README describes the legacy model, version 10.x (v1).** The code at the root of this repository
+> (`BaseNode` and its subclasses, json_serializable) is kept for the tools that still read v1 documents, including
+> the v1 to v2 converter in [`v2/migrate`](v2/migrate).
+>
+> **The current model is version 20.x, in [`v2/`](v2/)**: it is what `codelessly_api` on pub.dev is.
+>
+> - [codelessly_api 20 README](v2/README.md)
+> - [Guide to the model](docs/guide/README.md)
+> - [The migrate package (v1 to v2)](docs/guide/06-migrate-package.md)
+
 **This is a lower-level package for constructing an abstract, universal data representation of UI. If you're looking for
 the developer SDK, use the [Codelessly CloudUI™ SDK](https://pub.dev/packages/codelessly_sdk).**
 
