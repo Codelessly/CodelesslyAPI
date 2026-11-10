@@ -1,0 +1,628 @@
+// Reactions as declared fields, for generated editors (the editor's
+// properties panel): a trigger's fields, the fields every action has, and
+// each action type's own fields, under their JSON keys, with the defaults
+// their classes omit from the JSON (actions.dart, triggers.dart).
+//
+// An action's JSON is `{"type": type, ...its fields, "enabled", "nonBlocking",
+// "when"}` (ActionDef.toJson); an editor reads the fields listed here off it
+// and writes them back, keeping keys it doesn't list.
+import 'actions.dart';
+import 'behaviour_fields.dart' show AnimationCurveCodec, motionType;
+import 'behaviours.dart' show AnimationCurve, DragDirection, Motion;
+import 'json.dart' show readMap;
+import 'props.dart';
+import 'route_transition.dart';
+import 'scripts.dart';
+import 'triggers.dart';
+import 'values/color.dart';
+import 'variables.dart' show VariableType;
+
+/// An action type, as an editor shows it.
+final class ActionSpec {
+  const ActionSpec(this.type, {required this.label, required this.fields, this.doc = ''});
+
+  /// The JSON `type` (`ActionDef.type`).
+  final String type;
+  final String label;
+
+  /// Its own fields (not [ActionCommonFields]).
+  final List<PropDef<Object?>> fields;
+  final String doc;
+}
+
+/// The fields every action has.
+abstract final class ActionCommonFields {
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true, doc: 'False skips the action.');
+  static const nonBlocking = PropDef<bool>('nonBlocking', Codecs.bool, false,
+      doc: 'The chain doesn\'t wait for it, and its failure doesn\'t stop the chain.');
+
+  /// A predicate (conditions.dart); null: always.
+  static const when = PropDef<Object?>('when', Codecs.any, null, doc: 'Runs only when it holds.');
+  static const List<PropDef<Object?>> all = [enabled, nonBlocking, when];
+}
+
+/// A reaction's trigger (`Trigger`, its JSON keys).
+abstract final class TriggerFields {
+  static const type = PropDef<TriggerType>('type', EnumCodec(TriggerType.values), TriggerType.click);
+  static const debounceMs = PropDef<int>('debounceMs', Codecs.int, 0);
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+  static const intervalMs = PropDef<int>('intervalMs', Codecs.int, 1000);
+  static const key = PropDef<String>('key', Codecs.string, '');
+  static const when = PropDef<String>('when', Codecs.string, '');
+  static const holdMs = PropDef<int>('holdMs', Codecs.int, kDefaultHoldMs);
+  static const every = PropDef<String>('every', Codecs.string, '');
+  static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
+  static const lookaheadMs = PropDef<int>('lookaheadMs', Codecs.int, 100);
+  static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
+  static const List<PropDef<Object?>> all = [
+    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, //
+  ];
+}
+
+Object? _out(Object? v) => v == null ? null : (v as dynamic).toJson();
+const _curve = AnimationCurveCodec();
+
+// --- route transitions ----------------------------------------------------------
+
+const routeTransitionType = PropType.object('RouteTransition', routeTransitionFields);
+const transitionSideType = PropType.object('TransitionSide', transitionSideFields);
+const transitionRevealType = PropType.object('TransitionReveal', transitionRevealFields);
+const routeDismissType = PropType.object('RouteDismiss', routeDismissFields);
+const transitionSpringType = PropType.object('TransitionSpring', transitionSpringFields);
+
+/// [RouteTransition]; a bare preset name reads as that preset.
+const routeTransitionCodec = ValueCodec<RouteTransition?>(RouteTransition.fromJson, _out, routeTransitionType);
+
+abstract final class RouteTransitionFields {
+  static const preset = PropDef<RouteTransitionPreset?>('preset', OptionalEnumCodec(RouteTransitionPreset.values), null,
+      doc: 'A ready-made transition; the sides given override its own.');
+  static const _side = ValueCodec<TransitionSide?>(TransitionSide.fromJson, _out, transitionSideType);
+  static const enter = PropDef<TransitionSide?>('enter', _side, null, doc: 'Where the incoming screen starts.');
+  static const exit = PropDef<TransitionSide?>('exit', _side, null, doc: 'Where the covered screen ends.');
+  static const popEnter = PropDef<TransitionSide?>('popEnter', _side, null, doc: 'Null: exit reversed.');
+  static const popExit = PropDef<TransitionSide?>('popExit', _side, null, doc: 'Null: enter reversed.');
+  static const durationMs = PropDef<int?>('durationMs', Codecs.optionalInt, null, doc: 'Null: the preset\'s (300).');
+  static const reverseDurationMs = PropDef<int?>('reverseDurationMs', Codecs.optionalInt, null);
+  static const barrierColor = PropDef<Color?>('barrierColor', Codecs.optionalColor, null);
+  static const opaque = PropDef<bool?>('opaque', Codecs.optionalBool, null);
+  static const swipeBack = PropDef<RouteSwipeBack?>('swipeBack', OptionalEnumCodec(RouteSwipeBack.values), null);
+  static const dismiss = PropDef<RouteDismiss?>(
+      'dismiss', ValueCodec<RouteDismiss?>(RouteDismiss.fromJson, _out, routeDismissType), null,
+      doc: 'A drag that closes the screen.');
+  static const List<PropDef<Object?>> all = [
+    preset, enter, exit, popEnter, popExit, durationMs, reverseDurationMs, barrierColor, opaque, swipeBack, dismiss, //
+  ];
+}
+
+List<PropDef<Object?>> routeTransitionFields() => RouteTransitionFields.all;
+
+abstract final class TransitionSideFields {
+  static const motion = PropDef<Motion>('motion', ValueCodec<Motion>(_motionIn, _out, motionType), Motion.none,
+      doc: 'The values it moves from (entering) or to (leaving).');
+  static const reveal = PropDef<TransitionReveal?>(
+      'reveal', ValueCodec<TransitionReveal?>(TransitionReveal.fromJson, _out, transitionRevealType), null);
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.fastOutSlowIn);
+  static const delayMs = PropDef<int>('delayMs', IntCodec(min: 0), 0);
+  static const durationMs = PropDef<int?>('durationMs', Codecs.optionalInt, null, doc: 'Null: to the end.');
+  static const List<PropDef<Object?>> all = [motion, reveal, curve, delayMs, durationMs];
+}
+
+Motion? _motionIn(Object? j) => readMap(j) == null ? null : Motion.fromJson(j);
+
+List<PropDef<Object?>> transitionSideFields() => TransitionSideFields.all;
+
+abstract final class TransitionRevealFields {
+  static const shape = PropDef<RevealShape>('shape', EnumCodec(RevealShape.values), RevealShape.circle);
+  static const origin = PropDef<RevealOrigin>('origin', EnumCodec(RevealOrigin.values), RevealOrigin.tap);
+  static const x = PropDef<double>('x', Codecs.double, 0);
+  static const y = PropDef<double>('y', Codecs.double, 0);
+  static const startRadius = PropDef<double>('startRadius', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [shape, origin, x, y, startRadius];
+}
+
+List<PropDef<Object?>> transitionRevealFields() => TransitionRevealFields.all;
+
+abstract final class RouteDismissFields {
+  static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.down);
+  static const distance = PropDef<double>('distance', Codecs.double, 0.25);
+  static const velocity = PropDef<double>('velocity', Codecs.double, 700);
+  static const spring = PropDef<TransitionSpring>(
+      'spring', ValueCodec<TransitionSpring>(TransitionSpring.fromJson, _out, transitionSpringType), TransitionSpring());
+  static const List<PropDef<Object?>> all = [direction, distance, velocity, spring];
+}
+
+List<PropDef<Object?>> routeDismissFields() => RouteDismissFields.all;
+
+abstract final class TransitionSpringFields {
+  static const stiffness = PropDef<double>('stiffness', Codecs.double, 380);
+  static const damping = PropDef<double>('damping', Codecs.double, 36);
+  static const mass = PropDef<double>('mass', Codecs.double, 1);
+  static const List<PropDef<Object?>> all = [stiffness, damping, mass];
+}
+
+List<PropDef<Object?>> transitionSpringFields() => TransitionSpringFields.all;
+
+// --- scripts ----------------------------------------------------------------------
+
+const scriptType = PropType.object('ScriptDef', scriptFields);
+
+/// [ScriptDef] (a layout's `scripts`).
+abstract final class ScriptFields {
+  static const id = PropDef<String>('id', Codecs.string, '');
+  static const name = PropDef<String>('name', Codecs.string, '', doc: 'A JavaScript identifier: script.<name>(...).');
+  static const description = PropDef<String>('description', Codecs.string, '');
+  static const params = PropDef<Object?>('params', Codecs.any, null, doc: '[{"name", "description", "defaultValue"}].');
+  static const source = PropDef<String>('source', Codecs.string, '', doc: 'JavaScript.');
+  static const version = PropDef<int>('version', Codecs.int, 1);
+  static const capabilities = PropDef<List<String>>('capabilities', Codecs.strings, [],
+      doc: 'What it may do: variables.read, variables.write, nodes.read, navigation, api, cloud, actions, clock.');
+  static const timeoutMs = PropDef<int>('timeoutMs', IntCodec(min: 1), ScriptDef.defaultTimeoutMs);
+  static const memoryLimitMb = PropDef<int>('memoryLimitMb', IntCodec(min: 1), ScriptDef.defaultMemoryLimitMb);
+  static const pageId = PropDef<String?>('pageId', Codecs.optionalString, null, doc: 'Null: a project script.');
+  static const tests = PropDef<Object?>('tests', Codecs.any, null,
+      doc: 'Sample runs: [{"name", "args", "vars", "nodes", "expect", "expectError"}].');
+  static const List<PropDef<Object?>> all = [
+    id, name, description, params, source, version, capabilities, timeoutMs, memoryLimitMb, pageId, tests, //
+  ];
+}
+
+List<PropDef<Object?>> scriptFields() => ScriptFields.all;
+
+/// [NavigateAction].
+abstract final class NavigateFields {
+  static const mode = PropDef<NavigationMode>('mode', EnumCodec(NavigationMode.values), NavigationMode.push);
+  static const to = PropDef<String>('to', Codecs.string, '', doc: 'A screen (canvas) or layout id.');
+  static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Values the destination reads as \${route.<name>}.');
+  static const base = PropDef<String>('base', Codecs.string, '');
+  static const baseParams = PropDef<Object?>('baseParams', Codecs.any, null);
+  static const transition = PropDef<PageTransition>('transition', EnumCodec(PageTransition.values), PageTransition.platform);
+  static const transitionMs = PropDef<int?>('transitionMs', Codecs.optionalInt, null);
+  static const reverseTransitionMs = PropDef<int?>('reverseTransitionMs', Codecs.optionalInt, null);
+  static const routeTransition = PropDef<RouteTransition?>('routeTransition', routeTransitionCodec, null,
+      doc: 'A custom transition; replaces transition and its times.');
+  static const List<PropDef<Object?>> all = [
+    mode, to, params, base, baseParams, transition, transitionMs, reverseTransitionMs, routeTransition, //
+  ];
+}
+
+/// The [ValueWrite] keys, stored flat in [SetVariableAction],
+/// [SetStorageAction] and [CloudDocumentsAction] JSON.
+abstract final class ValueWriteFields {
+  static const op = PropDef<WriteOp>('op', EnumCodec(WriteOp.values), WriteOp.set, doc: 'How the value changes.');
+  static const value = PropDef<String>('value', Codecs.string, '', doc: 'The value (an expression); not for toggle, removeAt.');
+  static const index = PropDef<String>('index', Codecs.string, '', doc: 'A list index (an expression).');
+  static const mapKey = PropDef<String>('mapKey', Codecs.string, '', doc: 'A map key (an expression).');
+  static const List<PropDef<Object?>> all = [op, value, index, mapKey];
+}
+
+/// [OpenModalAction].
+abstract final class OpenModalFields {
+  static const to = PropDef<String>('to', Codecs.string, '', doc: 'The screen (canvas) shown.');
+  static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Values the modal reads as \${route.<name>}.');
+  static const presentation =
+      PropDef<ModalPresentation>('presentation', EnumCodec(ModalPresentation.values), ModalPresentation.dialog);
+  static const barrierDismissible = PropDef<bool>('barrierDismissible', Codecs.bool, true);
+  static const barrierColor = PropDef<Color?>('barrierColor', Codecs.optionalColor, null, doc: 'Null: the default scrim.');
+  static const barrierBlur = PropDef<double>('barrierBlur', Codecs.double, 0);
+  static const showCloseButton = PropDef<bool>('showCloseButton', Codecs.bool, false);
+  static const showDragHandle = PropDef<bool>('showDragHandle', Codecs.bool, false);
+  static const alignment = PropDef<List<double>>('alignment', Codecs.doubles, [0, 0], doc: 'A dialog\'s alignment, [x, y] (-1 to 1).');
+  static const anchor = PropDef<ModalAnchor>('anchor', EnumCodec(ModalAnchor.values), ModalAnchor.none);
+  static const placement = PropDef<PopoverPlacement>('placement', EnumCodec(PopoverPlacement.values), PopoverPlacement.belowStart);
+  static const anchorGap = PropDef<double>('anchorGap', Codecs.double, 4);
+  static const anchorOffset = PropDef<double>('anchorOffset', Codecs.double, 0);
+  static const insets = PropDef<List<double>>('insets', Codecs.doubles, [0, 0, 0, 0],
+      doc: 'Space kept around a dialog: left, top, right, bottom.');
+  static const sheetWidth = PropDef<double?>('sheetWidth', Codecs.optionalDouble, null);
+  static const sheetBelow = PropDef<String>('sheetBelow', Codecs.string, '',
+      doc: 'Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second).');
+  static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
+  static const fullHeight = PropDef<bool>('fullHeight', Codecs.bool, false);
+  static const enterScale = PropDef<double>('enterScale', Codecs.double, 1);
+  static const routeTransition = PropDef<RouteTransition?>('routeTransition', routeTransitionCodec, null,
+      doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
+  static const List<PropDef<Object?>> all = [
+    to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showCloseButton, showDragHandle, //
+    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetBelow, maxHeightFactor,
+    fullHeight, enterScale, routeTransition,
+  ];
+}
+
+/// [CloseModalAction].
+abstract final class CloseModalFields {
+  static const result = PropDef<Object?>('result', Codecs.any, null,
+      doc: 'What the opening chain reads as \${result}; text values are expressions.');
+  static const List<PropDef<Object?>> all = [result];
+}
+
+/// [OpenLinkAction].
+abstract final class OpenLinkFields {
+  static const url = PropDef<String>('url', Codecs.string, '', doc: 'A web page, mailto:, tel: or app link.');
+  static const List<PropDef<Object?>> all = [url];
+}
+
+/// [SubmitFormAction].
+abstract final class SubmitFormFields {
+  static const service = PropDef<FormService>('service', EnumCodec(FormService.values), FormService.mailchimp);
+  static const emailField = PropDef<String>('emailField', Codecs.string, '', doc: 'The email text field\'s node id.');
+  static const apiKey = PropDef<String>('apiKey', Codecs.string, '');
+  static const dataCenter = PropDef<String>('dataCenter', Codecs.string, '');
+  static const listId = PropDef<String>('listId', Codecs.string, '');
+  static const firstNameField = PropDef<String>('firstNameField', Codecs.string, '');
+  static const lastNameField = PropDef<String>('lastNameField', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [service, emailField, apiKey, dataCenter, listId, firstNameField, lastNameField];
+}
+
+/// [SetValueAction].
+abstract final class SetValueFields {
+  static const node = PropDef<String>('node', Codecs.string, '');
+  static const values = PropDef<Object?>('values', Codecs.any, null,
+      doc: 'The properties set: [{"path", "value" | "mode"}].');
+  static const List<PropDef<Object?>> all = [node, values];
+}
+
+/// [SetVariantAction].
+abstract final class SetVariantFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A variance node.');
+  static const variant = PropDef<String>('variant', Codecs.string, '', doc: 'The variant\'s id (an expression).');
+  static const List<PropDef<Object?>> all = [node, variant];
+}
+
+/// [SetVariableAction].
+abstract final class SetVariableFields {
+  static const variable = PropDef<String>('variable', Codecs.string, '',
+      doc: 'The variable\'s name; a path into it sets that part.');
+  static const animateMs = PropDef<String>('animateMs', Codecs.string, '',
+      doc: 'A number: glide to the new value over these milliseconds (an expression).');
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear, doc: 'The glide\'s easing.');
+  static const List<PropDef<Object?>> all = [variable, ...ValueWriteFields.all, animateMs, curve];
+}
+
+/// [AnimateVariableAction].
+abstract final class AnimateVariableFields {
+  static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'A number variable.');
+  static const mode = PropDef<AnimateVariableMode>('mode', EnumCodec(AnimateVariableMode.values), AnimateVariableMode.play);
+  static const from = PropDef<String>('from', Codecs.string, '', doc: 'Play: the start (empty: the value now).');
+  static const to = PropDef<String>('to', Codecs.string, '1', doc: 'Play: the end; seek: the value to jump to.');
+  static const durationMs = PropDef<int>('durationMs', Codecs.int, 1000);
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'An expression giving milliseconds.');
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
+  static const List<PropDef<Object?>> all = [variable, mode, from, to, durationMs, duration, curve];
+}
+
+/// [CallFunctionAction].
+abstract final class CallFunctionFields {
+  static const name = PropDef<String>('name', Codecs.string, '', doc: 'The function the app registered.');
+  static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Its arguments; text values are expressions.');
+  static const List<PropDef<Object?>> all = [name, params];
+}
+
+/// [CallApiAction].
+abstract final class CallApiFields {
+  static const api = PropDef<String>('api', Codecs.string, '', doc: 'An API of services.apis.');
+  static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Its inputs, by name (expressions).');
+  static const onSuccess = PropDef<Object?>('onSuccess', Codecs.any, null, doc: 'Nested actions: run after a 2xx response.');
+  static const onError = PropDef<Object?>('onError', Codecs.any, null, doc: 'Nested actions: run after a failure.');
+  static const List<PropDef<Object?>> all = [api, params, onSuccess, onError];
+}
+
+/// [SetStorageAction].
+abstract final class SetStorageFields {
+  static const operation = PropDef<StorageOperation>('operation', EnumCodec(StorageOperation.values), StorageOperation.write);
+  static const key = PropDef<String>('key', Codecs.string, '', doc: 'The key; may be a path. Not for clear.');
+  static const valueType = PropDef<VariableType>('valueType', EnumCodec(VariableType.values), VariableType.text,
+      doc: 'How the written value is read (write only).');
+  static const skipIfExists = PropDef<bool>('skipIfExists', Codecs.bool, false, doc: 'Leaves a key that has a value.');
+  static const List<PropDef<Object?>> all = [operation, key, valueType, ...ValueWriteFields.all, skipIfExists];
+}
+
+/// [CloudDocumentsAction].
+abstract final class CloudDocumentsFields {
+  static const operation = PropDef<CloudDocumentsOperation>(
+      'operation', EnumCodec(CloudDocumentsOperation.values), CloudDocumentsOperation.add);
+  static const path = PropDef<String>('path', Codecs.string, '', doc: 'The collection path (an expression).');
+  static const id = PropDef<String>('id', Codecs.string, '', doc: 'The document id (an expression).');
+  static const autoId = PropDef<bool>('autoId', Codecs.bool, false, doc: 'Add: a generated id.');
+  static const skipIfExists = PropDef<bool>('skipIfExists', Codecs.bool, true, doc: 'Add only.');
+  static const document = PropDef<String>('document', Codecs.string, '',
+      doc: 'The document (add) or documents (setMany): an expression, or JSON text.');
+  static const raw = PropDef<bool>('raw', Codecs.bool, false, doc: 'The document is taken as written: no expressions.');
+  static const field = PropDef<String>('field', Codecs.string, '', doc: 'Update: the field (a path).');
+  static const valueType = PropDef<VariableType>('valueType', EnumCodec(VariableType.values), VariableType.text,
+      doc: 'Update only.');
+  static const ids = PropDef<String>('ids', Codecs.string, '', doc: 'RemoveMany: ids, comma separated or a list.');
+  static const whereFilters = PropDef<Object?>('whereFilters', Codecs.any, null, doc: 'RemoveMany: the filters.');
+  static const idField = PropDef<String>('idField', Codecs.string, 'id');
+  static const merge = PropDef<bool>('merge', Codecs.bool, false);
+  static const replaceCollection = PropDef<bool>('replaceCollection', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [
+    operation, path, id, autoId, skipIfExists, document, raw, field, valueType, ...ValueWriteFields.all, //
+    ids, whereFilters, idField, merge, replaceCollection,
+  ];
+}
+
+/// [LoadCloudDataAction].
+abstract final class LoadCloudDataFields {
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+  static const single = PropDef<bool>('single', Codecs.bool, true, doc: 'One document, or the query\'s documents.');
+  static const id = PropDef<String>('id', Codecs.string, '');
+  static const query = PropDef<Object?>('query', Codecs.any, null,
+      doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
+  static const List<PropDef<Object?>> all = [variable, single, id, query];
+}
+
+/// [AuthAction].
+abstract final class AuthFields {
+  static const operation = PropDef<AuthOperation>('operation', EnumCodec(AuthOperation.values), AuthOperation.signIn);
+  static const email = PropDef<String>('email', Codecs.string, '');
+  static const password = PropDef<String>('password', Codecs.string, '');
+  static const displayName = PropDef<String>('displayName', Codecs.string, '');
+  static const photoUrl = PropDef<String>('photoUrl', Codecs.string, '');
+  static const errorVariable = PropDef<String>('errorVariable', Codecs.string, '', doc: 'Gets a failure\'s message.');
+  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, errorVariable];
+}
+
+/// [IfAction].
+abstract final class IfFields {
+  static const condition = PropDef<Object?>('condition', Codecs.any, null, doc: 'A predicate; null never holds.');
+  static const then = PropDef<Object?>('then', Codecs.any, null, doc: 'Nested actions: run when it holds.');
+  static const orElse = PropDef<Object?>('else', Codecs.any, null, doc: 'Nested actions: run when it doesn\'t.');
+  static const List<PropDef<Object?>> all = [condition, then, orElse];
+}
+
+/// [ForEachAction].
+abstract final class ForEachFields {
+  static const items = PropDef<String>('items', Codecs.string, '', doc: 'A list (a path or expression).');
+  static const actions = PropDef<Object?>('actions', Codecs.any, null,
+      doc: 'Nested actions: run per item (\${loop.item}, \${loop.index}).');
+  static const List<PropDef<Object?>> all = [items, actions];
+}
+
+/// [CloudFilesAction].
+abstract final class CloudFilesFields {
+  static const operation =
+      PropDef<CloudFilesOperation>('operation', EnumCodec(CloudFilesOperation.values), CloudFilesOperation.upload);
+  static const path = PropDef<String>('path', Codecs.string, '', doc: 'The storage folder.');
+  static const kind = PropDef<CloudFileKind>('kind', EnumCodec(CloudFileKind.values), CloudFileKind.image);
+  static const allowMultiple = PropDef<bool>('allowMultiple', Codecs.bool, true);
+  static const maxSizeMB = PropDef<double>('maxSizeMB', Codecs.double, 10);
+  static const progressVariable = PropDef<String>('progressVariable', Codecs.string, '');
+  static const access = PropDef<CloudFileAccess>('access', EnumCodec(CloudFileAccess.values), CloudFileAccess.public);
+  static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run with each file.');
+  static const List<PropDef<Object?>> all = [operation, path, kind, allowMultiple, maxSizeMB, progressVariable, access, actions];
+}
+
+/// [ShowToastAction].
+abstract final class ShowToastFields {
+  static const message = PropDef<String>('message', Codecs.string, '', doc: 'An expression.');
+  static const title = PropDef<String>('title', Codecs.string, '');
+  static const durationMs = PropDef<int>('durationMs', Codecs.int, 2600);
+  static const style = PropDef<ToastStyle>('style', EnumCodec(ToastStyle.values), ToastStyle.neutral);
+  static const position = PropDef<ToastPosition>('position', EnumCodec(ToastPosition.values), ToastPosition.bottom);
+  static const actionLabel = PropDef<String>('actionLabel', Codecs.string, '', doc: 'Its button.');
+  static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run by its button.');
+  static const showClose = PropDef<bool>('showClose', Codecs.bool, false);
+  static const icon = PropDef<Object?>('icon', Codecs.any, null, doc: 'An icon glyph\'s JSON.');
+  static const look = PropDef<Object?>('look', Codecs.any, null,
+      doc: 'Cosmetics, v2 JSON: colors, radius, border, shadows, padding, widths, text styles, offsets, alignment; '
+          'the button\'s actionBackgroundColor, actionBorder, actionCornerRadius, actionShadows; iconShadows; '
+          'rotation (degrees), enterCurve, enterOffset (a share of its height).');
+  static const variables = PropDef<Object?>('variables', Codecs.any, null, doc: 'Style values bound to expressions, by style key.');
+  static const List<PropDef<Object?>> all = [
+    message, title, durationMs, style, position, actionLabel, actions, showClose, icon, look, variables, //
+  ];
+}
+
+/// [ConfirmAction].
+abstract final class ConfirmFields {
+  static const title = PropDef<String>('title', Codecs.string, '');
+  static const message = PropDef<String>('message', Codecs.string, '');
+  static const caption = PropDef<String>('caption', Codecs.string, '');
+  static const confirmLabel = PropDef<String>('confirmLabel', Codecs.string, 'OK');
+  static const cancelLabel = PropDef<String>('cancelLabel', Codecs.string, 'Cancel');
+  static const destructive = PropDef<bool>('destructive', Codecs.bool, false);
+  static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run when confirmed.');
+  static const cancelActions = PropDef<Object?>('cancelActions', Codecs.any, null, doc: 'Nested actions: run when cancelled.');
+  static const dialog = PropDef<String>('dialog', Codecs.string, '', doc: 'A screen id to show as the dialog.');
+  static const params = PropDef<Object?>('params', Codecs.any, null);
+  static const presentation =
+      PropDef<ModalPresentation>('presentation', EnumCodec(ModalPresentation.values), ModalPresentation.dialog);
+  static const placement = PropDef<PopoverPlacement>('placement', EnumCodec(PopoverPlacement.values), PopoverPlacement.belowStart);
+  static const barrierDismissible = PropDef<bool>('barrierDismissible', Codecs.bool, true);
+  static const look = PropDef<Object?>('look', Codecs.any, null,
+      doc: 'Cosmetics, v2 JSON: colors, radius, border, shadows, text styles, button radius/border/shadows; '
+          'confirmBorder, cancelBorder, buttonHeight, expandButtons; icon, iconSize, iconColor, iconDiscColor, '
+          'iconDiscSize, iconDiscBorder; centered, width, maxWidth, insets, padding.');
+  static const variables = PropDef<Object?>('variables', Codecs.any, null, doc: 'Style values bound to expressions, by style key.');
+  static const List<PropDef<Object?>> all = [
+    title, message, caption, confirmLabel, cancelLabel, destructive, actions, cancelActions, dialog, params, //
+    presentation, placement, barrierDismissible, look, variables,
+  ];
+}
+
+/// [DelayAction].
+abstract final class DelayFields {
+  static const ms = PropDef<int>('ms', Codecs.int, 500);
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'A formula giving milliseconds.');
+  static const List<PropDef<Object?>> all = [ms, duration];
+}
+
+/// [CloudDataAction].
+abstract final class CloudDataFields {
+  static const operation = PropDef<CloudDataOperation>('operation', EnumCodec(CloudDataOperation.values), CloudDataOperation.create);
+  static const collection = PropDef<String>('collection', Codecs.string, '');
+  static const id = PropDef<String>('id', Codecs.string, '');
+  static const fields = PropDef<Object?>('fields', Codecs.any, null, doc: 'Field writes: [{"field", "value", "operation"}].');
+  static const whereFilters = PropDef<Object?>('whereFilters', Codecs.any, null);
+  static const orderByFilters = PropDef<Object?>('orderByFilters', Codecs.any, null);
+  static const limit = PropDef<int?>('limit', Codecs.optionalInt, null);
+  static const aggregateField = PropDef<String>('aggregateField', Codecs.string, '');
+  static const loadRelated = PropDef<List<String>>('loadRelated', Codecs.strings, []);
+  static const deleteSubcollections = PropDef<List<String>>('deleteSubcollections', Codecs.strings, []);
+  static const resultVariable = PropDef<String>('resultVariable', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [
+    operation, collection, id, fields, whereFilters, orderByFilters, limit, aggregateField, loadRelated, //
+    deleteSubcollections, resultVariable,
+  ];
+}
+
+/// [CloudBatchAction].
+abstract final class CloudBatchFields {
+  static const steps = PropDef<Object?>('steps', Codecs.any, null, doc: 'Nested cloudData actions.');
+  static const transaction = PropDef<bool>('transaction', Codecs.bool, false, doc: 'All or none.');
+  static const List<PropDef<Object?>> all = [steps, transaction];
+}
+
+/// [CopyToClipboardAction].
+abstract final class CopyToClipboardFields {
+  static const text = PropDef<String>('text', Codecs.string, '', doc: 'An expression.');
+  static const List<PropDef<Object?>> all = [text];
+}
+
+/// [EditTextAction].
+abstract final class EditTextFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A text field.');
+  static const operation = PropDef<EditTextOperation>('operation', EnumCodec(EditTextOperation.values), EditTextOperation.insert);
+  static const text = PropDef<String>('text', Codecs.string, '');
+  static const before = PropDef<String>('before', Codecs.string, '');
+  static const after = PropDef<String?>('after', Codecs.optionalString, null, doc: 'Null: the same as before.');
+  static const numbered = PropDef<bool>('numbered', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [node, operation, text, before, after, numbered];
+}
+
+/// [PaywallAction].
+abstract final class PaywallFields {
+  static const operation = PropDef<PaywallOperation>('operation', EnumCodec(PaywallOperation.values), PaywallOperation.purchase);
+  static const slot = PropDef<String?>('slot', Codecs.optionalString, null);
+  static const url = PropDef<String?>('url', Codecs.optionalString, null, doc: 'A legal link.');
+  static const List<PropDef<Object?>> all = [operation, slot, url];
+}
+
+/// [FocusAction].
+abstract final class FocusFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A text field; empty with unfocus: every field.');
+  static const unfocus = PropDef<bool>('unfocus', Codecs.bool, false);
+  static const selectAll = PropDef<bool>('selectAll', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [node, unfocus, selectAll];
+}
+
+/// [ControlDragAction].
+abstract final class ControlDragFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A draggable node.');
+  static const command = PropDef<DragCommand>('command', EnumCodec(DragCommand.values), DragCommand.fling);
+  static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
+  static const steps = PropDef<String>('steps', Codecs.string, '1', doc: 'Step: how many steps (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, direction, steps];
+}
+
+/// [SpeakAction].
+abstract final class SpeakFields {
+  static const text = PropDef<String>('text', Codecs.string, '');
+  static const language = PropDef<String>('language', Codecs.string, '');
+  static const rate = PropDef<String>('rate', Codecs.string, '1', doc: 'A number or expression.');
+  static const pitch = PropDef<String>('pitch', Codecs.string, '', doc: 'A number or expression.');
+  static const stop = PropDef<bool>('stop', Codecs.bool, false, doc: 'Stops speaking.');
+  static const List<PropDef<Object?>> all = [text, language, rate, pitch, stop];
+}
+
+/// [ScrollToAction].
+abstract final class ScrollToFields {
+  static const node = PropDef<String>('node', Codecs.string, '');
+  static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
+  static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
+  static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+  static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
+      doc: 'Only the scroll views along this axis; null: every one.');
+  static const List<PropDef<Object?>> all = [node, durationMs, curve, alignment, offset, axis];
+}
+
+/// [PlaySoundAction].
+abstract final class PlaySoundFields {
+  static const sound = PropDef<String>('sound', Codecs.string, 'wood', doc: 'A synthesised voice name.');
+  static const volume = PropDef<String>('volume', Codecs.string, '1');
+  static const pitch = PropDef<String>('pitch', Codecs.string, '1');
+  static const at = PropDef<String>('at', Codecs.string, '', doc: 'A time on the sound clock.');
+  static const url = PropDef<String>('url', Codecs.string, '', doc: 'A sound file.');
+  static const List<PropDef<Object?>> all = [sound, volume, pitch, at, url];
+}
+
+/// [PlayAnimationAction].
+abstract final class PlayAnimationFields {
+  static const node = PropDef<String>('node', Codecs.string, '');
+  static const animation = PropDef<String>('animation', Codecs.string, '', doc: 'A one-shot animation (or particles).');
+  static const List<PropDef<Object?>> all = [node, animation];
+}
+
+/// [HapticAction].
+abstract final class HapticFields {
+  static const kind = PropDef<HapticKind>('kind', EnumCodec(HapticKind.values), HapticKind.selection);
+  static const List<PropDef<Object?>> all = [kind];
+}
+
+/// [RunScriptAction].
+abstract final class RunScriptFields {
+  static const script = PropDef<String>('script', Codecs.string, '', doc: 'A script of the layout\'s scripts.');
+  static const arguments = PropDef<Object?>('arguments', Codecs.any, null, doc: 'By parameter name (expressions).');
+  static const resultVariable = PropDef<String>('resultVariable', Codecs.string, '', doc: 'Gets the result.');
+  static const onError = PropDef<Object?>('onError', Codecs.any, null,
+      doc: 'Nested actions: run when it fails (\${result.error}, \${result.logs}).');
+  static const List<PropDef<Object?>> all = [script, arguments, resultVariable, onError];
+}
+
+/// [PaginateAction].
+abstract final class PaginateFields {
+  static const controller = PropDef<String>('controller', Codecs.string, '', doc: 'The pagination\'s name.');
+  static const command = PropDef<PaginateCommand>('command', EnumCodec(PaginateCommand.values), PaginateCommand.next);
+  static const page = PropDef<String>('page', Codecs.string, '1', doc: 'For goTo: a number or an expression.');
+  static const pageSize = PropDef<String>('pageSize', Codecs.string, '20', doc: 'For setPageSize.');
+  static const List<PropDef<Object?>> all = [controller, command, page, pageSize];
+}
+
+/// Every action type an editor can make, by JSON type.
+abstract final class ActionSpecs {
+  static final Map<String, ActionSpec> _all = {
+    for (final s in <ActionSpec>[
+      const ActionSpec(NavigateAction.typeName, label: 'Navigate', fields: NavigateFields.all),
+      const ActionSpec(OpenModalAction.typeName, label: 'Open modal', fields: OpenModalFields.all),
+      const ActionSpec(CloseModalAction.typeName, label: 'Close modal', fields: CloseModalFields.all),
+      const ActionSpec(OpenLinkAction.typeName, label: 'Open link', fields: OpenLinkFields.all),
+      const ActionSpec(SubmitFormAction.typeName, label: 'Submit form', fields: SubmitFormFields.all),
+      const ActionSpec(SetValueAction.typeName, label: 'Set value', fields: SetValueFields.all),
+      const ActionSpec(SetVariantAction.typeName, label: 'Set variant', fields: SetVariantFields.all),
+      const ActionSpec(SetVariableAction.typeName, label: 'Set variable', fields: SetVariableFields.all),
+      const ActionSpec(CallFunctionAction.typeName, label: 'Call function', fields: CallFunctionFields.all),
+      const ActionSpec(CallApiAction.typeName, label: 'Call API', fields: CallApiFields.all),
+      const ActionSpec(SetStorageAction.typeName, label: 'Set storage', fields: SetStorageFields.all),
+      const ActionSpec(CloudDocumentsAction.typeName, label: 'Cloud documents', fields: CloudDocumentsFields.all),
+      const ActionSpec(LoadCloudDataAction.typeName, label: 'Load cloud data', fields: LoadCloudDataFields.all),
+      const ActionSpec(AuthAction.typeName, label: 'Auth', fields: AuthFields.all),
+      const ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all),
+      const ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all),
+      const ActionSpec(CloudFilesAction.typeName, label: 'Cloud files', fields: CloudFilesFields.all),
+      const ActionSpec(ShowToastAction.typeName, label: 'Show toast', fields: ShowToastFields.all),
+      const ActionSpec(ConfirmAction.typeName, label: 'Confirm', fields: ConfirmFields.all),
+      const ActionSpec(DelayAction.typeName, label: 'Delay', fields: DelayFields.all),
+      const ActionSpec(CloudDataAction.typeName, label: 'Cloud data', fields: CloudDataFields.all),
+      const ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all),
+      const ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all),
+      const ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all),
+      const ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all),
+      const ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all),
+      const ActionSpec(ControlDragAction.typeName, label: 'Control drag', fields: ControlDragFields.all),
+      const ActionSpec(SpeakAction.typeName, label: 'Speak', fields: SpeakFields.all),
+      const ActionSpec(ScrollToAction.typeName, label: 'Scroll to', fields: ScrollToFields.all),
+      const ActionSpec(PlaySoundAction.typeName, label: 'Play sound', fields: PlaySoundFields.all),
+      const ActionSpec(PlayAnimationAction.typeName, label: 'Play animation', fields: PlayAnimationFields.all),
+      const ActionSpec(AnimateVariableAction.typeName, label: 'Animate variable', fields: AnimateVariableFields.all),
+      const ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all),
+      const ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all),
+      const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
+    ])
+      s.type: s,
+  };
+
+  static Iterable<ActionSpec> get all => _all.values;
+
+  static ActionSpec? of(String type) => _all[type];
+}

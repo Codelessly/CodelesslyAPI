@@ -90,6 +90,14 @@ abstract class DefaultShapeNode extends SceneNode
     );
   }
 
+  /// Paints drawn over this node's children, inside its corners: a
+  /// translucent solid (`#66000000`) or a gradient that dims or tints the
+  /// whole box, text included, like Flutter's `foregroundDecoration`. Each
+  /// paint's colour can be bound through `variables['foreground-<paint
+  /// id>']`. They take no taps. Empty (the default) draws nothing.
+  @JsonKey(defaultValue: [])
+  List<PaintModel> foregroundFills = [];
+
   @override
   String toString() => '\n$type [${super.toString()}]';
 }
@@ -289,6 +297,16 @@ mixin BlendMixin on BaseNode {
   late bool isMask;
 
   /// List of effects applied to the node.
+  @FlutterProp(
+    'effects',
+    type: 'array',
+    group: 'Effects',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Serialized node effects; individual shadow fields live in list items.',
+  )
   late List<Effect> effects;
 
   /// Whether to use ink well on this node, along with its properties.
@@ -538,6 +556,19 @@ enum StrokeCapEnum {
   square,
 }
 
+/// How a stroke's segments meet at corners.
+/// Corresponds to [StrokeJoin] in Flutter.
+enum StrokeJoinEnum {
+  /// Sharp corners, cut off past the miter limit.
+  miter,
+
+  /// Rounded corners.
+  round,
+
+  /// Corners cut flat.
+  bevel,
+}
+
 /// An enum representing the side or sides of a shape that a stroke should be
 /// applied to.
 enum StrokeSide {
@@ -664,13 +695,40 @@ mixin GeometryMixin on BaseNode {
   /// A list of fills applied to the node. This can be a solid color or a
   /// gradient or an image. Refer [PaintModel.type] for more info on supported
   /// types of fill.
+  @FlutterProp(
+    'fills',
+    type: 'array',
+    group: 'Fill',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized paints; image crop/transform fields live in list items.',
+  )
   late List<PaintModel> fills;
 
   /// A list of strokes applied to the node. Only solid color type of fill is
   /// supported at the moment.
+  @FlutterProp(
+    'strokes',
+    type: 'array',
+    group: 'Stroke',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized stroke paints; item color is not a top-level field.',
+  )
   List<PaintModel> strokes = [];
 
   /// Thickness/weight of the stroke.
+  @FlutterProp(
+    'strokeWeight',
+    type: 'number',
+    group: 'Stroke',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly node stroke width, not a Flutter constructor argument.',
+  )
   double strokeWeight = 0;
 
   /// The limit for miters to be drawn on segments for given stroke join.
@@ -685,6 +743,15 @@ mixin GeometryMixin on BaseNode {
 
   /// The pattern of dashes and gaps to apply to the stroke in case of dashed
   /// stroke.
+  @FlutterProp(
+    'dashPattern',
+    type: 'array',
+    group: 'Stroke',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly stroke dash/gap sequence, serialized as a number array.',
+  )
   late List<double> dashPattern;
 
   /// Side of the shape to apply the stroke to.
@@ -852,12 +919,42 @@ mixin ShapeBorderMixin {
   late CShapeBorder shape;
 
   /// Radius of the corners of the border.
+  @FlutterProp(
+    'cornerRadius',
+    type: 'object',
+    group: 'Appearance',
+    control: 'radius',
+    field: 'properties.cornerRadius',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Persisted property border corner-radius object.',
+  )
   late CornerRadius cornerRadius;
 
   /// Thickness of the border.
+  @FlutterProp(
+    'borderWidth',
+    type: 'number',
+    group: 'Appearance',
+    control: 'number',
+    field: 'properties.borderWidth',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border width.',
+  )
   double? borderWidth;
 
   /// Color of the border.
+  @FlutterProp(
+    'borderColor',
+    type: 'object',
+    group: 'Appearance',
+    control: 'color',
+    field: 'properties.borderColor',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Optional persisted property border color.',
+  )
   ColorRGBA? borderColor;
 
   /// Sets the properties of this mixin.
@@ -913,18 +1010,44 @@ mixin ShapeBorderMixin {
 /// rounded corners.
 mixin CornerMixin on BaseNode {
   /// Level of pixel smoothing applied to the corners.
+  @FlutterProp(
+    'cornerSmoothing',
+    type: 'number',
+    group: 'Corners',
+    control: 'number',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly corner smoothing of the serialized node.',
+  )
   late double cornerSmoothing;
 
   /// Radius of the corners of the node.
+  @FlutterProp(
+    'cornerRadius',
+    type: 'object',
+    group: 'Corners',
+    control: 'radius',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Node corner-radius object; corner subfields are not top-level fields.',
+  )
   late CornerRadius cornerRadius;
+
+  /// Semicircular bites out of the node's edges (a ticket's notches). The
+  /// node's fills, strokes, shadows and clipped children follow the notched
+  /// outline.
+  late List<NotchModel> notches;
 
   /// Sets the properties of this mixin.
   void setCornerMixin({
     required CornerRadius cornerRadius,
     required double cornerSmoothing,
+    List<NotchModel> notches = const [],
   }) {
     this.cornerRadius = cornerRadius;
     this.cornerSmoothing = cornerSmoothing;
+    this.notches = notches;
   }
 
   @override
@@ -1101,7 +1224,7 @@ mixin PropertyVariableMixin on BaseNode {
   /// action, on any node that has them.
   late final List<ValueModel> propertyVariables = [
     BoolValue(name: 'visible', value: visible),
-    IntValue(name: 'rotationDegrees', value: rotationDegrees),
+    IntValue(name: 'rotationDegrees', value: rotationDegrees.round()),
     DoubleValue(name: 'drawScale', value: drawScale),
     if (this case final GeometryMixin geometry) ...[
       PaintValue(name: 'fill', value: geometry.fills.firstOrNull),
@@ -1118,6 +1241,12 @@ mixin PropertyVariableMixin on BaseNode {
             ((text.textMixedProps.firstOrNull?.fontName.weight?.index ?? 3) +
                 1) *
             100,
+      ),
+      StringValue(
+        name: 'textDecoration',
+        value: (text.textMixedProps.firstOrNull?.textDecoration ??
+                TextDecorationEnum.none)
+            .name,
       ),
     ],
     if (this case final BlendMixin blend) ...[
@@ -1540,8 +1669,15 @@ mixin PortalMixin on BaseNode {
   }
 }
 
-/// Type casts rotation value to integer.
-int castRotation(dynamic v) => (v as num?)?.toInt() ?? 0;
+/// Reads a rotation in degrees from JSON: a number (fractional degrees such
+/// as -4.6 are kept) or numeric text. Anything else is 0.
+num castRotation(dynamic v) {
+  final num? degrees = v is String ? num.tryParse(v) : v as num?;
+  if (degrees == null || !degrees.isFinite) return 0;
+  // Whole degrees stay ints, so JSON saved before fractional rotations reads
+  // and writes back the same.
+  return degrees == degrees.roundToDouble() ? degrees.toInt() : degrees;
+}
 
 /// Base mixin for providing [toJson] method to every class for
 /// JSON serialization.

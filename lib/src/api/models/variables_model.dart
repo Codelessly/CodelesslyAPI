@@ -155,8 +155,29 @@ class VariableData
   /// formula reads changes.
   final String formula;
 
+  /// The [extra] key that marks a variable kept across app launches.
+  static const String persistKey = 'persist';
+
+  /// Whether the app keeps this variable's value on the device: at launch
+  /// it starts from the value it had last time (from local storage), not
+  /// from [value], and every change is saved. For app and page variables,
+  /// e.g. a draft, a list the user builds up or a hive log kept between
+  /// visits. Computed variables can't persist.
+  bool get persists => extra[persistKey] == true && !isComputed;
+
   /// Whether this variable has a separate [formula] or a formula in [value].
   bool get isComputed => formula.trim().isNotEmpty || isFormulaValue(value);
+
+  /// Names of the parameters of a function variable, in order. A computed
+  /// variable with parameters is a function: formulas call it by name,
+  /// `legalMoves(board, sq)`, and its [formula] computes the result from the
+  /// arguments, read by these names, and any other variable. Empty for every
+  /// other variable.
+  @JsonKey(defaultValue: <String>[])
+  final List<String> parameters;
+
+  /// Whether this variable is a function: a [formula] with [parameters].
+  bool get isFunction => parameters.isNotEmpty && isComputed;
 
   /// Creates a new [VariableData].
   VariableData({
@@ -166,8 +187,10 @@ class VariableData
     this.type = VariableType.text,
     Map<String, dynamic>? extra,
     this.formula = '',
+    List<String>? parameters,
   }) : value = sanitizeValueForVariableType(value, type) ?? '',
-       extra = extra ?? {};
+       extra = extra ?? {},
+       parameters = parameters ?? const [];
 
   /// Duplicate a [VariableData] with the given parameters.
   VariableData copyWith({
@@ -179,6 +202,7 @@ class VariableData
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -190,12 +214,13 @@ class VariableData
       type: type ?? this.type,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 
   @override
   // Changes to either the formula or metadata change the variable.
-  List<Object?> get props => [id, name, value, type, formula, extra];
+  List<Object?> get props => [id, name, value, type, formula, parameters, extra];
 
   @override
   int compareTo(VariableData other) => name.compareTo(other.name);
@@ -218,6 +243,7 @@ class VariableData
     type: type,
     extra: extra,
     formula: formula,
+    parameters: parameters,
   );
 
   /// Returns the value converted to the appropriate type according to [type].
@@ -236,9 +262,32 @@ class VariableData
           VariableType.decimal => num.tryParse(value).toDouble(),
           VariableType.boolean => bool.tryParse(value, caseSensitive: false),
           VariableType.color => ColorRGBA.fromHex(value),
-          VariableType.map => tryJsonDecode(value),
-          VariableType.list => value.toList(),
+          VariableType.map || VariableType.list => _decoded(),
         };
+
+  /// Decoded lists and maps by variable: [value] is JSON text that every
+  /// read would otherwise parse again, and a screen of bindings reads a
+  /// data list (tens of kilobytes) many times per frame. A variable never
+  /// changes its value (a change makes a new [VariableData]), so the result
+  /// is kept for the instance. Callers copy before they change it.
+  static final Expando<_Decoded> _decodedValues = Expando<_Decoded>();
+
+  Object? _decoded() {
+    final _Decoded? cached = _decodedValues[this];
+    if (cached != null && identical(cached.source, value)) return cached.value;
+    final Object? decoded = type == VariableType.map
+        ? tryJsonDecode(value)
+        : value.toList();
+    _decodedValues[this] = _Decoded(value, decoded);
+    return decoded;
+  }
+}
+
+/// A [VariableData] value decoded from [source].
+class _Decoded {
+  const _Decoded(this.source, this.value);
+  final String source;
+  final Object? value;
 }
 
 /// Whether [value] is exactly one formula, `${= ...}`: a computed
@@ -321,6 +370,7 @@ class CanvasVariableData extends VariableData {
     super.value,
     super.extra,
     super.formula,
+    super.parameters,
   });
 
   @override
@@ -334,6 +384,7 @@ class CanvasVariableData extends VariableData {
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -346,6 +397,7 @@ class CanvasVariableData extends VariableData {
       canvasId: canvasId ?? this.canvasId,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 
@@ -382,6 +434,7 @@ class RuntimeVariableData extends VariableData {
     super.type = VariableType.text,
     super.extra,
     super.formula,
+    super.parameters,
   }) : super(id: id ?? generateId());
 
   @override
@@ -394,6 +447,7 @@ class RuntimeVariableData extends VariableData {
     Set<String>? nodes,
     Map<String, dynamic>? extra,
     String? formula,
+    List<String>? parameters,
   }) {
     final String? sanitizedValue = value == null
         ? null
@@ -405,6 +459,7 @@ class RuntimeVariableData extends VariableData {
       type: type ?? this.type,
       extra: extra ?? this.extra,
       formula: formula ?? this.formula,
+      parameters: parameters ?? this.parameters,
     );
   }
 }

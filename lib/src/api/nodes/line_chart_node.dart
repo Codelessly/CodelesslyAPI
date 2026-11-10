@@ -36,7 +36,8 @@ const double kLineChartDefaultHeight = 240;
 ///   of the plot. `[{"y": 0, "label": "0", "color": "#CFC3AA"}]`; `label`
 ///   and `color` are optional (the color defaults to
 ///   [LineChartProperties.gridColor], or
-///   [LineChartProperties.zeroLineColor] when y is 0).
+///   [LineChartProperties.zeroLineColor] when y is 0). `"align": "start"`
+///   puts a label at the chart's left edge instead.
 /// - `areaBands`: parts of the area under the curve, inside x in
 ///   [from, to] and below y = `below`, filled with `color`, plus an
 ///   optional 4 px bar on the x axis in `barColor`.
@@ -49,7 +50,11 @@ const double kLineChartDefaultHeight = 240;
 ///   `[{"x": "2026-10-22 00:00", "label": "12a"}]`
 /// - `markers`: points with a circle and a label above or below.
 ///   `[{"x": x, "y": 5.0, "label": "H 5.0", "filled": false,
-///   "above": true}]`
+///   "above": true}]`. Each marker may style itself: `color` (fill),
+///   `radius` (default 5), `outlineColor`/`outlineWidth` (default the line
+///   colour, 2; 0 for none), `haloColor`/`haloRadius` (a disc behind it),
+///   e.g. a result-coloured dot: `{"color": "#4F7A4A", "radius": 3.5,
+///   "outlineWidth": 0, "haloColor": "#F4E8CE", "haloRadius": 4.5}`.
 /// - `verticalLines`: dashed vertical lines with an optional tag above the
 ///   plot and an optional dot on the curve. `[{"x": x, "color": "#1F2B2E",
 ///   "dash": [3, 3], "label": "NOW", "dotOnCurve": true,

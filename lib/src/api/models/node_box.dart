@@ -736,7 +736,7 @@ class InnerNodeBox extends NodeBox {
 /// of this class.
 class RotatedNodeBox extends NodeBox {
   /// The rotation of the box in degrees.
-  late final int rotationDegrees;
+  late final num rotationDegrees;
 
   /// The constructor for [RotatedNodeBox]. It takes the same parameters as
   /// [NodeBox] with the addition of [rotationDegrees].
@@ -759,7 +759,7 @@ class RotatedNodeBox extends NodeBox {
     double? y,
     double? width,
     double? height,
-    int? rotationDegrees,
+    num? rotationDegrees,
   }) {
     return RotatedNodeBox(
       x ?? this.x,

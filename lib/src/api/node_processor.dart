@@ -104,7 +104,7 @@ extension BaseNodeUpdateExtension on BaseNode {
     OuterNodeBox? outerBoxGlobal,
     NodeBox? middleBoxLocal,
     BoxConstraintsModel? constraints,
-    int? rotationDegrees,
+    num? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,
@@ -127,7 +127,7 @@ extension BaseNodeUpdateExtension on BaseNode {
   );
 
   /// Sets rotation for this node.
-  void setNodeRotation(int newRotationDegrees) {
+  void setNodeRotation(num newRotationDegrees) {
     _rotationDegrees = newRotationDegrees;
     _rotationRadians = newRotationDegrees * pi / 180;
   }
@@ -135,7 +135,7 @@ extension BaseNodeUpdateExtension on BaseNode {
   /// Updates rotation for this node recursively for its children as well if
   /// [updateChildren] is true.
   void updateNodeRotation(
-    int newRotationDegrees, {
+    num newRotationDegrees, {
     bool updateChildren = true,
   }) {
     setNodeRotation(newRotationDegrees);
@@ -189,7 +189,7 @@ class NodeProcessor {
       final BoxConstraintsModel? relegatedConstraints = parent
           .relegatedConstraintsToChildren(node);
       if (relegatedConstraints != null) {
-        resolved = resolved.union(resolved);
+        resolved = resolved.union(relegatedConstraints);
       }
     }
 
@@ -199,7 +199,7 @@ class NodeProcessor {
   /// Update the global rotation for given [node] with [newRotationDegrees].
   static void updateGlobalRotation({
     required BaseNode node,
-    required int newRotationDegrees,
+    required num newRotationDegrees,
     bool updateChildren = true,
   }) {
     if (node.id == kRootNode) {
@@ -338,7 +338,7 @@ class NodeProcessor {
     NodeBox? basicBoxLocal,
     BoxConstraintsModel? constraints,
     BoxConstraintsModel? resolvedConstraints,
-    int? rotationDegrees,
+    num? rotationDegrees,
     bool resetRetainedBox = true,
     bool recursivelyCalculateChildrenGlobalBoxes = true,
     Vec? globalParentBoundingBoxPos,

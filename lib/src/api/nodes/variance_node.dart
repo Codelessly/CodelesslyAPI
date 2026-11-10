@@ -80,7 +80,17 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   /// The variant a responsive node shows on a canvas [width] wide, or the
   /// current variant when the node is not responsive.
   Variant variantForWidth(double width) =>
-      variantForBreakpoint(ScreenBreakpoint.forWidth(width)) ?? currentVariant;
+      variantForBreakpoint(breakpointForWidth(width)) ?? currentVariant;
+
+  /// The breakpoint this responsive node shows at [width], by its own
+  /// [VarianceProperties.tabletMinWidth] and
+  /// [VarianceProperties.desktopMinWidth] when it has them.
+  ScreenBreakpoint breakpointForWidth(double width) =>
+      ScreenBreakpoint.forWidth(
+        width,
+        tabletMinWidth: properties.tabletMinWidth,
+        desktopMinWidth: properties.desktopMinWidth,
+      );
 
   /// Whether this node shows the status of a cloud list: it has a variant
   /// with the id of a query status ([kQueryStatusLoading],
@@ -106,7 +116,12 @@ class VarianceNode extends SinglePlaceholderNode with CustomPropertiesMixin {
   }
 
   /// Currently loaded variant's ID.
-  @FlutterProp('currentVariantId', type: 'string', group: 'State', control: 'text')
+  @FlutterProp(
+    'currentVariantId',
+    type: 'string',
+    group: 'State',
+    control: 'text',
+  )
   late String currentVariantId;
 
   /// Currently loaded variant.
@@ -259,8 +274,17 @@ class Variant with SerializableMixin, Equatable {
 /// [VarianceProperties] is used to store custom properties of a [VarianceNode].
 @JsonSerializable()
 class VarianceProperties extends CustomProperties {
+  /// The narrowest width a responsive layout shows its tablet layout at,
+  /// when not [ScreenBreakpoint.tablet]'s 600.
+  final double? tabletMinWidth;
+
+  /// The narrowest width a responsive layout shows its desktop layout at,
+  /// when not [ScreenBreakpoint.desktop]'s 1024 (an app designed to switch
+  /// at 1100, say).
+  final double? desktopMinWidth;
+
   /// Creates a [VarianceProperties] instance with the given data.
-  const VarianceProperties();
+  const VarianceProperties({this.tabletMinWidth, this.desktopMinWidth});
 
   @override
   Map<String, dynamic> toJson() =>
@@ -271,5 +295,5 @@ class VarianceProperties extends CustomProperties {
       _$VariancePropertiesFromJson(json);
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [tabletMinWidth, desktopMinWidth];
 }

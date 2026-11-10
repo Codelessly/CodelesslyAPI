@@ -21,6 +21,8 @@ Map<String, dynamic> _$LoopAnimationOmitDefaults(
   if (isJsonDefault(instance.opacityFrom, 1)) json.remove('opacityFrom');
   if (isJsonDefault(instance.opacityTo, 1)) json.remove('opacityTo');
   if (isJsonDefault(instance.turns, 1)) json.remove('turns');
+  if (isJsonDefault(instance.distance, 10)) json.remove('distance');
+  if (isJsonDefault(instance.angle, 4)) json.remove('angle');
   return json;
 }
 
@@ -50,6 +52,8 @@ LoopAnimation _$LoopAnimationFromJson(Map json) => LoopAnimation(
   opacityFrom: (json['opacityFrom'] as num?)?.toDouble() ?? 1,
   opacityTo: (json['opacityTo'] as num?)?.toDouble() ?? 1,
   turns: (json['turns'] as num?)?.toDouble() ?? 1,
+  distance: (json['distance'] as num?)?.toDouble() ?? 10,
+  angle: (json['angle'] as num?)?.toDouble() ?? 4,
 );
 
 Map<String, dynamic> _$LoopAnimationToJson(LoopAnimation instance) =>
@@ -65,6 +69,8 @@ Map<String, dynamic> _$LoopAnimationToJson(LoopAnimation instance) =>
       'opacityFrom': instance.opacityFrom,
       'opacityTo': instance.opacityTo,
       'turns': instance.turns,
+      'distance': instance.distance,
+      'angle': instance.angle,
     };
 
 const _$LoopAnimationTypeEnumMap = {
@@ -72,6 +78,8 @@ const _$LoopAnimationTypeEnumMap = {
   LoopAnimationType.fade: 'fade',
   LoopAnimationType.scale: 'scale',
   LoopAnimationType.spin: 'spin',
+  LoopAnimationType.bob: 'bob',
+  LoopAnimationType.sway: 'sway',
 };
 
 const _$LoopAnimationCurveEnumMap = {

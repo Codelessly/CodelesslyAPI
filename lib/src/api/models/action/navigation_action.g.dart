@@ -13,6 +13,8 @@ Map<String, dynamic> _$NavigationActionOmitDefaults(
   if (isJsonDefault(instance.navigationType, NavigationType.push))
     json.remove('navigationType');
   if (isJsonDefault(instance.destinationId, null)) json.remove('destinationId');
+  if (isJsonDefault(instance.transition, PageTransition.platform))
+    json.remove('transition');
   if (isJsonDefault(instance.nonBlocking, false)) json.remove('nonBlocking');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   return json;
@@ -32,6 +34,14 @@ NavigationAction _$NavigationActionFromJson(Map json) => NavigationAction(
   baseParams: (json['baseParams'] as Map?)?.map(
     (k, e) => MapEntry(k as String, e),
   ),
+  transition:
+      $enumDecodeNullable(_$PageTransitionEnumMap, json['transition']) ??
+      PageTransition.platform,
+  transitionMs: (json['transitionMs'] as num?)?.toInt(),
+  reverseTransitionMs: (json['reverseTransitionMs'] as num?)?.toInt(),
+  routeTransition: json['routeTransition'] == null
+      ? null
+      : RouteTransition.fromJson(json['routeTransition'] as Object),
   nonBlocking: json['nonBlocking'] as bool? ?? false,
   enabled: json['enabled'] as bool? ?? true,
 )..type = $enumDecode(_$ActionTypeEnumMap, json['type']);
@@ -46,6 +56,10 @@ Map<String, dynamic> _$NavigationActionToJson(NavigationAction instance) =>
       'params': instance.params,
       'baseDestinationId': ?instance.baseDestinationId,
       'baseParams': ?instance.baseParams,
+      'transition': _$PageTransitionEnumMap[instance.transition]!,
+      'transitionMs': ?instance.transitionMs,
+      'reverseTransitionMs': ?instance.reverseTransitionMs,
+      'routeTransition': ?instance.routeTransition?.toJson(),
     };
 
 const _$NavigationTypeEnumMap = {
@@ -53,6 +67,16 @@ const _$NavigationTypeEnumMap = {
   NavigationType.pop: 'pop',
   NavigationType.replace: 'replace',
   NavigationType.reset: 'reset',
+};
+
+const _$PageTransitionEnumMap = {
+  PageTransition.platform: 'platform',
+  PageTransition.none: 'none',
+  PageTransition.fade: 'fade',
+  PageTransition.fadeUp: 'fadeUp',
+  PageTransition.slideUp: 'slideUp',
+  PageTransition.slideLeft: 'slideLeft',
+  PageTransition.scale: 'scale',
 };
 
 const _$ActionTypeEnumMap = {
@@ -79,6 +103,16 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
+  ActionType.editText: 'editText',
   ActionType.paywall: 'paywall',
   ActionType.focus: 'focus',
+  ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
+  ActionType.playSound: 'playSound',
+  ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
+  ActionType.paginate: 'paginate',
+  ActionType.runScript: 'runScript',
 };

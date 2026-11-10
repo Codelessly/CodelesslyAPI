@@ -19,12 +19,19 @@ Map<String, dynamic> _$TabsNodeOmitDefaults(
 ) {
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.interactionStates, {}))
     json.remove('interactionStates');
   if (isJsonDefault(instance.tooltip, '')) json.remove('tooltip');
   if (isJsonDefault(instance.zoomable, false)) json.remove('zoomable');
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -99,6 +106,8 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..verticalFit = $enumDecode(_$SizeFitEnumMap, json['verticalFit'])
       ..flex = (json['flex'] as num).toInt()
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..aspectRatioLock = json['aspectRatioLock'] as bool
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
@@ -133,6 +142,48 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..children =
           (json['children'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -141,7 +192,6 @@ TabsNode _$TabsNodeFromJson(Map json) =>
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
-  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -157,6 +207,9 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'widthFactor': ?instance.widthFactor,
@@ -174,6 +227,22 @@ Map<String, dynamic> _$TabsNodeToJson(TabsNode instance) => <String, dynamic>{
   'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'children': instance.children,
   'type': instance.type,
   'tabs': instance.tabs.map((e) => e.toJson()).toList(),
@@ -203,4 +272,19 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };

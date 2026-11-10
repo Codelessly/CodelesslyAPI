@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+
 import '../../schema/flutter_prop.dart';
 
 import '../../../codelessly_api.dart';
@@ -27,16 +28,68 @@ class ListViewNode extends SinglePlaceholderNode
   bool get isScrollingEnforced => true;
 
   @override
+  List<TriggerType> get triggerTypes => [
+    TriggerType.scrollEnd,
+    TriggerType.reorder,
+    TriggerType.refresh,
+    TriggerType.swipeAction,
+  ];
+
+  @override
   bool get canBeMarked => true;
 
   /// The properties of the [ListView].
   @override
   covariant ListViewProperties properties;
 
+  /// The key in [BaseNode.variables] of a list whose value, evaluated for
+  /// each item (it reads `${item}` and `${index}`), identifies that item,
+  /// e.g. `${item.id}`. Items are matched by it when the list rebuilds, so
+  /// an item keeps its state, and its motion animates from where it was,
+  /// when its position or paint order changes (a card moving back in a
+  /// deck). Items whose keys repeat, or are null, are matched by index.
+  static const String itemKeyVariable = 'itemKey';
+
+  /// The key in [BaseNode.variables] of a stacked list (see
+  /// [ListViewProperties.stacked] and [ListLayout.stack]) whose value,
+  /// evaluated for each item, orders the painting: items with a higher
+  /// number are drawn over items with a lower one, and take taps first,
+  /// e.g. `${= -depth}` to draw the front card of a deck last. Items with
+  /// the same value keep the list's paint order (see
+  /// [ListViewProperties.reversePaintOrder]).
+  static const String itemZIndexVariable = 'itemZIndex';
+
   /// A text variable this ListView writes the status of its cloud query into,
   /// for loading, empty and error states: [kQueryStatusLoading],
   /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
   VariableData? statusVariable;
+
+  /// Loads the list's items page by page, shown a page at a time or as an
+  /// endless list, with pull to refresh; see [PaginationModel]. Null for a
+  /// list that shows all of its data (or pages a cloud query by [paging]).
+  PaginationModel? pagination;
+
+  /// Groups the items under section headers that can stay pinned while
+  /// their section scrolls, with an A–Z index; see [ListSectionsModel].
+  ListSectionsModel? sections;
+
+  /// Lets the user drag the items to a new place, within the list or into
+  /// other lists; see [ReorderModel].
+  ReorderModel? reorder;
+
+  /// Actions revealed by swiping an item sideways (delete, archive) with
+  /// undo; see [SwipeActionsModel].
+  SwipeActionsModel? swipeActions;
+
+  /// The ids of the children that are not the item template: the
+  /// pagination's footers, the sections' header and the reorder
+  /// placeholder. They are built by the list, not as items.
+  List<String> get slotNodeIds => [
+    ...?pagination?.slotNodeIds,
+    if (sections?.headerNodeId.isNotEmpty == true) sections!.headerNodeId,
+    if (reorder?.placeholderNodeId.isNotEmpty == true)
+      reorder!.placeholderNodeId,
+  ];
 
   @override
   BoxConstraintsModel? relegatedConstraintsToChildren(BaseNode child) {
@@ -75,6 +128,10 @@ class ListViewNode extends SinglePlaceholderNode
     super.multipleVariables,
     bool clipsContent = true,
     this.statusVariable,
+    this.pagination,
+    this.sections,
+    this.reorder,
+    this.swipeActions,
 
     // [CloudDatabaseMixin] properties.
     bool useCloudDatabase = false,
@@ -212,7 +269,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   int? itemCount;
 
   /// The forced-size of each item in the list view in the scroll axis.
-  @FlutterProp('itemExtent', type: 'number', group: 'Layout', control: 'number', field: 'properties.itemExtent')
+  @FlutterProp(
+    'itemExtent',
+    type: 'number',
+    group: 'Layout',
+    control: 'number',
+    field: 'properties.itemExtent',
+  )
   double? itemExtent;
 
   /// The number of pixels by which to allow pre-rendering of items outside
@@ -264,6 +327,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
   /// is true. Maps to Flutter's [WrapAlignment] by name.
   MainAxisAlignmentC wrapAlignment;
 
+  /// How the items of a line are placed across it when [wrap] is true (a
+  /// short tag chip centered on a row of taller buttons). Start, center or
+  /// end; maps to Flutter's [WrapCrossAlignment] by name.
+  CrossAxisAlignmentC wrapCrossAlignment;
+
   /// Whether this list wraps its items instead of using either stack mode.
   bool get isWrapping => wrap && !stacked && layout == ListLayout.list;
 
@@ -274,6 +342,32 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
 
   /// Position-based layout added by PR49, distinct from centered [stacked].
   ListLayout layout;
+
+  /// Flips the order a [stacked] list or a [ListLayout.stack] list paints
+  /// its items in. A stacked list normally draws the first item on top; a
+  /// positional stack draws the last item on top. Items with a bound
+  /// [ListViewNode.itemZIndexVariable] are painted by that value first, and
+  /// this order only breaks ties. Ignored by lists that don't layer their
+  /// items.
+  bool reversePaintOrder;
+
+  /// Whether every item is as thick across the list as the thickest item
+  /// beside it, like `crossAxisAlignment: stretch` in a Row or CSS
+  /// `align-items: stretch`: equal-height cards in a horizontal list, or
+  /// equal-height tiles in each run of a wrapping list.
+  ///
+  /// * A list that builds all its items (it doesn't scroll, hugs its items
+  ///   and has a known item count): every item is as thick as the thickest
+  ///   item, so the list hugs that.
+  /// * A wrapping list: every item is as thick as the thickest item of its
+  ///   run.
+  /// * A scrolling list: every item fills the list's cross extent.
+  ///
+  /// An item may then fill the cross axis (`verticalFit: expanded` in a
+  /// horizontal list) even when the list shrink-wraps it. Items that can't
+  /// report their intrinsic size (a list, grid or page view inside them)
+  /// keep their own thickness.
+  bool stretchItems;
 
   /// Creates a new [ListViewProperties] instance.
   ListViewProperties({
@@ -289,7 +383,10 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     this.wrapSpacing = 0,
     this.wrapRunSpacing = 0,
     this.wrapAlignment = MainAxisAlignmentC.start,
+    this.wrapCrossAlignment = CrossAxisAlignmentC.start,
     this.runSpacing = 0,
+    this.reversePaintOrder = false,
+    this.stretchItems = false,
     DividerProperties? dividerProperties,
   }) : dividerProperties = dividerProperties ?? DividerProperties() {
     if (stacked && layout == ListLayout.stack) {
@@ -318,9 +415,12 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     double? wrapSpacing,
     double? wrapRunSpacing,
     MainAxisAlignmentC? wrapAlignment,
+    CrossAxisAlignmentC? wrapCrossAlignment,
     DividerProperties? dividerProperties,
     double? runSpacing,
     ListLayout? layout,
+    bool? reversePaintOrder,
+    bool? stretchItems,
   }) {
     return ListViewProperties(
       layout: layout ?? this.layout,
@@ -329,6 +429,7 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       wrapSpacing: wrapSpacing ?? this.wrapSpacing,
       wrapRunSpacing: wrapRunSpacing ?? this.wrapRunSpacing,
       wrapAlignment: wrapAlignment ?? this.wrapAlignment,
+      wrapCrossAlignment: wrapCrossAlignment ?? this.wrapCrossAlignment,
       itemCount: itemCount ?? this.itemCount,
       itemExtent: itemExtent ?? this.itemExtent,
       cacheExtent: cacheExtent ?? this.cacheExtent,
@@ -337,6 +438,8 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       hasSeparator: hasSeparator ?? this.hasSeparator,
       dividerProperties: dividerProperties ?? this.dividerProperties,
       runSpacing: runSpacing ?? this.runSpacing,
+      reversePaintOrder: reversePaintOrder ?? this.reversePaintOrder,
+      stretchItems: stretchItems ?? this.stretchItems,
     );
   }
 
@@ -382,6 +485,19 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       options: () => MainAxisAlignmentC.values,
       requiresLayout: true,
     ),
+    'wrapCrossAlignment': EnumFieldAccess<CrossAxisAlignmentC>(
+      'Wrap Cross Alignment',
+      'How the items of a line of a wrapping list are placed across it.',
+      () => wrapCrossAlignment,
+      (value) => wrapCrossAlignment = value,
+      defaultValue: () => CrossAxisAlignmentC.start,
+      options: () => const <CrossAxisAlignmentC>[
+        CrossAxisAlignmentC.start,
+        CrossAxisAlignmentC.center,
+        CrossAxisAlignmentC.end,
+      ],
+      requiresLayout: true,
+    ),
     'hasSeparator': BoolFieldAccess(
       'Has Separator',
       'Whether to use a separator between list view items.',
@@ -421,6 +537,21 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
       (value) => dividerProperties = value,
       requiresLayout: true,
     ),
+    'reversePaintOrder': BoolFieldAccess(
+      'Reverse Paint Order',
+      'Draw the items of a stacked list in the opposite order: the last item '
+          'on top of a stacked list, the first on top of a positional stack.',
+      () => reversePaintOrder,
+      (value) => reversePaintOrder = value,
+    ),
+    'stretchItems': BoolFieldAccess(
+      'Stretch Items',
+      'Make every item as thick across the list as the thickest item '
+          'beside it (of its run, in a wrapping list).',
+      () => stretchItems,
+      (value) => stretchItems = value,
+      requiresLayout: true,
+    ),
     'runSpacing': NumFieldAccess<double>(
       'Run Gap',
       'The gap between runs when the items wrap.',
@@ -454,6 +585,13 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
         'Conflicting centered and positional stack modes',
       );
     }
+    // `overlay: true` (6.1.0 and before) layered the items in the list's box,
+    // each placed by its position variables: today's positional stack.
+    if (json['overlay'] == true &&
+        json['layout'] == null &&
+        json['stacked'] != true) {
+      return _$ListViewPropertiesFromJson({...json, 'layout': 'stack'});
+    }
     return _$ListViewPropertiesFromJson(json);
   }
 
@@ -470,8 +608,11 @@ class ListViewProperties extends CustomProperties with FieldsHolder {
     wrapSpacing,
     wrapRunSpacing,
     wrapAlignment,
+    wrapCrossAlignment,
     dividerProperties,
     runSpacing,
     layout,
+    reversePaintOrder,
+    stretchItems,
   ];
 }

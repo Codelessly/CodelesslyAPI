@@ -10,6 +10,10 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
   RectangleNode instance,
   Map<String, dynamic> json,
 ) {
+  if (isJsonDefault(instance.strokeJoin, StrokeJoinEnum.miter))
+    json.remove('strokeJoin');
+  if (isJsonDefault(instance.foregroundFills, []))
+    json.remove('foregroundFills');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -24,6 +28,9 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -40,6 +47,10 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -69,6 +80,7 @@ Map<String, dynamic> _$RectangleNodeOmitDefaults(
     json.remove('cornerSmoothing');
   if (isJsonDefault(instance.cornerRadius, CornerRadius.zero))
     json.remove('cornerRadius');
+  if (isJsonDefault(instance.notches, const [])) json.remove('notches');
   if (isJsonDefault(instance.clipsContent, true)) json.remove('clipsContent');
   return json;
 }
@@ -171,9 +183,21 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
         cornerRadius: json['cornerRadius'] == null
             ? CornerRadius.zero
             : CornerRadius.fromJson(json['cornerRadius']),
+        notches:
+            (json['notches'] as List<dynamic>?)
+                ?.map((e) => NotchModel.fromJson(e as Map))
+                .toList() ??
+            const [],
         clipsContent: json['clipsContent'] as bool? ?? true,
+        path: json['path'] as String?,
+        strokeJoin:
+            $enumDecodeNullable(
+              _$StrokeJoinEnumEnumMap,
+              json['strokeJoin'],
+              unknownValue: StrokeJoinEnum.miter,
+            ) ??
+            StrokeJoinEnum.miter,
       )
-      ..squeezable = json['squeezable'] as bool? ?? false
       ..variables =
           (json['variables'] as Map?)?.map(
             (k, e) => MapEntry(k as String, e as String),
@@ -198,6 +222,9 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
             (k, e) => MapEntry(k as String, e),
           ) ??
           {}
+      ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -230,6 +257,48 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..inkWell = json['inkWell'] == null
           ? null
           : InkWellModel.fromJson(
@@ -238,67 +307,95 @@ RectangleNode _$RectangleNodeFromJson(Map json) =>
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
+      ..foregroundFills =
+          (json['foregroundFills'] as List<dynamic>?)
+              ?.map((e) => PaintModel.fromJson(e as Map))
+              .toList() ??
+          []
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$RectangleNodeToJson(RectangleNode instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'squeezable': instance.squeezable,
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'alignment': instance.alignment.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'widthFactor': ?instance.widthFactor,
-      'heightFactor': ?instance.heightFactor,
-      'interactionStates': instance.interactionStates.map(
-        (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
-      ),
-      'tooltip': instance.tooltip,
-      'zoomable': instance.zoomable,
-      'loopAnimation': ?instance.loopAnimation?.toJson(),
-      'transitionMs': instance.transitionMs,
-      'drawScale': instance.drawScale,
-      'pulse': ?instance.pulse?.toJson(),
-      'draggable': ?instance.draggable?.toJson(),
-      'dropTarget': ?instance.dropTarget?.toJson(),
-      'enabled': instance.enabled,
-      'motion': ?instance.motion?.toJson(),
-      'opacity': instance.opacity,
-      'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
-      'isMask': instance.isMask,
-      'effects': instance.effects.map((e) => e.toJson()).toList(),
-      'inkWell': ?instance.inkWell?.toJson(),
-      'transition': ?instance.transition?.toJson(),
-      'fills': instance.fills.map((e) => e.toJson()).toList(),
-      'strokes': instance.strokes.map((e) => e.toJson()).toList(),
-      'strokeWeight': instance.strokeWeight,
-      'strokeMiterLimit': instance.strokeMiterLimit,
-      'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,
-      'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
-      'dashPattern': instance.dashPattern,
-      'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
-      'clipsContent': instance.clipsContent,
-      'cornerSmoothing': instance.cornerSmoothing,
-      'cornerRadius': instance.cornerRadius.toJson(),
-      'type': instance.type,
-    };
+Map<String, dynamic> _$RectangleNodeToJson(
+  RectangleNode instance,
+) => <String, dynamic>{
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
+  'id': instance.id,
+  'name': instance.name,
+  'visible': instance.visible,
+  'constraints': instance.constraints.toJson(),
+  'edgePins': instance.edgePins.toJson(),
+  'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+  'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+  'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+  'flex': instance.flex,
+  'squeezable': instance.squeezable,
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
+  'aspectRatioLock': instance.aspectRatioLock,
+  'alignment': instance.alignment.toJson(),
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
+  'widthFactor': ?instance.widthFactor,
+  'heightFactor': ?instance.heightFactor,
+  'interactionStates': instance.interactionStates.map(
+    (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+  ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
+  'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
+  'opacity': instance.opacity,
+  'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
+  'isMask': instance.isMask,
+  'effects': instance.effects.map((e) => e.toJson()).toList(),
+  'inkWell': ?instance.inkWell?.toJson(),
+  'transition': ?instance.transition?.toJson(),
+  'fills': instance.fills.map((e) => e.toJson()).toList(),
+  'strokes': instance.strokes.map((e) => e.toJson()).toList(),
+  'strokeWeight': instance.strokeWeight,
+  'strokeMiterLimit': instance.strokeMiterLimit,
+  'strokeAlign': _$StrokeAlignCEnumMap[instance.strokeAlign]!,
+  'strokeCap': _$StrokeCapEnumEnumMap[instance.strokeCap]!,
+  'dashPattern': instance.dashPattern,
+  'strokeSide': _$StrokeSideEnumMap[instance.strokeSide]!,
+  'clipsContent': instance.clipsContent,
+  'foregroundFills': instance.foregroundFills.map((e) => e.toJson()).toList(),
+  'cornerSmoothing': instance.cornerSmoothing,
+  'cornerRadius': instance.cornerRadius.toJson(),
+  'notches': instance.notches.map((e) => e.toJson()).toList(),
+  'type': instance.type,
+  'path': ?instance.path,
+  'strokeJoin': _$StrokeJoinEnumEnumMap[instance.strokeJoin]!,
+};
 
 const _$BlendModeCEnumMap = {
   BlendModeC.clear: 'clear',
@@ -365,6 +462,12 @@ const _$PositioningModeEnumMap = {
   PositioningMode.pin: 'pin',
 };
 
+const _$StrokeJoinEnumEnumMap = {
+  StrokeJoinEnum.miter: 'miter',
+  StrokeJoinEnum.round: 'round',
+  StrokeJoinEnum.bevel: 'bevel',
+};
+
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
@@ -376,4 +479,19 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
