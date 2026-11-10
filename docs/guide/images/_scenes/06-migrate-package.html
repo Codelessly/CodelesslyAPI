@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: the pipeline -->
+<tut-stage name="hero" w="800" h="440" bg="solid">
+  <div class="hd"><div class="t">The migrate package: v1 to v2, once</div><div class="s">Only for v1 documents you hold yourself. Projects in Codelessly's backend are converted for you.</div></div>
+  <div class="dn gray" id="v1" style="left:40px;top:150px;width:140px"><div class="k">v1 JSON</div><div class="d">10.x documents</div></div>
+  <div class="dn blue" id="mg" style="left:240px;top:130px;width:200px;height:110px"><div class="k">codelessly_migrate</div><div class="d">Reads v1 with <span class="m">codelessly_api</span> 10.x. Never imports v2.</div></div>
+  <div class="dn" id="v2" style="left:500px;top:150px;width:110px"><div class="k">v2 JSON</div><div class="m" style="font-size:11.5px">Map</div></div>
+  <div class="dn green" id="ld" style="left:650px;top:150px;width:110px"><div class="k">20.x</div><div class="m" style="font-size:11px">LayoutDocument</div></div>
+  <tut-connector from="#v1" to="#mg" route="straight"></tut-connector>
+  <tut-connector from="#mg" to="#v2" route="straight"></tut-connector>
+  <tut-connector from="#v2" to="#ld" route="straight"></tut-connector>
+  <div class="dn" style="left:40px;top:290px;width:720px"><div class="k">MigrationReport</div><div class="d">What didn't map cleanly: <span class="m">unmapped</span>, <span class="m">unportedTypes</span>, <span class="m">undecodable</span>, <span class="m">unmappedBindings</span>, <span class="m">ineffectiveBindings</span>. A clean migration has them empty.</div></div>
+</tut-stage>
+
+<!-- What changes in a document -->
+<tut-stage name="mapping" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">What changes in a document</div><div class="s">The full mapping is in <span class="m">v2/DESIGN.md</span>, section 6.</div></div>
+  <div class="dn" style="left:40px;top:100px;width:720px;padding:0;overflow:hidden">
+    <table style="border-collapse:collapse;width:100%;font-size:12.5px">
+      <tr style="background:var(--bg1)"><th style="text-align:left;padding:8px 14px;color:var(--fg1);font-weight:600;width:46%">v1</th><th></th><th style="text-align:left;padding:8px 14px;color:var(--fg1);font-weight:600">v2</th></tr>
+      <tr><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">frame, rectangle with children</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">stack</td></tr>
+      <tr><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">rectangle</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">box</td></tr>
+      <tr><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">rowColumn</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td class="m" style="padding:7px 14px;border-top:1px solid var(--line)">row or column</td></tr>
+      <tr><td style="padding:7px 14px;border-top:1px solid var(--line)">Stored boxes, pins, positioning mode</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td style="padding:7px 14px;border-top:1px solid var(--line)"><span class="m">layout</span>: one fit and one position per axis</td></tr>
+      <tr><td style="padding:7px 14px;border-top:1px solid var(--line)">v1 defaults</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td style="padding:7px 14px;border-top:1px solid var(--line)">Flutter's defaults; v1 values written where they differ</td></tr>
+      <tr><td style="padding:7px 14px;border-top:1px solid var(--line)"><span class="m">variables</span> binding keys</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td style="padding:7px 14px;border-top:1px solid var(--line)"><span class="m">bind</span> paths (<span class="m">fill</span> → <span class="m">decoration.fills[0]</span>)</td></tr>
+      <tr><td style="padding:7px 14px;border-top:1px solid var(--line)">One reaction per action</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td style="padding:7px 14px;border-top:1px solid var(--line)">Reactions with chains</td></tr>
+      <tr><td style="padding:7px 14px;border-top:1px solid var(--line)">Variable values as text</td><td style="border-top:1px solid var(--line);color:var(--fg2)">→</td><td style="padding:7px 14px;border-top:1px solid var(--line)">Typed values; <span class="m">${= ...}</span> becomes a <span class="m">formula</span></td></tr>
+    </table></div>
+</tut-stage>
+
+<!-- From the command line -->
+<tut-stage name="cli" w="800" h="400" bg="solid">
+  <div class="hd"><div class="t">From the command line</div><div class="s"><span class="m">migrate_pages</span> prints coverage: how many nodes, and what was not mapped.</div></div>
+  <tut-terminal at="40,100" w="720" title="v2/migrate">
+$ cd v2/migrate
+$ dart pub get
+# A directory of stored v1 page documents to v2 layout documents.
+$ dart run bin/migrate_pages.dart &lt;in-dir&gt; &lt;out-dir&gt;
+# A v2 publish bundle (gzipped JSON) from v1 page documents.
+$ dart run bin/publish_fixture.dart &lt;out.json.gz&gt; &lt;page.json.gz&gt;...
+  </tut-terminal>
+  <div class="at" style="left:40px;top:320px;width:720px;font-size:12.5px;color:var(--fg1);line-height:1.6"><span class="m">publish_fixture</span> treats canvases named <span class="m">&lt;Screen&gt; · M</span>, <span class="m">· T</span> and <span class="m">· D</span> on one page as one layout with three breakpoints.</div>
+</tut-stage>
+</body></html>

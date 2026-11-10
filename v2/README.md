@@ -4,6 +4,10 @@ Flutter's widgets and layouts as plain, immutable data, with a JSON format. This
 [Codelessly Editor](https://codelessly.com) and the [Codelessly SDK](https://pub.dev/packages/codelessly_sdk):
 nodes, layouts, variables, conditions, actions, scripts, breakpoints and published apps.
 
+![codelessly_api between the Editor, which saves layouts, and the SDK, which renders them; your tools read, build, check and transform layouts](https://raw.githubusercontent.com/Codelessly/CodelesslyAPI/master/docs/guide/images/index/hero.png)
+
+*The model, between the Editor and the SDK.*
+
 Pure Dart: no Flutter, no network, two small dependencies (`collection`, `meta`).
 
 > **Looking to show Codelessly screens in a Flutter app?** Use

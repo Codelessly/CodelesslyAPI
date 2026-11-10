@@ -5,6 +5,10 @@
 `v2/migrate` (`codelessly_migrate`) converts documents in the 10.x format (v1) to the 20.x format (v2). It is a
 separate, unpublished package (`publish_to: none`) in this repository.
 
+![v1 JSON is read with codelessly_api 10.x by codelessly_migrate, which writes v2 JSON that codelessly_api 20.x decodes; a MigrationReport says what did not map](images/06-migrate-package/hero.png)
+
+*v1 to v2, once per document.*
+
 You need it only if you hold v1 documents yourself: exported pages, fixtures, a self-hosted mirror. Projects in
 Codelessly's backend are converted by Codelessly's own tooling, which uses this package; app developers don't run
 it ([SDK guide: Migrating from 10.x](https://github.com/Codelessly/CodelesslySDK/blob/master/docs/guide/16-migrating-from-10.md)).
@@ -29,6 +33,10 @@ dart pub get
 ```
 
 ### From the command line
+
+![Terminal: cd v2/migrate, dart pub get, then migrate_pages and publish_fixture](images/06-migrate-package/cli.png)
+
+*The two commands.*
 
 ```sh
 # A directory of stored v1 page documents (*.json.gz, the Editor's page format) to v2 layout documents.
@@ -74,6 +82,10 @@ couldn't decode), `unmappedBindings`, `ineffectiveBindings` (v1 bindings that di
 migration has them empty.
 
 ## What changes in a document
+
+![v1 to v2 mapping: frame to stack, rectangle to box, rowColumn to row or column, stored boxes to layout, bindings to bind paths](images/06-migrate-package/mapping.png)
+
+*The main mappings.*
 
 | v1 | v2 |
 |---|---|
