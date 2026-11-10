@@ -85,7 +85,6 @@ void main() {
 
 ## The JSON contract
 
-- **Versioned.** Every document carries `"schema": 2`.
 - **Total decoding.** `fromJson` never throws. Unknown keys and unknown node types round-trip; a bad value falls
   back to its default.
 - **Sparse encoding.** A value equal to Flutter's default is not written.
