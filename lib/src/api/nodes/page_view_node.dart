@@ -126,6 +126,10 @@ class PageViewNode extends SinglePlaceholderNode
   }
 }
 
+/// How long a page view slides to a page set through its index, by
+/// default, in milliseconds.
+const int kDefaultPageAnimationDurationMs = 400;
+
 /// The properties of a [PageViewNode].
 @JsonSerializable()
 class PageViewProperties extends CustomProperties with FieldsHolder {
@@ -155,6 +159,27 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
   @FlutterProp('allowImplicitScrolling', type: 'boolean', group: 'Interaction', control: 'switch', field: 'properties.allowImplicitScrolling')
   bool allowImplicitScrolling;
 
+  /// How long the page view takes to move to a new page when its bound page
+  /// index (`indexValue`) is changed by an action, in milliseconds. 0 jumps.
+  @FlutterProp('animationDurationMs', type: 'integer', group: 'Interaction', control: 'number', field: 'properties.animationDurationMs')
+  int animationDurationMs;
+
+  /// The easing of the slide to a page set through `indexValue`.
+  @JsonKey(defaultValue: MotionCurve.easeOutCubic)
+  MotionCurve animationCurve;
+
+  /// A 3D look for the pages as they scroll (coverflow, cube, carousel):
+  /// the [MotionModel] values a page has when it is one page to the right
+  /// of the current one. The current page is at rest; pages in between are
+  /// interpolated by their distance (clamped to two pages), and pages to
+  /// the left are mirrored ([MotionModel.translateX], [MotionModel.shiftX],
+  /// [MotionModel.rotate], [MotionModel.rotateY] and [MotionModel.originX]
+  /// change sign). Coverflow: `{rotateY: -50, scale: 0.8}` with a viewport
+  /// fraction of 0.5; cube: `{rotateY: -90, originX: -1}`. Each page can
+  /// also read `${page.offset}`, its signed distance from the current page.
+  /// Null for flat pages.
+  MotionModel? pageMotion;
+
   /// Creates a [PageViewProperties].
   PageViewProperties({
     this.itemCount,
@@ -164,6 +189,9 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     this.initialPage = 0,
     this.viewportFraction = 1,
     this.allowImplicitScrolling = false,
+    this.animationDurationMs = 0,
+    this.animationCurve = MotionCurve.easeOutCubic,
+    this.pageMotion,
   });
 
   /// Creates a [PageViewProperties] from a JSON object.
@@ -175,6 +203,9 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     int? initialPage,
     double? viewportFraction,
     bool? allowImplicitScrolling,
+    int? animationDurationMs,
+    MotionCurve? animationCurve,
+    MotionModel? pageMotion,
   }) {
     return PageViewProperties(
       itemCount: itemCount ?? this.itemCount,
@@ -185,6 +216,9 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       viewportFraction: viewportFraction ?? this.viewportFraction,
       allowImplicitScrolling:
           allowImplicitScrolling ?? this.allowImplicitScrolling,
+      animationDurationMs: animationDurationMs ?? this.animationDurationMs,
+      animationCurve: animationCurve ?? this.animationCurve,
+      pageMotion: pageMotion ?? this.pageMotion,
     );
   }
 
@@ -223,6 +257,12 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
       () => allowImplicitScrolling,
       (value) => allowImplicitScrolling = value,
     ),
+    'animationDurationMs': NumFieldAccess<int>(
+      'Page Animation (ms)',
+      'How long moving to a new page takes when the bound page index changes. 0 jumps.',
+      () => animationDurationMs,
+      (value) => animationDurationMs = value,
+    ),
   };
 
   @override
@@ -234,6 +274,9 @@ class PageViewProperties extends CustomProperties with FieldsHolder {
     initialPage,
     viewportFraction,
     allowImplicitScrolling,
+    animationDurationMs,
+    animationCurve,
+    pageMotion,
   ];
 
   @override

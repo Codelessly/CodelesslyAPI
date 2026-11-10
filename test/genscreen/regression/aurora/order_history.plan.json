@@ -1,0 +1,77 @@
+{
+  "title": "Orders",
+  "summary": "Lists past and current orders with status, date and total, filterable by status.",
+  "pattern": "list",
+  "appBar": {
+    "title": "Orders",
+    "actions": [
+      {"icon": "search", "label": "Search orders", "action": {"type": "navigate", "to": "Search orders"}}
+    ]
+  },
+  "nav": {
+    "items": [
+      {"icon": "home", "label": "Home", "action": {"type": "navigate", "to": "Home"}},
+      {"icon": "search", "label": "Search", "action": {"type": "navigate", "to": "Search"}},
+      {"icon": "receipt_long", "label": "Orders", "active": true, "action": {"type": "navigate", "to": "Orders"}},
+      {"icon": "person_outline", "label": "Account", "action": {"type": "navigate", "to": "Profile"}}
+    ]
+  },
+  "data": {
+    "summary": {"count": "14 orders", "spent": "$1,862.40"},
+    "orders": [
+      {"id": "#48213", "date": "Nov 4, 2026", "items": "3 items", "total": "$213.84", "status": "Shipped", "tone": "info", "image": "https://picsum.photos/seed/order1/200/200"},
+      {"id": "#47990", "date": "Oct 27, 2026", "items": "1 item", "total": "$249.00", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/order2/200/200"},
+      {"id": "#47512", "date": "Oct 12, 2026", "items": "2 items", "total": "$86.50", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/order3/200/200"},
+      {"id": "#46870", "date": "Sep 30, 2026", "items": "1 item", "total": "$45.00", "status": "Refunded", "tone": "warning", "image": "https://picsum.photos/seed/order4/200/200"},
+      {"id": "#46102", "date": "Sep 8, 2026", "items": "4 items", "total": "$312.20", "status": "Delivered", "tone": "success", "image": "https://picsum.photos/seed/order5/200/200"},
+      {"id": "#45577", "date": "Aug 21, 2026", "items": "1 item", "total": "$19.99", "status": "Cancelled", "tone": "error", "image": "https://picsum.photos/seed/order6/200/200"}
+    ]
+  },
+  "variables": [
+    {"name": "statusTab", "type": "text", "value": "All"}
+  ],
+  "sections": [
+    {
+      "id": "overview",
+      "area": "full",
+      "layout": "row",
+      "children": [
+        {"type": "stat", "label": "Orders this year", "value": "14", "tone": "neutral"},
+        {"type": "stat", "label": "Total spent", "value": "$1,862.40", "tone": "neutral"}
+      ]
+    },
+    {
+      "id": "filters",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {"type": "tabs", "tabs": ["All", "In progress", "Delivered", "Returns"], "bind": "statusTab"}
+      ]
+    },
+    {
+      "id": "orders",
+      "area": "full",
+      "layout": "stack",
+      "children": [
+        {
+          "type": "list",
+          "items": "${orders}",
+          "item": {
+            "type": "listRow",
+            "title": "Order ${item.id} · ${item.total}",
+            "subtitle": "${item.date} · ${item.items}",
+            "leading": {"image": "${item.image}"},
+            "trailing": {"badge": "${item.status}", "tone": "${item.tone}"},
+            "action": {"type": "navigate", "to": "Order details", "params": {"id": "${item.id}"}}
+          }
+        },
+        {"type": "button", "label": "Load older orders", "variant": "outline", "action": {"type": "toast", "message": "Loading older orders"}}
+      ]
+    }
+  ],
+  "states": {
+    "loading": {"style": "skeleton"},
+    "empty": {"icon": "receipt_long", "title": "No orders yet", "message": "Orders you place will appear here. Browse the shop to get started.", "action": {"label": "Start shopping", "action": {"type": "navigate", "to": "Home"}}},
+    "error": {"icon": "error_outline", "title": "Couldn't load orders", "message": "Your orders are safe. Check your connection and try again.", "action": {"label": "Try again", "action": {"type": "retry"}}}
+  }
+}

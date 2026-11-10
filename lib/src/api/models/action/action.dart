@@ -72,11 +72,44 @@ enum ActionType {
   /// Copy a text to the clipboard.
   copyToClipboard,
 
+  /// Edit a text field's text at its cursor: wrap, list, insert, replace
+  /// the word being typed, set, clear or focus.
+  editText,
+
   /// Perform a native store-safe paywall interaction.
   paywall,
 
   /// Focus a text field or take the focus away.
-  focus;
+  focus,
+
+  /// Flings, returns or resets a draggable node; see [ControlDragAction].
+  controlDrag,
+
+  /// Reads text aloud; see [SpeakAction].
+  speak,
+
+  /// Scrolls a node into view; see [ScrollToAction].
+  scrollTo,
+
+  /// Plays a short synthesised sound, now or at an exact time; see
+  /// [PlaySoundAction].
+  playSound,
+
+  /// Play a node's one-shot animation or particles.
+  playAnimation,
+
+  /// Animates a number variable over time (play, pause, resume, stop,
+  /// seek); see [AnimateVariableAction].
+  animateVariable,
+
+  /// Buzzes the device; see [HapticAction].
+  haptic,
+
+  /// Moves a list's pagination controller; see [PaginateAction].
+  paginate,
+
+  /// Run a script; see [RunScriptAction].
+  runScript;
 
   /// Displayable string representation of the [ActionType].
   String get prettify {
@@ -127,10 +160,30 @@ enum ActionType {
         return 'Cloud Batch';
       case ActionType.copyToClipboard:
         return 'Copy to Clipboard';
+      case ActionType.editText:
+        return 'Edit Text';
       case ActionType.paywall:
         return 'Paywall';
       case ActionType.focus:
         return 'Focus';
+      case ActionType.controlDrag:
+        return 'Control Drag';
+      case ActionType.speak:
+        return 'Speak';
+      case ActionType.scrollTo:
+        return 'Scroll To';
+      case ActionType.playSound:
+        return 'Play Sound';
+      case ActionType.playAnimation:
+        return 'Play Animation';
+      case ActionType.animateVariable:
+        return 'Animate Variable';
+      case ActionType.haptic:
+        return 'Haptic Feedback';
+      case ActionType.paginate:
+        return 'Paginate';
+      case ActionType.runScript:
+        return 'Run Script';
     }
   }
 }
@@ -226,10 +279,30 @@ abstract class ActionModel with SerializableMixin {
         return CloudBatchAction.fromJson(json);
       case ActionType.copyToClipboard:
         return CopyToClipboardAction.fromJson(json);
+      case ActionType.editText:
+        return EditTextAction.fromJson(json);
       case ActionType.paywall:
         return PaywallAction.fromJson(json);
       case ActionType.focus:
         return FocusAction.fromJson(json);
+      case ActionType.controlDrag:
+        return ControlDragAction.fromJson(json);
+      case ActionType.speak:
+        return SpeakAction.fromJson(json);
+      case ActionType.scrollTo:
+        return ScrollToAction.fromJson(json);
+      case ActionType.playSound:
+        return PlaySoundAction.fromJson(json);
+      case ActionType.playAnimation:
+        return PlayAnimationAction.fromJson(json);
+      case ActionType.animateVariable:
+        return AnimateVariableAction.fromJson(json);
+      case ActionType.haptic:
+        return HapticAction.fromJson(json);
+      case ActionType.paginate:
+        return PaginateAction.fromJson(json);
+      case ActionType.runScript:
+        return RunScriptAction.fromJson(json);
     }
   }
 

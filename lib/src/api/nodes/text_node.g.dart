@@ -19,6 +19,10 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
 ) {
   if (isJsonDefault(instance.tabularFigures, false))
     json.remove('tabularFigures');
+  if (isJsonDefault(instance.fontFeatures, const []))
+    json.remove('fontFeatures');
+  if (isJsonDefault(instance.codeLanguage, SyntaxLanguage.none))
+    json.remove('codeLanguage');
   if (isJsonDefault(instance.visible, true)) json.remove('visible');
   if (excludeConstraintsIf(instance)) json.remove('constraints');
   if (isJsonDefault(instance.constraints, const BoxConstraintsModel()))
@@ -33,6 +37,9 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -49,6 +56,10 @@ Map<String, dynamic> _$TextNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -195,6 +206,27 @@ TextNode _$TextNodeFromJson(Map json) =>
                 Map<String, dynamic>.from(json['inkWell'] as Map),
               ),
         tabularFigures: json['tabularFigures'] as bool? ?? false,
+        fontFeatures: json['fontFeatures'] == null
+            ? const []
+            : OpenTypeFeature.parseList(json['fontFeatures']),
+        markdown: json['markdown'] == null
+            ? null
+            : MarkdownStyle.fromJson(json['markdown'] as Map),
+        codeLanguage:
+            $enumDecodeNullable(
+              _$SyntaxLanguageEnumMap,
+              json['codeLanguage'],
+            ) ??
+            SyntaxLanguage.none,
+        codeTheme: json['codeTheme'] == null
+            ? null
+            : CodeThemeModel.fromJson(json['codeTheme'] as Map),
+        inlineCode: json['inlineCode'] == null
+            ? null
+            : InlineCodeStyle.fromJson(json['inlineCode'] as Map),
+        countUp: json['countUp'] == null
+            ? null
+            : CountUpModel.fromJson(json['countUp'] as Map),
       )
       ..componentId = json['componentId'] as String?
       ..markerType = $enumDecodeNullable(
@@ -208,6 +240,8 @@ TextNode _$TextNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -240,6 +274,48 @@ TextNode _$TextNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..transition = json['transition'] == null
           ? null
           : NodeTransition.fromJson(json['transition'] as Map)
@@ -247,14 +323,6 @@ TextNode _$TextNodeFromJson(Map json) =>
 
 Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-  'data': instance.data,
-  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
-  'textAlignVertical':
-      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
-  'paragraphIndent': instance.paragraphIndent,
-  'paragraphSpacing': instance.paragraphSpacing,
-  'maxLines': ?instance.maxLines,
-  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'variables': instance.variables,
   'multipleVariables': instance.multipleVariables,
   'componentId': ?instance.componentId,
@@ -271,21 +339,31 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
-  'textAlignHorizontal':
-      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
   'alignment': instance.alignment.toJson(),
-  'softWrap': instance.softWrap,
-  'textScaleFactor': ?instance.textScaleFactor,
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
   'margin': instance.margin.toJson(),
   'padding': instance.padding.toJson(),
   'rotation': instance.rotationDegrees,
+  'data': instance.data,
+  'textMixedProps': instance.textMixedProps.map((e) => e.toJson()).toList(),
+  'textAlignHorizontal':
+      _$TextAlignHorizontalEnumEnumMap[instance.textAlignHorizontal]!,
+  'textAlignVertical':
+      _$TextAlignVerticalEnumEnumMap[instance.textAlignVertical]!,
+  'paragraphIndent': instance.paragraphIndent,
+  'paragraphSpacing': instance.paragraphSpacing,
+  'maxLines': ?instance.maxLines,
+  'overflow': _$TextOverflowCEnumMap[instance.overflow]!,
   'widthFactor': ?instance.widthFactor,
   'heightFactor': ?instance.heightFactor,
+  'softWrap': instance.softWrap,
   'interactionStates': instance.interactionStates.map(
     (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
   ),
+  'textScaleFactor': ?instance.textScaleFactor,
   'tooltip': instance.tooltip,
   'zoomable': instance.zoomable,
   'loopAnimation': ?instance.loopAnimation?.toJson(),
@@ -296,6 +374,22 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'opacity': instance.opacity,
   'blendMode': _$BlendModeCEnumMap[instance.blendMode]!,
   'isMask': instance.isMask,
@@ -304,6 +398,12 @@ Map<String, dynamic> _$TextNodeToJson(TextNode instance) => <String, dynamic>{
   'transition': ?instance.transition?.toJson(),
   'type': instance.type,
   'tabularFigures': instance.tabularFigures,
+  'fontFeatures': instance.fontFeatures,
+  'markdown': ?instance.markdown?.toJson(),
+  'codeLanguage': _$SyntaxLanguageEnumMap[instance.codeLanguage]!,
+  'codeTheme': ?instance.codeTheme?.toJson(),
+  'inlineCode': ?instance.inlineCode?.toJson(),
+  'countUp': ?instance.countUp?.toJson(),
 };
 
 const _$SizeFitEnumMap = {
@@ -339,6 +439,7 @@ const _$TextOverflowCEnumMap = {
   TextOverflowC.fade: 'fade',
   TextOverflowC.ellipsis: 'ellipsis',
   TextOverflowC.visible: 'visible',
+  TextOverflowC.scaleDown: 'scaleDown',
 };
 
 const _$BlendModeCEnumMap = {
@@ -373,6 +474,18 @@ const _$BlendModeCEnumMap = {
   BlendModeC.luminosity: 'luminosity',
 };
 
+const _$SyntaxLanguageEnumMap = {
+  SyntaxLanguage.none: 'none',
+  SyntaxLanguage.bash: 'bash',
+  SyntaxLanguage.shell: 'shell',
+  SyntaxLanguage.javascript: 'javascript',
+  SyntaxLanguage.typescript: 'typescript',
+  SyntaxLanguage.python: 'python',
+  SyntaxLanguage.go: 'go',
+  SyntaxLanguage.ruby: 'ruby',
+  SyntaxLanguage.json: 'json',
+};
+
 const _$ComponentMarkerTypeEnumMap = {
   ComponentMarkerType.component: 'component',
   ComponentMarkerType.instance: 'instance',
@@ -384,4 +497,19 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };

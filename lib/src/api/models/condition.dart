@@ -788,8 +788,38 @@ abstract interface class ActionVisitor<R> {
   /// Visits a [FocusAction].
   R? visitFocusAction(FocusAction action);
 
+  /// Visits a [ControlDragAction].
+  R? visitControlDragAction(ControlDragAction action);
+
+  /// Visits an [AnimateVariableAction].
+  R? visitAnimateVariableAction(AnimateVariableAction action);
+
+  /// Visits a [SpeakAction].
+  R? visitSpeakAction(SpeakAction action);
+
+  /// Visits a [HapticAction].
+  R? visitHapticAction(HapticAction action);
+
+  /// Visits a [ScrollToAction].
+  R? visitScrollToAction(ScrollToAction action);
+
+  /// Visits a [PlaySoundAction].
+  R? visitPlaySoundAction(PlaySoundAction action);
+
+  /// Visits an [EditTextAction].
+  R? visitEditTextAction(EditTextAction action);
+
   /// Visits a native [PaywallAction].
   R? visitPaywallAction(PaywallAction action);
+
+  /// Visits a [PlayAnimationAction].
+  R? visitPlayAnimationAction(PlayAnimationAction action);
+
+  /// Visits [PaginateAction].
+  R? visitPaginateAction(PaginateAction action);
+
+  /// Visits a [RunScriptAction].
+  R? visitRunScriptAction(RunScriptAction action);
 
   /// Visits a [CloudDataAction].
   R? visitCloudDataAction(CloudDataAction action);

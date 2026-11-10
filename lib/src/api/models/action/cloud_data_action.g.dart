@@ -177,8 +177,18 @@ const _$ActionTypeEnumMap = {
   ActionType.cloudData: 'cloudData',
   ActionType.cloudBatch: 'cloudBatch',
   ActionType.copyToClipboard: 'copyToClipboard',
+  ActionType.editText: 'editText',
   ActionType.paywall: 'paywall',
   ActionType.focus: 'focus',
+  ActionType.controlDrag: 'controlDrag',
+  ActionType.speak: 'speak',
+  ActionType.scrollTo: 'scrollTo',
+  ActionType.playSound: 'playSound',
+  ActionType.playAnimation: 'playAnimation',
+  ActionType.animateVariable: 'animateVariable',
+  ActionType.haptic: 'haptic',
+  ActionType.paginate: 'paginate',
+  ActionType.runScript: 'runScript',
 };
 
 CloudBatchAction _$CloudBatchActionFromJson(Map json) => CloudBatchAction(

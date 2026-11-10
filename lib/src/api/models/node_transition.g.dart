@@ -40,4 +40,12 @@ const _$TransitionCurveEnumMap = {
   TransitionCurve.easeOut: 'easeOut',
   TransitionCurve.easeInOut: 'easeInOut',
   TransitionCurve.easeOutCubic: 'easeOutCubic',
+  TransitionCurve.easeOutBack: 'easeOutBack',
+  TransitionCurve.easeInOutCubic: 'easeInOutCubic',
+  TransitionCurve.step: 'step',
+  TransitionCurve.easeInOutSine: 'easeInOutSine',
+  TransitionCurve.spring: 'spring',
+  TransitionCurve.elasticOut: 'elasticOut',
+  TransitionCurve.bounceOut: 'bounceOut',
+  TransitionCurve.fastOutSlowIn: 'fastOutSlowIn',
 };

@@ -91,6 +91,9 @@ class TextFieldNode extends SceneNode
     TriggerType.changed,
     TriggerType.editingComplete,
     TriggerType.submitted,
+    TriggerType.focusGained,
+    TriggerType.focusLost,
+    TriggerType.keyDown,
   ];
 
   @override
@@ -149,6 +152,32 @@ class TextFieldNode extends SceneNode
       _$TextFieldNodeOmitDefaults(this, _$TextFieldNodeToJson(this));
 }
 
+/// How a text field capitalizes what is typed in it.
+enum TextCapitalizationC {
+  /// Leaves the text as typed.
+  none,
+
+  /// Suggests a capital at the start of each word (the soft keyboard's
+  /// shift), without changing what is typed.
+  words,
+
+  /// Suggests a capital at the start of each sentence, without changing
+  /// what is typed.
+  sentences,
+
+  /// Upper-cases every character as it is typed or pasted (and asks the
+  /// soft keyboard for capitals): booking references, airport codes.
+  characters;
+
+  /// Display name.
+  String get prettify => switch (this) {
+    TextCapitalizationC.none => 'None',
+    TextCapitalizationC.words => 'Words',
+    TextCapitalizationC.sentences => 'Sentences',
+    TextCapitalizationC.characters => 'All caps',
+  };
+}
+
 /// Holds configurable properties of the text field.
 @JsonSerializable()
 class TextFieldProperties extends CustomProperties with FieldsHolder {
@@ -157,6 +186,10 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
 
   /// Whether to focus on text field automatically.
   bool autoFocus;
+
+  /// Whether gaining focus selects all of the field's text, so typing
+  /// replaces it (a type-ahead showing the current pick).
+  bool selectAllOnFocus;
 
   /// Whether to enable text selection via mouse drag.
   bool enableInteractiveSelection;
@@ -180,6 +213,24 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     field: 'properties.obscureText',
   )
   bool obscureText;
+
+  /// Which letters the on-screen keyboard capitalizes by default: none,
+  /// the first of each word (names), of each sentence, or every letter.
+  @JsonKey(
+    defaultValue: TextCapitalizationC.none,
+    unknownEnumValue: TextCapitalizationC.none,
+  )
+  TextCapitalizationC textCapitalization;
+
+  /// A ring drawn around the field while it has focus, [focusRingWidth]
+  /// pixels wide outside its border and following its corner radius (a
+  /// soft halo around the input that's being typed in). No ring while the
+  /// width is 0.
+  ColorRGBA focusRingColor;
+
+  /// How far the focus ring reaches outside the field; 0 for none.
+  @JsonKey(defaultValue: 0.0)
+  double focusRingWidth;
 
   /// Whether the field is read-only.
   @FlutterProp(
@@ -316,13 +367,23 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   /// button on the keyboard.
   TextInputActionC textInputAction;
 
+  /// Shows what's typed as live Markdown in this style: `**bold**` bold,
+  /// `_italic_` italic, `` `code` `` in the code font, list markers and
+  /// @mentions colored, with every character kept and the markers dimmed.
+  /// Enter in a list item continues the list. Null: plain text.
+  MarkdownStyle? markdown;
+
   /// Creates a [TextFieldProperties] instance with the given data.
   TextFieldProperties({
     this.autoCorrect = true,
     this.autoFocus = false,
+    this.selectAllOnFocus = false,
     this.enableInteractiveSelection = true,
     this.enabled = true,
     this.obscureText = false,
+    this.textCapitalization = TextCapitalizationC.none,
+    this.focusRingColor = ColorRGBA.transparent,
+    this.focusRingWidth = 0,
     this.readOnly = false,
     this.showCursor = true,
     this.keyboardType = TextInputTypeEnum.text,
@@ -348,6 +409,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     this.autovalidateMode = AutovalidateModeC.onUserInteraction,
     this.autofillHints = const {},
     this.textInputAction = TextInputActionC.none,
+    this.markdown,
   }) : inputStyle =
            inputStyle ??
            TextProp.general(fontSize: 14, fills: [PaintModel.blackPaint]),
@@ -358,9 +420,13 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
   TextFieldProperties copyWith({
     bool? autoCorrect,
     bool? autoFocus,
+    bool? selectAllOnFocus,
     bool? enableInteractiveSelection,
     bool? enabled,
     bool? obscureText,
+    TextCapitalizationC? textCapitalization,
+    ColorRGBA? focusRingColor,
+    double? focusRingWidth,
     bool? readOnly,
     bool? showCursor,
     TextInputTypeEnum? keyboardType,
@@ -386,14 +452,20 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     Set<TextInputAutofillHints>? autofillHints,
     AutovalidateModeC? autovalidateMode,
     TextInputActionC? textInputAction,
+    MarkdownStyle? markdown,
+    bool clearMarkdown = false,
   }) {
     return TextFieldProperties(
       autoCorrect: autoCorrect ?? this.autoCorrect,
       autoFocus: autoFocus ?? this.autoFocus,
+      selectAllOnFocus: selectAllOnFocus ?? this.selectAllOnFocus,
       enableInteractiveSelection:
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       enabled: enabled ?? this.enabled,
       obscureText: obscureText ?? this.obscureText,
+      textCapitalization: textCapitalization ?? this.textCapitalization,
+      focusRingColor: focusRingColor ?? this.focusRingColor,
+      focusRingWidth: focusRingWidth ?? this.focusRingWidth,
       readOnly: readOnly ?? this.readOnly,
       showCursor: showCursor ?? this.showCursor,
       keyboardType: keyboardType ?? this.keyboardType,
@@ -419,6 +491,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       autofillHints: autofillHints ?? this.autofillHints,
       autovalidateMode: autovalidateMode ?? this.autovalidateMode,
       textInputAction: textInputAction ?? this.textInputAction,
+      markdown: clearMarkdown ? null : markdown ?? this.markdown,
     );
   }
 
@@ -612,12 +685,24 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
       defaultValue: () => TextInputActionC.none,
       options: () => TextInputActionC.values,
     ),
+    'textCapitalization': EnumFieldAccess<TextCapitalizationC>(
+      'Text Capitalization',
+      'How typed text is capitalized; characters turns it all into capitals.',
+      () => textCapitalization,
+      (value) => textCapitalization = value,
+      defaultValue: () => TextCapitalizationC.none,
+      options: () => TextCapitalizationC.values,
+    ),
   };
 
   @override
   List<Object?> get props => [
+    textCapitalization,
+    focusRingColor,
+    focusRingWidth,
     autoCorrect,
     autoFocus,
+    selectAllOnFocus,
     enableInteractiveSelection,
     enabled,
     obscureText,
@@ -646,6 +731,7 @@ class TextFieldProperties extends CustomProperties with FieldsHolder {
     autofillHints,
     autovalidateMode,
     textInputAction,
+    markdown,
   ];
 }
 
@@ -663,3 +749,4 @@ int? _maxLinesFromJson(Object? value) => value is num ? value.toInt() : null;
 /// Marks an explicit `null` (unlimited lines) between [_readMaxLines] and
 /// [_maxLinesFromJson].
 const String _unlimitedLines = 'unlimited';
+

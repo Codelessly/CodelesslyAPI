@@ -12,6 +12,8 @@ Map<String, dynamic> _$StartEndPropOmitDefaults(
 ) {
   if (isJsonDefault(instance.textDecoration, TextDecorationEnum.none))
     json.remove('textDecoration');
+  if (isJsonDefault(instance.decorationStyle, TextDecorationStyleEnum.solid))
+    json.remove('decorationStyle');
   if (isJsonDefault(instance.fontSize, 18)) json.remove('fontSize');
   if (isJsonDefault(instance.letterSpacing, LetterSpacing.zero))
     json.remove('letterSpacing');
@@ -30,6 +32,8 @@ Map<String, dynamic> _$TextPropOmitDefaults(
 ) {
   if (isJsonDefault(instance.textDecoration, TextDecorationEnum.none))
     json.remove('textDecoration');
+  if (isJsonDefault(instance.decorationStyle, TextDecorationStyleEnum.solid))
+    json.remove('decorationStyle');
   if (isJsonDefault(instance.fontSize, 18)) json.remove('fontSize');
   if (isJsonDefault(instance.letterSpacing, LetterSpacing.zero))
     json.remove('letterSpacing');
@@ -55,9 +59,19 @@ StartEndProp _$StartEndPropFromJson(Map json) => StartEndProp(
   textDecoration:
       $enumDecodeNullable(
         _$TextDecorationEnumEnumMap,
-        json['textDecoration'],
+        readTextDecoration(json, 'textDecoration'),
       ) ??
       TextDecorationEnum.none,
+  decorationColor: json['decorationColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['decorationColor']),
+  decorationThickness: (json['decorationThickness'] as num?)?.toDouble(),
+  decorationStyle:
+      $enumDecodeNullable(
+        _$TextDecorationStyleEnumEnumMap,
+        json['decorationStyle'],
+      ) ??
+      TextDecorationStyleEnum.solid,
   letterSpacing: json['letterSpacing'] == null
       ? LetterSpacing.zero
       : LetterSpacing.fromJson(json['letterSpacing'] as Map),
@@ -76,6 +90,10 @@ Map<String, dynamic> _$StartEndPropToJson(StartEndProp instance) =>
     <String, dynamic>{
       'fills': instance.fills.map((e) => e.toJson()).toList(),
       'textDecoration': _$TextDecorationEnumEnumMap[instance.textDecoration]!,
+      'decorationColor': ?instance.decorationColor?.toJson(),
+      'decorationThickness': ?instance.decorationThickness,
+      'decorationStyle':
+          _$TextDecorationStyleEnumEnumMap[instance.decorationStyle]!,
       'fontSize': instance.fontSize,
       'letterSpacing': instance.letterSpacing.toJson(),
       'fontName': instance.fontName.toJson(),
@@ -93,6 +111,14 @@ const _$TextDecorationEnumEnumMap = {
   TextDecorationEnum.strikethrough: 'strikethrough',
 };
 
+const _$TextDecorationStyleEnumEnumMap = {
+  TextDecorationStyleEnum.solid: 'solid',
+  TextDecorationStyleEnum.double: 'double',
+  TextDecorationStyleEnum.dotted: 'dotted',
+  TextDecorationStyleEnum.dashed: 'dashed',
+  TextDecorationStyleEnum.wavy: 'wavy',
+};
+
 TextProp _$TextPropFromJson(Map json) => TextProp(
   fills: (json['fills'] as List<dynamic>?)
       ?.map((e) => PaintModel.fromJson(e as Map))
@@ -100,9 +126,19 @@ TextProp _$TextPropFromJson(Map json) => TextProp(
   textDecoration:
       $enumDecodeNullable(
         _$TextDecorationEnumEnumMap,
-        json['textDecoration'],
+        readTextDecoration(json, 'textDecoration'),
       ) ??
       TextDecorationEnum.none,
+  decorationColor: json['decorationColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['decorationColor']),
+  decorationThickness: (json['decorationThickness'] as num?)?.toDouble(),
+  decorationStyle:
+      $enumDecodeNullable(
+        _$TextDecorationStyleEnumEnumMap,
+        json['decorationStyle'],
+      ) ??
+      TextDecorationStyleEnum.solid,
   letterSpacing: json['letterSpacing'] == null
       ? LetterSpacing.zero
       : LetterSpacing.fromJson(json['letterSpacing'] as Map),
@@ -120,6 +156,10 @@ TextProp _$TextPropFromJson(Map json) => TextProp(
 Map<String, dynamic> _$TextPropToJson(TextProp instance) => <String, dynamic>{
   'fills': instance.fills.map((e) => e.toJson()).toList(),
   'textDecoration': _$TextDecorationEnumEnumMap[instance.textDecoration]!,
+  'decorationColor': ?instance.decorationColor?.toJson(),
+  'decorationThickness': ?instance.decorationThickness,
+  'decorationStyle':
+      _$TextDecorationStyleEnumEnumMap[instance.decorationStyle]!,
   'fontSize': instance.fontSize,
   'letterSpacing': instance.letterSpacing.toJson(),
   'fontName': instance.fontName.toJson(),

@@ -25,6 +25,9 @@ Map<String, dynamic> _$TextFieldNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -44,6 +47,10 @@ Map<String, dynamic> _$TextFieldNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -61,10 +68,18 @@ Map<String, dynamic> _$TextFieldPropertiesOmitDefaults(
 ) {
   if (isJsonDefault(instance.autoCorrect, true)) json.remove('autoCorrect');
   if (isJsonDefault(instance.autoFocus, false)) json.remove('autoFocus');
+  if (isJsonDefault(instance.selectAllOnFocus, false))
+    json.remove('selectAllOnFocus');
   if (isJsonDefault(instance.enableInteractiveSelection, true))
     json.remove('enableInteractiveSelection');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
   if (isJsonDefault(instance.obscureText, false)) json.remove('obscureText');
+  if (isJsonDefault(instance.textCapitalization, TextCapitalizationC.none))
+    json.remove('textCapitalization');
+  if (isJsonDefault(instance.focusRingColor, ColorRGBA.transparent))
+    json.remove('focusRingColor');
+  if (isJsonDefault(instance.focusRingWidth, 0.0))
+    json.remove('focusRingWidth');
   if (isJsonDefault(instance.readOnly, false)) json.remove('readOnly');
   if (isJsonDefault(instance.showCursor, true)) json.remove('showCursor');
   if (isJsonDefault(instance.showDecimalKey, false))
@@ -183,6 +198,8 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -215,52 +232,113 @@ TextFieldNode _$TextFieldNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..type = json['type'] as String;
 
-Map<String, dynamic> _$TextFieldNodeToJson(TextFieldNode instance) =>
-    <String, dynamic>{
-      'reactions': instance.reactions.map((e) => e.toJson()).toList(),
-      'variables': instance.variables,
-      'multipleVariables': instance.multipleVariables,
-      'componentId': ?instance.componentId,
-      'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
-      'componentVersion': instance.componentVersion,
-      'componentSchema': instance.componentSchema,
-      'id': instance.id,
-      'name': instance.name,
-      'visible': instance.visible,
-      'constraints': instance.constraints.toJson(),
-      'edgePins': instance.edgePins.toJson(),
-      'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
-      'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
-      'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
-      'flex': instance.flex,
-      'squeezable': instance.squeezable,
-      'aspectRatioLock': instance.aspectRatioLock,
-      'alignment': instance.alignment.toJson(),
-      'basicBoxLocal': instance.basicBoxLocal.toJson(),
-      'margin': instance.margin.toJson(),
-      'padding': instance.padding.toJson(),
-      'rotation': instance.rotationDegrees,
-      'widthFactor': ?instance.widthFactor,
-      'heightFactor': ?instance.heightFactor,
-      'interactionStates': instance.interactionStates.map(
-        (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
-      ),
-      'tooltip': instance.tooltip,
-      'zoomable': instance.zoomable,
-      'loopAnimation': ?instance.loopAnimation?.toJson(),
-      'transitionMs': instance.transitionMs,
-      'drawScale': instance.drawScale,
-      'pulse': ?instance.pulse?.toJson(),
-      'draggable': ?instance.draggable?.toJson(),
-      'dropTarget': ?instance.dropTarget?.toJson(),
-      'enabled': instance.enabled,
-      'motion': ?instance.motion?.toJson(),
-      'type': instance.type,
-      'properties': instance.properties.toJson(),
-      'initialText': instance.initialText,
-    };
+Map<String, dynamic> _$TextFieldNodeToJson(
+  TextFieldNode instance,
+) => <String, dynamic>{
+  'reactions': instance.reactions.map((e) => e.toJson()).toList(),
+  'variables': instance.variables,
+  'multipleVariables': instance.multipleVariables,
+  'componentId': ?instance.componentId,
+  'markerType': ?_$ComponentMarkerTypeEnumMap[instance.markerType],
+  'componentVersion': instance.componentVersion,
+  'componentSchema': instance.componentSchema,
+  'id': instance.id,
+  'name': instance.name,
+  'visible': instance.visible,
+  'constraints': instance.constraints.toJson(),
+  'edgePins': instance.edgePins.toJson(),
+  'positioningMode': _$PositioningModeEnumMap[instance.positioningMode]!,
+  'horizontalFit': _$SizeFitEnumMap[instance.horizontalFit]!,
+  'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
+  'flex': instance.flex,
+  'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
+  'aspectRatioLock': instance.aspectRatioLock,
+  'alignment': instance.alignment.toJson(),
+  'basicBoxLocal': instance.basicBoxLocal.toJson(),
+  'margin': instance.margin.toJson(),
+  'padding': instance.padding.toJson(),
+  'rotation': instance.rotationDegrees,
+  'widthFactor': ?instance.widthFactor,
+  'heightFactor': ?instance.heightFactor,
+  'interactionStates': instance.interactionStates.map(
+    (k, e) => MapEntry(_$InteractionStateEnumMap[k]!, e),
+  ),
+  'tooltip': instance.tooltip,
+  'zoomable': instance.zoomable,
+  'loopAnimation': ?instance.loopAnimation?.toJson(),
+  'transitionMs': instance.transitionMs,
+  'drawScale': instance.drawScale,
+  'pulse': ?instance.pulse?.toJson(),
+  'draggable': ?instance.draggable?.toJson(),
+  'dropTarget': ?instance.dropTarget?.toJson(),
+  'enabled': instance.enabled,
+  'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
+  'type': instance.type,
+  'properties': instance.properties.toJson(),
+  'initialText': instance.initialText,
+};
 
 const _$SizeFitEnumMap = {
   SizeFit.locked: 'locked',
@@ -286,6 +364,21 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 TextFieldProperties _$TextFieldPropertiesFromJson(
@@ -293,10 +386,22 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
 ) => TextFieldProperties(
   autoCorrect: json['autoCorrect'] as bool? ?? true,
   autoFocus: json['autoFocus'] as bool? ?? false,
+  selectAllOnFocus: json['selectAllOnFocus'] as bool? ?? false,
   enableInteractiveSelection:
       json['enableInteractiveSelection'] as bool? ?? true,
   enabled: json['enabled'] as bool? ?? true,
   obscureText: json['obscureText'] as bool? ?? false,
+  textCapitalization:
+      $enumDecodeNullable(
+        _$TextCapitalizationCEnumMap,
+        json['textCapitalization'],
+        unknownValue: TextCapitalizationC.none,
+      ) ??
+      TextCapitalizationC.none,
+  focusRingColor: json['focusRingColor'] == null
+      ? ColorRGBA.transparent
+      : ColorRGBA.fromJson(json['focusRingColor']),
+  focusRingWidth: (json['focusRingWidth'] as num?)?.toDouble() ?? 0.0,
   readOnly: json['readOnly'] as bool? ?? false,
   showCursor: json['showCursor'] as bool? ?? true,
   keyboardType:
@@ -373,6 +478,9 @@ TextFieldProperties _$TextFieldPropertiesFromJson(
   textInputAction:
       $enumDecodeNullable(_$TextInputActionCEnumMap, json['textInputAction']) ??
       TextInputActionC.none,
+  markdown: json['markdown'] == null
+      ? null
+      : MarkdownStyle.fromJson(json['markdown'] as Map),
 );
 
 Map<String, dynamic> _$TextFieldPropertiesToJson(
@@ -380,9 +488,14 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
 ) => <String, dynamic>{
   'autoCorrect': instance.autoCorrect,
   'autoFocus': instance.autoFocus,
+  'selectAllOnFocus': instance.selectAllOnFocus,
   'enableInteractiveSelection': instance.enableInteractiveSelection,
   'enabled': instance.enabled,
   'obscureText': instance.obscureText,
+  'textCapitalization':
+      _$TextCapitalizationCEnumMap[instance.textCapitalization]!,
+  'focusRingColor': instance.focusRingColor.toJson(),
+  'focusRingWidth': instance.focusRingWidth,
   'readOnly': instance.readOnly,
   'showCursor': instance.showCursor,
   'showDecimalKey': instance.showDecimalKey,
@@ -413,6 +526,14 @@ Map<String, dynamic> _$TextFieldPropertiesToJson(
       .map((e) => _$TextInputAutofillHintsEnumMap[e]!)
       .toList(),
   'textInputAction': _$TextInputActionCEnumMap[instance.textInputAction]!,
+  'markdown': ?instance.markdown?.toJson(),
+};
+
+const _$TextCapitalizationCEnumMap = {
+  TextCapitalizationC.none: 'none',
+  TextCapitalizationC.words: 'words',
+  TextCapitalizationC.sentences: 'sentences',
+  TextCapitalizationC.characters: 'characters',
 };
 
 const _$TextInputTypeEnumEnumMap = {

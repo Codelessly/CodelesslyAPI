@@ -53,7 +53,85 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
   /// Whether every digit takes the same width (tabular figures), so a
   /// clock, counter or column of numbers doesn't shift as its digits change.
+  @FlutterProp(
+    'tabularFigures',
+    type: 'boolean',
+    group: 'Text',
+    control: 'switch',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly text digit-width option on the serialized text node.',
+  )
   bool tabularFigures;
+
+  /// The OpenType features of the font that every span of the text turns
+  /// on or sets, e.g. `["lnum"]` for lining figures in a font whose digits
+  /// are old-style by default, `["tnum", "smcp"]`, `["ss01"]` or
+  /// `["liga=0"]`.
+  ///
+  /// Each entry is a four-character OpenType tag, alone to turn the feature
+  /// on (value 1) or followed by `=` and a value (`"liga=0"` turns
+  /// ligatures off, `"salt=2"` picks the second alternate). JSON may also
+  /// give an entry as `{"tag": "salt", "value": 2}`, or the whole list as
+  /// one string (`"lnum tnum"` or `"lnum,tnum"`); both are stored as the
+  /// list of strings. A later entry for the same tag wins.
+  ///
+  /// [tabularFigures] means the same as `tnum` here; see
+  /// [resolvedFontFeatures] for the features the text is drawn with.
+  @FlutterProp(
+    'fontFeatures',
+    type: 'array',
+    group: 'Text',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Codelessly OpenType feature tags (e.g. "lnum", "liga=0") applied '
+        'to every span; TextStyle.fontFeatures in Flutter.',
+  )
+  @JsonKey(fromJson: OpenTypeFeature.parseList)
+  List<String> fontFeatures;
+
+  /// The OpenType features the text is drawn and measured with: those of
+  /// [fontFeatures], one per tag (the last entry for a tag wins), plus
+  /// `tnum` when [tabularFigures] is on and [fontFeatures] doesn't set it.
+  List<OpenTypeFeature> get resolvedFontFeatures {
+    final Map<String, OpenTypeFeature> byTag = {
+      for (final String entry in fontFeatures)
+        if (OpenTypeFeature.tryParse(entry) case final OpenTypeFeature f)
+          f.tag: f,
+    };
+    if (tabularFigures)
+      byTag.putIfAbsent('tnum', () => OpenTypeFeature.on('tnum'));
+    return byTag.values.toList();
+  }
+
+  /// Renders the text as Markdown with this style (bold, italic, code,
+  /// links, mentions, lists, paragraphs); null shows it as plain text.
+  MarkdownStyle? markdown;
+
+  /// The language to highlight the text as, when it shows code: its
+  /// keywords, strings, comments, numbers and so on take the colors of
+  /// [codeTheme], drawn over the text's own style. [SyntaxLanguage.none]
+  /// (the default) shows plain text. Can be bound through
+  /// `variables['codeLanguage']` to a language name (or an alias such as
+  /// `js`, `py` or `sh`), so one code block can follow a language tab.
+  SyntaxLanguage codeLanguage;
+
+  /// The colors of the highlighted tokens when [codeLanguage] is set. Null,
+  /// or a color left null, takes [CodeThemeModel.defaults].
+  CodeThemeModel? codeTheme;
+
+  /// How inline code in the text is drawn. When set, the segments of the
+  /// resolved text wrapped in backticks take this style and lose their
+  /// backticks, on the design canvas and at runtime. Null (the default)
+  /// shows backticks as typed.
+  InlineCodeStyle? inlineCode;
+
+  /// Makes the number in the text count from its old value to its new one
+  /// when the resolved text changes, at runtime. Null (the default) shows
+  /// the new text at once.
+  CountUpModel? countUp;
 
   /// Minimum width the text node can have.
   /// Calculated at runtime using Flutter TextPainter.
@@ -86,6 +164,15 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
 
   @override
   bool get supportsPadding => false;
+
+  /// A text node has no padding, so a [padding] stored on it (written by hand
+  /// or by a tool; the editor's panel hides the field) pads nothing: its
+  /// inner box is its box. The published site never drew that padding, and
+  /// the editor's canvas left room for it, so the two disagreed on the
+  /// node's size. Space around text is [margin].
+  @override
+  EdgeInsetsModel resolvedPadding([EdgeInsetsModel? padding]) =>
+      minimumPadding();
 
   /// Creates a [TextNode] instance with the given data.
   TextNode({
@@ -129,7 +216,13 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     super.multipleVariables,
     InkWellModel? inkWell,
     this.tabularFigures = false,
-  }) {
+    List<String> fontFeatures = const [],
+    this.markdown,
+    this.codeLanguage = SyntaxLanguage.none,
+    this.codeTheme,
+    this.inlineCode,
+    this.countUp,
+  }) : fontFeatures = OpenTypeFeature.parseList(fontFeatures) {
     setTextMixin(
       data: data,
       textMixedProps: textMixedProps,
@@ -161,16 +254,49 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
     TriggerType.cursorExit,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   @override
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     StringValue(name: 'data', value: data),
+    StringValue(name: 'codeLanguage', value: codeLanguage.name),
+    // The style of every span, set by a binding, condition or set value
+    // action (see the SDK's StyleBindings): a font size, letter spacing and
+    // line height in pixels, a font family name, and an alignment name
+    // (left, center, right, justified, start, end).
+    DoubleValue(
+      name: 'fontSize',
+      value: textMixedProps.firstOrNull?.fontSize ?? 18,
+    ),
+    DoubleValue(
+      name: 'letterSpacing',
+      value: textMixedProps.firstOrNull?.letterSpacing.value ?? 0,
+    ),
+    DoubleValue(
+      name: 'lineHeight',
+      value: textMixedProps.firstOrNull?.lineHeight.value ?? 0,
+    ),
+    StringValue(
+      name: 'fontFamily',
+      value: textMixedProps.firstOrNull?.fontName.family ?? 'Roboto',
+    ),
+    StringValue(name: 'textAlign', value: textAlignHorizontal.name),
     // Overrides the color of every span; set by a binding or condition.
     const ColorValue(name: 'textColor', value: null),
+    // Overrides the decoration of every span: `none`, `underline`,
+    // `strikethrough` (or `lineThrough`) or `overline`.
+    StringValue(
+      name: 'textDecoration',
+      value: textMixedProps.firstOrNull?.textDecoration.name ?? 'none',
+    ),
   ];
 
   @override
@@ -179,13 +305,137 @@ class TextNode extends SceneNode with BlendMixin, TextMixin, FontMixin {
   /// Creates a [TextNode] instance from a JSON object.
   factory TextNode.fromJson(Map json) {
     if (json.containsKey('characters')) {
-      throw const FormatException('Unsupported TextNode key: characters');
+      throw const FormatException(
+        'Unsupported TextNode key: characters (the text is "data")',
+      );
     }
     return _$TextNodeFromJson(json);
   }
 
   @override
   Map toJson() => _$TextNodeOmitDefaults(this, _$TextNodeToJson(this));
+}
+
+/// One OpenType feature setting of a text: a four-character feature [tag]
+/// such as `lnum` (lining figures), `tnum` (tabular figures), `smcp` (small
+/// capitals) or `ss01` (stylistic set 1), and the [value] it is set to. 1
+/// turns a feature on and 0 off; some features (`salt`, `cvXX`) pick an
+/// alternate by number.
+///
+/// On the wire a setting is a string, `"lnum"` (value 1) or `"liga=0"`; see
+/// [TextNode.fontFeatures].
+class OpenTypeFeature with Equatable {
+  /// The four-character OpenType feature tag, e.g. `lnum`.
+  final String tag;
+
+  /// The value the feature is set to: 1 turns it on, 0 off.
+  final int value;
+
+  /// Creates a setting of [tag] to [value]. Throws a [FormatException] if
+  /// [tag] isn't four printable ASCII characters or [value] is negative.
+  OpenTypeFeature(this.tag, [this.value = 1]) {
+    if (!isValidTag(tag)) {
+      throw FormatException(
+        'An OpenType feature tag is four printable ASCII characters, '
+        'like "lnum" or "ss01"',
+        tag,
+      );
+    }
+    if (value < 0) {
+      throw FormatException('An OpenType feature value is 0 or more', value);
+    }
+  }
+
+  /// Turns the feature [tag] on.
+  factory OpenTypeFeature.on(String tag) => OpenTypeFeature(tag);
+
+  static final RegExp _tag = RegExp(r'^[\x20-\x7E]{4}$');
+
+  /// Whether [tag] is a valid OpenType feature tag: four printable ASCII
+  /// characters.
+  static bool isValidTag(String tag) => _tag.hasMatch(tag);
+
+  /// Parses one setting: a string `"lnum"` or `"liga=0"` (spaces around the
+  /// tag, `=` and value are ignored, so `"liga = 0"` works), or a map
+  /// `{"tag": "liga", "value": 0}` (the value defaults to 1; `true` and
+  /// `false` mean 1 and 0). Throws a [FormatException] for anything else.
+  factory OpenTypeFeature.parse(Object? entry) {
+    switch (entry) {
+      case String():
+        final String text = entry.trim();
+        final int equals = text.indexOf('=');
+        if (equals < 0) return OpenTypeFeature(text);
+        final String tag = text.substring(0, equals).trim();
+        final int? value = int.tryParse(text.substring(equals + 1).trim());
+        if (value == null) {
+          throw FormatException(
+            'An OpenType feature is "tag" or "tag=<integer>", like "liga=0"',
+            entry,
+          );
+        }
+        return OpenTypeFeature(tag, value);
+      case Map():
+        final Object? tag = entry['tag'];
+        final Object? value = entry['value'] ?? 1;
+        if (tag is! String) {
+          throw FormatException('An OpenType feature map needs a "tag"', entry);
+        }
+        return OpenTypeFeature(tag.trim(), switch (value) {
+          true => 1,
+          false => 0,
+          num() when value == value.roundToDouble() => value.toInt(),
+          String() when int.tryParse(value.trim()) != null => int.parse(
+            value.trim(),
+          ),
+          _ => throw FormatException(
+            'An OpenType feature value is an integer',
+            entry,
+          ),
+        });
+      default:
+        throw FormatException(
+          'An OpenType feature is a string like "lnum" or "liga=0"',
+          entry,
+        );
+    }
+  }
+
+  /// [OpenTypeFeature.parse], or null for an entry it can't parse.
+  static OpenTypeFeature? tryParse(Object? entry) {
+    try {
+      return OpenTypeFeature.parse(entry);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// Parses the JSON of [TextNode.fontFeatures] into its canonical list of
+  /// strings (`"lnum"`, `"liga=0"`): a list of settings (strings or maps,
+  /// see [OpenTypeFeature.parse]) or one string of settings separated by
+  /// commas or spaces. Null is an empty list. Throws a [FormatException]
+  /// for an invalid setting.
+  static List<String> parseList(Object? json) {
+    final Iterable<Object?> entries = switch (json) {
+      null => const [],
+      String() => json.split(RegExp(r'[,\s]+')).where((e) => e.isNotEmpty),
+      List() => json,
+      _ => throw FormatException(
+        'fontFeatures is a list of OpenType features, like ["lnum"]',
+        json,
+      ),
+    };
+    return [
+      for (final Object? entry in entries)
+        OpenTypeFeature.parse(entry).toString(),
+    ];
+  }
+
+  @override
+  List<Object?> get props => [tag, value];
+
+  /// The setting as it is stored: `"lnum"` when on, else `"liga=0"`.
+  @override
+  String toString() => value == 1 ? tag : '$tag=$value';
 }
 
 /// [TextNode] specific properties.
@@ -205,9 +455,28 @@ mixin TextMixin {
   /// List of mixed text properties.
   /// Each [StartEndProp] has a [start] and [end] point that defines the index
   /// of data for which the properties should be applied to.
+  @FlutterProp(
+    'textMixedProps',
+    type: 'array',
+    group: 'Typography',
+    control: 'list',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Serialized rich-text runs; font size, family, weight, color and links are nested in each run.',
+  )
   late List<StartEndProp> textMixedProps;
 
   /// Horizontal alignment applied to text.
+  @FlutterProp(
+    'textAlignHorizontal',
+    type: 'string',
+    group: 'Typography',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note:
+        'Codelessly persisted horizontal text alignment, not textAlign alias.',
+  )
   late TextAlignHorizontalEnum textAlignHorizontal;
 
   /// Vertical alignment applied to text.
@@ -224,10 +493,24 @@ mixin TextMixin {
   late int? maxLines;
 
   /// Defines how the text would clip when it overflows the available space.
+  @FlutterProp(
+    'overflow',
+    type: 'string',
+    group: 'Text',
+    control: 'select',
+    flutterParam: false,
+    a2ui: false,
+    note: 'Codelessly TextOverflowC persisted choice; not a string alias.',
+  )
   late TextOverflowC overflow;
 
   /// Whether the text breaks at soft line breaks. When false, it is laid out
   /// as if there were unlimited horizontal space. Mirrors `Text.softWrap`.
+  ///
+  /// A text that hugs its content inside a row is held to the row's width
+  /// and wraps there, where a Flutter `Row` would leave a plain `Text`
+  /// unbounded on one line (overflowing if it must). Set this to false for
+  /// labels that must stay on one line: a button's label, a wordmark.
   @FlutterProp(
     'softWrap',
     type: 'boolean',

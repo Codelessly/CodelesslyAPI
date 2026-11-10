@@ -17,7 +17,7 @@ void main() {
           .map(
             (file) => file.path.replaceFirst('.dart', '.flutter_catalog.json'),
           );
-      expect(annotated.length, 54);
+      expect(annotated.length, 58);
       for (final path in annotated) {
         expect(File(path).existsSync(), isTrue, reason: path);
       }
@@ -106,6 +106,123 @@ void main() {
     );
   });
 
+  test(
+    'migrated inspector descriptor paths stay canonical and editor-only',
+    () {
+      final registry = jsonDecode(
+        File('lib/src/schema/generated/dpp_descriptors.json')
+            .readAsStringSync(),
+      ) as Map;
+      final descriptors = (registry['descriptors'] as List).cast<Map>();
+      final pairs = {
+        for (final descriptor in descriptors)
+          (descriptor['nodeType'] as String, descriptor['fieldPath'] as String),
+      };
+      for (final buttonType in const {
+        'elevatedButton',
+        'filledButton',
+        'outlinedButton',
+        'textButton',
+        'iconButton',
+      }) {
+        expect(pairs, contains((buttonType, 'properties.enabled')));
+        final field = descriptors.singleWhere(
+          (descriptor) =>
+              descriptor['nodeType'] == buttonType &&
+              descriptor['fieldPath'] == 'properties.enabled',
+        );
+        expect(field['flutterName'], isNull);
+      }
+      for (final nodeType in const {'modal', 'tabs'}) {
+        expect(
+          pairs,
+          isNot(contains((nodeType, 'rotation'))),
+          reason: '$nodeType codec does not serialize rotation',
+        );
+      }
+      for (final path in const {
+        'fills',
+        'strokes',
+        'strokeWeight',
+        'dashPattern',
+        'cornerRadius',
+        'cornerSmoothing',
+        'margin',
+        'padding',
+        'effects',
+        'rotation',
+        'edgePins',
+        'edgePins.left',
+        'edgePins.top',
+        'edgePins.right',
+        'edgePins.bottom',
+        'fills[].imageTransform',
+        'fills[].fit',
+        'fills[].alignment',
+        'fills[].scaleX',
+        'fills[].scaleY',
+        'fills[].cropData',
+        'fills[].imageRepeat',
+      }) {
+        expect(pairs, contains(('frame', path)), reason: path);
+      }
+      for (final path in const {
+        'textMixedProps',
+        'textAlignHorizontal',
+        'overflow',
+        'tabularFigures',
+        'fontFeatures',
+        'textMixedProps[].fontSize',
+        'textMixedProps[].fontName',
+        'textMixedProps[].lineHeight',
+        'textMixedProps[].letterSpacing',
+        'textMixedProps[].textDecoration',
+        'textMixedProps[].fills',
+        'textMixedProps[].link',
+      }) {
+        expect(pairs, contains(('text', path)), reason: path);
+      }
+      for (final path in const {
+        'fontSize',
+        'fontFamily',
+        'textAlign',
+        'rotationDegrees',
+        'textMixedProps[].props.fontSize',
+        'rootColor',
+        'basicBoxLocal.width',
+        'fills.imageTransform',
+        'cornerRadius.tl',
+      }) {
+        expect(
+          pairs.where((pair) => pair.$2 == path),
+          isEmpty,
+          reason:
+              'No invented alias, editor geometry, or array-item path: $path',
+        );
+      }
+      final catalog = jsonDecode(
+        File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
+            .readAsStringSync(),
+      ) as Map;
+      final stack = catalog['components']['Stack'] as Map;
+      final fields =
+          ((stack['allOf'] as List).last as Map)['properties'] as Map;
+      for (final path in const {
+        'margin',
+        'padding',
+        'fills',
+        'strokes',
+        'effects',
+      }) {
+        expect(
+          fields.containsKey(path),
+          isFalse,
+          reason: 'No new BASIC Stack field $path',
+        );
+      }
+    },
+  );
+
   test('editor-only scrolling metadata leaves BASIC Stack wire unchanged', () {
     final catalog = jsonDecode(
       File('lib/src/schema/generated/codelessly_a2ui_catalog.json')
@@ -135,6 +252,9 @@ void main() {
     'row_column_node': ('RowNode', 'Row', 11),
     'divider_node': ('DividerNode', 'Divider', 4),
     'badge_node': ('BadgeNode', 'Badge', 3),
+    'barcode_node': ('BarcodeNode', 'CodelesslyBarcode', 6),
+    'pagination_node': ('PaginationNode', 'CodelesslyPagination', 12),
+    'table_view_node': ('TableViewNode', 'CodelesslyTableView', 2),
     'app_bar_node': ('AppBarNode', 'AppBar', 4),
     'checkbox_node': ('CheckboxNode', 'Checkbox', 4),
     'slider_node': ('SliderNode', 'Slider', 5),
@@ -358,7 +478,7 @@ void main() {
         reason: '${entry.key} must retain every official BASIC property',
       );
     }
-    expect(catalog.components.length, 70);
+    expect(catalog.components.length, 74);
     expect(
       ((raw[r'$defs'] as Map)['anyComponent']['oneOf'] as List).length,
       catalog.components.length,

@@ -15,6 +15,9 @@ Map<String, dynamic> _$TriggerModelOmitDefaults(
     json.remove('duration');
   if (isJsonDefault(instance.intervalMillis, 1000))
     json.remove('intervalMillis');
+  if (isJsonDefault(instance.lookaheadMs, 100)) json.remove('lookaheadMs');
+  if (isJsonDefault(instance.visibleFraction, kDefaultVisibleFraction))
+    json.remove('visibleFraction');
   return json;
 }
 
@@ -28,8 +31,13 @@ TriggerModel _$TriggerModelFromJson(Map json) => TriggerModel(
   variable: json['variable'] as String?,
   intervalMs: (json['intervalMs'] as num?)?.toInt(),
   key: json['key'] as String?,
+  when: json['when'] as String?,
   duration: (json['duration'] as num?)?.toInt() ?? 1200,
   intervalMillis: (json['intervalMillis'] as num?)?.toInt() ?? 1000,
+  every: json['every'] as String?,
+  runWhen: json['runWhen'] as String?,
+  lookaheadMs: (json['lookaheadMs'] as num?)?.toInt() ?? 100,
+  visibleFraction: (json['visibleFraction'] as num?)?.toDouble() ?? 0.15,
 );
 
 Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
@@ -39,8 +47,13 @@ Map<String, dynamic> _$TriggerModelToJson(TriggerModel instance) =>
       'variable': ?instance.variable,
       'intervalMs': ?instance.intervalMs,
       'key': ?instance.key,
+      'when': ?instance.when,
       'duration': instance.duration,
       'intervalMillis': instance.intervalMillis,
+      'every': ?instance.every,
+      'runWhen': ?instance.runWhen,
+      'lookaheadMs': instance.lookaheadMs,
+      'visibleFraction': instance.visibleFraction,
     };
 
 const _$TriggerTypeEnumMap = {
@@ -76,4 +89,21 @@ const _$TriggerTypeEnumMap = {
   TriggerType.dragEnter: 'dragEnter',
   TriggerType.dragExit: 'dragExit',
   TriggerType.dragHover: 'dragHover',
+  TriggerType.dragCompleted: 'dragCompleted',
+  TriggerType.dropRejected: 'dropRejected',
+  TriggerType.dropFull: 'dropFull',
+  TriggerType.clock: 'clock',
+  TriggerType.reorder: 'reorder',
+  TriggerType.scroll: 'scroll',
+  TriggerType.wheel: 'wheel',
+  TriggerType.pinch: 'pinch',
+  TriggerType.keyUp: 'keyUp',
+  TriggerType.focusGained: 'focusGained',
+  TriggerType.focusLost: 'focusLost',
+  TriggerType.scrollEnd: 'scrollEnd',
+  TriggerType.enterViewport: 'enterViewport',
+  TriggerType.exitViewport: 'exitViewport',
+  TriggerType.refresh: 'refresh',
+  TriggerType.swipeAction: 'swipeAction',
+  TriggerType.backPressed: 'backPressed',
 };

@@ -4,6 +4,8 @@ import 'package:json_annotation/json_annotation.dart';
 import '../json_defaults.dart';
 import '../mixins.dart';
 import '../nodes/nodes.dart';
+import 'drag.dart';
+import 'physics.dart';
 import 'trigger.dart';
 
 part 'drag_and_drop.g.dart';
@@ -28,25 +30,6 @@ enum DragStart {
   };
 }
 
-/// Which way a dragged node may move.
-enum DragAxis {
-  /// Anywhere.
-  free,
-
-  /// Only left and right.
-  horizontal,
-
-  /// Only up and down.
-  vertical;
-
-  /// Displayable string representation.
-  String get prettify => switch (this) {
-    DragAxis.free => 'Free',
-    DragAxis.horizontal => 'Horizontal',
-    DragAxis.vertical => 'Vertical',
-  };
-}
-
 /// What the node that is being dragged shows in its place.
 enum DragSourceStyle {
   /// Stays, faded to [DraggableModel.ghostOpacity].
@@ -66,12 +49,31 @@ enum DragSourceStyle {
   };
 }
 
+/// Which point of the copy that follows the pointer sits under it.
+enum FeedbackAnchor {
+  /// The point that was grabbed: the copy keeps its place relative to the
+  /// pointer, as if the node itself were lifted.
+  grab,
+
+  /// The copy's centre: a feedback node of another size than the dragged
+  /// one (a label, a token) is held by its middle.
+  center;
+
+  /// Displayable string representation.
+  String get prettify => switch (this) {
+    FeedbackAnchor.grab => 'Where grabbed',
+    FeedbackAnchor.center => 'Centre',
+  };
+}
+
 /// Makes a node draggable: the user can pick it up and drop it on a node
 /// with a [DropTargetModel] that accepts its [group].
 ///
 /// While a drag is in progress the predefined `drag` variable describes it
 /// (`drag.active`, `drag.group`, `drag.data`, `drag.count`, `drag.over`,
-/// `drag.beforeId`, `drag.index`, `drag.accepted`, ...), so any node can
+/// `drag.beforeId`, `drag.index`, `drag.accepted`, and `drag.x`, `drag.y`,
+/// `drag.fx`, `drag.fy`: where the dragged node's centre is over the target
+/// under it, in pixels and as a share of the target's size), so any node can
 /// bind to it to highlight targets or show where the drop will land.
 @JsonSerializable()
 class DraggableModel with Equatable, SerializableMixin {
@@ -113,8 +115,50 @@ class DraggableModel with Equatable, SerializableMixin {
   final double feedbackElevation;
 
   /// A node to draw under the pointer instead of a copy of this one (e.g. a
-  /// stack showing `${drag.count} cards`). Empty for a copy.
+  /// stack showing `${drag.count} cards`). Empty for a copy. It is built by
+  /// id, with this node's data (its list item), so it need not be shown
+  /// anywhere: keep it hidden, or off the screen.
   final String feedbackNodeId;
+
+  /// Which point of the copy that follows the pointer sits under it.
+  @JsonKey(unknownEnumValue: FeedbackAnchor.grab)
+  final FeedbackAnchor feedbackAnchor;
+
+  /// Whether a drag that no target takes flies the node back to its place
+  /// with a spring ([springStiffness], [springDamping]) instead of it
+  /// reappearing there at once.
+  final bool returnSpring;
+
+  /// Stiffness of the spring back: higher is snappier.
+  final double springStiffness;
+
+  /// Damping of the spring back: lower overshoots and wobbles more.
+  final double springDamping;
+
+  /// Whether the node can be dragged now. Bind `draggable.enabled` in the
+  /// node's variables to switch it with app state (a tile already placed).
+  final bool enabled;
+
+  /// The return spring, shared with [DragModel.physics] and
+  /// [TransformGestureModel.physics]. Null uses [returnSpring],
+  /// [springStiffness] and [springDamping]; see [effectivePhysics].
+  final PhysicsModel? physics;
+
+  /// The key in [BaseNode.variables] that binds [enabled].
+  static const String enabledVariable = 'draggable.enabled';
+
+  /// The spring a drag no target takes flies back on: [physics], or the
+  /// first spring settings while [returnSpring] is on, or null for no
+  /// spring (the node reappears in place at once).
+  PhysicsModel? get effectivePhysics {
+    if (physics != null) return physics;
+    if (!returnSpring) return null;
+    return PhysicsModel(
+      stiffness: springStiffness,
+      damping: springDamping,
+      fling: false,
+    );
+  }
 
   /// Creates a [DraggableModel].
   const DraggableModel({
@@ -129,6 +173,12 @@ class DraggableModel with Equatable, SerializableMixin {
     this.feedbackOpacity = 1,
     this.feedbackElevation = 24,
     this.feedbackNodeId = '',
+    this.feedbackAnchor = FeedbackAnchor.grab,
+    this.returnSpring = true,
+    this.springStiffness = 260,
+    this.springDamping = 14,
+    this.enabled = true,
+    this.physics,
   });
 
   /// Duplicates this instance with the given data overrides.
@@ -144,6 +194,13 @@ class DraggableModel with Equatable, SerializableMixin {
     double? feedbackOpacity,
     double? feedbackElevation,
     String? feedbackNodeId,
+    FeedbackAnchor? feedbackAnchor,
+    bool? returnSpring,
+    double? springStiffness,
+    double? springDamping,
+    bool? enabled,
+    PhysicsModel? physics,
+    bool clearPhysics = false,
   }) => DraggableModel(
     group: group ?? this.group,
     data: data ?? this.data,
@@ -156,6 +213,12 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity: feedbackOpacity ?? this.feedbackOpacity,
     feedbackElevation: feedbackElevation ?? this.feedbackElevation,
     feedbackNodeId: feedbackNodeId ?? this.feedbackNodeId,
+    feedbackAnchor: feedbackAnchor ?? this.feedbackAnchor,
+    returnSpring: returnSpring ?? this.returnSpring,
+    springStiffness: springStiffness ?? this.springStiffness,
+    springDamping: springDamping ?? this.springDamping,
+    enabled: enabled ?? this.enabled,
+    physics: clearPhysics ? null : physics ?? this.physics,
   );
 
   @override
@@ -171,10 +234,32 @@ class DraggableModel with Equatable, SerializableMixin {
     feedbackOpacity,
     feedbackElevation,
     feedbackNodeId,
+    feedbackAnchor,
+    returnSpring,
+    springStiffness,
+    springDamping,
+    enabled,
+    physics,
   ];
 
-  /// Creates a [DraggableModel] from JSON data.
-  factory DraggableModel.fromJson(Map json) => _$DraggableModelFromJson(json);
+  /// Creates a [DraggableModel] from JSON data. Also reads the first form
+  /// of drag and drop made for the Spellbop rebuild: `longPressMs` (a long
+  /// press start), `feedbackShadow: false` (no shadow), `axis` `free`, and
+  /// the `whileDragging` names, which are the same.
+  factory DraggableModel.fromJson(Map json) => _$DraggableModelFromJson(
+    {
+        ...json,
+        if (json['start'] == null &&
+            (json['longPressMs'] ?? 0) is num &&
+            (json['longPressMs'] ?? 0) > 0)
+          'start': 'longPress',
+        if (json['feedbackElevation'] == null &&
+            json['feedbackShadow'] == false)
+          'feedbackElevation': 0,
+      }
+      ..remove('longPressMs')
+      ..remove('feedbackShadow'),
+  );
 
   @override
   Map toJson() =>
@@ -197,6 +282,22 @@ enum DropSlot {
     DropSlot.none => 'None',
     DropSlot.gap => 'Gap',
     DropSlot.node => 'Node',
+  };
+}
+
+/// How big the slot a drop target opens in its list is.
+enum DropSlotSize {
+  /// The size of the dragged node, so the list makes room for it.
+  dragged,
+
+  /// The slot node's own size ([DropTargetModel.slotNodeId]): an insertion
+  /// line a few pixels high between rows.
+  node;
+
+  /// Displayable string representation.
+  String get prettify => switch (this) {
+    DropSlotSize.dragged => 'Dragged node',
+    DropSlotSize.node => 'Slot node',
   };
 }
 
@@ -237,9 +338,34 @@ class DropTargetModel with Equatable, SerializableMixin {
   /// The node drawn as the slot for [DropSlot.node].
   final String slotNodeId;
 
+  /// How big the slot is: the dragged node's size, or the slot node's own
+  /// (for [DropSlot.node]).
+  @JsonKey(unknownEnumValue: DropSlotSize.dragged)
+  final DropSlotSize slotSize;
+
+  /// Whether the list opens its slot for a drop [acceptIf] refuses. Off,
+  /// the list stays as it is until the drag is over it with something it
+  /// takes, so only accepted drops show where they'd land.
+  final bool slotWhenRefused;
+
   /// Milliseconds a drag must stay over this target before its `dragHover`
   /// reactions fire (e.g. to switch to a tab's page); 0 for never.
   final int hoverDelayMs;
+
+  /// A condition (`${= ...}` formula or `${...}` path) that, while it
+  /// holds, makes the target take no drops at all: a slot that already has
+  /// a tile. Unlike a refusing [acceptIf], letting go on a full target is
+  /// not a wrong answer: it fires `dropFull`, not `dropRejected`. While a
+  /// drag is over it, `drag.over` names it and `drag.full` is true, so a
+  /// binding can say why it won't take the drop.
+  final String fullIf;
+
+  /// Whether the target takes drops now. Bind `dropTarget.enabled` in the
+  /// node's variables to switch it with app state.
+  final bool enabled;
+
+  /// The key in [BaseNode.variables] that binds [enabled].
+  static const String enabledVariable = 'dropTarget.enabled';
 
   /// Creates a [DropTargetModel].
   const DropTargetModel({
@@ -249,7 +375,11 @@ class DropTargetModel with Equatable, SerializableMixin {
     this.listNodeId = '',
     this.slot = DropSlot.gap,
     this.slotNodeId = '',
+    this.slotSize = DropSlotSize.dragged,
+    this.slotWhenRefused = true,
     this.hoverDelayMs = 0,
+    this.fullIf = '',
+    this.enabled = true,
   });
 
   /// Whether a draggable of [group] may be dropped here.
@@ -263,7 +393,11 @@ class DropTargetModel with Equatable, SerializableMixin {
     String? listNodeId,
     DropSlot? slot,
     String? slotNodeId,
+    DropSlotSize? slotSize,
+    bool? slotWhenRefused,
     int? hoverDelayMs,
+    String? fullIf,
+    bool? enabled,
   }) => DropTargetModel(
     accepts: accepts ?? this.accepts,
     key: key ?? this.key,
@@ -271,7 +405,11 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId: listNodeId ?? this.listNodeId,
     slot: slot ?? this.slot,
     slotNodeId: slotNodeId ?? this.slotNodeId,
+    slotSize: slotSize ?? this.slotSize,
+    slotWhenRefused: slotWhenRefused ?? this.slotWhenRefused,
     hoverDelayMs: hoverDelayMs ?? this.hoverDelayMs,
+    fullIf: fullIf ?? this.fullIf,
+    enabled: enabled ?? this.enabled,
   );
 
   @override
@@ -282,12 +420,23 @@ class DropTargetModel with Equatable, SerializableMixin {
     listNodeId,
     slot,
     slotNodeId,
+    slotSize,
+    slotWhenRefused,
     hoverDelayMs,
+    fullIf,
+    enabled,
   ];
 
   /// Creates a [DropTargetModel] from JSON data.
-  factory DropTargetModel.fromJson(Map json) =>
-      _$DropTargetModelFromJson(json);
+  /// Also reads the first form made for the Spellbop rebuild, whose
+  /// accepted groups were `groups`.
+  factory DropTargetModel.fromJson(Map json) => _$DropTargetModelFromJson(
+    {
+      ...json,
+      if (json['accepts'] == null && json['groups'] != null)
+        'accepts': json['groups'],
+    }..remove('groups'),
+  );
 
   @override
   Map toJson() =>
@@ -307,7 +456,8 @@ extension AvailableTriggerTypes on ReactionMixin {
           !own.contains(TriggerType.secondaryClick))
         TriggerType.secondaryClick,
       if (self is BaseNode && self.draggable != null) ...TriggerType.dragSource,
-      if (self is BaseNode && self.dropTarget != null) ...TriggerType.dropTarget,
+      if (self is BaseNode && self.dropTarget != null)
+        ...TriggerType.dropTarget,
     ];
   }
 }

@@ -38,6 +38,44 @@ class RowColumnNode extends ParentNode
   @JsonKey(includeFromJson: false, includeToJson: false)
   bool get wrapsChildren => wrap && rowColumnType == RowColumnType.row;
 
+  /// Whether a row/column that scrolls ([isScrollable]) clips its content to
+  /// its box. False lets what its children paint past their boxes (a card's
+  /// drop shadow) show past the row/column's edges, as Flutter's
+  /// `SingleChildScrollView(clipBehavior: Clip.none)` does; scrolled content
+  /// then shows past them too. [clipsContent] true always clips.
+  ///
+  /// A list view does this with `clipsContent: false`. A row/column needs
+  /// its own flag: its [clipsContent] is false unless set, and stored rows
+  /// and columns that scroll must keep clipping.
+  @JsonKey(defaultValue: true)
+  bool clipsScrollContent = true;
+
+  /// Whether children that overflow this row/column's main axis shrink to
+  /// fit it (by how far each can shrink, never below its content), as the
+  /// editor lays them out. False lays them out at their own sizes and lets
+  /// them run past its end, as a Flutter `Row`/`Column` does: a screen whose
+  /// content is a couple of pixels taller than its column keeps every piece
+  /// at its size.
+  @JsonKey(defaultValue: true)
+  bool squeezeChildren = true;
+
+  /// Whether a row/column that scrolls ([isScrollable]) makes its content at
+  /// least as long as its viewport, as Flutter's `ConstrainedBox(minHeight:
+  /// viewport)` around an `IntrinsicHeight` column in a
+  /// `SingleChildScrollView` does: while the children fit, the main-axis
+  /// alignment places them in the whole viewport (an error card centred on
+  /// the screen) and expanded or flexible children share what is left of
+  /// it; once they are longer the content scrolls, flex children at their
+  /// design size.
+  ///
+  /// A scrolling row/column already does this when it centres or spreads
+  /// its children or has a flex child; this makes it do so in every case
+  /// (start-aligned content, the runs of a wrapping one). One that hugs its
+  /// content along its scroll axis (a `flexible` fit) has no free space to
+  /// fill and keeps hugging.
+  @JsonKey(defaultValue: false)
+  bool fillViewport = false;
+
   /// Creates a [RowColumnNode] with the given data.
   RowColumnNode({
     required super.id,
@@ -82,6 +120,7 @@ class RowColumnNode extends ParentNode
     super.clipsContent = false,
     // [CornerMixin] properties.
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     double cornerSmoothing = 0,
     // [ScrollableMixin] properties.
     bool isScrollable = false,
@@ -96,6 +135,7 @@ class RowColumnNode extends ParentNode
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
@@ -128,6 +168,13 @@ class RowColumnNode extends ParentNode
     TriggerType.click,
     TriggerType.longPress,
     TriggerType.hold,
+    TriggerType.drag,
+    TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.scroll,
+    TriggerType.scrollEnd,
+    ...TriggerType.viewport,
   ];
 
   @override
@@ -149,6 +196,20 @@ class RowColumnNode extends ParentNode
       min: 0,
       defaultValue: () => 0,
       requiresLayout: true,
+    ),
+    'clipsScrollContent': BoolFieldAccess(
+      'Clip Scroll Content',
+      'Whether a scrolling row/column clips its content to its box; off lets children\'s shadows paint past its edges.',
+      () => clipsScrollContent,
+      (value) => clipsScrollContent = value,
+      defaultValue: () => true,
+    ),
+    'fillViewport': BoolFieldAccess(
+      'Fill Viewport',
+      'Whether a scrolling row/column\'s content is at least as long as its viewport, so alignment and expanded children use the whole viewport while it fits.',
+      () => fillViewport,
+      (value) => fillViewport = value,
+      defaultValue: () => false,
     ),
     'runSpacing': NumFieldAccess<double>(
       'Run Spacing',
@@ -208,7 +269,7 @@ class RowNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -239,7 +300,8 @@ class RowNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -263,7 +325,7 @@ class ColumnNode extends RowColumnNode {
     super.isMask, super.effects, super.blendMode, super.fills, super.strokes,
     super.strokeWeight, super.strokeMiterLimit, super.strokeAlign, super.strokeCap,
     super.dashPattern, super.strokeSide, super.reactions, super.parentID,
-    super.clipsContent, super.cornerRadius, super.cornerSmoothing,
+    super.clipsContent, super.cornerRadius, super.notches, super.cornerSmoothing,
     super.isScrollable, super.reverse, super.physics, super.primary,
     super.shrinkWrap, super.keyboardDismissBehavior,
     super.useFlutterListView, super.shouldAlwaysScroll})
@@ -294,7 +356,8 @@ class ColumnNode extends RowColumnNode {
       strokeAlign: source.strokeAlign, strokeCap: source.strokeCap,
       dashPattern: source.dashPattern, strokeSide: source.strokeSide,
       reactions: source.reactions, clipsContent: source.clipsContent,
-      cornerRadius: source.cornerRadius, cornerSmoothing: source.cornerSmoothing,
+      cornerRadius: source.cornerRadius, notches: source.notches,
+      cornerSmoothing: source.cornerSmoothing,
       isScrollable: source.isScrollable, reverse: source.reverse,
       physics: source.physics, primary: source.primary,
       keyboardDismissBehavior: source.keyboardDismissBehavior,
@@ -312,6 +375,9 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.componentVersion = source.componentVersion;
   target.componentSchema = source.componentSchema;
   target.squeezable = source.squeezable;
+  target.ignorePointer = source.ignorePointer;
+  target.keepAspect = source.keepAspect;
+  target.floating = source.floating;
   target.widthFactor = source.widthFactor;
   target.heightFactor = source.heightFactor;
   target.interactionStates = source.interactionStates;
@@ -324,6 +390,25 @@ void _copyRowState(RowColumnNode source, RowColumnNode target) {
   target.draggable = source.draggable;
   target.dropTarget = source.dropTarget;
   target.motion = source.motion;
+  target.effectAnimations = source.effectAnimations;
+  target.particles = source.particles;
+  target.flightKey = source.flightKey;
+  target.strokePath = source.strokePath;
+  target.reveal = source.reveal;
+  target.drag = source.drag;
+  target.transformGesture = source.transformGesture;
+  target.heroTag = source.heroTag;
+  target.heroFlight = source.heroFlight;
+  target.heroPlaceholder = source.heroPlaceholder;
+  target.flip = source.flip;
+  target.tilt = source.tilt;
+  target.key = source.key;
+  target.layoutAspectRatio = source.layoutAspectRatio;
+  target.sizeTransition = source.sizeTransition;
   target.inkWell = source.inkWell;
   target.transition = source.transition;
+  target.foregroundFills = source.foregroundFills;
+  target.clipsScrollContent = source.clipsScrollContent;
+  target.fillViewport = source.fillViewport;
+  target.squeezeChildren = source.squeezeChildren;
 }

@@ -6,7 +6,7 @@ import '../../schema/flutter_prop.dart';
 
 part 'node_transition.g.dart';
 
-/// The easing of a [NodeTransition].
+/// The easing of a [NodeTransition]: the same curves as [MotionCurve].
 enum TransitionCurve {
   /// Constant speed.
   linear,
@@ -21,7 +21,32 @@ enum TransitionCurve {
   easeInOut,
 
   /// A strong ease out, for things that arrive.
-  easeOutCubic;
+  easeOutCubic,
+
+  /// Overshoots a little and settles, like a spring.
+  easeOutBack,
+
+  /// Slow at both ends, with a stronger (cubic) acceleration in the middle.
+  easeInOutCubic,
+
+  /// Holds the start value, then jumps to the end value halfway through.
+  step,
+
+  /// A gentle sine ease in and out, like a breath.
+  easeInOutSine,
+
+  /// Overshoots and settles like a spring (a fixed spring curve here: a
+  /// transition keeps its duration).
+  spring,
+
+  /// Overshoots and wobbles a few times before settling.
+  elasticOut,
+
+  /// Drops and bounces like a ball before settling.
+  bounceOut,
+
+  /// Material-style fast start and long, gentle settle.
+  fastOutSlowIn;
 
   /// Displayable name.
   String get prettify => switch (this) {
@@ -30,6 +55,14 @@ enum TransitionCurve {
     TransitionCurve.easeOut => 'Ease out',
     TransitionCurve.easeInOut => 'Ease in out',
     TransitionCurve.easeOutCubic => 'Ease out cubic',
+    TransitionCurve.easeOutBack => 'Ease out back',
+    TransitionCurve.easeInOutCubic => 'Ease in out cubic',
+    TransitionCurve.step => 'Step',
+    TransitionCurve.easeInOutSine => 'Sine (breath)',
+    TransitionCurve.spring => 'Spring',
+    TransitionCurve.elasticOut => 'Elastic',
+    TransitionCurve.bounceOut => 'Bounce',
+    TransitionCurve.fastOutSlowIn => 'Fast out, slow in',
   };
 }
 

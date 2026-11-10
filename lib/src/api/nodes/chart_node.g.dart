@@ -20,6 +20,7 @@ Map<String, dynamic> _$ChartSeriesOmitDefaults(
   if (isJsonDefault(instance.dashed, false)) json.remove('dashed');
   if (isJsonDefault(instance.strokeWidth, 2)) json.remove('strokeWidth');
   if (isJsonDefault(instance.endDot, false)) json.remove('endDot');
+  if (isJsonDefault(instance.curved, false)) json.remove('curved');
   if (isJsonDefault(instance.fillOpacity, 0.25)) json.remove('fillOpacity');
   return json;
 }
@@ -54,6 +55,9 @@ Map<String, dynamic> _$ChartNodeOmitDefaults(
     json.remove('verticalFit');
   if (isJsonDefault(instance.flex, 1)) json.remove('flex');
   if (isJsonDefault(instance.squeezable, false)) json.remove('squeezable');
+  if (isJsonDefault(instance.ignorePointer, false))
+    json.remove('ignorePointer');
+  if (isJsonDefault(instance.keepAspect, 0)) json.remove('keepAspect');
   if (isJsonDefault(instance.aspectRatioLock, false))
     json.remove('aspectRatioLock');
   if (isJsonDefault(instance.alignment, AlignmentModel.none))
@@ -70,6 +74,10 @@ Map<String, dynamic> _$ChartNodeOmitDefaults(
   if (isJsonDefault(instance.transitionMs, 0)) json.remove('transitionMs');
   if (isJsonDefault(instance.drawScale, 1.0)) json.remove('drawScale');
   if (isJsonDefault(instance.enabled, true)) json.remove('enabled');
+  if (isJsonDefault(instance.effectAnimations, []))
+    json.remove('effectAnimations');
+  if (isJsonDefault(instance.flightKey, '')) json.remove('flightKey');
+  if (isJsonDefault(instance.floating, false)) json.remove('floating');
   if (isJsonDefault(instance.variables, {})) json.remove('variables');
   if (isJsonDefault(instance.multipleVariables, {}))
     json.remove('multipleVariables');
@@ -134,6 +142,15 @@ Map<String, dynamic> _$ChartPropertiesOmitDefaults(
   ))
     json.remove('trackColor');
   if (isJsonDefault(instance.divisions, 8)) json.remove('divisions');
+  if (isJsonDefault(instance.donutThickness, 0.15))
+    json.remove('donutThickness');
+  if (isJsonDefault(instance.sliceGap, 1.5)) json.remove('sliceGap');
+  if (isJsonDefault(instance.startAngle, 0)) json.remove('startAngle');
+  if (isJsonDefault(instance.selectOnHover, false))
+    json.remove('selectOnHover');
+  if (isJsonDefault(instance.fitMinY, false)) json.remove('fitMinY');
+  if (isJsonDefault(instance.yLabelPrefix, '')) json.remove('yLabelPrefix');
+  if (isJsonDefault(instance.yLabelSuffix, '')) json.remove('yLabelSuffix');
   return json;
 }
 
@@ -155,6 +172,10 @@ ChartSeries _$ChartSeriesFromJson(Map json) => ChartSeries(
   dashed: json['dashed'] as bool? ?? false,
   strokeWidth: (json['strokeWidth'] as num?)?.toDouble() ?? 2,
   endDot: json['endDot'] as bool? ?? false,
+  endDotHaloColor: json['endDotHaloColor'] == null
+      ? null
+      : ColorRGBA.fromJson(json['endDotHaloColor']),
+  curved: json['curved'] as bool? ?? false,
   fillTo: json['fillTo'] as String?,
   fillOpacity: (json['fillOpacity'] as num?)?.toDouble() ?? 0.25,
 );
@@ -170,6 +191,8 @@ Map<String, dynamic> _$ChartSeriesToJson(ChartSeries instance) =>
       'dashed': instance.dashed,
       'strokeWidth': instance.strokeWidth,
       'endDot': instance.endDot,
+      'endDotHaloColor': ?instance.endDotHaloColor?.toJson(),
+      'curved': instance.curved,
       'fillTo': ?instance.fillTo,
       'fillOpacity': instance.fillOpacity,
     };
@@ -272,6 +295,8 @@ ChartNode _$ChartNodeFromJson(Map json) =>
           ) ??
           {}
       ..squeezable = json['squeezable'] as bool? ?? false
+      ..ignorePointer = json['ignorePointer'] as bool? ?? false
+      ..keepAspect = (json['keepAspect'] as num?)?.toDouble() ?? 0
       ..widthFactor = (json['widthFactor'] as num?)?.toDouble()
       ..heightFactor = (json['heightFactor'] as num?)?.toDouble()
       ..interactionStates =
@@ -304,6 +329,48 @@ ChartNode _$ChartNodeFromJson(Map json) =>
       ..motion = json['motion'] == null
           ? null
           : MotionModel.fromJson(json['motion'] as Map)
+      ..effectAnimations =
+          (json['effectAnimations'] as List<dynamic>?)
+              ?.map((e) => EffectAnimation.fromJson(e as Map))
+              .toList() ??
+          []
+      ..particles = json['particles'] == null
+          ? null
+          : ParticleEmitter.fromJson(json['particles'] as Map)
+      ..flightKey = json['flightKey'] as String? ?? ''
+      ..strokePath = json['strokePath'] == null
+          ? null
+          : StrokePath.fromJson(json['strokePath'] as Map)
+      ..reveal = json['reveal'] == null
+          ? null
+          : RevealModel.fromJson(json['reveal'] as Map)
+      ..drag = json['drag'] == null
+          ? null
+          : DragModel.fromJson(json['drag'] as Map)
+      ..transformGesture = json['transformGesture'] == null
+          ? null
+          : TransformGestureModel.fromJson(json['transformGesture'] as Map)
+      ..floating = json['floating'] as bool? ?? false
+      ..heroTag = json['heroTag'] as String?
+      ..heroFlight = $enumDecodeNullable(
+        _$HeroFlightEnumMap,
+        json['heroFlight'],
+      )
+      ..heroPlaceholder = $enumDecodeNullable(
+        _$HeroPlaceholderEnumMap,
+        json['heroPlaceholder'],
+      )
+      ..flip = json['flip'] == null
+          ? null
+          : FlipModel.fromJson(json['flip'] as Map)
+      ..tilt = json['tilt'] == null
+          ? null
+          : TiltModel.fromJson(json['tilt'] as Map)
+      ..key = json['key'] as String?
+      ..layoutAspectRatio = (json['layoutAspectRatio'] as num?)?.toDouble()
+      ..sizeTransition = json['sizeTransition'] == null
+          ? null
+          : NodeTransition.fromJson(json['sizeTransition'] as Map)
       ..type = json['type'] as String;
 
 Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
@@ -324,6 +391,8 @@ Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
   'verticalFit': _$SizeFitEnumMap[instance.verticalFit]!,
   'flex': instance.flex,
   'squeezable': instance.squeezable,
+  'ignorePointer': instance.ignorePointer,
+  'keepAspect': instance.keepAspect,
   'aspectRatioLock': instance.aspectRatioLock,
   'alignment': instance.alignment.toJson(),
   'basicBoxLocal': instance.basicBoxLocal.toJson(),
@@ -345,6 +414,22 @@ Map<String, dynamic> _$ChartNodeToJson(ChartNode instance) => <String, dynamic>{
   'dropTarget': ?instance.dropTarget?.toJson(),
   'enabled': instance.enabled,
   'motion': ?instance.motion?.toJson(),
+  'effectAnimations': instance.effectAnimations.map((e) => e.toJson()).toList(),
+  'particles': ?instance.particles?.toJson(),
+  'flightKey': instance.flightKey,
+  'strokePath': ?instance.strokePath?.toJson(),
+  'reveal': ?instance.reveal?.toJson(),
+  'drag': ?instance.drag?.toJson(),
+  'transformGesture': ?instance.transformGesture?.toJson(),
+  'floating': instance.floating,
+  'heroTag': ?instance.heroTag,
+  'heroFlight': ?_$HeroFlightEnumMap[instance.heroFlight],
+  'heroPlaceholder': ?_$HeroPlaceholderEnumMap[instance.heroPlaceholder],
+  'flip': ?instance.flip?.toJson(),
+  'tilt': ?instance.tilt?.toJson(),
+  'key': ?instance.key,
+  'layoutAspectRatio': ?instance.layoutAspectRatio,
+  'sizeTransition': ?instance.sizeTransition?.toJson(),
   'type': instance.type,
   'properties': instance.properties.toJson(),
   'selectedIndex': instance.selectedIndex,
@@ -374,6 +459,21 @@ const _$InteractionStateEnumMap = {
   InteractionState.pressed: 'pressed',
   InteractionState.selected: 'selected',
   InteractionState.disabled: 'disabled',
+  InteractionState.dragged: 'dragged',
+};
+
+const _$HeroFlightEnumMap = {
+  HeroFlight.standard: 'standard',
+  HeroFlight.morphCorners: 'morphCorners',
+  HeroFlight.arc: 'arc',
+  HeroFlight.morph: 'morph',
+  HeroFlight.fadeThrough: 'fadeThrough',
+  HeroFlight.containerTransform: 'containerTransform',
+};
+
+const _$HeroPlaceholderEnumMap = {
+  HeroPlaceholder.none: 'none',
+  HeroPlaceholder.source: 'source',
 };
 
 ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(
@@ -433,6 +533,15 @@ ChartProperties _$ChartPropertiesFromJson(Map json) => ChartProperties(
       ? const ColorRGBA(r: 18 / 255, g: 19 / 255, b: 22 / 255, a: 1)
       : ColorRGBA.fromJson(json['trackColor']),
   divisions: (json['divisions'] as num?)?.toInt() ?? 8,
+  donutThickness: (json['donutThickness'] as num?)?.toDouble() ?? 0.15,
+  sliceGap: (json['sliceGap'] as num?)?.toDouble() ?? 1.5,
+  startAngle: (json['startAngle'] as num?)?.toDouble() ?? 0,
+  selectOnHover: json['selectOnHover'] as bool? ?? false,
+  plotInset: (json['plotInset'] as num?)?.toDouble(),
+  fitMinY: json['fitMinY'] as bool? ?? false,
+  yLabelPrefix: json['yLabelPrefix'] as String? ?? '',
+  yLabelSuffix: json['yLabelSuffix'] as String? ?? '',
+  yAxisFontFamily: json['yAxisFontFamily'] as String?,
 );
 
 Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
@@ -469,10 +578,20 @@ Map<String, dynamic> _$ChartPropertiesToJson(ChartProperties instance) =>
       'nowColor': ?instance.nowColor?.toJson(),
       'trackColor': instance.trackColor.toJson(),
       'divisions': instance.divisions,
+      'donutThickness': instance.donutThickness,
+      'sliceGap': instance.sliceGap,
+      'startAngle': instance.startAngle,
+      'selectOnHover': instance.selectOnHover,
+      'plotInset': ?instance.plotInset,
+      'fitMinY': instance.fitMinY,
+      'yLabelPrefix': instance.yLabelPrefix,
+      'yLabelSuffix': instance.yLabelSuffix,
+      'yAxisFontFamily': ?instance.yAxisFontFamily,
     };
 
 const _$ChartTypeEnumMap = {
   ChartType.bar: 'bar',
   ChartType.line: 'line',
   ChartType.timeline: 'timeline',
+  ChartType.donut: 'donut',
 };

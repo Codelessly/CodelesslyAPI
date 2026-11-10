@@ -1,0 +1,2540 @@
+// What a node does beyond its layout and paint: how it moves (motion,
+// loops, transitions), how it reacts (ink, interaction states, drag and
+// drop, tooltip) and the one-shot effects it plays. Each is an immutable
+// value with total decoding and sparse encoding; all of them together are a
+// node's [Behaviours], stored flat in the node's JSON (`"motion": {...}`,
+// `"tooltip": "..."`).
+//
+// Durations are whole milliseconds (`duration`, `delay`).
+import 'dart:convert' show jsonDecode;
+import 'dart:math' as math;
+
+import 'package:meta/meta.dart';
+
+import 'json.dart';
+import 'values/color.dart';
+import 'values/enums.dart';
+import 'values/geometry.dart';
+
+part 'gestures.dart';
+
+/// An easing curve, by the name of its Flutter `Curves` constant. `spring`
+/// is a damped spring (see [Motion.springStiffness]); `step` jumps half way.
+enum AnimationCurve {
+  linear,
+  easeIn,
+  easeOut,
+  easeInOut,
+  easeOutBack,
+  easeOutCubic,
+  easeInOutCubic,
+  easeInOutSine,
+  fastOutSlowIn,
+  decelerate,
+  elasticOut,
+  bounceOut,
+  spring,
+  step;
+
+  /// The curve named [v] (any case, spaces and dashes ignored), or null.
+  static AnimationCurve? parse(Object? v) {
+    if (v is AnimationCurve) return v;
+    if (v is! String) return null;
+    String simple(String s) => s.toLowerCase().replaceAll(RegExp(r'[\s_,-]'), '');
+    final s = simple(v);
+    for (final c in values) {
+      if (simple(c.name) == s) return c;
+    }
+    return null;
+  }
+
+  /// This curve at [t] (0–1). `spring` follows a fixed damped spring, as a
+  /// transition between two values does.
+  double transform(double t) {
+    if (t <= 0) return 0;
+    if (t >= 1) return 1;
+    return switch (this) {
+      linear => t,
+      easeIn => _cubic(0.42, 0, 1, 1, t),
+      easeOut => _cubic(0, 0, 0.58, 1, t),
+      easeInOut => _cubic(0.42, 0, 0.58, 1, t),
+      easeOutBack => _cubic(0.175, 0.885, 0.32, 1.275, t),
+      easeOutCubic => _cubic(0.215, 0.61, 0.355, 1, t),
+      easeInOutCubic => _cubic(0.645, 0.045, 0.355, 1, t),
+      easeInOutSine => _cubic(0.445, 0.05, 0.55, 0.95, t),
+      fastOutSlowIn => _cubic(0.4, 0, 0.2, 1, t),
+      decelerate => 1 - (1 - t) * (1 - t),
+      elasticOut => math.pow(2, -10 * t) * math.sin((t - 0.1) * 2 * math.pi / 0.4) + 1,
+      bounceOut => _bounce(t),
+      spring => 1 - math.exp(-6.5 * t) * math.cos(2 * math.pi * 1.25 * t) * (1 - t * t),
+      step => t < 0.5 ? 0 : 1,
+    };
+  }
+
+  // Flutter's Cubic.
+  static double _cubic(double a, double b, double c, double d, double t) {
+    double eval(double p, double q, double m) => 3 * p * (1 - m) * (1 - m) * m + 3 * q * (1 - m) * m * m + m * m * m;
+    var start = 0.0, end = 1.0;
+    while (true) {
+      final mid = (start + end) / 2;
+      final x = eval(a, c, mid);
+      if ((t - x).abs() < 0.001) return eval(b, d, mid);
+      if (x < t) {
+        start = mid;
+      } else {
+        end = mid;
+      }
+    }
+  }
+
+  static double _bounce(double t) {
+    if (t < 1 / 2.75) return 7.5625 * t * t;
+    if (t < 2 / 2.75) {
+      t -= 1.5 / 2.75;
+      return 7.5625 * t * t + 0.75;
+    }
+    if (t < 2.5 / 2.75) {
+      t -= 2.25 / 2.75;
+      return 7.5625 * t * t + 0.9375;
+    }
+    t -= 2.625 / 2.75;
+    return 7.5625 * t * t + 0.984375;
+  }
+}
+
+// --- helpers ------------------------------------------------------------------
+
+/// Value equality over [props] (deep for lists and maps).
+@immutable
+abstract base class _Value {
+  const _Value();
+  List<Object?> get props;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other.runtimeType == runtimeType && jsonEquality.equals((other as _Value).props, props);
+
+  @override
+  int get hashCode => jsonEquality.hash(props);
+}
+
+extension type const _R(Json m) {
+  double d(String k, double fallback) => readDouble(m[k]) ?? fallback;
+  double? dn(String k) => readDouble(m[k]);
+  int i(String k, int fallback) => readInt(m[k]) ?? fallback;
+  int ms(String k, int fallback) => math.max(0, readInt(m[k]) ?? fallback);
+  bool b(String k, bool fallback) => readBool(m[k]) ?? fallback;
+  String s(String k, [String fallback = '']) => readString(m[k]) ?? fallback;
+  String? sn(String k) => readString(m[k]);
+  T e<T extends Enum>(List<T> values, String k, T fallback) => readEnum(values, m[k], fallback);
+  AnimationCurve curve(String k, AnimationCurve fallback) => AnimationCurve.parse(m[k]) ?? fallback;
+  Color? color(String k) => Color.fromJson(m[k]);
+  List<double> doubles(String k) => [...?readList(m[k])?.map(readDouble).nonNulls];
+}
+
+extension on Json {
+  void d(String k, double v, double fallback) {
+    if (v != fallback) this[k] = writeDouble(v);
+  }
+
+  void dn(String k, double? v) {
+    if (v != null) this[k] = writeDouble(v);
+  }
+
+  void i(String k, int v, int fallback) {
+    if (v != fallback) this[k] = v;
+  }
+
+  void b(String k, bool v, bool fallback) {
+    if (v != fallback) this[k] = v;
+  }
+
+  void s(String k, String? v, [String fallback = '']) {
+    if (v != null && v != fallback) this[k] = v;
+  }
+
+  void e(String k, Enum v, Enum fallback) {
+    if (v != fallback) this[k] = v.name;
+  }
+
+  void color(String k, Color? v) {
+    if (v != null) this[k] = v.toJson();
+  }
+}
+
+double _lerp(double a, double b, double t) => a + (b - a) * t;
+
+/// [v], or the JSON [v] holds as text (a bound list given as JSON text).
+Object? _jsonText(Object? v) {
+  if (v is! String) return v;
+  try {
+    return jsonDecode(v);
+  } catch (_) {
+    return null;
+  }
+}
+
+/// A bound switch read loosely: true, 1, `on`, `true`.
+bool? _loose(Object? v) => switch (v) {
+  final bool b => b,
+  final num n => n != 0,
+  final String s => switch (s.trim().toLowerCase()) {
+    'true' || 'on' || '1' => true,
+    'false' || 'off' || '0' || '' => false,
+    _ => null,
+  },
+  _ => null,
+};
+
+// --- motion -------------------------------------------------------------------
+
+/// How a [Motion] repeats.
+enum MotionLoop {
+  /// Plays once.
+  none,
+
+  /// From the start again.
+  restart,
+
+  /// Back and forth.
+  reverse,
+
+  /// Swings around rest on a sine, to its values and as far the other way,
+  /// one swing per [Motion.duration]: a pendulum, a needle sweeping a
+  /// gauge. It rests at rest, not at an end.
+  swing,
+}
+
+/// How [Motion.pathProgress] maps to a point on [Motion.path].
+enum MotionPathPacing {
+  /// The share of the path's length: even speed along the curve.
+  length,
+
+  /// The share of the area swept by a line from the focus
+  /// ([Motion.pathFocusX], [Motion.pathFocusY], in the path's coordinates)
+  /// to the node: Kepler's second law, an orbit that speeds up near its
+  /// Sun.
+  area,
+}
+
+/// A band of light sweeping across what the node paints, over and over (a
+/// loading skeleton's shimmer). Blended over the node's own pixels only.
+/// The design canvas draws it still, halfway across.
+@immutable
+final class MotionShimmer extends _Value {
+  const MotionShimmer({
+    this.color = Color.white,
+    this.strength = 0.8,
+    this.width = 0.44,
+    this.duration = 1400,
+    this.angle = 0,
+  });
+
+  final Color color;
+
+  /// How strongly the band's centre blends the colour in (0–1).
+  final double strength;
+
+  /// The band's width, a share of the node's size along the sweep.
+  final double width;
+
+  /// One sweep across (ms).
+  final int duration;
+
+  /// The sweep's direction in degrees: 0 left to right, 90 top to bottom.
+  final double angle;
+
+  static MotionShimmer? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return MotionShimmer(
+      color: r.color('color') ?? Color.white,
+      strength: r.d('strength', 0.8),
+      width: r.d('width', 0.44),
+      duration: r.ms('duration', 1400),
+      angle: r.d('angle', 0),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{};
+    if (color != Color.white) j['color'] = color.toJson();
+    return j
+      ..d('strength', strength, 0.8)
+      ..d('width', width, 0.44)
+      ..i('duration', duration, 1400)
+      ..d('angle', angle, 0);
+  }
+
+  @override
+  List<Object?> get props => [color, strength, width, duration, angle];
+}
+
+/// The values a [Motion] passes through at [t] (0–1) between its start and
+/// its values; null values follow the curve.
+@immutable
+final class MotionKeyframe extends _Value {
+  const MotionKeyframe({
+    required this.t,
+    this.translateX,
+    this.translateY,
+    this.scale,
+    this.scaleX,
+    this.scaleY,
+    this.opacity,
+    this.rotate,
+    this.rotateX,
+    this.rotateY,
+    this.pathProgress,
+  });
+
+  final double t;
+  final double? translateX, translateY, scale, scaleX, scaleY, opacity, rotate, rotateX, rotateY, pathProgress;
+
+  static const List<String> properties = [
+    'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', 'rotateY', //
+    'pathProgress',
+  ];
+
+  double? valueOf(String property) => switch (property) {
+    'translateX' => translateX,
+    'translateY' => translateY,
+    'scale' => scale,
+    'scaleX' => scaleX,
+    'scaleY' => scaleY,
+    'opacity' => opacity,
+    'rotate' => rotate,
+    'rotateX' => rotateX,
+    'rotateY' => rotateY,
+    'pathProgress' => pathProgress,
+    _ => null,
+  };
+
+  static MotionKeyframe? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return MotionKeyframe(
+      t: r.d('t', 0),
+      translateX: r.dn('translateX'),
+      translateY: r.dn('translateY'),
+      scale: r.dn('scale'),
+      scaleX: r.dn('scaleX'),
+      scaleY: r.dn('scaleY'),
+      opacity: r.dn('opacity'),
+      rotate: r.dn('rotate'),
+      rotateX: r.dn('rotateX'),
+      rotateY: r.dn('rotateY'),
+      pathProgress: r.dn('pathProgress'),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{'t': writeDouble(t)};
+    for (final p in properties) {
+      j.dn(p, valueOf(p));
+    }
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [
+    t,
+    translateX,
+    translateY,
+    scale,
+    scaleX,
+    scaleY,
+    opacity,
+    rotate,
+    rotateX,
+    rotateY,
+    pathProgress,
+  ];
+}
+
+/// How a node moves: a transform drawn over its layout (CSS-like: it
+/// doesn't move anything else), the transitions between its values when they
+/// change, an entrance, a loop and a spin. Its values are the node's rest
+/// pose; the design canvas draws the node there.
+///
+/// The transform, in order: [translateX]/[translateY] (pixels), [scale]
+/// times [scaleX]/[scaleY], [rotate] (degrees, plus the spin), then
+/// [rotateX]/[rotateY] in 3D with [perspective], about the point
+/// ([originX], [originY]) in the box (-1–1, 0 the centre); then a shift by
+/// [shiftX]/[shiftY] times the node's size. [opacity] and [blur] apply on
+/// top of the node's own.
+@immutable
+final class Motion extends _Value {
+  const Motion({
+    this.translateX = 0,
+    this.translateY = 0,
+    this.scale = 1,
+    this.scaleX = 1,
+    this.scaleY = 1,
+    this.shiftX = 0,
+    this.shiftY = 0,
+    this.opacity = 1,
+    this.rotate = 0,
+    this.rotateX = 0,
+    this.rotateY = 0,
+    this.perspective = 1,
+    this.originX = 0,
+    this.originY = 0,
+    this.duration = 0,
+    this.delay = 0,
+    this.curve = AnimationCurve.easeInOut,
+    this.springStiffness = 380,
+    this.springDamping = 20,
+    this.spin = 0,
+    this.spinRamp = 800,
+    this.loop = MotionLoop.none,
+    this.repeat = 0,
+    this.enter = false,
+    this.enterFrom,
+    this.replayKey,
+    this.blur = 0,
+    this.backfaceHidden = false,
+    this.path,
+    this.pathProgress = 0,
+    this.orientToPath = false,
+    this.keyframes = const [],
+    this.pulseKey,
+    this.revealOnScroll = false,
+    this.revealFraction = 0.15,
+    this.orientUpright = false,
+    this.arc = 0,
+    this.paused = false,
+    this.phase = 0,
+    this.pathPacing = MotionPathPacing.length,
+    this.pathFocusX = 0,
+    this.pathFocusY = 0,
+    this.pathWrap = false,
+    this.shimmer,
+    this.named = const {},
+  });
+
+  static const Motion none = Motion();
+
+  final double translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity;
+  final double rotate, rotateX, rotateY, perspective, originX, originY;
+
+  /// A transition's length and its wait (ms).
+  final int duration, delay;
+  final AnimationCurve curve;
+
+  /// The spring of [AnimationCurve.spring] (mass 1).
+  final double springStiffness, springDamping;
+
+  /// Continuous turns per second (negative: counter-clockwise), reached
+  /// over [spinRamp] ms.
+  final double spin;
+  final int spinRamp;
+
+  /// Plays between the start ([enterFrom], else rest) and the values.
+  final MotionLoop loop;
+
+  /// Loop runs (0: forever).
+  final int repeat;
+
+  /// Plays an entrance when the node appears: from [enterFrom], or from
+  /// rest to the values when null.
+  final bool enter;
+  final Motion? enterFrom;
+
+  /// A change of this text replays the entrance.
+  final String? replayKey;
+  final double blur;
+
+  /// Hidden while its back faces the viewer.
+  final bool backfaceHidden;
+
+  /// An SVG path the node moves along, at [pathProgress] (0–1).
+  final String? path;
+  final double pathProgress;
+
+  /// Turns with the path's direction.
+  final bool orientToPath;
+  final List<MotionKeyframe> keyframes;
+
+  /// A change of this text plays the transition there and back.
+  final String? pulseKey;
+
+  /// Waits to enter until [revealFraction] of the node scrolls into view.
+  final bool revealOnScroll;
+  final double revealFraction;
+
+  /// With [orientToPath], never upside down: the path's direction folded
+  /// into -90–90 degrees.
+  final bool orientUpright;
+
+  /// Bends every change of position (translate, shift) into a quadratic
+  /// curve whose middle sits this share of the distance off the straight
+  /// line, to the right of the direction of travel (negative: left).
+  final double arc;
+
+  /// Freezes the loop and the spin where they are; false carries on from
+  /// there (bindable as `motion.paused`).
+  final bool paused;
+
+  /// Where a [loop] starts in its cycle (0–1): nodes sharing one motion
+  /// spread round it (`motion.phase`: `${= index / count}`).
+  final double phase;
+
+  /// How [pathProgress] maps to a point on [path]: by length or by area
+  /// swept about ([pathFocusX], [pathFocusY]).
+  final MotionPathPacing pathPacing;
+  final double pathFocusX, pathFocusY;
+
+  /// Reads [pathProgress] modulo 1 (a closed path goes round and round); a
+  /// transition goes the short way round.
+  final bool pathWrap;
+
+  /// A band of light sweeping across the node; null for none.
+  final MotionShimmer? shimmer;
+
+  /// The animating values (of [properties]) its JSON gives explicitly, even
+  /// at their defaults: an [enterFrom] of `{"opacity": 1}` enters from full
+  /// opacity. Read from the JSON's keys and written back; not a key of its
+  /// own, and not part of equality.
+  final Set<String> named;
+
+  /// The properties that animate.
+  static const List<String> properties = [
+    'translateX', 'translateY', 'scale', 'shiftX', 'shiftY', 'scaleX', 'scaleY', 'opacity', 'rotate', //
+    'rotateX', 'rotateY', 'spin', 'pathProgress', 'blur',
+  ];
+
+  bool get hasPath => path != null && path!.trim().isNotEmpty;
+
+  /// Whether the pose differs from the layout (a transform, a fade, a
+  /// blur).
+  bool get hasTransform =>
+      translateX != 0 ||
+      translateY != 0 ||
+      scale != 1 ||
+      shiftX != 0 ||
+      shiftY != 0 ||
+      scaleX != 1 ||
+      scaleY != 1 ||
+      opacity != 1 ||
+      rotate != 0 ||
+      rotateX != 0 ||
+      rotateY != 0 ||
+      blur != 0 ||
+      backfaceHidden ||
+      hasPath;
+
+  bool get hasEntrance => enter || enterFrom != null || revealOnScroll;
+
+  double valueOf(String property) => switch (property) {
+    'translateX' => translateX,
+    'translateY' => translateY,
+    'scale' => scale,
+    'shiftX' => shiftX,
+    'shiftY' => shiftY,
+    'scaleX' => scaleX,
+    'scaleY' => scaleY,
+    'opacity' => opacity,
+    'rotate' => rotate,
+    'rotateX' => rotateX,
+    'rotateY' => rotateY,
+    'spin' => spin,
+    'pathProgress' => pathProgress,
+    'blur' => blur,
+    _ => 0,
+  };
+
+  /// This motion with [property] (one of [properties]) set to [value].
+  Motion withValue(String property, double value) {
+    final v = {for (final p in properties) p: valueOf(p), property: value};
+    return Motion(
+      translateX: v['translateX']!,
+      translateY: v['translateY']!,
+      scale: v['scale']!,
+      scaleX: v['scaleX']!,
+      scaleY: v['scaleY']!,
+      shiftX: v['shiftX']!,
+      shiftY: v['shiftY']!,
+      opacity: v['opacity']!.clamp(0, 1).toDouble(),
+      rotate: v['rotate']!,
+      rotateX: v['rotateX']!,
+      rotateY: v['rotateY']!,
+      perspective: perspective,
+      originX: originX,
+      originY: originY,
+      duration: duration,
+      delay: delay,
+      curve: curve,
+      springStiffness: springStiffness,
+      springDamping: springDamping,
+      spin: v['spin']!,
+      spinRamp: spinRamp,
+      loop: loop,
+      repeat: repeat,
+      enter: enter,
+      enterFrom: enterFrom,
+      replayKey: replayKey,
+      blur: math.max(0, v['blur']!),
+      backfaceHidden: backfaceHidden,
+      path: path,
+      pathProgress: v['pathProgress']!,
+      orientToPath: orientToPath,
+      keyframes: keyframes,
+      pulseKey: pulseKey,
+      revealOnScroll: revealOnScroll,
+      revealFraction: revealFraction,
+      orientUpright: orientUpright,
+      arc: arc,
+      paused: paused,
+      phase: phase,
+      pathPacing: pathPacing,
+      pathFocusX: pathFocusX,
+      pathFocusY: pathFocusY,
+      pathWrap: pathWrap,
+      shimmer: shimmer,
+      named: named,
+    );
+  }
+
+  /// This motion with every animating value at rest (no transform).
+  Motion get atRest {
+    var m = this;
+    for (final p in properties) {
+      if (p != 'spin') m = m.withValue(p, none.valueOf(p));
+    }
+    return m;
+  }
+
+  /// Where an entrance starts: [enterFrom]'s values that differ from rest
+  /// over this motion's (a reveal without one fades in).
+  Motion get entranceStart {
+    final from = enterFrom;
+    if (from == null) return revealOnScroll && !enter ? atRest.withValue('opacity', 0) : atRest;
+    var start = this;
+    for (final p in properties) {
+      if (p == 'spin') continue;
+      final v = from.valueOf(p);
+      if (v != none.valueOf(p) || from.named.contains(p) || p == 'pathProgress' && hasPath) {
+        start = start.withValue(p, v);
+      }
+    }
+    return start;
+  }
+
+  /// Where a [loop] starts: every value [enterFrom] moves, and the path
+  /// progress of a path (rest without one).
+  Motion get loopStart {
+    final from = enterFrom;
+    if (from == null) return atRest;
+    var start = this;
+    for (final p in properties) {
+      if (p == 'spin') continue;
+      final v = from.valueOf(p);
+      if (v != none.valueOf(p) || p == 'pathProgress' && hasPath) start = start.withValue(p, v);
+    }
+    return start;
+  }
+
+  /// [progress] as a [pathWrap] path reads it: modulo 1, 1 kept as the end.
+  static double wrapProgress(double progress) {
+    if (!progress.isFinite) return 0;
+    if (progress >= 0 && progress <= 1) return progress;
+    final r = progress % 1;
+    return r < 0 ? r + 1 : r;
+  }
+
+  /// A path direction [radians] folded into -90–90 degrees (turned half
+  /// round where it heads left), for [orientUpright].
+  static double uprightAngle(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    if (a > math.pi / 2) return a - math.pi;
+    if (a < -math.pi / 2) return a + math.pi;
+    return a;
+  }
+
+  /// The pose [t] (0–1, already eased) of the way from [a] to [b], through
+  /// [b]'s keyframes; settings are [b]'s.
+  static Motion lerp(Motion a, Motion b, double t) {
+    var m = b;
+    for (final p in properties) {
+      if (p == 'spin') continue;
+      final from = a.valueOf(p), to = b.valueOf(p);
+      m = m.withValue(p, keyframed(b.keyframes, p, from, to, t) ?? _lerp(from, to, t));
+    }
+    return m;
+  }
+
+  /// [property] at [t] through [keyframes] between [from] and [to]
+  /// (monotone cubic, so it never overshoots a keyframe); null without
+  /// keyframes for it.
+  static double? keyframed(List<MotionKeyframe> keyframes, String property, double from, double to, double t) {
+    if (keyframes.isEmpty) return null;
+    final points = <(double, double)>[(0, from)];
+    final sorted = keyframes.where((k) => k.t > 0 && k.t < 1).toList()..sort((a, b) => a.t.compareTo(b.t));
+    for (final k in sorted) {
+      final v = k.valueOf(property);
+      if (v == null || !v.isFinite) continue;
+      if (k.t == points.last.$1) {
+        points[points.length - 1] = (k.t, v);
+      } else {
+        points.add((k.t, v));
+      }
+    }
+    if (points.length == 1) return null;
+    points.add((1, to));
+    if (t <= 0) return from;
+    if (t >= 1) return to;
+    final n = points.length;
+    final slopes = [
+      for (var i = 0; i < n - 1; i++) (points[i + 1].$2 - points[i].$2) / (points[i + 1].$1 - points[i].$1),
+    ];
+    final tangents = List<double>.filled(n, 0);
+    tangents[0] = slopes.first;
+    tangents[n - 1] = slopes.last;
+    for (var i = 1; i < n - 1; i++) {
+      final a = slopes[i - 1], b = slopes[i];
+      tangents[i] = a * b <= 0 ? 0 : (a + b) / 2;
+    }
+    for (var i = 0; i < n - 1; i++) {
+      if (slopes[i] == 0) {
+        tangents[i] = 0;
+        tangents[i + 1] = 0;
+        continue;
+      }
+      final alpha = tangents[i] / slopes[i], beta = tangents[i + 1] / slopes[i];
+      final sum = alpha * alpha + beta * beta;
+      if (sum > 9) {
+        final tau = 3 / math.sqrt(sum);
+        tangents[i] = tau * alpha * slopes[i];
+        tangents[i + 1] = tau * beta * slopes[i];
+      }
+    }
+    var i = 0;
+    while (i < n - 2 && t > points[i + 1].$1) {
+      i++;
+    }
+    final (t0, v0) = points[i];
+    final (t1, v1) = points[i + 1];
+    final h = t1 - t0, s = (t - t0) / h, s2 = s * s, s3 = s2 * s;
+    return (2 * s3 - 3 * s2 + 1) * v0 +
+        (s3 - 2 * s2 + s) * h * tangents[i] +
+        (-2 * s3 + 3 * s2) * v1 +
+        (s3 - s2) * h * tangents[i + 1];
+  }
+
+  static Motion? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Motion(
+      translateX: r.d('translateX', 0),
+      translateY: r.d('translateY', 0),
+      scale: r.d('scale', 1),
+      scaleX: r.d('scaleX', 1),
+      scaleY: r.d('scaleY', 1),
+      shiftX: r.d('shiftX', 0),
+      shiftY: r.d('shiftY', 0),
+      opacity: r.d('opacity', 1).clamp(0, 1).toDouble(),
+      rotate: r.d('rotate', 0),
+      rotateX: r.d('rotateX', 0),
+      rotateY: r.d('rotateY', 0),
+      perspective: r.d('perspective', 1),
+      originX: r.d('originX', 0),
+      originY: r.d('originY', 0),
+      duration: r.ms('duration', 0),
+      delay: r.ms('delay', 0),
+      curve: r.curve('curve', AnimationCurve.easeInOut),
+      springStiffness: r.d('springStiffness', 380),
+      springDamping: r.d('springDamping', 20),
+      spin: r.d('spin', 0),
+      spinRamp: r.ms('spinRamp', 800),
+      loop: r.e(MotionLoop.values, 'loop', MotionLoop.none),
+      repeat: math.max(0, r.i('repeat', 0)),
+      enter: r.b('enter', false),
+      enterFrom: fromJson(m['enterFrom']),
+      replayKey: r.sn('replayKey'),
+      blur: math.max(0, r.d('blur', 0)),
+      backfaceHidden: r.b('backfaceHidden', false),
+      path: r.sn('path'),
+      pathProgress: r.d('pathProgress', 0),
+      orientToPath: r.b('orientToPath', false),
+      keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
+      pulseKey: r.sn('pulseKey'),
+      revealOnScroll: r.b('revealOnScroll', false),
+      revealFraction: r.d('revealFraction', 0.15),
+      orientUpright: r.b('orientUpright', false),
+      arc: r.d('arc', 0),
+      paused: _loose(m['paused']) ?? false,
+      phase: r.d('phase', 0),
+      pathPacing: r.e(MotionPathPacing.values, 'pathPacing', MotionPathPacing.length),
+      pathFocusX: r.d('pathFocusX', 0),
+      pathFocusY: r.d('pathFocusY', 0),
+      pathWrap: r.b('pathWrap', false),
+      shimmer: MotionShimmer.fromJson(m['shimmer']),
+      named: {
+        for (final p in properties)
+          if (readDouble(m[p]) != null) p,
+      },
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{};
+    for (final p in properties) {
+      if (named.contains(p)) {
+        j[p] = writeDouble(valueOf(p));
+      } else {
+        j.d(p, valueOf(p), none.valueOf(p));
+      }
+    }
+    j
+      ..d('perspective', perspective, 1)
+      ..d('originX', originX, 0)
+      ..d('originY', originY, 0)
+      ..i('duration', duration, 0)
+      ..i('delay', delay, 0)
+      ..e('curve', curve, AnimationCurve.easeInOut)
+      ..d('springStiffness', springStiffness, 380)
+      ..d('springDamping', springDamping, 20)
+      ..i('spinRamp', spinRamp, 800)
+      ..e('loop', loop, MotionLoop.none)
+      ..i('repeat', repeat, 0)
+      ..b('enter', enter, false);
+    if (enterFrom case final Motion from) {
+      final f = from.toJson();
+      // On a path the entrance starts at its progress even when it's 0.
+      if (hasPath) f['pathProgress'] = writeDouble(from.pathProgress);
+      j['enterFrom'] = f;
+    }
+    j
+      ..s('replayKey', replayKey)
+      ..b('backfaceHidden', backfaceHidden, false)
+      ..s('path', path)
+      ..b('orientToPath', orientToPath, false);
+    if (keyframes.isNotEmpty) j['keyframes'] = [for (final k in keyframes) k.toJson()];
+    j
+      ..s('pulseKey', pulseKey)
+      ..b('revealOnScroll', revealOnScroll, false)
+      ..d('revealFraction', revealFraction, 0.15)
+      ..b('orientUpright', orientUpright, false)
+      ..d('arc', arc, 0)
+      ..b('paused', paused, false)
+      ..d('phase', phase, 0)
+      ..e('pathPacing', pathPacing, MotionPathPacing.length)
+      ..d('pathFocusX', pathFocusX, 0)
+      ..d('pathFocusY', pathFocusY, 0)
+      ..b('pathWrap', pathWrap, false);
+    if (shimmer != null) j['shimmer'] = shimmer!.toJson();
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [
+    translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
+    perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
+    loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
+    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
+    pathFocusY, pathWrap, shimmer,
+  ];
+}
+
+// --- loops --------------------------------------------------------------------
+
+/// What a [LoopAnimation] changes.
+enum LoopAnimationType {
+  /// Scales and fades.
+  pulse,
+  fade,
+  scale,
+
+  /// Turns [LoopAnimation.turns] times per run.
+  spin,
+
+  /// Hops up [LoopAnimation.distance] and back, once per run.
+  bob,
+
+  /// Swings [LoopAnimation.angle] degrees each way, once per run.
+  sway;
+
+  bool get scales => this == pulse || this == scale;
+  bool get fades => this == pulse || this == fade;
+}
+
+/// The pose of a [LoopAnimation] at one moment, about the node's centre.
+typedef LoopPose = ({double scale, double opacity, double turns, double dy});
+
+/// An animation that repeats while the node is shown (a pulsing halo, a
+/// spinning icon). A run takes [duration] ms, eased by [curve], from the
+/// `from` values to the `to` ones (and back with [reverse]). The design
+/// canvas draws its first frame.
+@immutable
+final class LoopAnimation extends _Value {
+  const LoopAnimation({
+    required this.type,
+    this.enabled = true,
+    this.duration = 1000,
+    this.delay = 0,
+    this.reverse = false,
+    this.curve = AnimationCurve.linear,
+    this.scaleFrom = 1,
+    this.scaleTo = 1,
+    this.opacityFrom = 1,
+    this.opacityTo = 1,
+    this.turns = 1,
+    this.distance = 10,
+    this.angle = 4,
+    this.phase = 0,
+    this.lag = 0,
+  });
+
+  final LoopAnimationType type;
+
+  /// Off, it holds the node still (bindable as `loops.enabled`).
+  final bool enabled;
+  final int duration, delay;
+  final bool reverse;
+  final AnimationCurve curve;
+  final double scaleFrom, scaleTo, opacityFrom, opacityTo, turns, distance, angle;
+
+  /// Where in its loop it starts, a share (0–1) of one whole loop ([loop],
+  /// there and back with [reverse]): loading dots that ripple in sequence
+  /// at phases 0, 0.15 and 0.3. Bindable as `loops[i].phase`.
+  final double phase;
+
+  /// How far (ms) it runs behind a loop without it: [phase] less
+  /// `lag / loop`. Unlike [delay] it doesn't wait. Bindable as
+  /// `loops[i].lag` (`${= index * 160}`).
+  final int lag;
+
+  /// One whole loop (ms): a run, or a run there and back with [reverse].
+  int get loop => (reverse ? 2 : 1) * math.max(1, duration);
+
+  /// The share (0–1) of a whole loop it starts at: [phase] and [lag].
+  double get startFraction {
+    final raw = (phase.isFinite ? phase : 0) - lag / loop;
+    final w = raw % 1;
+    return w < 0 ? w + 1 : w;
+  }
+
+  /// The pose at [t] (0–1, before the curve) of a run. 0 is the first frame.
+  LoopPose poseAt(double t) {
+    if (!enabled) return (scale: 1, opacity: 1, turns: 0, dy: 0);
+    final c = curve.transform(t.clamp(0, 1));
+    return (
+      scale: type.scales ? _lerp(scaleFrom, scaleTo, c) : 1,
+      opacity: type.fades ? _lerp(opacityFrom.clamp(0, 1), opacityTo.clamp(0, 1), c) : 1,
+      turns: switch (type) {
+        LoopAnimationType.spin => turns * c,
+        LoopAnimationType.sway => math.sin(c * 2 * math.pi) * angle / 360,
+        _ => 0,
+      },
+      dy: type == LoopAnimationType.bob ? -math.sin(c * math.pi) * distance : 0,
+    );
+  }
+
+  static LoopAnimation? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return LoopAnimation(
+      type: r.e(LoopAnimationType.values, 'type', LoopAnimationType.pulse),
+      enabled: r.b('enabled', true),
+      duration: r.ms('duration', 1000),
+      delay: r.ms('delay', 0),
+      reverse: r.b('reverse', false),
+      curve: r.curve('curve', AnimationCurve.linear),
+      scaleFrom: r.d('scaleFrom', 1),
+      scaleTo: r.d('scaleTo', 1),
+      opacityFrom: r.d('opacityFrom', 1),
+      opacityTo: r.d('opacityTo', 1),
+      turns: r.d('turns', 1),
+      distance: r.d('distance', 10),
+      angle: r.d('angle', 4),
+      phase: r.d('phase', 0),
+      lag: r.i('lag', 0),
+    );
+  }
+
+  Json toJson() => <String, Object?>{'type': type.name}
+    ..b('enabled', enabled, true)
+    ..i('duration', duration, 1000)
+    ..i('delay', delay, 0)
+    ..b('reverse', reverse, false)
+    ..e('curve', curve, AnimationCurve.linear)
+    ..d('scaleFrom', scaleFrom, 1)
+    ..d('scaleTo', scaleTo, 1)
+    ..d('opacityFrom', opacityFrom, 1)
+    ..d('opacityTo', opacityTo, 1)
+    ..d('turns', turns, 1)
+    ..d('distance', distance, 10)
+    ..d('angle', angle, 4)
+    ..d('phase', phase, 0)
+    ..i('lag', lag, 0);
+
+  @override
+  List<Object?> get props => [
+    type,
+    enabled,
+    duration,
+    delay,
+    reverse,
+    curve,
+    scaleFrom,
+    scaleTo,
+    opacityFrom,
+    opacityTo,
+    turns,
+    distance,
+    angle,
+    phase,
+    lag,
+  ];
+}
+
+// --- transitions --------------------------------------------------------------
+
+/// An implicit animation's [duration] (ms) and [curve], as Flutter's
+/// `AnimatedOpacity(duration:, curve:)`.
+@immutable
+final class Transition extends _Value {
+  const Transition({required this.duration, this.curve = AnimationCurve.linear});
+
+  final int duration;
+  final AnimationCurve curve;
+
+  static Transition? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Transition(duration: r.ms('duration', 0), curve: r.curve('curve', AnimationCurve.linear));
+  }
+
+  Json toJson() => <String, Object?>{'duration': duration}..e('curve', curve, AnimationCurve.linear);
+
+  @override
+  List<Object?> get props => [duration, curve];
+}
+
+/// How changes to a node animate at runtime. The design canvas shows the
+/// new values at once.
+@immutable
+final class Transitions extends _Value {
+  const Transitions({this.style, this.opacity, this.size});
+
+  static const Transitions none = Transitions();
+
+  /// Changes of opacity, [Behaviours.scale] and solid fills; a node shown
+  /// or hidden by a binding grows open and shrinks closed.
+  final Transition? style;
+
+  /// Opacity changes (over [style]'s).
+  final Transition? opacity;
+
+  /// Size changes: on an axis the node hugs, its box grows or shrinks and
+  /// clips; on others it's laid out at each size in between.
+  final Transition? size;
+
+  bool get isNone => style == null && opacity == null && size == null;
+
+  static Transitions fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return none;
+    return Transitions(
+      style: Transition.fromJson(m['style']),
+      opacity: Transition.fromJson(m['opacity']),
+      size: Transition.fromJson(m['size']),
+    );
+  }
+
+  Json toJson() => {
+    if (style != null) 'style': style!.toJson(),
+    if (opacity != null) 'opacity': opacity!.toJson(),
+    if (size != null) 'size': size!.toJson(),
+  };
+
+  @override
+  List<Object?> get props => [style, opacity, size];
+}
+
+// --- ink and states -------------------------------------------------------------
+
+/// The ink a tappable box shows, as Flutter's `InkWell`: ripples and the
+/// overlays of its states. Clipped to the box's radius.
+@immutable
+final class InkWellStyle extends _Value {
+  const InkWellStyle({this.overlayColor, this.splashColor, this.highlightColor, this.hoverColor, this.focusColor});
+
+  /// Every state's overlay (Flutter's `overlayColor`, for all states).
+  final Color? overlayColor;
+  final Color? splashColor, highlightColor, hoverColor, focusColor;
+
+  /// The overlay shown in [state], or null for none (Flutter's defaults
+  /// from the theme apply).
+  Color? colorFor(WidgetState state) =>
+      overlayColor ??
+      switch (state) {
+        WidgetState.hovered => hoverColor,
+        WidgetState.focused => focusColor,
+        WidgetState.pressed => highlightColor,
+        _ => null,
+      };
+
+  static InkWellStyle? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return InkWellStyle(
+      overlayColor: r.color('overlayColor'),
+      splashColor: r.color('splashColor'),
+      highlightColor: r.color('highlightColor'),
+      hoverColor: r.color('hoverColor'),
+      focusColor: r.color('focusColor'),
+    );
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..color('overlayColor', overlayColor)
+    ..color('splashColor', splashColor)
+    ..color('highlightColor', highlightColor)
+    ..color('hoverColor', hoverColor)
+    ..color('focusColor', focusColor);
+
+  @override
+  List<Object?> get props => [overlayColor, splashColor, highlightColor, hoverColor, focusColor];
+}
+
+/// The interaction states of Flutter's `WidgetState` a node can style.
+enum WidgetState {
+  /// A pointer is over the node.
+  hovered,
+
+  /// The node, or an input in it, has keyboard focus.
+  focused,
+
+  /// A pointer is pressing the node.
+  pressed,
+
+  /// Its `selected` binding is true.
+  selected,
+
+  /// Its `disabled` binding is true; a disabled node runs no actions.
+  disabled,
+
+  /// The node, or one around it, is being dragged.
+  dragged,
+}
+
+/// What a node and its descendants change to in each [WidgetState]: per
+/// state, node id → a patch of that node's JSON (a merge patch: maps
+/// merge, `null` removes, anything else replaces; see [mergePatch]). Later
+/// states in [WidgetState]'s order win where active states overlap.
+@immutable
+final class StateStyles extends _Value {
+  const StateStyles([this.patches = const {}]);
+
+  static const StateStyles none = StateStyles();
+
+  final Map<WidgetState, Map<String, Json>> patches;
+
+  bool get isEmpty => patches.isEmpty;
+
+  /// The merged patch of node [id] while [active] states hold.
+  Json? patchFor(String id, Set<WidgetState> active) {
+    Json? out;
+    for (final s in WidgetState.values) {
+      if (!active.contains(s)) continue;
+      final p = patches[s]?[id];
+      if (p != null) out = out == null ? p : mergePatch(out, p, keepNulls: true);
+    }
+    return out;
+  }
+
+  /// The ids of the nodes a state restyles.
+  Set<String> get targets => {for (final p in patches.values) ...p.keys};
+
+  static StateStyles fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return none;
+    final out = <WidgetState, Map<String, Json>>{};
+    for (final s in WidgetState.values) {
+      final per = readMap(m[s.name]);
+      if (per == null) continue;
+      final nodes = <String, Json>{
+        for (final e in per.entries)
+          if (readMap(e.value) case final Json p) e.key: p,
+      };
+      if (nodes.isNotEmpty) out[s] = nodes;
+    }
+    return out.isEmpty ? none : StateStyles(out);
+  }
+
+  Json toJson() => {for (final e in patches.entries) e.key.name: e.value};
+
+  @override
+  List<Object?> get props => [patches];
+}
+
+/// [base] with [patch] merged in (RFC 7386): maps merge recursively, a
+/// `null` value removes the key (kept as `null` with [keepNulls], to merge
+/// two patches), anything else replaces.
+Json mergePatch(Json base, Json patch, {bool keepNulls = false}) {
+  final out = <String, Object?>{...base};
+  for (final e in patch.entries) {
+    final v = e.value, cur = out[e.key];
+    if (v == null && !keepNulls) {
+      out.remove(e.key);
+    } else if (v is Map && cur is Map) {
+      out[e.key] = mergePatch(readMap(cur)!, readMap(v)!, keepNulls: keepNulls);
+    } else {
+      out[e.key] = v;
+    }
+  }
+  return out;
+}
+
+/// The merge patch that turns [from] into [to] (null when they're equal).
+Json? diffPatch(Json from, Json to) {
+  final out = <String, Object?>{};
+  for (final e in to.entries) {
+    final a = from[e.key], b = e.value;
+    if (a is Map && b is Map) {
+      final d = diffPatch(readMap(a)!, readMap(b)!);
+      if (d != null) out[e.key] = d;
+    } else if (!from.containsKey(e.key) || !jsonEquality.equals(a, b)) {
+      out[e.key] = b;
+    }
+  }
+  for (final k in from.keys) {
+    if (!to.containsKey(k)) out[k] = null;
+  }
+  return out.isEmpty ? null : out;
+}
+
+// --- drag and drop --------------------------------------------------------------
+
+enum DragAxis { free, horizontal, vertical }
+
+/// How a node starts a drag: on press, on long press, or long press on
+/// touch and press with a mouse.
+enum DragStart { press, longPress, auto }
+
+/// What the node shows where it was picked up while dragged.
+enum DragSourceStyle { ghost, hidden, keep }
+
+/// Which point of the copy that follows the pointer sits under it: where
+/// it was grabbed, or its centre (a feedback node of another size).
+enum FeedbackAnchor { grab, center }
+
+/// Lets the user pick the node up and drop it on a [DropTarget] that takes
+/// its [group] (Flutter's `Draggable`).
+@immutable
+final class DragSource extends _Value {
+  const DragSource({
+    this.group = '',
+    this.data = '',
+    this.start = DragStart.auto,
+    this.axis = DragAxis.free,
+    this.whileDragging = DragSourceStyle.ghost,
+    this.ghostOpacity = 0.35,
+    this.feedbackRotation = -2,
+    this.feedbackScale = 1,
+    this.feedbackOpacity = 1,
+    this.feedbackElevation = 24,
+    this.feedbackNodeId = '',
+    this.feedbackAnchor = FeedbackAnchor.grab,
+    this.returnSpring = true,
+    this.springStiffness = 260,
+    this.springDamping = 14,
+    this.enabled = true,
+    this.physics,
+  });
+
+  final String group, data;
+  final DragStart start;
+  final DragAxis axis;
+  final DragSourceStyle whileDragging;
+  final double ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, feedbackElevation;
+
+  /// The node drawn under the pointer instead of this one.
+  final String feedbackNodeId;
+  final FeedbackAnchor feedbackAnchor;
+  final bool returnSpring;
+  final double springStiffness, springDamping;
+  final bool enabled;
+
+  /// The return spring of a drag no target takes; null uses
+  /// [returnSpring], [springStiffness] and [springDamping].
+  final GesturePhysics? physics;
+
+  /// The spring it flies back on, or null for none (it reappears at once).
+  GesturePhysics? get effectivePhysics =>
+      physics ??
+      (returnSpring ? GesturePhysics(stiffness: springStiffness, damping: springDamping, fling: false) : null);
+
+  static DragSource? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return DragSource(
+      group: r.s('group'),
+      data: r.s('data'),
+      start: r.e(DragStart.values, 'start', DragStart.auto),
+      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
+      whileDragging: r.e(DragSourceStyle.values, 'whileDragging', DragSourceStyle.ghost),
+      ghostOpacity: r.d('ghostOpacity', 0.35),
+      feedbackRotation: r.d('feedbackRotation', -2),
+      feedbackScale: r.d('feedbackScale', 1),
+      feedbackOpacity: r.d('feedbackOpacity', 1),
+      feedbackElevation: r.d('feedbackElevation', 24),
+      feedbackNodeId: r.s('feedbackNodeId'),
+      feedbackAnchor: r.e(FeedbackAnchor.values, 'feedbackAnchor', FeedbackAnchor.grab),
+      returnSpring: r.b('returnSpring', true),
+      springStiffness: r.d('springStiffness', 260),
+      springDamping: r.d('springDamping', 14),
+      enabled: _loose(m['enabled']) ?? true,
+      physics: GesturePhysics.fromJson(m['physics']),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..s('group', group)
+      ..s('data', data)
+      ..e('start', start, DragStart.auto)
+      ..e('axis', axis, DragAxis.free)
+      ..e('whileDragging', whileDragging, DragSourceStyle.ghost)
+      ..d('ghostOpacity', ghostOpacity, 0.35)
+      ..d('feedbackRotation', feedbackRotation, -2)
+      ..d('feedbackScale', feedbackScale, 1)
+      ..d('feedbackOpacity', feedbackOpacity, 1)
+      ..d('feedbackElevation', feedbackElevation, 24)
+      ..s('feedbackNodeId', feedbackNodeId)
+      ..e('feedbackAnchor', feedbackAnchor, FeedbackAnchor.grab)
+      ..b('returnSpring', returnSpring, true)
+      ..d('springStiffness', springStiffness, 260)
+      ..d('springDamping', springDamping, 14)
+      ..b('enabled', enabled, true);
+    if (physics != null) j['physics'] = physics!.toJson();
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [
+    group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
+    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, springStiffness, springDamping, enabled, physics,
+  ];
+}
+
+/// Where a [DropTarget] inserts what's dropped on a list.
+enum DropSlot { none, gap, node }
+
+/// How big the slot a [DropTarget] opens in its list is: the dragged
+/// node's size, or the slot node's own (an insertion line).
+enum DropSlotSize { dragged, node }
+
+/// Takes [DragSource]s of the groups it [accepts] (Flutter's `DragTarget`).
+@immutable
+final class DropTarget extends _Value {
+  const DropTarget({
+    this.accepts = const [],
+    this.key = '',
+    this.acceptIf = '',
+    this.listNodeId = '',
+    this.slot = DropSlot.gap,
+    this.slotNodeId = '',
+    this.slotSize = DropSlotSize.dragged,
+    this.slotWhenRefused = true,
+    this.hoverDelay = 0,
+    this.fullIf = '',
+    this.enabled = true,
+  });
+
+  final List<String> accepts;
+  final String key;
+
+  /// A condition on the dragged data.
+  final String acceptIf;
+
+  /// The list it drops into, and how.
+  final String listNodeId;
+  final DropSlot slot;
+  final String slotNodeId;
+  final DropSlotSize slotSize;
+
+  /// Whether the list opens its slot for a drop [acceptIf] refuses; off,
+  /// only accepted drops show where they'd land.
+  final bool slotWhenRefused;
+  final int hoverDelay;
+  final String fullIf;
+  final bool enabled;
+
+  static DropTarget? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return DropTarget(
+      accepts: readStrings(m['accepts']),
+      key: r.s('key'),
+      acceptIf: r.s('acceptIf'),
+      listNodeId: r.s('listNodeId'),
+      slot: r.e(DropSlot.values, 'slot', DropSlot.gap),
+      slotNodeId: r.s('slotNodeId'),
+      slotSize: r.e(DropSlotSize.values, 'slotSize', DropSlotSize.dragged),
+      slotWhenRefused: r.b('slotWhenRefused', true),
+      hoverDelay: r.ms('hoverDelay', 0),
+      fullIf: r.s('fullIf'),
+      enabled: _loose(m['enabled']) ?? true,
+    );
+  }
+
+  Json toJson() => <String, Object?>{if (accepts.isNotEmpty) 'accepts': accepts}
+    ..s('key', key)
+    ..s('acceptIf', acceptIf)
+    ..s('listNodeId', listNodeId)
+    ..e('slot', slot, DropSlot.gap)
+    ..s('slotNodeId', slotNodeId)
+    ..e('slotSize', slotSize, DropSlotSize.dragged)
+    ..b('slotWhenRefused', slotWhenRefused, true)
+    ..i('hoverDelay', hoverDelay, 0)
+    ..s('fullIf', fullIf)
+    ..b('enabled', enabled, true);
+
+  @override
+  List<Object?> get props => [
+    accepts, key, acceptIf, listNodeId, slot, slotNodeId, slotSize, slotWhenRefused, hoverDelay, fullIf, enabled, //
+  ];
+}
+
+/// What a dragged node does when let go.
+enum DragRelease { snapBack, stay, dismiss }
+
+enum DragDirection { left, right, up, down }
+
+/// The shape of a [DragTrack].
+enum DragTrackShape { line, arc, path }
+
+/// How the pointer moves along a [DragTrack]: following it, or dragging
+/// up/down, left/right, or either (up or right raises it: dx − dy).
+enum DragTrackInput { follow, vertical, horizontal, both }
+
+/// Where a [DragTrack]'s node takes the pointer: on itself, or anywhere in
+/// its parent (a knob turned from anywhere in its box).
+enum DragTrackHitArea { self, parent }
+
+/// What a [DragTrack]'s geometry is measured in: pixels, or fractions of
+/// the parent's size (x values of its width, y of its height).
+enum DragTrackUnits { pixels, parent }
+
+/// Makes a dragged node a value control (a knob, a fader): it moves along
+/// the track as variable [variable] goes from [min] to [max], and the
+/// design canvas draws it at the variable's value. Dragging it writes the
+/// variable (unless [write] is off); a double tap goes to [defaultValue]
+/// (or through [doubleTapValues]), the wheel and arrow keys step it. Inside
+/// it `${track.value}`, `${track.progress}`, `${track.dragging}`,
+/// `${track.fine}` and `${track.focused}` can be read.
+///
+/// Its settings and geometry are bindable as `drag.track.<field>`
+/// (`drag.track.x2`: `${= parent.width - 26}`); `drag.track.value` gives
+/// the value the node is drawn at in place of reading [variable].
+@immutable
+final class DragTrack extends _Value {
+  const DragTrack({
+    this.shape = DragTrackShape.line,
+    this.variable = '',
+    this.min = 0,
+    this.max = 1,
+    this.step = 0,
+    this.defaultValue,
+    this.input = DragTrackInput.follow,
+    this.pixelsPerRange = 200,
+    this.x1 = 0,
+    this.y1 = 0,
+    this.x2 = 0,
+    this.y2 = -100,
+    this.startAngle = -135,
+    this.endAngle = 135,
+    this.pivotX = 0,
+    this.pivotY = 0,
+    this.rotate = true,
+    this.path,
+    this.orientToPath = false,
+    this.jumpOnTap = false,
+    this.wheel = true,
+    this.value,
+    this.orientUpright = false,
+    this.detent = 0,
+    this.overscroll = 0,
+    this.settle = 0,
+    this.settleCurve = AnimationCurve.easeOutCubic,
+    this.settleStiffness = 380,
+    this.settleDamping = 20,
+    this.parkedProgress,
+    this.keyboard = true,
+    this.viewBoxWidth = 0,
+    this.viewBoxHeight = 0,
+    this.relative = false,
+    this.wheelStep,
+    this.doubleTapValues = const [],
+    this.keyStep,
+    this.hitArea = DragTrackHitArea.self,
+    this.units = DragTrackUnits.pixels,
+    this.fineStep = 0,
+    this.finePixelsPerRange = 0,
+    this.fineHold = 380,
+    this.fineVariable = '',
+    this.snap = 0,
+    this.snapCurve = AnimationCurve.easeOutBack,
+    this.write = true,
+    this.endless = false,
+    this.momentum = false,
+    this.friction = 2.6,
+    this.smooth = false,
+    this.gain = 1,
+  });
+
+  final DragTrackShape shape;
+
+  /// The variable it reads and writes; empty when `drag.track.value` is
+  /// bound and its reactions write the value.
+  final String variable;
+  final double min, max, step;
+
+  /// What a double tap resets to (bindable as `drag.track.defaultValue`).
+  final double? defaultValue;
+  final DragTrackInput input;
+  final double pixelsPerRange;
+
+  /// A line's ends, from the node's place (pixels, or with [relative]
+  /// multiples of the node's size, with [units] parent of the parent's).
+  final double x1, y1, x2, y2;
+
+  /// An arc's angles (degrees, clockwise, 0 up) about the pivot (from the
+  /// node's centre).
+  final double startAngle, endAngle, pivotX, pivotY;
+
+  /// Turns the node with the arc.
+  final bool rotate;
+  final String? path;
+  final bool orientToPath;
+
+  /// Pressing anywhere along the track (or the [hitArea]) moves the node
+  /// there, then the drag goes on (only for [DragTrackInput.follow]).
+  final bool jumpOnTap;
+
+  /// Whether the mouse wheel steps the value.
+  final bool wheel;
+
+  /// The value the node is drawn at, from a binding (`drag.track.value`);
+  /// null reads [variable].
+  final double? value;
+
+  /// With [orientToPath], never upside down (as [Motion.orientUpright]).
+  final bool orientUpright;
+
+  /// How magnetic [step]s are while dragging (0–1): 0 jumps from step to
+  /// step; above 0 the node follows that share of the way past a step.
+  final double detent;
+
+  /// How far it can be dragged past an end, a share of the pointer's
+  /// travel there (0–1); it springs back on release.
+  final double overscroll;
+
+  /// The glide to its value's place when not following the pointer (ms; 0
+  /// jumps), its curve, and the spring of [AnimationCurve.spring] (mass 1),
+  /// which a release mid-fling starts at the pointer's speed.
+  final int settle;
+  final AnimationCurve settleCurve;
+  final double settleStiffness, settleDamping;
+
+  /// Where the node parks while the value is out of range or empty, as a
+  /// progress that may lie outside 0–1 (an unrated dial parks below its
+  /// first mark); null draws such a value at the nearest end.
+  final double? parkedProgress;
+
+  /// Takes keyboard focus: arrows step by [keyStep] (else [step], else 1%
+  /// of the range), Page Up/Down by 10 steps, Home and End to the ends.
+  final bool keyboard;
+
+  /// With both above 0, [path] is drawn in the box of the frame the node
+  /// sits in, in these units, stretched to the frame's size.
+  final double viewBoxWidth, viewBoxHeight;
+
+  /// A line's ends are multiples of the node's own size (a full-width scrub
+  /// area: `x1: -0.5, x2: 0.5`).
+  final bool relative;
+
+  /// One wheel notch, one arrow key (null: [step], else 1% of the range).
+  final double? wheelStep, keyStep;
+
+  /// Values a double tap moves between, in order (empty: [defaultValue]).
+  final List<double> doubleTapValues;
+  final DragTrackHitArea hitArea;
+  final DragTrackUnits units;
+
+  /// A finer step while Shift is held or after the pointer is held still
+  /// [fineHold] ms (0: hold doesn't), [finePixelsPerRange] pixels for the
+  /// range (0: 4 × [pixelsPerRange]); 0 has no fine mode. [fineVariable], a
+  /// boolean variable, is kept true while fine.
+  final double fineStep, finePixelsPerRange;
+  final int fineHold;
+  final String fineVariable;
+
+  /// Animates the node to each new value over [snap] ms along [snapCurve]
+  /// (a knob clicking from detent to detent); 0 jumps.
+  final int snap;
+  final AnimationCurve snapCurve;
+
+  /// Whether dragging writes [variable]; off, it only shows it and its
+  /// reactions set what changes from `${result.value}`.
+  final bool write;
+
+  /// An arc that keeps turning past its ends, the value unbounded (a
+  /// combination dial).
+  final bool endless;
+
+  /// Let go while moving, it coasts, slowing by [friction] per second, then
+  /// settles on a [step].
+  final bool momentum;
+  final double friction;
+
+  /// Draws the node between [step]s while dragged or coasting, springing
+  /// onto the nearest when it rests (the variable only holds steps).
+  final bool smooth;
+
+  /// How far the node moves per pointer movement (0.5 fine, 2 coarse).
+  final double gain;
+
+  /// Whether the value is unbounded ([endless] on an arc).
+  bool get unbounded => endless && shape == DragTrackShape.arc;
+
+  bool get hasVariable => variable.trim().isNotEmpty;
+  bool get hasFine => fineStep > 0;
+  bool get usesViewBox => viewBoxWidth > 0 && viewBoxHeight > 0;
+  double get effectiveFinePixelsPerRange => finePixelsPerRange > 0 ? finePixelsPerRange : pixelsPerRange * 4;
+
+  /// Where [value] is along the track (0–1; past them on an endless arc).
+  double progressOf(double value) {
+    if (max == min) return 0;
+    final p = (value - min) / (max - min);
+    return unbounded ? p : p.clamp(0.0, 1.0);
+  }
+
+  /// Whether [value] is drawn at [parkedProgress] (out of range, or NaN for
+  /// an empty variable).
+  bool isParked(double value) {
+    if (parkedProgress == null) return false;
+    if (value.isNaN) return true;
+    final lo = math.min(min, max), hi = math.max(min, max);
+    return value < lo || value > hi;
+  }
+
+  /// Where the node is drawn for [value].
+  double restProgressOf(double value) => isParked(value) ? parkedProgress! : (value.isNaN ? 0 : progressOf(value));
+
+  /// [progress] held to the track (any progress on an endless arc).
+  double clampProgress(double progress) => unbounded ? progress : progress.clamp(0.0, 1.0);
+
+  /// [v] snapped to [by] (from [min]; 0 continuous) and kept in range.
+  double snapTo(double v, double by) {
+    final lo = math.min(min, max), hi = math.max(min, max);
+    var out = unbounded ? v : v.clamp(lo, hi).toDouble();
+    if (by > 0) {
+      out = min + ((out - min) / by).round() * by;
+      if (!unbounded) out = out.clamp(lo, hi).toDouble();
+      // Keep 0.1 steps from turning into 0.30000000000000004.
+      out = double.parse(out.toStringAsFixed(6));
+    }
+    return out;
+  }
+
+  double snapValue(double v) => snapTo(v, step);
+
+  /// The value at [progress], snapped to [step].
+  double valueAt(double progress) => snapValue(min + (max - min) * clampProgress(progress));
+
+  double get effectiveWheelStep => (wheelStep ?? 0) > 0 ? wheelStep! : (step > 0 ? step : (max - min).abs() / 100);
+
+  /// Null with [keyboard] off.
+  double? get effectiveKeyStep =>
+      !keyboard ? null : ((keyStep ?? 0) > 0 ? keyStep! : (step > 0 ? step : (max - min).abs() / 100));
+
+  /// The value a double tap moves to from [v], or null when it does nothing.
+  double? doubleTapTarget(double v) {
+    final cycle = doubleTapValues.isNotEmpty ? doubleTapValues : [?defaultValue];
+    if (cycle.isEmpty) return null;
+    final current = snapValue(v);
+    for (var i = 0; i < cycle.length; i++) {
+      if ((snapValue(cycle[i]) - current).abs() < 1e-6) return snapValue(cycle[(i + 1) % cycle.length]);
+    }
+    return snapValue(cycle.first);
+  }
+
+  double angleAt(double progress) => startAngle + (endAngle - startAngle) * clampProgress(progress);
+
+  static DragTrack? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return DragTrack(
+      shape: r.e(DragTrackShape.values, 'shape', DragTrackShape.line),
+      variable: r.s('variable'),
+      min: r.d('min', 0),
+      max: r.d('max', 1),
+      step: math.max(0, r.d('step', 0)),
+      defaultValue: r.dn('defaultValue'),
+      input: r.e(DragTrackInput.values, 'input', DragTrackInput.follow),
+      pixelsPerRange: r.d('pixelsPerRange', 200),
+      x1: r.d('x1', 0),
+      y1: r.d('y1', 0),
+      x2: r.d('x2', 0),
+      y2: r.d('y2', -100),
+      startAngle: r.d('startAngle', -135),
+      endAngle: r.d('endAngle', 135),
+      pivotX: r.d('pivotX', 0),
+      pivotY: r.d('pivotY', 0),
+      rotate: r.b('rotate', true),
+      path: r.sn('path'),
+      orientToPath: r.b('orientToPath', false),
+      jumpOnTap: r.b('jumpOnTap', false),
+      wheel: r.b('wheel', true),
+      value: r.dn('value'),
+      orientUpright: r.b('orientUpright', false),
+      detent: r.d('detent', 0),
+      overscroll: r.d('overscroll', 0),
+      settle: r.ms('settle', 0),
+      settleCurve: r.curve('settleCurve', AnimationCurve.easeOutCubic),
+      settleStiffness: r.d('settleStiffness', 380),
+      settleDamping: r.d('settleDamping', 20),
+      parkedProgress: r.dn('parkedProgress'),
+      keyboard: r.b('keyboard', true),
+      viewBoxWidth: r.d('viewBoxWidth', 0),
+      viewBoxHeight: r.d('viewBoxHeight', 0),
+      relative: r.b('relative', false),
+      wheelStep: r.dn('wheelStep'),
+      doubleTapValues: r.doubles('doubleTapValues'),
+      keyStep: r.dn('keyStep'),
+      hitArea: r.e(DragTrackHitArea.values, 'hitArea', DragTrackHitArea.self),
+      units: r.e(DragTrackUnits.values, 'units', DragTrackUnits.pixels),
+      fineStep: r.d('fineStep', 0),
+      finePixelsPerRange: r.d('finePixelsPerRange', 0),
+      fineHold: r.ms('fineHold', 380),
+      fineVariable: r.s('fineVariable'),
+      snap: r.ms('snap', 0),
+      snapCurve: r.curve('snapCurve', AnimationCurve.easeOutBack),
+      write: r.b('write', true),
+      endless: r.b('endless', false),
+      momentum: _loose(m['momentum']) ?? false,
+      friction: r.d('friction', 2.6),
+      smooth: _loose(m['smooth']) ?? false,
+      gain: r.d('gain', 1),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..s('variable', variable)
+      ..e('shape', shape, DragTrackShape.line)
+      ..d('min', min, 0)
+      ..d('max', max, 1)
+      ..d('step', step, 0)
+      ..dn('defaultValue', defaultValue)
+      ..e('input', input, DragTrackInput.follow)
+      ..d('pixelsPerRange', pixelsPerRange, 200)
+      ..d('x1', x1, 0)
+      ..d('y1', y1, 0)
+      ..d('x2', x2, 0)
+      ..d('y2', y2, -100)
+      ..d('startAngle', startAngle, -135)
+      ..d('endAngle', endAngle, 135)
+      ..d('pivotX', pivotX, 0)
+      ..d('pivotY', pivotY, 0)
+      ..b('rotate', rotate, true)
+      ..s('path', path)
+      ..b('orientToPath', orientToPath, false)
+      ..b('jumpOnTap', jumpOnTap, false)
+      ..b('wheel', wheel, true)
+      ..dn('value', value)
+      ..b('orientUpright', orientUpright, false)
+      ..d('detent', detent, 0)
+      ..d('overscroll', overscroll, 0)
+      ..i('settle', settle, 0)
+      ..e('settleCurve', settleCurve, AnimationCurve.easeOutCubic)
+      ..d('settleStiffness', settleStiffness, 380)
+      ..d('settleDamping', settleDamping, 20)
+      ..dn('parkedProgress', parkedProgress)
+      ..b('keyboard', keyboard, true)
+      ..d('viewBoxWidth', viewBoxWidth, 0)
+      ..d('viewBoxHeight', viewBoxHeight, 0)
+      ..b('relative', relative, false)
+      ..dn('wheelStep', wheelStep);
+    if (doubleTapValues.isNotEmpty) j['doubleTapValues'] = doubleTapValues.map(writeDouble).toList();
+    return j
+      ..dn('keyStep', keyStep)
+      ..e('hitArea', hitArea, DragTrackHitArea.self)
+      ..e('units', units, DragTrackUnits.pixels)
+      ..d('fineStep', fineStep, 0)
+      ..d('finePixelsPerRange', finePixelsPerRange, 0)
+      ..i('fineHold', fineHold, 380)
+      ..s('fineVariable', fineVariable)
+      ..i('snap', snap, 0)
+      ..e('snapCurve', snapCurve, AnimationCurve.easeOutBack)
+      ..b('write', write, true)
+      ..b('endless', endless, false)
+      ..b('momentum', momentum, false)
+      ..d('friction', friction, 2.6)
+      ..b('smooth', smooth, false)
+      ..d('gain', gain, 1);
+  }
+
+  @override
+  List<Object?> get props => [
+    shape, variable, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
+    pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
+    settleCurve, settleStiffness, settleDamping, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
+    wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
+    snapCurve, write, endless, momentum, friction, smooth, gain,
+  ];
+}
+
+/// Makes the node follow the pointer: it tilts, and on release springs
+/// back, stays, or flies off past a threshold (a swiped card); with a
+/// [track] it's a value control.
+@immutable
+final class DragMotion extends _Value {
+  const DragMotion({
+    this.axis = DragAxis.free,
+    this.release = DragRelease.snapBack,
+    this.directions = DragDirection.values,
+    this.distanceThreshold = 0.35,
+    this.verticalThreshold,
+    this.velocityThreshold = 800,
+    this.rotateFactor = 0,
+    this.originX = 0,
+    this.originY = 0,
+    this.resistance = 0,
+    this.snapBack = 450,
+    this.snapCurve = AnimationCurve.spring,
+    this.flyOut = 320,
+    this.flyOutCurve = AnimationCurve.easeIn,
+    this.flyOutDistance,
+    this.flyOutRotate = 0,
+    this.enabled = true,
+    this.shakeWhenDisabled = false,
+    this.disabledFollow = 0,
+    this.shareAs = '',
+    this.restX = 0,
+    this.restY = 0,
+    this.track,
+    this.reorder = false,
+    this.follow = true,
+    this.xVariable = '',
+    this.yVariable = '',
+    this.physics,
+    this.bounds = GestureBounds.none,
+    this.minX,
+    this.maxX,
+    this.minY,
+    this.maxY,
+  });
+
+  final DragAxis axis;
+  final DragRelease release;
+
+  /// The directions it flies off in.
+  final List<DragDirection> directions;
+
+  /// The fraction of its size (and the speed, px/s) past which it flies off.
+  final double distanceThreshold;
+  final double? verticalThreshold;
+  final double velocityThreshold;
+  final double rotateFactor, originX, originY, resistance;
+
+  /// Spring-back and fly-off times (ms) and curves.
+  final int snapBack;
+  final AnimationCurve snapCurve;
+  final int flyOut;
+  final AnimationCurve flyOutCurve;
+  final double? flyOutDistance;
+  final double flyOutRotate;
+  final bool enabled, shakeWhenDisabled;
+  final double disabledFollow;
+
+  /// A variable the live drag values are written to.
+  final String shareAs;
+  final double restX, restY;
+  final DragTrack? track;
+  final bool reorder, follow;
+  final String xVariable, yVariable;
+
+  /// How it moves on its own after release (a fling, a spring settle, snap
+  /// points, overscroll). Null keeps the curve-timed [snapBack] release;
+  /// see [effectivePhysics].
+  final GesturePhysics? physics;
+
+  /// What it's kept inside of while dragged and flung, narrowed by the
+  /// offsets from rest [minX]...[maxY] (null: no limit). A bottom sheet
+  /// opening 560px: `minY: -560, maxY: 0`.
+  final GestureBounds bounds;
+  final double? minX, maxX, minY, maxY;
+
+  bool get hasBounds => bounds != GestureBounds.none || minX != null || maxX != null || minY != null || maxY != null;
+
+  /// [physics], or what the release settings amount to: a spring snap back
+  /// is a spring settling in [snapBack] with a little bounce. Null for a
+  /// curve-timed release.
+  GesturePhysics? get effectivePhysics =>
+      physics ??
+      (snapCurve == AnimationCurve.spring ? GesturePhysics(bounce: 0.25, duration: snapBack, fling: false) : null);
+
+  static DragMotion? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final dirs = readList(m['directions']);
+    return DragMotion(
+      axis: r.e(DragAxis.values, 'axis', DragAxis.free),
+      release: r.e(DragRelease.values, 'release', DragRelease.snapBack),
+      directions: dirs == null
+          ? DragDirection.values
+          : [
+              for (final d in DragDirection.values)
+                if (dirs.contains(d.name)) d,
+            ],
+      distanceThreshold: r.d('distanceThreshold', 0.35),
+      verticalThreshold: r.dn('verticalThreshold'),
+      velocityThreshold: r.d('velocityThreshold', 800),
+      rotateFactor: r.d('rotateFactor', 0),
+      originX: r.d('originX', 0),
+      originY: r.d('originY', 0),
+      resistance: r.d('resistance', 0),
+      snapBack: r.ms('snapBack', 450),
+      snapCurve: r.curve('snapCurve', AnimationCurve.spring),
+      flyOut: r.ms('flyOut', 320),
+      flyOutCurve: r.curve('flyOutCurve', AnimationCurve.easeIn),
+      flyOutDistance: r.dn('flyOutDistance'),
+      flyOutRotate: r.d('flyOutRotate', 0),
+      enabled: _loose(m['enabled']) ?? true,
+      shakeWhenDisabled: r.b('shakeWhenDisabled', false),
+      disabledFollow: r.d('disabledFollow', 0),
+      shareAs: r.s('shareAs'),
+      restX: r.d('restX', 0),
+      restY: r.d('restY', 0),
+      track: DragTrack.fromJson(m['track']),
+      reorder: r.b('reorder', false),
+      follow: r.b('follow', true),
+      xVariable: r.s('xVariable'),
+      yVariable: r.s('yVariable'),
+      physics: GesturePhysics.fromJson(m['physics']),
+      bounds: r.e(GestureBounds.values, 'bounds', GestureBounds.none),
+      minX: r.dn('minX'),
+      maxX: r.dn('maxX'),
+      minY: r.dn('minY'),
+      maxY: r.dn('maxY'),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..e('axis', axis, DragAxis.free)
+      ..e('release', release, DragRelease.snapBack);
+    if (!jsonEquality.equals(directions, DragDirection.values)) j['directions'] = [for (final d in directions) d.name];
+    j
+      ..d('distanceThreshold', distanceThreshold, 0.35)
+      ..dn('verticalThreshold', verticalThreshold)
+      ..d('velocityThreshold', velocityThreshold, 800)
+      ..d('rotateFactor', rotateFactor, 0)
+      ..d('originX', originX, 0)
+      ..d('originY', originY, 0)
+      ..d('resistance', resistance, 0)
+      ..i('snapBack', snapBack, 450)
+      ..e('snapCurve', snapCurve, AnimationCurve.spring)
+      ..i('flyOut', flyOut, 320)
+      ..e('flyOutCurve', flyOutCurve, AnimationCurve.easeIn)
+      ..dn('flyOutDistance', flyOutDistance)
+      ..d('flyOutRotate', flyOutRotate, 0)
+      ..b('enabled', enabled, true)
+      ..b('shakeWhenDisabled', shakeWhenDisabled, false)
+      ..d('disabledFollow', disabledFollow, 0)
+      ..s('shareAs', shareAs)
+      ..d('restX', restX, 0)
+      ..d('restY', restY, 0);
+    if (track != null) j['track'] = track!.toJson();
+    j
+      ..b('reorder', reorder, false)
+      ..b('follow', follow, true)
+      ..s('xVariable', xVariable)
+      ..s('yVariable', yVariable);
+    if (physics != null) j['physics'] = physics!.toJson();
+    return j
+      ..e('bounds', bounds, GestureBounds.none)
+      ..dn('minX', minX)
+      ..dn('maxX', maxX)
+      ..dn('minY', minY)
+      ..dn('maxY', maxY);
+  }
+
+  @override
+  List<Object?> get props => [
+    axis, release, directions, distanceThreshold, verticalThreshold, velocityThreshold, rotateFactor, originX, //
+    originY, resistance, snapBack, snapCurve, flyOut, flyOutCurve, flyOutDistance, flyOutRotate, enabled,
+    shakeWhenDisabled, disabledFollow, shareAs, restX, restY, track, reorder, follow, xVariable, yVariable, physics,
+    bounds, minX, maxX, minY, maxY,
+  ];
+}
+
+// --- one-shot effects -----------------------------------------------------------
+
+enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin }
+
+/// A one-shot effect the node plays on cue (an action, a bound play key,
+/// or when it appears).
+@immutable
+final class EffectAnimation extends _Value {
+  const EffectAnimation({
+    required this.name,
+    required this.type,
+    this.duration = 520,
+    this.delay = 0,
+    this.amount = 1,
+    this.originX = 0,
+    this.originY = 0,
+    this.playOnAppear = false,
+    this.cycles = 0,
+    this.playKey,
+  });
+
+  final String name;
+  final EffectAnimationType type;
+  final int duration, delay;
+  final double amount, originX, originY;
+  final bool playOnAppear;
+
+  /// How many times a shake, wiggle or jelly swings (and a flash blinks)
+  /// over the effect; 0 uses the type's own count (a shake swings 4 times).
+  final double cycles;
+
+  /// A cue the node's bindings set (`effectAnimations[i].playKey`): the
+  /// effect plays each time it changes (not when it first shows).
+  final String? playKey;
+
+  static EffectAnimation? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return EffectAnimation(
+      name: r.s('name'),
+      type: r.e(EffectAnimationType.values, 'type', EffectAnimationType.shake),
+      duration: r.ms('duration', 520),
+      delay: r.ms('delay', 0),
+      amount: r.d('amount', 1),
+      originX: r.d('originX', 0),
+      originY: r.d('originY', 0),
+      playOnAppear: r.b('playOnAppear', false),
+      cycles: math.max(0, r.d('cycles', 0)),
+      playKey: m['playKey']?.toString(),
+    );
+  }
+
+  Json toJson() => <String, Object?>{'name': name, 'type': type.name}
+    ..i('duration', duration, 520)
+    ..i('delay', delay, 0)
+    ..d('amount', amount, 1)
+    ..d('originX', originX, 0)
+    ..d('originY', originY, 0)
+    ..b('playOnAppear', playOnAppear, false)
+    ..d('cycles', cycles, 0)
+    ..s('playKey', playKey);
+
+  @override
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
+}
+
+enum ParticleShape { square, circle, strip, star }
+
+/// Confetti or stars the node bursts with on cue.
+@immutable
+final class ParticleEmitter extends _Value {
+  const ParticleEmitter({
+    this.count = 40,
+    this.emit = 0,
+    this.colors = defaultColors,
+    this.shapes = const [ParticleShape.square, ParticleShape.strip, ParticleShape.circle],
+    this.size = 10,
+    this.originX = 0,
+    this.originY = 0,
+    this.originWidth = 0,
+    this.direction = 0,
+    this.spread = 60,
+    this.speed = 700,
+    this.gravity = 900,
+    this.lifetime = 2600,
+    this.playOnAppear = false,
+    this.playKey,
+  });
+
+  static const List<Color> defaultColors = [
+    Color(0xFFFFC83D), Color(0xFFFF6F61), Color(0xFF2FD9A4), Color(0xFF8B6CFF), Color(0xFF3FB8FF), //
+    Color(0xFFFF8BC6),
+  ];
+
+  final int count;
+
+  /// Over how long the particles leave (ms; 0 all at once).
+  final int emit;
+  final List<Color> colors;
+  final List<ParticleShape> shapes;
+  final double size, originX, originY, originWidth, direction, spread, speed, gravity;
+  final int lifetime;
+  final bool playOnAppear;
+
+  /// A cue the node's bindings set (`particles.playKey`): the particles
+  /// burst each time it changes.
+  final String? playKey;
+
+  static ParticleEmitter? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final colors = readList(m['colors']);
+    final shapes = readList(m['shapes']);
+    return ParticleEmitter(
+      count: math.max(0, r.i('count', 40)),
+      emit: r.ms('emit', 0),
+      colors: colors == null ? defaultColors : [...colors.map(Color.fromJson).nonNulls],
+      shapes: shapes == null
+          ? const [ParticleShape.square, ParticleShape.strip, ParticleShape.circle]
+          : [
+              for (final s in ParticleShape.values)
+                if (shapes.contains(s.name)) s,
+            ],
+      size: r.d('size', 10),
+      originX: r.d('originX', 0),
+      originY: r.d('originY', 0),
+      originWidth: r.d('originWidth', 0),
+      direction: r.d('direction', 0),
+      spread: r.d('spread', 60),
+      speed: r.d('speed', 700),
+      gravity: r.d('gravity', 900),
+      lifetime: r.ms('lifetime', 2600),
+      playOnAppear: r.b('playOnAppear', false),
+      playKey: m['playKey']?.toString(),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..i('count', count, 40)
+      ..i('emit', emit, 0);
+    if (!jsonEquality.equals(colors, defaultColors)) j['colors'] = [for (final c in colors) c.toJson()];
+    if (!jsonEquality.equals(shapes, const [ParticleShape.square, ParticleShape.strip, ParticleShape.circle])) {
+      j['shapes'] = [for (final s in shapes) s.name];
+    }
+    return j
+      ..d('size', size, 10)
+      ..d('originX', originX, 0)
+      ..d('originY', originY, 0)
+      ..d('originWidth', originWidth, 0)
+      ..d('direction', direction, 0)
+      ..d('spread', spread, 60)
+      ..d('speed', speed, 700)
+      ..d('gravity', gravity, 900)
+      ..i('lifetime', lifetime, 2600)
+      ..b('playOnAppear', playOnAppear, false)
+      ..s('playKey', playKey);
+  }
+
+  @override
+  List<Object?> get props => [
+    count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
+    lifetime, playOnAppear, playKey,
+  ];
+}
+
+// --- paint and scroll -------------------------------------------------------------
+
+/// The unit of a [StrokePath] coordinate.
+enum PathUnit { fraction, pixels }
+
+/// How a [StrokePath] joins its points.
+enum PathCurve { straight, vertical, horizontal }
+
+/// A line drawn through [points] in the node's box (a dotted trail, a
+/// connector), behind its content or [inFront] of it. x and y are fractions
+/// of the box or pixels, per [xUnit]/[yUnit].
+@immutable
+final class StrokePath extends _Value {
+  const StrokePath({
+    this.points = const [],
+    this.xUnit = PathUnit.fraction,
+    this.yUnit = PathUnit.pixels,
+    this.curve = PathCurve.straight,
+    this.color = Color.white,
+    this.width = 4,
+    this.dashPattern = const [],
+    this.cap = StrokeCap.round,
+    this.inFront = false,
+  });
+
+  final List<Offset> points;
+  final PathUnit xUnit, yUnit;
+  final PathCurve curve;
+  final Color color;
+  final double width;
+
+  /// Dash and gap lengths, alternating; empty is solid.
+  final List<double> dashPattern;
+  final StrokeCap cap;
+  final bool inFront;
+
+  static StrokePath? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return StrokePath(
+      points: [...?readList(m['points'])?.where((p) => readList(p)?.length == 2).map(Offset.fromJson)],
+      xUnit: r.e(PathUnit.values, 'xUnit', PathUnit.fraction),
+      yUnit: r.e(PathUnit.values, 'yUnit', PathUnit.pixels),
+      curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
+      color: r.color('color') ?? Color.white,
+      width: r.d('width', 4),
+      dashPattern: r.doubles('dashPattern'),
+      cap: r.e(StrokeCap.values, 'cap', StrokeCap.round),
+      inFront: r.b('inFront', false),
+    );
+  }
+
+  Json toJson() {
+    final j =
+        <String, Object?>{
+            'points': [for (final p in points) p.toJson()],
+          }
+          ..e('xUnit', xUnit, PathUnit.fraction)
+          ..e('yUnit', yUnit, PathUnit.pixels)
+          ..e('curve', curve, PathCurve.straight);
+    if (color != Color.white) j['color'] = color.toJson();
+    j.d('width', width, 4);
+    if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
+    return j
+      ..e('cap', cap, StrokeCap.round)
+      ..b('inFront', inFront, false);
+  }
+
+  @override
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, dashPattern, cap, inFront];
+}
+
+/// Scrolls the node into view when it appears (or when its `reveal.when`
+/// binding turns true), to [alignment] of the viewport (0 top, 1 bottom).
+@immutable
+final class Reveal extends _Value {
+  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0});
+
+  final double alignment;
+  final int duration, delay;
+
+  static Reveal? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0));
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..d('alignment', alignment, 0.5)
+    ..i('duration', duration, 600)
+    ..i('delay', delay, 0);
+
+  @override
+  List<Object?> get props => [alignment, duration, delay];
+}
+
+/// How a shared element flies between screens.
+enum HeroFlightShuttle {
+  /// Flutter's `Hero` flight.
+  standard,
+
+  /// Also morphs the corner radius from one box to the other.
+  morphCorners,
+
+  /// Along a curve (Material's arc), turning upright as it lands, with a
+  /// halo in the colour of its first drop shadow (soft white without one).
+  arc,
+
+  /// Both nodes fly fitted to the box in between, the leaving one fading
+  /// out as the arriving one fades in, corners morphing.
+  morph,
+
+  /// [morph], the leaving node gone over the first 35% (Material fade
+  /// through).
+  fadeThrough,
+
+  /// Material container transform: a card grows into a whole screen (tag
+  /// the card and the destination's root the same); the card fades out over
+  /// the first 30%.
+  containerTransform;
+
+  /// Whether both nodes are drawn during the flight, cross-fading.
+  bool get crossFades => this == morph || this == fadeThrough || this == containerTransform;
+}
+
+/// Makes the node a shared element (Flutter's `Hero`): it flies between
+/// its places on two screens with the same [tag] while a navigation plays.
+@immutable
+final class HeroTag extends _Value {
+  const HeroTag(this.tag, {this.flight = HeroFlightShuttle.standard, this.placeholder = HeroPlaceholder.none});
+
+  final String tag;
+  final HeroFlightShuttle flight;
+
+  /// What the destination shows until its own image has loaded.
+  final HeroPlaceholder placeholder;
+
+  static HeroTag? fromJson(Object? json) {
+    if (json is String) return json.isEmpty ? null : HeroTag(json);
+    final m = readMap(json);
+    final tag = readString(m?['tag']);
+    if (m == null || tag == null) return null;
+    return HeroTag(
+      tag,
+      flight: readEnum(HeroFlightShuttle.values, m['flight'], HeroFlightShuttle.standard),
+      placeholder: readEnum(HeroPlaceholder.values, m['placeholder'], HeroPlaceholder.none),
+    );
+  }
+
+  Object toJson() => flight == HeroFlightShuttle.standard && placeholder == HeroPlaceholder.none
+      ? tag
+      : {
+          'tag': tag,
+          if (flight != HeroFlightShuttle.standard) 'flight': flight.name,
+          if (placeholder != HeroPlaceholder.none) 'placeholder': placeholder.name,
+        };
+
+  @override
+  List<Object?> get props => [tag, flight, placeholder];
+}
+
+// --- all together -----------------------------------------------------------------
+
+/// A node's behaviours. Stored flat in the node's JSON under [keys].
+@immutable
+final class Behaviours extends _Value {
+  const Behaviours({
+    this.motion,
+    this.scale = 1,
+    this.loops = const [],
+    this.transitions = Transitions.none,
+    this.inkWell,
+    this.states = StateStyles.none,
+    this.tooltip = '',
+    this.ignorePointer = false,
+    this.zoomable = false,
+    this.floating = false,
+    this.hero,
+    this.flightKey = '',
+    this.draggable,
+    this.dropTarget,
+    this.drag,
+    this.reveal,
+    this.strokePath,
+    this.effectAnimations = const [],
+    this.particles,
+    this.textDirection,
+    this.flip,
+    this.tilt,
+    this.transformGesture,
+  });
+
+  static const Behaviours none = Behaviours();
+
+  /// The transform over the layout, its transitions, entrance and spin.
+  final Motion? motion;
+
+  /// Drawn at this size around its centre; layout unchanged (Flutter's
+  /// `Transform.scale`). Bindable as `scale`.
+  final double scale;
+
+  /// Animations repeating while shown, outermost first.
+  final List<LoopAnimation> loops;
+  final Transitions transitions;
+
+  /// Ink: ripples, and hover/focus/press overlays.
+  final InkWellStyle? inkWell;
+
+  /// Property overrides per interaction state.
+  final StateStyles states;
+
+  /// Shown on hover or long press; may hold `${...}` data.
+  final String tooltip;
+
+  /// Lets pointer events through to what's under the node (Flutter's
+  /// `IgnorePointer`).
+  final bool ignorePointer;
+
+  /// Pinch, scroll and double-tap zoom and pan (Flutter's
+  /// `InteractiveViewer`).
+  final bool zoomable;
+
+  /// Drawn above everything else at runtime (a menu under a field), still
+  /// taking its place in the layout. The design canvas draws it in place.
+  final bool floating;
+  final HeroTag? hero;
+
+  /// Flies the node in from where the node with the same key just was.
+  final String flightKey;
+  final DragSource? draggable;
+  final DropTarget? dropTarget;
+  final DragMotion? drag;
+  final Reveal? reveal;
+  final StrokePath? strokePath;
+  final List<EffectAnimation> effectAnimations;
+  final ParticleEmitter? particles;
+
+  /// The direction its content lays out in (Flutter's `Directionality`);
+  /// null inherits. Bindable as `textDirection`.
+  final TextDirection? textDirection;
+
+  /// A two-sided card that turns over (first child front, second back).
+  final FlipCard? flip;
+
+  /// Tilts in 3D toward the pointer.
+  final Tilt? tilt;
+
+  /// Pinch, pan and rotate, with fling physics and optional handles (over
+  /// [zoomable]: see [effectiveTransformGesture]).
+  final TransformGesture? transformGesture;
+
+  /// [transformGesture], or what [zoomable] amounts to.
+  TransformGesture? get effectiveTransformGesture =>
+      transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
+
+  /// The node JSON keys these are stored under.
+  static const Set<String> keys = {
+    'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
+    'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
+    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture',
+  };
+
+  bool get isNone => this == none;
+
+  /// Reads the behaviour keys of a node's JSON [m].
+  static Behaviours fromJson(Json m) {
+    if (!m.keys.any(keys.contains)) return none;
+    final r = _R(m);
+    final scale = r.d('scale', 1);
+    return Behaviours(
+      motion: Motion.fromJson(m['motion']),
+      scale: scale > 0 ? scale : 1,
+      loops: [...?readList(m['loops'])?.map(LoopAnimation.fromJson).nonNulls],
+      transitions: Transitions.fromJson(m['transitions']),
+      inkWell: InkWellStyle.fromJson(m['inkWell']),
+      states: StateStyles.fromJson(m['states']),
+      tooltip: r.s('tooltip'),
+      ignorePointer: r.b('ignorePointer', false),
+      zoomable: r.b('zoomable', false),
+      floating: r.b('floating', false),
+      hero: HeroTag.fromJson(m['hero']),
+      flightKey: r.s('flightKey'),
+      draggable: DragSource.fromJson(m['draggable']),
+      dropTarget: DropTarget.fromJson(m['dropTarget']),
+      drag: DragMotion.fromJson(m['drag']),
+      reveal: Reveal.fromJson(m['reveal']),
+      strokePath: StrokePath.fromJson(m['strokePath']),
+      effectAnimations: [...?readList(m['effectAnimations'])?.map(EffectAnimation.fromJson).nonNulls],
+      particles: ParticleEmitter.fromJson(m['particles']),
+      textDirection: m['textDirection'] is String
+          ? r.e(TextDirection.values, 'textDirection', TextDirection.ltr)
+          : null,
+      flip: FlipCard.fromJson(m['flip']),
+      tilt: Tilt.fromJson(m['tilt']),
+      transformGesture: TransformGesture.fromJson(m['transformGesture']),
+    );
+  }
+
+  /// Writes these into a node's JSON [j] (sparse).
+  void writeTo(Json j) {
+    if (motion != null) j['motion'] = motion!.toJson();
+    j.d('scale', scale, 1);
+    if (loops.isNotEmpty) j['loops'] = [for (final l in loops) l.toJson()];
+    if (!transitions.isNone) j['transitions'] = transitions.toJson();
+    if (inkWell != null) j['inkWell'] = inkWell!.toJson();
+    if (!states.isEmpty) j['states'] = states.toJson();
+    j
+      ..s('tooltip', tooltip)
+      ..b('ignorePointer', ignorePointer, false)
+      ..b('zoomable', zoomable, false)
+      ..b('floating', floating, false);
+    if (hero != null) j['hero'] = hero!.toJson();
+    j.s('flightKey', flightKey);
+    if (draggable != null) j['draggable'] = draggable!.toJson();
+    if (dropTarget != null) j['dropTarget'] = dropTarget!.toJson();
+    if (drag != null) j['drag'] = drag!.toJson();
+    if (reveal != null) j['reveal'] = reveal!.toJson();
+    if (strokePath != null) j['strokePath'] = strokePath!.toJson();
+    if (effectAnimations.isNotEmpty) j['effectAnimations'] = [for (final e in effectAnimations) e.toJson()];
+    if (particles != null) j['particles'] = particles!.toJson();
+    if (textDirection != null) j['textDirection'] = textDirection!.name;
+    if (flip != null) j['flip'] = flip!.toJson();
+    if (tilt != null) j['tilt'] = tilt!.toJson();
+    if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
+  }
+
+  Behaviours copyWith({
+    Motion? motion,
+    double? scale,
+    List<LoopAnimation>? loops,
+    Transitions? transitions,
+    InkWellStyle? inkWell,
+    StateStyles? states,
+    String? tooltip,
+    bool? ignorePointer,
+    bool? zoomable,
+    bool? floating,
+    HeroTag? hero,
+    String? flightKey,
+    DragSource? draggable,
+    DropTarget? dropTarget,
+    DragMotion? drag,
+    Reveal? reveal,
+    StrokePath? strokePath,
+    List<EffectAnimation>? effectAnimations,
+    ParticleEmitter? particles,
+    TextDirection? textDirection,
+    FlipCard? flip,
+    Tilt? tilt,
+    TransformGesture? transformGesture,
+  }) => Behaviours(
+    motion: motion ?? this.motion,
+    scale: scale ?? this.scale,
+    loops: loops ?? this.loops,
+    transitions: transitions ?? this.transitions,
+    inkWell: inkWell ?? this.inkWell,
+    states: states ?? this.states,
+    tooltip: tooltip ?? this.tooltip,
+    ignorePointer: ignorePointer ?? this.ignorePointer,
+    zoomable: zoomable ?? this.zoomable,
+    floating: floating ?? this.floating,
+    hero: hero ?? this.hero,
+    flightKey: flightKey ?? this.flightKey,
+    draggable: draggable ?? this.draggable,
+    dropTarget: dropTarget ?? this.dropTarget,
+    drag: drag ?? this.drag,
+    reveal: reveal ?? this.reveal,
+    strokePath: strokePath ?? this.strokePath,
+    effectAnimations: effectAnimations ?? this.effectAnimations,
+    particles: particles ?? this.particles,
+    textDirection: textDirection ?? this.textDirection,
+    flip: flip ?? this.flip,
+    tilt: tilt ?? this.tilt,
+    transformGesture: transformGesture ?? this.transformGesture,
+  );
+
+  @override
+  List<Object?> get props => [
+    motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
+    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
+    tilt, transformGesture,
+  ];
+}

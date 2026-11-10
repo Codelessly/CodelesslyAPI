@@ -17,6 +17,25 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
   @override
   final bool supportsPadding = true;
 
+  /// An open or closed shape to draw instead of the box, as SVG path data
+  /// in the node's own coordinates (0,0 is its top-left corner, in pixels):
+  /// `M0 30 V8 Q0 0 8 0 H30` draws a corner bracket. The strokes stroke the
+  /// path with [strokeWeight], [strokeCap] and [strokeJoin] (centered on it,
+  /// whatever [strokeAlign] says), and the fills fill it; the corner radius
+  /// and notches of the box don't apply, and its drop shadows follow the
+  /// path (its fill and its stroke). A path is drawn whole: it is not
+  /// clipped to the box, so round caps at its edge show. Supports
+  /// the M, L, H, V, C, S, Q, T, A and Z commands, absolute and relative.
+  /// Null draws the box.
+  String? path;
+
+  /// How the segments of [path] meet when it is stroked.
+  @JsonKey(unknownEnumValue: StrokeJoinEnum.miter)
+  StrokeJoinEnum strokeJoin;
+
+  /// Whether this rectangle draws [path] instead of its box.
+  bool get hasPath => path != null && path!.trim().isNotEmpty;
+
   /// Creates a new [RectangleNode] with the given data.
   RectangleNode({
     required super.id,
@@ -53,11 +72,15 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     // [CornerMixin] properties.
     double cornerSmoothing = 0,
     CornerRadius cornerRadius = CornerRadius.zero,
+    List<NotchModel> notches = const [],
     // [ClipMixin] properties.
     bool clipsContent = true,
+    this.path,
+    this.strokeJoin = StrokeJoinEnum.miter,
   }) {
     setCornerMixin(
       cornerRadius: cornerRadius,
+      notches: notches,
       cornerSmoothing: cornerSmoothing,
     );
 
@@ -78,8 +101,13 @@ class RectangleNode extends DefaultShapeNode with CornerMixin, ClipMixin {
     TriggerType.hold,
     TriggerType.drag,
     TriggerType.dragEnd,
+    TriggerType.reorder,
+    TriggerType.changed,
+    TriggerType.wheel,
+    TriggerType.pinch,
     TriggerType.pointerDown,
     TriggerType.pointerUp,
+    ...TriggerType.viewport,
   ];
 
   @override

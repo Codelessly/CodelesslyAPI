@@ -8,6 +8,9 @@ targets:
           - lib/src/api/nodes/row_column_node.dart
           - lib/src/api/nodes/divider_node.dart
           - lib/src/api/nodes/badge_node.dart
+          - lib/src/api/nodes/barcode_node.dart
+          - lib/src/api/nodes/pagination_node.dart
+          - lib/src/api/nodes/table_view_node.dart
           - lib/src/api/nodes/app_bar_node.dart
           - lib/src/api/nodes/checkbox_node.dart
           - lib/src/api/nodes/slider_node.dart
@@ -54,6 +57,7 @@ targets:
           - lib/src/api/nodes/root_node.dart
           - lib/src/api/nodes/spacer_node.dart
           - lib/src/api/nodes/rectangle_node.dart
+          - lib/src/api/nodes/path_node.dart
           - lib/src/api/nodes/navigation_bar_node.dart
           - lib/src/api/nodes/icon_node.dart
           - lib/src/api/nodes/loading_indicator_node.dart

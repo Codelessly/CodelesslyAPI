@@ -20,6 +20,11 @@ class GridViewNode extends SinglePlaceholderNode
         ClipMixin,
         QueryableMixin,
         FieldsHolder {
+  /// The key in [variables] that binds the cross-axis count of a
+  /// [FixedCrossAxisCountGridDelegateProperties] grid, e.g. `${bed.cols}`
+  /// for a grid whose number of columns comes from data.
+  static const String crossAxisCountVariable = 'crossAxisCount';
+
   @override
   final String type = 'gridView';
 
@@ -28,6 +33,13 @@ class GridViewNode extends SinglePlaceholderNode
 
   @override
   bool get isScrollingEnforced => true;
+
+  @override
+  List<TriggerType> get triggerTypes => [
+    TriggerType.scrollEnd,
+    TriggerType.reorder,
+    TriggerType.refresh,
+  ];
 
   @override
   bool get canBeMarked => true;
@@ -40,6 +52,21 @@ class GridViewNode extends SinglePlaceholderNode
   /// for loading, empty and error states: [kQueryStatusLoading],
   /// [kQueryStatusEmpty], [kQueryStatusError] or [kQueryStatusLoaded].
   VariableData? statusVariable;
+
+  /// Loads the grid's items page by page, a page at a time or as an
+  /// endless grid, with pull to refresh; see [PaginationModel].
+  PaginationModel? pagination;
+
+  /// Lets the user drag the items to a new place; see [ReorderModel].
+  ReorderModel? reorder;
+
+  /// The ids of the children that are not the item template: the
+  /// pagination's footers and the reorder placeholder.
+  List<String> get slotNodeIds => [
+    ...?pagination?.slotNodeIds,
+    if (reorder?.placeholderNodeId.isNotEmpty == true)
+      reorder!.placeholderNodeId,
+  ];
 
   /// Creates a [GridViewNode].
   GridViewNode({
@@ -69,6 +96,8 @@ class GridViewNode extends SinglePlaceholderNode
     super.multipleVariables,
     bool clipsContent = true,
     this.statusVariable,
+    this.pagination,
+    this.reorder,
 
     // A grid always scrolls its items and never uses a Flutter ListView.
     // Their defaults are shared with the ScrollableMixin parameters below.

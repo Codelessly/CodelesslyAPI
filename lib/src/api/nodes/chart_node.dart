@@ -27,13 +27,18 @@ enum ChartType {
 
   /// One horizontal band of colored segments over a numeric domain, e.g. a
   /// machine's states across a shift.
-  timeline;
+  timeline,
+
+  /// A ring of slices, one per data item, sized by the first series' field
+  /// and colored by its colorField (e.g. spending by category).
+  donut;
 
   /// Display name.
   String get prettify => switch (this) {
     ChartType.bar => 'Bar',
     ChartType.line => 'Line',
     ChartType.timeline => 'Timeline',
+    ChartType.donut => 'Donut',
   };
 }
 
@@ -93,6 +98,13 @@ class ChartSeries with Equatable, SerializableMixin {
   /// Whether a line ends in a dot at its last point.
   final bool endDot;
 
+  /// Color of the ring around the end dot; null for a dark halo.
+  final ColorRGBA? endDotHaloColor;
+
+  /// Whether lines and area outlines are smooth curves through their points
+  /// instead of straight segments.
+  final bool curved;
+
   /// For area series, the field of another series to fill down to instead of
   /// the axis (the gap between two lines).
   final String? fillTo;
@@ -111,6 +123,8 @@ class ChartSeries with Equatable, SerializableMixin {
     this.dashed = false,
     this.strokeWidth = 2,
     this.endDot = false,
+    this.endDotHaloColor,
+    this.curved = false,
     this.fillTo,
     this.fillOpacity = 0.25,
   });
@@ -132,6 +146,8 @@ class ChartSeries with Equatable, SerializableMixin {
     dashed,
     strokeWidth,
     endDot,
+    endDotHaloColor,
+    curved,
     fillTo,
     fillOpacity,
   ];
@@ -271,6 +287,14 @@ class ChartNode extends SceneNode with CustomPropertiesMixin, FieldsHolder {
   late final List<ValueModel> propertyVariables = [
     ...super.propertyVariables,
     IntValue(name: 'selectedIndex', value: selectedIndex),
+    // Bindable so a chart follows state: axis labels in the base currency
+    // (`$12k`, `12k €`), a fixed scale, a red line for a credit account.
+    StringValue(name: 'yLabelPrefix', value: properties.yLabelPrefix),
+    StringValue(name: 'yLabelSuffix', value: properties.yLabelSuffix),
+    DoubleValue(name: 'minY', value: properties.minY ?? 0),
+    DoubleValue(name: 'maxY', value: properties.maxY ?? 0),
+    for (int i = 0; i < properties.series.length; i++)
+      ColorValue(name: 'series${i}Color', value: properties.series[i].color),
   ];
 
   /// Creates a [ChartNode] from JSON.
@@ -420,6 +444,38 @@ class ChartProperties extends CustomProperties with FieldsHolder {
   /// Timeline: divisions marked with ticks (e.g. hours).
   int divisions;
 
+  /// Donut: ring width as a fraction of the chart's diameter.
+  double donutThickness;
+
+  /// Donut: gap between slices, in degrees.
+  double sliceGap;
+
+  /// Donut: where the first slice starts, in degrees clockwise from 12
+  /// o'clock.
+  double startAngle;
+
+  /// Hovering a category (bar group, line point or slice) selects it, as a
+  /// tap does, and leaving the chart clears the selection (-1); bind
+  /// selectedIndex to show what is under the pointer.
+  bool selectOnHover;
+
+  /// Space kept clear at the top and right of a line chart's plot so its
+  /// end dot isn't cut off; null for 6, 0 to draw to the edges.
+  double? plotInset;
+
+  /// For line charts with no [minY]: whether the y axis starts near the
+  /// data's lowest value instead of 0.
+  bool fitMinY;
+
+  /// Text written before each y-axis label (a currency symbol: `$12k`).
+  String yLabelPrefix;
+
+  /// Text written after each y-axis label (`12k €`).
+  String yLabelSuffix;
+
+  /// Font family of the y-axis labels, or null for [axisFontFamily].
+  String? yAxisFontFamily;
+
   /// Creates [ChartProperties].
   ChartProperties({
     this.chartType = ChartType.bar,
@@ -469,6 +525,15 @@ class ChartProperties extends CustomProperties with FieldsHolder {
       a: 1,
     ),
     this.divisions = 8,
+    this.donutThickness = 0.15,
+    this.sliceGap = 1.5,
+    this.startAngle = 0,
+    this.selectOnHover = false,
+    this.plotInset,
+    this.fitMinY = false,
+    this.yLabelPrefix = '',
+    this.yLabelSuffix = '',
+    this.yAxisFontFamily,
   });
 
   /// Duplicates these properties with the given overrides.
@@ -505,6 +570,15 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     ColorRGBA? nowColor,
     ColorRGBA? trackColor,
     int? divisions,
+    double? donutThickness,
+    double? sliceGap,
+    double? startAngle,
+    bool? selectOnHover,
+    double? plotInset,
+    bool? fitMinY,
+    String? yLabelPrefix,
+    String? yLabelSuffix,
+    String? yAxisFontFamily,
   }) => ChartProperties(
     chartType: chartType ?? this.chartType,
     series: series ?? this.series,
@@ -538,11 +612,56 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     nowColor: nowColor ?? this.nowColor,
     trackColor: trackColor ?? this.trackColor,
     divisions: divisions ?? this.divisions,
+    donutThickness: donutThickness ?? this.donutThickness,
+    sliceGap: sliceGap ?? this.sliceGap,
+    startAngle: startAngle ?? this.startAngle,
+    selectOnHover: selectOnHover ?? this.selectOnHover,
+    plotInset: plotInset ?? this.plotInset,
+    fitMinY: fitMinY ?? this.fitMinY,
+    yLabelPrefix: yLabelPrefix ?? this.yLabelPrefix,
+    yLabelSuffix: yLabelSuffix ?? this.yLabelSuffix,
+    yAxisFontFamily: yAxisFontFamily ?? this.yAxisFontFamily,
   );
 
   @override
   FieldsMap generateFields() => {
     ...super.generateFields(),
+    'donutThickness': NumFieldAccess<double>(
+      'Ring Width',
+      'Donut ring width as a fraction of the diameter',
+      () => donutThickness,
+      (v) => donutThickness = v,
+    ),
+    'sliceGap': NumFieldAccess<double>(
+      'Slice Gap',
+      'Gap between donut slices in degrees',
+      () => sliceGap,
+      (v) => sliceGap = v,
+    ),
+    'selectOnHover': BoolFieldAccess(
+      'Select On Hover',
+      'Hovering a category selects it',
+      () => selectOnHover,
+      (v) => selectOnHover = v,
+    ),
+    'fitMinY': BoolFieldAccess(
+      'Fit Min Y',
+      'Start the y axis near the lowest value instead of 0',
+      () => fitMinY,
+      (v) => fitMinY = v,
+    ),
+    'yLabelPrefix': StringFieldAccess(
+      'Y Label Prefix',
+      'Text before each y-axis label',
+      () => yLabelPrefix,
+      (v) => yLabelPrefix = v,
+    ),
+    'yLabelSuffix': StringFieldAccess(
+      'Y Label Suffix',
+      'Text after each y-axis label',
+      () => yLabelSuffix,
+      (v) => yLabelSuffix = v,
+    ),
     'labelField': StringFieldAccess(
       'Label Field',
       'Field holding x-axis labels',
@@ -627,6 +746,15 @@ class ChartProperties extends CustomProperties with FieldsHolder {
     nowColor,
     trackColor,
     divisions,
+    donutThickness,
+    sliceGap,
+    startAngle,
+    selectOnHover,
+    plotInset,
+    fitMinY,
+    yLabelPrefix,
+    yLabelSuffix,
+    yAxisFontFamily,
   ];
 
   /// Creates [ChartProperties] from JSON.
