@@ -1,3 +1,7 @@
+## 21.0.1
+
+- Documentation: a cleaner README.
+
 ## 21.0.0
 
 **Breaking changes**
