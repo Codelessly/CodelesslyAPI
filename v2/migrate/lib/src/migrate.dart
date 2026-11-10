@@ -88,7 +88,7 @@ Json migrateDocument(
     final v = e.value;
     if (v is! Map || v['type'] == null || v['type'] == 'root') continue;
     try {
-      final n = NodeJsonConverter().fromJson(v);
+      final n = NodeJsonConverter().fromJson(upgradeFlatIcon(v));
       if (n != null) nodes[e.key] = n;
     } catch (error) {
       // Undecodable in v1 too: v1's editor dropped it on load.
@@ -940,4 +940,18 @@ abstract final class Color8 {
     String c(int v) => v.clamp(0, 255).toRadixString(16).padLeft(2, '0').toUpperCase();
     return '#${c(a)}${c((r * 255).toInt())}${c((g * 255).toInt())}${c((b * 255).toInt())}';
   }
+}
+
+/// An icon node saved with its icon beside `properties` (from before icons
+/// had sources), which v1's decoder no longer reads: the icon goes into
+/// `properties` as the icon source v1 reads now, shown in the node's color.
+Map upgradeFlatIcon(Map node) {
+  if (node['type'] != 'icon') return node;
+  final icon = node['icon'];
+  final props = node['properties'] is Map ? node['properties'] as Map : const {};
+  if (icon is! Map || props['icon'] != null) return node;
+  final source = icon.containsKey('codepoint')
+      ? {'type': 'icon', 'show': true, 'icon': icon, if (node['color'] != null) 'color': node['color']}
+      : icon;
+  return {...node, 'properties': {...props, 'icon': source}}..remove('icon');
 }
