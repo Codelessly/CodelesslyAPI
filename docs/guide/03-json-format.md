@@ -13,8 +13,8 @@
 Every document carries `"schema": 2` (`kSchemaVersion`). Decoders upgrade any older v2 schema on load
 (`LayoutDocument.migrateSchema`, `schemaMigrations`), so the format can evolve without breaking stored data.
 
-Schema 1 is the format of `codelessly_api` 10.x and older. It is **not** read by this version: the
-[migrate package](06-migrate-package.md) converts it once.
+Schema 1 is the format of `codelessly_api` 10.x and older. It is **not** read by this version. Every project
+stored by Codelessly has already been converted.
 
 ### Total decoding
 
@@ -202,7 +202,7 @@ storage file. A layout too large for one Firestore document stores its nodes gzi
 Not for version 20. The `schema/` directory at the repository root holds JSON Schema files for the 10.x format.
 For 20.x the declarations themselves are the machine-readable schema: `Widgets.all` and each `PropDef.type`
 ([chapter 2](02-widgets-and-widgetspec.md#prop-types-for-tools)) describe every widget's props, types, defaults
-and enum values, and a JSON Schema could be generated from them. [`v2/DESIGN.md`](../../v2/DESIGN.md) is the
+and enum values, and a JSON Schema could be generated from them. [`DESIGN.md`](../../DESIGN.md) is the
 prose specification.
 
 Next: [Building and checking a layout in code](04-building-layouts-in-code.md)

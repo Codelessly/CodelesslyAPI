@@ -6,9 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  # codelessly_api 10.x (v1), at the repository root: legacy.
   check:
-    name: API 10 (v1, legacy)
+    name: codelessly_api
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -16,48 +15,10 @@ jobs:
         with:
           sdk: 3.13.5
       - run: dart pub get
-      - run: dart pub get --directory tool/json_defaults_builder
-      - name: Generated code is up to date
-        run: |
-          dart run build_runner build -d
-          git diff --exit-code -- '*.g.dart'
-      - run: dart format --set-exit-if-changed --output=none lib test tool
-      - run: dart analyze --fatal-infos
-      - run: dart test
-      - run: dart pub publish --dry-run
-
-  # codelessly_api 20.x (v2), in v2/: what codelessly_api on pub.dev is.
-  v2:
-    name: API 20 (v2)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: v2
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dart-lang/setup-dart@v1
-        with:
-          sdk: 3.13.5
-      - run: dart pub get
-      # Not `dart analyze` alone: v2/migrate is a package of its own (below).
-      - run: dart analyze lib test example
+      - run: dart analyze
       - run: dart test
       # The README's and the guide's code samples.
       - run: dart run --enable-asserts example/readme.dart
       - run: dart run --enable-asserts example/example.dart
       - run: dart run --enable-asserts example/guide.dart
-
-  # The v1 to v2 converter (v2/migrate): reads v1 with the root package.
-  migrate:
-    name: Migrate (v1 to v2)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: v2/migrate
-    steps:
-      - uses: actions/checkout@v7
-      - uses: dart-lang/setup-dart@v1
-        with:
-          sdk: 3.13.5
-      - run: dart pub get
-      - run: dart test
+      - run: dart pub publish --dry-run

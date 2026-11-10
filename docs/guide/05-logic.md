@@ -1,6 +1,6 @@
 # 5. Logic: variables, conditions, bindings, actions, scripts
 
-[Guide](README.md) · Previous: [Building and checking a layout in code](04-building-layouts-in-code.md) · Next: [The migrate package](06-migrate-package.md)
+[Guide](README.md) · Previous: [Building and checking a layout in code](04-building-layouts-in-code.md)
 
 A layout's logic is data too. This package defines and decodes it; the SDK runs it. This chapter is the shape of
 that data. For how it behaves in an app, see the
@@ -179,4 +179,3 @@ and, read live by the SDK rather than published, `DataRules` (who may read and w
 - `AppIdentity`: the app's name, title template, description, theme color, per-page overrides, icons and social
   card.
 
-Next: [The migrate package](06-migrate-package.md)

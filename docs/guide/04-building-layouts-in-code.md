@@ -2,7 +2,7 @@
 
 [Guide](README.md) · Previous: [The JSON format](03-json-format.md) · Next: [Logic](05-logic.md)
 
-The complete program for this chapter is [`v2/example/example.dart`](../../v2/example/example.dart):
+The complete program for this chapter is [`example/example.dart`](../../example/example.dart):
 
 ```sh
 cd v2
