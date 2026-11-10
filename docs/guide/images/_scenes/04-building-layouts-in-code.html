@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: build, check, bundle, show -->
+<tut-stage name="hero" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">Build a layout in code, check it, hand it to the SDK</div><div class="s">The complete program is <span class="m">v2/example/example.dart</span>.</div></div>
+  <div class="dn" id="j" style="left:40px;top:120px;width:170px"><div class="k">From JSON</div><div class="m" style="font-size:11.5px">LayoutDocument.fromJson</div><div class="d">Shortest; matches stored layouts.</div></div>
+  <div class="dn" id="t" style="left:40px;top:280px;width:170px"><div class="k">Typed classes</div><div class="m" style="font-size:11.5px">Node(...).withProp</div><div class="d">The compiler checks names and types.</div></div>
+  <div class="dn blue" id="d" style="left:270px;top:200px;width:150px"><div class="k">LayoutDocument</div><div class="d">canvases + flat nodes</div></div>
+  <div class="dn amber" id="c" style="left:470px;top:110px;width:140px"><div class="k">Check</div><div class="d">Your <span class="m">problemsOf</span>, a round trip</div></div>
+  <div class="dn" id="b" style="left:470px;top:280px;width:140px"><div class="k">PublishBundle</div><div class="d">model + layout</div></div>
+  <div class="dn purple" id="s" style="left:650px;top:280px;width:110px"><div class="k">SDK</div><div class="m" style="font-size:11px">fromBundle</div></div>
+  <tut-connector from="#j" to="#d"></tut-connector>
+  <tut-connector from="#t" to="#d"></tut-connector>
+  <tut-connector from="#d" to="#c" dashed></tut-connector>
+  <tut-connector from="#d" to="#b"></tut-connector>
+  <tut-connector from="#b" to="#s" route="straight"></tut-connector>
+  <div class="at" style="left:40px;top:430px;width:720px;font-size:12.5px;color:var(--fg1)">Decoding never fails, so a document that decodes isn't necessarily what you meant: check it, and render it in a test.</div>
+</tut-stage>
+
+<!-- Things to get right -->
+<tut-stage name="rules" w="800" h="420" bg="solid">
+  <div class="hd"><div class="t">Things to get right</div></div>
+  <tut-checklist at="40,80" w="720" title="Every document">
+    <do>Every node has a unique id, and its map key is that id</do>
+    <do>A node appears once, as a child or a slot of one parent</do>
+    <do>Roots are canvases; a canvas's content is its body slot</do>
+    <do>Nodes have a size: Layout() defaults to a fixed 0 × 0</do>
+    <do>Raw strings (r'...') for text with expressions, so $ isn't interpolated</do>
+  </tut-checklist>
+</tut-stage>
+
+<!-- A bundle the SDK can show: three steps -->
+<tut-stage name="bundle-steps" w="800" h="440" bg="solid">
+  <div class="hd"><div class="t">A bundle the SDK can show</div><div class="s">Wrap, list, bundle: <span class="m">bundleOf(document)</span> in this chapter.</div></div>
+  <div class="dn" id="s1" style="left:40px;top:120px;width:220px;height:170px"><div class="k">1 · Wrap</div><div class="t m" style="font-size:13px">PublishLayout</div><div class="d">The document, its project id and its variables per canvas.</div></div>
+  <div class="dn" id="s2" style="left:290px;top:120px;width:220px;height:170px"><div class="k">2 · List</div><div class="t m" style="font-size:13px">PublishModel</div><div class="d"><span class="m">PublishLayoutInfo.of(layout)</span> and the entry layout id.</div></div>
+  <div class="dn blue" id="s3" style="left:540px;top:120px;width:220px;height:170px"><div class="k">3 · Bundle</div><div class="t m" style="font-size:13px">PublishBundle</div><div class="d">Model and layouts. Give it to <span class="m">Codelessly.fromBundle</span>, or ship its JSON.</div></div>
+  <tut-connector from="#s1" to="#s2" route="straight"></tut-connector>
+  <tut-connector from="#s2" to="#s3" route="straight"></tut-connector>
+  <div class="at" style="left:40px;top:316px;width:720px;font-size:12.5px;color:var(--fg1);line-height:1.6">One canvas per breakpoint: list each in <span class="m">PublishLayout.breakpoints</span>, and give the model the project's <span class="m">Breakpoints</span> if they aren't the defaults.</div>
+</tut-stage>
+</body></html>

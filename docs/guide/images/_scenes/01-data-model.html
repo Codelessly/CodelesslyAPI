@@ -1,0 +1,70 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: flat map, derived tree -->
+<tut-stage name="hero" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">A document is flat</div><div class="s">One map of nodes by id. Parents are derived from <span class="m">children</span> and <span class="m">slots</span>, never stored.</div></div>
+  <tut-code-window class="xs" at="40,100" w="530" file="document.json" lang="json" highlight="5,6,7">
+{
+  "schema": 2,
+  "roots": ["home"],
+  "nodes": {
+    "home":   {"type": "canvas", "slots": {"body": "column"}},
+    "column": {"type": "column", "children": ["title", "button"]},
+    "title":  {"type": "text"},
+    "button": {"type": "filledButton"}
+  }
+}
+  </tut-code-window>
+  <div class="dn" style="left:590px;top:100px;width:170px"><div class="k">Derived tree</div>
+  <tut-tree at="0,0" w="150" style="position:relative">
+[frame] home
+  [layers] column
+    [text] title
+    [square] button
+  </tut-tree></div>
+  <div class="dn gray" style="left:590px;top:290px;width:170px"><div class="m" style="line-height:1.8;font-size:11.5px">document<br>.parentOf('title')<br><span style="color:var(--fg2)">// 'column'</span></div></div>
+  <div class="at" style="left:40px;top:400px;width:720px;font-size:12.5px;color:var(--fg1);line-height:1.6">Immutable, with value equality: "did this node change?" is <span class="m">==</span>, and an edit is a copy. A node stores intent (how it sizes and sits), never computed geometry.</div>
+</tut-stage>
+
+<!-- Size per axis -->
+<tut-stage name="axis-size" w="800" h="360" bg="solid">
+  <div class="hd"><div class="t">Size per axis: a fit and a design size</div><div class="s">The number is the design size: used for <span class="m">fixed</span>, and the fallback when a fit can't apply.</div></div>
+  <div class="dn" style="left:40px;top:110px;width:166px;height:190px"><div class="k">fixed</div><div class="m">320</div><div class="d m" style="color:var(--fg2)">SizedBox</div>
+    <div style="margin-top:20px;border:1.5px dashed var(--line2);border-radius:8px;padding:8px"><div style="width:70px;height:30px;border-radius:6px;background:var(--t-blue)"></div></div></div>
+  <div class="dn" style="left:224px;top:110px;width:166px;height:190px"><div class="k">fill</div><div class="m">{"fill": 320}</div><div class="d m" style="color:var(--fg2)">Expanded / stretch</div>
+    <div style="margin-top:20px;border:1.5px dashed var(--line2);border-radius:8px;padding:8px"><div style="height:30px;border-radius:6px;background:var(--t-blue)"></div></div></div>
+  <div class="dn" style="left:408px;top:110px;width:166px;height:190px"><div class="k">flexible</div><div class="m">{"flexible": 200}</div><div class="d m" style="color:var(--fg2)">Flexible (loose)</div>
+    <div style="margin-top:20px;border:1.5px dashed var(--line2);border-radius:8px;padding:8px"><div style="width:90px;height:30px;border-radius:6px;background:var(--t-blue)"></div></div><div class="d" style="font-size:11.5px">up to its design size</div></div>
+  <div class="dn" style="left:592px;top:110px;width:168px;height:190px"><div class="k">hug</div><div class="m">{"hug": 120}</div><div class="d m" style="color:var(--fg2)">sizes to content</div>
+    <div style="margin-top:20px;border:1.5px dashed var(--line2);border-radius:8px;padding:8px"><span style="display:inline-block;padding:6px 10px;border-radius:6px;background:var(--t-blue);color:#fff;font-size:12px;font-weight:600">Tap me</span></div></div>
+  <div class="at" style="left:40px;top:318px;width:720px;font-size:12.5px;color:var(--fg1)">Position per axis, under a freeform parent, follows <span class="m">Positioned</span> and <span class="m">Align</span>: <span class="m">start</span>, <span class="m">end</span>, both, <span class="m">align</span>, <span class="m">relative</span>.</div>
+</tut-stage>
+
+<!-- A node's layout JSON, annotated -->
+<tut-stage name="layout-json" w="800" h="500" bg="solid">
+  <tut-code-window id="cw" class="sm" at="40,30" w="460" file="layout" lang="json" highlight="2,3">
+"layout": {
+  "width": {"fill": 320},
+  "height": {"hug": 48},
+  "flex": 2,
+  "constraints": {"minWidth": 100, "maxWidth": 600},
+  "margin": [0, 8, 0, 8],
+  "padding": [16, 12, 16, 12],
+  "x": {"start": 24},
+  "y": {"align": 0.5},
+  "align": [0, 0],
+  "rotation": 15,
+  "aspectRatio": 1.5
+}
+  </tut-code-window>
+  <div class="dn blue" style="left:520px;top:30px;width:240px"><div class="k">Size, per axis</div><div class="d">A fit and a design size: <span class="m">fixed</span>, <span class="m">fill</span>, <span class="m">flexible</span>, <span class="m">hug</span>.</div></div>
+  <div class="dn" style="left:520px;top:140px;width:240px"><div class="k">Under a row or column</div><div class="d"><span class="m">flex</span>, <span class="m">squeezable</span>, <span class="m">align</span></div></div>
+  <div class="dn" style="left:520px;top:230px;width:240px"><div class="k">Under a freeform parent</div><div class="d"><span class="m">x</span> and <span class="m">y</span>, like <span class="m">Positioned</span> and <span class="m">Align</span></div></div>
+  <div class="dn gray" style="left:520px;top:320px;width:240px"><div class="d" style="margin:0"><span class="m">margin</span>, <span class="m">padding</span>: [left, top, right, bottom] or one number. <span class="m">rotation</span> in degrees.</div></div>
+  <div class="at" style="left:40px;top:462px;width:720px;font-size:12.5px;color:var(--fg1);line-height:1.6">Values for another kind of parent are kept, so moving a node back restores them; renderers ignore them.</div>
+</tut-stage>
+</body></html>

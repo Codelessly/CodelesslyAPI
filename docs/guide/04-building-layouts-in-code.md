@@ -9,6 +9,10 @@ cd v2
 dart run example/example.dart
 ```
 
+![JSON or typed classes build a LayoutDocument, which you check and wrap in a PublishBundle for the SDK](images/04-building-layouts-in-code/hero.png)
+
+*Build, check, bundle, show.*
+
 ## Two ways to build
 
 **From JSON.** Write the document as a map and decode it. This is the shortest form and matches what you see in
@@ -89,6 +93,10 @@ final document = LayoutDocument(
   nodes: {for (final n in [canvas, column, title, button]) n.id: n},
 );
 ```
+
+![Checklist: unique ids, each node in one parent, canvases as roots, a size for every node, raw strings for expressions](images/04-building-layouts-in-code/rules.png)
+
+*The list below, at a glance.*
 
 Things to get right:
 
@@ -172,6 +180,10 @@ The real test of a layout is rendering it: the SDK's test tools show a bundle in
 ([SDK guide: Testing](https://github.com/Codelessly/CodelesslySDK/blob/master/docs/guide/14-testing.md)).
 
 ## A bundle the SDK can show
+
+![Three steps: wrap the document as a PublishLayout, list it in a PublishModel, put both in a PublishBundle](images/04-building-layouts-in-code/bundle-steps.png)
+
+*Wrap, list, bundle.*
 
 Wrap the document as a `PublishLayout`, list it in a `PublishModel`, and put both in a `PublishBundle`:
 

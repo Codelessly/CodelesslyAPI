@@ -1,0 +1,51 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<script src="_toolkit/annotate.js"></script>
+<link rel="stylesheet" href="docs.css"></head>
+<body style="margin:0">
+
+<!-- Hero: where logic lives -->
+<tut-stage name="hero" w="800" h="500" bg="solid">
+  <div class="hd"><div class="t">A layout's logic is data too</div><div class="s">This package defines and decodes it; the SDK runs it.</div></div>
+  <div class="grp" style="left:40px;top:110px;width:340px;height:330px"><span class="gl">On a node</span></div>
+  <div class="dn" style="left:60px;top:136px;width:300px"><div class="k">bind</div><div class="m" style="font-size:12px">"props.text": "Hello, ${data.name}!"</div></div>
+  <div class="dn" style="left:60px;top:236px;width:300px"><div class="k">actions</div><div class="d">Reactions: a trigger and a chain of actions</div></div>
+  <div class="dn" style="left:60px;top:336px;width:300px"><div class="k">behaviours</div><div class="d">Motion, transitions, interaction states...</div></div>
+  <div class="grp" style="left:420px;top:110px;width:340px;height:330px"><span class="gl">In the layout document, per canvas</span></div>
+  <div class="dn" style="left:440px;top:136px;width:300px"><div class="k">variables</div><div class="m" style="font-size:12px">{"name": "count", "type": "integer", "value": 3}</div></div>
+  <div class="dn" style="left:440px;top:236px;width:300px"><div class="k">conditions</div><div class="d">if / else if / else branches that set node properties</div></div>
+  <div class="dn" style="left:440px;top:336px;width:300px"><div class="k">scripts</div><div class="d">JavaScript the SDK runs in a sandbox</div></div>
+  <div class="at" style="left:40px;top:458px;width:720px;font-size:12.5px;color:var(--fg1)">Expressions: <span class="m">${path}</span> reads a value, <span class="m">${= formula}</span> computes one. App variables are in <span class="m">PublishModel.variables</span>.</div>
+</tut-stage>
+
+<!-- A condition, annotated -->
+<tut-stage name="condition" w="800" h="420" bg="solid">
+  <div class="hd"><div class="t">A condition</div><div class="s">For a property, the first branch that holds and sets it wins. Conditions win over bindings, which win over values.</div></div>
+  <tut-code-window class="sm" at="40,100" w="720" file="condition" lang="json" highlight="2,3,4">
+{"id": "c1", "branches": [
+  {"when": {"left": "${count}", "op": "greaterThan", "right": "5"},
+   "set": [{"node": "badge", "path": "visible", "value": true}]},
+  {"set": [{"node": "badge", "path": "visible", "value": false}]}]}
+  </tut-code-window>
+  <div class="dn blue" style="left:40px;top:262px;width:350px"><div class="k">if</div><div class="d"><span class="m">when</span>: a <span class="m">Comparison</span> or an and/or <span class="m">Junction</span>; <span class="m">set</span>: the node properties it gives values.</div></div>
+  <div class="dn" style="left:410px;top:262px;width:350px"><div class="k">else</div><div class="d">A branch with no <span class="m">when</span>.</div></div>
+</tut-stage>
+
+<!-- A reaction, annotated -->
+<tut-stage name="reaction" w="800" h="520" bg="solid">
+  <div class="hd"><div class="t">A reaction</div><div class="s">A <span class="m">Trigger</span> and the chain of <span class="m">ActionDef</span>s it runs in order. One immutable class per action type.</div></div>
+  <tut-code-window class="xxs" at="40,100" w="720" file="actions" lang="json" highlight="2,4,5">
+"actions": [
+  {"id": "r1", "trigger": {"type": "click"},
+   "actions": [
+     {"type": "setVariable", "variable": "count", "op": "add", "value": "1"},
+     {"type": "if", "condition": {"left": "${count}", "op": "greaterThan", "right": "9"},
+      "then": [{"type": "navigate", "mode": "replace", "to": "done", "params": {"n": "${count}"}}]}]}
+]
+  </tut-code-window>
+  <div class="dn amber" style="left:40px;top:296px;width:228px"><div class="k">Trigger</div><div class="m">click</div><div class="d">Settings are sparse: <span class="m">debounceMs</span>, <span class="m">key</span>...</div></div>
+  <div class="dn" style="left:286px;top:296px;width:228px"><div class="k">Action 1</div><div class="m">setVariable</div><div class="d">count + 1</div></div>
+  <div class="dn blue" style="left:532px;top:296px;width:228px"><div class="k">Action 2</div><div class="m">if → navigate</div><div class="d">Nested actions: <span class="m">reaction.allActions</span> walks them.</div></div>
+  <div class="at" style="left:40px;top:450px;width:720px;font-size:12.5px;color:var(--fg1)">Every action has <span class="m">enabled</span>, <span class="m">nonBlocking</span> and <span class="m">when</span>. An unknown type decodes as <span class="m">UnknownAction</span> and round-trips.</div>
+</tut-stage>
+</body></html>

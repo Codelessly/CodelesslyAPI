@@ -6,6 +6,10 @@ A layout's logic is data too. This package defines and decodes it; the SDK runs 
 that data. For how it behaves in an app, see the
 [SDK guide](https://github.com/Codelessly/CodelesslySDK/tree/master/docs/guide).
 
+![Logic on a node (bind, actions, behaviours) and in the layout document per canvas (variables, conditions, scripts)](images/05-logic/hero.png)
+
+*Where logic lives.*
+
 ## Expressions
 
 Text fields throughout the model can hold expressions, evaluated by the SDK:
@@ -36,6 +40,10 @@ A field that is exactly one expression keeps the value's type; any other text co
 | `persist` | The app keeps the value on the device |
 
 ## Conditions
+
+![The condition JSON from this section: an if branch with a comparison, and an else branch](images/05-logic/condition.png)
+
+*A condition, annotated.*
 
 `Condition`: an ordered list of branches, `if` / `else if` / `else`. A branch has a `when` (a `Predicate`: a
 `Comparison` `{left, op, right}`, or a `Junction` `{"and" | "or": [...]}`; none for `else`) and `set`, the node
@@ -89,6 +97,10 @@ of an app are in `PublishModel.variables`.
 color); a value that can't be read leaves the property as it was.
 
 ## Reactions and actions
+
+![The reaction JSON from this section: a click trigger, a setVariable action, and an if action with a nested navigate](images/05-logic/reaction.png)
+
+*A reaction: a trigger and its chain.*
 
 `Node.actions` is a list of `Reaction`s: a `Trigger` and the chain of `ActionDef`s it runs in order.
 

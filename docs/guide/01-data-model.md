@@ -2,6 +2,10 @@
 
 [Guide](README.md) · Next: [Widgets and `WidgetSpec`](02-widgets-and-widgetspec.md)
 
+![A document's flat nodes map, and the tree derived from children and slots: home, column, title, button](images/01-data-model/hero.png)
+
+*A document is one flat map; the tree is derived.*
+
 ## Principles
 
 - **Flutter's vocabulary.** A node is a Flutter widget's parameters as data: Flutter's names, types and defaults
@@ -50,6 +54,10 @@ Useful members: `prop(def)`, `withProp(def, value)`, `copyWith(...)`, `patched(j
 
 ## Layout
 
+![A node's layout JSON: size per axis, fields for row and column parents, fields for freeform parents, margin and padding](images/01-data-model/layout-json.png)
+
+*Layout fields, grouped by what reads them.*
+
 `Layout` is how a node sizes itself and where it sits in its parent, in Flutter's terms.
 
 ```json
@@ -78,6 +86,10 @@ Useful members: `prop(def)`, `withProp(def, value)`, `copyWith(...)`, `patched(j
 | `hug` | `{"hug": 120}` | Sizes to its content |
 
 The number is the design size: the size used for `fixed`, and the fallback when a fit can't apply.
+
+![The four fits: fixed is a SizedBox, fill stretches, flexible grows up to its design size, hug sizes to its content](images/01-data-model/axis-size.png)
+
+*The four size fits.*
 
 **Position per axis** (`AxisPosition`), under a freeform parent (a stack), follows `Positioned` and `Align`:
 

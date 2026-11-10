@@ -2,6 +2,10 @@
 
 [Guide](README.md) · Previous: [Widgets and `WidgetSpec`](02-widgets-and-widgetspec.md) · Next: [Building and checking a layout in code](04-building-layouts-in-code.md)
 
+![Three rules: versioned with "schema": 2, total decoding that never throws, sparse encoding that omits defaults](images/03-json-format/hero.png)
+
+*The three rules of the format.*
+
 ## Three rules
 
 ### Versioned
@@ -13,6 +17,10 @@ Schema 1 is the format of `codelessly_api` 10.x and older. It is **not** read by
 [migrate package](06-migrate-package.md) converts it once.
 
 ### Total decoding
+
+![The messy input from this section, with what is dropped, defaulted, kept and decoded without a spec](images/03-json-format/total-decoding.png)
+
+*The example below, annotated.*
 
 `fromJson` never throws, for any input:
 
@@ -105,6 +113,10 @@ A node's keys are the fields in [The data model](01-data-model.md#node), plus it
 `drag`, `flip`, `tilt`...).
 
 ## The publish format
+
+![A PublishBundle holding a PublishModel, which lists layouts, and the PublishLayouts themselves](images/03-json-format/publish-format.png)
+
+*A publish model, its layouts, and the bundle that holds both.*
 
 A published project is a **publish model** and its **layouts**.
 
