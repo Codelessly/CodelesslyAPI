@@ -50,8 +50,10 @@ const dragTrackType = PropType.object('DragTrack', dragTrackFields);
 const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
+const typewriterType = PropType.object('Typewriter', typewriterFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
+const flightType = PropType.object('Flight', flightFields);
 const motionShimmerType = PropType.object('MotionShimmer', motionShimmerFields);
 const gesturePhysicsType = PropType.object('GesturePhysics', gesturePhysicsFields);
 const gestureSnapType = PropType.object('GestureSnap', gestureSnapFields);
@@ -734,11 +736,63 @@ abstract final class ParticleEmitterFields {
   static const gravity = PropDef<double>('gravity', Codecs.double, 900);
   static const lifetime = PropDef<int>('lifetime', _ms, 2600);
   static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
+
+  /// Wait after the cue (ms).
+  static const delay = PropDef<int>('delay', _ms, 0);
+
+  /// Speed lost per second, e^(-drag).
+  static const drag = PropDef<double>('drag', Codecs.positive, 0);
+
+  /// The fastest fall (px/s; 0: no limit).
+  static const terminalVelocity = PropDef<double>('terminalVelocity', Codecs.positive, 0);
+
+  /// Side-to-side sway (px).
+  static const sway = PropDef<double>('sway', Codecs.double, 0);
+
+  /// Turning over in 3D (radians per second, up to).
+  static const flutter = PropDef<double>('flutter', Codecs.positive, 8);
+
+  /// Spin (degrees per second, up to).
+  static const spin = PropDef<double>('spin', Codecs.double, 515);
+
+  /// Fade out over the end of each particle's life (ms).
+  static const fadeOut = PropDef<int>('fadeOut', _ms, 500);
+
+  /// Two cannons: every other particle mirrored across the middle.
+  static const mirror = PropDef<bool>('mirror', Codecs.bool, false);
+
+  /// The text emoji particles draw.
+  static const glyph = PropDef<String>('glyph', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear,
+    lifetime, playOnAppear, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
   ];
 }
+
+abstract final class FlightFields {
+  /// 0: on the node's spring.
+  static const duration = PropDef<int>('duration', _ms, 0);
+  static const curve = PropDef<AnimationCurve>('curve', EnumCodec(AnimationCurve.values), AnimationCurve.easeInOut);
+
+  /// Rise of the path's control point above the higher end (px).
+  static const lift = PropDef<double>('lift', Codecs.double, 0);
+
+  /// The same as a share of the distance flown (the larger wins).
+  static const liftShare = PropDef<double>('liftShare', Codecs.double, 0);
+
+  /// Scale at the middle of the flight.
+  static const swell = PropDef<double>('swell', Codecs.positive, 1);
+
+  /// Turns over the flight, clockwise when flying right.
+  static const turns = PropDef<double>('turns', Codecs.double, 0);
+
+  /// Fading dots left behind.
+  static const trail = PropDef<int>('trail', IntCodec(min: 0), 0);
+  static const trailColor = PropDef<Color>('trailColor', Codecs.color, Color(0xFFFFC83D));
+  static const List<PropDef<Object?>> all = [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
+}
+
+List<PropDef<Object?>> flightFields() => FlightFields.all;
 
 List<PropDef<Object?>> particleEmitterFields() => ParticleEmitterFields.all;
 
@@ -762,10 +816,40 @@ abstract final class StrokePathFields {
   static const dashPattern = PropDef<List<double>>('dashPattern', Codecs.doubles, []);
   static const cap = PropDef<StrokeCap>('cap', EnumCodec(StrokeCap.values), StrokeCap.round);
   static const inFront = PropDef<bool>('inFront', Codecs.bool, false);
-  static const List<PropDef<Object?>> all = [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
+
+  /// How long a running app takes to draw the line along its length (when
+  /// it shows, when [drawKey] changes, when [progress] changes); 0 shows it.
+  static const drawMs = PropDef<int>('drawMs', _ms, 0, doc: 'Draw-on time (ms) in a running app; 0 shows it at once.');
+  static const drawDelayMs = PropDef<int>('drawDelayMs', _ms, 0, doc: 'Wait (ms) before drawing.');
+  static const drawCurve = PropDef<AnimationCurve>(
+    'drawCurve',
+    EnumCodec(AnimationCurve.values),
+    AnimationCurve.easeInOut,
+    doc: 'How the drawing eases.',
+  );
+  static const drawKey = PropDef<String>('drawKey', Codecs.string, '', doc: 'Draws again from nothing when it changes.');
+  static const List<PropDef<Object?>> all = [
+    points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, //
+    drawMs, drawDelayMs, drawCurve, drawKey,
+  ];
 }
 
 List<PropDef<Object?>> strokePathFields() => StrokePathFields.all;
+
+abstract final class TypewriterFields {
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true, doc: 'Off, the whole text shows.');
+  static const charsPerSecond = PropDef<double>('charsPerSecond', DoubleCodec(min: 0), 40, doc: 'Typing speed.');
+  static const delayMs = PropDef<int>('delayMs', _ms, 0, doc: 'Wait (ms) before the first character.');
+  static const caret = PropDef<bool>('caret', Codecs.bool, true, doc: 'A blinking block after the last character while it types.');
+  static const caretColor = PropDef<Color?>('caretColor', Codecs.color, null, doc: 'Null uses the text color.');
+  static const caretWidth = PropDef<double>('caretWidth', Codecs.positive, 0, doc: '0 is about half the font size.');
+  static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
+  static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
+  static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+}
+
+List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
 
 abstract final class RevealFields {
   /// Where in the viewport (0 top, 1 bottom).
@@ -813,6 +897,7 @@ abstract final class BehaviorFields {
   static const floating = PropDef<bool>('floating', Codecs.bool, false);
   static const hero = PropDef<HeroTag?>('hero', ValueCodec(HeroTag.fromJson, _heroOut, heroTagType), null);
   static const flightKey = PropDef<String>('flightKey', Codecs.string, '');
+  static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
   static const draggable = PropDef<DragSource?>(
     'draggable',
     ValueCodec(DragSource.fromJson, _out, dragSourceType),
@@ -828,6 +913,11 @@ abstract final class BehaviorFields {
   static const strokePath = PropDef<StrokePath?>(
     'strokePath',
     ValueCodec(StrokePath.fromJson, _out, strokePathType),
+    null,
+  );
+  static const typewriter = PropDef<Typewriter?>(
+    'typewriter',
+    ValueCodec(Typewriter.fromJson, _out, typewriterType),
     null,
   );
   static const effectAnimations = PropDef<List<EffectAnimation>>(
@@ -856,7 +946,7 @@ abstract final class BehaviorFields {
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture,
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture,
   ];
 }

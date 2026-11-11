@@ -1,9 +1,8 @@
 # Generic local form submission
 
-The existing `submitForm` default remains `service: mailchimp`; legacy email,
-name and provider fields retain their meanings and JSON shape.
-
-`service: local` submits arbitrary JSON without any network or provider setup:
+`submitForm` validates a form's answers and stores them in the app's own
+variables, without any network or provider setup. `service: local` is the
+default and the only service:
 
 ```json
 {
@@ -43,5 +42,25 @@ name and provider fields retain their meanings and JSON shape.
 
 Stable failure codes: `validation_failed`, `validation_script_failed`,
 `invalid_validation_result`, `invalid_response_variable`, `invalid_payload`.
-The local handler never calls Mailchimp, HTTP, auth, purchases or cloud data.
-A remote destination can remain an explicit subsequent action in `onSuccess`.
+The handler never calls a third-party service, HTTP, auth, purchases or cloud
+data. A remote destination is an explicit later action in `onSuccess`, such as
+`callApi` to an endpoint the app defines.
+
+## Older newsletter submissions
+
+Versions up to 23.0.0 also had a built-in newsletter service (`service:
+mailchimp`, the default then, with `emailField`, `firstNameField`,
+`lastNameField`, `apiKey`, `dataCenter` and `listId`). It has been removed:
+a published app must not hold a provider's API key, and the packages do not
+call third-party services.
+
+Stored JSON with that service, or with no `service` and those fields, or with
+a service this version doesn't know, still decodes: as `service: unsupported`,
+its provider fields read past and never written back out. At run time it sends
+nothing and fails with `{code: unsupported_service}` in `${result}` and
+`resultVariable`; `onError` runs if set, otherwise the chain stops and the
+failure is reported like any failed action.
+
+To keep collecting sign-ups, replace it with a `callApi` action to your own
+endpoint (which holds the provider's key server-side), or with a local
+submission whose `onSuccess` calls that endpoint.
