@@ -1,3 +1,35 @@
+## Unreleased
+
+**Breaking changes**
+
+- The built-in Mailchimp service of `SubmitFormAction` is removed: `FormService.mailchimp`, and the
+  `apiKey`, `dataCenter`, `listId`, `emailField`, `firstNameField` and `lastNameField` fields (of the
+  action and of `SubmitFormFields`). A layout must not carry a provider's API key, and the packages don't call
+  third-party services.
+- `SubmitFormAction()` and `{"type": "submitForm"}` now default to `FormService.local`.
+
+**New**
+
+- `LoadCloudDataAction.scope` (`CloudDataScope.screen`, the default, or `app`; `LoadCloudDataFields.scope`):
+  `"scope": "app"` asks the runtime to keep one live subscription for the whole app, shared by every screen that
+  runs the same load, writing an app variable. Omitted when `screen`, so existing JSON is unchanged; older
+  runtimes ignore it and load per screen.
+- Dark colors: `NamedColorStyle.dark` (an optional second paint, `"dark": {...}`, omitted when absent) and
+  `darkColor`; `ThemeTokens.dark` (the colors that differ in dark mode), `ThemeTokens.colors` and
+  `ThemeTokens.textStyles` (every named style by `ThemeTokens.themeKey`), `forBrightness(dark:)` and `hasDark`.
+  `StyleSheet.theme` fills them. Old style sheets and themes decode and re-encode unchanged.
+- `FormService.unsupported`: older JSON with `service: mailchimp`, with no `service` and the removed fields,
+  or with an unknown service decodes as this (it never throws). The removed fields are read past and never written
+  back out. `SubmitFormFields.service` offers only `local`.
+
+**Migration**
+
+- Stored layouts need no change to load. An old newsletter submission no longer sends anything: a runtime fails
+  it as `unsupported_service`. To keep collecting sign-ups, use a `callApi` action to your own endpoint, which
+  holds the provider's key server-side. See [docs/submit_form.md](docs/submit_form.md).
+- Code that read the removed fields or matched `FormService.mailchimp` should drop them, and handle
+  `FormService.unsupported` where it switches over `FormService`.
+
 ## 23.0.0
 
 **New**
