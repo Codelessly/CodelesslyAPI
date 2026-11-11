@@ -4,6 +4,23 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('keyframes at the ends give the values there (a 0 -> 1 path run with no keyframe between)', () {
+    final m = Motion.fromJson({
+      'path': 'M0 0 L100 0',
+      'keyframes': [
+        {'t': 0, 'pathProgress': 0},
+        {'t': 1, 'pathProgress': 1},
+      ],
+    })!;
+    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 0), 0);
+    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 0.5), closeTo(0.5, 1e-9));
+    expect(Motion.keyframed(m.keyframes, 'pathProgress', 0.3, 0.3, 1), 1);
+    // Keyframes inside only still run from the motion's own ends.
+    expect(Motion.keyframed([MotionKeyframe.fromJson({'t': 0.5, 'opacity': 0})!], 'opacity', 1, 1, 0.5), closeTo(0, 1e-9));
+    // No keyframe for a property: none.
+    expect(Motion.keyframed(m.keyframes, 'opacity', 1, 1, 0.5), isNull);
+  });
+
   final nodeJson = <String, Object?>{
     'id': 'n',
     'type': 'box',
