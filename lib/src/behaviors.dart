@@ -1431,8 +1431,10 @@ final class DragSource extends _Value {
 enum DropSlot { none, gap, node }
 
 /// How big the slot a [DropTarget] opens in its list is: the dragged
-/// node's size, or the slot node's own (an insertion line).
-enum DropSlotSize { dragged, node }
+/// node's size, the slot node's own (room for an insertion line), or none:
+/// [inGap] draws the slot node in the gap between the items it would land
+/// between, moving nothing (a board's column insertion bar).
+enum DropSlotSize { dragged, node, inGap }
 
 /// Takes [DragSource]s of the groups it [accepts] (Flutter's `DragTarget`).
 @immutable

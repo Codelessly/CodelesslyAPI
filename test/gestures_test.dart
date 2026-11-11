@@ -118,6 +118,10 @@ void main() {
     expect(b.dropTarget!.slotSize, DropSlotSize.node);
     expect(b.dropTarget!.slotWhenRefused, isFalse);
     expect(_node(n.toJson()), n);
+    // An insertion bar in the gap between items, taking no room.
+    final bar = Node.fromJson({'type': 'box', 'dropTarget': {'slot': 'node', 'slotNodeId': 'bar', 'slotSize': 'inGap'}}, id: 'n')!;
+    expect(bar.behaviors.dropTarget!.slotSize, DropSlotSize.inGap);
+    expect(_node(bar.toJson()), bar);
     // A spring snap back is a spring.
     expect(const DragMotion().effectivePhysics!.bounce, 0.25);
     expect(const DragSource(returnSpring: false).effectivePhysics, isNull);
