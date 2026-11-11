@@ -239,6 +239,10 @@ final class PlotChartRange extends PropRecord {
 /// Where a plot chart marker's label sits relative to its dot.
 enum PlotChartMarkerPosition { above, below }
 
+/// How a plot chart marker is drawn: a filled dot (the default), a hollow
+/// ring, a square or a diamond.
+enum PlotChartMarkerShape { dot, ring, square, diamond }
+
 /// A labeled dot on a plot chart (on the curve when [y] is null).
 final class PlotChartMarker extends PropRecord {
   const PlotChartMarker._(super.props);
@@ -249,7 +253,30 @@ final class PlotChartMarker extends PropRecord {
   static const colorDef = PropDef<Color>('color', Codecs.color, Color.black);
   static const positionDef = PropDef<PlotChartMarkerPosition>(
       'position', EnumCodec(PlotChartMarkerPosition.values), PlotChartMarkerPosition.above);
-  static const spec = WidgetSpec('PlotChartMarker', props: [xDef, yDef, labelDef, colorDef, positionDef]);
+
+  /// The marker's shape. A ring and a square are outlined in [color] and
+  /// filled with [fillColor]; a dot is filled with [color]; a diamond is
+  /// filled with [fillColor] and outlined in [strokeColor].
+  static const shapeDef =
+      PropDef<PlotChartMarkerShape>('shape', EnumCodec(PlotChartMarkerShape.values), PlotChartMarkerShape.dot);
+
+  /// The size: a dot's or ring's radius, half a square's side, a diamond's
+  /// half diagonal. Null uses the chart's markerRadius.
+  static const radiusDef = PropDef<double?>('radius', IndicatorCodecs.optionalDouble, null);
+
+  /// The inside of a ring, square or diamond (default white).
+  static const fillColorDef = PropDef<Color?>('fillColor', IndicatorCodecs.optionalColor, null);
+
+  /// An outline around a dot or diamond (none by default for a dot; black
+  /// for a diamond).
+  static const strokeColorDef = PropDef<Color?>('strokeColor', IndicatorCodecs.optionalColor, null);
+
+  /// The outline width (default 2 for a ring and square, 1.2 for a dot or
+  /// diamond's [strokeColor]).
+  static const strokeWidthDef = PropDef<double?>('strokeWidth', IndicatorCodecs.optionalDouble, null);
+  static const spec = WidgetSpec('PlotChartMarker', props: [
+    xDef, yDef, labelDef, colorDef, positionDef, shapeDef, radiusDef, fillColorDef, strokeColorDef, strokeWidthDef, //
+  ]);
 
   @override
   WidgetSpec get schema => spec;
@@ -258,6 +285,11 @@ final class PlotChartMarker extends PropRecord {
   String get label => get(labelDef);
   Color get color => get(colorDef);
   PlotChartMarkerPosition get position => get(positionDef);
+  PlotChartMarkerShape get shape => get(shapeDef);
+  double? get radius => get(radiusDef);
+  Color? get fillColor => get(fillColorDef);
+  Color? get strokeColor => get(strokeColorDef);
+  double? get strokeWidth => get(strokeWidthDef);
 
   static PlotChartMarker? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartMarker._(Props.fromJson(spec, json));
@@ -296,3 +328,39 @@ final class PlotChartYLine extends PropRecord {
       readMap(json) == null ? null : PlotChartYLine._(Props.fromJson(spec, json));
   static const codec = ListCodec<PlotChartYLine>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartYLine', spec)));
 }
+
+/// One more curve on a plot chart, over the chart's x domain: [points] are
+/// evenly spaced from xMin to xMax like the chart's own, and a null point
+/// is a gap (the line breaks there: an undefined value or an asymptote).
+final class PlotChartSeries extends PropRecord {
+  const PlotChartSeries._(super.props);
+
+  static const pointsDef = PropDef<List<double?>>('points', NullableDoublesCodec(), []);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color(0xFF1F6F78));
+  static const widthDef = PropDef<double>('width', Codecs.positive, 2);
+
+  /// Names the series for a selection (selectionSeries) and for matching
+  /// series across data updates.
+  static const idDef = PropDef<String>('id', Codecs.string, '');
+  static const spec = WidgetSpec('PlotChartSeries', props: [pointsDef, colorDef, widthDef, idDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  List<double?> get points => get(pointsDef);
+  Color get color => get(colorDef);
+  double get width => get(widthDef);
+  String get id => get(idDef);
+
+  static PlotChartSeries? fromJson(Object? json) =>
+      readMap(json) == null ? null : PlotChartSeries._(Props.fromJson(spec, json));
+  static const codec = ListCodec<PlotChartSeries>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartSeries', spec)));
+}
+
+/// Where a plot chart's grid lines start: at xMin (every step from the
+/// left edge, as a category axis), or at multiples of the step (0, ±step,
+/// …: a Cartesian graph whose grid stays put as the domain pans).
+enum PlotChartGridAnchor { start, zero }
+
+/// How the selection is marked: a full-height line, dashed guides from
+/// the point to both axes, or only the dot.
+enum PlotChartSelectionGuides { line, axes, none }

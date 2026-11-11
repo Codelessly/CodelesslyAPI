@@ -119,6 +119,50 @@ void main() {
       expect(rules.schemaFor('users/u1/tasks')!.name, 'tasks');
       expect(rules.readyIndexesFor('tasks'), {'done:asc,due:desc'});
     });
+
+    test('server-written presets, owner fields and expiry', () {
+      final json = {
+        'collections': {'notes': 'ownerRead', 'news': 'audience', 'future': 'notYetKnown'},
+        'roles': {'notes': 'support'},
+        'ownerFields': {
+          'notes': ['read', 'readAt', 3],
+          'bad': 'read',
+        },
+        'expiry': {'news': ' endsAt ', 'blank': '', 'bad': 1},
+      };
+      final rules = DataRules.fromJson(json);
+      expect(rules.collections, {'notes': DataRule.ownerRead, 'news': DataRule.audience});
+      expect(rules.ownerFields, {
+        'notes': ['read', 'readAt'],
+      });
+      expect(rules.expiry, {'news': 'endsAt'});
+      expect(rules.ownerFieldsFor('notes/n1'), ['read', 'readAt']);
+      expect(rules.ownerFieldsFor('news'), isEmpty);
+      expect(rules.expiryFieldFor('news/n1/replies'), 'endsAt');
+      expect(rules.expiryFieldFor('notes'), isNull);
+      expect(DataRules.fromJson(rules.toJson()), rules);
+      expect(rules.toJson()['expiry'], {'news': 'endsAt'});
+      // Older JSON without the new keys writes none of them back.
+      expect(const DataRules().toJson(), isEmpty);
+    });
+
+    test('rule traits', () {
+      expect(DataRule.ownerRead.readsOwnOnly, isTrue);
+      expect(DataRule.ownerRead.stampsOwner, isFalse);
+      expect(DataRule.ownerRead.writtenByRole, isTrue);
+      expect(DataRule.audience.readsAudience, isTrue);
+      expect(DataRule.audience.readsOwnOnly, isFalse);
+      expect(DataRule.audience.writeNeedsSignIn, isTrue);
+      expect(DataRule.owner.writtenByRole, isFalse);
+      expect(DataRule.roleWrite.writtenByRole, isTrue);
+    });
+
+    test('audience entries', () {
+      expect(DataRules.audienceOf('u1'), ['*', 'user:u1']);
+      expect(DataRules.audienceOf('u1', role: 'pro', signedIn: true), ['*', 'user:u1', 'role:pro', 'signedIn']);
+      expect(DataRules.roleAudience('admin'), 'role:admin');
+      expect(DataRules.neverExpires.compareTo('2999-01-01T00:00:00.000Z'), greaterThan(0));
+    });
   });
 
   group('paywall and service config', () {
