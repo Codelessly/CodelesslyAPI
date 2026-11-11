@@ -238,4 +238,14 @@ void main() {
     expect(Reveal.fromJson(r.toJson()), r);
     expect(Reveal.fromJson({'follow': false})!.toJson().containsKey('follow'), isFalse);
   });
+
+  test('typewriter.holdAtMs round-trips; absent types to the end', () {
+    expect(Typewriter.fromJson({'charsPerSecond': 95})!.holdAtMs, isNull);
+    final t = Typewriter.fromJson({'charsPerSecond': 95, 'holdAtMs': 1200})!;
+    expect(t.holdAtMs, 1200);
+    expect(t.toJson()['holdAtMs'], 1200);
+    expect(Typewriter.fromJson(t.toJson()), t);
+    expect(Typewriter.fromJson({'holdAtMs': ''})!.holdAtMs, isNull, reason: 'an empty binding is no hold');
+    expect(Typewriter.fromJson({'holdAtMs': -5})!.holdAtMs, 0);
+  });
 }

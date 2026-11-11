@@ -793,7 +793,9 @@ abstract final class TypewriterFields {
   static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
   static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  static const holdAtMs = PropDef<int?>('holdAtMs', Codecs.optionalInt, null,
+      doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
