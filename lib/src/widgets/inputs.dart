@@ -492,22 +492,52 @@ abstract final class DropdownProps {
 
 // --- date and time ------------------------------------------------------------
 
-/// An `OutlinedButton` showing a date (`yyyy-MM-dd`) that opens
-/// `showDatePicker`.
+/// The look of a date or time picker: by default an `OutlinedButton`
+/// showing the value; with a [PickerFieldProps.decoration] a read-only text
+/// field (`InputDecorator`: border, fill, prefix and suffix icons, error
+/// text) showing it in [PickerFieldProps.format]. Tapping opens Flutter's
+/// picker, themed by [PickerFieldProps.pickerTheme].
+abstract final class PickerFieldProps {
+  /// How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`,
+  /// `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`.
+  static const format = PropDef<String>('format', Codecs.string, '');
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// A field's decoration (as a text field's); empty keeps the button.
+  static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
+
+  /// The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's.
+  static const helpText = PropDef<String>('helpText', Codecs.string, '');
+
+  /// The picker dialog's look: `{backgroundColor, accentColor, onAccentColor,
+  /// textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily,
+  /// headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style).
+  static const pickerTheme = PropDef<Json?>('pickerTheme', InputCodecs.json, null);
+
+  static const List<PropDef<Object?>> all = [format, style, decoration, helpText, pickerTheme];
+}
+
+/// An `OutlinedButton` (or, with a decoration, a read-only field) showing a
+/// date (`yyyy-MM-dd`) that opens `showDatePicker`.
 abstract final class DatePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const firstDate = PropDef<String?>('firstDate', Codecs.string, null);
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const spec =
-      WidgetSpec('datePicker', props: [value, firstDate, lastDate, enabled], doc: 'Flutter `showDatePicker` button.');
+  static const spec = WidgetSpec('datePicker',
+      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field.');
 }
 
-/// An `OutlinedButton` showing a time (`HH:mm`) that opens `showTimePicker`.
+/// An `OutlinedButton` (or, with a decoration, a read-only field) showing a
+/// time (`HH:mm`) that opens `showTimePicker`.
 abstract final class TimePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const spec = WidgetSpec('timePicker', props: [value, enabled], doc: 'Flutter `showTimePicker` button.');
+
+  /// The picker's dial and fields in 24-hour time.
+  static const use24h = PropDef<bool>('use24h', Codecs.bool, false);
+  static const spec = WidgetSpec('timePicker',
+      props: [value, enabled, use24h, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
 }
 
 /// What a date/time input picks.
