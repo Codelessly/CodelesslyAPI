@@ -43,6 +43,8 @@ final samples = <Json>[
   {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
   {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
   {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
+  {'type': 'emitEvent', 'event': 'order_completed', 'props': {'total': r'${total}'}},
+  {'type': 'captureScreenshot', 'target': 'node', 'node': 'card', 'pixelRatio': 2},
   {'type': 'playSound', 'operation': 'start', 'voiceId': r'${result.pointer}', 'frequency': '261.6256', 'volume': '0.1'},
   {'type': 'playSound', 'operation': 'stop', 'voiceId': r'${result.pointer}'},
   {'type': 'playSound', 'operation': 'stopAll'},
