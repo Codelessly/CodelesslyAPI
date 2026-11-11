@@ -2453,7 +2453,17 @@ final class Flight extends _Value {
 enum PathUnit { fraction, pixels }
 
 /// How a [StrokePath] joins its points.
-enum PathCurve { straight, vertical, horizontal }
+enum PathCurve {
+  straight,
+  vertical,
+  horizontal,
+
+  /// Quadratic Béziers: after the first point the points come in pairs, a
+  /// control point and an end point (a hand-drawn outline exactly as a
+  /// painter's `quadraticBezierTo` draws it, not sampled into lines). A
+  /// last point without its pair is a straight line to it.
+  quadratic,
+}
 
 /// A line drawn through [points] in the node's box (a dotted trail, a
 /// connector), behind its content or [inFront] of it. x and y are fractions
