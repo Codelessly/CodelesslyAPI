@@ -39,8 +39,19 @@ abstract final class CanvasProps {
   /// entry screen. Its layout is an overlay when any of its canvases is.
   static const overlay =
       PropDef<bool>('overlay', Codecs.bool, false, doc: 'Shown above every screen, outside navigation.');
+
+  /// A backdrop screen: drawn once beneath every other screen of the app (a
+  /// sky, an animated starfield), outside navigation, so it stays perfectly
+  /// still while route transitions move the screens over it. Screens whose
+  /// canvas has no background fill show it through. Like an overlay, it
+  /// isn't a screen to navigate to: it has no URL path and is never the
+  /// entry screen. Its layout is a backdrop when any of its canvases is,
+  /// unless it is an overlay: a canvas both [overlay] and [backdrop] is an
+  /// overlay (overlay wins).
+  static const backdrop =
+      PropDef<bool>('backdrop', Codecs.bool, false, doc: 'Drawn beneath every screen, outside navigation.');
   static const spec = WidgetSpec('canvas',
-      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth, overlay], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
+      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth, overlay, backdrop], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
       decorated: true, doc: 'Flutter `Scaffold`.');
 }
 
