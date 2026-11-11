@@ -175,7 +175,14 @@ and, read live by the SDK rather than published, `DataRules` (who may read and w
 - `Breakpoints` and `Breakpoint` (`id`, `name`, `minWidth`, design `width` and `height`): the project's size
   classes. `Breakpoints.defaults` is mobile (0), tablet (600), desktop (1024). `forWidth(width)` picks one.
 - `ThemeTokens`: `primary`, `onPrimary`, `surface`, `onSurface`, `error`, `success`, `warning`, `fontFamily`,
-  `titleFontFamily`, `radius`, `buttonRadius`. `StyleSheet` holds a project's named text and color styles.
+  `titleFontFamily`, `radius`, `buttonRadius`; `colors` and `textStyles`, every named style by key
+  (`ThemeTokens.themeKey`: "Brand Blue" is `brandBlue`); and `dark`, the colors that differ in dark mode
+  (`forBrightness(dark: true)` puts them over the light ones). Layouts read them at run time as
+  `${theme.primary}`, `${theme.colors.brandBlue}`, `${theme.text.title.fontSize}` and `${theme.isDark}`.
+- `StyleSheet` holds a project's named text and color styles; a `NamedColorStyle` can have a `dark` paint beside
+  its `paint` (`{"id": "c1", "name": "Surface", "paint": {"color": "#FFFFFFFF"}, "dark": {"color": "#FF121212"}}`).
+  `StyleSheet.theme` builds the published `ThemeTokens` from them: roles by name, every style by key, the dark
+  paints into `dark`.
 - `AppIdentity`: the app's name, title template, description, theme color, per-page overrides, icons and social
   card.
 

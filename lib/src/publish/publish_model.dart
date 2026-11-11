@@ -225,6 +225,7 @@ final class PublishModel {
     this.layouts = const {},
     this.layoutIDMap = const {},
     this.disabledLayouts = const [],
+    this.overlayLayoutIds = const [],
     this.theme = ThemeTokens.none,
     this.fonts = const {},
     this.apis = const {},
@@ -257,6 +258,17 @@ final class PublishModel {
 
   /// Layouts turned off from the server: not shown.
   final List<String> disabledLayouts;
+
+  /// The overlay screens ([CanvasProps.overlay]): layouts drawn above every
+  /// screen of the app, outside navigation, in order (later on top). Listed
+  /// so an app can show them without loading every layout.
+  final List<String> overlayLayoutIds;
+
+  /// [overlayLayoutIds] that are published and not disabled.
+  List<String> get overlays => [
+        for (final id in overlayLayoutIds)
+          if (layouts.containsKey(id) && !disabledLayouts.contains(id)) id,
+      ];
 
   /// The project's theme.
   final ThemeTokens theme;
@@ -371,6 +383,7 @@ final class PublishModel {
           if (e.value is String) e.key: e.value as String,
       },
       disabledLayouts: readStrings(m['disabledLayouts']),
+      overlayLayoutIds: readStrings(m['overlayLayoutIds']),
       theme: ThemeTokens.fromJson(m['theme']),
       fonts: {
         for (final e in fonts.entries)
@@ -390,7 +403,7 @@ final class PublishModel {
 
   static const Set<String> _keys = {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
-    'layoutIDMap', 'disabledLayouts', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
+    'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
   };
 
   /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion].
@@ -416,6 +429,7 @@ final class PublishModel {
         'layouts': {for (final e in layouts.entries) e.key: e.value.toJson()},
         if (layoutIDMap.isNotEmpty) 'layoutIDMap': layoutIDMap,
         if (disabledLayouts.isNotEmpty) 'disabledLayouts': disabledLayouts,
+        if (overlayLayoutIds.isNotEmpty) 'overlayLayoutIds': overlayLayoutIds,
         if (!theme.isEmpty) 'theme': theme.toJson(),
         if (fonts.isNotEmpty) 'fonts': {for (final e in fonts.entries) e.key: e.value.toJson()},
         if (apis.isNotEmpty) 'apis': apis,
@@ -436,6 +450,7 @@ final class PublishModel {
     Map<String, PublishLayoutInfo>? layouts,
     Map<String, String>? layoutIDMap,
     List<String>? disabledLayouts,
+    List<String>? overlayLayoutIds,
     ThemeTokens? theme,
     Map<String, PublishFont>? fonts,
     Json? apis,
@@ -455,6 +470,7 @@ final class PublishModel {
         layouts: layouts ?? this.layouts,
         layoutIDMap: layoutIDMap ?? this.layoutIDMap,
         disabledLayouts: disabledLayouts ?? this.disabledLayouts,
+        overlayLayoutIds: overlayLayoutIds ?? this.overlayLayoutIds,
         theme: theme ?? this.theme,
         fonts: fonts ?? this.fonts,
         apis: apis ?? this.apis,
