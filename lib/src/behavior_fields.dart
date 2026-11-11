@@ -148,6 +148,9 @@ abstract final class MotionFields {
   );
   static const pulseKey = PropDef<String?>('pulseKey', Codecs.optionalString, null);
   static const revealOnScroll = PropDef<bool>('revealOnScroll', Codecs.bool, false);
+
+  /// Holds the entrance at its start while true (bindable).
+  static const enterHeld = PropDef<bool>('enterHeld', Codecs.bool, false);
   static const revealFraction = PropDef<double>('revealFraction', Codecs.double, 0.15);
 
   /// With [orientToPath]: never upside down.
@@ -190,7 +193,7 @@ abstract final class MotionFields {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
+    revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
     pathWrap, pathViewBox, shimmer,
   ];
 }
@@ -716,8 +719,16 @@ abstract final class EffectAnimationFields {
 
   /// Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own.
   static const cycles = PropDef<double>('cycles', Codecs.positive, 0);
+
+  /// A `keyframes` effect's poses at times 0–1 (from rest, back to rest).
+  static const keyframes = PropDef<List<MotionKeyframe>>(
+    'keyframes',
+    ListCodec(ValueCodec(MotionKeyframe.fromJson, _out, motionKeyframeType)),
+    [],
+  );
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
   static const List<PropDef<Object?>> all = [
-    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, //
+    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, keyframes, curve, //
   ];
 }
 
@@ -773,9 +784,11 @@ abstract final class ParticleEmitterFields {
 
   /// The text emoji particles draw.
   static const glyph = PropDef<String>('glyph', Codecs.string, '');
+  /// The image `image` particles draw (a URL).
+  static const image = PropDef<String>('image', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
+    lifetime, playOnAppear, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph, image,
   ];
 }
 
@@ -856,7 +869,11 @@ abstract final class TypewriterFields {
   static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
   static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  static const holdAtMs = PropDef<int?>('holdAtMs', Codecs.optionalInt, null,
+      doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
+  static const grow = PropDef<bool>('grow', Codecs.bool, false,
+      doc: 'Only as tall as the lines typed so far (off: the whole text\'s size from the start).');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
@@ -866,7 +883,10 @@ abstract final class RevealFields {
   static const alignment = PropDef<double>('alignment', Codecs.double, 0.5);
   static const duration = PropDef<int>('duration', _ms, 600);
   static const delay = PropDef<int>('delay', _ms, 0);
-  static const List<PropDef<Object?>> all = [alignment, duration, delay];
+
+  /// Stays revealed while the content moves, until the user scrolls away.
+  static const follow = PropDef<bool>('follow', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [alignment, duration, delay, follow];
 }
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;

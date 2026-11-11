@@ -26,6 +26,9 @@ const _jsonList = Codecs.jsonList;
 const _optionalDouble = Codecs.optionalDouble;
 const _optionalPositive = Codecs.optionalPositive;
 
+/// Which pages of a page view draw on top where they overlap.
+enum PagePaintOrder { forward, reverse }
+
 /// How the items of a run are placed along it (Flutter's `WrapAlignment`).
 enum WrapAlignment { start, end, center, spaceBetween, spaceAround, spaceEvenly }
 
@@ -270,13 +273,31 @@ abstract final class PageViewProps {
   static const pageMotion =
       PropDef<Motion?>('pageMotion', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
 
+  /// The motion a page has one page *before* the current one, when the two
+  /// sides differ (a book: the page leaving turns over about the spine,
+  /// `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies
+  /// still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance
+  /// like [pageMotion] and not mirrored. Null: [pageMotion] mirrored.
+  static const pageMotionBefore =
+      PropDef<Motion?>('pageMotionBefore', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
+
+  /// Which pages draw on top where they overlap: `forward` (Flutter's
+  /// order: later pages over earlier ones) or `reverse` (earlier pages on
+  /// top, so a page turning away covers the one it reveals). Taps reach the
+  /// page on top first.
+  static const paintOrder = PropDef<PagePaintOrder>(
+    'paintOrder',
+    EnumCodec(PagePaintOrder.values),
+    PagePaintOrder.forward,
+  );
+
   static const spec = WidgetSpec(
     'pageView',
     props: [
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
       pageSnapping, padEnds, keepPage, initialPage, viewportFraction, allowImplicitScrolling, animationDuration,
-      animationCurve, pageMotion,
+      animationCurve, pageMotion, pageMotionBefore, paintOrder,
     ],
     children: ChildModel.list,
     childFits: cellChildFits,
