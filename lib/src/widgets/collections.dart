@@ -4,8 +4,8 @@
 // Lists, grids and page views repeat their first child (the item template)
 // once per item; tabs, accordions and expansion tiles show some of their
 // children.
-import '../behaviour_fields.dart';
-import '../behaviours.dart';
+import '../behavior_fields.dart';
+import '../behaviors.dart';
 import '../json.dart';
 import '../child_fits.dart';
 import '../props.dart';
@@ -53,7 +53,7 @@ enum ListLayout {
   /// ([ListViewProps.itemPosition], or its bound x/y). Nothing scrolls.
   stack,
 
-  /// Layered and centred at the top, the first item on top (a card deck).
+  /// Layered and centered at the top, the first item on top (a card deck).
   deck,
 }
 

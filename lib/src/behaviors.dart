@@ -2,7 +2,7 @@
 // loops, transitions), how it reacts (ink, interaction states, drag and
 // drop, tooltip) and the one-shot effects it plays. Each is an immutable
 // value with total decoding and sparse encoding; all of them together are a
-// node's [Behaviours], stored flat in the node's JSON (`"motion": {...}`,
+// node's [Behaviors], stored flat in the node's JSON (`"motion": {...}`,
 // `"tooltip": "..."`).
 //
 // Durations are whole milliseconds (`duration`, `delay`).
@@ -232,7 +232,7 @@ final class MotionShimmer extends _Value {
 
   final Color color;
 
-  /// How strongly the band's centre blends the colour in (0–1).
+  /// How strongly the band's center blends the color in (0–1).
   final double strength;
 
   /// The band's width, a share of the node's size along the sweep.
@@ -362,7 +362,7 @@ final class MotionKeyframe extends _Value {
 /// The transform, in order: [translateX]/[translateY] (pixels), [scale]
 /// times [scaleX]/[scaleY], [rotate] (degrees, plus the spin), then
 /// [rotateX]/[rotateY] in 3D with [perspective], about the point
-/// ([originX], [originY]) in the box (-1–1, 0 the centre); then a shift by
+/// ([originX], [originY]) in the box (-1–1, 0 the center); then a shift by
 /// [shiftX]/[shiftY] times the node's size. [opacity] and [blur] apply on
 /// top of the node's own.
 @immutable
@@ -863,7 +863,7 @@ enum LoopAnimationType {
   bool get fades => this == pulse || this == fade;
 }
 
-/// The pose of a [LoopAnimation] at one moment, about the node's centre.
+/// The pose of a [LoopAnimation] at one moment, about the node's center.
 typedef LoopPose = ({double scale, double opacity, double turns, double dy});
 
 /// An animation that repeats while the node is shown (a pulsing halo, a
@@ -1026,7 +1026,7 @@ final class Transitions extends _Value {
 
   static const Transitions none = Transitions();
 
-  /// Changes of opacity, [Behaviours.scale] and solid fills; a node shown
+  /// Changes of opacity, [Behaviors.scale] and solid fills; a node shown
   /// or hidden by a binding grows open and shrinks closed.
   final Transition? style;
 
@@ -1225,7 +1225,7 @@ enum DragStart { press, longPress, auto }
 enum DragSourceStyle { ghost, hidden, keep }
 
 /// Which point of the copy that follows the pointer sits under it: where
-/// it was grabbed, or its centre (a feedback node of another size).
+/// it was grabbed, or its center (a feedback node of another size).
 enum FeedbackAnchor { grab, center }
 
 /// Lets the user pick the node up and drop it on a [DropTarget] that takes
@@ -1512,7 +1512,7 @@ final class DragTrack extends _Value {
   final double x1, y1, x2, y2;
 
   /// An arc's angles (degrees, clockwise, 0 up) about the pivot (from the
-  /// node's centre).
+  /// node's center).
   final double startAngle, endAngle, pivotX, pivotY;
 
   /// Turns the node with the arc.
@@ -2266,7 +2266,7 @@ enum HeroFlightShuttle {
   morphCorners,
 
   /// Along a curve (Material's arc), turning upright as it lands, with a
-  /// halo in the colour of its first drop shadow (soft white without one).
+  /// halo in the color of its first drop shadow (soft white without one).
   arc,
 
   /// Both nodes fly fitted to the box in between, the leaving one fading
@@ -2324,10 +2324,10 @@ final class HeroTag extends _Value {
 
 // --- all together -----------------------------------------------------------------
 
-/// A node's behaviours. Stored flat in the node's JSON under [keys].
+/// A node's behaviors. Stored flat in the node's JSON under [keys].
 @immutable
-final class Behaviours extends _Value {
-  const Behaviours({
+final class Behaviors extends _Value {
+  const Behaviors({
     this.motion,
     this.scale = 1,
     this.loops = const [],
@@ -2353,12 +2353,12 @@ final class Behaviours extends _Value {
     this.transformGesture,
   });
 
-  static const Behaviours none = Behaviours();
+  static const Behaviors none = Behaviors();
 
   /// The transform over the layout, its transitions, entrance and spin.
   final Motion? motion;
 
-  /// Drawn at this size around its centre; layout unchanged (Flutter's
+  /// Drawn at this size around its center; layout unchanged (Flutter's
   /// `Transform.scale`). Bindable as `scale`.
   final double scale;
 
@@ -2425,12 +2425,12 @@ final class Behaviours extends _Value {
 
   bool get isNone => this == none;
 
-  /// Reads the behaviour keys of a node's JSON [m].
-  static Behaviours fromJson(Json m) {
+  /// Reads the behavior keys of a node's JSON [m].
+  static Behaviors fromJson(Json m) {
     if (!m.keys.any(keys.contains)) return none;
     final r = _R(m);
     final scale = r.d('scale', 1);
-    return Behaviours(
+    return Behaviors(
       motion: Motion.fromJson(m['motion']),
       scale: scale > 0 ? scale : 1,
       loops: [...?readList(m['loops'])?.map(LoopAnimation.fromJson).nonNulls],
@@ -2487,7 +2487,7 @@ final class Behaviours extends _Value {
     if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
   }
 
-  Behaviours copyWith({
+  Behaviors copyWith({
     Motion? motion,
     double? scale,
     List<LoopAnimation>? loops,
@@ -2511,7 +2511,7 @@ final class Behaviours extends _Value {
     FlipCard? flip,
     Tilt? tilt,
     TransformGesture? transformGesture,
-  }) => Behaviours(
+  }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
     loops: loops ?? this.loops,

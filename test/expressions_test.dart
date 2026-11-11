@@ -248,10 +248,10 @@ void main() {
       expect(BindPaths.apply(row, 'props.mainAxisAlignment', 'center').prop(FlexProps.mainAxisAlignment), MainAxisAlignment.center);
     });
 
-    test('behaviours through their JSON', () {
-      expect(BindPaths.apply(box, 'scale', '1.5').behaviours.scale, 1.5);
+    test('behaviors through their JSON', () {
+      expect(BindPaths.apply(box, 'scale', '1.5').behaviors.scale, 1.5);
       final moved = BindPaths.apply(box, 'motion.translateY', 2);
-      expect(moved.behaviours.motion!.translateY, 2);
+      expect(moved.behaviors.motion!.translateY, 2);
     });
   });
 }

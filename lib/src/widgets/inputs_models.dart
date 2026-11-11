@@ -293,7 +293,7 @@ abstract final class InputDecorationFields {
   static const constraints = PropDef<BoxConstraints>('constraints', InputCodecs.constraints, BoxConstraints.none);
 
   /// Space around the prefix icon inside its box: places it at a set inset
-  /// instead of Material's centred 48 px box; null keeps Material's layout.
+  /// instead of Material's centered 48 px box; null keeps Material's layout.
   static const prefixIconPadding = PropDef<EdgeInsets?>('prefixIconPadding', Codecs.optionalInsets, null);
 
   /// Space around the suffix icon inside its box; see [prefixIconPadding].

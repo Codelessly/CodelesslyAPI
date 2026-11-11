@@ -187,7 +187,7 @@ final class ChartReferenceLine extends PropRecord {
   static const codec = ListCodec<ChartReferenceLine>(ValueCodec(fromJson, _recordOut, PropType.record('ChartReferenceLine', spec)));
 }
 
-/// A label on a plot chart's x axis, centred on [x].
+/// A label on a plot chart's x axis, centered on [x].
 final class PlotChartLabel extends PropRecord {
   const PlotChartLabel._(super.props);
 

@@ -6,7 +6,7 @@ A layout's logic is data too. This package defines and decodes it; the SDK runs 
 that data. For how it behaves in an app, see the
 [SDK guide](https://github.com/Codelessly/CodelesslySDK/tree/master/docs/guide).
 
-![Logic on a node (bind, actions, behaviours) and in the layout document per canvas (variables, conditions, scripts)](images/05-logic/hero.png)
+![Logic on a node (bind, actions, behaviors) and in the layout document per canvas (variables, conditions, scripts)](images/05-logic/hero.png)
 
 *Where logic lives.*
 
@@ -90,7 +90,7 @@ of an app are in `PublishModel.variables`.
 | `props.<prop>`, `props.<prop>.<field>` | A widget prop, by its declaration's codec |
 | `props.style.<field>` (text) | The base text style and every run's |
 | `data` | The items a list, grid or page view builds one child per |
-| `motion.<field>`, `scale`, `hero.tag`, `drag.*`... | Behaviours |
+| `motion.<field>`, `scale`, `hero.tag`, `drag.*`... | Behaviors |
 
 `[i]` is a list index, a paint or effect id selects that item, and `*` every item. `BindPaths` (in
 `bindings.dart`) has the constants and helpers. Values are read loosely (`"12"` is a number, `"#F00F00"` a

@@ -79,9 +79,9 @@ void main() {
     'custom': 1,
   };
 
-  test('behaviours round-trip, flat in the node', () {
+  test('behaviors round-trip, flat in the node', () {
     final n = Node.fromJson(nodeJson)!;
-    final b = n.behaviours;
+    final b = n.behaviors;
     expect(b.motion!.rotate, -3.5);
     expect(b.motion!.enterFrom!.opacity, 0);
     expect(b.loops, hasLength(2));
@@ -103,8 +103,8 @@ void main() {
   });
 
   test('defaults are omitted; bad values fall back', () {
-    expect(const Behaviours().isNone, isTrue);
-    expect(Node.fromJson({'type': 'box'})!.behaviours, Behaviours.none);
+    expect(const Behaviors().isNone, isTrue);
+    expect(Node.fromJson({'type': 'box'})!.behaviors, Behaviors.none);
     final n = Node.fromJson({
       'type': 'box',
       'motion': {'rotate': 'x', 'curve': 'nope', 'duration': -5},
@@ -114,13 +114,13 @@ void main() {
       'hero': '',
       'textDirection': 4,
     })!;
-    expect(n.behaviours.motion, Motion.none);
-    expect(n.behaviours.motion!.toJson(), isEmpty);
-    expect(n.behaviours.scale, 1);
-    expect(n.behaviours.loops.single.type, LoopAnimationType.pulse);
-    expect(n.behaviours.states.isEmpty, isTrue);
-    expect(n.behaviours.hero, isNull);
-    expect(n.behaviours.textDirection, isNull);
+    expect(n.behaviors.motion, Motion.none);
+    expect(n.behaviors.motion!.toJson(), isEmpty);
+    expect(n.behaviors.scale, 1);
+    expect(n.behaviors.loops.single.type, LoopAnimationType.pulse);
+    expect(n.behaviors.states.isEmpty, isTrue);
+    expect(n.behaviors.hero, isNull);
+    expect(n.behaviors.textDirection, isNull);
     expect(n.toJson()..remove('layout'), {'id': '', 'type': 'box', 'motion': {}, 'loops': [{'type': 'pulse'}]});
   });
 
@@ -191,12 +191,12 @@ void main() {
       'particles': {'count': 10},
     }, id: 'n')!;
     final tagged = BindPaths.apply(n, 'hero.tag', 'pass-7');
-    expect(tagged.behaviours.hero, const HeroTag('pass-7', flight: HeroFlightShuttle.arc));
+    expect(tagged.behaviors.hero, const HeroTag('pass-7', flight: HeroFlightShuttle.arc));
     final cued = BindPaths.apply(n, 'effectAnimations[1].playKey', 3);
-    expect(cued.behaviours.effectAnimations[1].playKey, '3');
-    expect(cued.behaviours.effectAnimations[0].playKey, isNull);
-    expect(BindPaths.apply(n, 'effectAnimations[1].delay', 250).behaviours.effectAnimations[1].delay, 250);
-    expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviours.particles!.playKey, 'w1');
-    expect(EffectAnimation.fromJson(cued.behaviours.effectAnimations[1].toJson())!.playKey, '3');
+    expect(cued.behaviors.effectAnimations[1].playKey, '3');
+    expect(cued.behaviors.effectAnimations[0].playKey, isNull);
+    expect(BindPaths.apply(n, 'effectAnimations[1].delay', 250).behaviors.effectAnimations[1].delay, 250);
+    expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviors.particles!.playKey, 'w1');
+    expect(EffectAnimation.fromJson(cued.behaviors.effectAnimations[1].toJson())!.playKey, '3');
   });
 }

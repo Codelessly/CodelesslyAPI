@@ -1,9 +1,9 @@
-// The gesture behaviours every node can have: the physics a release runs on
+// The gesture behaviors every node can have: the physics a release runs on
 // (shared by a drag, a drag source's return and a transform gesture), a
 // two-sided card that turns over, a tilt toward the pointer, and pinch,
-// pan and rotate with optional handles. Part of behaviours.dart, so they
+// pan and rotate with optional handles. Part of behaviors.dart, so they
 // share its value helpers.
-part of 'behaviours.dart';
+part of 'behaviors.dart';
 
 // --- physics -------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ enum GestureBounds {
   contain,
 
   /// Always covers its viewport, so no gap shows (a zoomed photo, a map);
-  /// smaller than it on an axis, centred.
+  /// smaller than it on an axis, centered.
   cover,
 }
 
@@ -545,7 +545,7 @@ final class TransformHandles extends _Value {
 /// `${transform.scale}`... Each change runs the node's `changed`
 /// reactions, the end of a gesture its `changeEnd` ones.
 ///
-/// [Behaviours.zoomable] is its first form: [zoomable].
+/// [Behaviors.zoomable] is its first form: [zoomable].
 @immutable
 final class TransformGesture extends _Value {
   const TransformGesture({
@@ -576,7 +576,7 @@ final class TransformGesture extends _Value {
     this.scaleY,
   });
 
-  /// What [Behaviours.zoomable] amounts to: the content zooms inside the
+  /// What [Behaviors.zoomable] amounts to: the content zooms inside the
   /// node up to 4×, pans once zoomed, a double tap zooms 2.5×.
   static const TransformGesture zoomable = TransformGesture(
     target: TransformTarget.content,

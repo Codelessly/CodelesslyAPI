@@ -1,6 +1,6 @@
 # codelessly_api guide
 
-For `codelessly_api` 21.x. The samples here run as
+For `codelessly_api` 22.x. The samples here run as
 [`example/example.dart`](../../example/example.dart) and
 [`example/guide.dart`](../../example/guide.dart) (`dart run --enable-asserts example/guide.dart`).
 
