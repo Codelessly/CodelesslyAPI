@@ -133,6 +133,17 @@ void main() {
     expect(bob.dy, closeTo(-10, 1e-9));
   });
 
+  test('stroke path points read as pairs or {x, y} maps', () {
+    final a = StrokePath.fromJson({
+      'points': [
+        [0, 1],
+        {'x': 2, 'y': 3},
+        {'x': 'bad'},
+      ],
+    })!;
+    expect(a.points, const [Offset(0, 1), Offset(2, 3)]);
+  });
+
   test('a flicker wavers between its values and loops seamlessly', () {
     const glow = LoopAnimation(type: LoopAnimationType.flicker, scaleFrom: 0.9, scaleTo: 1.1, opacityFrom: 0.6, opacityTo: 1);
     final samples = [for (var i = 0; i <= 100; i++) glow.poseAt(i / 100)];
