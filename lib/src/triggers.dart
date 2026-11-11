@@ -146,7 +146,13 @@ enum TriggerType {
   /// A swipe action of a list item ran (the list's `swipeActions`):
   /// `${result.action}`, `${result.label}`, `${result.item}`,
   /// `${result.index}`.
-  swipeAction;
+  swipeAction,
+
+  /// On the current canvas: a failed action chain or cloud subscription.
+  /// `${result.error}` is `{type, message, action, nodeId}` (no stack or
+  /// raw service objects). A failure in this reaction reports to the host
+  /// without recursively firing another actionError reaction.
+  actionError;
 
   /// The swipe triggers.
   static const List<TriggerType> swipes = [swipeLeft, swipeRight, swipeUp, swipeDown];
@@ -159,7 +165,7 @@ enum TriggerType {
   };
 
   /// The triggers of a screen: they fire while it shows, wherever they're set.
-  static const Set<TriggerType> screen = {load, valueChanged, timer, clock, keyDown, keyUp, backPressed};
+  static const Set<TriggerType> screen = {load, valueChanged, timer, clock, keyDown, keyUp, backPressed, actionError};
 
   /// The triggers an input fires.
   static const Set<TriggerType> input = {changed, changeEnd, submitted, editingComplete, focusGained, focusLost};
