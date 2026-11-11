@@ -440,6 +440,14 @@ abstract final class ConfirmFields {
   ];
 }
 
+/// [DownloadFileAction].
+abstract final class DownloadFileFields {
+  static const fileName = PropDef<String>('fileName', Codecs.string, 'export.txt', doc: 'Suggested filename, an expression.');
+  static const text = PropDef<String>('text', Codecs.string, '', doc: 'Generated file contents as UTF-8 text.');
+  static const mimeType = PropDef<String>('mimeType', Codecs.string, 'text/plain');
+  static const List<PropDef<Object?>> all = [fileName, text, mimeType];
+}
+
 /// [DelayAction].
 abstract final class DelayFields {
   static const ms = PropDef<int>('ms', Codecs.int, 500);
@@ -540,11 +548,14 @@ abstract final class ScrollToFields {
 /// [PlaySoundAction].
 abstract final class PlaySoundFields {
   static const sound = PropDef<String>('sound', Codecs.string, 'wood', doc: 'A synthesised voice name.');
+  static const operation = PropDef<String>('operation', Codecs.string, 'play', doc: 'play, start, stop, or stopAll.');
+  static const voiceId = PropDef<String>('voiceId', Codecs.string, '', doc: 'The independently owned sustained voice.');
+  static const frequency = PropDef<String>('frequency', Codecs.string, '440', doc: 'Sustained tone frequency in hertz.');
   static const volume = PropDef<String>('volume', Codecs.string, '1');
   static const pitch = PropDef<String>('pitch', Codecs.string, '1');
   static const at = PropDef<String>('at', Codecs.string, '', doc: 'A time on the sound clock.');
   static const url = PropDef<String>('url', Codecs.string, '', doc: 'A sound file.');
-  static const List<PropDef<Object?>> all = [sound, volume, pitch, at, url];
+  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, volume, pitch, at, url];
 }
 
 /// [PlayAnimationAction].
@@ -606,6 +617,7 @@ abstract final class ActionSpecs {
       const ActionSpec(CloudDataAction.typeName, label: 'Cloud data', fields: CloudDataFields.all),
       const ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all),
       const ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all),
+      const ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all),
       const ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all),
       const ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all),
       const ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all),
