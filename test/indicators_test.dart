@@ -104,6 +104,10 @@ void main() {
     final code = Node.fromJson({'type': 'barcode', 'props': {'symbology': 'pdf417', 'data': 'x'}})!;
     expect(code.prop(BarcodeProps.symbology).is2D, isTrue);
     expect(code.prop(BarcodeProps.symbology).hasSquareModules, isFalse);
+    expect(code.prop(BarcodeProps.overlap), 0);
+    final overlapped = Node.fromJson({'type': 'barcode', 'props': {'overlap': 0.4}})!;
+    expect(overlapped.prop(BarcodeProps.overlap), 0.4);
+    expect(Node.fromJson({'type': 'barcode', 'props': {'overlap': -2}})!.prop(BarcodeProps.overlap), 0);
   });
 
   test('chart text styles and plot records', () {

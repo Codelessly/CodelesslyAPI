@@ -763,8 +763,14 @@ abstract final class BarcodeProps {
   /// 1D codes: the text under the bars.
   static const drawText = PropDef<bool>('drawText', Codecs.bool, true);
 
+  /// Pixels each dark bar and module reaches past its right and bottom edge,
+  /// so neighbours overlap: no hairline seams where anti-aliased edges
+  /// meet, and a small ink gain (as `canvas.drawRect` codes widen bars to
+  /// hide seams). 0 draws the exact geometry.
+  static const overlap = PropDef<double>('overlap', Codecs.positive, 0);
+
   static const spec = WidgetSpec('barcode',
-      props: [data, symbology, color, backgroundColor, errorCorrection, drawText], doc: 'Barcode / QR code.');
+      props: [data, symbology, color, backgroundColor, errorCorrection, drawText, overlap], doc: 'Barcode / QR code.');
 }
 
 const List<WidgetSpec> indicatorsSpecs = [
