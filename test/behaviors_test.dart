@@ -247,5 +247,7 @@ void main() {
     expect(Typewriter.fromJson(t.toJson()), t);
     expect(Typewriter.fromJson({'holdAtMs': ''})!.holdAtMs, isNull, reason: 'an empty binding is no hold');
     expect(Typewriter.fromJson({'holdAtMs': -5})!.holdAtMs, 0);
+    expect(Typewriter.fromJson({'grow': true})!.toJson(), {'grow': true});
+    expect(Typewriter.fromJson({})!.grow, isFalse);
   });
 }

@@ -2339,6 +2339,7 @@ final class Typewriter extends _Value {
     this.skip = false,
     this.playKey = '',
     this.holdAtMs,
+    this.grow = false,
   });
 
   /// Off, the whole text shows (bindable as `typewriter.enabled`).
@@ -2377,6 +2378,11 @@ final class Typewriter extends _Value {
   /// moment. Null types to the end.
   final int? holdAtMs;
 
+  /// The node is only as tall as the lines typed so far, growing line by
+  /// line (a note card that fills as it's written). Off, it keeps the whole
+  /// text's size from the start, so nothing around it moves.
+  final bool grow;
+
   /// Whether a running app types (rather than shows the whole text).
   bool get types => enabled && !skip && charsPerSecond > 0;
 
@@ -2396,6 +2402,7 @@ final class Typewriter extends _Value {
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
       holdAtMs: m['holdAtMs'] == null || m['holdAtMs'] == '' ? null : math.max(0, r.ms('holdAtMs', 0)),
+      grow: r.b('grow', false),
     );
   }
 
@@ -2412,11 +2419,12 @@ final class Typewriter extends _Value {
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
     if (holdAtMs != null) j['holdAtMs'] = holdAtMs;
+    j.b('grow', grow, false);
     return j;
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
