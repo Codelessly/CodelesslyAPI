@@ -215,10 +215,18 @@ abstract final class SwitchProps {
   /// Material's switch scaled to the box.
   static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
 
+  /// The track's corner radius: null is a pill (half its height); a square
+  /// switch sets a small one. With it the switch is a plain toggle.
+  static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
+
+  /// The thumb's corner radius: null is round; a square switch sets a small
+  /// one. With it the switch is a plain toggle.
+  static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
+
   static const spec = WidgetSpec('switch', props: [
     value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack, thumbShadows, thumbInset,
+    fillTrack, thumbShadows, thumbInset, trackRadius, thumbRadius,
   ], doc: 'Flutter `Switch`.');
 }
 
