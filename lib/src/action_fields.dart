@@ -458,6 +458,14 @@ abstract final class DownloadFileFields {
   static const List<PropDef<Object?>> all = [fileName, text, mimeType];
 }
 
+/// [PreloadImagesAction].
+abstract final class PreloadImagesFields {
+  static const urls = PropDef<String>('urls', Codecs.string, '', doc: 'The image URLs: a list (an expression) or comma-separated text.');
+  static const progressVariable = PropDef<String>('progressVariable', Codecs.string, '',
+      doc: 'A variable to hold the share loaded (0-1) while it runs.');
+  static const List<PropDef<Object?>> all = [urls, progressVariable];
+}
+
 /// [DelayAction].
 abstract final class DelayFields {
   static const ms = PropDef<int>('ms', Codecs.int, 500);
@@ -636,6 +644,7 @@ abstract final class ActionSpecs {
       const ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all),
       const ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all),
       const ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all),
+      const ActionSpec(PreloadImagesAction.typeName, label: 'Preload images', fields: PreloadImagesFields.all),
       const ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all),
       const ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all),
       const ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all),
