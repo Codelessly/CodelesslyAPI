@@ -521,11 +521,21 @@ abstract final class TableViewProps {
   /// The rows when no data is bound.
   static const rowCount = PropDef<int?>('rowCount', OptionalIntCodec(), null);
   static const rowHeight = PropDef<double>('rowHeight', Codecs.positive, 40);
+
+  /// The field of a row (a map) that holds its own height, for rows that
+  /// aren't all as tall (a summary row that grows with its content); rows
+  /// without a number there are [rowHeight] tall. Empty: every row is.
+  static const rowHeightKey = PropDef<String>('rowHeightKey', Codecs.string, '');
   static const headerHeight = PropDef<double>('headerHeight', Codecs.positive, 44);
 
   /// A column's width unless it sets its own.
   static const columnWidth = PropDef<double>('columnWidth', Codecs.positive, 120);
   static const rowHeaderWidth = PropDef<double>('rowHeaderWidth', Codecs.positive, 120);
+
+  /// Body columns grow to share the width the table has beyond all its
+  /// columns' widths (equally), so a week fills a wide screen and still
+  /// scrolls on a narrow one; no column is ever narrower than its width.
+  static const fillWidth = PropDef<bool>('fillWidth', Codecs.bool, false);
   static const pinHeaderRow = PropDef<bool>('pinHeaderRow', Codecs.bool, true);
   static const pinHeaderColumn = PropDef<bool>('pinHeaderColumn', Codecs.bool, true);
 
@@ -546,7 +556,8 @@ abstract final class TableViewProps {
   static const spec = WidgetSpec(
     'tableView',
     props: [
-      columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
+      columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
+      pinHeaderRow, pinHeaderColumn,
       gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
     ],
     children: ChildModel.slots,
