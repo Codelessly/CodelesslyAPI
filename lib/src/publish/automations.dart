@@ -11,7 +11,7 @@
 //
 // ```json
 // {"id": "rate-us", "trigger": "event", "event": "order_completed",
-//  "when": "usage.events.order_completed.count >= 3",
+//  "when": "usage.events.order_completed.count >= 3 && auth.isSignedIn",
 //  "maxRuns": 1, "delayMs": 1500,
 //  "actions": [{"type": "openModal", "to": "rate-us", "presentation": "dialog"}]}
 // ```
@@ -31,8 +31,9 @@ enum AutomationTrigger {
   /// project.
   appStart,
 
-  /// A session started: at app start, and when the app comes back after
-  /// [Automation.sessionTimeoutMs] in the background.
+  /// A session started: at app start, and when the app comes back after a
+  /// while in the background (the runtime's session timeout, 30 minutes
+  /// unless the app sets another).
   sessionStart,
 
   /// The app came back to the foreground.
@@ -75,7 +76,6 @@ final class Automation {
     this.event = '',
     this.screen = '',
     this.intervalMs = 60000,
-    this.sessionTimeoutMs = 30 * 60 * 1000,
     this.when = '',
     this.maxRuns = 0,
     this.maxPerSession = 0,
@@ -105,10 +105,6 @@ final class Automation {
   /// [AutomationTrigger.interval]: how often, in ms (at least 1000).
   final int intervalMs;
 
-  /// [AutomationTrigger.sessionStart]: how long the app must have been in
-  /// the background for its return to start a new session.
-  final int sessionTimeoutMs;
-
   /// A formula that must hold for it to run (`usage.sessions >= 3 &&
   /// !auth.isAnonymous`), or a `${...}` expression; empty: always.
   final String when;
@@ -136,7 +132,7 @@ final class Automation {
   final Json extra;
 
   static const Set<String> _keys = {
-    'id', 'name', 'enabled', 'trigger', 'event', 'screen', 'intervalMs', 'sessionTimeoutMs', 'when', 'maxRuns', //
+    'id', 'name', 'enabled', 'trigger', 'event', 'screen', 'intervalMs', 'when', 'maxRuns', //
     'maxPerSession', 'everyDays', 'delayMs', 'priority', 'actions',
   };
 
@@ -153,7 +149,6 @@ final class Automation {
       event: readString(m['event']) ?? '',
       screen: readString(m['screen']) ?? '',
       intervalMs: (readInt(m['intervalMs']) ?? 60000).clamp(1000, 1 << 31),
-      sessionTimeoutMs: (readInt(m['sessionTimeoutMs']) ?? 30 * 60 * 1000).clamp(0, 1 << 31),
       when: readString(m['when']) ?? '',
       maxRuns: (readInt(m['maxRuns']) ?? 0).clamp(0, 1 << 31),
       maxPerSession: (readInt(m['maxPerSession']) ?? 0).clamp(0, 1 << 31),
@@ -179,7 +174,6 @@ final class Automation {
     if (event.isNotEmpty) 'event': event,
     if (screen.isNotEmpty) 'screen': screen,
     if (intervalMs != 60000) 'intervalMs': intervalMs,
-    if (sessionTimeoutMs != 30 * 60 * 1000) 'sessionTimeoutMs': sessionTimeoutMs,
     if (when.isNotEmpty) 'when': when,
     if (maxRuns != 0) 'maxRuns': maxRuns,
     if (maxPerSession != 0) 'maxPerSession': maxPerSession,
@@ -198,7 +192,6 @@ final class Automation {
     String? event,
     String? screen,
     int? intervalMs,
-    int? sessionTimeoutMs,
     String? when,
     int? maxRuns,
     int? maxPerSession,
@@ -214,7 +207,6 @@ final class Automation {
     event: event ?? this.event,
     screen: screen ?? this.screen,
     intervalMs: intervalMs ?? this.intervalMs,
-    sessionTimeoutMs: sessionTimeoutMs ?? this.sessionTimeoutMs,
     when: when ?? this.when,
     maxRuns: maxRuns ?? this.maxRuns,
     maxPerSession: maxPerSession ?? this.maxPerSession,
@@ -242,23 +234,48 @@ abstract final class AutomationFields {
   static const name = PropDef<String>('name', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const trigger = PropDef<AutomationTrigger>(
-      'trigger', EnumCodec(AutomationTrigger.values), AutomationTrigger.event,
-      doc: 'App start, session start, resume, an app event, an interval, or a screen shown.');
+    'trigger',
+    EnumCodec(AutomationTrigger.values),
+    AutomationTrigger.event,
+    doc: 'App start, session start, resume, an app event, an interval, or a screen shown.',
+  );
   static const event = PropDef<String>('event', Codecs.string, '', doc: 'Trigger event: the event\'s name.');
-  static const screen = PropDef<String>('screen', Codecs.string, '', doc: 'Trigger screenShown: the screen; empty: any.');
-  static const intervalMs = PropDef<int>('intervalMs', IntCodec(min: 1000), 60000, doc: 'Trigger interval: every (ms).');
-  static const sessionTimeoutMs = PropDef<int>('sessionTimeoutMs', IntCodec(min: 0), 30 * 60 * 1000,
-      doc: 'Time in the background after which a return starts a new session (ms).');
-  static const when = PropDef<String>('when', Codecs.string, '',
-      doc: 'A formula over event, usage, variables, auth and storage; empty: always.');
+  static const screen = PropDef<String>(
+    'screen',
+    Codecs.string,
+    '',
+    doc: 'Trigger screenShown: the screen; empty: any.',
+  );
+  static const intervalMs = PropDef<int>(
+    'intervalMs',
+    IntCodec(min: 1000),
+    60000,
+    doc: 'Trigger interval: every (ms).',
+  );
+  static const when = PropDef<String>(
+    'when',
+    Codecs.string,
+    '',
+    doc: 'A formula over event, usage, variables, auth and storage; empty: always.',
+  );
   static const maxRuns = PropDef<int>('maxRuns', IntCodec(min: 0), 0, doc: 'Runs per user; 0: no limit, 1: once.');
-  static const maxPerSession = PropDef<int>('maxPerSession', IntCodec(min: 0), 0, doc: 'Runs per session; 0: no limit.');
-  static const everyDays = PropDef<double>('everyDays', Codecs.positive, 0, doc: 'Fewest days between runs; 0: no wait.');
+  static const maxPerSession = PropDef<int>(
+    'maxPerSession',
+    IntCodec(min: 0),
+    0,
+    doc: 'Runs per session; 0: no limit.',
+  );
+  static const everyDays = PropDef<double>(
+    'everyDays',
+    Codecs.positive,
+    0,
+    doc: 'Fewest days between runs; 0: no wait.',
+  );
   static const delayMs = PropDef<int>('delayMs', IntCodec(min: 0), 0, doc: 'Wait after the trigger (ms).');
   static const priority = PropDef<int>('priority', Codecs.int, 0, doc: 'Higher shows first when presentations wait.');
   static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'The chain it runs.');
   static const List<PropDef<Object?>> all = [
-    id, name, enabled, trigger, event, screen, intervalMs, sessionTimeoutMs, when, maxRuns, maxPerSession, //
+    id, name, enabled, trigger, event, screen, intervalMs, when, maxRuns, maxPerSession, //
     everyDays, delayMs, priority, actions,
   ];
 }
@@ -270,9 +287,11 @@ extension PublishModelAutomations on PublishModel {
   List<Automation> get automations => Automation.listFromJson(extra[kAutomationsKey]);
 
   /// This model with [automations] (none: the key is removed).
-  PublishModel withAutomations(List<Automation> automations) => copyWith(extra: {
-    for (final e in extra.entries)
-      if (e.key != kAutomationsKey) e.key: e.value,
-    if (automations.isNotEmpty) kAutomationsKey: [for (final a in automations) a.toJson()],
-  });
+  PublishModel withAutomations(List<Automation> automations) => copyWith(
+    extra: {
+      for (final e in extra.entries)
+        if (e.key != kAutomationsKey) e.key: e.value,
+      if (automations.isNotEmpty) kAutomationsKey: [for (final a in automations) a.toJson()],
+    },
+  );
 }
