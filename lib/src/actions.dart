@@ -475,19 +475,22 @@ List<double>? _doubles(Object? json, int length) {
 /// Closes the modal it runs in, giving the chain that opened it [result]
 /// (its text values are expressions) as `${result}`.
 final class CloseModalAction extends ActionDef {
-  const CloseModalAction({this.result = const {}, super.enabled, super.nonBlocking, super.when});
+  const CloseModalAction({this.result, super.enabled, super.nonBlocking, super.when});
 
   static const typeName = 'closeModal';
   @override
   String get type => typeName;
 
-  final Json result;
+  /// What the opening chain reads as `${result}`: any JSON value (a menu's
+  /// choice, a picked date, a map); its strings are expressions. Null
+  /// closes with no result.
+  final Object? result;
 
   static CloseModalAction _fromJson(Json m, _Common c) =>
-      CloseModalAction(result: _map(m, 'result'), enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+      CloseModalAction(result: m['result'], enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
 
   @override
-  Json get _fields => {if (result.isNotEmpty) 'result': result};
+  Json get _fields => {'result': ?result};
 }
 
 /// Opens a URL (a web page, `mailto:`, `tel:`, an app link).
