@@ -57,4 +57,14 @@ void main() {
     expect(plain.inline, isFalse);
     expect(plain.toJson().containsKey('when'), isFalse);
   });
+
+  test('an icon prop reads a bare Material icon name (a binding gives one)', () {
+    final n = Node.fromJson({'type': 'icon', 'props': {'icon': 'lock_open_rounded'}}, id: 'i')!;
+    expect(n.prop(IconProps.icon), {'type': 'MATERIAL_ICON', 'name': 'lock_open', 'style': 'rounded'});
+    expect(materialIconNamed('check'), {'type': 'MATERIAL_ICON', 'name': 'check', 'style': 'filled'});
+    expect(materialIconNamed('not an icon'), isNull);
+    final bound = BindPaths.apply(Node.fromJson({'type': 'icon', 'props': {'icon': {'type': 'MATERIAL_ICON', 'name': 'lock', 'style': 'rounded', 'version': 16}}}, id: 'i')!,
+        'props.icon', 'lock_open_rounded');
+    expect(bound.prop(IconProps.icon)['name'], 'lock_open');
+  });
 }

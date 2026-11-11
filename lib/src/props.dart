@@ -313,9 +313,28 @@ BoxConstraints? _constraintsIn(Object? j) => readMap(j) == null ? null : BoxCons
 TextRun? _runIn(Object? j) => TextRun.fromJson(j);
 Json? _jsonIn(Object? j) => readMap(j);
 Json? _glyphIn(Object? j) => _iconIn(j).let((m) => m == null || m.isEmpty ? null : m);
-Json? _iconIn(Object? j) => readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
-    ? m
-    : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
+Json? _iconIn(Object? j) {
+  // A bare Material icon name (`lock_open`, `check_rounded`), as a binding
+  // gives it: the suffix picks the style.
+  if (j is String) return materialIconNamed(j);
+  return readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
+      ? m
+      : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
+}
+
+/// The Material icon [name] names (`check_circle`, `lock_open_rounded`):
+/// a suffix (`_outlined`, `_rounded`, `_sharp`) sets its style. Null when
+/// [name] isn't an icon name.
+Json? materialIconNamed(String name) {
+  final key = name.trim().toLowerCase();
+  if (!RegExp(r'^[a-z0-9_]+$').hasMatch(key)) return null;
+  for (final (suffix, style) in const [('_outlined', 'outlined'), ('_rounded', 'rounded'), ('_sharp', 'sharp')]) {
+    if (key.endsWith(suffix)) {
+      return {'type': 'MATERIAL_ICON', 'name': key.substring(0, key.length - suffix.length), 'style': style};
+    }
+  }
+  return {'type': 'MATERIAL_ICON', 'name': key, 'style': 'filled'};
+}
 List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 TextStyle? _styleIn(Object? j) => TextStyle.fromJson(j);
 BorderSide? _sideIn(Object? j) => BorderSide.fromJson(j);
