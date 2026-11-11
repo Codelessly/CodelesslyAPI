@@ -1430,6 +1430,7 @@ final class AuthAction extends ActionDef {
     this.password = '',
     this.displayName = '',
     this.photoUrl = '',
+    this.currentPassword = '',
     this.errorVariable = '',
     super.enabled,
     super.nonBlocking,
@@ -1442,6 +1443,12 @@ final class AuthAction extends ActionDef {
 
   final AuthOperation operation;
   final String email, password, displayName, photoUrl;
+
+  /// For [AuthOperation.updatePassword] and [AuthOperation.deleteAccount]:
+  /// the signed-in user's current password, which re-authenticates them
+  /// first (Firebase asks for a recent sign-in before these). Empty: no
+  /// re-authentication.
+  final String currentPassword;
   final String errorVariable;
 
   static AuthAction _fromJson(Json m, _Common c) => AuthAction(
@@ -1450,6 +1457,7 @@ final class AuthAction extends ActionDef {
     password: _s(m, 'password'),
     displayName: _s(m, 'displayName'),
     photoUrl: _s(m, 'photoUrl'),
+    currentPassword: _s(m, 'currentPassword'),
     errorVariable: _s(m, 'errorVariable'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1463,6 +1471,7 @@ final class AuthAction extends ActionDef {
     if (password.isNotEmpty) 'password': password,
     if (displayName.isNotEmpty) 'displayName': displayName,
     if (photoUrl.isNotEmpty) 'photoUrl': photoUrl,
+    if (currentPassword.isNotEmpty) 'currentPassword': currentPassword,
     if (errorVariable.isNotEmpty) 'errorVariable': errorVariable,
   };
 }
