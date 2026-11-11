@@ -310,8 +310,11 @@ enum PopoverPlacement {
   anchored,
 }
 
-/// What a popover is anchored to.
-enum ModalAnchor { none, trigger, pointer }
+/// What a popover is anchored to: nothing, the node that opened it, the
+/// pointer, or a named node ([OpenModalAction.anchorNode]; in a list, the
+/// copy built for [OpenModalAction.anchorItem]), so a modal opened from a
+/// keyboard shortcut or a screen's `load` can sit by a node too.
+enum ModalAnchor { none, trigger, pointer, node }
 
 /// Shows a screen (canvas) as a modal: a dialog, a sheet, a popover. The
 /// [CloseModalAction] that closes it gives the chain that opened it its
@@ -333,6 +336,8 @@ final class OpenModalAction extends ActionDef {
     this.anchorGap = 4,
     this.anchorOffset = 0,
     this.anchorReserve = 0,
+    this.anchorNode = '',
+    this.anchorItem = '',
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
     this.sheetRadius,
@@ -371,6 +376,15 @@ final class OpenModalAction extends ActionDef {
   /// the screen's bottom margin, it moves up so this much fits (a menu that
   /// may grow keeps its place). 0: placed by its own height.
   final double anchorReserve;
+
+  /// With [ModalAnchor.node]: the node the popover sits by (its id; an
+  /// expression may name it).
+  final String anchorNode;
+
+  /// With [ModalAnchor.node], for a node a list repeats: the item whose copy
+  /// it sits by (its `id` or `key`, or its index), as `ScrollToAction.item`.
+  /// Empty: the node's only (or first) copy.
+  final String anchorItem;
 
   /// Space kept around a dialog: left, top, right, bottom.
   final List<double> insets;
@@ -423,6 +437,8 @@ final class OpenModalAction extends ActionDef {
     anchorGap: _d(m, 'anchorGap', 4),
     anchorOffset: _d(m, 'anchorOffset', 0),
     anchorReserve: _d(m, 'anchorReserve', 0),
+    anchorNode: _s(m, 'anchorNode'),
+    anchorItem: _s(m, 'anchorItem'),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
     sheetRadius: _dOrNull(m, 'sheetRadius'),
@@ -453,6 +469,8 @@ final class OpenModalAction extends ActionDef {
     if (anchorGap != 4) 'anchorGap': writeDouble(anchorGap),
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (anchorReserve != 0) 'anchorReserve': writeDouble(anchorReserve),
+    if (anchorNode.isNotEmpty) 'anchorNode': anchorNode,
+    if (anchorItem.isNotEmpty) 'anchorItem': anchorItem,
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
     if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
