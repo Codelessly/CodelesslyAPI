@@ -79,6 +79,14 @@ enum TriggerType {
   /// A screen appeared (set on its canvas).
   load,
 
+  /// A node's image fill started loading, became ready, or failed.
+  /// `${result.url}` identifies the image and `${result.status}` is
+  /// `loading`, `loaded`, or `error`. Cached images can report loaded
+  /// immediately without a loading event.
+  imageLoading,
+  imageLoaded,
+  imageError,
+
   /// On a screen (its canvas): the user tried to leave it (the system or
   /// browser back button, a back gesture, Escape on a dialog) while the
   /// canvas's `blockBack` holds (`props.blockBack`, usually bound:
