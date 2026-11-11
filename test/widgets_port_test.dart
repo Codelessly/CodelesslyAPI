@@ -12,6 +12,22 @@ void main() {
       expect(Props.fromJson(SwitchProps.spec, const {}).get(SwitchProps.thumbInset), isNull);
     });
 
+    test('a switch: thumb border, slide duration and curve', () {
+      final p = Props.fromJson(SwitchProps.spec, {
+        'activeThumbBorderColor': '#FF111111',
+        'inactiveThumbBorderColor': '#FFDDDDDD',
+        'thumbBorderWidth': 1.5,
+        'toggleDurationMs': 180,
+        'toggleCurve': 'easeOut',
+      });
+      expect(p.get(SwitchProps.thumbBorderWidth), 1.5);
+      expect(p.get(SwitchProps.toggleDurationMs), 180);
+      expect(p.get(SwitchProps.toggleCurve), AnimationCurve.easeOut);
+      final d = Props.fromJson(SwitchProps.spec, const {});
+      expect((d.get(SwitchProps.thumbBorderWidth), d.get(SwitchProps.toggleDurationMs)), (null, 220));
+      expect(d.get(SwitchProps.toggleCurve), AnimationCurve.easeOutCubic);
+    });
+
     test('a page view: page motion', () {
       final m = Props.fromJson(PageViewProps.spec, {'pageMotion': {'rotateY': -50}}).get(PageViewProps.pageMotion);
       expect(m?.rotateY, -50);

@@ -1,5 +1,7 @@
 // Widget declarations: inputs. One WidgetSpec per type; props with Flutter's
 // names and defaults (see ../props.dart). Value types are in inputs_models.dart.
+import '../behavior_fields.dart' show AnimationCurveCodec;
+import '../behaviors.dart' show AnimationCurve;
 import '../json.dart';
 import '../props.dart';
 import '../values/border.dart';
@@ -239,6 +241,23 @@ abstract final class SwitchProps {
   /// reactions set the value, else it stays (a checkout rule that refuses).
   static const controlled = PropDef<bool>('controlled', Codecs.bool, false);
 
+  /// The thumb's border color when on, drawn inside its edge on a filled
+  /// track ([fillTrack]). Material's switch has no thumb border, so a
+  /// switch with one is drawn as a plain toggle.
+  static const activeThumbBorderColor = PropDef<Color?>('activeThumbBorderColor', Codecs.color, null);
+
+  /// The thumb's border color when off (see [activeThumbBorderColor]).
+  static const inactiveThumbBorderColor = PropDef<Color?>('inactiveThumbBorderColor', Codecs.color, null);
+
+  /// The thumb border's width; null is 1.
+  static const thumbBorderWidth = PropDef<double?>('thumbBorderWidth', Codecs.positive, null);
+
+  /// How long a plain toggle's thumb takes to slide, in milliseconds.
+  static const toggleDurationMs = PropDef<int>('toggleDurationMs', IntCodec(min: 0), 220);
+
+  /// A plain toggle's slide easing on; off eases along it flipped.
+  static const toggleCurve = PropDef<AnimationCurve>('toggleCurve', AnimationCurveCodec(), AnimationCurve.easeOutCubic);
+
   /// The track's corner radius: null is a pill (half its height); a square
   /// switch sets a small one. With it the switch is a plain toggle.
   static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
@@ -250,7 +269,8 @@ abstract final class SwitchProps {
   static const spec = WidgetSpec('switch', props: [
     enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack, thumbShadows, thumbInset, trackRadius, thumbRadius,
+    fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
+    toggleDurationMs, toggleCurve, trackRadius, thumbRadius,
   ], doc: 'Flutter `Switch`.');
 }
 

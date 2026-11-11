@@ -54,12 +54,13 @@ abstract final class TriggerFields {
   static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
   static const lookaheadMs = PropDef<int>('lookaheadMs', Codecs.int, 100);
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
+  static const repeat = PropDef<bool>('repeat', Codecs.bool, false, doc: 'keyDown: also while the key repeats.');
   static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
       doc: 'Viewport: how long it stays in view before firing (ms).');
   static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
       doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const List<PropDef<Object?>> all = [
-    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, //
+    type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, repeat, //
     visibleMs, onceKey,
   ];
 }

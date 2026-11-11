@@ -113,6 +113,9 @@ final class AxisPosition {
   bool get isStretch => start != null && end != null;
 
   static AxisPosition fromJson(Object? json) {
+    // A number is the distance from the start (DESIGN.md: "distance from the
+    // start, or a position map"), as a binding of `layout.x` gives it.
+    if (readDouble(json) case final double d when json is! Map) return AxisPosition.start(d);
     final m = readMap(json);
     if (m == null) return zero;
     if (readDouble(m['align']) case final double a) return AxisPosition.align(a);

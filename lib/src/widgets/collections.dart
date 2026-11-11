@@ -37,6 +37,7 @@ enum WrapCrossAlignment { start, end, center }
 
 /// What a list draws between its items.
 enum ListSeparator {
+  /// Nothing: the items touch whatever [ListViewProps.spacing] says.
   none,
 
   /// Empty space, [ListViewProps.spacing] long; a negative spacing overlaps
