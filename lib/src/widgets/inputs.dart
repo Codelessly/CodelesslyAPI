@@ -215,8 +215,15 @@ abstract final class SwitchProps {
   /// Material's switch scaled to the box.
   static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
 
+  /// Off, it shows its value but can't be toggled (dimmed, as Flutter's).
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// It shows only its value: a tap reports the change (`changed`) and the
+  /// reactions set the value, else it stays (a checkout rule that refuses).
+  static const controlled = PropDef<bool>('controlled', Codecs.bool, false);
+
   static const spec = WidgetSpec('switch', props: [
-    value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
+    enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset,
   ], doc: 'Flutter `Switch`.');
@@ -470,6 +477,11 @@ abstract final class TimePickerProps {
 /// What a date/time input picks.
 enum DateTimeInputMode { date, time, dateTime }
 
+/// What tapping a date/time input opens: Material's date and time
+/// dialogs, or nothing (its own click reactions show a picker the design
+/// builds, and set its value).
+enum DateTimeInputPicker { dialog, none }
+
 /// An outlined `InputDecorator` showing a date, time or both, that opens the
 /// pickers.
 abstract final class DateTimeInputProps {
@@ -485,8 +497,29 @@ abstract final class DateTimeInputProps {
   static const min = PropDef<String?>('min', Codecs.string, null);
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// The field's look, as a text field's (fill, borders, icons, hint, error);
+  /// empty keeps the outlined default.
+  static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
+
+  /// The shown value's text style.
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// How the value shows: a `formatDate` pattern (`EEE, MMM d · h:mm a`);
+  /// empty: the locale's medium date and time.
+  static const displayFormat = PropDef<String>('displayFormat', Codecs.string, '');
+
+  /// Shown instead of the formatted value when set (bind it: "Now · 1:20 PM").
+  static const displayText = PropDef<String>('displayText', Codecs.string, '');
+  static const picker = PropDef<DateTimeInputPicker>(
+      'picker', EnumCodec(DateTimeInputPicker.values), DateTimeInputPicker.dialog);
+
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled], doc: 'Flutter `InputDecorator`.');
+      props: [
+        mode, value, labelText, firstDate, lastDate, min, max, enabled, decoration, style, displayFormat, displayText,
+        picker,
+      ],
+      doc: 'Flutter `InputDecorator`.');
 }
 
 // --- segmentedButton ----------------------------------------------------------
