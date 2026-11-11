@@ -107,6 +107,11 @@ abstract final class EmbeddedVideoProps {
   static const showControls = PropDef<bool>('showControls', Codecs.bool, true);
   static const showFullscreenButton = PropDef<bool>('showFullscreenButton', Codecs.bool, true);
 
+  /// Optional application playback requests. Null retains provider controls.
+  static const playing = PropDef<bool?>('playing', Codecs.optionalBool, null);
+  static const positionSeconds = PropDef<double?>('positionSeconds', Codecs.optionalPositive, null);
+  static const volume = PropDef<double?>('volume', DoubleCodec(min: 0, max: 1), null);
+
   /// YouTube only.
   static const showVideoAnnotations = PropDef<bool>('showVideoAnnotations', Codecs.bool, true);
   static const showCaptions = PropDef<bool>('showCaptions', Codecs.bool, false);
@@ -122,7 +127,7 @@ abstract final class EmbeddedVideoProps {
   static const spec = WidgetSpec('embeddedVideo',
       props: [
         source, url, videoId, autoPlay, mute, loop, showControls, showFullscreenButton, showVideoAnnotations, //
-        showCaptions, captionLanguage, startAt, endAt, metadata,
+        showCaptions, captionLanguage, startAt, endAt, metadata, playing, positionSeconds, volume,
       ],
       doc: 'An embedded YouTube / Vimeo player (`WebViewWidget`).');
 }
