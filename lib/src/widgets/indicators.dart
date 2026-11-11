@@ -247,6 +247,10 @@ abstract final class ChartProps {
   static const fitMinY = PropDef<bool>('fitMinY', Codecs.bool, false);
   static const yLabelPrefix = PropDef<String>('yLabelPrefix', Codecs.string, '');
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
+
+  /// The prefix and suffix go on the top y label only (`50%` over plain
+  /// `40`, `30` …), as a newspaper chart marks its unit once.
+  static const yLabelAffixTopOnly = PropDef<bool>('yLabelAffixTopOnly', Codecs.bool, false);
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
   /// Line charts: the row field holding each point's x value, placed over
@@ -275,7 +279,7 @@ abstract final class ChartProps {
     showXAxis, xLabelEvery, axisLabelColor, axisFontSize, axisFontFamily, referenceLines, barWidthFraction,
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
-    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily,
+    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily,
     xField, xLabels, endLabelWidth, endLabelDecimals,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
