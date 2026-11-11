@@ -323,6 +323,7 @@ final class OpenModalAction extends ActionDef {
     this.anchorOffset = 0,
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
+    this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
@@ -356,6 +357,11 @@ final class OpenModalAction extends ActionDef {
   /// Space kept around a dialog: left, top, right, bottom.
   final List<double> insets;
   final double? sheetWidth;
+
+  /// A bottom sheet's top corner radius: the sheet clips the screen to it,
+  /// so a screen with a solid canvas fill gets rounded top corners. Null:
+  /// the platform's default sheet.
+  final double? sheetRadius;
 
   /// [ModalPresentation.adaptive]: a bottom sheet on screens whose
   /// breakpoint is narrower than this one (a project [Breakpoint.id],
@@ -394,6 +400,7 @@ final class OpenModalAction extends ActionDef {
     anchorOffset: _d(m, 'anchorOffset', 0),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
+    sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
@@ -421,6 +428,7 @@ final class OpenModalAction extends ActionDef {
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
+    if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
