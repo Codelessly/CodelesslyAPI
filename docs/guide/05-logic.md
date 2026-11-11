@@ -131,9 +131,12 @@ color); a value that can't be read leaves the property as it was.
 | `if`, `forEach`, `delay`, `confirm` | Flow |
 | `callFunction`, `runScript` | The app's code and scripts |
 | `callApi`, `loadCloudData`, `reloadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
+| `callFunction`, `runScript`, `emitEvent` | The app's code, scripts and app events |
+| `callApi`, `loadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
 | `auth`, `paywall` | Accounts and purchases |
 | `showToast`, `haptic`, `playSound`, `speak`, `copyToClipboard` | Feedback |
 | `submitForm`, `editText`, `focus`, `scrollTo`, `playAnimation`, `controlDrag` | Inputs and motion |
+| `captureScreenshot` | Capture (`${result.image}`, a PNG `data:` URL) |
 
 Every action has `enabled`, `nonBlocking` (not awaited) and `when` (a predicate). An unknown `type` decodes as
 `UnknownAction` and round-trips. `ActionDef.fromJson(json)` decodes one (null for JSON that isn't an action);
@@ -167,6 +170,44 @@ Every action has `enabled`, `nonBlocking` (not awaited) and `when` (a predicate)
 - `Trigger.onceKey` runs a reaction once per key per app session; `Trigger.visibleMs` makes `enterViewport` wait for
   the node to stay in view. `ListViewProps.pullToRefresh` lets a list without pagination fire its `refresh`
   reactions.
+### Presenting, app events, host calls and capture
+
+- `openModal` presentations: `dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover` and
+  `banner` (along the top edge, or the bottom one when `alignment`'s y is above 0; no barrier, so the app stays
+  usable; a swipe dismisses it when `barrierDismissible`). A runtime that doesn't know `banner` shows a dialog.
+- `emitEvent` (`event`, `props`) fires an app event: automations listening for it run, and the host hears it.
+- `callFunction` calls a function the host app registered and branches on what it answered (`${result}`); with
+  `optional: true` a function the host didn't register gives `null` instead of failing the chain.
+- `captureScreenshot` (`target`: `layout`, `node` with `node`, or `app`; `pixelRatio`) gives
+  `{"image": "data:image/png;base64,...", "width", "height"}`. Bind `image` to an image fill, or upload it with
+  `cloudFiles` and `"source": "${shot}"` (a `data:` URL, a `{"data", "name"}` map or a list), which uploads
+  that value instead of asking the user to pick files.
+
+### Automations
+
+A publish model's `automations` (`Automation`, read with `model.automations`, kept in `extra` so a model
+without them is unchanged): what the project does on its own at app-level moments, with no node.
+
+```json
+"automations": [
+  {"id": "rate-us", "trigger": "event", "event": "order_completed",
+   "when": "usage.events.order_completed.count >= 3 && !auth.isAnonymous",
+   "maxRuns": 1, "delayMs": 1500, "priority": 1,
+   "actions": [{"type": "openModal", "to": "rate-us"}]}
+]
+```
+
+| Field | Meaning |
+|---|---|
+| `trigger` | `appStart`, `sessionStart` (start, or a return after `sessionTimeoutMs` in the background), `resume`, `event` (`event`), `interval` (`intervalMs`), `screenShown` (`screen`; empty: any) |
+| `when` | A formula over `event` (`name`, `props`), `usage`, the app's variables, `auth`, `storage`, `data`; empty: always |
+| `maxRuns`, `maxPerSession`, `everyDays` | How often: once (`maxRuns: 1`), once per session, at most every n days; 0: no limit |
+| `delayMs`, `priority` | Wait after the trigger (then `when` is checked again); which presentation shows first when several wait |
+| `actions` | The chain it runs (`${result}` starts as the event's props) |
+
+`usage` is what the runtime counts per user on the device: `launches`, `sessions`, `firstSeen`, `lastSeen`,
+`isFirstLaunch`, `isFirstSession`, `events.<name>.count` / `.last`, and `automations.<id>.count` / `.last` /
+`.session`. `AutomationFields` declares the fields for generated editors.
 
 ## Scripts
 

@@ -311,7 +311,9 @@ abstract final class AnimateVariableFields {
 abstract final class CallFunctionFields {
   static const name = PropDef<String>('name', Codecs.string, '', doc: 'The function the app registered.');
   static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Its arguments; text values are expressions.');
-  static const List<PropDef<Object?>> all = [name, params];
+  static const optional = PropDef<bool>('optional', Codecs.bool, false,
+      doc: 'A function the app didn\'t register is skipped (\${result} is null) instead of failing the chain.');
+  static const List<PropDef<Object?>> all = [name, params, optional];
 }
 
 /// [CallApiAction].
@@ -428,8 +430,13 @@ abstract final class CloudFilesFields {
   static const maxSizeMB = PropDef<double>('maxSizeMB', Codecs.double, 10);
   static const progressVariable = PropDef<String>('progressVariable', Codecs.string, '');
   static const access = PropDef<CloudFileAccess>('access', EnumCodec(CloudFileAccess.values), CloudFileAccess.public);
+  static const source = PropDef<String>('source', Codecs.string, '',
+      doc: 'Uploads this instead of asking the user: a data: URL (\${result.image} of a screenshot), or a list.');
+  static const fileName = PropDef<String>('fileName', Codecs.string, '', doc: 'The name a source file is stored under.');
   static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run with each file.');
-  static const List<PropDef<Object?>> all = [operation, path, kind, allowMultiple, maxSizeMB, progressVariable, access, actions];
+  static const List<PropDef<Object?>> all = [
+    operation, path, kind, allowMultiple, maxSizeMB, progressVariable, access, source, fileName, actions, //
+  ];
 }
 
 /// [ShowToastAction].
@@ -643,6 +650,22 @@ abstract final class PaginateFields {
   static const List<PropDef<Object?>> all = [controller, command, page, pageSize];
 }
 
+/// [EmitEventAction].
+abstract final class EmitEventFields {
+  static const event = PropDef<String>('event', Codecs.string, '', doc: 'The app event\'s name (an expression).');
+  static const props = PropDef<Object?>('props', Codecs.any, null, doc: 'Its properties; text values are expressions.');
+  static const List<PropDef<Object?>> all = [event, props];
+}
+
+/// [CaptureScreenshotAction].
+abstract final class CaptureScreenshotFields {
+  static const target = PropDef<CaptureTarget>('target', EnumCodec(CaptureTarget.values), CaptureTarget.layout,
+      doc: 'The screen, one of its nodes, or the whole app (in the host\'s capture scope).');
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'The node captured (target node).');
+  static const pixelRatio = PropDef<double>('pixelRatio', Codecs.double, 0, doc: 'Pixels per logical pixel; 0: the device\'s.');
+  static const List<PropDef<Object?>> all = [target, node, pixelRatio];
+}
+
 /// Every action type an editor can make, by JSON type.
 abstract final class ActionSpecs {
   static final Map<String, ActionSpec> _all = {
@@ -685,6 +708,8 @@ abstract final class ActionSpecs {
       const ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all),
       const ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all),
       const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
+      const ActionSpec(EmitEventAction.typeName, label: 'Emit event', fields: EmitEventFields.all),
+      const ActionSpec(CaptureScreenshotAction.typeName, label: 'Capture screenshot', fields: CaptureScreenshotFields.all),
     ])
       s.type: s,
   };

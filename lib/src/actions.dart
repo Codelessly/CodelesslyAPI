@@ -141,6 +141,8 @@ final Map<String, _Decoder> _decoders = {
   HapticAction.typeName: HapticAction._fromJson,
   RunScriptAction.typeName: RunScriptAction._fromJson,
   PaginateAction.typeName: PaginateAction._fromJson,
+  EmitEventAction.typeName: EmitEventAction._fromJson,
+  CaptureScreenshotAction.typeName: CaptureScreenshotAction._fromJson,
 };
 
 // --- reading helpers -------------------------------------------------------------
@@ -277,6 +279,14 @@ enum ModalPresentation {
 
   /// A popover next to the node that opened it (or the pointer).
   popover,
+
+  /// A banner along the top edge of the screen (the bottom edge when
+  /// [OpenModalAction.alignment]'s y is above 0), with no barrier: the app
+  /// behind stays usable. It slides in, a swipe dismisses it when
+  /// [OpenModalAction.barrierDismissible], and its screen closes it with a
+  /// [CloseModalAction] (after a `delay`, for one that goes by itself). A
+  /// runtime that doesn't know it shows a dialog.
+  banner,
 }
 
 /// Where a popover sits relative to its anchor.
@@ -882,9 +892,19 @@ final class AnimateVariableAction extends ActionDef {
 }
 
 /// Calls a function the app registered by [name] with [params] (text
-/// values are expressions). Its result is the chain's `${result}`.
+/// values are expressions). Its result is the chain's `${result}`: what the
+/// app's code answered (a permission granted, a share completed), which
+/// the next actions branch on. A function the app didn't register fails the
+/// chain, unless the action is [optional].
 final class CallFunctionAction extends ActionDef {
-  const CallFunctionAction({this.name = '', this.params = const {}, super.enabled, super.nonBlocking, super.when});
+  const CallFunctionAction({
+    this.name = '',
+    this.params = const {},
+    this.optional = false,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'callFunction';
   @override
@@ -893,16 +913,21 @@ final class CallFunctionAction extends ActionDef {
   final String name;
   final Json params;
 
+  /// A function the app didn't register is skipped: `${result}` is null and
+  /// the chain goes on (an app that hasn't wired a native feature yet).
+  final bool optional;
+
   static CallFunctionAction _fromJson(Json m, _Common c) => CallFunctionAction(
     name: _s(m, 'name'),
     params: _map(m, 'params'),
+    optional: _b(m, 'optional', false),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
   @override
-  Json get _fields => {'name': name, if (params.isNotEmpty) 'params': params};
+  Json get _fields => {'name': name, if (params.isNotEmpty) 'params': params, if (optional) 'optional': true};
 }
 
 /// Calls API [api] (the publish model's `services.apis`) with [params], its
@@ -1475,7 +1500,9 @@ enum CloudFileAccess {
 }
 
 /// Uploads files the user picks to (or deletes them from) cloud storage
-/// folder [path]; [actions] run with each file (`${result.url}`...).
+/// folder [path]; [actions] run with each file (`${result.url}`...). With a
+/// [source], it uploads that value instead of asking the user (a captured
+/// screenshot, a drawing).
 final class CloudFilesAction extends ActionDef {
   const CloudFilesAction({
     this.operation = CloudFilesOperation.upload,
@@ -1485,6 +1512,8 @@ final class CloudFilesAction extends ActionDef {
     this.maxSizeMB = 10,
     this.progressVariable = '',
     this.access = CloudFileAccess.public,
+    this.source = '',
+    this.fileName = '',
     this.actions = const [],
     super.enabled,
     super.nonBlocking,
@@ -1502,6 +1531,16 @@ final class CloudFilesAction extends ActionDef {
   final double maxSizeMB;
   final String progressVariable;
   final CloudFileAccess access;
+
+  /// An expression giving what to upload instead of asking the user: a
+  /// `data:` URL (what a `captureScreenshot` gives as `${result.image}`), a
+  /// map `{"data": "data:...", "name": "shot.png"}`, or a list of them.
+  /// Empty: the user picks the files. An older runtime ignores it and asks.
+  final String source;
+
+  /// The name a [source] file is stored under (an expression); empty: the
+  /// map's `name`, else `file-<time>.<extension of its type>`.
+  final String fileName;
   final List<ActionDef> actions;
 
   @override
@@ -1515,6 +1554,8 @@ final class CloudFilesAction extends ActionDef {
     maxSizeMB: _d(m, 'maxSizeMB', 10),
     progressVariable: _s(m, 'progressVariable'),
     access: _e(CloudFileAccess.values, m, 'access', CloudFileAccess.public),
+    source: _s(m, 'source'),
+    fileName: _s(m, 'fileName'),
     actions: _list(m, 'actions'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1530,6 +1571,8 @@ final class CloudFilesAction extends ActionDef {
     if (maxSizeMB != 10) 'maxSizeMB': writeDouble(maxSizeMB),
     if (progressVariable.isNotEmpty) 'progressVariable': progressVariable,
     if (access != CloudFileAccess.public) 'access': access.name,
+    if (source.isNotEmpty) 'source': source,
+    if (fileName.isNotEmpty) 'fileName': fileName,
     if (actions.isNotEmpty) 'actions': _actionsJson(actions),
   };
 }
@@ -2530,5 +2573,96 @@ final class PaginateAction extends ActionDef {
     if (command != PaginateCommand.next) 'command': command.name,
     if (page != '1') 'page': page,
     if (pageSize != '20') 'pageSize': pageSize,
+  };
+}
+
+// --- app events and capture ------------------------------------------------------
+
+/// Fires app event [event] with [props] (text values are expressions) on
+/// the app's event bus: the project's automations listening for it run (a
+/// popup after the third order), and the host app hears it
+/// (`codelessly.events`). The same bus a host fires with
+/// `codelessly.emit(name, props)`. JSON: `{"type": "emitEvent", "event":
+/// "onboarding_done", "props": {"plan": "${plan}"}}`.
+final class EmitEventAction extends ActionDef {
+  const EmitEventAction({this.event = '', this.props = const {}, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'emitEvent';
+  @override
+  String get type => typeName;
+
+  /// The event's name (an expression).
+  final String event;
+
+  /// Its properties; text values are expressions.
+  final Json props;
+
+  static EmitEventAction _fromJson(Json m, _Common c) => EmitEventAction(
+    event: _s(m, 'event'),
+    props: _map(m, 'props'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'event': event, if (props.isNotEmpty) 'props': props};
+}
+
+/// What a [CaptureScreenshotAction] captures.
+enum CaptureTarget {
+  /// The screen the action runs on (its layout, as shown).
+  layout,
+
+  /// One node of that screen, as shown ([CaptureScreenshotAction.node]):
+  /// an image with a drawing over it, a card.
+  node,
+
+  /// The whole app, when the host wraps it in the runtime's capture scope;
+  /// else the screen, as [layout].
+  app,
+}
+
+/// Captures what is on screen as a PNG image. `${result}` is
+/// `{"image": "data:image/png;base64,...", "width", "height"}` (in
+/// pixels): bind it to an image fill to show it, or upload it with a
+/// `cloudFiles` action whose `source` is `${result.image}`. JSON:
+/// `{"type": "captureScreenshot", "target": "app"}`.
+final class CaptureScreenshotAction extends ActionDef {
+  const CaptureScreenshotAction({
+    this.target = CaptureTarget.layout,
+    this.node = '',
+    this.pixelRatio = 0,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'captureScreenshot';
+  @override
+  String get type => typeName;
+
+  final CaptureTarget target;
+
+  /// [CaptureTarget.node]'s node id.
+  final String node;
+
+  /// Image pixels per logical pixel; 0: the device's.
+  final double pixelRatio;
+
+  static CaptureScreenshotAction _fromJson(Json m, _Common c) => CaptureScreenshotAction(
+    target: _e(CaptureTarget.values, m, 'target', CaptureTarget.layout),
+    node: _s(m, 'node'),
+    pixelRatio: _d(m, 'pixelRatio', 0),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {
+    if (target != CaptureTarget.layout) 'target': target.name,
+    if (node.isNotEmpty) 'node': node,
+    if (pixelRatio != 0) 'pixelRatio': writeDouble(pixelRatio),
   };
 }
