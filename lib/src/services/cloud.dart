@@ -508,7 +508,7 @@ final class DataRules {
   /// doesn't expire). App users never read a document past it (the rules
   /// allow up to 10 minutes for device clocks), and they can't read a
   /// document without it. Queries filter `field > now`, which the SDK adds;
-  /// a scheduled function deletes expired documents.
+  /// a scheduled function deletes documents a week past their expiry.
   final Map<String, String> expiry;
 
   static DataRules fromJson(Object? json) {

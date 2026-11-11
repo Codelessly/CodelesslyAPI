@@ -214,7 +214,7 @@ The project's editors read and write every collection. `ownerFields: {collection
 `ownerRead` owner may change on an existing document (never `ownerId`, `audience` or the expiry field).
 `expiry: {collection: field}` makes documents unreadable to app users past the time in that field (ISO-8601 UTC
 text such as `2026-12-01T00:00:00.000Z`; `DataRules.neverExpires` for none); queries on the collection must filter
-`field > now`, which the SDK adds, and expired documents are deleted by a scheduled function.
+`field > now`, which the SDK adds, and documents a week past their expiry are deleted by a scheduled function.
 
 ```json
 {
