@@ -542,7 +542,12 @@ abstract final class SpeakFields {
   static const rate = PropDef<String>('rate', Codecs.string, '1', doc: 'A number or expression.');
   static const pitch = PropDef<String>('pitch', Codecs.string, '', doc: 'A number or expression.');
   static const stop = PropDef<bool>('stop', Codecs.bool, false, doc: 'Stops speaking.');
-  static const List<PropDef<Object?>> all = [text, language, rate, pitch, stop];
+  static const readAlong = PropDef<bool>('readAlong', Codecs.bool, false,
+      doc: 'Times every word (speech.wordIndex) even when the voice reports no word boundaries, '
+          'and reads along silently without a voice; the action waits until the text is said.');
+  static const startWord = PropDef<String>('startWord', Codecs.string, '',
+      doc: 'Read along: the word to start at (an index or expression), to carry on after a pause.');
+  static const List<PropDef<Object?>> all = [text, language, rate, pitch, stop, readAlong, startWord];
 }
 
 /// [ScrollToAction].
