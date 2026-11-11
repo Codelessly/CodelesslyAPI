@@ -95,11 +95,12 @@ extension CanvasBreakpointsForWidth on Iterable<CanvasBreakpoint> {
 /// How a screen opens when a link (its URL) opens it rather than an action:
 /// [under], the location of the screen beneath it (`/` the app's entry,
 /// `specimen/:id` with this screen's own params), so back lands there as it
-/// would had the user navigated; [overlay], drawn over that screen (a
-/// dialog, a lightbox) instead of covering it.
+/// would had the user navigated; [translucent], drawn over that screen (a
+/// lightbox, a dialog) instead of covering it. (Not an overlay screen,
+/// `CanvasProps.overlay`, shown above every screen.)
 @immutable
 final class ScreenRoute {
-  const ScreenRoute({this.under, this.overlay = false});
+  const ScreenRoute({this.under, this.translucent = false});
 
   static const ScreenRoute none = ScreenRoute();
 
@@ -108,26 +109,26 @@ final class ScreenRoute {
   final String? under;
 
   /// Drawn over the screen beneath (that one stays visible behind it).
-  final bool overlay;
+  final bool translucent;
 
-  bool get isNone => under == null && !overlay;
+  bool get isNone => under == null && !translucent;
 
-  /// From `{under, overlay}` (other keys ignored); null when neither is set.
+  /// From `{under, translucent}` (other keys ignored); null when neither is set.
   static ScreenRoute? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final under = readString(m['under'])?.trim();
-    final r = ScreenRoute(under: under == null || under.isEmpty ? null : under, overlay: readBool(m['overlay']) ?? false);
+    final r = ScreenRoute(under: under == null || under.isEmpty ? null : under, translucent: readBool(m['translucent']) ?? false);
     return r.isNone ? null : r;
   }
 
-  Json toJson() => {'under': ?under, if (overlay) 'overlay': true};
+  Json toJson() => {'under': ?under, if (translucent) 'translucent': true};
 
   @override
-  bool operator ==(Object other) => other is ScreenRoute && other.under == under && other.overlay == overlay;
+  bool operator ==(Object other) => other is ScreenRoute && other.under == under && other.translucent == translucent;
 
   @override
-  int get hashCode => Object.hash(under, overlay);
+  int get hashCode => Object.hash(under, translucent);
 }
 
 @immutable

@@ -62,7 +62,7 @@ final class PublishCanvas {
   final String? path;
 
   /// How the screen opens from a link: the screen beneath it, and whether
-  /// it is drawn over that one.
+  /// it is drawn over that one (translucent).
   final ScreenRoute route;
 
   static PublishCanvas? fromJson(Object? json) {
