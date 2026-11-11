@@ -249,6 +249,38 @@ abstract final class ChartProps {
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
+  /// Bars of other categories fade while one is selected (or hovered).
+  static const dimUnselected = PropDef<bool>('dimUnselected', Codecs.bool, false);
+
+  /// A box over the selected (or hovered) category: its label, then each
+  /// series' name and value there.
+  static const tooltip = PropDef<bool>('tooltip', Codecs.bool, false);
+  static const tooltipColor = PropDef<Color>('tooltipColor', Codecs.color, Color(0xFFF7F5F0));
+  static const tooltipTextColor = PropDef<Color>('tooltipTextColor', Codecs.color, Color(0xFF0E0E10));
+
+  /// The tooltip's first line: this row field, else the category label.
+  static const tooltipTitleField = PropDef<String>('tooltipTitleField', Codecs.string, '');
+
+  /// Each bar group's total above it; the selected one in
+  /// [totalsSelectedColor].
+  static const showTotals = PropDef<bool>('showTotals', Codecs.bool, false);
+  static const totalsColor = PropDef<Color?>('totalsColor', Codecs.optionalColor, null);
+  static const totalsSelectedColor = PropDef<Color?>('totalsSelectedColor', Codecs.optionalColor, null);
+
+  /// Space between the segments of a stacked bar.
+  static const stackGap = PropDef<double>('stackGap', Codecs.positive, 0);
+
+  /// The x labels' color (the y labels keep [axisLabelColor]).
+  static const xAxisLabelColor = PropDef<Color?>('xAxisLabelColor', Codecs.optionalColor, null);
+
+  /// One category's x label in [highlightColor] (the current hour), apart
+  /// from the selection; -1 for none.
+  static const highlightIndex = PropDef<int>('highlightIndex', Codecs.int, -1);
+  static const highlightColor = PropDef<Color?>('highlightColor', Codecs.optionalColor, null);
+
+  /// Grows in from zero when it first shows (a running app).
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -260,7 +292,9 @@ abstract final class ChartProps {
     showXAxis, xLabelEvery, axisLabelColor, axisFontSize, axisFontFamily, referenceLines, barWidthFraction,
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
-    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily,
+    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily, dimUnselected, tooltip,
+    tooltipColor, tooltipTextColor, tooltipTitleField, showTotals, totalsColor, totalsSelectedColor, stackGap,
+    xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
@@ -438,13 +472,16 @@ abstract final class LineChartProps {
   /// Milliseconds. Zero applies data changes immediately.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// Draws in (rising from zero) when it first shows (a running app).
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
   static const spec = WidgetSpec('lineChart', props: [
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
     cursorRingFill, tooltipBackground, tooltipShadowColor, yAxisTitle, axisLabelStyle, axisTitleStyle,
     markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, scrubEnabled, scrubStep, tooltipXFormat,
     tooltipYScale, tooltipYDecimals, tooltipYSuffix, tooltipTrend, semanticLabel, bands, yTicks, areaBands,
-    referenceLines, xTicks, markers, verticalLines,
+    referenceLines, xTicks, markers, verticalLines, animateIn,
     animate, animationDuration,
   ], doc: 'Line chart.');
 }
