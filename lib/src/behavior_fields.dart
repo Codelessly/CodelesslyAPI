@@ -50,6 +50,7 @@ const dragTrackType = PropType.object('DragTrack', dragTrackFields);
 const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
+const typewriterType = PropType.object('Typewriter', typewriterFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
 const motionShimmerType = PropType.object('MotionShimmer', motionShimmerFields);
@@ -762,10 +763,40 @@ abstract final class StrokePathFields {
   static const dashPattern = PropDef<List<double>>('dashPattern', Codecs.doubles, []);
   static const cap = PropDef<StrokeCap>('cap', EnumCodec(StrokeCap.values), StrokeCap.round);
   static const inFront = PropDef<bool>('inFront', Codecs.bool, false);
-  static const List<PropDef<Object?>> all = [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
+
+  /// How long a running app takes to draw the line along its length (when
+  /// it shows, when [drawKey] changes, when [progress] changes); 0 shows it.
+  static const drawMs = PropDef<int>('drawMs', _ms, 0, doc: 'Draw-on time (ms) in a running app; 0 shows it at once.');
+  static const drawDelayMs = PropDef<int>('drawDelayMs', _ms, 0, doc: 'Wait (ms) before drawing.');
+  static const drawCurve = PropDef<AnimationCurve>(
+    'drawCurve',
+    EnumCodec(AnimationCurve.values),
+    AnimationCurve.easeInOut,
+    doc: 'How the drawing eases.',
+  );
+  static const drawKey = PropDef<String>('drawKey', Codecs.string, '', doc: 'Draws again from nothing when it changes.');
+  static const List<PropDef<Object?>> all = [
+    points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, //
+    drawMs, drawDelayMs, drawCurve, drawKey,
+  ];
 }
 
 List<PropDef<Object?>> strokePathFields() => StrokePathFields.all;
+
+abstract final class TypewriterFields {
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true, doc: 'Off, the whole text shows.');
+  static const charsPerSecond = PropDef<double>('charsPerSecond', DoubleCodec(min: 0), 40, doc: 'Typing speed.');
+  static const delayMs = PropDef<int>('delayMs', _ms, 0, doc: 'Wait (ms) before the first character.');
+  static const caret = PropDef<bool>('caret', Codecs.bool, true, doc: 'A blinking block after the last character while it types.');
+  static const caretColor = PropDef<Color?>('caretColor', Codecs.color, null, doc: 'Null uses the text color.');
+  static const caretWidth = PropDef<double>('caretWidth', Codecs.positive, 0, doc: '0 is about half the font size.');
+  static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
+  static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
+  static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+}
+
+List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
 
 abstract final class RevealFields {
   /// Where in the viewport (0 top, 1 bottom).
@@ -830,6 +861,11 @@ abstract final class BehaviorFields {
     ValueCodec(StrokePath.fromJson, _out, strokePathType),
     null,
   );
+  static const typewriter = PropDef<Typewriter?>(
+    'typewriter',
+    ValueCodec(Typewriter.fromJson, _out, typewriterType),
+    null,
+  );
   static const effectAnimations = PropDef<List<EffectAnimation>>(
     'effectAnimations',
     ListCodec(ValueCodec(EffectAnimation.fromJson, _out, effectAnimationType)),
@@ -856,7 +892,7 @@ abstract final class BehaviorFields {
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture,
+    flightKey, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture,
   ];
 }
