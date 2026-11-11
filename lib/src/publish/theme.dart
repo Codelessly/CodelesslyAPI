@@ -2,10 +2,18 @@ import 'package:meta/meta.dart';
 
 import '../json.dart';
 import '../values/color.dart';
+import '../values/text.dart';
 
 /// A project's theme as published: what the runtime draws itself (dialogs,
-/// toasts, the loading and error screens) and what an app can read to match
-/// its own widgets to a layout. Every token is optional.
+/// toasts, the loading and error screens), what layouts read at run time
+/// (`${theme.primary}`, `${theme.colors.brand}`, `${theme.text.title.fontSize}`,
+/// `${theme.isDark}`) and what an app can read to match its own widgets to a
+/// layout. Every token is optional.
+///
+/// [dark] holds the colors to use in dark mode where they differ: the
+/// runtime reads [forBrightness] (`dark: true`), so a binding to
+/// `${theme.surface}` shows the dark surface on a device in dark mode.
+/// Older runtimes ignore [colors], [textStyles] and [dark].
 @immutable
 final class ThemeTokens {
   const ThemeTokens({
@@ -20,6 +28,9 @@ final class ThemeTokens {
     this.titleFontFamily,
     this.radius,
     this.buttonRadius,
+    this.colors = const {},
+    this.textStyles = const {},
+    this.dark,
   });
 
   /// Primary buttons and info toasts.
@@ -55,7 +66,58 @@ final class ThemeTokens {
   /// Corner radius of buttons.
   final double? buttonRadius;
 
+  /// Every named color of the project by key ([themeKey] of its name:
+  /// "Brand Blue" is `brandBlue`), read as `${theme.colors.brandBlue}`.
+  final Map<String, Color> colors;
+
+  /// Every named text style by key, read as `${theme.text.title.fontSize}`.
+  final Map<String, TextStyle> textStyles;
+
+  /// The colors for dark mode: the tokens and [colors] that differ from the
+  /// light ones (its other fields are not used).
+  final ThemeTokens? dark;
+
   static const ThemeTokens none = ThemeTokens();
+
+  /// Whether [dark] gives any color.
+  bool get hasDark => dark != null && !dark!.isEmpty;
+
+  /// These tokens for a light or [dark] screen: in dark mode each color
+  /// [dark] gives over the light one.
+  ThemeTokens forBrightness({required bool dark}) {
+    final d = this.dark;
+    if (!dark || d == null) return this;
+    return ThemeTokens(
+      primary: d.primary ?? primary,
+      onPrimary: d.onPrimary ?? onPrimary,
+      surface: d.surface ?? surface,
+      onSurface: d.onSurface ?? onSurface,
+      error: d.error ?? error,
+      success: d.success ?? success,
+      warning: d.warning ?? warning,
+      fontFamily: fontFamily,
+      titleFontFamily: titleFontFamily,
+      radius: radius,
+      buttonRadius: buttonRadius,
+      colors: {...colors, ...d.colors},
+      textStyles: textStyles,
+    );
+  }
+
+  /// The key a style named [name] has in [colors] and [textStyles]: its
+  /// words in camel case ("On Primary" is `onPrimary`, "Title / Large" is
+  /// `titleLarge`).
+  static String themeKey(String name) {
+    final words = name.split(RegExp('[^A-Za-z0-9]+')).where((w) => w.isNotEmpty).toList();
+    if (words.isEmpty) return '';
+    return [
+      _lowerFirst(words.first),
+      for (final w in words.skip(1)) w[0].toUpperCase() + w.substring(1),
+    ].join();
+  }
+
+  static String _lowerFirst(String w) =>
+      w == w.toUpperCase() ? w.toLowerCase() : w[0].toLowerCase() + w.substring(1);
 
   /// Whether no token is set.
   bool get isEmpty => this == none;
@@ -75,6 +137,15 @@ final class ThemeTokens {
       titleFontFamily: readString(m['titleFontFamily']),
       radius: readDouble(m['radius']),
       buttonRadius: readDouble(m['buttonRadius']),
+      colors: {
+        for (final e in (readMap(m['colors']) ?? const {}).entries)
+          if (Color.fromJson(e.value) case final Color c) e.key: c,
+      },
+      textStyles: {
+        for (final e in (readMap(m['textStyles']) ?? const {}).entries)
+          if (readMap(e.value) != null) e.key: TextStyle.fromJson(e.value),
+      },
+      dark: m['dark'] == null ? null : fromJson(m['dark']),
     );
   }
 
@@ -91,6 +162,9 @@ final class ThemeTokens {
     put(j, 'titleFontFamily', titleFontFamily);
     put(j, 'radius', radius?.let(writeDouble));
     put(j, 'buttonRadius', buttonRadius?.let(writeDouble));
+    if (colors.isNotEmpty) j['colors'] = {for (final e in colors.entries) e.key: e.value.toJson()};
+    if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
+    if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
     return j;
   }
 
@@ -107,9 +181,12 @@ final class ThemeTokens {
       other.fontFamily == fontFamily &&
       other.titleFontFamily == titleFontFamily &&
       other.radius == radius &&
-      other.buttonRadius == buttonRadius;
+      other.buttonRadius == buttonRadius &&
+      jsonEquality.equals(other.colors, colors) &&
+      jsonEquality.equals(other.textStyles, textStyles) &&
+      other.dark == dark;
 
   @override
-  int get hashCode => Object.hash(
-      primary, onPrimary, surface, onSurface, error, success, warning, fontFamily, titleFontFamily, radius, buttonRadius);
+  int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark);
 }

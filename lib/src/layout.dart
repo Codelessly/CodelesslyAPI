@@ -161,6 +161,8 @@ final class Layout {
     this.align,
     this.rotation = 0,
     this.aspectRatio,
+    this.widthFactor,
+    this.heightFactor,
   });
 
   final AxisSize width;
@@ -192,6 +194,11 @@ final class Layout {
   /// Width / height the node keeps when its parent resizes it.
   final double? aspectRatio;
 
+  /// A share (0–1 and up) of the room its parent gives it on that axis
+  /// (`FractionallySizedBox`): a progress bar's fill is `widthFactor: 0.6` of
+  /// its track. Null: sized by [width] / [height]. Bindable (`layout.widthFactor`).
+  final double? widthFactor, heightFactor;
+
   AxisSize along(bool horizontal) => horizontal ? width : height;
 
   Layout copyWith({
@@ -207,6 +214,8 @@ final class Layout {
     Alignment? Function()? align,
     double? rotation,
     double? Function()? aspectRatio,
+    double? Function()? widthFactor,
+    double? Function()? heightFactor,
   }) =>
       Layout(
         width: width ?? this.width,
@@ -221,6 +230,8 @@ final class Layout {
         align: align == null ? this.align : align(),
         rotation: rotation ?? this.rotation,
         aspectRatio: aspectRatio == null ? this.aspectRatio : aspectRatio(),
+        widthFactor: widthFactor == null ? this.widthFactor : widthFactor(),
+        heightFactor: heightFactor == null ? this.heightFactor : heightFactor(),
       );
 
   static Layout fromJson(Object? json) {
@@ -240,7 +251,14 @@ final class Layout {
       align: Alignment.fromJson(m['align']),
       rotation: readDouble(m['rotation']) ?? 0,
       aspectRatio: ratio != null && ratio > 0 ? ratio : null,
+      widthFactor: _factor(m['widthFactor']),
+      heightFactor: _factor(m['heightFactor']),
     );
+  }
+
+  static double? _factor(Object? v) {
+    final f = readDouble(v);
+    return f == null || !f.isFinite ? null : (f < 0 ? 0 : f);
   }
 
   Json toJson() {
@@ -258,6 +276,8 @@ final class Layout {
     if (align != null) j['align'] = align!.toJson();
     if (rotation != 0) j['rotation'] = writeDouble(rotation);
     if (aspectRatio != null) j['aspectRatio'] = writeDouble(aspectRatio!);
+    if (widthFactor != null) j['widthFactor'] = writeDouble(widthFactor!);
+    if (heightFactor != null) j['heightFactor'] = writeDouble(heightFactor!);
     return j;
   }
 
@@ -275,9 +295,11 @@ final class Layout {
       other.y == y &&
       other.align == align &&
       other.rotation == rotation &&
-      other.aspectRatio == aspectRatio;
+      other.aspectRatio == aspectRatio &&
+      other.widthFactor == widthFactor &&
+      other.heightFactor == heightFactor;
 
   @override
   int get hashCode =>
-      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, rotation, aspectRatio);
+      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, rotation, aspectRatio, widthFactor, heightFactor);
 }
