@@ -2258,7 +2258,7 @@ final class StrokePath extends _Value {
     if (m == null) return null;
     final r = _R(m);
     return StrokePath(
-      points: [...?readList(m['points'])?.where((p) => readList(p)?.length == 2).map(Offset.fromJson)],
+      points: [...?readList(m['points'])?.map(_pathPoint).nonNulls],
       xUnit: r.e(PathUnit.values, 'xUnit', PathUnit.fraction),
       yUnit: r.e(PathUnit.values, 'yUnit', PathUnit.pixels),
       curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
@@ -2273,6 +2273,16 @@ final class StrokePath extends _Value {
       drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
       drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
     );
+  }
+
+  /// A point as `[x, y]` or `{"x", "y"}` (the form Firestore can store, and
+  /// what data bound to `strokePath.points` may give).
+  static Offset? _pathPoint(Object? p) {
+    final l = readList(p);
+    if (l != null) return l.length == 2 ? Offset.fromJson(l) : null;
+    final m = readMap(p);
+    final x = readDouble(m?['x']), y = readDouble(m?['y']);
+    return x == null || y == null ? null : Offset(x, y);
   }
 
   Json toJson() {
