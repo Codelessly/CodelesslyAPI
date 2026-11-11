@@ -732,6 +732,19 @@ final class Motion extends _Value {
   /// keyframes for it.
   static double? keyframed(List<MotionKeyframe> keyframes, String property, double from, double to, double t) {
     if (keyframes.isEmpty) return null;
+    // A keyframe at an end (t 0 or 1) gives the value there.
+    var ended = false;
+    for (final k in keyframes) {
+      final v = k.valueOf(property);
+      if (v == null || !v.isFinite) continue;
+      if (k.t <= 0) {
+        from = v;
+        ended = true;
+      } else if (k.t >= 1) {
+        to = v;
+        ended = true;
+      }
+    }
     final points = <(double, double)>[(0, from)];
     final sorted = keyframes.where((k) => k.t > 0 && k.t < 1).toList()..sort((a, b) => a.t.compareTo(b.t));
     for (final k in sorted) {
@@ -743,7 +756,7 @@ final class Motion extends _Value {
         points.add((k.t, v));
       }
     }
-    if (points.length == 1) return null;
+    if (points.length == 1 && !ended) return null;
     points.add((1, to));
     if (t <= 0) return from;
     if (t >= 1) return to;
