@@ -411,6 +411,7 @@ final class Motion extends _Value {
     this.pathFocusX = 0,
     this.pathFocusY = 0,
     this.pathWrap = false,
+    this.pathViewBox = const [],
     this.shimmer,
     this.named = const {},
   });
@@ -490,6 +491,12 @@ final class Motion extends _Value {
   /// Reads [pathProgress] modulo 1 (a closed path goes round and round); a
   /// transition goes the short way round.
   final bool pathWrap;
+
+  /// The coordinate space of [path], `[width, height]`, stretched over the
+  /// node's parent: the path follows the figure it's drawn on as that
+  /// resizes (a marker walking a line of a diagram). Empty: [path] is in
+  /// pixels from the node's place.
+  final List<double> pathViewBox;
 
   /// A band of light sweeping across the node; null for none.
   final MotionShimmer? shimmer;
@@ -593,6 +600,7 @@ final class Motion extends _Value {
       pathFocusX: pathFocusX,
       pathFocusY: pathFocusY,
       pathWrap: pathWrap,
+      pathViewBox: pathViewBox,
       shimmer: shimmer,
       named: named,
     );
@@ -773,6 +781,7 @@ final class Motion extends _Value {
       pathFocusX: r.d('pathFocusX', 0),
       pathFocusY: r.d('pathFocusY', 0),
       pathWrap: r.b('pathWrap', false),
+      pathViewBox: r.doubles('pathViewBox'),
       shimmer: MotionShimmer.fromJson(m['shimmer']),
       named: {
         for (final p in properties)
@@ -827,6 +836,7 @@ final class Motion extends _Value {
       ..d('pathFocusX', pathFocusX, 0)
       ..d('pathFocusY', pathFocusY, 0)
       ..b('pathWrap', pathWrap, false);
+    if (pathViewBox.isNotEmpty) j['pathViewBox'] = pathViewBox.map(writeDouble).toList();
     if (shimmer != null) j['shimmer'] = shimmer!.toJson();
     return j;
   }
@@ -837,7 +847,7 @@ final class Motion extends _Value {
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
     keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
-    pathFocusY, pathWrap, shimmer,
+    pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
