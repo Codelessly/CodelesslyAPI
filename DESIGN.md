@@ -360,7 +360,9 @@ the value as is (a list stays a list); any other text with `${...}` is text.
 A text node's own `props.text` may hold `${...}`: it is interpolated run by
 run. Names come from scopes: the screen's variables, the list item (`item`,
 `index`, `parent`), what the app provides (`route`, `screen`,
-`storage`, `auth`, `data`, `drag`: the layout's drag and drop session...),
+`storage`, `auth`, `data`, `drag`: the layout's drag and drop session,
+`perf`: the app's frame timings `{frameMs, buildMs, rasterMs, fps}`, read
+from the engine only while something watches it...),
 and what a node gives itself and the nodes inside it: a dragged node's live
 `drag` values over the session's (a `LocalScope`), a drag track's `track`
 (`value`, `progress`, `dragging`, `fine`, `focused`), a transform gesture's

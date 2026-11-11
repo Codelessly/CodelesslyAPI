@@ -9,7 +9,7 @@
 import 'actions.dart';
 import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
 import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
-import 'json.dart' show readMap;
+import 'json.dart' show readMap, readString;
 import 'props.dart';
 import 'route_transition.dart';
 import 'scripts.dart';
@@ -650,4 +650,31 @@ abstract final class ActionSpecs {
   static Iterable<ActionSpec> get all => _all.values;
 
   static ActionSpec? of(String type) => _all[type];
+
+  /// The keys of action JSON [json], and of the actions nested in it, that
+  /// its type doesn't have, as paths (`look`, `actions[1].style`): a
+  /// misspelled or misplaced field (`style` where a confirm takes `look`)
+  /// that decoding drops without a word. A type this version doesn't know
+  /// is kept whole, so it has none.
+  static List<String> unknownKeys(Object? json, [String path = '']) {
+    final m = readMap(json);
+    final spec = m == null ? null : _all[readString(m['type']) ?? ''];
+    if (m == null || spec == null) return const [];
+    final known = {
+      'type', ActionCommonFields.enabled.key, ActionCommonFields.nonBlocking.key, ActionCommonFields.when.key,
+      for (final f in spec.fields) f.key,
+      ...?ActionDef.fromJson(m)?.toJson().keys,
+    };
+    final out = <String>[];
+    for (final e in m.entries) {
+      if (!known.contains(e.key)) out.add('$path${e.key}');
+      final v = e.value;
+      if (v is! List) continue;
+      for (var i = 0; i < v.length; i++) {
+        final item = v[i];
+        if (item is Map && item['type'] is String) out.addAll(unknownKeys(item, '$path${e.key}[$i].'));
+      }
+    }
+    return out;
+  }
 }
