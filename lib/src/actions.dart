@@ -127,6 +127,7 @@ final Map<String, _Decoder> _decoders = {
   CloudBatchAction.typeName: CloudBatchAction._fromJson,
   CopyToClipboardAction.typeName: CopyToClipboardAction._fromJson,
   DownloadFileAction.typeName: DownloadFileAction._fromJson,
+  PreloadImagesAction.typeName: PreloadImagesAction._fromJson,
   EditTextAction.typeName: EditTextAction._fromJson,
   PaywallAction.typeName: PaywallAction._fromJson,
   FocusAction.typeName: FocusAction._fromJson,
@@ -1775,6 +1776,29 @@ final class DownloadFileAction extends ActionDef {
     enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
   @override
   Json get _fields => {'fileName': fileName, 'text': text, 'mimeType': mimeType};
+}
+
+/// Loads images ahead of showing them (a story's pages before reading), so
+/// they draw at once: [urls] is an expression giving a list of URLs (or a
+/// comma-separated text). While it runs, [progressVariable] (a variable's
+/// name; empty for none) holds the share done (0–1). It waits for every image
+/// and gives `{loaded, failed, total}`.
+final class PreloadImagesAction extends ActionDef {
+  const PreloadImagesAction({this.urls = '', this.progressVariable = '', super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'preloadImages';
+  @override
+  String get type => typeName;
+  final String urls, progressVariable;
+
+  static PreloadImagesAction _fromJson(Json m, _Common c) => PreloadImagesAction(
+    urls: _s(m, 'urls'), progressVariable: _s(m, 'progressVariable'),
+    enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+  @override
+  Json get _fields => {
+    if (urls.isNotEmpty) 'urls': urls,
+    if (progressVariable.isNotEmpty) 'progressVariable': progressVariable,
+  };
 }
 
 /// Reads [text] aloud, or [stop]s speaking. [rate] and [pitch] are numbers
