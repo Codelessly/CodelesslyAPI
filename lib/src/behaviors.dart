@@ -2259,6 +2259,124 @@ final class Reveal extends _Value {
   List<Object?> get props => [alignment, duration, delay, when];
 }
 
+/// Pins the node inside the scrolling row or column it scrolls in, as CSS
+/// `position: sticky`: once its leading edge reaches [offset] from the
+/// view's leading edge it stays there, drawn above the content scrolling
+/// under it, until the end of its parent (the section it heads) pushes it
+/// on. `${sticky.stuck}` says whether it is pinned now (the node's own
+/// bindings and the nodes inside it read it). The design canvas, which
+/// doesn't scroll, draws it in place. JSON `true` or `{"offset": 8}`.
+@immutable
+final class Sticky extends _Value {
+  const Sticky({this.offset = 0});
+
+  /// Distance from the view's leading edge where it pins, in pixels.
+  final double offset;
+
+  static Sticky? fromJson(Object? json) {
+    if (json == true) return const Sticky();
+    final m = readMap(json);
+    if (m == null) return null;
+    return Sticky(offset: _R(m).d('offset', 0));
+  }
+
+  Json toJson() => <String, Object?>{}..d('offset', offset, 0);
+
+  @override
+  List<Object?> get props => [offset];
+}
+
+/// How a [ViewProgress] measures its node against the viewport.
+enum ViewProgressMode {
+  /// The node's leading edge travels from [ViewProgress.from] to
+  /// [ViewProgress.to] of the viewport (0 to 1).
+  travel,
+
+  /// A line at [ViewProgress.from] of the viewport passes over the node,
+  /// from its leading edge (0) to its trailing edge (1).
+  pass,
+}
+
+/// How far the node has scrolled through the viewport of the scrolling row
+/// or column (or list) it is in, as `${view.progress}` (0–1) and
+/// `${view.visible}` for its own bindings and the nodes inside it: a
+/// figure that draws itself as it scrolls up the screen (a path's
+/// `trimEnd`), a heading that fades in, a gauge reading how far through a
+/// section the reader is. Positions are fractions of the viewport's extent
+/// from its leading edge (0 top, 1 bottom), plus [offset] pixels. With
+/// [variable], the progress is also written to that screen (or app)
+/// variable, under [key] when it's a map, for nodes elsewhere to read.
+/// The design canvas reads progress 0 above the fold and 1 for a node it
+/// shows whole.
+@immutable
+final class ViewProgress extends _Value {
+  const ViewProgress({
+    this.mode = ViewProgressMode.travel,
+    this.from = 1,
+    this.to = 0,
+    this.offset = 0,
+    this.variable = '',
+    this.key = '',
+  });
+
+  final ViewProgressMode mode;
+
+  /// [ViewProgressMode.travel]: where the leading edge is at progress 0;
+  /// [ViewProgressMode.pass]: where the line is.
+  final double from;
+
+  /// [ViewProgressMode.travel]: where the leading edge is at progress 1.
+  final double to;
+
+  /// Pixels added to [from] and [to] (a sticky header's height).
+  final double offset;
+
+  /// A variable the progress is written to as it changes (rounded to 0.001).
+  final String variable;
+
+  /// With [variable] a map: the key it's written under.
+  final String key;
+
+  /// The progress of a node whose leading edge is [lead] pixels from the
+  /// viewport's leading edge, [extent] long, in a viewport [viewport] long.
+  double progressAt(double lead, double extent, double viewport) {
+    final a = from * viewport + offset;
+    if (mode == ViewProgressMode.pass) {
+      if (extent <= 0) return a >= lead ? 1 : 0;
+      return ((a - lead) / extent).clamp(0.0, 1.0);
+    }
+    final b = to * viewport + offset;
+    if (a == b) return lead <= b ? 1 : 0;
+    return ((a - lead) / (a - b)).clamp(0.0, 1.0);
+  }
+
+  static ViewProgress? fromJson(Object? json) {
+    if (json == true) return const ViewProgress();
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return ViewProgress(
+      mode: r.e(ViewProgressMode.values, 'mode', ViewProgressMode.travel),
+      from: r.d('from', 1),
+      to: r.d('to', 0),
+      offset: r.d('offset', 0),
+      variable: r.s('variable'),
+      key: r.s('key'),
+    );
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..e('mode', mode, ViewProgressMode.travel)
+    ..d('from', from, 1)
+    ..d('to', to, 0)
+    ..d('offset', offset, 0)
+    ..s('variable', variable)
+    ..s('key', key);
+
+  @override
+  List<Object?> get props => [mode, from, to, offset, variable, key];
+}
+
 /// How a shared element flies between screens.
 enum HeroFlightShuttle {
   /// Flutter's `Hero` flight.
@@ -2353,6 +2471,8 @@ final class Behaviors extends _Value {
     this.flip,
     this.tilt,
     this.transformGesture,
+    this.sticky,
+    this.viewProgress,
   });
 
   static const Behaviors none = Behaviors();
@@ -2414,6 +2534,12 @@ final class Behaviors extends _Value {
   /// [zoomable]: see [effectiveTransformGesture]).
   final TransformGesture? transformGesture;
 
+  /// Pinned in its scrolling view while its parent is in view.
+  final Sticky? sticky;
+
+  /// `${view.progress}`: how far it has scrolled through the viewport.
+  final ViewProgress? viewProgress;
+
   /// [transformGesture], or what [zoomable] amounts to.
   TransformGesture? get effectiveTransformGesture =>
       transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
@@ -2422,7 +2548,7 @@ final class Behaviors extends _Value {
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
     'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
-    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture',
+    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress',
   };
 
   bool get isNone => this == none;
@@ -2458,6 +2584,8 @@ final class Behaviors extends _Value {
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
       transformGesture: TransformGesture.fromJson(m['transformGesture']),
+      sticky: Sticky.fromJson(m['sticky']),
+      viewProgress: ViewProgress.fromJson(m['viewProgress']),
     );
   }
 
@@ -2487,6 +2615,8 @@ final class Behaviors extends _Value {
     if (flip != null) j['flip'] = flip!.toJson();
     if (tilt != null) j['tilt'] = tilt!.toJson();
     if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
+    if (sticky != null) j['sticky'] = sticky!.toJson();
+    if (viewProgress != null) j['viewProgress'] = viewProgress!.toJson();
   }
 
   Behaviors copyWith({
@@ -2513,6 +2643,8 @@ final class Behaviors extends _Value {
     FlipCard? flip,
     Tilt? tilt,
     TransformGesture? transformGesture,
+    Sticky? sticky,
+    ViewProgress? viewProgress,
   }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
@@ -2537,12 +2669,14 @@ final class Behaviors extends _Value {
     flip: flip ?? this.flip,
     tilt: tilt ?? this.tilt,
     transformGesture: transformGesture ?? this.transformGesture,
+    sticky: sticky ?? this.sticky,
+    viewProgress: viewProgress ?? this.viewProgress,
   );
 
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture,
+    tilt, transformGesture, sticky, viewProgress,
   ];
 }

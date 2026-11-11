@@ -49,6 +49,8 @@ const dropTargetType = PropType.object('DropTarget', dropTargetFields);
 const dragTrackType = PropType.object('DragTrack', dragTrackFields);
 const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
+const stickyType = PropType.object('Sticky', stickyFields);
+const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
@@ -777,6 +779,37 @@ abstract final class RevealFields {
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
 
+abstract final class StickyFields {
+  /// Distance from the view's leading edge where it pins (px).
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [offset];
+}
+
+List<PropDef<Object?>> stickyFields() => StickyFields.all;
+
+abstract final class ViewProgressFields {
+  static const mode = PropDef<ViewProgressMode>('mode', EnumCodec(ViewProgressMode.values), ViewProgressMode.travel);
+
+  /// Where progress is 0 (travel) or where the line is (pass): a fraction
+  /// of the viewport from its leading edge.
+  static const from = PropDef<double>('from', Codecs.double, 1);
+
+  /// Where progress is 1 (travel).
+  static const to = PropDef<double>('to', Codecs.double, 0);
+
+  /// Pixels added to both.
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+
+  /// A variable the progress is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [mode, from, to, offset, variable, key];
+}
+
+List<PropDef<Object?>> viewProgressFields() => ViewProgressFields.all;
+
 // --- Behaviors -----------------------------------------------------------------
 
 /// A node's [Behaviors], one per key of [Behaviors.keys]: stored flat in
@@ -853,10 +886,20 @@ abstract final class BehaviorFields {
     null,
   );
 
+  /// Pinned in its scrolling view while its parent is in view.
+  static const sticky = PropDef<Sticky?>('sticky', ValueCodec(Sticky.fromJson, _out, stickyType), null);
+
+  /// `${view.progress}` through the viewport.
+  static const viewProgress = PropDef<ViewProgress?>(
+    'viewProgress',
+    ValueCodec(ViewProgress.fromJson, _out, viewProgressType),
+    null,
+  );
+
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture,
+    tilt, transformGesture, sticky, viewProgress,
   ];
 }
