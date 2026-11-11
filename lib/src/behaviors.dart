@@ -862,10 +862,25 @@ enum LoopAnimationType {
   bob,
 
   /// Swings [LoopAnimation.angle] degrees each way, once per run.
-  sway;
+  sway,
 
-  bool get scales => this == pulse || this == scale;
-  bool get fades => this == pulse || this == fade;
+  /// A candle flame or a lamp's glow: scales and fades between the `from`
+  /// and `to` values along an uneven, wavering path (three detuned waves),
+  /// not a steady pulse. A run loops seamlessly.
+  flicker;
+
+  bool get scales => this == pulse || this == scale || this == flicker;
+  bool get fades => this == pulse || this == fade || this == flicker;
+}
+
+/// How far (0–1) a [LoopAnimationType.flicker] is between its `from` and
+/// `to` values at [t] (0–1) of a run: waves of 3, 7 and 17 per run, so it
+/// wavers, flares and dips like a flame and ends where it began.
+double flickerAt(double t) {
+  final a = math.sin(t * 2 * math.pi * 3) * 0.35;
+  final b = math.sin(t * 2 * math.pi * 7 + 1.3) * 0.25;
+  final c = math.sin(t * 2 * math.pi * 17 + 0.4) * 0.15;
+  return (0.5 + (a + b + c) / 1.5).clamp(0.0, 1.0);
 }
 
 /// The pose of a [LoopAnimation] at one moment, about the node's center.
@@ -927,7 +942,8 @@ final class LoopAnimation extends _Value {
   /// The pose at [t] (0–1, before the curve) of a run. 0 is the first frame.
   LoopPose poseAt(double t) {
     if (!enabled) return (scale: 1, opacity: 1, turns: 0, dy: 0);
-    final c = curve.transform(t.clamp(0, 1));
+    final eased = curve.transform(t.clamp(0, 1));
+    final c = type == LoopAnimationType.flicker ? flickerAt(eased) : eased;
     return (
       scale: type.scales ? _lerp(scaleFrom, scaleTo, c) : 1,
       opacity: type.fades ? _lerp(opacityFrom.clamp(0, 1), opacityTo.clamp(0, 1), c) : 1,
@@ -2169,6 +2185,13 @@ enum PathCurve { straight, vertical, horizontal }
 /// A line drawn through [points] in the node's box (a dotted trail, a
 /// connector), behind its content or [inFront] of it. x and y are fractions
 /// of the box or pixels, per [xUnit]/[yUnit].
+///
+/// With [drawMs] a running app draws the line along its length, like a pen
+/// (a map's passages inking in, a route tracing itself): over [drawMs] ms
+/// after [drawDelayMs], eased by [drawCurve], up to [progress]; when the
+/// node first shows, again from nothing when [drawKey] changes, and from
+/// where it is when [progress] changes. The design canvas draws it at
+/// [progress].
 @immutable
 final class StrokePath extends _Value {
   const StrokePath({
@@ -2182,6 +2205,10 @@ final class StrokePath extends _Value {
     this.dashPattern = const [],
     this.cap = StrokeCap.round,
     this.inFront = false,
+    this.drawMs = 0,
+    this.drawDelayMs = 0,
+    this.drawCurve = AnimationCurve.easeInOut,
+    this.drawKey = '',
   });
 
   final List<Offset> points;
@@ -2198,12 +2225,45 @@ final class StrokePath extends _Value {
   final StrokeCap cap;
   final bool inFront;
 
+  /// How long (ms) a running app takes to draw the line; 0 shows it at once.
+  final int drawMs;
+
+  /// How long (ms) it waits before drawing.
+  final int drawDelayMs;
+
+  /// How the drawing eases.
+  final AnimationCurve drawCurve;
+
+  /// A cue: the line draws again from nothing each time it changes (bindable
+  /// as `strokePath.drawKey`, e.g. `${route.id}`).
+  final String drawKey;
+
+  /// Whether a running app animates it.
+  bool get draws => drawMs > 0;
+
+  StrokePath copyWith({double? progress}) => StrokePath(
+        points: points,
+        xUnit: xUnit,
+        yUnit: yUnit,
+        curve: curve,
+        color: color,
+        width: width,
+        progress: progress ?? this.progress,
+        dashPattern: dashPattern,
+        cap: cap,
+        inFront: inFront,
+        drawMs: drawMs,
+        drawDelayMs: drawDelayMs,
+        drawCurve: drawCurve,
+        drawKey: drawKey,
+      );
+
   static StrokePath? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
     return StrokePath(
-      points: [...?readList(m['points'])?.where((p) => readList(p)?.length == 2).map(Offset.fromJson)],
+      points: [...?readList(m['points'])?.map(_pathPoint).nonNulls],
       xUnit: r.e(PathUnit.values, 'xUnit', PathUnit.fraction),
       yUnit: r.e(PathUnit.values, 'yUnit', PathUnit.pixels),
       curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
@@ -2213,7 +2273,21 @@ final class StrokePath extends _Value {
       dashPattern: r.doubles('dashPattern'),
       cap: r.e(StrokeCap.values, 'cap', StrokeCap.round),
       inFront: r.b('inFront', false),
+      drawMs: r.ms('drawMs', 0),
+      drawDelayMs: r.ms('drawDelayMs', 0),
+      drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
+      drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
     );
+  }
+
+  /// A point as `[x, y]` or `{"x", "y"}` (the form Firestore can store, and
+  /// what data bound to `strokePath.points` may give).
+  static Offset? _pathPoint(Object? p) {
+    final l = readList(p);
+    if (l != null) return l.length == 2 ? Offset.fromJson(l) : null;
+    final m = readMap(p);
+    final x = readDouble(m?['x']), y = readDouble(m?['y']);
+    return x == null || y == null ? null : Offset(x, y);
   }
 
   Json toJson() {
@@ -2228,13 +2302,111 @@ final class StrokePath extends _Value {
     j.d('width', width, 4);
     j.d('progress', progress, 1);
     if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
-    return j
+    j
       ..e('cap', cap, StrokeCap.round)
-      ..b('inFront', inFront, false);
+      ..b('inFront', inFront, false)
+      ..i('drawMs', drawMs, 0)
+      ..i('drawDelayMs', drawDelayMs, 0)
+      ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
+    if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
+    return j;
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey];
+}
+
+/// Text that types itself out in a running app, like a typewriter or a
+/// terminal: [charsPerSecond] characters a second after [delayMs], with a
+/// blinking block [caret] after the last one while it types. It types when
+/// the text first shows and again from the start when [playKey] changes; when
+/// the text grows by appending (a streamed reply) only the new characters
+/// type, and when it changes otherwise it types afresh. [skip] (bindable, e.g.
+/// to a tap that sets a variable) shows the rest at once; off [enabled] it
+/// shows all of it. The layout never changes as it types: the whole text is
+/// laid out and only what's typed is painted. The design canvas shows it
+/// all.
+@immutable
+final class Typewriter extends _Value {
+  const Typewriter({
+    this.enabled = true,
+    this.charsPerSecond = 40,
+    this.delayMs = 0,
+    this.caret = true,
+    this.caretColor,
+    this.caretWidth = 0,
+    this.blinkMs = 500,
+    this.skip = false,
+    this.playKey = '',
+  });
+
+  /// Off, the whole text shows (bindable as `typewriter.enabled`).
+  final bool enabled;
+
+  /// How fast it types (bindable as `typewriter.charsPerSecond`).
+  final double charsPerSecond;
+
+  /// How long (ms) it waits before the first character (bindable as
+  /// `typewriter.delayMs`, e.g. to follow the line before it).
+  final int delayMs;
+
+  /// Whether a block caret blinks after the last character while it types.
+  final bool caret;
+
+  /// The caret's color; null uses the text's.
+  final Color? caretColor;
+
+  /// The caret's width; 0 is about half the font size.
+  final double caretWidth;
+
+  /// How long the caret stays on, and off (ms).
+  final int blinkMs;
+
+  /// Shows the rest of the text at once (bindable as `typewriter.skip`).
+  final bool skip;
+
+  /// A cue: types again from the start each time it changes (bindable as
+  /// `typewriter.playKey`).
+  final String playKey;
+
+  /// Whether a running app types (rather than shows the whole text).
+  bool get types => enabled && !skip && charsPerSecond > 0;
+
+  static Typewriter? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final cps = r.d('charsPerSecond', 40);
+    return Typewriter(
+      enabled: r.b('enabled', true),
+      charsPerSecond: cps.isFinite && cps > 0 ? cps : 40,
+      delayMs: r.ms('delayMs', 0),
+      caret: r.b('caret', true),
+      caretColor: r.color('caretColor'),
+      caretWidth: math.max(0, r.d('caretWidth', 0)),
+      blinkMs: math.max(1, r.ms('blinkMs', 500)),
+      skip: r.b('skip', false),
+      playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..b('enabled', enabled, true)
+      ..d('charsPerSecond', charsPerSecond, 40)
+      ..i('delayMs', delayMs, 0)
+      ..b('caret', caret, true);
+    if (caretColor != null) j['caretColor'] = caretColor!.toJson();
+    j
+      ..d('caretWidth', caretWidth, 0)
+      ..i('blinkMs', blinkMs, 500)
+      ..b('skip', skip, false);
+    if (playKey.isNotEmpty) j['playKey'] = playKey;
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
@@ -2352,6 +2524,7 @@ final class Behaviors extends _Value {
     this.drag,
     this.reveal,
     this.strokePath,
+    this.typewriter,
     this.effectAnimations = const [],
     this.particles,
     this.textDirection,
@@ -2402,6 +2575,9 @@ final class Behaviors extends _Value {
   final DragMotion? drag;
   final Reveal? reveal;
   final StrokePath? strokePath;
+
+  /// A text that types itself out in a running app.
+  final Typewriter? typewriter;
   final List<EffectAnimation> effectAnimations;
   final ParticleEmitter? particles;
 
@@ -2426,7 +2602,7 @@ final class Behaviors extends _Value {
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
-    'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
+    'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
     'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture',
   };
 
@@ -2455,6 +2631,7 @@ final class Behaviors extends _Value {
       drag: DragMotion.fromJson(m['drag']),
       reveal: Reveal.fromJson(m['reveal']),
       strokePath: StrokePath.fromJson(m['strokePath']),
+      typewriter: Typewriter.fromJson(m['typewriter']),
       effectAnimations: [...?readList(m['effectAnimations'])?.map(EffectAnimation.fromJson).nonNulls],
       particles: ParticleEmitter.fromJson(m['particles']),
       textDirection: m['textDirection'] is String
@@ -2486,6 +2663,7 @@ final class Behaviors extends _Value {
     if (drag != null) j['drag'] = drag!.toJson();
     if (reveal != null) j['reveal'] = reveal!.toJson();
     if (strokePath != null) j['strokePath'] = strokePath!.toJson();
+    if (typewriter != null) j['typewriter'] = typewriter!.toJson();
     if (effectAnimations.isNotEmpty) j['effectAnimations'] = [for (final e in effectAnimations) e.toJson()];
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
@@ -2512,6 +2690,7 @@ final class Behaviors extends _Value {
     DragMotion? drag,
     Reveal? reveal,
     StrokePath? strokePath,
+    Typewriter? typewriter,
     List<EffectAnimation>? effectAnimations,
     ParticleEmitter? particles,
     TextDirection? textDirection,
@@ -2536,6 +2715,7 @@ final class Behaviors extends _Value {
     drag: drag ?? this.drag,
     reveal: reveal ?? this.reveal,
     strokePath: strokePath ?? this.strokePath,
+    typewriter: typewriter ?? this.typewriter,
     effectAnimations: effectAnimations ?? this.effectAnimations,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
@@ -2547,7 +2727,7 @@ final class Behaviors extends _Value {
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture,
+    flightKey, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture,
   ];
 }
