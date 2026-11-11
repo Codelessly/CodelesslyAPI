@@ -319,6 +319,7 @@ final class ListSections extends FieldValue {
   Color? get indexActiveColor => get(ListSectionsFields.indexActiveColor);
   Color? get indexMutedColor => get(ListSectionsFields.indexMutedColor);
   double get indexWidth => get(ListSectionsFields.indexWidth);
+  List<double> get indexInsets => get(ListSectionsFields.indexInsets);
   bool get indexBubble => get(ListSectionsFields.indexBubble);
   Color? get indexBubbleColor => get(ListSectionsFields.indexBubbleColor);
   TextStyle get indexBubbleStyle => get(ListSectionsFields.indexBubbleStyle);
@@ -350,6 +351,10 @@ abstract final class ListSectionsFields {
   static const indexMutedColor = PropDef<Color?>('indexMutedColor', Codecs.optionalColor, null);
   static const indexWidth = PropDef<double>('indexWidth', Codecs.positive, 20);
 
+  /// Space between the index bar and the list's edges: left (unused), top,
+  /// right, bottom. Zero sits it on the right edge, full height.
+  static const indexInsets = PropDef<List<double>>('indexInsets', Codecs.doubles, [0, 0, 0, 0]);
+
   /// The touched key pops up large beside the index while it is dragged.
   static const indexBubble = PropDef<bool>('indexBubble', Codecs.bool, false);
   static const indexBubbleColor = PropDef<Color?>('indexBubbleColor', Codecs.optionalColor, null);
@@ -357,7 +362,7 @@ abstract final class ListSectionsFields {
 
   static const spec = WidgetSpec('ListSections', props: [
     groupBy, sticky, indexBar, indexKeys, indexStyle, indexActiveColor, indexMutedColor, indexWidth, indexBubble, //
-    indexBubbleColor, indexBubbleStyle,
+    indexBubbleColor, indexBubbleStyle, indexInsets,
   ], doc: 'A list\'s items under section headers.');
 }
 

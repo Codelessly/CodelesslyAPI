@@ -215,6 +215,28 @@ void main() {
       expect(const Node(id: 'c', type: 'canvas').prop(CanvasProps.overlay), isFalse);
     });
 
+    test('lists its backdrop screens, only when it has any; an overlay is not one', () {
+      final m = PublishModel.fromJson({...modelJson, 'backdropLayoutIds': ['form', 'off', 'gone']});
+      expect(m.backdropLayoutIds, ['form', 'off', 'gone']);
+      expect(m.extra, {'owner': 'someone'});
+      // Published and not disabled.
+      expect(m.backdrops, ['form']);
+      final again = PublishModel.fromJson(jsonDecode(jsonEncode(m.toJson())));
+      expect(again.backdropLayoutIds, ['form', 'off', 'gone']);
+      expect(again.backdrops, ['form']);
+      expect(m.copyWith(backdropLayoutIds: []).toJson().containsKey('backdropLayoutIds'), isFalse);
+      expect(m.copyWith(backdropLayoutIds: ['x']).backdropLayoutIds, ['x']);
+      expect(PublishModel.fromJson(modelJson).backdropLayoutIds, isEmpty);
+      // Overlay wins: a layout listed as both is drawn as an overlay only.
+      expect(m.copyWith(overlayLayoutIds: ['form']).backdrops, isEmpty);
+      // A canvas is a backdrop screen by its `backdrop` prop.
+      expect(CanvasProps.spec.props, contains(CanvasProps.backdrop));
+      final canvas = Node.fromJson({'id': 'c', 'type': 'canvas', 'props': {'backdrop': true}})!;
+      expect(canvas.prop(CanvasProps.backdrop), isTrue);
+      expect(Node.fromJson(canvas.toJson())!.prop(CanvasProps.backdrop), isTrue);
+      expect(const Node(id: 'c', type: 'canvas').prop(CanvasProps.backdrop), isFalse);
+    });
+
     test('sources read the existing publish paths ', () {
       expect(PublishSource.publish.modelPath('p'), 'publish/p');
       expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');
