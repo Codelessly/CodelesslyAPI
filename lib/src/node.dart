@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'behaviours.dart';
+import 'behaviors.dart';
 import 'bindings.dart' show BindPaths;
 import 'components.dart';
 import 'decoration.dart';
@@ -33,7 +33,7 @@ final class Node {
     this.props = Props.empty,
     this.bind = const {},
     this.actions = const [],
-    this.behaviours = Behaviours.none,
+    this.behaviors = Behaviors.none,
     this.component,
     this.extra = const {},
   });
@@ -70,8 +70,8 @@ final class Node {
   final List<Reaction> actions;
 
   /// Motion, loops, transitions, ink, interaction states, drag and drop...
-  /// (stored flat in the node's JSON, under [Behaviours.keys]).
-  final Behaviours behaviours;
+  /// (stored flat in the node's JSON, under [Behaviors.keys]).
+  final Behaviors behaviors;
 
   /// The component this node is the main node of, or the top node of an
   /// instance of (DESIGN.md §4.2).
@@ -116,7 +116,7 @@ final class Node {
         props: props,
         bind: bind,
         actions: actions,
-        behaviours: behaviours,
+        behaviors: behaviors,
         component: link,
         extra: extra,
       );
@@ -135,7 +135,7 @@ final class Node {
     Props? props,
     Map<String, String>? bind,
     List<Reaction>? actions,
-    Behaviours? behaviours,
+    Behaviors? behaviors,
     ComponentLink? component,
     Json? extra,
   }) =>
@@ -153,7 +153,7 @@ final class Node {
         props: props ?? this.props,
         bind: bind ?? this.bind,
         actions: actions ?? this.actions,
-        behaviours: behaviours ?? this.behaviours,
+        behaviors: behaviors ?? this.behaviors,
         component: component ?? this.component,
         extra: extra ?? this.extra,
       );
@@ -202,11 +202,11 @@ final class Node {
             if (e.value is String) e.key: e.value as String,
       },
       actions: Reaction.listFromJson(m['actions']),
-      behaviours: Behaviours.fromJson(m),
+      behaviors: Behaviors.fromJson(m),
       component: ComponentLink.fromJson(m['component']),
       extra: {
         for (final e in m.entries)
-          if (!_keys.contains(e.key) && !Behaviours.keys.contains(e.key)) e.key: e.value,
+          if (!_keys.contains(e.key) && !Behaviors.keys.contains(e.key)) e.key: e.value,
       },
     );
   }
@@ -224,7 +224,7 @@ final class Node {
     if (!props.isEmpty) j['props'] = props.toJson(spec);
     if (bind.isNotEmpty) j['bind'] = bind;
     if (actions.isNotEmpty) j['actions'] = [for (final r in actions) r.toJson()];
-    behaviours.writeTo(j);
+    behaviors.writeTo(j);
     if (component != null) j['component'] = component!.toJson();
     j.addAll(extra);
     return j;
@@ -247,7 +247,7 @@ final class Node {
           other.props == props &&
           jsonEquality.equals(other.bind, bind) &&
           listEquals(other.actions, actions) &&
-          other.behaviours == behaviours &&
+          other.behaviors == behaviors &&
           other.component == component &&
           jsonEquality.equals(other.extra, extra);
 

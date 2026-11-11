@@ -34,7 +34,7 @@
 | `props` | `Props` | The widget's own parameters, by its `WidgetSpec`. |
 | `bind` | `Map<String, String>` | Bound properties: binding path → expression ([Logic](05-logic.md#bindings)). |
 | `actions` | `List<Reaction>` | Trigger → chain of actions ([Logic](05-logic.md#reactions-and-actions)). |
-| `behaviours` | `Behaviours` | Motion, loops, transitions, ink, interaction states, drag and drop, hero... Stored flat in the node's JSON. |
+| `behaviors` | `Behaviors` | Motion, loops, transitions, ink, interaction states, drag and drop, hero... Stored flat in the node's JSON. |
 | `component` | `ComponentLink?` | The component this node is the main node or an instance of. |
 | `extra` | `Json` | Keys this version doesn't model, round-tripped. |
 
@@ -105,7 +105,7 @@ The number is the design size: the size used for `fixed`, and the fallback when 
 another kind of parent are kept, so moving a node back restores them, and renderers ignore them.
 
 `margin` and `padding` are `[left, top, right, bottom]`, or a single number for all four sides.
-`rotation` is in degrees, about the centre.
+`rotation` is in degrees, about the center.
 
 ## Decoration
 

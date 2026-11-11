@@ -62,7 +62,7 @@ Parents are derived from `children` and `slots`; they are never stored.
 node of a tree it inserts a name, so the tree's own actions and states can
 name a node before it has an id, and `nodes.export` gives the tree back
 with its keys. It is a node's identity in its tree, like `id` and `name`,
-not a behaviour or a widget parameter, so it is a top-level node field
+not a behavior or a widget parameter, so it is a top-level node field
 (not in `props`, not in `extra`); it doesn't affect rendering.
 
 ### 2.3 Every node
@@ -81,7 +81,7 @@ not a behaviour or a widget parameter, so it is a top-level node field
 | `props` | per type | The widget's own parameters, Flutter names (§4). |
 | `bind` | `{path: expression}` | Properties bound to variables or formulas (`"props.text": "${user.name}"`; paths §5.1). |
 | `actions` | `[Reaction]` | Trigger → the chain of actions it runs (§5.2). |
-| `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviours (§4.1), flat in the node. |
+| `motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, ... | | Behaviors (§4.1), flat in the node. |
 | `component` | `ComponentLink` | The component this node is the main node or an instance of (§4.2). |
 | `extra` | map | Unknown keys, round-tripped. |
 
@@ -101,7 +101,7 @@ renderer computes.
   "x": {"start": 24},             // freeform parent only; see below
   "y": {"align": 0.5},
   "align": [0, 0],                // row/column parent only: alignment in its slot
-  "rotation": 15,                 // degrees, about the centre
+  "rotation": 15,                 // degrees, about the center
   "aspectRatio": 1.5
 }
 ```
@@ -187,27 +187,27 @@ chart records...). A parent declares what it reads from each child
 (`WidgetSpec.childFields`: Flutter's parent data — `x`, `y` for a stack or
 variance, `flex`, `squeezable`, `align` for a row or column), so a panel
 shows a child's placement from its parent's declaration, apart from the
-child's own API. Behaviours (§4.1) are declared too: `BehaviourFields`
+child's own API. Behaviors (§4.1) are declared too: `BehaviorFields`
 has one field per flat node key (`motion`, `loops`, `drag`, `hero`...),
-and each behaviour model has its own (`MotionFields`, `DragMotionFields`,
+and each behavior model has its own (`MotionFields`, `DragMotionFields`,
 `ParticleEmitterFields`...; curves are the `AnimationCurve` enumeration,
 durations whole milliseconds). A properties panel is generated from these alone; a
 test (`value_fields_test.dart`) round-trips a sample value of every field
 through its model's real JSON.
 
-### 4.1 Behaviours
+### 4.1 Behaviors
 
 What a node does beyond its layout and paint is the same for every type, so
-it isn't in `props`: it's `Node.behaviours` (`lib/src/behaviours.dart`), stored
+it isn't in `props`: it's `Node.behaviors` (`lib/src/behaviors.dart`), stored
 flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
 | `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
-| `scale` | number | `Transform.scale` about the centre; layout unchanged. |
+| `scale` | number | `Transform.scale` about the center; layout unchanged. |
 | `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
-| `inkWell` | `InkWellStyle` | `InkWell` colours: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
+| `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
 | `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads); flying in from where the node with the same key was. |
@@ -227,7 +227,7 @@ a type without a box decoration (text, icon) keeps for its blurs only: they act
 on whatever the node paints (`ImageFiltered`, `BackdropFilter`).
 
 Durations are whole milliseconds; curves are `AnimationCurve`, Flutter's
-`Curves` names. A behaviour bound to data keeps its binding in `bind` (`scale`,
+`Curves` names. A behavior bound to data keeps its binding in `bind` (`scale`,
 `textDirection`, `motion.rotate`, ...).
 
 **Editor state stays out.** An aspect-ratio lock only locks the editor's
@@ -254,7 +254,7 @@ instances (`lib/src/components.dart`).
   replaces its nodes with the definition's (keeping the top node's place
   and sizing).
 * **Settings** (`ComponentLink.settings`): what the
-  component lets an instance customise, shown by the editor as a panel.
+  component lets an instance customize, shown by the editor as a panel.
   Each is `{label, type, value, targets}`, or a `group` with its own
   `settings`; `type` names the control (`string`, `number`, `bool`,
   `color`, `radius`, `spacing`, `options`, `icon`...), `value` is the
@@ -286,7 +286,7 @@ codelessly_sdk/lib/src/
   app/       Codelessly, CodelesslyWidget, controllers, navigation
 ```
 
-A node's behaviours are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
+A node's behaviors are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
 track pose → transform gesture → motion → shimmer → flip face → tilt → flip
 card → scale → rotation → (drag source → drop target → reactions →
 hover/press tracking) → loops → opacity → blurs → stroke path → content. A
@@ -294,7 +294,7 @@ drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
-cards by tap, drag and variable. Not run yet (modelled only): hero
+cards by tap, drag and variable. Not run yet (modeled only): hero
 flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
@@ -321,7 +321,7 @@ actions and `pagination` nodes move it, and a pagination node fires its
 The render layer comes from the prototype's `api_tree.dart`, laid out by §3's
 layout. The layout render objects
 (`RenderFitBox`, `RenderCodelesslyFlex`, `RenderFreeformLayout`,
-`RenderHugCross`) are the SDK's own, moved over unchanged in behaviour.
+`RenderHugCross`) are the SDK's own, moved over unchanged in behavior.
 
 ### 5.1 Variables, conditions and bindings
 
@@ -394,7 +394,7 @@ effect id for the item with that id, and `*` for every item.
 | `props.<prop>.<field>` | a field of a structured prop |
 | `props.style.<field>` (text) | the base style and every run's |
 | `data` | the items a list, grid or page view builds one per (its item count follows) |
-| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behaviour (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text |
+| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behavior (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text |
 | `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload |
 | `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at |
 | `loops[i].phase`, `loops[i].lag` | a loop's phase (0–1), lag (ms) |

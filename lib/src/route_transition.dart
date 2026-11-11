@@ -3,7 +3,7 @@
 // data; the SDK builds the route (DESIGN.md §5.2).
 import 'package:meta/meta.dart';
 
-import 'behaviours.dart' show AnimationCurve, DragDirection, Motion;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
 import 'json.dart';
 import 'values/color.dart';
 
@@ -57,10 +57,10 @@ enum RevealOrigin {
   /// The last place the screen was touched or clicked.
   tap,
 
-  /// The node whose reaction navigated: its centre, or its box for a rect.
+  /// The node whose reaction navigated: its center, or its box for a rect.
   node,
 
-  /// The centre of the screen.
+  /// The center of the screen.
   center,
 
   /// [TransitionReveal.x], [TransitionReveal.y] as an alignment.

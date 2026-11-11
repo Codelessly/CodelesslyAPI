@@ -7,8 +7,8 @@
 // "when"}` (ActionDef.toJson); an editor reads the fields listed here off it
 // and writes them back, keeping keys it doesn't list.
 import 'actions.dart';
-import 'behaviour_fields.dart' show AnimationCurveCodec, motionType;
-import 'behaviours.dart' show AnimationCurve, DragDirection, Motion;
+import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
 import 'json.dart' show readMap;
 import 'props.dart';
 import 'route_transition.dart';
@@ -422,7 +422,7 @@ abstract final class ConfirmFields {
   static const cancelLabel = PropDef<String>('cancelLabel', Codecs.string, 'Cancel');
   static const destructive = PropDef<bool>('destructive', Codecs.bool, false);
   static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run when confirmed.');
-  static const cancelActions = PropDef<Object?>('cancelActions', Codecs.any, null, doc: 'Nested actions: run when cancelled.');
+  static const cancelActions = PropDef<Object?>('cancelActions', Codecs.any, null, doc: 'Nested actions: run when canceled.');
   static const dialog = PropDef<String>('dialog', Codecs.string, '', doc: 'A screen id to show as the dialog.');
   static const params = PropDef<Object?>('params', Codecs.any, null);
   static const presentation =

@@ -105,7 +105,7 @@ to 4 decimals, and integral ones are written as integers.
 | `breakpoints` | The project's breakpoints, carried by an Editor page's document |
 | anything else | Kept in `extra` |
 
-A node's keys are the fields in [The data model](01-data-model.md#node), plus its behaviours stored flat
+A node's keys are the fields in [The data model](01-data-model.md#node), plus its behaviors stored flat
 (`motion`, `scale`, `loops`, `transitions`, `inkWell`, `states`, `tooltip`, `hero`, `draggable`, `dropTarget`,
 `drag`, `flip`, `tilt`...).
 

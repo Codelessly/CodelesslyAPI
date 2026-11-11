@@ -1,3 +1,14 @@
+## 22.0.0
+
+**Breaking changes**
+
+- `Behaviours` is now `Behaviors`.
+- `BehaviourFields` is now `BehaviorFields`.
+- `Node.behaviours` is now `Node.behaviors`, and the `behaviours:` parameter of `Node()` and `Node.copyWith` is now
+  `behaviors:`.
+
+The JSON format is unchanged: behaviors are stored flat in the node's JSON under the same keys.
+
 ## 21.0.1
 
 - Documentation: a cleaner README.

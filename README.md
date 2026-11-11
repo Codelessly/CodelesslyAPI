@@ -76,7 +76,7 @@ void main() {
 
 | | |
 |---|---|
-| **Nodes** | `Node`: a widget `type`, its `Layout`, `Decoration`, typed `Props`, bindings, reactions and behaviours. Immutable, with value equality. |
+| **Nodes** | `Node`: a widget `type`, its `Layout`, `Decoration`, typed `Props`, bindings, reactions and behaviors. Immutable, with value equality. |
 | **Widgets** | `WidgetSpec`: one declaration per widget type (66 of them), with each prop's Flutter name, type and default. `Widgets.all`, `Widgets.of(type)`. |
 | **Documents** | `LayoutDocument`: canvases (screens) and every node in one flat map; parents are derived, never stored. |
 | **Logic** | `Variable`, `Condition`, `Reaction` / `Trigger` / `ActionDef` (one class per action), `ScriptDef`, binding paths. |

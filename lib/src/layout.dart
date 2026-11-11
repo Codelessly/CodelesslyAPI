@@ -186,7 +186,7 @@ final class Layout {
   /// Alignment in its slot under a row/column parent (`Align`).
   final Alignment? align;
 
-  /// Degrees, clockwise, about the centre.
+  /// Degrees, clockwise, about the center.
   final double rotation;
 
   /// Width / height the node keeps when its parent resizes it.
