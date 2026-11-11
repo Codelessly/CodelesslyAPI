@@ -411,8 +411,13 @@ abstract final class PlotChartProps {
   /// Milliseconds. Zero applies data changes immediately.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// Clips the drawing to the chart's box. Off, a line's stroke at the
+  /// edge overhangs it, as a Flutter `CustomPaint` (which doesn't clip)
+  /// draws it.
+  static const clip = PropDef<bool>('clip', Codecs.bool, true);
+
   static const spec = WidgetSpec('plotChart', props: [
-    selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
+    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
     gridColor, axisColor, xLabels, gridLabels, labelStyle, labelHeight, ranges, markers, markerRadius,
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
