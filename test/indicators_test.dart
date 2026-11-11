@@ -123,4 +123,47 @@ void main() {
     expect(n.prop(PlotChartProps.ranges).single.color, const Color(0x19000000));
     expect(Node.fromJson(n.toJson()), n);
   });
+
+  test('chart and line chart tooltip styles, line chart selectedX', () {
+    final bar = Node.fromJson({
+      'type': 'chart',
+      'props': {
+        'tooltipTitleStyle': {'fontSize': 11},
+        'tooltipLabelStyle': {'fontFamily': 'Inter'},
+        'tooltipValueStyle': {'fontSize': 15, 'fontWeight': 800},
+      },
+    })!;
+    expect(bar.prop(ChartProps.tooltipTitleStyle).fontSize, 11);
+    expect(bar.prop(ChartProps.tooltipLabelStyle).fontFamily, 'Inter');
+    expect(bar.prop(ChartProps.tooltipValueStyle).fontWeight, 800);
+    expect(Node.fromJson({'type': 'chart'})!.prop(ChartProps.tooltipValueStyle).isEmpty, isTrue);
+    expect(Node.fromJson(bar.toJson()), bar);
+
+    final line = Node.fromJson({
+      'type': 'lineChart',
+      'props': {'selectedX': '42', 'tooltipLabelField': 'time', 'scrubEnabled': true},
+    })!;
+    expect(line.prop(LineChartProps.selectedX), 42);
+    expect(line.prop(LineChartProps.tooltipLabelField), 'time');
+    expect(Node.fromJson({'type': 'lineChart'})!.prop(LineChartProps.selectedX), isNull);
+    expect(Node.fromJson(line.toJson()), line);
+  });
+
+  test('text countUp props', () {
+    final plain = Node.fromJson({'type': 'text'})!;
+    expect(plain.prop(TextProps.countUp), isFalse);
+    expect(plain.prop(TextProps.countUpDuration), 500);
+    expect(plain.prop(TextProps.countUpCurve), AnimationCurve.linear);
+    expect(plain.prop(TextProps.countUpOnShow), isTrue);
+    final n = Node.fromJson({
+      'type': 'text',
+      'props': {'countUp': true, 'countUpDuration': 800, 'countUpCurve': 'easeOutCubic', 'countUpOnShow': false},
+    })!;
+    expect(n.prop(TextProps.countUp), isTrue);
+    expect(n.prop(TextProps.countUpDuration), 800);
+    expect(n.prop(TextProps.countUpCurve), AnimationCurve.easeOutCubic);
+    expect(n.prop(TextProps.countUpOnShow), isFalse);
+    expect(n.toJson()['props'], containsPair('countUpCurve', 'easeOutCubic'));
+    expect(Node.fromJson(n.toJson()), n);
+  });
 }
