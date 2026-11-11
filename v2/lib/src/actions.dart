@@ -106,6 +106,7 @@ final Map<String, _Decoder> _decoders = {
   OpenModalAction.typeName: OpenModalAction._fromJson,
   CloseModalAction.typeName: CloseModalAction._fromJson,
   OpenLinkAction.typeName: OpenLinkAction._fromJson,
+  PrintAction.typeName: PrintAction._fromJson,
   SubmitFormAction.typeName: SubmitFormAction._fromJson,
   SetValueAction.typeName: SetValueAction._fromJson,
   SetVariantAction.typeName: SetVariantAction._fromJson,
@@ -465,6 +466,20 @@ final class OpenLinkAction extends ActionDef {
 
   @override
   Json get _fields => {'url': url};
+}
+
+/// Requests the platform print dialog for a rendered node. The user chooses
+/// the destination and confirms; this action never silently submits a job.
+final class PrintAction extends ActionDef {
+  const PrintAction({this.node = '', super.enabled, super.nonBlocking, super.when});
+  static const typeName = 'print';
+  @override
+  String get type => typeName;
+  final String node;
+  static PrintAction _fromJson(Json m, _Common c) => PrintAction(
+    node: _s(m, 'node'), enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+  @override
+  Json get _fields => {'node': node};
 }
 
 /// Where a form goes.

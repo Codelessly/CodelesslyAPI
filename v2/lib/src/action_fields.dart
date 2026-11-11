@@ -241,6 +241,12 @@ abstract final class OpenLinkFields {
   static const List<PropDef<Object?>> all = [url];
 }
 
+/// [PrintAction].
+abstract final class PrintFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A rendered node to print through a user-confirmed platform dialog.');
+  static const List<PropDef<Object?>> all = [node];
+}
+
 /// [SubmitFormAction].
 abstract final class SubmitFormFields {
   static const service = PropDef<FormService>('service', EnumCodec(FormService.values), FormService.mailchimp);
@@ -587,6 +593,7 @@ abstract final class ActionSpecs {
       const ActionSpec(OpenModalAction.typeName, label: 'Open modal', fields: OpenModalFields.all),
       const ActionSpec(CloseModalAction.typeName, label: 'Close modal', fields: CloseModalFields.all),
       const ActionSpec(OpenLinkAction.typeName, label: 'Open link', fields: OpenLinkFields.all),
+      const ActionSpec(PrintAction.typeName, label: 'Print', fields: PrintFields.all),
       const ActionSpec(SubmitFormAction.typeName, label: 'Submit form', fields: SubmitFormFields.all),
       const ActionSpec(SetValueAction.typeName, label: 'Set value', fields: SetValueFields.all),
       const ActionSpec(SetVariantAction.typeName, label: 'Set variant', fields: SetVariantFields.all),
