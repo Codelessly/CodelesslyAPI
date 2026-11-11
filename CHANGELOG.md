@@ -10,6 +10,12 @@
 
 **New**
 
+- Paywall test store data: `ProductSlot.test` (`ProductTestData`: `price`, `rawPrice`, `currency`,
+  `currencySymbol`, `period` — `week`, `month`, `year` or '' for lifetime —, `trialDays`, `entitlementId` and
+  `outcome`, a `TestPurchaseOutcome`: `purchased` (default), `declined` or `cancelled`) and `PaywallConfig.testStore`
+  (`"testStore": true` on the published `paywall`). The SDK's test store runs a paywall's whole flow from them on the
+  web (preview and demo sites) without a store or a payment; it never grants real entitlements. Both are omitted
+  when unset, so existing JSON is unchanged; real stores ignore them.
 - Backdrop screens: `CanvasProps.backdrop` (`"props": {"backdrop": true}` on a canvas) marks a screen drawn once
   beneath every screen, outside navigation (a sky that stays still while screens move over it). `PublishModel`
   lists them in `backdropLayoutIds` (omitted when empty); `backdrops` is the published, enabled ones. A canvas both
