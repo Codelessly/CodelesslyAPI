@@ -1444,7 +1444,9 @@ final class DropTarget extends _Value {
   /// A condition on the dragged data.
   final String acceptIf;
 
-  /// The list it drops into, and how.
+  /// The list it drops into, and how. A target outside the list's repeat
+  /// (a column's tab, beside the columns) drops at the end of the copy of
+  /// the list whose own target has the same [key].
   final String listNodeId;
   final DropSlot slot;
   final String slotNodeId;

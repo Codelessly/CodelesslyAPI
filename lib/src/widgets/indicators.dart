@@ -253,6 +253,45 @@ abstract final class ChartProps {
   static const yLabelAffixTopOnly = PropDef<bool>('yLabelAffixTopOnly', Codecs.bool, false);
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
+  /// Bars of other categories fade while one is selected (or hovered).
+  static const dimUnselected = PropDef<bool>('dimUnselected', Codecs.bool, false);
+
+  /// A box over the selected (or hovered) category: its label, then each
+  /// series' name and value there.
+  static const tooltip = PropDef<bool>('tooltip', Codecs.bool, false);
+  static const tooltipColor = PropDef<Color>('tooltipColor', Codecs.color, Color(0xFFF7F5F0));
+  static const tooltipTextColor = PropDef<Color>('tooltipTextColor', Codecs.color, Color(0xFF0E0E10));
+
+  /// The tooltip's first line: this row field, else the category label.
+  static const tooltipTitleField = PropDef<String>('tooltipTitleField', Codecs.string, '');
+
+  /// The tooltip's title, series names and values, merged over the
+  /// defaults (12 bold, 13 semibold, 13 bold; the axis font family, in
+  /// [tooltipTextColor]).
+  static const tooltipTitleStyle = PropDef<TextStyle>('tooltipTitleStyle', _style, TextStyle.empty);
+  static const tooltipLabelStyle = PropDef<TextStyle>('tooltipLabelStyle', _style, TextStyle.empty);
+  static const tooltipValueStyle = PropDef<TextStyle>('tooltipValueStyle', _style, TextStyle.empty);
+
+  /// Each bar group's total above it; the selected one in
+  /// [totalsSelectedColor].
+  static const showTotals = PropDef<bool>('showTotals', Codecs.bool, false);
+  static const totalsColor = PropDef<Color?>('totalsColor', Codecs.optionalColor, null);
+  static const totalsSelectedColor = PropDef<Color?>('totalsSelectedColor', Codecs.optionalColor, null);
+
+  /// Space between the segments of a stacked bar.
+  static const stackGap = PropDef<double>('stackGap', Codecs.positive, 0);
+
+  /// The x labels' color (the y labels keep [axisLabelColor]).
+  static const xAxisLabelColor = PropDef<Color?>('xAxisLabelColor', Codecs.optionalColor, null);
+
+  /// One category's x label in [highlightColor] (the current hour), apart
+  /// from the selection; -1 for none.
+  static const highlightIndex = PropDef<int>('highlightIndex', Codecs.int, -1);
+  static const highlightColor = PropDef<Color?>('highlightColor', Codecs.optionalColor, null);
+
+  /// Grows in from zero when it first shows (a running app).
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
   /// Line charts: the row field holding each point's x value, placed over
   /// [domainMin]–[domainMax] (minutes, years...) instead of one slot per
   /// row. Unset: rows sit in slots ([xSlots]).
@@ -279,7 +318,10 @@ abstract final class ChartProps {
     showXAxis, xLabelEvery, axisLabelColor, axisFontSize, axisFontFamily, referenceLines, barWidthFraction,
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
-    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily,
+    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
+    tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
+    showTotals, totalsColor, totalsSelectedColor, stackGap,
+    xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     xField, xLabels, endLabelWidth, endLabelDecimals,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
@@ -540,8 +582,19 @@ abstract final class LineChartProps {
   static const axisTitleStyle = PropDef<TextStyle>('axisTitleStyle', _style, TextStyle.empty);
   static const markerLabelStyle = PropDef<TextStyle>('markerLabelStyle', _style, TextStyle.empty);
   static const tagTextStyle = PropDef<TextStyle>('tagTextStyle', _style, TextStyle.empty);
+  /// The tooltip at [selectedX]: its first line (the x, small) and the y
+  /// value (bigger, bold), each merged over its default.
   static const tooltipLabelStyle = PropDef<TextStyle>('tooltipLabelStyle', _style, TextStyle.empty);
   static const tooltipValueStyle = PropDef<TextStyle>('tooltipValueStyle', _style, TextStyle.empty);
+
+  /// The tooltip's first line: this row field, else the x ([tooltipXFormat]
+  /// for dates).
+  static const tooltipLabelField = PropDef<String>('tooltipLabelField', Codecs.string, '');
+
+  /// The point (nearest x) with the cursor and tooltip; null for none.
+  static const selectedX = PropDef<double?>('selectedX', IndicatorCodecs.optionalDouble, null);
+
+  /// Hovering or dragging selects the nearest point in a running app.
   static const scrubEnabled = PropDef<bool>('scrubEnabled', Codecs.bool, false);
   static const scrubStep = PropDef<double>('scrubStep', Codecs.double, 1);
   static const tooltipXFormat = PropDef<String>('tooltipXFormat', Codecs.string, 'h:mm a');
@@ -561,8 +614,10 @@ abstract final class LineChartProps {
   static const areaBands = PropDef<List<Json>>('areaBands', IndicatorCodecs.objects, []);
 
   /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off],
-  /// "label"?, "labelAlign"?: "end" | "start"}]`; a label is written above
-  /// the line at its end (or start), in the line's colour.
+  /// "label"?, "labelColor"?, "labelBelow"?, "labelAlign"?: "end" | "start"}]`;
+  /// a label sits at the line's end (or start, with labelAlign "start"),
+  /// above the line unless labelBelow, in [axisLabelStyle] (bold, the line's
+  /// color unless labelColor).
   static const referenceLines = PropDef<List<Json>>('referenceLines', IndicatorCodecs.objects, []);
 
   /// X axis ticks: `[{"x", "label"}]`.
@@ -580,13 +635,16 @@ abstract final class LineChartProps {
   /// Milliseconds. Zero applies data changes immediately.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// Draws in (rising from zero) when it first shows (a running app).
+  static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
+
   static const spec = WidgetSpec('lineChart', props: [
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
     cursorRingFill, tooltipBackground, tooltipShadowColor, yAxisTitle, axisLabelStyle, axisTitleStyle,
-    markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, scrubEnabled, scrubStep, tooltipXFormat,
+    markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, tooltipLabelField, selectedX, scrubEnabled, scrubStep, tooltipXFormat,
     tooltipYScale, tooltipYDecimals, tooltipYSuffix, tooltipTrend, semanticLabel, bands, yTicks, areaBands,
-    referenceLines, xTicks, markers, verticalLines,
+    referenceLines, xTicks, markers, verticalLines, animateIn,
     animate, animationDuration,
   ], doc: 'Line chart.');
 }

@@ -92,6 +92,13 @@ void main() {
     expect(unknown.scope, CloudDataScope.screen);
   });
 
+  test('a popover keeps the room it reserves', () {
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'popover', 'anchorReserve': 360})! as OpenModalAction;
+    expect(a.anchorReserve, 360);
+    expect(a.toJson()['anchorReserve'], 360);
+    expect(const OpenModalAction(to: 's').toJson().containsKey('anchorReserve'), isFalse);
+  });
+
   test('an adaptive modal is a sheet below a project breakpoint', () {
     const d = OpenModalAction(presentation: ModalPresentation.adaptive);
     expect(d.sheetBelowWidthIn(Breakpoints.defaults), 600, reason: 'empty: the second breakpoint');

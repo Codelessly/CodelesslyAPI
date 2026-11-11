@@ -180,12 +180,21 @@ abstract final class CheckboxProps {
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
   static const side = PropDef<BorderSide?>('side', InputCodecs.borderSide, null);
 
+  /// The border when checked (a `WidgetStateBorderSide`); null keeps [side].
+  static const activeSide = PropDef<BorderSide?>('activeSide', InputCodecs.borderSide, null);
+
+  /// The box's fill when unchecked (`fillColor` for the unselected states);
+  /// [activeColor] fills it checked. Null keeps Flutter's (transparent).
+  static const fillColor = PropDef<Color?>('fillColor', Codecs.optionalColor, null);
+
   /// Its box is the checkbox itself (18 px), not its tap target (40 px).
+  /// The box and its check mark scale to the node, but its [borderRadius]
+  /// and sides' widths are node pixels.
   static const compact = PropDef<bool>('compact', Codecs.bool, false);
 
   static const spec = WidgetSpec('checkbox', props: [
     value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
-    compact,
+    activeSide, fillColor, compact,
   ], doc: 'Flutter `Checkbox`.');
 }
 
@@ -225,6 +234,13 @@ abstract final class SwitchProps {
   /// Material's switch scaled to the box.
   static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
 
+  /// Off, it shows its value but can't be toggled (dimmed, as Flutter's).
+  static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// It shows only its value: a tap reports the change (`changed`) and the
+  /// reactions set the value, else it stays (a checkout rule that refuses).
+  static const controlled = PropDef<bool>('controlled', Codecs.bool, false);
+
   /// The thumb's border color when on, drawn inside its edge on a filled
   /// track ([fillTrack]). Material's switch has no thumb border, so a
   /// switch with one is drawn as a plain toggle.
@@ -241,6 +257,7 @@ abstract final class SwitchProps {
 
   /// A plain toggle's slide easing on; off eases along it flipped.
   static const toggleCurve = PropDef<AnimationCurve>('toggleCurve', AnimationCurveCodec(), AnimationCurve.easeOutCubic);
+
   /// The track's corner radius: null is a pill (half its height); a square
   /// switch sets a small one. With it the switch is a plain toggle.
   static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
@@ -250,7 +267,7 @@ abstract final class SwitchProps {
   static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
 
   static const spec = WidgetSpec('switch', props: [
-    value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
+    enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
     fillTrack, thumbShadows, thumbInset, activeThumbBorderColor, inactiveThumbBorderColor, thumbBorderWidth,
     toggleDurationMs, toggleCurve, trackRadius, thumbRadius,
@@ -567,6 +584,11 @@ abstract final class TimePickerProps {
 /// What a date/time input picks.
 enum DateTimeInputMode { date, time, dateTime }
 
+/// What tapping a date/time input opens: Material's date and time
+/// dialogs, or nothing (its own click reactions show a picker the design
+/// builds, and set its value).
+enum DateTimeInputPicker { dialog, none }
+
 /// An outlined `InputDecorator` showing a date, time or both, that opens the
 /// pickers.
 abstract final class DateTimeInputProps {
@@ -583,8 +605,13 @@ abstract final class DateTimeInputProps {
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
+  /// The field's look, as a text field's (fill, borders, icons, hint, error);
+  /// empty keeps the outlined default. Its hint and suffix icon win over
+  /// [hint] and [icon].
+  static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
+
   /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
-  /// Material's localized date and time.
+  /// [displayFormat], else Material's localized date and time.
   static const format = PropDef<String?>('format', Codecs.optionalString, null);
 
   /// The value's text style.
@@ -601,8 +628,20 @@ abstract final class DateTimeInputProps {
   /// own fill, border and padding make the box.
   static const bare = PropDef<bool>('bare', Codecs.bool, false);
 
+  /// An older name for [format] (a `formatDate` pattern, `EEE, MMM d · h:mm a`),
+  /// read when [format] is unset.
+  static const displayFormat = PropDef<String>('displayFormat', Codecs.string, '');
+
+  /// Shown instead of the formatted value when set (bind it: "Now · 1:20 PM").
+  static const displayText = PropDef<String>('displayText', Codecs.string, '');
+  static const picker = PropDef<DateTimeInputPicker>(
+      'picker', EnumCodec(DateTimeInputPicker.values), DateTimeInputPicker.dialog);
+
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare],
+      props: [
+        mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare,
+        decoration, displayFormat, displayText, picker,
+      ],
       decorated: true,
       doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
@@ -692,6 +731,13 @@ Object? _strokesOut(List<List<Offset>> v) => [
       for (final s in v) [for (final p in s) p.toJson()],
     ];
 
+/// How a signature pad's sign line is stroked.
+enum SignLineStyle { solid, dashed }
+
+/// Where a signature pad's mark sits: over the line's start, or before the
+/// line (centred on it, the line starting after it).
+enum SignMarkPlacement { above, leading }
+
 /// Where a signature pad's placeholder sits.
 enum SignaturePlaceholderPosition {
   /// In the middle of the pad.
@@ -724,14 +770,59 @@ abstract final class SignatureProps {
   static const placeholder = PropDef<String>('placeholder', Codecs.string, 'SIGN HERE');
   static const placeholderColor = PropDef<Color>('placeholderColor', Codecs.color, Color(0xFFA9ADA5));
   static const placeholderFontSize = PropDef<double>('placeholderFontSize', Codecs.positive, 12);
+  /// The placeholder's text style, over [placeholderColor],
+  /// [placeholderFontSize], [placeholderFontWeight] and
+  /// [placeholderLetterSpacing].
+  static const placeholderStyle = PropDef<TextStyle>('placeholderStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// Where the placeholder sits in the pad (when [placeholderPosition] is
+  /// center), then moved by [placeholderOffset].
+  static const placeholderAlignment = PropDef<Alignment>('placeholderAlignment', Codecs.alignment, Alignment.center);
+  static const placeholderOffset = PropDef<Offset>('placeholderOffset', Codecs.offset, Offset.zero);
   static const showSignLine = PropDef<bool>('showSignLine', Codecs.bool, true);
   static const signLineColor = PropDef<Color>('signLineColor', Codecs.color, Color(0xFFA9ADA5));
+  static const signLineWidth = PropDef<double>('signLineWidth', Codecs.positive, 1);
+  static const signLineStyle = PropDef<SignLineStyle>('signLineStyle', EnumCodec(SignLineStyle.values), SignLineStyle.solid);
+
+  /// A dashed line's dash and gap lengths.
+  static const signLineDash = PropDef<double>('signLineDash', Codecs.positive, 6);
+  static const signLineGap = PropDef<double>('signLineGap', Codecs.positive, 6);
+
+  /// An older name for [signLineBottom], read when that is unset.
+  static const signLineOffset = PropDef<double?>('signLineOffset', Codecs.optionalPositive, null);
+
+  /// The line's distance from the pad's left and right edges.
+  static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
+
+  /// An older name for [signLineMark]: either off hides the mark.
+  static const showSignMark = PropDef<bool>('showSignMark', Codecs.bool, true);
+
+  /// The mark as an icon; null is a "×" glyph [signMarkSize] high.
+  static const signMarkIcon = PropDef<Json?>('signMarkIcon', Codecs.optionalIcon, null);
+  static const signMarkSize = PropDef<double>('signMarkSize', Codecs.positive, 16);
+
+  /// Null is [signLineColor].
+  static const signMarkColor = PropDef<Color?>('signMarkColor', Codecs.optionalColor, null);
+  static const signMarkPlacement =
+      PropDef<SignMarkPlacement>('signMarkPlacement', EnumCodec(SignMarkPlacement.values), SignMarkPlacement.above);
+
+  /// The space between the mark and the line: under it ([SignMarkPlacement.above])
+  /// or after it ([SignMarkPlacement.leading]).
+  static const signMarkGap = PropDef<double>('signMarkGap', Codecs.positive, 4);
+
+  /// A caption under the line ("SIGN ABOVE THE LINE"), shown with or
+  /// without strokes.
+  static const caption = PropDef<String>('caption', Codecs.string, '');
+  static const captionStyle = PropDef<TextStyle>('captionStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The space between the line and the caption's top.
+  static const captionGap = PropDef<double>('captionGap', Codecs.positive, 8);
+
+  /// The caption's alignment between the line's insets.
+  static const captionAlign = PropDef<TextAlign>('captionAlign', EnumCodec(TextAlign.values), TextAlign.start);
 
   /// The × at the start of the sign line.
   static const signLineMark = PropDef<bool>('signLineMark', Codecs.bool, true);
-
-  /// The sign line's inset from the pad's sides.
-  static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
 
   /// The sign line's distance from the pad's bottom (null: a quarter of its height).
   static const signLineBottom = PropDef<double?>('signLineBottom', Codecs.optionalPositive, null);
@@ -752,7 +843,9 @@ abstract final class SignatureProps {
   static const spec = WidgetSpec('signature', props: [
     value, normalized, inkColor, inkWidth, backgroundColor, borderColor, borderWidth, errorBorderColor, //
     errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
-    signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing, smooth,
-    error, enabled, readOnly,
+    signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
+    placeholderStyle, placeholderAlignment, placeholderOffset, signLineWidth, signLineStyle, signLineDash,
+    signLineGap, signLineOffset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
+    signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, smooth, error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }

@@ -314,16 +314,32 @@ TextRun? _runIn(Object? j) => TextRun.fromJson(j);
 Json? _jsonIn(Object? j) => readMap(j);
 Json? _glyphIn(Object? j) => _iconIn(j).let((m) => m == null || m.isEmpty ? null : m);
 /// A bare string names a glyph: an image URL, else a Material icon (a
-/// binding like `playing ? 'pause' : 'play_arrow'` swaps the glyph).
+/// binding like `playing ? 'pause' : 'play_arrow'` swaps the glyph; a
+/// suffix like `lock_open_rounded` picks the style).
 Json? _iconNamed(String s) {
   final name = s.trim();
   if (name.isEmpty) return const {};
   if (name.startsWith('http://') || name.startsWith('https://') || name.startsWith('data:')) return {'image': name};
-  return {'type': 'MATERIAL_ICON', 'name': name, 'style': 'filled'};
+  return materialIconNamed(name);
 }
+
 Json? _iconIn(Object? j) => j is String ? _iconNamed(j) : readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
     ? m
     : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
+
+/// The Material icon [name] names (`check_circle`, `lock_open_rounded`):
+/// a suffix (`_outlined`, `_rounded`, `_sharp`) sets its style. Null when
+/// [name] isn't an icon name.
+Json? materialIconNamed(String name) {
+  final key = name.trim().toLowerCase();
+  if (!RegExp(r'^[a-z0-9_]+$').hasMatch(key)) return null;
+  for (final (suffix, style) in const [('_outlined', 'outlined'), ('_rounded', 'rounded'), ('_sharp', 'sharp')]) {
+    if (key.endsWith(suffix)) {
+      return {'type': 'MATERIAL_ICON', 'name': key.substring(0, key.length - suffix.length), 'style': style};
+    }
+  }
+  return {'type': 'MATERIAL_ICON', 'name': key, 'style': 'filled'};
+}
 List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
 TextStyle? _styleIn(Object? j) => TextStyle.fromJson(j);
 BorderSide? _sideIn(Object? j) => BorderSide.fromJson(j);
