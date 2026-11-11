@@ -487,7 +487,7 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], doc: 'Flutter `DropdownButton`.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- date and time ------------------------------------------------------------
@@ -559,7 +559,9 @@ abstract final class DateTimeInputProps {
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled], doc: 'Flutter `InputDecorator`.');
+      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled],
+      decorated: true,
+      doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- segmentedButton ----------------------------------------------------------
