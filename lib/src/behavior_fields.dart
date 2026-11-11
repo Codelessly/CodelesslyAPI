@@ -126,6 +126,16 @@ abstract final class MotionFields {
   static const duration = PropDef<int>('duration', _ms, 0);
   static const delay = PropDef<int>('delay', _ms, 0);
   static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.easeInOut);
+
+  /// The rotation's own curve; null follows [curve].
+  static const rotateCurve = PropDef<AnimationCurve?>(
+    'rotateCurve',
+    OptionalEnumCodec(AnimationCurve.values),
+    null,
+  );
+
+  /// The share of the duration in which the opacity arrives (easing out).
+  static const fadeShare = PropDef<double>('fadeShare', DoubleCodec(min: 0, max: 1), 1);
   static const springStiffness = PropDef<double>('springStiffness', Codecs.double, 380);
   static const springDamping = PropDef<double>('springDamping', Codecs.double, 20);
   static const spinRamp = PropDef<int>('spinRamp', _ms, 800);
@@ -191,10 +201,10 @@ abstract final class MotionFields {
 
   static const List<PropDef<Object?>> all = [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
-    pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
-    spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
-    pathWrap, pathViewBox, shimmer,
+    pathProgress, blur, perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare,
+    springStiffness, springDamping, spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path,
+    orientToPath, keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc,
+    paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
