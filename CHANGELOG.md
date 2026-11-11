@@ -1,3 +1,12 @@
+## 23.0.0
+
+**New**
+
+- Models for managed paywall placements, product slots, offers, and purchase outcomes.
+- Action and widget data for form submission, conditional reveal, generated files, print, image lifecycle, media playback controls and status, and sound waveforms.
+- Model support for charts and gauges, masonry layouts, stroke progress, and symbol fallback.
+- Documented video readiness and action error trigger values.
+
 ## 22.0.0
 
 **Breaking changes**
