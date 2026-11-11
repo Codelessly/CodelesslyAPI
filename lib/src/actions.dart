@@ -106,6 +106,7 @@ final Map<String, _Decoder> _decoders = {
   NavigateAction.typeName: NavigateAction._fromJson,
   OpenModalAction.typeName: OpenModalAction._fromJson,
   CloseModalAction.typeName: CloseModalAction._fromJson,
+  RetryFailedAction.typeName: RetryFailedAction._fromJson,
   OpenLinkAction.typeName: OpenLinkAction._fromJson,
   PrintAction.typeName: PrintAction._fromJson,
   SubmitFormAction.typeName: SubmitFormAction._fromJson,
@@ -509,6 +510,25 @@ final class CloseModalAction extends ActionDef {
 
   @override
   Json get _fields => {'result': ?result};
+}
+
+/// Runs again the action chain whose failure the screen's `actionError`
+/// reaction is handling (a toast's Retry after an offline save or a failed
+/// load): the same node's reactions to the same trigger, with the same event
+/// and list item. Nothing happens outside an `actionError` reaction or when
+/// that failure can't be retried (`${error.retryable}` is false).
+final class RetryFailedAction extends ActionDef {
+  const RetryFailedAction({super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'retryFailed';
+  @override
+  String get type => typeName;
+
+  static RetryFailedAction _fromJson(Json m, _Common c) =>
+      RetryFailedAction(enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+
+  @override
+  Json get _fields => const {};
 }
 
 /// Opens a URL (a web page, `mailto:`, `tel:`, an app link).

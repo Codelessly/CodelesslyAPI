@@ -10,6 +10,7 @@
 
 **New**
 
+- `RetryFailedAction` (`retryFailed`): in an `actionError` reaction, runs the failed action chain again.
 - Paywall test store data: `ProductSlot.test` (`ProductTestData`: `price`, `rawPrice`, `currency`,
   `currencySymbol`, `period` — `week`, `month`, `year` or '' for lifetime —, `trialDays`, `entitlementId` and
   `outcome`, a `TestPurchaseOutcome`: `purchased` (default), `declined` or `cancelled`) and `PaywallConfig.testStore`
