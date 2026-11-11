@@ -149,6 +149,7 @@ final class Paint {
     this.tileMode = TileMode.clamp,
     this.image,
     this.gradientPerSubpath = false,
+    this.radius,
   });
 
   const Paint.solid(Color this.color, {this.id, this.opacity = 1})
@@ -159,7 +160,8 @@ final class Paint {
         transform = null,
         tileMode = TileMode.clamp,
         image = null,
-        gradientPerSubpath = false;
+        gradientPerSubpath = false,
+        radius = null;
 
   final PaintType type;
 
@@ -189,15 +191,57 @@ final class Paint {
   /// SVG's `gradientUnits: "subpath"`.
   final bool gradientPerSubpath;
 
+  /// A radial gradient's radius as a share of the box's shortest side,
+  /// centered (Flutter's `RadialGradient(radius:)`), in place of the one
+  /// [transform] gives (which reaches the box's edge across its width).
+  /// Null: the transform's.
+  final double? radius;
+
   bool get isGradient => type != PaintType.solid && type != PaintType.image;
 
   /// The solid color with the paint's opacity applied.
   Color? get effectiveColor => color?.multiplyOpacity(opacity);
 
+  /// The [transform] of a linear gradient from [begin] to [end], as
+  /// Flutter's `LinearGradient(begin, end)` draws it: the gradient's axis
+  /// runs from the point [begin] names to the point [end] names. JSON may
+  /// give `begin` and `end` (alignments: `[x, y]` in -1..1, or names such as
+  /// `"topCenter"`) instead of a transform; they are read into one.
+  static List<double>? linearTransform(Alignment? begin, Alignment? end) {
+    if (begin == null && end == null) return null;
+    final b = begin ?? Alignment.centerLeft, e = end ?? Alignment.centerRight;
+    // Box unit square coordinates of the two points.
+    final p0x = (b.x + 1) / 2, p0y = (b.y + 1) / 2;
+    final dx = (e.x + 1) / 2 - p0x, dy = (e.y + 1) / 2 - p0y;
+    final l2 = dx * dx + dy * dy;
+    if (l2 == 0) return null;
+    // u runs 0 → 1 from begin to end; v is 0.5 on the axis.
+    return [
+      dx / l2, dy / l2, -(p0x * dx + p0y * dy) / l2,
+      -dy / l2, dx / l2, 0.5 - (-dy * p0x + dx * p0y) / l2,
+    ].map((v) => v == 0 ? 0.0 : v).toList();
+  }
+
   static Paint? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
-    final type = readEnum(PaintType.values, m['type'], PaintType.solid);
+    // Without a type, a paint is what its keys say: an `image` paints the
+    // image, gradient `stops` a linear gradient, anything else a color.
+    final type = m['type'] == null
+        ? (readMap(m['image']) != null
+              ? PaintType.image
+              : (readList(m['stops'])?.isNotEmpty ?? false)
+              ? PaintType.linear
+              : PaintType.solid)
+        : readEnum(PaintType.values, m['type'], PaintType.solid);
+    // An image's settings may also sit beside it (`{"image": {"url"}, "fit": "cover"}`).
+    final imageJson = type == PaintType.image
+        ? {
+            for (final k in const ['fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY'])
+              if (m.containsKey(k)) k: m[k],
+            ...?readMap(m['image']),
+          }
+        : null;
     return Paint(
       type: type,
       id: readString(m['id']),
@@ -206,11 +250,13 @@ final class Paint {
       blendMode: readEnum(BlendMode.values, m['blendMode'], BlendMode.srcOver),
       color: Color.fromJson(m['color']),
       stops: [...?readList(m['stops'])?.map(ColorStop.fromJson).nonNulls],
-      transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList(),
+      transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList() ??
+          (type == PaintType.linear ? linearTransform(Alignment.fromJson(m['begin']), Alignment.fromJson(m['end'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
-      image: type == PaintType.image ? ImagePaint.fromJson(m['image']) : null,
+      image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
       gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
           (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
+      radius: switch (readDouble(m['radius'])) { final double r when r > 0 && r.isFinite => r, _ => null },
     );
   }
 
@@ -229,6 +275,7 @@ final class Paint {
     put(j, 'tileMode', tileMode.name, TileMode.clamp.name);
     put(j, 'image', image?.toJson());
     put(j, 'gradientPerSubpath', gradientPerSubpath, false);
+    put(j, 'radius', radius == null ? null : writeDouble(radius!));
     return j;
   }
 
@@ -245,10 +292,11 @@ final class Paint {
       _listEq(other.transform, transform) &&
       other.tileMode == tileMode &&
       other.image == image &&
-      other.gradientPerSubpath == gradientPerSubpath;
+      other.gradientPerSubpath == gradientPerSubpath &&
+      other.radius == radius;
 
   @override
-  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath);
+  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }

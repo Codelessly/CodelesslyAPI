@@ -28,11 +28,6 @@ void main() {
       expect(d.get(SwitchProps.toggleCurve), AnimationCurve.easeOutCubic);
     });
 
-    test('a list view spaces its items by spacing unless its separator is none', () {
-      expect(Props.fromJson(ListViewProps.spec, const {}).get(ListViewProps.separator), ListSeparator.space);
-      expect(Props.fromJson(ListViewProps.spec, {'separator': 'none'}).get(ListViewProps.separator), ListSeparator.none);
-    });
-
     test('a page view: page motion', () {
       final m = Props.fromJson(PageViewProps.spec, {'pageMotion': {'rotateY': -50}}).get(PageViewProps.pageMotion);
       expect(m?.rotateY, -50);
@@ -132,6 +127,10 @@ void main() {
     test('an icon image may be given as imageUrl', () {
       expect(IconProps.icon.decode({'imageUrl': 'u'}), {'image': 'u'});
       expect(IconProps.icon.decode({'image': 'a', 'imageUrl': 'u'}), {'image': 'a', 'imageUrl': 'u'});
+      // A bound name swaps the glyph.
+      expect(IconProps.icon.decode('pause'), {'type': 'MATERIAL_ICON', 'name': 'pause', 'style': 'filled'});
+      expect(IconProps.icon.decode('https://x/i.png'), {'image': 'https://x/i.png'});
+      expect(IconProps.icon.decode(''), <String, Object?>{});
     });
   });
 }

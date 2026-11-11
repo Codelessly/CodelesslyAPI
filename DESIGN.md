@@ -109,6 +109,10 @@ renderer computes.
 * **Sizing per axis** is `fixed`, `fill` (Expanded/stretch), `flexible`
   (Flexible, loose) or `hug` (size to content). The number is the design size:
   the size used for `fixed`, and the fallback when a mode can't apply.
+  A child that fills the cross axis of a row or column hugging that axis
+  stretches to the thickness its siblings give, and its number is measured
+  as its own thickness: a timeline rail that should add no height of its
+  own fills with 0.
 * **Freeform position per axis** follows `Positioned`/`Align`: `{"start": d}`,
   `{"end": d}`, `{"start": a, "end": b}` (stretch between), `{"align": -1..1}`
   (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
@@ -203,7 +207,7 @@ flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
-| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
+| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path is followed from the node's own place (offsets from the path's start point); it can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright` (with `uprightMirror`, heading left mirrors the node so its front leads). Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the center; layout unchanged. |
 | `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
@@ -276,6 +280,51 @@ instances (`lib/src/components.dart`).
 External components (widgets the app builds by a builder id) are a widget
 type, `external`, not components.
 
+### 4.3 Linked, Codelessly-managed components
+
+Prebuilt UI (sign in, paywalls, inbox...) is published by Codelessly as
+versioned masters that projects reference instead of copying
+(`lib/src/managed_components.dart`). Same-major releases reach every app
+using one without a republish; a major never applies on its own.
+
+* **`ManagedComponentMaster`** (`managed_components/{id}`): `versions`
+  (number → `{semver, minSdk, createdAt}`), `channels` (`stable`/`beta` →
+  major → version number), `rollouts` (`{channel, version, percent}`,
+  bucketed per project by `managedRolloutBucket`), `blocked` (rolled back
+  versions). `resolve` picks what a channel offers one project for a major.
+* **`ManagedComponentVersion`** (`.../versions/{n}`, immutable): `semver`,
+  `minSdk`, `payload` (the JSON text of `{definition, contract}`), `digest`
+  (sha256 hex of the payload's UTF-8), `changelog`.
+* **`ManagedComponentContract`**: the instance panel's schema: `settings`
+  (`ComponentSetting`s with a stable `key`), `slots` (`{key, label, node}`),
+  `events` (`{key, label, payload}`), `tokens` (theme tokens its nodes bind as
+  `${theme.primary}`), `variables` (declared on the canvas) and `requires`.
+  A master's chains name an event with the placeholder action `{"type":
+  "componentEvent", "event": "onSuccess"}`.
+* **`ManagedComponentRef`** (`ComponentLink.managed`, on an instance's top
+  node): `channel`, `pin`, the snapshot's `semver` and `digest`, and the
+  instance's customization: `values` (by setting key), `slots` (slot key →
+  the page's node ids), `events` (event key → action chain), `tokens`.
+  `ComponentLink.version` is the version the snapshot was built from.
+* **The snapshot**: the instance's nodes in the page, built by
+  `buildManagedInstance(version, topId, ref)` (ids `topId__nodeId`, values
+  applied by key, tokens substituted, slots grafted, event placeholders
+  replaced by the instance's chains). It is what the editor shows, what a
+  publish carries (`PublishLayout.extra.managed`: instance → `{id, version,
+  semver, channel, pin, digest}`) and what an app falls back to.
+  `managedUpdateTarget` says which newer same-major version (or, for a
+  blocked snapshot, which older one) an app swaps in at run time;
+  `replaceManagedInstance` swaps it, keeping slot content.
+* **Forking**: editing an instance's inner nodes detaches it (a plain copy
+  that no longer updates).
+
+```json
+"signin": {"type": "column", "children": ["signin__title", "..."],
+           "component": {"id": "sign_in", "version": 3, "managed": {
+             "semver": "1.1.0", "digest": "9f2c...", "values": {"title": "Welcome back"},
+             "events": {"onSuccess": [{"type": "navigate", "to": "home"}]}}}}
+```
+
 ## 5. SDK
 
 ```
@@ -296,8 +345,9 @@ drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
-cards by tap, drag and variable. Not run yet (modeled only): hero
-flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
+cards by tap, drag and variable; navigation flies shared elements (`hero`,
+`runtime/actions/hero_flights.dart`) and `playAnimation` plays one-shot
+effects (`render/play.dart`). A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
@@ -360,7 +410,9 @@ the value as is (a list stays a list); any other text with `${...}` is text.
 A text node's own `props.text` may hold `${...}`: it is interpolated run by
 run. Names come from scopes: the screen's variables, the list item (`item`,
 `index`, `parent`), what the app provides (`route`, `screen`,
-`storage`, `auth`, `data`, `drag`: the layout's drag and drop session...),
+`storage`, `auth`, `data`, `drag`: the layout's drag and drop session,
+`perf`: the app's frame timings `{frameMs, buildMs, rasterMs, fps}`, read
+from the engine only while something watches it...),
 and what a node gives itself and the nodes inside it: a dragged node's live
 `drag` values over the session's (a `LocalScope`), a drag track's `track`
 (`value`, `progress`, `dragging`, `fine`, `focused`), a transform gesture's

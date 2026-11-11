@@ -18,6 +18,12 @@ void main() {
       expect(VariableType.decimal.coerce('4.5'), 4.5);
       expect(VariableType.integer.coerce(2.9), 2);
       expect(VariableType.boolean.coerce('TRUE'), true);
+      // A link's flag (`?learn=1`).
+      expect(VariableType.boolean.coerce('1'), true);
+      expect(VariableType.boolean.coerce('0'), false);
+      expect(VariableType.boolean.coerce('yes'), true);
+      expect(VariableType.boolean.coerce(1), true);
+      expect(VariableType.boolean.coerce('maybe'), null);
       expect(VariableType.boolean.coerce('maybe'), isNull);
       expect(VariableType.color.coerce('#f00f00'), '#FFF00F00');
       expect(VariableType.list.coerce('[1, 2]'), [1, 2]);

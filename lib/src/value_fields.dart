@@ -63,6 +63,9 @@ abstract final class TextStyleFields {
   static const height = PropDef<double?>('height', Codecs.optionalPositive, null);
   static const decoration = PropDef<TextDecoration?>('decoration', OptionalEnumCodec(TextDecoration.values), null);
   static const decorationColor = PropDef<Color?>('decorationColor', Codecs.optionalColor, null);
+
+  /// Painted behind the glyphs.
+  static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
   static const decorationStyle = PropDef<TextDecorationStyle?>(
     'decorationStyle',
     OptionalEnumCodec(TextDecorationStyle.values),
@@ -86,7 +89,7 @@ abstract final class TextStyleFields {
 
   static const List<PropDef<Object?>> all = [
     fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
-    decorationColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
+    decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
     shadows,
   ];
 }
@@ -184,6 +187,9 @@ abstract final class PaintFields {
   );
   /// A path paints the gradient in each of its shapes.
   static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
+  /// A radial gradient's radius as a share of the box's shortest side.
+  static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null,
+      doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's.");
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -196,6 +202,7 @@ abstract final class PaintFields {
     tileMode,
     image,
     gradientPerSubpath,
+    radius,
   ];
 }
 
