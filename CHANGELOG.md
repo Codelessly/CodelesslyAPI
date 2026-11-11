@@ -38,6 +38,8 @@
 - `CallFunctionAction.optional`: a function the app didn't register gives `null` instead of failing the chain.
 - `CloudFilesAction.source` and `fileName`: upload a value (a `data:` URL, `{"data", "name"}`, or a list)
   instead of asking the user to pick files.
+- `ListViewProps.stickToEnd`: a list that opens at its end, keeps its place when items are put before the ones
+  on screen, and follows new items at the end only while scrolled there (a chat, a log).
 - `FormService.unsupported`: older JSON with `service: mailchimp`, with no `service` and the removed fields,
   or with an unknown service decodes as this (it never throws). The removed fields are read past and never written
   back out. `SubmitFormFields.service` offers only `local`.
