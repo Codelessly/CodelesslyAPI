@@ -639,7 +639,8 @@ device's, never the variance's own box.
    variants, and a project breakpoint no variant names never moves where
    an existing variance switches.
 
-**`${screen}`** (`screenValues`): `width`, `height`, `orientation`,
+**`${screen}`** (`screenValues`): `modal` and `sheet` (whether the screen is
+shown as a modal, and as a bottom sheet), `width`, `height`, `orientation`,
 `isPortrait`, `isLandscape`, `brightness`, `isDark`; `breakpoint` (the
 current id), `breakpointName`, `breakpointIndex`; `is` and `atLeast`, maps by
 id and by name key (lower camel case: "Large desktop" → `largeDesktop`) to
