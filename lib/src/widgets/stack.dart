@@ -7,17 +7,18 @@ import 'scroll.dart';
 /// A freeform container: children placed by `layout.x`/`layout.y`
 /// (Flutter `Stack` with `Positioned`/`Align` children).
 abstract final class StackProps {
-  /// Scales the children, laid out at the stack's design size, into the
-  /// stack's box (Flutter `FittedBox`): `cover` fills it and crops,
-  /// `contain` letterboxes. `none` lays them out in the box itself.
-  static const contentFit = PropDef<BoxFit>('contentFit', EnumCodec(BoxFit.values), BoxFit.none,
-      doc: 'Scales the content, designed at the stack\'s design size, into its box (FittedBox).');
+  /// Scales the whole board into the box it gets (Flutter `FittedBox`
+  /// around a `Stack` of the design size): children keep their design
+  /// positions and sizes and grow or shrink together, as a map, a diagram
+  /// or a game board does. Null lays children out in the box as is.
+  static const fit = PropDef<BoxFit?>('fit', OptionalEnumCodec(BoxFit.values), null,
+      doc: 'Scale the board (its design size) into the box: contain, cover, scaleDown...');
 
-  /// Where scaled content sits in the box (`FittedBox.alignment`).
-  static const contentAlignment = PropDef<Alignment>('contentAlignment', Codecs.alignment, Alignment.center);
+  /// Where a [fit] board sits in its box.
+  static const fitAlignment = PropDef<Alignment>('fitAlignment', Codecs.alignment, Alignment.center);
 
   static const spec = WidgetSpec('stack',
-      props: [...ScrollProps.all, contentFit, contentAlignment],
+      props: [...ScrollProps.all, fit, fitAlignment],
       children: ChildModel.list,
       decorated: true,
       childFields: [LayoutFields.x, LayoutFields.y],
