@@ -133,6 +133,25 @@ void main() {
     expect(bob.dy, closeTo(-10, 1e-9));
   });
 
+  test('a flicker wavers between its values and loops seamlessly', () {
+    const glow = LoopAnimation(type: LoopAnimationType.flicker, scaleFrom: 0.9, scaleTo: 1.1, opacityFrom: 0.6, opacityTo: 1);
+    final samples = [for (var i = 0; i <= 100; i++) glow.poseAt(i / 100)];
+    for (final p in samples) {
+      expect(p.scale, inInclusiveRange(0.9, 1.1));
+      expect(p.opacity, inInclusiveRange(0.6, 1));
+    }
+    // Not a steady pulse: it changes direction many times in a run.
+    var turns = 0;
+    for (var i = 2; i < samples.length; i++) {
+      final a = samples[i - 1].opacity - samples[i - 2].opacity, b = samples[i].opacity - samples[i - 1].opacity;
+      if (a.sign != b.sign && a != 0 && b != 0) turns++;
+    }
+    expect(turns, greaterThan(6));
+    expect(glow.poseAt(0).opacity, closeTo(glow.poseAt(1).opacity, 1e-9));
+    expect(LoopAnimation.fromJson(glow.toJson()), glow);
+    expect(LoopAnimationType.flicker.scales && LoopAnimationType.flicker.fades, isTrue);
+  });
+
   test('motion: rest, entrance start, keyframes', () {
     const m = Motion(rotate: 30, translateX: 10, enterFrom: Motion(opacity: 0));
     expect(m.hasTransform, isTrue);
