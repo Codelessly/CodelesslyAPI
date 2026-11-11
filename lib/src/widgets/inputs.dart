@@ -223,10 +223,18 @@ abstract final class SwitchProps {
   /// Material's switch scaled to the box.
   static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
 
+  /// The track's corner radius: null is a pill (half its height); a square
+  /// switch sets a small one. With it the switch is a plain toggle.
+  static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
+
+  /// The thumb's corner radius: null is round; a square switch sets a small
+  /// one. With it the switch is a plain toggle.
+  static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
+
   static const spec = WidgetSpec('switch', props: [
     value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack, thumbShadows, thumbInset,
+    fillTrack, thumbShadows, thumbInset, trackRadius, thumbRadius,
   ], doc: 'Flutter `Switch`.');
 }
 
@@ -548,9 +556,13 @@ abstract final class SegmentedButtonProps {
   /// `shape: RoundedRectangleBorder(borderRadius)`; unset is Flutter's stadium.
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
+  /// Each segment's padding (`padding`); unset is Flutter's.
+  static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
+    padding,
   ], doc: 'Flutter `SegmentedButton`.');
 }
 
