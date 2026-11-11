@@ -1128,7 +1128,10 @@ final class CloudDocumentsAction extends ActionDef {
 
 /// Streams a cloud document, or a collection query's documents, into
 /// variable [variable] while the screen shows: `{status: loading|loaded|
-/// error, data, ...}`.
+/// error, data, ...}`. Blocking actions wait for the first value; an initial
+/// failure stops the chain. A later subscription failure stops any remaining
+/// actions from that invocation and fires the canvas's actionError reaction.
+/// Subscriptions close on error or when the screen is disposed.
 final class LoadCloudDataAction extends ActionDef {
   const LoadCloudDataAction({
     this.variable = '',
@@ -1814,6 +1817,7 @@ final class PlaySoundAction extends ActionDef {
     this.operation = 'play',
     this.voiceId = '',
     this.frequency = '440',
+    this.waveform = 'sine',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1833,11 +1837,15 @@ final class PlaySoundAction extends ActionDef {
   /// with the same voiceId. `stopAll` releases the app's sustained tones.
   final String operation, voiceId, frequency;
 
+  /// Sustained tone shape: sine (default) or triangle.
+  final String waveform;
+
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
     operation: _s(m, 'operation', 'play'),
     voiceId: _s(m, 'voiceId'),
     frequency: _s(m, 'frequency', '440'),
+    waveform: _s(m, 'waveform', 'sine'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1852,6 +1860,7 @@ final class PlaySoundAction extends ActionDef {
     if (operation != 'play') 'operation': operation,
     if (voiceId.isNotEmpty) 'voiceId': voiceId,
     if (frequency != '440') 'frequency': frequency,
+    if (waveform != 'sine') 'waveform': waveform,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
@@ -1872,6 +1881,7 @@ final class PaywallAction extends ActionDef {
   const PaywallAction({
     this.operation = PaywallOperation.purchase,
     this.placement,
+    this.offer,
     this.slot,
     this.url,
     super.enabled,
@@ -1887,12 +1897,16 @@ final class PaywallAction extends ActionDef {
 
   /// Server-resolved placement to open; required for [PaywallOperation.openPaywall].
   final String? placement;
+
+  /// Optional offer preference: storeDefault, trial, or standard (expressions allowed).
+  final String? offer;
   final String? slot;
   final String? url;
 
   static PaywallAction _fromJson(Json m, _Common c) => PaywallAction(
     operation: _e(PaywallOperation.values, m, 'operation', PaywallOperation.purchase),
     placement: _sOrNull(m, 'placement'),
+    offer: _sOrNull(m, 'offer'),
     slot: _sOrNull(m, 'slot'),
     url: _sOrNull(m, 'url'),
     enabled: c.enabled,
@@ -1901,7 +1915,7 @@ final class PaywallAction extends ActionDef {
   );
 
   @override
-  Json get _fields => {'operation': operation.name, 'placement': ?placement, 'slot': ?slot, 'url': ?url};
+  Json get _fields => {'operation': operation.name, 'placement': ?placement, 'offer': ?offer, 'slot': ?slot, 'url': ?url};
 }
 
 // --- nodes --------------------------------------------------------------------------
