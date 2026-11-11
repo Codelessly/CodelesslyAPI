@@ -92,6 +92,44 @@ extension CanvasBreakpointsForWidth on Iterable<CanvasBreakpoint> {
 /// Its JSON is the document's (`schema`, `id`, `roots`, `nodes`) with the
 /// layout's own keys beside them, so a published layout decodes as a
 /// [LayoutDocument] too.
+/// How a screen opens when a link (its URL) opens it rather than an action:
+/// [under], the location of the screen beneath it (`/` the app's entry,
+/// `specimen/:id` with this screen's own params), so back lands there as it
+/// would had the user navigated; [overlay], drawn over that screen (a
+/// dialog, a lightbox) instead of covering it.
+@immutable
+final class ScreenRoute {
+  const ScreenRoute({this.under, this.overlay = false});
+
+  static const ScreenRoute none = ScreenRoute();
+
+  /// The path pattern of the screen beneath (`:name` filled from this
+  /// screen's params); `/` is the app's entry. Null: nothing beneath.
+  final String? under;
+
+  /// Drawn over the screen beneath (that one stays visible behind it).
+  final bool overlay;
+
+  bool get isNone => under == null && !overlay;
+
+  /// From `{under, overlay}` (other keys ignored); null when neither is set.
+  static ScreenRoute? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final under = readString(m['under'])?.trim();
+    final r = ScreenRoute(under: under == null || under.isEmpty ? null : under, overlay: readBool(m['overlay']) ?? false);
+    return r.isNone ? null : r;
+  }
+
+  Json toJson() => {'under': ?under, if (overlay) 'overlay': true};
+
+  @override
+  bool operator ==(Object other) => other is ScreenRoute && other.under == under && other.overlay == overlay;
+
+  @override
+  int get hashCode => Object.hash(under, overlay);
+}
+
 @immutable
 final class PublishLayout {
   PublishLayout({
@@ -100,6 +138,7 @@ final class PublishLayout {
     this.projectId = '',
     this.breakpoints = const [],
     this.paths = const {},
+    this.routes = const {},
     this.variables = const {},
     this.conditions = const {},
     this.fonts = const [],
@@ -130,6 +169,10 @@ final class PublishLayout {
   /// id → path.
   final Map<String, String> paths;
 
+  /// How each canvas that has one opens from a link: canvas id → its
+  /// [ScreenRoute] (the screen beneath it, whether it overlays it).
+  final Map<String, ScreenRoute> routes;
+
   /// The variables its canvases declare, as published: canvas id → variable
   /// id → variable. Read by the runtime's value scope.
   final Json variables;
@@ -159,7 +202,7 @@ final class PublishLayout {
   final Json extra;
 
   static const Set<String> _ownKeys = {
-    'pageId', 'projectId', 'breakpoints', 'paths', 'variables', 'conditions', 'fonts', 'apis', 'theme', //
+    'pageId', 'projectId', 'breakpoints', 'paths', 'routes', 'variables', 'conditions', 'fonts', 'apis', 'theme', //
     'lastUpdated', 'hidden',
   };
 
@@ -214,6 +257,10 @@ final class PublishLayout {
         for (final e in (readMap(m['paths']) ?? const {}).entries)
           if (e.value case final String p when p.isNotEmpty) e.key: p,
       },
+      routes: {
+        for (final e in (readMap(m['routes']) ?? const {}).entries)
+          if (ScreenRoute.fromJson(e.value) case final r? when !r.isNone) e.key: r,
+      },
       variables: readMap(m['variables']) ?? const {},
       conditions: readMap(m['conditions']) ?? const {},
       fonts: readStrings(m['fonts']),
@@ -234,6 +281,7 @@ final class PublishLayout {
     if (projectId.isNotEmpty) j['projectId'] = projectId;
     if (breakpoints.isNotEmpty) j['breakpoints'] = [for (final b in breakpoints) b.toJson()];
     if (paths.isNotEmpty) j['paths'] = paths;
+    if (routes.isNotEmpty) j['routes'] = {for (final e in routes.entries) e.key: e.value.toJson()};
     if (variables.isNotEmpty) j['variables'] = variables;
     if (conditions.isNotEmpty) j['conditions'] = conditions;
     if (fonts.isNotEmpty) j['fonts'] = fonts;
@@ -251,6 +299,7 @@ final class PublishLayout {
     String? projectId,
     List<CanvasBreakpoint>? breakpoints,
     Map<String, String>? paths,
+    Map<String, ScreenRoute>? routes,
     Json? variables,
     Json? conditions,
     List<String>? fonts,
@@ -266,6 +315,7 @@ final class PublishLayout {
         projectId: projectId ?? this.projectId,
         breakpoints: breakpoints ?? this.breakpoints,
         paths: paths ?? this.paths,
+        routes: routes ?? this.routes,
         variables: variables ?? this.variables,
         conditions: conditions ?? this.conditions,
         fonts: fonts ?? this.fonts,
