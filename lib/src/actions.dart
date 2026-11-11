@@ -332,12 +332,14 @@ final class OpenModalAction extends ActionDef {
     this.placement = PopoverPlacement.belowStart,
     this.anchorGap = 4,
     this.anchorOffset = 0,
+    this.anchorReserve = 0,
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
     this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
+    this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
     super.enabled,
@@ -365,6 +367,11 @@ final class OpenModalAction extends ActionDef {
   final PopoverPlacement placement;
   final double anchorGap, anchorOffset;
 
+  /// Room a popover keeps below its top: when its top plus this would pass
+  /// the screen's bottom margin, it moves up so this much fits (a menu that
+  /// may grow keeps its place). 0: placed by its own height.
+  final double anchorReserve;
+
   /// Space kept around a dialog: left, top, right, bottom.
   final List<double> insets;
   final double? sheetWidth;
@@ -388,6 +395,12 @@ final class OpenModalAction extends ActionDef {
       breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
   final bool fullHeight;
+
+  /// A dialog that covers the screen (inside [insets]): its screen fills it
+  /// and is laid out at that size, so its breakpoint and responsive layouts
+  /// follow the device, as a screen navigated to does. Not a page route:
+  /// the screen behind stays visible through a transparent design.
+  final bool cover;
   final double enterScale;
 
   /// A custom transition for the modal: its entrance, what the screen
@@ -409,12 +422,14 @@ final class OpenModalAction extends ActionDef {
     placement: _e(PopoverPlacement.values, m, 'placement', PopoverPlacement.belowStart),
     anchorGap: _d(m, 'anchorGap', 4),
     anchorOffset: _d(m, 'anchorOffset', 0),
+    anchorReserve: _d(m, 'anchorReserve', 0),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
     sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
+    cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
     enabled: c.enabled,
@@ -437,12 +452,14 @@ final class OpenModalAction extends ActionDef {
     if (placement != PopoverPlacement.belowStart) 'placement': placement.name,
     if (anchorGap != 4) 'anchorGap': writeDouble(anchorGap),
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
+    if (anchorReserve != 0) 'anchorReserve': writeDouble(anchorReserve),
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
     if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
+    if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),
   };

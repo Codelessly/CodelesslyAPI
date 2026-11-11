@@ -607,6 +607,24 @@ abstract final class TableViewProps {
   static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
+  /// Space before the first column and after the last.
+  static const horizontalPadding = PropDef<double>('horizontalPadding', Codecs.positive, 0);
+
+  /// A line under the header row only.
+  static const headerBorderColor = PropDef<Color?>('headerBorderColor', _optionalColor, null);
+  static const headerBorderWidth = PropDef<double>('headerBorderWidth', Codecs.positive, 1);
+
+  /// A body row's background while the pointer is over it.
+  static const rowHoverColor = PropDef<Color?>('rowHoverColor', _optionalColor, null);
+
+  /// The selected body row (bind it), -1 for none: drawn in
+  /// [selectedRowColor] with a [selectedRowEdgeWidth] edge at its start in
+  /// [selectedRowEdgeColor].
+  static const selectedRow = PropDef<int>('selectedRow', Codecs.int, -1);
+  static const selectedRowColor = PropDef<Color?>('selectedRowColor', _optionalColor, null);
+  static const selectedRowEdgeColor = PropDef<Color?>('selectedRowEdgeColor', _optionalColor, null);
+  static const selectedRowEdgeWidth = PropDef<double>('selectedRowEdgeWidth', Codecs.positive, 4);
+
   /// The last column takes the width the columns leave over, so the ruled
   /// rows run to the table's edge.
   static const stretchLastColumn = PropDef<bool>('stretchLastColumn', Codecs.bool, false);
@@ -618,7 +636,9 @@ abstract final class TableViewProps {
     props: [
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, stretchLastColumn,
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
+      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, selectedRowEdgeColor,
+      selectedRowEdgeWidth, stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
