@@ -217,6 +217,8 @@ abstract final class OpenModalFields {
   static const placement = PropDef<PopoverPlacement>('placement', EnumCodec(PopoverPlacement.values), PopoverPlacement.belowStart);
   static const anchorGap = PropDef<double>('anchorGap', Codecs.double, 4);
   static const anchorOffset = PropDef<double>('anchorOffset', Codecs.double, 0);
+  static const anchorReserve = PropDef<double>('anchorReserve', Codecs.double, 0,
+      doc: 'Room a popover keeps below its top: when its top plus this would pass the screen\'s bottom margin, it moves up to fit it (a menu keeps its place as it grows). 0: by its own height.');
   static const insets = PropDef<List<double>>('insets', Codecs.doubles, [0, 0, 0, 0],
       doc: 'Space kept around a dialog: left, top, right, bottom.');
   static const sheetWidth = PropDef<double?>('sheetWidth', Codecs.optionalDouble, null);
@@ -233,7 +235,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showCloseButton, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
+    alignment, anchor, placement, anchorGap, anchorOffset, anchorReserve, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
     fullHeight, cover, enterScale, routeTransition,
   ];
 }
