@@ -795,7 +795,9 @@ abstract final class TypewriterFields {
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
   static const holdAtMs = PropDef<int?>('holdAtMs', Codecs.optionalInt, null,
       doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs];
+  static const grow = PropDef<bool>('grow', Codecs.bool, false,
+      doc: 'Only as tall as the lines typed so far (off: the whole text\'s size from the start).');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
