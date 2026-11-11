@@ -1408,6 +1408,13 @@ enum AuthOperation {
   sendSignInLink,
   completeSignInLink,
   updatePhoto,
+
+  /// Starts a guest session: an anonymous account that has a uid (so it can
+  /// keep `users/{uid}` data) but no email. `${auth.isGuest}` is true and
+  /// `${auth.isSignedIn}` false. A [signUp] while a guest turns the guest
+  /// into a real account with the same uid, so its data carries over;
+  /// [signOut] ends the session and [deleteAccount] deletes it.
+  signInAnonymously,
 }
 
 /// Signs app users in, up and out, and manages their account. A failure's
