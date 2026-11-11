@@ -191,5 +191,61 @@ void main() {
       expect(ServiceConfig.fromJson(config.toJson()), config);
       expect(ServiceConfig.fromJson('junk').toJson(), isEmpty);
     });
+
+    test('test store data round-trips on slots, with the paywall flag', () {
+      final json = <String, Object?>{
+        'paywall': {
+          'products': [
+            {
+              'id': 'monthly',
+              'iosProductId': 'm.ios',
+              'test': {
+                'price': r'$4.99',
+                'rawPrice': 4.99,
+                'currency': 'USD',
+                'currencySymbol': r'$',
+                'period': 'month',
+                'trialDays': 7,
+                'entitlementId': 'pro',
+              },
+            },
+            {
+              'id': 'lifetime',
+              'test': {'rawPrice': 99, 'currency': 'EUR', 'entitlementId': 'pro', 'outcome': 'declined'},
+            },
+            {'id': 'annual', 'androidProductId': 'a.android'},
+          ],
+          'placements': [
+            {'id': 'onboarding', 'layoutId': 'L', 'productSlots': ['monthly', 'lifetime', 'annual']},
+          ],
+          'testStore': true,
+        },
+      };
+      final config = ServiceConfig.fromJson(json);
+      final paywall = config.paywall;
+      expect(paywall.testStore, isTrue);
+      final monthly = paywall.product('monthly')!.test!;
+      expect(monthly.price, r'$4.99');
+      expect(monthly.rawPrice, 4.99);
+      expect(monthly.period, 'month');
+      expect(monthly.trialDays, 7);
+      expect(monthly.entitlementId, 'pro');
+      expect(monthly.outcome, TestPurchaseOutcome.purchased);
+      final lifetime = paywall.product('lifetime')!.test!;
+      expect(lifetime.outcome, TestPurchaseOutcome.declined);
+      expect(lifetime.rawPrice, 99);
+      expect(lifetime.period, '');
+      expect(paywall.product('annual')!.test, isNull);
+      expect(config.toJson(), json);
+      expect(ServiceConfig.fromJson(config.toJson()), config);
+      expect(PaywallConfig.fromJson({'testStore': false}).toJson(), isEmpty);
+      expect(PaywallConfig.fromJson({'testStore': false}).testStore, isFalse);
+      expect(ProductTestData.fromJson({'outcome': 'cancelled'})!.outcome, TestPurchaseOutcome.cancelled);
+      expect(ProductTestData.fromJson({'outcome': 'canceled'})!.outcome, TestPurchaseOutcome.cancelled);
+      expect(ProductTestData.fromJson({'outcome': 'nope'})!.outcome, TestPurchaseOutcome.purchased);
+      expect(ProductTestData.fromJson('junk'), isNull);
+      expect(const ProductSlot('a', test: ProductTestData(entitlementId: 'x')),
+          isNot(const ProductSlot('a', test: ProductTestData(entitlementId: 'y'))));
+    });
   });
 }
