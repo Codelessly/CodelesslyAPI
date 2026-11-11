@@ -58,9 +58,15 @@ enum VariableType {
             final String s => double.tryParse(s.trim())?.let((d) => d.isFinite ? d : null),
             _ => null,
           },
+        // A link's `?learn=1` (or yes / on) sets a boolean as `true` does.
         boolean => switch (value) {
             final bool b => b,
-            final String s => switch (s.trim().toLowerCase()) { 'true' => true, 'false' => false, _ => null },
+            final num n => n != 0,
+            final String s => switch (s.trim().toLowerCase()) {
+                'true' || 'yes' || 'on' => true,
+                'false' || 'no' || 'off' || '' => false,
+                final t => num.tryParse(t)?.let((n) => n != 0),
+              },
             _ => null,
           },
         color => Color.fromJson(value is String ? value.trim() : value)?.toJson(),
