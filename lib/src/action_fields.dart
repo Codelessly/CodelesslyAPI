@@ -358,7 +358,10 @@ abstract final class LoadCloudDataFields {
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
       doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
-  static const List<PropDef<Object?>> all = [variable, single, id, query];
+  static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
+      doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
+          'into an app variable every screen reads.');
+  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
 }
 
 /// [AuthAction].
