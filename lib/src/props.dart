@@ -174,8 +174,12 @@ abstract class PropCodec<T> {
 }
 
 final class DoubleCodec extends PropCodec<double> {
-  const DoubleCodec({this.min, this.max});
+  const DoubleCodec({this.min, this.max, this.ratio = false});
   final double? min, max;
+
+  /// A ratio (an aspect ratio): stored with [writeRatio]'s precision, not
+  /// rounded to 4 decimals.
+  final bool ratio;
   @override
   double? decode(Object? json) {
     var v = readDouble(json);
@@ -186,7 +190,7 @@ final class DoubleCodec extends PropCodec<double> {
   }
 
   @override
-  Object encode(double value) => writeDouble(value);
+  Object encode(double value) => ratio ? writeRatio(value) : writeDouble(value);
 
   @override
   PropType get type => PropType.number(min: min, max: max);
@@ -210,8 +214,11 @@ final class IntCodec extends PropCodec<int> {
 
 /// A double that may be absent (`itemExtent`, `mainAxisExtent`).
 final class OptionalDoubleCodec extends PropCodec<double?> {
-  const OptionalDoubleCodec({this.min});
+  const OptionalDoubleCodec({this.min, this.ratio = false});
   final double? min;
+
+  /// A ratio: stored with [writeRatio]'s precision.
+  final bool ratio;
   @override
   double? decode(Object? json) {
     final v = readDouble(json);
@@ -220,7 +227,7 @@ final class OptionalDoubleCodec extends PropCodec<double?> {
   }
 
   @override
-  Object? encode(double? value) => value == null ? null : writeDouble(value);
+  Object? encode(double? value) => value == null ? null : (ratio ? writeRatio(value) : writeDouble(value));
 
   @override
   PropType get type => PropType.number(min: min);

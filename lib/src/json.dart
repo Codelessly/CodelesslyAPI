@@ -63,6 +63,15 @@ num writeDouble(double v) {
   return r == r.roundToDouble() && r.abs() < 1e15 ? r.toInt() : r;
 }
 
+/// A ratio for storage: integral values become ints, others keep 12
+/// significant decimals. Rounding a ratio to 4 decimals ([writeDouble]) is
+/// off by up to 0.00005 per unit, which a size scales: 320/180 stored as
+/// 1.7778 made a 300 px drawing 168.748 tall instead of 168.75.
+num writeRatio(double v) {
+  final r = (v * 1e12).roundToDouble() / 1e12;
+  return r == r.roundToDouble() && r.abs() < 1e15 ? r.toInt() : r;
+}
+
 /// Puts [key] in [json] unless [value] is null or equals [defaultValue].
 void put(Json json, String key, Object? value, [Object? defaultValue]) {
   if (value == null) return;

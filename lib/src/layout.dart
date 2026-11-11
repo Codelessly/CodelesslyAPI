@@ -278,7 +278,7 @@ final class Layout {
     if (y != AxisPosition.zero) j['y'] = y.toJson();
     if (align != null) j['align'] = align!.toJson();
     if (rotation != 0) j['rotation'] = writeDouble(rotation);
-    if (aspectRatio != null) j['aspectRatio'] = writeDouble(aspectRatio!);
+    if (aspectRatio != null) j['aspectRatio'] = writeRatio(aspectRatio!);
     if (widthFactor != null) j['widthFactor'] = writeDouble(widthFactor!);
     if (heightFactor != null) j['heightFactor'] = writeDouble(heightFactor!);
     return j;

@@ -130,6 +130,18 @@ abstract final class FloatingActionButtonProps {
       doc: 'Flutter `FloatingActionButton`.');
 }
 
+/// How a chip is drawn.
+enum ChipVariant {
+  /// Flutter's chip, with Material's own spacing and minimum sizes.
+  material,
+
+  /// Exactly its [ChipProps.padding] (default 10 × 4) around a check (when
+  /// selected, [ChipProps.avatarSize] wide, default 13), a [ChipProps.spacing]
+  /// gap and the label, in its fill, side and shape: the compact tag chips
+  /// of dashboards and forms.
+  plain,
+}
+
 /// `Chip`, `ActionChip`, `ChoiceChip`, `FilterChip` and `InputChip`.
 abstract final class ChipProps {
   static const label = PropDef<String>('label', Codecs.string, '');
@@ -137,6 +149,8 @@ abstract final class ChipProps {
 
   /// An icon glyph, or `{"image": url}` for a `CircleAvatar`.
   static const avatar = PropDef<IconGlyph>('avatar', _glyph, {});
+  /// The avatar's box; a selectable chip's checkmark is drawn in it too (at
+  /// 75 %), so it sizes the checkmark. Null: Material's.
   static const avatarSize = PropDef<double?>('avatarSize', _optionalDouble, null);
   static const avatarColor = PropDef<Color?>('avatarColor', _nullableColor, null);
   static const deleteIcon = PropDef<IconGlyph>('deleteIcon', _glyph, {});
@@ -156,10 +170,14 @@ abstract final class ChipProps {
   static const tooltip = PropDef<String?>('tooltip', _optionalString, null);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
   static const isEnabled = PropDef<bool>('isEnabled', Codecs.bool, true);
+  static const variant = PropDef<ChipVariant>('variant', EnumCodec(ChipVariant.values), ChipVariant.material);
+
+  /// [ChipVariant.plain]: the gap between the check (or avatar) and the label.
+  static const spacing = PropDef<double>('spacing', Codecs.double, 4);
 
   static const List<PropDef<Object?>> _common = [
     label, labelStyle, avatar, avatarSize, avatarColor, backgroundColor, side, shape, elevation, shadowColor, //
-    padding, labelPadding, autofocus,
+    padding, labelPadding, autofocus, variant, spacing,
   ];
   static const List<PropDef<Object?>> _selectable = [
     selected, showCheckmark, checkmarkColor, selectedColor, tooltip, isEnabled,
