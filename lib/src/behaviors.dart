@@ -451,7 +451,10 @@ final class Motion extends _Value {
   /// Hidden while its back faces the viewer.
   final bool backfaceHidden;
 
-  /// An SVG path the node moves along, at [pathProgress] (0–1).
+  /// An SVG path the node moves along, at [pathProgress] (0–1). It is
+  /// followed from where the node is laid out: the node is moved by the
+  /// path's offset from its start point, so a node tracing a route drawn in
+  /// its parent's coordinates sits at the route's first point.
   final String? path;
   final double pathProgress;
 
