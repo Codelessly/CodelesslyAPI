@@ -861,9 +861,11 @@ abstract final class StrokePathFields {
     doc: 'How the drawing eases.',
   );
   static const drawKey = PropDef<String>('drawKey', Codecs.string, '', doc: 'Draws again from nothing when it changes.');
+  static const fillColor = PropDef<Color?>('fillColor', Codecs.color, null,
+      doc: 'Fills the shape the points enclose, behind the line (fading in as it draws).');
   static const List<PropDef<Object?>> all = [
     points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, //
-    drawMs, drawDelayMs, drawCurve, drawKey,
+    drawMs, drawDelayMs, drawCurve, drawKey, fillColor,
   ];
 }
 
