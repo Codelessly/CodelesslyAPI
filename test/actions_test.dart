@@ -24,6 +24,7 @@ final samples = <Json>[
   {'type': 'if', 'condition': {'left': r'${n}', 'op': 'greaterThan', 'right': '3'}, 'then': [{'type': 'openLink', 'url': 'a'}], 'else': [{'type': 'openLink', 'url': 'b'}]},
   {'type': 'forEach', 'items': 'rows', 'actions': [{'type': 'copyToClipboard', 'text': r'${result.item}'}]},
   {'type': 'cloudFiles', 'path': 'img', 'kind': 'any', 'allowMultiple': false, 'access': 'private', 'actions': [{'type': 'openLink', 'url': r'${result.url}'}]},
+  {'type': 'downloadFile', 'fileName': 'rota.csv', 'text': r'${csv}', 'mimeType': 'text/csv'},
   {'type': 'showToast', 'message': 'Saved', 'title': 'Done', 'style': 'success', 'actionLabel': 'Undo', 'actions': [{'type': 'delay', 'ms': 1}], 'look': {'radius': 8}},
   {'type': 'confirm', 'title': 'Delete?', 'destructive': true, 'actions': [{'type': 'delay', 'ms': 1}], 'cancelActions': [{'type': 'delay', 'ms': 2}], 'dialog': 'd'},
   {'type': 'delay', 'ms': 900, 'duration': r'${= slow ? 4000 : 900}'},
@@ -42,6 +43,10 @@ final samples = <Json>[
   {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
   {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
   {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
+  {'type': 'playSound', 'operation': 'start', 'voiceId': r'${result.pointer}', 'frequency': '261.6256', 'volume': '0.1'},
+  {'type': 'playSound', 'operation': 'stop', 'voiceId': r'${result.pointer}'},
+  {'type': 'playSound', 'operation': 'stopAll'},
+
 ];
 
 void main() {

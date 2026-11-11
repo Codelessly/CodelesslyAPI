@@ -189,6 +189,9 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
+  /// Natural-height items in independent lanes, cycling in reading order.
+  static const masonry = PropDef<bool>('masonry', Codecs.bool, false);
+
   /// Loads the items page by page (see [ListViewProps.pagination]).
   static const pagination = ListViewProps.pagination;
 
@@ -199,7 +202,7 @@ abstract final class GridViewProps {
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows, pagination, reorder,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, pagination, reorder,
     ],
     slots: CollectionSlots.grid,
     children: ChildModel.list,

@@ -125,6 +125,7 @@ final Map<String, _Decoder> _decoders = {
   CloudDataAction.typeName: CloudDataAction._fromJson,
   CloudBatchAction.typeName: CloudBatchAction._fromJson,
   CopyToClipboardAction.typeName: CopyToClipboardAction._fromJson,
+  DownloadFileAction.typeName: DownloadFileAction._fromJson,
   EditTextAction.typeName: EditTextAction._fromJson,
   PaywallAction.typeName: PaywallAction._fromJson,
   FocusAction.typeName: FocusAction._fromJson,
@@ -1695,6 +1696,25 @@ final class CopyToClipboardAction extends ActionDef {
   Json get _fields => {'text': text};
 }
 
+/// Exports generated UTF-8 text (CSV, JSON, plain text...) as a file.
+/// The browser downloads it; native apps show the platform save picker.
+/// Cancellation returns `{saved: false}` as the action result.
+final class DownloadFileAction extends ActionDef {
+  const DownloadFileAction({this.fileName = 'export.txt', this.text = '', this.mimeType = 'text/plain',
+    super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'downloadFile';
+  @override
+  String get type => typeName;
+  final String fileName, text, mimeType;
+
+  static DownloadFileAction _fromJson(Json m, _Common c) => DownloadFileAction(
+    fileName: _s(m, 'fileName', 'export.txt'), text: _s(m, 'text'), mimeType: _s(m, 'mimeType', 'text/plain'),
+    enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+  @override
+  Json get _fields => {'fileName': fileName, 'text': text, 'mimeType': mimeType};
+}
+
 /// Reads [text] aloud, or [stop]s speaking. [rate] and [pitch] are numbers
 /// or expressions.
 final class SpeakAction extends ActionDef {
@@ -1742,6 +1762,9 @@ final class SpeakAction extends ActionDef {
 final class PlaySoundAction extends ActionDef {
   const PlaySoundAction({
     this.sound = 'wood',
+    this.operation = 'play',
+    this.voiceId = '',
+    this.frequency = '440',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1757,8 +1780,15 @@ final class PlaySoundAction extends ActionDef {
 
   final String sound, volume, pitch, at, url;
 
+  /// `play` is the existing one-shot; `start` sustains a tone until `stop`
+  /// with the same voiceId. `stopAll` releases the app's sustained tones.
+  final String operation, voiceId, frequency;
+
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
+    operation: _s(m, 'operation', 'play'),
+    voiceId: _s(m, 'voiceId'),
+    frequency: _s(m, 'frequency', '440'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1770,6 +1800,9 @@ final class PlaySoundAction extends ActionDef {
 
   @override
   Json get _fields => {
+    if (operation != 'play') 'operation': operation,
+    if (voiceId.isNotEmpty) 'voiceId': voiceId,
+    if (frequency != '440') 'frequency': frequency,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
