@@ -197,6 +197,24 @@ void main() {
       });
     });
 
+    test('lists its overlay screens, only when it has any', () {
+      final m = PublishModel.fromJson({...modelJson, 'overlayLayoutIds': ['form', 'off', 'gone']});
+      expect(m.overlayLayoutIds, ['form', 'off', 'gone']);
+      expect(m.extra, {'owner': 'someone'});
+      // Published and not disabled.
+      expect(m.overlays, ['form']);
+      final again = PublishModel.fromJson(jsonDecode(jsonEncode(m.toJson())));
+      expect(again.overlayLayoutIds, ['form', 'off', 'gone']);
+      expect(m.copyWith(overlayLayoutIds: []).toJson().containsKey('overlayLayoutIds'), isFalse);
+      expect(PublishModel.fromJson(modelJson).overlayLayoutIds, isEmpty);
+      // A canvas is an overlay screen by its `overlay` prop.
+      expect(CanvasProps.spec.props, contains(CanvasProps.overlay));
+      final canvas = Node.fromJson({'id': 'c', 'type': 'canvas', 'props': {'overlay': true}})!;
+      expect(canvas.prop(CanvasProps.overlay), isTrue);
+      expect(Node.fromJson(canvas.toJson())!.prop(CanvasProps.overlay), isTrue);
+      expect(const Node(id: 'c', type: 'canvas').prop(CanvasProps.overlay), isFalse);
+    });
+
     test('sources read the existing publish paths ', () {
       expect(PublishSource.publish.modelPath('p'), 'publish/p');
       expect(PublishSource.preview.layoutPath('p', 'l'), 'publish_preview/p/layouts/l');

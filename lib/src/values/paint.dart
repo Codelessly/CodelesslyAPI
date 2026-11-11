@@ -217,7 +217,9 @@ final class Paint {
   static Paint? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
-    final type = readEnum(PaintType.values, m['type'], PaintType.solid);
+    // A paint with an image and no type is an image paint (not a solid
+    // that drops it).
+    final type = m['type'] == null && m['image'] is Map ? PaintType.image : readEnum(PaintType.values, m['type'], PaintType.solid);
     return Paint(
       type: type,
       id: readString(m['id']),

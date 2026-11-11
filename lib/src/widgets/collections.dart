@@ -57,6 +57,16 @@ enum ListLayout {
   deck,
 }
 
+/// Which lane a masonry grid puts each item in.
+enum MasonryPlacement {
+  /// Item i in lane i modulo the lane count, in reading order.
+  cycle,
+
+  /// Each item in the lane that is shortest so far (the first on a tie), as
+  /// a staggered `MasonryGridView` does: lanes end close to even.
+  shortest,
+}
+
 /// When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`).
 enum KeyboardDismissBehavior { manual, onDrag }
 
@@ -112,7 +122,8 @@ abstract final class ListViewProps {
   static const itemExtent = PropDef<double?>('itemExtent', _optionalPositive, null);
   static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.none);
 
-  /// The separator's extent; negative overlaps the items.
+  /// The separator's extent; negative overlaps the items. Without a
+  /// [separator] it is empty space (as a row's or column's spacing).
   static const spacing = PropDef<double>('spacing', Codecs.double, 0);
   static const dividerThickness = PropDef<double>('dividerThickness', Codecs.positive, 1);
   static const dividerColor = PropDef<Color>('dividerColor', Codecs.color, Color.black);
@@ -159,12 +170,27 @@ abstract final class ListViewProps {
   /// Actions revealed behind a swiped item.
   static const swipeActions = PropDef<SwipeActions?>('swipeActions', CollectionCodecs.swipeActions, null);
 
+  /// Pulling the list past its start fires its `refresh` reactions (a
+  /// `reloadCloudData`), with or without [pagination] (which reloads its
+  /// first page too). A list with a `refresh` reaction refreshes this way
+  /// too.
+  static const pullToRefresh = PropDef<bool>('pullToRefresh', Codecs.bool, false);
+
+  /// Opens at the end (the newest message of a chat, the latest line of a
+  /// log), keeps the items on screen in place when items are put before
+  /// them (older messages loaded), and follows items added at the end only
+  /// while it is scrolled to the end. The data stays in reading order
+  /// (oldest first). A runtime that doesn't know it opens at the start.
+  static const stickToEnd = PropDef<bool>('stickToEnd', Codecs.bool, false,
+      doc: 'Opens at the end, keeps its place when items are put before, follows new items at the end.');
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
-      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions,
+      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions, pullToRefresh,
+      stickToEnd,
     ],
     children: ChildModel.list,
     slots: CollectionSlots.list,
@@ -189,8 +215,16 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
-  /// Natural-height items in independent lanes, cycling in reading order.
+  /// Natural-height items in independent lanes, placed by
+  /// [masonryPlacement].
   static const masonry = PropDef<bool>('masonry', Codecs.bool, false);
+
+  /// A masonry grid's lane for each item: in turn, or the shortest.
+  static const masonryPlacement = PropDef<MasonryPlacement>(
+    'masonryPlacement',
+    EnumCodec(MasonryPlacement.values),
+    MasonryPlacement.cycle,
+  );
 
   /// Loads the items page by page (see [ListViewProps.pagination]).
   static const pagination = ListViewProps.pagination;
@@ -202,7 +236,7 @@ abstract final class GridViewProps {
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, pagination, reorder,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, masonryPlacement, pagination, reorder,
     ],
     slots: CollectionSlots.grid,
     children: ChildModel.list,
@@ -521,11 +555,21 @@ abstract final class TableViewProps {
   /// The rows when no data is bound.
   static const rowCount = PropDef<int?>('rowCount', OptionalIntCodec(), null);
   static const rowHeight = PropDef<double>('rowHeight', Codecs.positive, 40);
+
+  /// The field of a row (a map) that holds its own height, for rows that
+  /// aren't all as tall (a summary row that grows with its content); rows
+  /// without a number there are [rowHeight] tall. Empty: every row is.
+  static const rowHeightKey = PropDef<String>('rowHeightKey', Codecs.string, '');
   static const headerHeight = PropDef<double>('headerHeight', Codecs.positive, 44);
 
   /// A column's width unless it sets its own.
   static const columnWidth = PropDef<double>('columnWidth', Codecs.positive, 120);
   static const rowHeaderWidth = PropDef<double>('rowHeaderWidth', Codecs.positive, 120);
+
+  /// Body columns grow to share the width the table has beyond all its
+  /// columns' widths (equally), so a week fills a wide screen and still
+  /// scrolls on a narrow one; no column is ever narrower than its width.
+  static const fillWidth = PropDef<bool>('fillWidth', Codecs.bool, false);
   static const pinHeaderRow = PropDef<bool>('pinHeaderRow', Codecs.bool, true);
   static const pinHeaderColumn = PropDef<bool>('pinHeaderColumn', Codecs.bool, true);
 
@@ -541,13 +585,18 @@ abstract final class TableViewProps {
   static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
+  /// The last column takes the width the columns leave over, so the ruled
+  /// rows run to the table's edge.
+  static const stretchLastColumn = PropDef<bool>('stretchLastColumn', Codecs.bool, false);
+
   static const cell = 'cell', columnHeader = 'columnHeader', rowHeader = 'rowHeader', corner = 'corner';
 
   static const spec = WidgetSpec(
     'tableView',
     props: [
-      columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
+      columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
+      pinHeaderRow, pinHeaderColumn,
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],

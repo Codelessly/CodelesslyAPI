@@ -95,6 +95,10 @@ for (final prop in spec.props) {
 
 `Widgets.all` is the authoritative list; print it for the version you have.
 
+A `listView` with `"stickToEnd": true` opens at its end, keeps the items on screen in place when items are put
+before them, and follows items added at the end only while scrolled there: a chat or a log, with its data in
+reading order (oldest first).
+
 ## Prop types, for tools
 
 `PropDef.type` is a `PropType`: pure data describing what a prop holds, so a tool can build a control, print
