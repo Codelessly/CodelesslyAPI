@@ -296,8 +296,9 @@ drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
-cards by tap, drag and variable. Not run yet (modeled only): hero
-flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
+cards by tap, drag and variable; navigation flies shared elements (`hero`,
+`runtime/actions/hero_flights.dart`) and `playAnimation` plays one-shot
+effects (`render/play.dart`). A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
