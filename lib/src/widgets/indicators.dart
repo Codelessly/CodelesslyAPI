@@ -288,6 +288,21 @@ abstract final class ChartProps {
   /// Grows in from zero when it first shows (a running app).
   static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
 
+  /// Line charts: the row field holding each point's x value, placed over
+  /// [domainMin]–[domainMax] (minutes, years...) instead of one slot per
+  /// row. Unset: rows sit in slots ([xSlots]).
+  static const xField = PropDef<String?>('xField', IndicatorCodecs.optionalString, null);
+
+  /// Line charts with [xField]: x-axis labels at values (`{"x", "label"}`),
+  /// drawn instead of each row's label.
+  static const xLabels = PropDef<List<PlotChartLabel>>('xLabels', PlotChartLabel.codec, []);
+
+  /// Room right of the plot for series end labels ([ChartSeries.endLabel]).
+  static const endLabelWidth = PropDef<double>('endLabelWidth', Codecs.double, 0);
+
+  /// Decimals of the values in series end labels.
+  static const endLabelDecimals = PropDef<int>('endLabelDecimals', IntCodec(min: 0), 1);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -303,6 +318,7 @@ abstract final class ChartProps {
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
     showTotals, totalsColor, totalsSelectedColor, stackGap,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
+    xField, xLabels, endLabelWidth, endLabelDecimals,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
@@ -353,6 +369,84 @@ abstract final class PlotChartProps {
   static const selectionDotStrokeColor = PropDef<Color>('selectionDotStrokeColor', Codecs.color, Color.black);
   static const selectionDotStrokeWidth = PropDef<double>('selectionDotStrokeWidth', Codecs.double, 2.5);
 
+  /// Horizontal lines: grid lines with y-axis labels, and references (a
+  /// dashed target with an inline label).
+  static const yLines = PropDef<List<PlotChartYLine>>('yLines', PlotChartYLine.codec, []);
+
+  /// Room left of the plot for the y lines' axis labels.
+  static const yAxisWidth = PropDef<double>('yAxisWidth', Codecs.double, 0);
+
+  /// Where the curve (and the area under it) stops, an x value: the rest
+  /// of the domain stays empty (a series that hasn't happened yet). Unset:
+  /// the whole domain.
+  static const lineEndX = PropDef<double?>('lineEndX', IndicatorCodecs.optionalDouble, null);
+
+  /// A dot of this radius where the curve ends, in the line color with a
+  /// [selectionDotColor] ring; 0 for none.
+  static const endDotRadius = PropDef<double>('endDotRadius', Codecs.double, 0);
+
+  /// Markers are rings (the marker's color round a [selectionDotColor]
+  /// center) instead of dots.
+  static const markerHollow = PropDef<bool>('markerHollow', Codecs.bool, false);
+
+  // --- Cartesian graph -------------------------------------------------------
+
+  /// More curves over the same x domain, each with gaps (null points).
+  static const series = PropDef<List<PlotChartSeries>>('series', PlotChartSeries.codec, []);
+
+  /// Where vertical grid lines start: xMin (default) or multiples of the
+  /// step.
+  static const gridAnchor =
+      PropDef<PlotChartGridAnchor>('gridAnchor', EnumCodec(PlotChartGridAnchor.values), PlotChartGridAnchor.start);
+
+  /// Horizontal grid lines at multiples of this step (none when unset).
+  static const gridStepY = PropDef<double?>('gridStepY', IndicatorCodecs.optionalDouble, null);
+
+  /// Minor lines between grid lines (0: none), drawn in [minorGridColor]
+  /// only while at least 6px apart.
+  static const minorDivisions = PropDef<int>('minorDivisions', IntCodec(min: 0), 0);
+  static const minorGridColor = PropDef<Color>('minorGridColor', Codecs.color, Color(0x0D000000));
+
+  /// Draws the x axis at y = 0 and the y axis at x = 0 (in [axisColor])
+  /// instead of a baseline, with tick labels at grid lines along them;
+  /// labels of an axis off the plot stick to the nearest edge.
+  static const originAxes = PropDef<bool>('originAxes', Codecs.bool, false);
+  static const axisWidth = PropDef<double>('axisWidth', Codecs.positive, 1);
+
+  /// Arrowheads at the positive ends of the origin axes.
+  static const axisArrows = PropDef<bool>('axisArrows', Codecs.bool, false);
+
+  /// Titles at the positive ends of the origin axes (`x`, `y`).
+  static const xAxisTitle = PropDef<String>('xAxisTitle', Codecs.string, '');
+  static const yAxisTitle = PropDef<String>('yAxisTitle', Codecs.string, '');
+  static const axisTitleStyle = PropDef<TextStyle>('axisTitleStyle', _style, TextStyle.empty);
+
+  /// Behind each axis label, so grid lines don't run through it.
+  static const labelBackground = PropDef<Color?>('labelBackground', IndicatorCodecs.optionalColor, null);
+
+  /// Room kept clear of axis labels at each edge (left, top, right, bottom),
+  /// e.g. for buttons over the chart.
+  static const labelMargin = PropDef<EdgeInsets>('labelMargin', Codecs.insets, EdgeInsets.all(2));
+
+  /// The selection's y (default: the curve at selectedX).
+  static const selectionY = PropDef<double?>('selectionY', IndicatorCodecs.optionalDouble, null);
+
+  /// The curve the selection follows: the id of a [series], or empty for
+  /// the chart's own points.
+  static const selectionSeries = PropDef<String>('selectionSeries', Codecs.string, '');
+  static const selectionGuides = PropDef<PlotChartSelectionGuides>(
+      'selectionGuides', EnumCodec(PlotChartSelectionGuides.values), PlotChartSelectionGuides.line);
+
+  /// Text in tags where the guides meet the axes (empty: no tag).
+  static const selectionXLabel = PropDef<String>('selectionXLabel', Codecs.string, '');
+  static const selectionYLabel = PropDef<String>('selectionYLabel', Codecs.string, '');
+  static const selectionTagColor = PropDef<Color>('selectionTagColor', Codecs.color, Color.black);
+  static const selectionTagStyle = PropDef<TextStyle>('selectionTagStyle', _style, TextStyle.empty);
+
+  /// A soft disc under the selection dot (0: none).
+  static const selectionHaloRadius = PropDef<double>('selectionHaloRadius', Codecs.double, 0);
+  static const selectionHaloColor = PropDef<Color>('selectionHaloColor', Codecs.color, Color(0x2E000000));
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -365,8 +459,13 @@ abstract final class PlotChartProps {
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
     selectionDotColor, selectionDotStrokeColor, selectionDotStrokeWidth,
+    yLines, yAxisWidth, lineEndX, endDotRadius, markerHollow,
+    series, gridAnchor, gridStepY, minorDivisions, minorGridColor, originAxes, axisWidth, axisArrows, xAxisTitle,
+    yAxisTitle, axisTitleStyle, labelBackground, labelMargin, selectionY, selectionSeries, selectionGuides,
+    selectionXLabel, selectionYLabel, selectionTagColor, selectionTagStyle, selectionHaloRadius, selectionHaloColor,
     animate, animationDuration,
-  ], doc: 'Plot chart (line/area over an x domain).');
+  ], doc: 'Plot chart (line/area over an x domain; with series, origin axes and a zero-anchored grid, a '
+      'Cartesian graph).');
 }
 
 /// A bar chart of [values] with optional labels, grid and a highlighted bar.
@@ -389,6 +488,8 @@ abstract final class BarChartProps {
   static const emptyHeight = PropDef<double>('emptyHeight', Codecs.double, 2);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 3);
   static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF2B3038));
+  /// The grid lines' labels, bottom up; one more than [gridLines] labels
+  /// the baseline first ("0").
   static const gridLabels = PropDef<List<String>>('gridLabels', IndicatorCodecs.strings, []);
   static const gridLabelWidth = PropDef<double>('gridLabelWidth', Codecs.double, 40);
   static const baselineColor = PropDef<Color>('baselineColor', Codecs.color, Color(0xFF3A3F47));
@@ -402,10 +503,32 @@ abstract final class BarChartProps {
   /// Milliseconds.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// The grid labels on the left of the chart instead of its right.
+  static const gridLabelsLeft = PropDef<bool>('gridLabelsLeft', Codecs.bool, false);
+
+  /// The widest a bar gets, centred in its column (null: the column).
+  static const maxBarWidth = PropDef<double?>('maxBarWidth', Codecs.optionalPositive, null);
+
+  /// Each bar's value above it (whole numbers without decimals).
+  static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
+
+  /// The weight of the labels under the bars and of the values (100–900).
+  static const labelFontWeight = PropDef<int>('labelFontWeight', IntCodec(min: 100), 400);
+
+  /// Whether the label under the [highlight]ed bar takes
+  /// [highlightLabelColor] (its value above always does).
+  static const highlightLabels = PropDef<bool>('highlightLabels', Codecs.bool, true);
+
+  /// The grid labels' own color, size and weight (null: the labels').
+  static const gridLabelColor = PropDef<Color?>('gridLabelColor', Codecs.color, null);
+  static const gridLabelFontSize = PropDef<double?>('gridLabelFontSize', Codecs.optionalPositive, null);
+  static const gridLabelFontWeight = PropDef<int?>('gridLabelFontWeight', Codecs.optionalInt, null);
+
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight,
+    highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
 

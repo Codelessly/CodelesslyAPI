@@ -142,12 +142,20 @@ abstract final class TextFieldProps {
   /// Markdown highlighting of the typed text.
   static const markdown = PropDef<Json?>('markdown', InputCodecs.json, null);
 
+  /// Characters [highlightStart] (0-based) up to [highlightEnd] (exclusive)
+  /// are drawn in [highlightStyle] over the field's style, e.g. the place a
+  /// syntax error was found. Null or an empty range highlights nothing.
+  static const highlightStart = PropDef<int?>('highlightStart', OptionalIntCodec(), null);
+  static const highlightEnd = PropDef<int?>('highlightEnd', OptionalIntCodec(), null);
+  static const highlightStyle = PropDef<TextStyle>('highlightStyle', Codecs.textStyle, TextStyle.empty);
+
   static const spec = WidgetSpec('textField', props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
-    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown,
+    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, highlightStart,
+    highlightEnd, highlightStyle,
   ], doc: 'Flutter `TextField`.');
 }
 
@@ -231,14 +239,23 @@ abstract final class SwitchProps {
   /// reactions set the value, else it stays (a checkout rule that refuses).
   static const controlled = PropDef<bool>('controlled', Codecs.bool, false);
 
+  /// The track's corner radius: null is a pill (half its height); a square
+  /// switch sets a small one. With it the switch is a plain toggle.
+  static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
+
+  /// The thumb's corner radius: null is round; a square switch sets a small
+  /// one. With it the switch is a plain toggle.
+  static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
+
   static const spec = WidgetSpec('switch', props: [
     enabled, controlled, value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack, thumbShadows, thumbInset,
+    fillTrack, thumbShadows, thumbInset, trackRadius, thumbRadius,
   ], doc: 'Flutter `Switch`.');
 }
 
-/// Flutter `Radio<String>`, scaled to its box (32 px is its own size).
+/// Flutter `Radio<String>`, scaled to its box (32 px is its own size; its
+/// ring, 18 px, when [compact]).
 abstract final class RadioProps {
   static const value = PropDef<String>('value', Codecs.string, '');
 
@@ -257,9 +274,13 @@ abstract final class RadioProps {
   static const innerRadius = PropDef<double?>('innerRadius', Codecs.positive, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.color, null);
 
+  /// The ring fills the box (no tap padding around it), as a compact
+  /// checkbox's square does: an 18 px radio is an 18 px ring.
+  static const compact = PropDef<bool>('compact', Codecs.bool, false);
+
   static const spec = WidgetSpec('radio', props: [
     value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
-    innerRadius, backgroundColor,
+    innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
 
@@ -278,10 +299,25 @@ enum SliderThumbShape {
 
   /// A rectangle of [SliderProps.thumbSize] with an optional border and grip.
   rectangle,
+
+  /// A drafting ruler's index: a hairline across the track and a triangle
+  /// pointing up at it from below, in the thumb color, outlined in
+  /// [SliderProps.thumbStrokeColor] (default black).
+  pointer,
 }
 
 /// The slider's track (`SliderThemeData.trackShape`).
-enum SliderTrackShape { rectangle, roundedRectangle, gapped }
+enum SliderTrackShape {
+  rectangle,
+  roundedRectangle,
+  gapped,
+
+  /// A ruler: a strip in the inactive track color with [SliderProps.rulerTicks]
+  /// ticks (every [SliderProps.rulerMajorEvery]th long), and the active
+  /// color filled from zero (or the minimum) to the value. It spans the
+  /// slider's whole width.
+  ruler,
+}
 
 /// The value indicator (`SliderThemeData.valueIndicatorShape`).
 enum SliderValueIndicatorShape { rectangle, paddle, drop, roundedRectangle }
@@ -336,6 +372,17 @@ abstract final class SliderProps {
   static const trackShape = PropDef<SliderTrackShape?>('trackShape', EnumCodec(SliderTrackShape.values), null);
   static const thumbShape = PropDef<SliderThumbShape>('thumbShape', EnumCodec(SliderThumbShape.values), SliderThumbShape.circle);
 
+  /// A ruler track's divisions (ticks at both ends and between).
+  static const rulerTicks = PropDef<int>('rulerTicks', IntCodec(min: 1), 20);
+
+  /// Every this many ticks, a long one.
+  static const rulerMajorEvery = PropDef<int>('rulerMajorEvery', IntCodec(min: 1), 5);
+
+  /// A ruler's long ticks and baseline (default black) and short ticks
+  /// (default the long ticks' color).
+  static const rulerTickColor = PropDef<Color?>('rulerTickColor', Codecs.color, null);
+  static const rulerMinorTickColor = PropDef<Color?>('rulerMinorTickColor', Codecs.color, null);
+
   /// A circle thumb's radius.
   static const thumbRadius = PropDef<double>('thumbRadius', Codecs.positive, 10);
 
@@ -389,6 +436,7 @@ abstract final class SliderProps {
     thumbStrokeWidth, thumbBorderColor, thumbBorderWidth, thumbGripColor, thumbGlowColor, thumbGlowBlur,
     thumbGlowSpread, showThumb, tickMarkRadius, tickMarkStyle, notchEvery, orientation, inverted, fillFromEnd,
     activeTrackStartOpacity, markerValue, markerColor, markerWidth, markerHeight, selectableMin, selectableMax,
+    rulerTicks, rulerMajorEvery, rulerTickColor, rulerMinorTickColor,
   ], doc: 'Flutter `Slider`.');
 }
 
@@ -460,27 +508,57 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], doc: 'Flutter `DropdownButton`.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- date and time ------------------------------------------------------------
 
-/// An `OutlinedButton` showing a date (`yyyy-MM-dd`) that opens
-/// `showDatePicker`.
+/// The look of a date or time picker: by default an `OutlinedButton`
+/// showing the value; with a [PickerFieldProps.decoration] a read-only text
+/// field (`InputDecorator`: border, fill, prefix and suffix icons, error
+/// text) showing it in [PickerFieldProps.format]. Tapping opens Flutter's
+/// picker, themed by [PickerFieldProps.pickerTheme].
+abstract final class PickerFieldProps {
+  /// How the value shows: an intl `DateFormat` pattern (`EEE d MMM yyyy`,
+  /// `HH:mm`); empty shows `yyyy-MM-dd` / `HH:mm`.
+  static const format = PropDef<String>('format', Codecs.string, '');
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// A field's decoration (as a text field's); empty keeps the button.
+  static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
+
+  /// The picker's title (`showDatePicker`'s `helpText`); empty: Flutter's.
+  static const helpText = PropDef<String>('helpText', Codecs.string, '');
+
+  /// The picker dialog's look: `{backgroundColor, accentColor, onAccentColor,
+  /// textColor, mutedColor, dividerColor, radius, dayRadius, fontFamily,
+  /// headlineStyle}` (colors `#AARRGGBB`, `headlineStyle` a text style).
+  static const pickerTheme = PropDef<Json?>('pickerTheme', InputCodecs.json, null);
+
+  static const List<PropDef<Object?>> all = [format, style, decoration, helpText, pickerTheme];
+}
+
+/// An `OutlinedButton` (or, with a decoration, a read-only field) showing a
+/// date (`yyyy-MM-dd`) that opens `showDatePicker`.
 abstract final class DatePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const firstDate = PropDef<String?>('firstDate', Codecs.string, null);
   static const lastDate = PropDef<String?>('lastDate', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const spec =
-      WidgetSpec('datePicker', props: [value, firstDate, lastDate, enabled], doc: 'Flutter `showDatePicker` button.');
+  static const spec = WidgetSpec('datePicker',
+      props: [value, firstDate, lastDate, enabled, ...PickerFieldProps.all], doc: 'Flutter `showDatePicker` button or field.');
 }
 
-/// An `OutlinedButton` showing a time (`HH:mm`) that opens `showTimePicker`.
+/// An `OutlinedButton` (or, with a decoration, a read-only field) showing a
+/// time (`HH:mm`) that opens `showTimePicker`.
 abstract final class TimePickerProps {
   static const value = PropDef<String>('value', Codecs.string, '');
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const spec = WidgetSpec('timePicker', props: [value, enabled], doc: 'Flutter `showTimePicker` button.');
+
+  /// The picker's dial and fields in 24-hour time.
+  static const use24h = PropDef<bool>('use24h', Codecs.bool, false);
+  static const spec = WidgetSpec('timePicker',
+      props: [value, enabled, use24h, ...PickerFieldProps.all], doc: 'Flutter `showTimePicker` button or field.');
 }
 
 /// What a date/time input picks.
@@ -508,14 +586,30 @@ abstract final class DateTimeInputProps {
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
   /// The field's look, as a text field's (fill, borders, icons, hint, error);
-  /// empty keeps the outlined default.
+  /// empty keeps the outlined default. Its hint and suffix icon win over
+  /// [hint] and [icon].
   static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
 
-  /// The shown value's text style.
+  /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
+  /// [displayFormat], else Material's localized date and time.
+  static const format = PropDef<String?>('format', Codecs.optionalString, null);
+
+  /// The value's text style.
   static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
 
-  /// How the value shows: a `formatDate` pattern (`EEE, MMM d · h:mm a`);
-  /// empty: the locale's medium date and time.
+  /// Shown while empty (null: "Select date" / "Select time").
+  static const hint = PropDef<String?>('hint', Codecs.optionalString, null);
+  static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The icon after the value (null: a calendar or clock).
+  static const icon = PropDef<InputIcon?>('icon', InputCodecs.icon, null);
+
+  /// Only the value and its icon, no Material field around them: the node's
+  /// own fill, border and padding make the box.
+  static const bare = PropDef<bool>('bare', Codecs.bool, false);
+
+  /// An older name for [format] (a `formatDate` pattern, `EEE, MMM d · h:mm a`),
+  /// read when [format] is unset.
   static const displayFormat = PropDef<String>('displayFormat', Codecs.string, '');
 
   /// Shown instead of the formatted value when set (bind it: "Now · 1:20 PM").
@@ -525,13 +619,26 @@ abstract final class DateTimeInputProps {
 
   static const spec = WidgetSpec('dateTimeInput',
       props: [
-        mode, value, labelText, firstDate, lastDate, min, max, enabled, decoration, style, displayFormat, displayText,
-        picker,
+        mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare,
+        decoration, displayFormat, displayText, picker,
       ],
-      doc: 'Flutter `InputDecorator`.');
+      decorated: true,
+      doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- segmentedButton ----------------------------------------------------------
+
+/// How a segmented button is drawn.
+enum SegmentedVariant {
+  /// Flutter's `SegmentedButton`: outlined segments with dividers.
+  material,
+
+  /// A tinted track ([SegmentedButtonProps.backgroundColor], [side],
+  /// [borderRadius]) holding the segments, the selected one raised on it
+  /// ([SegmentedButtonProps.selectedBackgroundColor], `selectedShadows`),
+  /// with no dividers: the filter control of dashboards and toolbars.
+  track,
+}
 
 /// Flutter `SegmentedButton<String>`.
 abstract final class SegmentedButtonProps {
@@ -555,10 +662,33 @@ abstract final class SegmentedButtonProps {
   /// `shape: RoundedRectangleBorder(borderRadius)`; unset is Flutter's stadium.
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
+  /// Each segment's padding (`padding`); unset is Flutter's.
+  static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
+
+  /// Each segment's height (`ButtonStyle.minimumSize` / `maximumSize`);
+  /// unset is Flutter's 40.
+  static const segmentHeight = PropDef<double?>('segmentHeight', Codecs.optionalDouble, null);
+
+  /// The segments share the node's width equally (`expandedInsets: zero`).
+  static const expanded = PropDef<bool>('expanded', Codecs.bool, false);
+
+  /// No extra space round the segments for touch (`MaterialTapTargetSize.shrinkWrap`).
+  static const shrinkTapTarget = PropDef<bool>('shrinkTapTarget', Codecs.bool, false);
+
+  /// Material's segmented button, or a [SegmentedVariant.track].
+  static const variant = PropDef<SegmentedVariant>('variant', EnumCodec(SegmentedVariant.values), SegmentedVariant.material);
+
+  /// A track's inset around its segments.
+  static const trackPadding = PropDef<double>('trackPadding', Codecs.double, 3);
+
+  /// The shadows under a track's selected segment.
+  static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-  ], doc: 'Flutter `SegmentedButton`.');
+    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows,
+  ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
 // --- signature ----------------------------------------------------------------
@@ -583,6 +713,15 @@ enum SignLineStyle { solid, dashed }
 /// line (centred on it, the line starting after it).
 enum SignMarkPlacement { above, leading }
 
+/// Where a signature pad's placeholder sits.
+enum SignaturePlaceholderPosition {
+  /// In the middle of the pad.
+  center,
+
+  /// Under the sign line, at its start (a form's "Sign here" caption).
+  belowLine,
+}
+
 /// A signature pad: strokes drawn with a finger or mouse, on a bordered card
 /// with a placeholder and a sign line.
 abstract final class SignatureProps {
@@ -602,12 +741,13 @@ abstract final class SignatureProps {
   static const placeholder = PropDef<String>('placeholder', Codecs.string, 'SIGN HERE');
   static const placeholderColor = PropDef<Color>('placeholderColor', Codecs.color, Color(0xFFA9ADA5));
   static const placeholderFontSize = PropDef<double>('placeholderFontSize', Codecs.positive, 12);
-  /// The placeholder's text style, over [placeholderColor] and
-  /// [placeholderFontSize] (weight 600, letter spacing 0.12 × the size
-  /// where it sets none).
+  /// The placeholder's text style, over [placeholderColor],
+  /// [placeholderFontSize], [placeholderFontWeight] and
+  /// [placeholderLetterSpacing].
   static const placeholderStyle = PropDef<TextStyle>('placeholderStyle', Codecs.textStyle, TextStyle.empty);
 
-  /// Where the placeholder sits in the pad, then moved by [placeholderOffset].
+  /// Where the placeholder sits in the pad (when [placeholderPosition] is
+  /// center), then moved by [placeholderOffset].
   static const placeholderAlignment = PropDef<Alignment>('placeholderAlignment', Codecs.alignment, Alignment.center);
   static const placeholderOffset = PropDef<Offset>('placeholderOffset', Codecs.offset, Offset.zero);
   static const showSignLine = PropDef<bool>('showSignLine', Codecs.bool, true);
@@ -619,14 +759,13 @@ abstract final class SignatureProps {
   static const signLineDash = PropDef<double>('signLineDash', Codecs.positive, 6);
   static const signLineGap = PropDef<double>('signLineGap', Codecs.positive, 6);
 
-  /// The line's distance from the pad's bottom, in pixels; null is 24% of
-  /// the pad's height.
+  /// An older name for [signLineBottom], read when that is unset.
   static const signLineOffset = PropDef<double?>('signLineOffset', Codecs.optionalPositive, null);
 
   /// The line's distance from the pad's left and right edges.
   static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
 
-  /// The mark ("×") at the line's start.
+  /// An older name for [signLineMark]: either off hides the mark.
   static const showSignMark = PropDef<bool>('showSignMark', Codecs.bool, true);
 
   /// The mark as an icon; null is a "×" glyph [signMarkSize] high.
@@ -653,6 +792,20 @@ abstract final class SignatureProps {
   /// The caption's alignment between the line's insets.
   static const captionAlign = PropDef<TextAlign>('captionAlign', EnumCodec(TextAlign.values), TextAlign.start);
 
+  /// The × at the start of the sign line.
+  static const signLineMark = PropDef<bool>('signLineMark', Codecs.bool, true);
+
+  /// The sign line's distance from the pad's bottom (null: a quarter of its height).
+  static const signLineBottom = PropDef<double?>('signLineBottom', Codecs.optionalPositive, null);
+
+  /// Where the placeholder sits: centered, or under the sign line at its start.
+  static const placeholderPosition = PropDef<SignaturePlaceholderPosition>(
+      'placeholderPosition', EnumCodec(SignaturePlaceholderPosition.values), SignaturePlaceholderPosition.center);
+  static const placeholderFontWeight = PropDef<int>('placeholderFontWeight', IntCodec(min: 100), 600);
+
+  /// Null: 12% of the font size.
+  static const placeholderLetterSpacing = PropDef<double?>('placeholderLetterSpacing', Codecs.optionalDouble, null);
+
   /// Shows the error border.
   static const error = PropDef<bool>('error', Codecs.bool, false);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
@@ -660,9 +813,10 @@ abstract final class SignatureProps {
 
   static const spec = WidgetSpec('signature', props: [
     value, normalized, inkColor, inkWidth, backgroundColor, borderColor, borderWidth, errorBorderColor, //
-    errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, placeholderStyle,
-    placeholderAlignment, placeholderOffset, showSignLine, signLineColor, signLineWidth, signLineStyle, signLineDash,
-    signLineGap, signLineOffset, signLineInset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
+    errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
+    signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
+    placeholderStyle, placeholderAlignment, placeholderOffset, signLineWidth, signLineStyle, signLineDash,
+    signLineGap, signLineOffset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
     signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }

@@ -21,6 +21,7 @@ final class TextStyle {
     this.height,
     this.decoration,
     this.decorationColor,
+    this.backgroundColor,
     this.decorationStyle,
     this.decorationThickness,
     this.tabularFigures,
@@ -53,6 +54,10 @@ final class TextStyle {
   final double? height;
   final TextDecoration? decoration;
   final Color? decorationColor;
+
+  /// Painted behind the glyphs (a highlighted match): Flutter's
+  /// `TextStyle.backgroundColor`.
+  final Color? backgroundColor;
   final TextDecorationStyle? decorationStyle;
   final double? decorationThickness;
 
@@ -89,6 +94,7 @@ final class TextStyle {
       height: other.height ?? height,
       decoration: other.decoration ?? decoration,
       decorationColor: other.decorationColor ?? decorationColor,
+      backgroundColor: other.backgroundColor ?? backgroundColor,
       decorationStyle: other.decorationStyle ?? decorationStyle,
       decorationThickness: other.decorationThickness ?? decorationThickness,
       tabularFigures: other.tabularFigures ?? tabularFigures,
@@ -115,6 +121,7 @@ final class TextStyle {
       decoration:
           m['decoration'] == null ? null : readEnum(TextDecoration.values, m['decoration'], TextDecoration.none),
       decorationColor: Color.fromJson(m['decorationColor']),
+      backgroundColor: Color.fromJson(m['backgroundColor']),
       decorationStyle: m['decorationStyle'] == null
           ? null
           : readEnum(TextDecorationStyle.values, m['decorationStyle'], TextDecorationStyle.solid),
@@ -141,6 +148,7 @@ final class TextStyle {
         if (height != null) 'height': height,
         if (decoration != null) 'decoration': decoration!.name,
         if (decorationColor != null) 'decorationColor': decorationColor!.toJson(),
+        if (backgroundColor != null) 'backgroundColor': backgroundColor!.toJson(),
         if (decorationStyle != null) 'decorationStyle': decorationStyle!.name,
         if (decorationThickness != null) 'decorationThickness': writeDouble(decorationThickness!),
         if (tabularFigures != null) 'tabularFigures': tabularFigures,
@@ -163,6 +171,7 @@ final class TextStyle {
       other.height == height &&
       other.decoration == decoration &&
       other.decorationColor == decorationColor &&
+      other.backgroundColor == backgroundColor &&
       other.decorationStyle == decorationStyle &&
       other.decorationThickness == decorationThickness &&
       other.tabularFigures == tabularFigures &&
@@ -172,7 +181,7 @@ final class TextStyle {
 
   @override
   int get hashCode => Object.hash(fontFamily, Object.hashAll(fontFamilyFallback), fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
-      height, decoration, decorationColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution);
+      height, decoration, decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution);
 
   @override
   String toString() => 'TextStyle(${toJson()})';
