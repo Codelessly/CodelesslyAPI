@@ -11,6 +11,15 @@ void main() {
     }
   });
 
+  test('an error text bound to a yes/no is an error without a message, or none', () {
+    const c = ErrorTextCodec();
+    expect(c.decode(true), kErrorWithoutMessage);
+    expect(c.decode(false), isNull);
+    expect(c.decode('Give the card a title.'), 'Give the card a title.');
+    expect(c.decode(''), '');
+    expect(c.decode(null), isNull);
+  });
+
   test('a text field decodes its decoration and encodes sparsely', () {
     final json = {
       'type': 'textField',
