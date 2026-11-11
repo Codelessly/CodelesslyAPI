@@ -45,12 +45,15 @@ final samples = <Json>[
   {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
   {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
   {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
+  {'type': 'emitEvent', 'event': 'order_completed', 'props': {'total': r'${total}'}},
+  {'type': 'captureScreenshot', 'target': 'node', 'node': 'card', 'pixelRatio': 2},
   {'type': 'playSound', 'operation': 'start', 'voiceId': r'${result.pointer}', 'frequency': '261.6256', 'volume': '0.1'},
   {'type': 'playSound', 'operation': 'stop', 'voiceId': r'${result.pointer}'},
   {'type': 'playSound', 'operation': 'stopAll'},
 
   {'type': 'print', 'node': 'badge'},
   {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
+  {'type': 'reloadCloudData', 'variable': 'tasks'},
 ];
 
 void main() {
@@ -99,6 +102,15 @@ void main() {
     expect(d.sheetBelowWidthIn(Breakpoints([const Breakpoint(id: 'only')])), 0, reason: 'one breakpoint: never');
     expect(OpenModalFields.all.map((f) => f.key), contains('sheetBelow'));
     expect(OpenModalFields.all.map((f) => f.key), isNot(contains('sheetBelowWidth')));
+  });
+
+  test('a bottom sheet can round its top corners', () {
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'bottomSheet', 'sheetRadius': 24})! as OpenModalAction;
+    expect(a.sheetRadius, 24);
+    expect(a.toJson()['sheetRadius'], 24);
+    expect((ActionDef.fromJson({'type': 'openModal', 'to': 's'})! as OpenModalAction).sheetRadius, isNull);
+    expect(const OpenModalAction(to: 's').toJson().containsKey('sheetRadius'), isFalse);
+    expect(OpenModalFields.all.map((f) => f.key), contains('sheetRadius'));
   });
 
   test('every action can be off, non blocking, or conditional', () {

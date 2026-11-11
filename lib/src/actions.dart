@@ -117,6 +117,7 @@ final Map<String, _Decoder> _decoders = {
   SetStorageAction.typeName: SetStorageAction._fromJson,
   CloudDocumentsAction.typeName: CloudDocumentsAction._fromJson,
   LoadCloudDataAction.typeName: LoadCloudDataAction._fromJson,
+  ReloadCloudDataAction.typeName: ReloadCloudDataAction._fromJson,
   AuthAction.typeName: AuthAction._fromJson,
   IfAction.typeName: IfAction._fromJson,
   ForEachAction.typeName: ForEachAction._fromJson,
@@ -141,6 +142,8 @@ final Map<String, _Decoder> _decoders = {
   HapticAction.typeName: HapticAction._fromJson,
   RunScriptAction.typeName: RunScriptAction._fromJson,
   PaginateAction.typeName: PaginateAction._fromJson,
+  EmitEventAction.typeName: EmitEventAction._fromJson,
+  CaptureScreenshotAction.typeName: CaptureScreenshotAction._fromJson,
 };
 
 // --- reading helpers -------------------------------------------------------------
@@ -277,6 +280,14 @@ enum ModalPresentation {
 
   /// A popover next to the node that opened it (or the pointer).
   popover,
+
+  /// A banner along the top edge of the screen (the bottom edge when
+  /// [OpenModalAction.alignment]'s y is above 0), with no barrier: the app
+  /// behind stays usable. It slides in, a swipe dismisses it when
+  /// [OpenModalAction.barrierDismissible], and its screen closes it with a
+  /// [CloseModalAction] (after a `delay`, for one that goes by itself). A
+  /// runtime that doesn't know it shows a dialog.
+  banner,
 }
 
 /// Where a popover sits relative to its anchor.
@@ -323,6 +334,7 @@ final class OpenModalAction extends ActionDef {
     this.anchorOffset = 0,
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
+    this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
@@ -356,6 +368,11 @@ final class OpenModalAction extends ActionDef {
   /// Space kept around a dialog: left, top, right, bottom.
   final List<double> insets;
   final double? sheetWidth;
+
+  /// A bottom sheet's top corner radius: the sheet clips the screen to it,
+  /// so a screen with a solid canvas fill gets rounded top corners. Null:
+  /// the platform's default sheet.
+  final double? sheetRadius;
 
   /// [ModalPresentation.adaptive]: a bottom sheet on screens whose
   /// breakpoint is narrower than this one (a project [Breakpoint.id],
@@ -394,6 +411,7 @@ final class OpenModalAction extends ActionDef {
     anchorOffset: _d(m, 'anchorOffset', 0),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
+    sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
@@ -421,6 +439,7 @@ final class OpenModalAction extends ActionDef {
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
+    if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
@@ -874,9 +893,19 @@ final class AnimateVariableAction extends ActionDef {
 }
 
 /// Calls a function the app registered by [name] with [params] (text
-/// values are expressions). Its result is the chain's `${result}`.
+/// values are expressions). Its result is the chain's `${result}`: what the
+/// app's code answered (a permission granted, a share completed), which
+/// the next actions branch on. A function the app didn't register fails the
+/// chain, unless the action is [optional].
 final class CallFunctionAction extends ActionDef {
-  const CallFunctionAction({this.name = '', this.params = const {}, super.enabled, super.nonBlocking, super.when});
+  const CallFunctionAction({
+    this.name = '',
+    this.params = const {},
+    this.optional = false,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
 
   static const typeName = 'callFunction';
   @override
@@ -885,16 +914,21 @@ final class CallFunctionAction extends ActionDef {
   final String name;
   final Json params;
 
+  /// A function the app didn't register is skipped: `${result}` is null and
+  /// the chain goes on (an app that hasn't wired a native feature yet).
+  final bool optional;
+
   static CallFunctionAction _fromJson(Json m, _Common c) => CallFunctionAction(
     name: _s(m, 'name'),
     params: _map(m, 'params'),
+    optional: _b(m, 'optional', false),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
   @override
-  Json get _fields => {'name': name, if (params.isNotEmpty) 'params': params};
+  Json get _fields => {'name': name, if (params.isNotEmpty) 'params': params, if (optional) 'optional': true};
 }
 
 /// Calls API [api] (the publish model's `services.apis`) with [params], its
@@ -1131,12 +1165,40 @@ final class CloudDocumentsAction extends ActionDef {
   };
 }
 
+/// What a [LoadCloudDataAction] keeps in its variable instead of the
+/// documents: a number computed by the database over the query.
+enum CloudLoadAggregate {
+  /// The documents (or the document).
+  none,
+
+  /// How many documents match.
+  count,
+
+  /// The sum of [LoadCloudDataAction.aggregateField] over them.
+  sum,
+
+  /// Its average.
+  average,
+}
+
+/// The most documents a [LoadCloudDataAction] query loads when neither the
+/// action nor its query gives a limit.
+const int kDefaultCloudLoadLimit = 500;
+
 /// Streams a cloud document, or a collection query's documents, into
 /// variable [variable] while the screen shows: `{status: loading|loaded|
-/// error, data, ...}`. Blocking actions wait for the first value; an initial
-/// failure stops the chain. A later subscription failure stops any remaining
+/// error, isLoading, data, error, hasMore}`. A variable of type list gets
+/// the documents themselves, and with an [aggregate], a number variable the
+/// number. Blocking actions wait for the first value; an initial failure
+/// stops the chain. A later subscription failure stops any remaining
 /// actions from that invocation and fires the canvas's actionError reaction.
 /// Subscriptions close on error or when the screen is disposed.
+///
+/// One variable has one live load: running the action again (or a
+/// [ReloadCloudDataAction]) replaces the earlier subscription. Unless
+/// [reactive] is false, the load runs again by itself when a value its
+/// query reads changes (`${auth.uid}`, `${search}`, a [limit] bound to a
+/// variable), but never for a change of its own variable.
 final class LoadCloudDataAction extends ActionDef {
   const LoadCloudDataAction({
     this.variable = '',
@@ -1144,6 +1206,11 @@ final class LoadCloudDataAction extends ActionDef {
     this.id = '',
     this.query = const CloudQueryDef(),
     this.scope = CloudDataScope.screen,
+    this.limit = '',
+    this.aggregate = CloudLoadAggregate.none,
+    this.aggregateField = '',
+    this.refreshSeconds = 0,
+    this.reactive = true,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1160,7 +1227,7 @@ final class LoadCloudDataAction extends ActionDef {
   final String id;
 
   /// The collection ([CloudQueryDef.collectionPath]) and, for a query, its
-  /// filters, sorts and limit.
+  /// filters, sorts, limit and joins.
   final CloudQueryDef query;
 
   /// Who keeps the subscription: the screen (until it goes), or the app
@@ -1168,12 +1235,38 @@ final class LoadCloudDataAction extends ActionDef {
   /// screen, writing an app variable. Older runtimes load per screen.
   final CloudDataScope scope;
 
+  /// The most documents to load: a number or an expression (`${shown}`),
+  /// over [CloudQueryDef.limit]. Empty: the query's limit, else
+  /// [kDefaultCloudLoadLimit]. `0` (or less) loads every document. The
+  /// variable's `hasMore` says whether more documents match.
+  final String limit;
+
+  /// A number over the query instead of its documents, computed by the
+  /// database without loading them.
+  final CloudLoadAggregate aggregate;
+
+  /// [CloudLoadAggregate.sum] and [CloudLoadAggregate.average]: the number
+  /// field.
+  final String aggregateField;
+
+  /// An [aggregate] runs again after this app's writes to the collection
+  /// and, when above 0, every this many seconds (writes made elsewhere).
+  final int refreshSeconds;
+
+  /// Whether the load runs again when a value its query reads changes.
+  final bool reactive;
+
   static LoadCloudDataAction _fromJson(Json m, _Common c) => LoadCloudDataAction(
     variable: _s(m, 'variable'),
     single: _b(m, 'single', true),
     id: _s(m, 'id'),
     query: CloudQueryDef.fromJson(m['query']),
     scope: readEnum(CloudDataScope.values, m['scope'], CloudDataScope.screen),
+    limit: _s(m, 'limit'),
+    aggregate: _e(CloudLoadAggregate.values, m, 'aggregate', CloudLoadAggregate.none),
+    aggregateField: _s(m, 'aggregateField'),
+    refreshSeconds: (readInt(m['refreshSeconds']) ?? 0).clamp(0, 86400),
+    reactive: _b(m, 'reactive', true),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -1186,6 +1279,11 @@ final class LoadCloudDataAction extends ActionDef {
     if (id.isNotEmpty) 'id': id,
     'query': query.toJson(),
     if (scope != CloudDataScope.screen) 'scope': scope.name,
+    if (limit.isNotEmpty) 'limit': limit,
+    if (aggregate != CloudLoadAggregate.none) 'aggregate': aggregate.name,
+    if (aggregateField.isNotEmpty) 'aggregateField': aggregateField,
+    if (refreshSeconds != 0) 'refreshSeconds': refreshSeconds,
+    if (!reactive) 'reactive': false,
   };
 }
 
@@ -1201,6 +1299,30 @@ enum CloudDataScope {
   /// the same variable asks for another document or query). Its variable is
   /// an app variable, so every screen reads it.
   app,
+}
+
+/// Runs again the live load of [variable] (a [LoadCloudDataAction] that ran
+/// on this screen): it subscribes afresh, with the values its query reads
+/// now, and waits for the first value. Nothing when the variable has no
+/// load. A list's pull to refresh (its `refresh` reaction) runs it.
+final class ReloadCloudDataAction extends ActionDef {
+  const ReloadCloudDataAction({this.variable = '', super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'reloadCloudData';
+  @override
+  String get type => typeName;
+
+  final String variable;
+
+  static ReloadCloudDataAction _fromJson(Json m, _Common c) => ReloadCloudDataAction(
+    variable: _s(m, 'variable'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'variable': variable};
 }
 
 /// What a [CloudDataAction] does.
@@ -1313,12 +1435,23 @@ final class CloudDataAction extends ActionDef {
   };
 }
 
-/// Several [CloudDataAction] writes at once; in a [transaction], all or
-/// none.
+/// The most writes one atomic cloud commit takes (Firestore's limit).
+const int kMaxCloudBatchWrites = 500;
+
+/// Several [CloudDataAction] writes (create, update, delete) committed at
+/// once. With [forEach], [steps] run once per item of that list
+/// (`${loop.item}`, `${loop.index}`), every write in the same commit: "mark
+/// all read" in one write instead of one per item.
+///
+/// Up to [kMaxCloudBatchWrites] writes are all or none. More are committed
+/// in chunks of that size, each all or none; with [transaction], more fail
+/// before anything is written. A batch with a read step (get, query, count,
+/// sum, average) runs its steps one by one, as before.
 final class CloudBatchAction extends ActionDef {
   const CloudBatchAction({
     this.steps = const [],
     this.transaction = false,
+    this.forEach = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1331,16 +1464,25 @@ final class CloudBatchAction extends ActionDef {
   final List<CloudDataAction> steps;
   final bool transaction;
 
+  /// A list (a path or expression; a cloud data variable's documents): the
+  /// steps run per item. Empty: once.
+  final String forEach;
+
   static CloudBatchAction _fromJson(Json m, _Common c) => CloudBatchAction(
     steps: [...ActionDef.listFromJson(m['steps']).whereType<CloudDataAction>()],
     transaction: _b(m, 'transaction', false),
+    forEach: _s(m, 'forEach'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
   @override
-  Json get _fields => {'steps': _actionsJson(steps), if (transaction) 'transaction': true};
+  Json get _fields => {
+    'steps': _actionsJson(steps),
+    if (transaction) 'transaction': true,
+    if (forEach.isNotEmpty) 'forEach': forEach,
+  };
 }
 
 /// What a [CloudFilesAction] does.
@@ -1359,7 +1501,9 @@ enum CloudFileAccess {
 }
 
 /// Uploads files the user picks to (or deletes them from) cloud storage
-/// folder [path]; [actions] run with each file (`${result.url}`...).
+/// folder [path]; [actions] run with each file (`${result.url}`...). With a
+/// [source], it uploads that value instead of asking the user (a captured
+/// screenshot, a drawing).
 final class CloudFilesAction extends ActionDef {
   const CloudFilesAction({
     this.operation = CloudFilesOperation.upload,
@@ -1369,6 +1513,8 @@ final class CloudFilesAction extends ActionDef {
     this.maxSizeMB = 10,
     this.progressVariable = '',
     this.access = CloudFileAccess.public,
+    this.source = '',
+    this.fileName = '',
     this.actions = const [],
     super.enabled,
     super.nonBlocking,
@@ -1386,6 +1532,16 @@ final class CloudFilesAction extends ActionDef {
   final double maxSizeMB;
   final String progressVariable;
   final CloudFileAccess access;
+
+  /// An expression giving what to upload instead of asking the user: a
+  /// `data:` URL (what a `captureScreenshot` gives as `${result.image}`), a
+  /// map `{"data": "data:...", "name": "shot.png"}`, or a list of them.
+  /// Empty: the user picks the files. An older runtime ignores it and asks.
+  final String source;
+
+  /// The name a [source] file is stored under (an expression); empty: the
+  /// map's `name`, else `file-<time>.<extension of its type>`.
+  final String fileName;
   final List<ActionDef> actions;
 
   @override
@@ -1399,6 +1555,8 @@ final class CloudFilesAction extends ActionDef {
     maxSizeMB: _d(m, 'maxSizeMB', 10),
     progressVariable: _s(m, 'progressVariable'),
     access: _e(CloudFileAccess.values, m, 'access', CloudFileAccess.public),
+    source: _s(m, 'source'),
+    fileName: _s(m, 'fileName'),
     actions: _list(m, 'actions'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1414,6 +1572,8 @@ final class CloudFilesAction extends ActionDef {
     if (maxSizeMB != 10) 'maxSizeMB': writeDouble(maxSizeMB),
     if (progressVariable.isNotEmpty) 'progressVariable': progressVariable,
     if (access != CloudFileAccess.public) 'access': access.name,
+    if (source.isNotEmpty) 'source': source,
+    if (fileName.isNotEmpty) 'fileName': fileName,
     if (actions.isNotEmpty) 'actions': _actionsJson(actions),
   };
 }
@@ -2106,8 +2266,13 @@ final class FocusAction extends ActionDef {
 
 /// What a [ControlDragAction] does to a draggable node. [step] turns a
 /// drag track control by [ControlDragAction.steps] of its step, as if
-/// dragged there (a dial's nudge buttons and arrow keys).
-enum DragCommand { fling, returnFrom, reset, shake, step }
+/// dragged there (a dial's nudge buttons and arrow keys). On a node with a
+/// transform gesture (a map, a photo): [reset] springs it to its rest pose,
+/// [zoom] scales it by [ControlDragAction.value] (a factor: `1.5` in, `0.67`
+/// out) about the middle of what its viewport shows (zoom buttons), and
+/// [pose] springs it to the pose [ControlDragAction.value] gives (`{x, y,
+/// scale, rotation}`, keys left out kept: "fit to route").
+enum DragCommand { fling, returnFrom, reset, shake, step, zoom, pose }
 
 /// Flings, returns, resets or shakes draggable node [node] (a swipe card),
 /// or steps a drag track.
@@ -2117,6 +2282,7 @@ final class ControlDragAction extends ActionDef {
     this.command = DragCommand.fling,
     this.direction = DragDirection.right,
     this.steps = '1',
+    this.value = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -2134,11 +2300,16 @@ final class ControlDragAction extends ActionDef {
   /// track's start; a number or an expression.
   final String steps;
 
+  /// [DragCommand.zoom]: the factor; [DragCommand.pose]: the pose (a map, its
+  /// JSON text, or an expression giving one).
+  final String value;
+
   static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
     node: _s(m, 'node'),
     command: _e(DragCommand.values, m, 'command', DragCommand.fling),
     direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
     steps: _s(m, 'steps', '1'),
+    value: m['value'] is Map ? jsonEncode(m['value']) : _s(m, 'value'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -2150,6 +2321,7 @@ final class ControlDragAction extends ActionDef {
     if (command != DragCommand.fling) 'command': command.name,
     if (direction != DragDirection.right) 'direction': direction.name,
     if (steps != '1') 'steps': steps,
+    if (value.isNotEmpty) 'value': value,
   };
 }
 
@@ -2439,5 +2611,96 @@ final class PaginateAction extends ActionDef {
     if (command != PaginateCommand.next) 'command': command.name,
     if (page != '1') 'page': page,
     if (pageSize != '20') 'pageSize': pageSize,
+  };
+}
+
+// --- app events and capture ------------------------------------------------------
+
+/// Fires app event [event] with [props] (text values are expressions) on
+/// the app's event bus: the project's automations listening for it run (a
+/// popup after the third order), and the host app hears it
+/// (`codelessly.events`). The same bus a host fires with
+/// `codelessly.emit(name, props)`. JSON: `{"type": "emitEvent", "event":
+/// "onboarding_done", "props": {"plan": "${plan}"}}`.
+final class EmitEventAction extends ActionDef {
+  const EmitEventAction({this.event = '', this.props = const {}, super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'emitEvent';
+  @override
+  String get type => typeName;
+
+  /// The event's name (an expression).
+  final String event;
+
+  /// Its properties; text values are expressions.
+  final Json props;
+
+  static EmitEventAction _fromJson(Json m, _Common c) => EmitEventAction(
+    event: _s(m, 'event'),
+    props: _map(m, 'props'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'event': event, if (props.isNotEmpty) 'props': props};
+}
+
+/// What a [CaptureScreenshotAction] captures.
+enum CaptureTarget {
+  /// The screen the action runs on (its layout, as shown).
+  layout,
+
+  /// One node of that screen, as shown ([CaptureScreenshotAction.node]):
+  /// an image with a drawing over it, a card.
+  node,
+
+  /// The whole app, when the host wraps it in the runtime's capture scope;
+  /// else the screen, as [layout].
+  app,
+}
+
+/// Captures what is on screen as a PNG image. `${result}` is
+/// `{"image": "data:image/png;base64,...", "width", "height"}` (in
+/// pixels): bind it to an image fill to show it, or upload it with a
+/// `cloudFiles` action whose `source` is `${result.image}`. JSON:
+/// `{"type": "captureScreenshot", "target": "app"}`.
+final class CaptureScreenshotAction extends ActionDef {
+  const CaptureScreenshotAction({
+    this.target = CaptureTarget.layout,
+    this.node = '',
+    this.pixelRatio = 0,
+    super.enabled,
+    super.nonBlocking,
+    super.when,
+  });
+
+  static const typeName = 'captureScreenshot';
+  @override
+  String get type => typeName;
+
+  final CaptureTarget target;
+
+  /// [CaptureTarget.node]'s node id.
+  final String node;
+
+  /// Image pixels per logical pixel; 0: the device's.
+  final double pixelRatio;
+
+  static CaptureScreenshotAction _fromJson(Json m, _Common c) => CaptureScreenshotAction(
+    target: _e(CaptureTarget.values, m, 'target', CaptureTarget.layout),
+    node: _s(m, 'node'),
+    pixelRatio: _d(m, 'pixelRatio', 0),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {
+    if (target != CaptureTarget.layout) 'target': target.name,
+    if (node.isNotEmpty) 'node': node,
+    if (pixelRatio != 0) 'pixelRatio': writeDouble(pixelRatio),
   };
 }

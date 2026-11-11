@@ -125,7 +125,8 @@ abstract final class ListViewProps {
   static const itemExtent = PropDef<double?>('itemExtent', _optionalPositive, null);
   static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.none);
 
-  /// The separator's extent; negative overlaps the items.
+  /// The separator's extent; negative overlaps the items. Without a
+  /// [separator] it is empty space (as a row's or column's spacing).
   static const spacing = PropDef<double>('spacing', Codecs.double, 0);
   static const dividerThickness = PropDef<double>('dividerThickness', Codecs.positive, 1);
   static const dividerColor = PropDef<Color>('dividerColor', Codecs.color, Color.black);
@@ -172,12 +173,27 @@ abstract final class ListViewProps {
   /// Actions revealed behind a swiped item.
   static const swipeActions = PropDef<SwipeActions?>('swipeActions', CollectionCodecs.swipeActions, null);
 
+  /// Pulling the list past its start fires its `refresh` reactions (a
+  /// `reloadCloudData`), with or without [pagination] (which reloads its
+  /// first page too). A list with a `refresh` reaction refreshes this way
+  /// too.
+  static const pullToRefresh = PropDef<bool>('pullToRefresh', Codecs.bool, false);
+
+  /// Opens at the end (the newest message of a chat, the latest line of a
+  /// log), keeps the items on screen in place when items are put before
+  /// them (older messages loaded), and follows items added at the end only
+  /// while it is scrolled to the end. The data stays in reading order
+  /// (oldest first). A runtime that doesn't know it opens at the start.
+  static const stickToEnd = PropDef<bool>('stickToEnd', Codecs.bool, false,
+      doc: 'Opens at the end, keeps its place when items are put before, follows new items at the end.');
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
-      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions,
+      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions, pullToRefresh,
+      stickToEnd,
     ],
     children: ChildModel.list,
     slots: CollectionSlots.list,

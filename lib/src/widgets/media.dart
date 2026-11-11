@@ -71,7 +71,7 @@ abstract final class PathProps {
 
 /// A network video (`video_player`'s `VideoPlayer`).
 abstract final class VideoProps {
-  /// A remote HTTPS MP4 URL.
+  /// A remote HTTPS MP4, WebM, MOV or M4V URL.
   static const url = PropDef<String>('url', Codecs.string, '');
   static const autoPlay = PropDef<bool>('autoPlay', Codecs.bool, false);
   static const showControls = PropDef<bool>('showControls', Codecs.bool, true);
@@ -85,7 +85,28 @@ abstract final class VideoProps {
   static const volume = PropDef<double>('volume', DoubleCodec(min: 0, max: 1), 1);
   static const loop = PropDef<bool>('loop', Codecs.bool, false);
 
-  static const spec = WidgetSpec('video', props: [url, autoPlay, showControls, playing, positionSeconds, volume, loop], doc: '`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds without autoplay.');
+  /// How the picture fills the node (`FittedBox`): `contain` letterboxes,
+  /// `cover` fills and crops.
+  static const fit = PropDef<BoxFit>('fit', EnumCodec(BoxFit.values), BoxFit.contain);
+
+  /// An image URL shown until the video has its first frame (and while a
+  /// new source loads), instead of a spinner.
+  static const poster = PropDef<String>('poster', Codecs.string, '');
+
+  /// While playing, a changed [positionSeconds] seeks only when the video is
+  /// more than this many seconds away from it, so a position bound to a
+  /// running clock corrects drift instead of stalling the video with a seek
+  /// every frame. Paused, every change seeks (the latest one wins).
+  static const syncTolerance = PropDef<double>('syncTolerance', DoubleCodec(min: 0), 0.3);
+
+  /// While playing, fires the changed trigger every this many milliseconds
+  /// with `positionSeconds` and `playing` (0: off): the video as a clock.
+  static const reportIntervalMs = PropDef<int>('reportIntervalMs', IntCodec(min: 0), 0);
+
+  static const spec = WidgetSpec('video',
+      props: [url, autoPlay, showControls, playing, positionSeconds, volume, loop, fit, poster, syncTolerance, reportIntervalMs],
+      doc: '`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds '
+          'without autoplay; with reportIntervalMs, also positionSeconds/playing while it plays.');
 }
 
 /// Where an embedded video is hosted.
@@ -134,7 +155,7 @@ abstract final class EmbeddedVideoProps {
 
 /// A network audio player (`just_audio`).
 abstract final class AudioPlayerProps {
-  /// A remote HTTPS MP3, M4A or WAV URL.
+  /// A remote HTTPS MP3, M4A, WAV, OGG or AAC URL.
   static const url = PropDef<String>('url', Codecs.string, '');
 
   /// Shown as the player's title.
@@ -151,8 +172,13 @@ abstract final class AudioPlayerProps {
   /// Plays without showing a player.
   static const background = PropDef<bool>('background', Codecs.bool, false);
 
+  /// While playing, a changed [positionSeconds] seeks only when playback is
+  /// more than this many seconds away from it (see [VideoProps.syncTolerance]).
+  static const syncTolerance = PropDef<double>('syncTolerance', DoubleCodec(min: 0), 0.3);
+
   static const spec = WidgetSpec('audioPlayer',
-      props: [url, description, autoPlay, showControls, loop, volume, background, playing, positionSeconds], doc: 'An audio player.');
+      props: [url, description, autoPlay, showControls, loop, volume, background, playing, positionSeconds, syncTolerance],
+      doc: 'An audio player.');
 }
 
 /// What a web view's [WebViewProps.source] is.

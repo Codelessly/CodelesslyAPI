@@ -9,7 +9,7 @@
 import 'actions.dart';
 import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
 import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
-import 'json.dart' show readMap;
+import 'json.dart' show readMap, readString;
 import 'props.dart';
 import 'route_transition.dart';
 import 'scripts.dart';
@@ -54,8 +54,13 @@ abstract final class TriggerFields {
   static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
   static const lookaheadMs = PropDef<int>('lookaheadMs', Codecs.int, 100);
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
+  static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
+      doc: 'Viewport: how long it stays in view before firing (ms).');
+  static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
+      doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const List<PropDef<Object?>> all = [
     type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, //
+    visibleMs, onceKey,
   ];
 }
 
@@ -214,6 +219,8 @@ abstract final class OpenModalFields {
   static const insets = PropDef<List<double>>('insets', Codecs.doubles, [0, 0, 0, 0],
       doc: 'Space kept around a dialog: left, top, right, bottom.');
   static const sheetWidth = PropDef<double?>('sheetWidth', Codecs.optionalDouble, null);
+  static const sheetRadius = PropDef<double?>('sheetRadius', Codecs.optionalDouble, null,
+      doc: 'A bottom sheet\'s top corner radius; the sheet clips the screen to it (null: the default).');
   static const sheetBelow = PropDef<String>('sheetBelow', Codecs.string, '',
       doc: 'Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second).');
   static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
@@ -223,7 +230,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showCloseButton, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetBelow, maxHeightFactor,
+    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
     fullHeight, enterScale, routeTransition,
   ];
 }
@@ -304,7 +311,9 @@ abstract final class AnimateVariableFields {
 abstract final class CallFunctionFields {
   static const name = PropDef<String>('name', Codecs.string, '', doc: 'The function the app registered.');
   static const params = PropDef<Object?>('params', Codecs.any, null, doc: 'Its arguments; text values are expressions.');
-  static const List<PropDef<Object?>> all = [name, params];
+  static const optional = PropDef<bool>('optional', Codecs.bool, false,
+      doc: 'A function the app didn\'t register is skipped (\${result} is null) instead of failing the chain.');
+  static const List<PropDef<Object?>> all = [name, params, optional];
 }
 
 /// [CallApiAction].
@@ -357,11 +366,29 @@ abstract final class LoadCloudDataFields {
   static const single = PropDef<bool>('single', Codecs.bool, true, doc: 'One document, or the query\'s documents.');
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
-      doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
+      doc: 'The collection and, for a query, its filters, sorts, limit and joins (a CloudQueryDef).');
   static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
       doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
           'into an app variable every screen reads.');
-  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
+  static const limit = PropDef<String>('limit', Codecs.string, '',
+      doc: 'The most documents: a number or expression; empty: the query\'s, else $kDefaultCloudLoadLimit; 0: all.');
+  static const aggregate = PropDef<CloudLoadAggregate>(
+      'aggregate', EnumCodec(CloudLoadAggregate.values), CloudLoadAggregate.none,
+      doc: 'A number (count, sum, average) instead of the documents, without loading them.');
+  static const aggregateField = PropDef<String>('aggregateField', Codecs.string, '', doc: 'Sum and average: the field.');
+  static const refreshSeconds = PropDef<int>('refreshSeconds', IntCodec(min: 0), 0,
+      doc: 'Aggregate: also runs again this often (writes made elsewhere); 0: after this app\'s writes only.');
+  static const reactive = PropDef<bool>('reactive', Codecs.bool, true,
+      doc: 'Runs again when a value its query reads changes (\${auth.uid}, a bound limit).');
+  static const List<PropDef<Object?>> all = [
+    variable, single, id, query, scope, limit, aggregate, aggregateField, refreshSeconds, reactive, //
+  ];
+}
+
+/// [ReloadCloudDataAction].
+abstract final class ReloadCloudDataFields {
+  static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'A variable a load cloud data action fills.');
+  static const List<PropDef<Object?>> all = [variable];
 }
 
 /// [AuthAction].
@@ -403,8 +430,13 @@ abstract final class CloudFilesFields {
   static const maxSizeMB = PropDef<double>('maxSizeMB', Codecs.double, 10);
   static const progressVariable = PropDef<String>('progressVariable', Codecs.string, '');
   static const access = PropDef<CloudFileAccess>('access', EnumCodec(CloudFileAccess.values), CloudFileAccess.public);
+  static const source = PropDef<String>('source', Codecs.string, '',
+      doc: 'Uploads this instead of asking the user: a data: URL (\${result.image} of a screenshot), or a list.');
+  static const fileName = PropDef<String>('fileName', Codecs.string, '', doc: 'The name a source file is stored under.');
   static const actions = PropDef<Object?>('actions', Codecs.any, null, doc: 'Nested actions: run with each file.');
-  static const List<PropDef<Object?>> all = [operation, path, kind, allowMultiple, maxSizeMB, progressVariable, access, actions];
+  static const List<PropDef<Object?>> all = [
+    operation, path, kind, allowMultiple, maxSizeMB, progressVariable, access, source, fileName, actions, //
+  ];
 }
 
 /// [ShowToastAction].
@@ -500,8 +532,11 @@ abstract final class CloudDataFields {
 /// [CloudBatchAction].
 abstract final class CloudBatchFields {
   static const steps = PropDef<Object?>('steps', Codecs.any, null, doc: 'Nested cloudData actions.');
-  static const transaction = PropDef<bool>('transaction', Codecs.bool, false, doc: 'All or none.');
-  static const List<PropDef<Object?>> all = [steps, transaction];
+  static const transaction = PropDef<bool>('transaction', Codecs.bool, false,
+      doc: 'All or none: more than $kMaxCloudBatchWrites writes fail instead of committing in chunks.');
+  static const forEach = PropDef<String>('forEach', Codecs.string, '',
+      doc: 'A list: the steps run per item (\${loop.item}, \${loop.index}), all in one commit.');
+  static const List<PropDef<Object?>> all = [steps, transaction, forEach];
 }
 
 /// [CopyToClipboardAction].
@@ -545,7 +580,9 @@ abstract final class ControlDragFields {
   static const command = PropDef<DragCommand>('command', EnumCodec(DragCommand.values), DragCommand.fling);
   static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
   static const steps = PropDef<String>('steps', Codecs.string, '1', doc: 'Step: how many steps (an expression).');
-  static const List<PropDef<Object?>> all = [node, command, direction, steps];
+  static const value = PropDef<String>('value', Codecs.string, '',
+      doc: 'Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, direction, steps, value];
 }
 
 /// [SpeakAction].
@@ -626,6 +663,22 @@ abstract final class PaginateFields {
   static const List<PropDef<Object?>> all = [controller, command, page, pageSize];
 }
 
+/// [EmitEventAction].
+abstract final class EmitEventFields {
+  static const event = PropDef<String>('event', Codecs.string, '', doc: 'The app event\'s name (an expression).');
+  static const props = PropDef<Object?>('props', Codecs.any, null, doc: 'Its properties; text values are expressions.');
+  static const List<PropDef<Object?>> all = [event, props];
+}
+
+/// [CaptureScreenshotAction].
+abstract final class CaptureScreenshotFields {
+  static const target = PropDef<CaptureTarget>('target', EnumCodec(CaptureTarget.values), CaptureTarget.layout,
+      doc: 'The screen, one of its nodes, or the whole app (in the host\'s capture scope).');
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'The node captured (target node).');
+  static const pixelRatio = PropDef<double>('pixelRatio', Codecs.double, 0, doc: 'Pixels per logical pixel; 0: the device\'s.');
+  static const List<PropDef<Object?>> all = [target, node, pixelRatio];
+}
+
 /// Every action type an editor can make, by JSON type.
 abstract final class ActionSpecs {
   static final Map<String, ActionSpec> _all = {
@@ -644,6 +697,7 @@ abstract final class ActionSpecs {
       const ActionSpec(SetStorageAction.typeName, label: 'Set storage', fields: SetStorageFields.all),
       const ActionSpec(CloudDocumentsAction.typeName, label: 'Cloud documents', fields: CloudDocumentsFields.all),
       const ActionSpec(LoadCloudDataAction.typeName, label: 'Load cloud data', fields: LoadCloudDataFields.all),
+      const ActionSpec(ReloadCloudDataAction.typeName, label: 'Reload cloud data', fields: ReloadCloudDataFields.all),
       const ActionSpec(AuthAction.typeName, label: 'Auth', fields: AuthFields.all),
       const ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all),
       const ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all),
@@ -668,6 +722,8 @@ abstract final class ActionSpecs {
       const ActionSpec(HapticAction.typeName, label: 'Haptic feedback', fields: HapticFields.all),
       const ActionSpec(RunScriptAction.typeName, label: 'Run script', fields: RunScriptFields.all),
       const ActionSpec(PaginateAction.typeName, label: 'Paginate', fields: PaginateFields.all),
+      const ActionSpec(EmitEventAction.typeName, label: 'Emit event', fields: EmitEventFields.all),
+      const ActionSpec(CaptureScreenshotAction.typeName, label: 'Capture screenshot', fields: CaptureScreenshotFields.all),
     ])
       s.type: s,
   };
@@ -675,4 +731,86 @@ abstract final class ActionSpecs {
   static Iterable<ActionSpec> get all => _all.values;
 
   static ActionSpec? of(String type) => _all[type];
+
+  /// The keys of action JSON [json], and of the actions nested in it, that
+  /// its type doesn't have, as paths (`look`, `actions[1].style`): a
+  /// misspelled or misplaced field (`style` where a confirm takes `look`)
+  /// that decoding drops without a word. A type this version doesn't know
+  /// is kept whole, so it has none.
+  static List<String> unknownKeys(Object? json, [String path = '']) {
+    final m = readMap(json);
+    final spec = m == null ? null : _all[readString(m['type']) ?? ''];
+    if (m == null || spec == null) return const [];
+    final known = {
+      'type', ActionCommonFields.enabled.key, ActionCommonFields.nonBlocking.key, ActionCommonFields.when.key,
+      for (final f in spec.fields) f.key,
+      ...?ActionDef.fromJson(m)?.toJson().keys,
+    };
+    final out = <String>[];
+    for (final e in m.entries) {
+      if (!known.contains(e.key)) out.add('$path${e.key}');
+      final v = e.value;
+      if (v is! List) continue;
+      for (var i = 0; i < v.length; i++) {
+        final item = v[i];
+        if (item is Map && item['type'] is String) out.addAll(unknownKeys(item, '$path${e.key}[$i].'));
+      }
+    }
+    return out;
+  }
+}
+
+/// Keys of action JSON that no field of its type reads, found in
+/// [reactions] (a node's `actions`: reactions `{trigger, actions}`, or a
+/// bare list of actions), nested chains included (`then`, `else`,
+/// `actions`, `onSuccess`, `onError`, `cancelActions`). Decoding drops such
+/// keys silently (a `delay` given `durationMs` waits its default 500 ms), so
+/// tools report them: each as "<path>: <type> has no "<key>" (it takes: ...)".
+List<String> unknownActionKeys(Object? reactions, {String at = 'actions'}) {
+  final out = <String>[];
+  const structural = {'type', 'id', 'enabled', 'nonBlocking', 'when'};
+  const nested = {'then', 'else', 'actions', 'onSuccess', 'onError', 'cancelActions'};
+  void action(Object? a, String path) {
+    final m = readMap(a);
+    if (m == null) return;
+    final type = m['type'];
+    final spec = type is String ? ActionSpecs.of(type) : null;
+    if (spec != null) {
+      final known = {...structural, for (final f in spec.fields) f.key};
+      for (final k in m.keys) {
+        if (!known.contains(k)) {
+          out.add('$path: ${spec.type} has no "$k" (it takes: ${spec.fields.map((f) => f.key).join(', ')})');
+        }
+      }
+    }
+    for (final k in nested) {
+      if (m[k] case final List list) {
+        for (var i = 0; i < list.length; i++) {
+          action(list[i], '$path.$k[$i]');
+        }
+      }
+    }
+  }
+
+  if (reactions is List) {
+    for (var i = 0; i < reactions.length; i++) {
+      final r = readMap(reactions[i]);
+      if (r == null) continue;
+      if (r.containsKey('trigger')) {
+        final trigger = readMap(r['trigger']);
+        final known = {for (final f in TriggerFields.all) f.key};
+        for (final k in trigger?.keys ?? const <String>[]) {
+          if (!known.contains(k)) out.add('$at[$i].trigger has no "$k" (it takes: ${known.join(', ')})');
+        }
+        if (r['actions'] case final List chain) {
+          for (var j = 0; j < chain.length; j++) {
+            action(chain[j], '$at[$i].actions[$j]');
+          }
+        }
+      } else {
+        action(r, '$at[$i]');
+      }
+    }
+  }
+  return out;
 }
