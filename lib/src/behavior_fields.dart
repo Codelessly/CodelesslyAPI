@@ -861,9 +861,11 @@ abstract final class StrokePathFields {
     doc: 'How the drawing eases.',
   );
   static const drawKey = PropDef<String>('drawKey', Codecs.string, '', doc: 'Draws again from nothing when it changes.');
+  static const fillColor = PropDef<Color?>('fillColor', Codecs.color, null,
+      doc: 'Fills the shape the points enclose, behind the line (fading in as it draws).');
   static const List<PropDef<Object?>> all = [
     points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, //
-    drawMs, drawDelayMs, drawCurve, drawKey,
+    drawMs, drawDelayMs, drawCurve, drawKey, fillColor,
   ];
 }
 
@@ -876,6 +878,9 @@ abstract final class TypewriterFields {
   static const caret = PropDef<bool>('caret', Codecs.bool, true, doc: 'A blinking block after the last character while it types.');
   static const caretColor = PropDef<Color?>('caretColor', Codecs.color, null, doc: 'Null uses the text color.');
   static const caretWidth = PropDef<double>('caretWidth', Codecs.positive, 0, doc: '0 is about half the font size.');
+  static const caretHeight = PropDef<double>('caretHeight', Codecs.positive, 0,
+      doc: 'Centered on the text\'s middle; 0 is about three quarters of the line.');
+  static const caretGap = PropDef<double>('caretGap', Codecs.double, 1, doc: 'Space between the last character and the caret.');
   static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
   static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
@@ -883,7 +888,7 @@ abstract final class TypewriterFields {
       doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
   static const grow = PropDef<bool>('grow', Codecs.bool, false,
       doc: 'Only as tall as the lines typed so far (off: the whole text\'s size from the start).');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;

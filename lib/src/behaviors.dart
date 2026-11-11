@@ -1431,8 +1431,10 @@ final class DragSource extends _Value {
 enum DropSlot { none, gap, node }
 
 /// How big the slot a [DropTarget] opens in its list is: the dragged
-/// node's size, or the slot node's own (an insertion line).
-enum DropSlotSize { dragged, node }
+/// node's size, the slot node's own (room for an insertion line), or none:
+/// [inGap] draws the slot node in the gap between the items it would land
+/// between, moving nothing (a board's column insertion bar).
+enum DropSlotSize { dragged, node, inGap }
 
 /// Takes [DragSource]s of the groups it [accepts] (Flutter's `DragTarget`).
 @immutable
@@ -2453,7 +2455,17 @@ final class Flight extends _Value {
 enum PathUnit { fraction, pixels }
 
 /// How a [StrokePath] joins its points.
-enum PathCurve { straight, vertical, horizontal }
+enum PathCurve {
+  straight,
+  vertical,
+  horizontal,
+
+  /// Quadratic Béziers: after the first point the points come in pairs, a
+  /// control point and an end point (a hand-drawn outline exactly as a
+  /// painter's `quadraticBezierTo` draws it, not sampled into lines). A
+  /// last point without its pair is a straight line to it.
+  quadratic,
+}
 
 /// A line drawn through [points] in the node's box (a dotted trail, a
 /// connector), behind its content or [inFront] of it. x and y are fractions
@@ -2482,10 +2494,15 @@ final class StrokePath extends _Value {
     this.drawDelayMs = 0,
     this.drawCurve = AnimationCurve.easeInOut,
     this.drawKey = '',
+    this.fillColor,
   });
 
   final List<Offset> points;
   final PathUnit xUnit, yUnit;
+
+  /// The shape the points enclose (the path closed), filled behind the
+  /// line: a hand-drawn box with its own wobble. It fades in as the line
+  /// draws (its alpha times [progress]). Null: no fill.
   final PathCurve curve;
   final Color color;
   final double width;
@@ -2511,6 +2528,8 @@ final class StrokePath extends _Value {
   /// as `strokePath.drawKey`, e.g. `${route.id}`).
   final String drawKey;
 
+  final Color? fillColor;
+
   /// Whether a running app animates it.
   bool get draws => drawMs > 0;
 
@@ -2529,6 +2548,7 @@ final class StrokePath extends _Value {
         drawDelayMs: drawDelayMs,
         drawCurve: drawCurve,
         drawKey: drawKey,
+        fillColor: fillColor,
       );
 
   static StrokePath? fromJson(Object? json) {
@@ -2550,6 +2570,7 @@ final class StrokePath extends _Value {
       drawDelayMs: r.ms('drawDelayMs', 0),
       drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
       drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
+      fillColor: r.color('fillColor'),
     );
   }
 
@@ -2582,11 +2603,12 @@ final class StrokePath extends _Value {
       ..i('drawDelayMs', drawDelayMs, 0)
       ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
     if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
+    if (fillColor != null) j['fillColor'] = fillColor!.toJson();
     return j;
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey, fillColor];
 }
 
 /// Text that types itself out in a running app, like a typewriter or a
@@ -2608,6 +2630,8 @@ final class Typewriter extends _Value {
     this.caret = true,
     this.caretColor,
     this.caretWidth = 0,
+    this.caretHeight = 0,
+    this.caretGap = 1,
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
@@ -2628,11 +2652,20 @@ final class Typewriter extends _Value {
   /// Whether a block caret blinks after the last character while it types.
   final bool caret;
 
-  /// The caret's color; null uses the text's.
+  /// The caret's color, painted as given; null uses the text's, a little
+  /// faded.
   final Color? caretColor;
 
   /// The caret's width; 0 is about half the font size.
   final double caretWidth;
+
+  /// The caret's height, centered on the text's middle (as a widget span
+  /// aligned to the middle of the line); 0 is about three quarters of the
+  /// line, from just below its top.
+  final double caretHeight;
+
+  /// The space between the last character and the caret.
+  final double caretGap;
 
   /// How long the caret stays on, and off (ms).
   final int blinkMs;
@@ -2671,6 +2704,8 @@ final class Typewriter extends _Value {
       caret: r.b('caret', true),
       caretColor: r.color('caretColor'),
       caretWidth: math.max(0, r.d('caretWidth', 0)),
+      caretHeight: math.max(0, r.d('caretHeight', 0)),
+      caretGap: r.d('caretGap', 1),
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
@@ -2688,6 +2723,8 @@ final class Typewriter extends _Value {
     if (caretColor != null) j['caretColor'] = caretColor!.toJson();
     j
       ..d('caretWidth', caretWidth, 0)
+      ..d('caretHeight', caretHeight, 0)
+      ..d('caretGap', caretGap, 1)
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
@@ -2697,7 +2734,7 @@ final class Typewriter extends _Value {
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
