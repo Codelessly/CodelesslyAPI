@@ -2411,29 +2411,42 @@ final class Typewriter extends _Value {
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
 /// binding turns true), to [alignment] of the viewport (0 top, 1 bottom).
+/// With [follow] it stays there while the content around it moves (lines
+/// added above an end marker, an image that loads late), until the user
+/// scrolls away: a chat or transcript pinned to its newest line.
 @immutable
 final class Reveal extends _Value {
-  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true});
+  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true, this.follow = false});
 
   final double alignment;
   final int duration, delay;
   final bool when;
 
+  /// Keeps the node revealed as the content moves, until the user scrolls.
+  final bool follow;
+
   static Reveal? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0), when: r.b('when', true));
+    return Reveal(
+      alignment: r.d('alignment', 0.5),
+      duration: r.ms('duration', 600),
+      delay: r.ms('delay', 0),
+      when: r.b('when', true),
+      follow: r.b('follow', false),
+    );
   }
 
   Json toJson() => <String, Object?>{}
     ..d('alignment', alignment, 0.5)
     ..i('duration', duration, 600)
     ..i('delay', delay, 0)
-    ..b('when', when, true);
+    ..b('when', when, true)
+    ..b('follow', follow, false);
 
   @override
-  List<Object?> get props => [alignment, duration, delay, when];
+  List<Object?> get props => [alignment, duration, delay, when, follow];
 }
 
 /// How a shared element flies between screens.
