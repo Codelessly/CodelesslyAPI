@@ -34,7 +34,11 @@ enum AnimationCurve {
   elasticOut,
   bounceOut,
   spring,
-  step;
+  step,
+
+  /// Material 3's emphasized easing, `Cubic(0.2, 0, 0, 1)`: a quick start
+  /// that settles gently (entrances, page and sheet motion).
+  emphasized;
 
   /// The curve named [v] (any case, spaces and dashes ignored), or null.
   static AnimationCurve? parse(Object? v) {
@@ -68,6 +72,7 @@ enum AnimationCurve {
       bounceOut => _bounce(t),
       spring => 1 - math.exp(-6.5 * t) * math.cos(2 * math.pi * 1.25 * t) * (1 - t * t),
       step => t < 0.5 ? 0 : 1,
+      emphasized => _cubic(0.2, 0, 0, 1, t),
     };
   }
 
