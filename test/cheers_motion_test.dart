@@ -44,4 +44,11 @@ void main() {
     expect(GridViewProps.masonryPlacement.defaultValue, MasonryPlacement.cycle);
     expect(GridViewProps.spec.props, contains(GridViewProps.masonryPlacement));
   });
+
+  test('a fill with an image and no type is an image paint, tiled as it says', () {
+    final p = Paint.fromJson({'image': {'url': 'https://x/dot.png', 'repeat': 'repeat', 'fit': 'none', 'scale': 2}})!;
+    expect(p.type, PaintType.image);
+    expect(p.image!.repeat, ImageRepeat.repeat);
+    expect(Paint.fromJson({'color': '#FFFFFFFF'})!.type, PaintType.solid);
+  });
 }
