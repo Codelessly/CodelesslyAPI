@@ -57,6 +57,16 @@ enum ListLayout {
   deck,
 }
 
+/// Which lane a masonry grid puts each item in.
+enum MasonryPlacement {
+  /// Item i in lane i modulo the lane count, in reading order.
+  cycle,
+
+  /// Each item in the lane that is shortest so far (the first on a tie), as
+  /// a staggered `MasonryGridView` does: lanes end close to even.
+  shortest,
+}
+
 /// When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`).
 enum KeyboardDismissBehavior { manual, onDrag }
 
@@ -189,8 +199,16 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
-  /// Natural-height items in independent lanes, cycling in reading order.
+  /// Natural-height items in independent lanes, placed by
+  /// [masonryPlacement].
   static const masonry = PropDef<bool>('masonry', Codecs.bool, false);
+
+  /// A masonry grid's lane for each item: in turn, or the shortest.
+  static const masonryPlacement = PropDef<MasonryPlacement>(
+    'masonryPlacement',
+    EnumCodec(MasonryPlacement.values),
+    MasonryPlacement.cycle,
+  );
 
   /// Loads the items page by page (see [ListViewProps.pagination]).
   static const pagination = ListViewProps.pagination;
@@ -202,7 +220,7 @@ abstract final class GridViewProps {
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, pagination, reorder,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, masonryPlacement, pagination, reorder,
     ],
     slots: CollectionSlots.grid,
     children: ChildModel.list,

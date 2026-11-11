@@ -53,6 +53,7 @@ const strokePathType = PropType.object('StrokePath', strokePathFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
+const flightType = PropType.object('Flight', flightFields);
 const motionShimmerType = PropType.object('MotionShimmer', motionShimmerFields);
 const gesturePhysicsType = PropType.object('GesturePhysics', gesturePhysicsFields);
 const gestureSnapType = PropType.object('GestureSnap', gestureSnapFields);
@@ -735,11 +736,63 @@ abstract final class ParticleEmitterFields {
   static const gravity = PropDef<double>('gravity', Codecs.double, 900);
   static const lifetime = PropDef<int>('lifetime', _ms, 2600);
   static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
+
+  /// Wait after the cue (ms).
+  static const delay = PropDef<int>('delay', _ms, 0);
+
+  /// Speed lost per second, e^(-drag).
+  static const drag = PropDef<double>('drag', Codecs.positive, 0);
+
+  /// The fastest fall (px/s; 0: no limit).
+  static const terminalVelocity = PropDef<double>('terminalVelocity', Codecs.positive, 0);
+
+  /// Side-to-side sway (px).
+  static const sway = PropDef<double>('sway', Codecs.double, 0);
+
+  /// Turning over in 3D (radians per second, up to).
+  static const flutter = PropDef<double>('flutter', Codecs.positive, 8);
+
+  /// Spin (degrees per second, up to).
+  static const spin = PropDef<double>('spin', Codecs.double, 515);
+
+  /// Fade out over the end of each particle's life (ms).
+  static const fadeOut = PropDef<int>('fadeOut', _ms, 500);
+
+  /// Two cannons: every other particle mirrored across the middle.
+  static const mirror = PropDef<bool>('mirror', Codecs.bool, false);
+
+  /// The text emoji particles draw.
+  static const glyph = PropDef<String>('glyph', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear,
+    lifetime, playOnAppear, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
   ];
 }
+
+abstract final class FlightFields {
+  /// 0: on the node's spring.
+  static const duration = PropDef<int>('duration', _ms, 0);
+  static const curve = PropDef<AnimationCurve>('curve', EnumCodec(AnimationCurve.values), AnimationCurve.easeInOut);
+
+  /// Rise of the path's control point above the higher end (px).
+  static const lift = PropDef<double>('lift', Codecs.double, 0);
+
+  /// The same as a share of the distance flown (the larger wins).
+  static const liftShare = PropDef<double>('liftShare', Codecs.double, 0);
+
+  /// Scale at the middle of the flight.
+  static const swell = PropDef<double>('swell', Codecs.positive, 1);
+
+  /// Turns over the flight, clockwise when flying right.
+  static const turns = PropDef<double>('turns', Codecs.double, 0);
+
+  /// Fading dots left behind.
+  static const trail = PropDef<int>('trail', IntCodec(min: 0), 0);
+  static const trailColor = PropDef<Color>('trailColor', Codecs.color, Color(0xFFFFC83D));
+  static const List<PropDef<Object?>> all = [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
+}
+
+List<PropDef<Object?>> flightFields() => FlightFields.all;
 
 List<PropDef<Object?>> particleEmitterFields() => ParticleEmitterFields.all;
 
@@ -844,6 +897,7 @@ abstract final class BehaviorFields {
   static const floating = PropDef<bool>('floating', Codecs.bool, false);
   static const hero = PropDef<HeroTag?>('hero', ValueCodec(HeroTag.fromJson, _heroOut, heroTagType), null);
   static const flightKey = PropDef<String>('flightKey', Codecs.string, '');
+  static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
   static const draggable = PropDef<DragSource?>(
     'draggable',
     ValueCodec(DragSource.fromJson, _out, dragSourceType),
@@ -892,7 +946,7 @@ abstract final class BehaviorFields {
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
     textDirection, flip, tilt, transformGesture,
   ];
 }
