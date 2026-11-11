@@ -2017,7 +2017,10 @@ final class EffectAnimation extends _Value {
   final double cycles;
 
   /// A cue the node's bindings set (`effectAnimations[i].playKey`): the
-  /// effect plays each time it changes (not when it first shows).
+  /// effect plays each time it changes to a new non-empty value (not when
+  /// it first shows, and not when it clears), so many nodes can share one
+  /// cue (`${= shake.cell == item.i ? shake.tick : ''}`): only the node
+  /// whose cue becomes non-empty plays.
   final String? playKey;
 
   static EffectAnimation? fromJson(Object? json) {
