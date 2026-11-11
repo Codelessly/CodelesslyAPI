@@ -37,4 +37,13 @@ void main() {
     expect(Paint.linearTransform(null, null), isNull);
     expect(Paint.fromJson({'type': 'linear', 'stops': []})!.transform, isNull, reason: 'no begin/end: the default axis');
   });
+
+  test('a radial gradient may give its radius as a share of the shortest side', () {
+    final p = Paint.fromJson({'type': 'radial', 'radius': 1.2, 'stops': []})!;
+    expect(p.radius, 1.2);
+    expect(p.toJson()['radius'], 1.2);
+    expect(Paint.fromJson(p.toJson()), p);
+    expect(Paint.fromJson({'type': 'radial'})!.radius, isNull);
+    expect(Paint.fromJson({'type': 'radial', 'radius': 0})!.radius, isNull, reason: 'no radius is no gradient');
+  });
 }
