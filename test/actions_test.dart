@@ -99,6 +99,15 @@ void main() {
     expect(OpenModalFields.all.map((f) => f.key), isNot(contains('sheetBelowWidth')));
   });
 
+  test('a bottom sheet can round its top corners', () {
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'bottomSheet', 'sheetRadius': 24})! as OpenModalAction;
+    expect(a.sheetRadius, 24);
+    expect(a.toJson()['sheetRadius'], 24);
+    expect((ActionDef.fromJson({'type': 'openModal', 'to': 's'})! as OpenModalAction).sheetRadius, isNull);
+    expect(const OpenModalAction(to: 's').toJson().containsKey('sheetRadius'), isFalse);
+    expect(OpenModalFields.all.map((f) => f.key), contains('sheetRadius'));
+  });
+
   test('every action can be off, non blocking, or conditional', () {
     final a = ActionDef.fromJson({
       'type': 'openLink', 'url': 'x', 'enabled': false, 'nonBlocking': true, //

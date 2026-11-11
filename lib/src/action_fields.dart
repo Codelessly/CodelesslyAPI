@@ -214,6 +214,8 @@ abstract final class OpenModalFields {
   static const insets = PropDef<List<double>>('insets', Codecs.doubles, [0, 0, 0, 0],
       doc: 'Space kept around a dialog: left, top, right, bottom.');
   static const sheetWidth = PropDef<double?>('sheetWidth', Codecs.optionalDouble, null);
+  static const sheetRadius = PropDef<double?>('sheetRadius', Codecs.optionalDouble, null,
+      doc: 'A bottom sheet\'s top corner radius; the sheet clips the screen to it (null: the default).');
   static const sheetBelow = PropDef<String>('sheetBelow', Codecs.string, '',
       doc: 'Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second).');
   static const maxHeightFactor = PropDef<double>('maxHeightFactor', Codecs.double, 1);
@@ -223,7 +225,7 @@ abstract final class OpenModalFields {
       doc: 'A custom transition: entrance, the screen behind, barrier, drag to dismiss.');
   static const List<PropDef<Object?>> all = [
     to, params, presentation, barrierDismissible, barrierColor, barrierBlur, showCloseButton, showDragHandle, //
-    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetBelow, maxHeightFactor,
+    alignment, anchor, placement, anchorGap, anchorOffset, insets, sheetWidth, sheetRadius, sheetBelow, maxHeightFactor,
     fullHeight, enterScale, routeTransition,
   ];
 }
@@ -537,7 +539,9 @@ abstract final class ControlDragFields {
   static const command = PropDef<DragCommand>('command', EnumCodec(DragCommand.values), DragCommand.fling);
   static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
   static const steps = PropDef<String>('steps', Codecs.string, '1', doc: 'Step: how many steps (an expression).');
-  static const List<PropDef<Object?>> all = [node, command, direction, steps];
+  static const value = PropDef<String>('value', Codecs.string, '',
+      doc: 'Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, direction, steps, value];
 }
 
 /// [SpeakAction].

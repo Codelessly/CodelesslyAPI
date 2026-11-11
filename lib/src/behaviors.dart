@@ -409,6 +409,7 @@ final class Motion extends _Value {
     this.revealOnScroll = false,
     this.revealFraction = 0.15,
     this.orientUpright = false,
+    this.uprightMirror = false,
     this.arc = 0,
     this.paused = false,
     this.phase = 0,
@@ -456,7 +457,10 @@ final class Motion extends _Value {
   /// Hidden while its back faces the viewer.
   final bool backfaceHidden;
 
-  /// An SVG path the node moves along, at [pathProgress] (0–1).
+  /// An SVG path the node moves along, at [pathProgress] (0–1). It is
+  /// followed from where the node is laid out: the node is moved by the
+  /// path's offset from its start point, so a node tracing a route drawn in
+  /// its parent's coordinates sits at the route's first point.
   final String? path;
   final double pathProgress;
 
@@ -474,6 +478,11 @@ final class Motion extends _Value {
   /// With [orientToPath], never upside down: the path's direction folded
   /// into -90–90 degrees.
   final bool orientUpright;
+
+  /// With [orientUpright], a node heading left is mirrored (scaleX -1) as
+  /// well as turned upright, so its front still leads: a train, a car, a
+  /// fish. Without it the node keeps facing right, backwards.
+  final bool uprightMirror;
 
   /// Bends every change of position (translate, shift) into a quadratic
   /// curve whose middle sits this share of the distance off the straight
@@ -600,6 +609,7 @@ final class Motion extends _Value {
       revealOnScroll: revealOnScroll,
       revealFraction: revealFraction,
       orientUpright: orientUpright,
+      uprightMirror: uprightMirror,
       arc: arc,
       paused: paused,
       phase: phase,
@@ -668,6 +678,14 @@ final class Motion extends _Value {
     if (a > math.pi / 2) return a - math.pi;
     if (a < -math.pi / 2) return a + math.pi;
     return a;
+  }
+
+  /// Whether a path direction [radians] heads left, so [uprightAngle] turns
+  /// it half round (and [uprightMirror] mirrors the node).
+  static bool headsLeft(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    return a > math.pi / 2 || a < -math.pi / 2;
   }
 
   /// The pose [t] (0–1, already eased) of the way from [a] to [b], through
@@ -781,6 +799,7 @@ final class Motion extends _Value {
       revealOnScroll: r.b('revealOnScroll', false),
       revealFraction: r.d('revealFraction', 0.15),
       orientUpright: r.b('orientUpright', false),
+      uprightMirror: r.b('uprightMirror', false),
       arc: r.d('arc', 0),
       paused: _loose(m['paused']) ?? false,
       phase: r.d('phase', 0),
@@ -836,6 +855,7 @@ final class Motion extends _Value {
       ..b('revealOnScroll', revealOnScroll, false)
       ..d('revealFraction', revealFraction, 0.15)
       ..b('orientUpright', orientUpright, false)
+      ..b('uprightMirror', uprightMirror, false)
       ..d('arc', arc, 0)
       ..b('paused', paused, false)
       ..d('phase', phase, 0)
@@ -853,8 +873,8 @@ final class Motion extends _Value {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
-    pathFocusY, pathWrap, pathViewBox, shimmer,
+    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing,
+    pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 

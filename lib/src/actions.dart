@@ -322,6 +322,7 @@ final class OpenModalAction extends ActionDef {
     this.anchorOffset = 0,
     this.insets = const [0, 0, 0, 0],
     this.sheetWidth,
+    this.sheetRadius,
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
@@ -355,6 +356,11 @@ final class OpenModalAction extends ActionDef {
   /// Space kept around a dialog: left, top, right, bottom.
   final List<double> insets;
   final double? sheetWidth;
+
+  /// A bottom sheet's top corner radius: the sheet clips the screen to it,
+  /// so a screen with a solid canvas fill gets rounded top corners. Null:
+  /// the platform's default sheet.
+  final double? sheetRadius;
 
   /// [ModalPresentation.adaptive]: a bottom sheet on screens whose
   /// breakpoint is narrower than this one (a project [Breakpoint.id],
@@ -393,6 +399,7 @@ final class OpenModalAction extends ActionDef {
     anchorOffset: _d(m, 'anchorOffset', 0),
     insets: _doubles(m['insets'], 4) ?? const [0, 0, 0, 0],
     sheetWidth: _dOrNull(m, 'sheetWidth'),
+    sheetRadius: _dOrNull(m, 'sheetRadius'),
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
@@ -420,6 +427,7 @@ final class OpenModalAction extends ActionDef {
     if (anchorOffset != 0) 'anchorOffset': writeDouble(anchorOffset),
     if (insets.any((v) => v != 0)) 'insets': [for (final v in insets) writeDouble(v)],
     if (sheetWidth case final double w) 'sheetWidth': writeDouble(w),
+    if (sheetRadius case final double r) 'sheetRadius': writeDouble(r),
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
@@ -2068,8 +2076,13 @@ final class FocusAction extends ActionDef {
 
 /// What a [ControlDragAction] does to a draggable node. [step] turns a
 /// drag track control by [ControlDragAction.steps] of its step, as if
-/// dragged there (a dial's nudge buttons and arrow keys).
-enum DragCommand { fling, returnFrom, reset, shake, step }
+/// dragged there (a dial's nudge buttons and arrow keys). On a node with a
+/// transform gesture (a map, a photo): [reset] springs it to its rest pose,
+/// [zoom] scales it by [ControlDragAction.value] (a factor: `1.5` in, `0.67`
+/// out) about the middle of what its viewport shows (zoom buttons), and
+/// [pose] springs it to the pose [ControlDragAction.value] gives (`{x, y,
+/// scale, rotation}`, keys left out kept: "fit to route").
+enum DragCommand { fling, returnFrom, reset, shake, step, zoom, pose }
 
 /// Flings, returns, resets or shakes draggable node [node] (a swipe card),
 /// or steps a drag track.
@@ -2079,6 +2092,7 @@ final class ControlDragAction extends ActionDef {
     this.command = DragCommand.fling,
     this.direction = DragDirection.right,
     this.steps = '1',
+    this.value = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -2096,11 +2110,16 @@ final class ControlDragAction extends ActionDef {
   /// track's start; a number or an expression.
   final String steps;
 
+  /// [DragCommand.zoom]: the factor; [DragCommand.pose]: the pose (a map, its
+  /// JSON text, or an expression giving one).
+  final String value;
+
   static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
     node: _s(m, 'node'),
     command: _e(DragCommand.values, m, 'command', DragCommand.fling),
     direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
     steps: _s(m, 'steps', '1'),
+    value: m['value'] is Map ? jsonEncode(m['value']) : _s(m, 'value'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -2112,6 +2131,7 @@ final class ControlDragAction extends ActionDef {
     if (command != DragCommand.fling) 'command': command.name,
     if (direction != DragDirection.right) 'direction': direction.name,
     if (steps != '1') 'steps': steps,
+    if (value.isNotEmpty) 'value': value,
   };
 }
 

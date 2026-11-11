@@ -109,6 +109,10 @@ renderer computes.
 * **Sizing per axis** is `fixed`, `fill` (Expanded/stretch), `flexible`
   (Flexible, loose) or `hug` (size to content). The number is the design size:
   the size used for `fixed`, and the fallback when a mode can't apply.
+  A child that fills the cross axis of a row or column hugging that axis
+  stretches to the thickness its siblings give, and its number is measured
+  as its own thickness: a timeline rail that should add no height of its
+  own fills with 0.
 * **Freeform position per axis** follows `Positioned`/`Align`: `{"start": d}`,
   `{"end": d}`, `{"start": a, "end": b}` (stretch between), `{"align": -1..1}`
   (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
@@ -203,7 +207,7 @@ flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
-| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright`. Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
+| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path is followed from the node's own place (offsets from the path's start point); it can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright` (with `uprightMirror`, heading left mirrors the node so its front leads). Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
 | `scale` | number | `Transform.scale` about the center; layout unchanged. |
 | `loops` | `[LoopAnimation]` | Repeating animations (pulse, fade, scale, spin, bob, sway), outermost first, each starting at its `phase` of a whole loop less `lag` ms. |
 | `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
@@ -341,8 +345,9 @@ drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
-cards by tap, drag and variable. Not run yet (modeled only): hero
-flights and one-shot effects. A design canvas draws them at rest (the motion's values, each loop's
+cards by tap, drag and variable; navigation flies shared elements (`hero`,
+`runtime/actions/hero_flights.dart`) and `playAnimation` plays one-shot
+effects (`render/play.dart`). A design canvas draws them at rest (the motion's values, each loop's
 first frame, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
