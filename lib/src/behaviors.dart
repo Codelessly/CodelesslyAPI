@@ -38,7 +38,12 @@ enum AnimationCurve {
 
   /// Material 3's emphasized easing, `Cubic(0.2, 0, 0, 1)`: a quick start
   /// that settles gently (entrances, page and sheet motion).
-  emphasized;
+  emphasized,
+
+  /// The web's ease-out-back, `cubic-bezier(0.34, 1.56, 0.64, 1)`: a
+  /// bigger overshoot than [easeOutBack], landing with a slap (stickers,
+  /// cards dropping onto a wall).
+  overshoot;
 
   /// The curve named [v] (any case, spaces and dashes ignored), or null.
   static AnimationCurve? parse(Object? v) {
@@ -73,6 +78,7 @@ enum AnimationCurve {
       spring => 1 - math.exp(-6.5 * t) * math.cos(2 * math.pi * 1.25 * t) * (1 - t * t),
       step => t < 0.5 ? 0 : 1,
       emphasized => _cubic(0.2, 0, 0, 1, t),
+      overshoot => _cubic(0.34, 1.56, 0.64, 1, t),
     };
   }
 
@@ -390,6 +396,8 @@ final class Motion extends _Value {
     this.duration = 0,
     this.delay = 0,
     this.curve = AnimationCurve.easeInOut,
+    this.rotateCurve,
+    this.fadeShare = 1,
     this.springStiffness = 380,
     this.springDamping = 20,
     this.spin = 0,
@@ -429,6 +437,15 @@ final class Motion extends _Value {
   /// A transition's length and its wait (ms).
   final int duration, delay;
   final AnimationCurve curve;
+
+  /// The rotation's own curve (an entrance that drops in on [curve] and
+  /// wobbles upright on `elasticOut`); null follows [curve].
+  final AnimationCurve? rotateCurve;
+
+  /// The share (0–1] of [duration] in which the opacity arrives, easing out:
+  /// a card fades in over its first third while it keeps settling. 1
+  /// follows [curve].
+  final double fadeShare;
 
   /// The spring of [AnimationCurve.spring] (mass 1).
   final double springStiffness, springDamping;
@@ -581,6 +598,8 @@ final class Motion extends _Value {
       duration: duration,
       delay: delay,
       curve: curve,
+      rotateCurve: rotateCurve,
+      fadeShare: fadeShare,
       springStiffness: springStiffness,
       springDamping: springDamping,
       spin: v['spin']!,
@@ -762,6 +781,8 @@ final class Motion extends _Value {
       duration: r.ms('duration', 0),
       delay: r.ms('delay', 0),
       curve: r.curve('curve', AnimationCurve.easeInOut),
+      rotateCurve: AnimationCurve.parse(m['rotateCurve']),
+      fadeShare: r.d('fadeShare', 1).clamp(0.01, 1).toDouble(),
       springStiffness: r.d('springStiffness', 380),
       springDamping: r.d('springDamping', 20),
       spin: r.d('spin', 0),
@@ -813,6 +834,8 @@ final class Motion extends _Value {
       ..i('duration', duration, 0)
       ..i('delay', delay, 0)
       ..e('curve', curve, AnimationCurve.easeInOut)
+      ..s('rotateCurve', rotateCurve?.name)
+      ..d('fadeShare', fadeShare, 1)
       ..d('springStiffness', springStiffness, 380)
       ..d('springDamping', springDamping, 20)
       ..i('spinRamp', spinRamp, 800)
@@ -851,8 +874,8 @@ final class Motion extends _Value {
   @override
   List<Object?> get props => [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
-    perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
-    loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
+    perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare, springStiffness, springDamping,
+    spin, spinRamp, loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
     keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
     pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
