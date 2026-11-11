@@ -512,9 +512,17 @@ abstract final class SegmentedButtonProps {
   /// `shape: RoundedRectangleBorder(borderRadius)`; unset is Flutter's stadium.
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
+  /// The segments' label style (`textStyle`): font, size, weight. Leave its
+  /// color out so [foregroundColor] / [selectedForegroundColor] apply.
+  static const textStyle = PropDef<TextStyle>('textStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// Each segment's padding (`padding`); unset is Flutter's.
+  static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
+    textStyle, padding,
   ], doc: 'Flutter `SegmentedButton`.');
 }
 
