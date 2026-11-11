@@ -11,6 +11,7 @@ import 'paint.dart';
 final class TextStyle {
   const TextStyle({
     this.fontFamily,
+    this.fontFamilyFallback = const [],
     this.fontWeight,
     this.fontStyle,
     this.fontSize,
@@ -31,6 +32,7 @@ final class TextStyle {
   static const TextStyle empty = TextStyle();
 
   final String? fontFamily;
+  final List<String> fontFamilyFallback;
 
   /// 100–900.
   final int? fontWeight;
@@ -77,6 +79,7 @@ final class TextStyle {
     if (other == null) return this;
     return TextStyle(
       fontFamily: other.fontFamily ?? fontFamily,
+      fontFamilyFallback: other.fontFamilyFallback.isEmpty ? fontFamilyFallback : other.fontFamilyFallback,
       fontWeight: other.fontWeight ?? fontWeight,
       fontStyle: other.fontStyle ?? fontStyle,
       fontSize: other.fontSize ?? fontSize,
@@ -101,6 +104,7 @@ final class TextStyle {
     final weight = readInt(m['fontWeight']);
     return TextStyle(
       fontFamily: readString(m['fontFamily']),
+      fontFamilyFallback: [...?readList(m['fontFamilyFallback'])?.whereType<String>()],
       fontWeight: weight == null ? null : ((weight / 100).round().clamp(1, 9) * 100),
       fontStyle: m['fontStyle'] == null ? null : readEnum(FontStyle.values, m['fontStyle'], FontStyle.normal),
       fontSize: readDouble(m['fontSize']).let((v) => v != null && v > 0 ? v : null),
@@ -126,6 +130,7 @@ final class TextStyle {
 
   Json toJson() => {
         if (fontFamily != null) 'fontFamily': fontFamily,
+        if (fontFamilyFallback.isNotEmpty) 'fontFamilyFallback': fontFamilyFallback,
         if (fontWeight != null) 'fontWeight': fontWeight,
         if (fontStyle != null) 'fontStyle': fontStyle!.name,
         if (fontSize != null) 'fontSize': writeDouble(fontSize!),
@@ -148,6 +153,7 @@ final class TextStyle {
   bool operator ==(Object other) =>
       other is TextStyle &&
       other.fontFamily == fontFamily &&
+      listEquals(other.fontFamilyFallback,fontFamilyFallback) &&
       other.fontWeight == fontWeight &&
       other.fontStyle == fontStyle &&
       other.fontSize == fontSize &&
@@ -165,7 +171,7 @@ final class TextStyle {
       listEquals(other.shadows, shadows);
 
   @override
-  int get hashCode => Object.hash(fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
+  int get hashCode => Object.hash(fontFamily, Object.hashAll(fontFamilyFallback), fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
       height, decoration, decorationColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution);
 
   @override

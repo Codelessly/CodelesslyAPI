@@ -47,6 +47,7 @@ final samples = <Json>[
   {'type': 'playSound', 'operation': 'stop', 'voiceId': r'${result.pointer}'},
   {'type': 'playSound', 'operation': 'stopAll'},
 
+  {'type': 'print', 'node': 'badge'},
 ];
 
 void main() {

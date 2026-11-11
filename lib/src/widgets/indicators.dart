@@ -106,6 +106,8 @@ abstract final class RadialGaugeProps {
 
   /// The value arc takes the color of the zone its value is in.
   static const colorByZone = PropDef<bool>('colorByZone', Codecs.bool, true);
+  /// Round the continuous value arc's ends; tracks and segments keep flat ends.
+  static const roundCaps = PropDef<bool>('roundCaps', Codecs.bool, false);
   static const segments = PropDef<int>('segments', IntCodec(min: 0), 40);
 
   /// Degrees between segments.
@@ -134,7 +136,7 @@ abstract final class RadialGaugeProps {
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 420);
 
   static const spec = WidgetSpec('radialGauge', props: [
-    value, min, max, startAngle, sweepAngle, thickness, trackColor, valueColor, colorByZone, segments, segmentGap, //
+    value, min, max, startAngle, sweepAngle, thickness, trackColor, valueColor, colorByZone, roundCaps, segments, segmentGap, //
     zones, zoneThickness, zoneOpacity, majorTicks, minorTicks, tickColor, labels, labelColor, labelFontSize,
     labelFontFamily, showTarget, target, targetColor, showNeedle, needleColor, needleClearance, animate,
     animationDuration,
