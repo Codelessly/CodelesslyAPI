@@ -402,6 +402,7 @@ final class Motion extends _Value {
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
+    this.enterHeld = false,
     this.revealFraction = 0.15,
     this.orientUpright = false,
     this.arc = 0,
@@ -463,6 +464,12 @@ final class Motion extends _Value {
 
   /// Waits to enter until [revealFraction] of the node scrolls into view.
   final bool revealOnScroll;
+
+  /// Holds the entrance at its start while true; it plays once this turns
+  /// false (bindable as `motion.enterHeld`: a page's characters wait for
+  /// the page to settle, `${= abs(pageOffset) > 0.01}`). Once played, it
+  /// doesn't hold again.
+  final bool enterHeld;
   final double revealFraction;
 
   /// With [orientToPath], never upside down: the path's direction folded
@@ -584,6 +591,7 @@ final class Motion extends _Value {
       keyframes: keyframes,
       pulseKey: pulseKey,
       revealOnScroll: revealOnScroll,
+      enterHeld: enterHeld,
       revealFraction: revealFraction,
       orientUpright: orientUpright,
       arc: arc,
@@ -764,6 +772,7 @@ final class Motion extends _Value {
       keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
       pulseKey: r.sn('pulseKey'),
       revealOnScroll: r.b('revealOnScroll', false),
+      enterHeld: r.b('enterHeld', false),
       revealFraction: r.d('revealFraction', 0.15),
       orientUpright: r.b('orientUpright', false),
       arc: r.d('arc', 0),
@@ -818,6 +827,7 @@ final class Motion extends _Value {
     j
       ..s('pulseKey', pulseKey)
       ..b('revealOnScroll', revealOnScroll, false)
+      ..b('enterHeld', enterHeld, false)
       ..d('revealFraction', revealFraction, 0.15)
       ..b('orientUpright', orientUpright, false)
       ..d('arc', arc, 0)
@@ -836,7 +846,7 @@ final class Motion extends _Value {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
+    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
     pathFocusY, pathWrap, shimmer,
   ];
 }
