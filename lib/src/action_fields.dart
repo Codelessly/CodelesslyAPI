@@ -440,6 +440,14 @@ abstract final class ConfirmFields {
   ];
 }
 
+/// [DownloadFileAction].
+abstract final class DownloadFileFields {
+  static const fileName = PropDef<String>('fileName', Codecs.string, 'export.txt', doc: 'Suggested filename, an expression.');
+  static const text = PropDef<String>('text', Codecs.string, '', doc: 'Generated file contents as UTF-8 text.');
+  static const mimeType = PropDef<String>('mimeType', Codecs.string, 'text/plain');
+  static const List<PropDef<Object?>> all = [fileName, text, mimeType];
+}
+
 /// [DelayAction].
 abstract final class DelayFields {
   static const ms = PropDef<int>('ms', Codecs.int, 500);
@@ -606,6 +614,7 @@ abstract final class ActionSpecs {
       const ActionSpec(CloudDataAction.typeName, label: 'Cloud data', fields: CloudDataFields.all),
       const ActionSpec(CloudBatchAction.typeName, label: 'Cloud batch', fields: CloudBatchFields.all),
       const ActionSpec(CopyToClipboardAction.typeName, label: 'Copy to clipboard', fields: CopyToClipboardFields.all),
+      const ActionSpec(DownloadFileAction.typeName, label: 'Download file', fields: DownloadFileFields.all),
       const ActionSpec(EditTextAction.typeName, label: 'Edit text', fields: EditTextFields.all),
       const ActionSpec(PaywallAction.typeName, label: 'Paywall', fields: PaywallFields.all),
       const ActionSpec(FocusAction.typeName, label: 'Focus', fields: FocusFields.all),

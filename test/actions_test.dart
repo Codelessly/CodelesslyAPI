@@ -24,6 +24,7 @@ final samples = <Json>[
   {'type': 'if', 'condition': {'left': r'${n}', 'op': 'greaterThan', 'right': '3'}, 'then': [{'type': 'openLink', 'url': 'a'}], 'else': [{'type': 'openLink', 'url': 'b'}]},
   {'type': 'forEach', 'items': 'rows', 'actions': [{'type': 'copyToClipboard', 'text': r'${result.item}'}]},
   {'type': 'cloudFiles', 'path': 'img', 'kind': 'any', 'allowMultiple': false, 'access': 'private', 'actions': [{'type': 'openLink', 'url': r'${result.url}'}]},
+  {'type': 'downloadFile', 'fileName': 'rota.csv', 'text': r'${csv}', 'mimeType': 'text/csv'},
   {'type': 'showToast', 'message': 'Saved', 'title': 'Done', 'style': 'success', 'actionLabel': 'Undo', 'actions': [{'type': 'delay', 'ms': 1}], 'look': {'radius': 8}},
   {'type': 'confirm', 'title': 'Delete?', 'destructive': true, 'actions': [{'type': 'delay', 'ms': 1}], 'cancelActions': [{'type': 'delay', 'ms': 2}], 'dialog': 'd'},
   {'type': 'delay', 'ms': 900, 'duration': r'${= slow ? 4000 : 900}'},

@@ -125,6 +125,7 @@ final Map<String, _Decoder> _decoders = {
   CloudDataAction.typeName: CloudDataAction._fromJson,
   CloudBatchAction.typeName: CloudBatchAction._fromJson,
   CopyToClipboardAction.typeName: CopyToClipboardAction._fromJson,
+  DownloadFileAction.typeName: DownloadFileAction._fromJson,
   EditTextAction.typeName: EditTextAction._fromJson,
   PaywallAction.typeName: PaywallAction._fromJson,
   FocusAction.typeName: FocusAction._fromJson,
@@ -1693,6 +1694,25 @@ final class CopyToClipboardAction extends ActionDef {
 
   @override
   Json get _fields => {'text': text};
+}
+
+/// Exports generated UTF-8 text (CSV, JSON, plain text...) as a file.
+/// The browser downloads it; native apps show the platform save picker.
+/// Cancellation returns `{saved: false}` as the action result.
+final class DownloadFileAction extends ActionDef {
+  const DownloadFileAction({this.fileName = 'export.txt', this.text = '', this.mimeType = 'text/plain',
+    super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'downloadFile';
+  @override
+  String get type => typeName;
+  final String fileName, text, mimeType;
+
+  static DownloadFileAction _fromJson(Json m, _Common c) => DownloadFileAction(
+    fileName: _s(m, 'fileName', 'export.txt'), text: _s(m, 'text'), mimeType: _s(m, 'mimeType', 'text/plain'),
+    enabled: c.enabled, nonBlocking: c.nonBlocking, when: c.when);
+  @override
+  Json get _fields => {'fileName': fileName, 'text': text, 'mimeType': mimeType};
 }
 
 /// Reads [text] aloud, or [stop]s speaking. [rate] and [pitch] are numbers
