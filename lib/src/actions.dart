@@ -6,6 +6,7 @@
 // `Hello ${name}`), evaluated when the action runs. `${result}` is what the
 // previous action of the chain gave (an API's response, a document id, a
 // for-each's item), or the trigger's event.
+import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart' show AnimationCurve, DragDirection;
@@ -2203,11 +2204,13 @@ final class RunScriptAction extends ActionDef {
   @override
   List<ActionDef> get nested => onError;
 
+  /// `arguments`, or `args` as the editor API's own docs wrote it; a value
+  /// that isn't text (a number, a list, a map) is kept as its JSON.
   static RunScriptAction _fromJson(Json m, _Common c) => RunScriptAction(
     script: _s(m, 'script'),
     arguments: {
-      for (final e in _map(m, 'arguments').entries)
-        if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
+      for (final e in (m['arguments'] is Map ? _map(m, 'arguments') : _map(m, 'args')).entries)
+        if (e.value != null) e.key: e.value is String ? e.value as String : jsonEncode(e.value),
     },
     resultVariable: _s(m, 'resultVariable'),
     onError: _list(m, 'onError'),
