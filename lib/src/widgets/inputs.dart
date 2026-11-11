@@ -513,9 +513,23 @@ abstract final class SegmentedButtonProps {
   /// `shape: RoundedRectangleBorder(borderRadius)`; unset is Flutter's stadium.
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
+  /// Each segment's padding (`ButtonStyle.padding`); unset is Flutter's.
+  static const padding = PropDef<EdgeInsets?>('padding', Codecs.optionalInsets, null);
+
+  /// Each segment's height (`ButtonStyle.minimumSize` / `maximumSize`);
+  /// unset is Flutter's 40.
+  static const segmentHeight = PropDef<double?>('segmentHeight', Codecs.optionalDouble, null);
+
+  /// The segments share the node's width equally (`expandedInsets: zero`).
+  static const expanded = PropDef<bool>('expanded', Codecs.bool, false);
+
+  /// No extra space round the segments for touch (`MaterialTapTargetSize.shrinkWrap`).
+  static const shrinkTapTarget = PropDef<bool>('shrinkTapTarget', Codecs.bool, false);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
+    padding, segmentHeight, expanded, shrinkTapTarget,
   ], doc: 'Flutter `SegmentedButton`.');
 }
 
