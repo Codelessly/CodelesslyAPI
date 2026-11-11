@@ -100,8 +100,11 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
   /// ![angular example](https://www.figma.com/images/developer_app/angular.png)
   /// ![diamond example](https://www.figma.com/images/developer_app/diamond.png)
   /// ![radial example](https://www.figma.com/images/developer_app/radial.png)
+  ///
+  /// Stored flat, `[a, b, c, d, e, f]`: the 2×3 affine matrix
+  /// `[[a, b, c], [d, e, f]]` row by row. [PaintModel.fromJson] reads both
+  /// the flat list and the nested rows.
   // final List<Vector2D> gradientTransform;
-
   final List<num>? gradientTransform;
 
   /// Positions of key points along the gradient axis with the colors anchored
@@ -688,7 +691,23 @@ class PaintModel with Equatable, SerializableMixin, FieldsHolder {
 
   /// Factory constructor for creating [PaintModel] instance from a JSON data.
   factory PaintModel.fromJson(Map json) =>
-      _$PaintModelFromJson(_alphaAsOpacity(json));
+      _$PaintModelFromJson(_alphaAsOpacity(_flatTransform(json)));
+
+  /// [json] with a [gradientTransform] given as the 2×3 affine matrix
+  /// `[[a, b, c], [d, e, f]]` (rows) flattened to `[a, b, c, d, e, f]`, the
+  /// form the model stores; the flat form is read as it is.
+  static Map _flatTransform(Map json) {
+    final Object? transform = json['gradientTransform'];
+    if (transform is! List ||
+        transform.isEmpty ||
+        !transform.every((row) => row is List)) {
+      return json;
+    }
+    return {
+      ...json,
+      'gradientTransform': [for (final row in transform) ...row as List],
+    };
+  }
 
   /// A solid color written as `#AARRGGBB` keeps its alpha as the paint's
   /// opacity; [ColorRGB] has no alpha channel and would drop it.

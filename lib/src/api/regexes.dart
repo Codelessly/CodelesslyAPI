@@ -128,7 +128,18 @@ const String variablePathComposingPattern =
 /// Regex for [variablePathComposingPattern].
 final RegExp variablePathComposingRegex = RegExp(variablePathComposingPattern);
 
-const String _formulaAtom = r'''[^{}'"]|'[^']*'|"[^"]*"''';
+/// A quoted text in a formula: 'single' or "double" quoted, where a
+/// backslash escapes the next character, so `'it\'s'` is one text. See
+/// FormulaEvaluator for how escapes read.
+const String formulaQuotedTextPattern =
+    r'"(?:[^"\\]|\\[\s\S])*"'
+    '|'
+    r"'(?:[^'\\]|\\[\s\S])*'";
+
+/// Regex for [formulaQuotedTextPattern].
+final RegExp formulaQuotedTextRegex = RegExp(formulaQuotedTextPattern);
+
+const String _formulaAtom = '[^{}\'"]|$formulaQuotedTextPattern';
 const String _formulaBody0 = '(?:$_formulaAtom)*';
 const String _formulaBody1 = '(?:$_formulaAtom|\\{$_formulaBody0\\})*';
 const String _formulaBody2 = '(?:$_formulaAtom|\\{$_formulaBody1\\})*';

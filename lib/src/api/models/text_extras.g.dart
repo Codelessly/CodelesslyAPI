@@ -11,6 +11,7 @@ Map<String, dynamic> _$InlineCodeStyleOmitDefaults(
   Map<String, dynamic> json,
 ) {
   if (isJsonDefault(instance.fontSizeScale, 1)) json.remove('fontSizeScale');
+  if (isJsonDefault(instance.paddingSpaces, 0)) json.remove('paddingSpaces');
   return json;
 }
 
@@ -36,6 +37,7 @@ InlineCodeStyle _$InlineCodeStyleFromJson(Map json) => InlineCodeStyle(
       ? null
       : ColorRGBA.fromJson(json['background']),
   fontSizeScale: (json['fontSizeScale'] as num?)?.toDouble() ?? 1,
+  paddingSpaces: (json['paddingSpaces'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$InlineCodeStyleToJson(InlineCodeStyle instance) =>
@@ -45,6 +47,7 @@ Map<String, dynamic> _$InlineCodeStyleToJson(InlineCodeStyle instance) =>
       'color': ?instance.color?.toJson(),
       'background': ?instance.background?.toJson(),
       'fontSizeScale': instance.fontSizeScale,
+      'paddingSpaces': instance.paddingSpaces,
     };
 
 CountUpModel _$CountUpModelFromJson(Map json) => CountUpModel(

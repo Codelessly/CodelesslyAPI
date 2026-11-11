@@ -12,8 +12,8 @@ part 'text_extras.g.dart';
 /// `${item.text}` reading "Retries honor `Retry-After`".
 ///
 /// JSON: `{"fontFamily": "JetBrains Mono", "color": "#4ADE80",
-/// "background": "#141C17", "fontSizeScale": 0.92}`. Everything is
-/// optional; a property left null keeps the text's own.
+/// "background": "#141C17", "fontSizeScale": 0.92, "paddingSpaces": 1}`.
+/// Everything is optional; a property left null keeps the text's own.
 @JsonSerializable()
 class InlineCodeStyle with Equatable, SerializableMixin {
   /// The family of the code font, a Google Fonts family name such as
@@ -33,6 +33,13 @@ class InlineCodeStyle with Equatable, SerializableMixin {
   /// a little smaller than the prose around it.
   final double fontSizeScale;
 
+  /// How many spaces, in the code's font and on its [background], pad each
+  /// side of a code segment, so the chip has room around its text: 1 draws
+  /// `` `npm i` `` as " npm i " (about 0.6 em each side in a monospace
+  /// font), as code chips usually are. The spaces wrap like any other, so
+  /// a line can break at a chip's edge. 0, the default, adds none.
+  final int paddingSpaces;
+
   /// Creates an [InlineCodeStyle].
   const InlineCodeStyle({
     this.fontFamily,
@@ -40,6 +47,7 @@ class InlineCodeStyle with Equatable, SerializableMixin {
     this.color,
     this.background,
     this.fontSizeScale = 1,
+    this.paddingSpaces = 0,
   });
 
   /// Returns a copy with the given values replaced.
@@ -49,12 +57,14 @@ class InlineCodeStyle with Equatable, SerializableMixin {
     ColorRGBA? color,
     ColorRGBA? background,
     double? fontSizeScale,
+    int? paddingSpaces,
   }) => InlineCodeStyle(
     fontFamily: fontFamily ?? this.fontFamily,
     fontWeight: fontWeight ?? this.fontWeight,
     color: color ?? this.color,
     background: background ?? this.background,
     fontSizeScale: fontSizeScale ?? this.fontSizeScale,
+    paddingSpaces: paddingSpaces ?? this.paddingSpaces,
   );
 
   @override
@@ -64,6 +74,7 @@ class InlineCodeStyle with Equatable, SerializableMixin {
     color,
     background,
     fontSizeScale,
+    paddingSpaces,
   ];
 
   /// Creates an [InlineCodeStyle] from JSON.
