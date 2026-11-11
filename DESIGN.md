@@ -216,6 +216,8 @@ flat in the node's JSON. Every key is optional and sparse.
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
 | `reveal`, `strokePath`, `effectAnimations`, `particles`, `textDirection` | | Scroll into view; a line through points; one-shot effects; confetti; `Directionality`. |
 
+`strokePath.progress` is a bindable fraction (0–1, default 1). It reveals the stroke by path length; dash patterns are clipped to that revealed prefix.
+
 A release's motion is one model wherever it is: `GesturePhysics` (a fling
 with `friction`, `overscroll` past `bounds`, a spring by `stiffness`/
 `damping`/`mass` or `bounce`/`duration`, a `snap` to points, a grid or the

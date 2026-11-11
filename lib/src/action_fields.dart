@@ -250,7 +250,16 @@ abstract final class SubmitFormFields {
   static const listId = PropDef<String>('listId', Codecs.string, '');
   static const firstNameField = PropDef<String>('firstNameField', Codecs.string, '');
   static const lastNameField = PropDef<String>('lastNameField', Codecs.string, '');
-  static const List<PropDef<Object?>> all = [service, emailField, apiKey, dataCenter, listId, firstNameField, lastNameField];
+  static const payload = PropDef<String>('payload', Codecs.string, '', doc: 'Local submission: an expression yielding a JSON object.');
+  static const validationScript = PropDef<String>('validationScript', Codecs.string, '', doc: 'Await a script returning {valid, errors?, payload?}.');
+  static const validationArguments = PropDef<Object?>('validationArguments', Codecs.any, null, doc: 'Named script argument expressions.');
+  static const responseVariable = PropDef<String>('responseVariable', Codecs.string, '', doc: 'Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions.');
+  static const prepend = PropDef<bool>('prepend', Codecs.bool, false);
+  static const resultVariable = PropDef<String>('resultVariable', Codecs.string, '');
+  static const onSuccess = PropDef<Object?>('onSuccess', Codecs.any, null);
+  static const onError = PropDef<Object?>('onError', Codecs.any, null);
+  static const List<PropDef<Object?>> all = [service, emailField, apiKey, dataCenter, listId, firstNameField, lastNameField,
+    payload, validationScript, validationArguments, responseVariable, prepend, resultVariable, onSuccess, onError];
 }
 
 /// [SetValueAction].

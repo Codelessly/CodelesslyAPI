@@ -247,12 +247,19 @@ abstract final class ChartProps {
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
+  /// Animates numeric data changes; initial and design-canvas values rest.
+  static const animate = PropDef<bool>('animate', Codecs.bool, true);
+
+  /// Milliseconds. Zero applies data changes immediately.
+  static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
+
   static const spec = WidgetSpec('chart', props: [
     selectedIndex, chartType, series, labelField, data, minY, maxY, gridLines, gridColor, showYAxis, yAxisWidth, //
     showXAxis, xLabelEvery, axisLabelColor, axisFontSize, axisFontFamily, referenceLines, barWidthFraction,
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily,
+    animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
 
@@ -302,12 +309,19 @@ abstract final class PlotChartProps {
   static const selectionDotStrokeColor = PropDef<Color>('selectionDotStrokeColor', Codecs.color, Color.black);
   static const selectionDotStrokeWidth = PropDef<double>('selectionDotStrokeWidth', Codecs.double, 2.5);
 
+  /// Animates numeric data changes; initial and design-canvas values rest.
+  static const animate = PropDef<bool>('animate', Codecs.bool, true);
+
+  /// Milliseconds. Zero applies data changes immediately.
+  static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
+
   static const spec = WidgetSpec('plotChart', props: [
     selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
     gridColor, axisColor, xLabels, gridLabels, labelStyle, labelHeight, ranges, markers, markerRadius,
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
     selectionDotColor, selectionDotStrokeColor, selectionDotStrokeWidth,
+    animate, animationDuration,
   ], doc: 'Plot chart (line/area over an x domain).');
 }
 
@@ -321,6 +335,9 @@ abstract final class BarChartProps {
   /// The value of a full bar; 0 uses the largest value.
   static const max = PropDef<double>('max', Codecs.double, 0);
   static const color = PropDef<Color>('color', Codecs.color, Color(0xFFF2C130));
+
+  /// Per-bar colours; missing entries fall back to color.
+  static const colors = PropDef<List<Color>>('colors', ListCodec<Color>(Codecs.color), []);
   static const dimmedOpacity = PropDef<double>('dimmedOpacity', Codecs.double, 0.55);
   static const barGap = PropDef<double>('barGap', Codecs.double, 3);
   static const barRadius = PropDef<double>('barRadius', Codecs.double, 1);
@@ -342,7 +359,7 @@ abstract final class BarChartProps {
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
   static const spec = WidgetSpec('barChart', props: [
-    values, labels, highlight, max, color, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
+    values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
     highlightLabelColor, labelGap, animate, animationDuration,
   ], doc: 'Bar chart.');
@@ -413,6 +430,12 @@ abstract final class LineChartProps {
   /// Dashed vertical lines: `[{"x", "color"?, "dash"?, "label"?, "dotOnCurve"?, "dotColor"?}]`.
   static const verticalLines = PropDef<List<Json>>('verticalLines', IndicatorCodecs.objects, []);
 
+  /// Animates numeric data changes; initial and design-canvas values rest.
+  static const animate = PropDef<bool>('animate', Codecs.bool, true);
+
+  /// Milliseconds. Zero applies data changes immediately.
+  static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
+
   static const spec = WidgetSpec('lineChart', props: [
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
@@ -420,6 +443,7 @@ abstract final class LineChartProps {
     markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, scrubEnabled, scrubStep, tooltipXFormat,
     tooltipYScale, tooltipYDecimals, tooltipYSuffix, tooltipTrend, semanticLabel, bands, yTicks, areaBands,
     referenceLines, xTicks, markers, verticalLines,
+    animate, animationDuration,
   ], doc: 'Line chart.');
 }
 

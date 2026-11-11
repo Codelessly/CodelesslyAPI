@@ -756,12 +756,13 @@ abstract final class StrokePathFields {
   static const curve = PropDef<PathCurve>('curve', EnumCodec(PathCurve.values), PathCurve.straight);
   static const color = PropDef<Color>('color', Codecs.color, Color.white);
   static const width = PropDef<double>('width', Codecs.double, 4);
+  static const progress = PropDef<double>('progress', DoubleCodec(min: 0, max: 1), 1, doc: 'Fraction of the stroke drawn along its length.');
 
   /// Dash and gap lengths, alternating; empty is solid.
   static const dashPattern = PropDef<List<double>>('dashPattern', Codecs.doubles, []);
   static const cap = PropDef<StrokeCap>('cap', EnumCodec(StrokeCap.values), StrokeCap.round);
   static const inFront = PropDef<bool>('inFront', Codecs.bool, false);
-  static const List<PropDef<Object?>> all = [points, xUnit, yUnit, curve, color, width, dashPattern, cap, inFront];
+  static const List<PropDef<Object?>> all = [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
 }
 
 List<PropDef<Object?>> strokePathFields() => StrokePathFields.all;

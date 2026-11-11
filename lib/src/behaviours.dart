@@ -2173,6 +2173,7 @@ final class StrokePath extends _Value {
     this.curve = PathCurve.straight,
     this.color = Color.white,
     this.width = 4,
+    this.progress = 1,
     this.dashPattern = const [],
     this.cap = StrokeCap.round,
     this.inFront = false,
@@ -2183,6 +2184,9 @@ final class StrokePath extends _Value {
   final PathCurve curve;
   final Color color;
   final double width;
+
+  /// Fraction of the stroke drawn, measured along its length.
+  final double progress;
 
   /// Dash and gap lengths, alternating; empty is solid.
   final List<double> dashPattern;
@@ -2200,6 +2204,7 @@ final class StrokePath extends _Value {
       curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
       color: r.color('color') ?? Color.white,
       width: r.d('width', 4),
+      progress: r.d('progress', 1).clamp(0, 1).toDouble(),
       dashPattern: r.doubles('dashPattern'),
       cap: r.e(StrokeCap.values, 'cap', StrokeCap.round),
       inFront: r.b('inFront', false),
@@ -2216,6 +2221,7 @@ final class StrokePath extends _Value {
           ..e('curve', curve, PathCurve.straight);
     if (color != Color.white) j['color'] = color.toJson();
     j.d('width', width, 4);
+    j.d('progress', progress, 1);
     if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
     return j
       ..e('cap', cap, StrokeCap.round)
@@ -2223,7 +2229,7 @@ final class StrokePath extends _Value {
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, dashPattern, cap, inFront];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`

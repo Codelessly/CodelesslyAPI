@@ -76,7 +76,16 @@ abstract final class VideoProps {
   static const autoPlay = PropDef<bool>('autoPlay', Codecs.bool, false);
   static const showControls = PropDef<bool>('showControls', Codecs.bool, true);
 
-  static const spec = WidgetSpec('video', props: [url, autoPlay, showControls], doc: '`VideoPlayer`.');
+  /// Null leaves playback to the built-in controls. Bind or set explicitly
+  /// to play/pause from application actions; browser gesture rules still apply.
+  static const playing = PropDef<bool?>('playing', Codecs.optionalBool, null);
+
+  /// Absolute source-media time in seconds; null leaves the current time alone.
+  static const positionSeconds = PropDef<double?>('positionSeconds', Codecs.optionalPositive, null);
+  static const volume = PropDef<double>('volume', DoubleCodec(min: 0, max: 1), 1);
+  static const loop = PropDef<bool>('loop', Codecs.bool, false);
+
+  static const spec = WidgetSpec('video', props: [url, autoPlay, showControls, playing, positionSeconds, volume, loop], doc: '`VideoPlayer`.');
 }
 
 /// Where an embedded video is hosted.
@@ -130,11 +139,15 @@ abstract final class AudioPlayerProps {
   static const loop = PropDef<bool>('loop', Codecs.bool, false);
   static const volume = PropDef<double>('volume', DoubleCodec(min: 0, max: 1), 1);
 
+  /// Null leaves playback to autoPlay and the player's own controls.
+  static const playing = PropDef<bool?>('playing', Codecs.optionalBool, null);
+  static const positionSeconds = PropDef<double?>('positionSeconds', Codecs.optionalPositive, null);
+
   /// Plays without showing a player.
   static const background = PropDef<bool>('background', Codecs.bool, false);
 
   static const spec = WidgetSpec('audioPlayer',
-      props: [url, description, autoPlay, showControls, loop, volume, background], doc: 'An audio player.');
+      props: [url, description, autoPlay, showControls, loop, volume, background, playing, positionSeconds], doc: 'An audio player.');
 }
 
 /// What a web view's [WebViewProps.source] is.

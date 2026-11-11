@@ -20,5 +20,6 @@ understand, build, check or transform layouts as data.
 | 3 | [The JSON format](03-json-format.md) | Schema version, total decoding, sparse encoding, the publish format |
 | 4 | [Building and checking a layout in code](04-building-layouts-in-code.md) | Typed construction, editing, validation, a bundle for the SDK |
 | 5 | [Logic](05-logic.md) | Variables, conditions, bindings, reactions and actions, scripts |
+| 6 | [Chart data transitions](06-chart-data-transitions.md) | Data matching, animation controls, interrupted updates and gaps |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.
