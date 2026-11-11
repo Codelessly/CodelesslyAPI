@@ -25,6 +25,7 @@ final samples = <Json>[
   {'type': 'forEach', 'items': 'rows', 'actions': [{'type': 'copyToClipboard', 'text': r'${result.item}'}]},
   {'type': 'cloudFiles', 'path': 'img', 'kind': 'any', 'allowMultiple': false, 'access': 'private', 'actions': [{'type': 'openLink', 'url': r'${result.url}'}]},
   {'type': 'downloadFile', 'fileName': 'rota.csv', 'text': r'${csv}', 'mimeType': 'text/csv'},
+  {'type': 'preloadImages', 'urls': r'${= map(story.pages, p => p.layers.sky)}', 'progressVariable': 'loaded'},
   {'type': 'showToast', 'message': 'Saved', 'title': 'Done', 'style': 'success', 'actionLabel': 'Undo', 'actions': [{'type': 'delay', 'ms': 1}], 'look': {'radius': 8}},
   {'type': 'confirm', 'title': 'Delete?', 'destructive': true, 'actions': [{'type': 'delay', 'ms': 1}], 'cancelActions': [{'type': 'delay', 'ms': 2}], 'dialog': 'd'},
   {'type': 'delay', 'ms': 900, 'duration': r'${= slow ? 4000 : 900}'},
@@ -36,6 +37,7 @@ final samples = <Json>[
   {'type': 'focus', 'node': 'f', 'selectAll': true},
   {'type': 'controlDrag', 'node': 'card', 'command': 'step', 'direction': 'left', 'steps': '-2'},
   {'type': 'speak', 'text': 'Hello', 'rate': '0.8'},
+  {'type': 'speak', 'text': r'${page.text}', 'readAlong': true, 'startWord': r'${resumeWord}'},
   {'type': 'scrollTo', 'node': 's', 'durationMs': 0, 'alignment': 0.5, 'axis': 'horizontal'},
   {'type': 'playSound', 'sound': 'bell', 'at': r'${result.at}'},
   {'type': 'playAnimation', 'node': 'n', 'animation': 'confetti'},
@@ -43,11 +45,15 @@ final samples = <Json>[
   {'type': 'haptic', 'kind': 'heavy', 'when': {'left': r'${= settings.haptics}', 'op': 'isTrue'}},
   {'type': 'runScript', 'script': 's1', 'arguments': {'principal': r'${loan.amount}', 'years': '30'}, 'resultVariable': 'payment', 'onError': [{'type': 'delay', 'ms': 1}]},
   {'type': 'paginate', 'controller': 'contacts', 'command': 'goTo', 'page': r'${value}', 'pageSize': '50'},
+  {'type': 'emitEvent', 'event': 'order_completed', 'props': {'total': r'${total}'}},
+  {'type': 'captureScreenshot', 'target': 'node', 'node': 'card', 'pixelRatio': 2},
   {'type': 'playSound', 'operation': 'start', 'voiceId': r'${result.pointer}', 'frequency': '261.6256', 'volume': '0.1'},
   {'type': 'playSound', 'operation': 'stop', 'voiceId': r'${result.pointer}'},
   {'type': 'playSound', 'operation': 'stopAll'},
 
   {'type': 'print', 'node': 'badge'},
+  {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
+  {'type': 'reloadCloudData', 'variable': 'tasks'},
 ];
 
 void main() {
@@ -75,6 +81,17 @@ void main() {
     expect(branch.selfAndNested.map((a) => a.type), ['if', 'openLink', 'openLink']);
   });
 
+  test('loadCloudData is screen scoped unless it says app', () {
+    final old = ActionDef.fromJson({'type': 'loadCloudData', 'variable': 'v', 'query': {'collectionPath': 'c'}})! as LoadCloudDataAction;
+    expect(old.scope, CloudDataScope.screen);
+    expect(old.toJson().containsKey('scope'), isFalse);
+    final app = ActionDef.fromJson({...old.toJson(), 'scope': 'app'})! as LoadCloudDataAction;
+    expect(app.scope, CloudDataScope.app);
+    expect(app.toJson()['scope'], 'app');
+    final unknown = ActionDef.fromJson({...old.toJson(), 'scope': 'galaxy'})! as LoadCloudDataAction;
+    expect(unknown.scope, CloudDataScope.screen);
+  });
+
   test('an adaptive modal is a sheet below a project breakpoint', () {
     const d = OpenModalAction(presentation: ModalPresentation.adaptive);
     expect(d.sheetBelowWidthIn(Breakpoints.defaults), 600, reason: 'empty: the second breakpoint');
@@ -85,6 +102,15 @@ void main() {
     expect(d.sheetBelowWidthIn(Breakpoints([const Breakpoint(id: 'only')])), 0, reason: 'one breakpoint: never');
     expect(OpenModalFields.all.map((f) => f.key), contains('sheetBelow'));
     expect(OpenModalFields.all.map((f) => f.key), isNot(contains('sheetBelowWidth')));
+  });
+
+  test('a bottom sheet can round its top corners', () {
+    final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'bottomSheet', 'sheetRadius': 24})! as OpenModalAction;
+    expect(a.sheetRadius, 24);
+    expect(a.toJson()['sheetRadius'], 24);
+    expect((ActionDef.fromJson({'type': 'openModal', 'to': 's'})! as OpenModalAction).sheetRadius, isNull);
+    expect(const OpenModalAction(to: 's').toJson().containsKey('sheetRadius'), isFalse);
+    expect(OpenModalFields.all.map((f) => f.key), contains('sheetRadius'));
   });
 
   test('every action can be off, non blocking, or conditional', () {
