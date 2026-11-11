@@ -559,13 +559,17 @@ abstract final class TableViewProps {
   static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
+  /// The last column takes the width the columns leave over, so the ruled
+  /// rows run to the table's edge.
+  static const stretchLastColumn = PropDef<bool>('stretchLastColumn', Codecs.bool, false);
+
   static const cell = 'cell', columnHeader = 'columnHeader', rowHeader = 'rowHeader', corner = 'corner';
 
   static const spec = WidgetSpec(
     'tableView',
     props: [
       columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
