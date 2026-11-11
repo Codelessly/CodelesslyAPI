@@ -645,3 +645,8 @@ the fixtures.
 
 The packages are released as `codelessly_api` and `codelessly_sdk` 21.x, from each
 repository's root.
+
+Image-fill lifecycle reactions: `imageLoading`, `imageLoaded` and
+`imageError` report the actual renderer fetch/decode state. Their result is
+`{url, status}` (`loading`, `loaded`, `error`). A cached image may go straight
+to loaded. Use a changed source URL to retry a failed request.
