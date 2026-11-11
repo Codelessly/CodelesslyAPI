@@ -563,8 +563,27 @@ abstract final class DateTimeInputProps {
   static const min = PropDef<String?>('min', Codecs.string, null);
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
+  /// Material's localized date and time.
+  static const format = PropDef<String?>('format', Codecs.optionalString, null);
+
+  /// The value's text style.
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// Shown while empty (null: "Select date" / "Select time").
+  static const hint = PropDef<String?>('hint', Codecs.optionalString, null);
+  static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The icon after the value (null: a calendar or clock).
+  static const icon = PropDef<InputIcon?>('icon', InputCodecs.icon, null);
+
+  /// Only the value and its icon, no Material field around them: the node's
+  /// own fill, border and padding make the box.
+  static const bare = PropDef<bool>('bare', Codecs.bool, false);
+
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled],
+      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare],
       decorated: true,
       doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
