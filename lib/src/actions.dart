@@ -6,6 +6,7 @@
 // `Hello ${name}`), evaluated when the action runs. `${result}` is what the
 // previous action of the chain gave (an API's response, a document id, a
 // for-each's item), or the trigger's event.
+import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart' show AnimationCurve, DragDirection;
@@ -1141,6 +1142,7 @@ final class LoadCloudDataAction extends ActionDef {
     this.single = true,
     this.id = '',
     this.query = const CloudQueryDef(),
+    this.scope = CloudDataScope.screen,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1160,11 +1162,17 @@ final class LoadCloudDataAction extends ActionDef {
   /// filters, sorts and limit.
   final CloudQueryDef query;
 
+  /// Who keeps the subscription: the screen (until it goes), or the app
+  /// ([CloudDataScope.app]): one subscription per app, shared by every
+  /// screen, writing an app variable. Older runtimes load per screen.
+  final CloudDataScope scope;
+
   static LoadCloudDataAction _fromJson(Json m, _Common c) => LoadCloudDataAction(
     variable: _s(m, 'variable'),
     single: _b(m, 'single', true),
     id: _s(m, 'id'),
     query: CloudQueryDef.fromJson(m['query']),
+    scope: readEnum(CloudDataScope.values, m['scope'], CloudDataScope.screen),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -1176,7 +1184,22 @@ final class LoadCloudDataAction extends ActionDef {
     if (!single) 'single': false,
     if (id.isNotEmpty) 'id': id,
     'query': query.toJson(),
+    if (scope != CloudDataScope.screen) 'scope': scope.name,
   };
+}
+
+/// Who keeps a [LoadCloudDataAction]'s live subscription.
+enum CloudDataScope {
+  /// The screen that ran the action: the subscription ends when it goes,
+  /// and each screen that runs it opens its own.
+  screen,
+
+  /// The app (the runtime's project instance): the first run opens the
+  /// subscription and every later run of the same document or query, from
+  /// any screen, shares it; it lives until the app is done (or a run for
+  /// the same variable asks for another document or query). Its variable is
+  /// an app variable, so every screen reads it.
+  app,
 }
 
 /// What a [CloudDataAction] does.
@@ -1411,6 +1434,13 @@ enum AuthOperation {
   sendSignInLink,
   completeSignInLink,
   updatePhoto,
+
+  /// Starts a guest session: an anonymous account that has a uid (so it can
+  /// keep `users/{uid}` data) but no email. `${auth.isGuest}` is true and
+  /// `${auth.isSignedIn}` false. A [signUp] while a guest turns the guest
+  /// into a real account with the same uid, so its data carries over;
+  /// [signOut] ends the session and [deleteAccount] deletes it.
+  signInAnonymously,
 }
 
 /// Signs app users in, up and out, and manages their account. A failure's
@@ -1422,6 +1452,7 @@ final class AuthAction extends ActionDef {
     this.password = '',
     this.displayName = '',
     this.photoUrl = '',
+    this.currentPassword = '',
     this.errorVariable = '',
     super.enabled,
     super.nonBlocking,
@@ -1434,6 +1465,12 @@ final class AuthAction extends ActionDef {
 
   final AuthOperation operation;
   final String email, password, displayName, photoUrl;
+
+  /// For [AuthOperation.updatePassword] and [AuthOperation.deleteAccount]:
+  /// the signed-in user's current password, which re-authenticates them
+  /// first (Firebase asks for a recent sign-in before these). Empty: no
+  /// re-authentication.
+  final String currentPassword;
   final String errorVariable;
 
   static AuthAction _fromJson(Json m, _Common c) => AuthAction(
@@ -1442,6 +1479,7 @@ final class AuthAction extends ActionDef {
     password: _s(m, 'password'),
     displayName: _s(m, 'displayName'),
     photoUrl: _s(m, 'photoUrl'),
+    currentPassword: _s(m, 'currentPassword'),
     errorVariable: _s(m, 'errorVariable'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1455,6 +1493,7 @@ final class AuthAction extends ActionDef {
     if (password.isNotEmpty) 'password': password,
     if (displayName.isNotEmpty) 'displayName': displayName,
     if (photoUrl.isNotEmpty) 'photoUrl': photoUrl,
+    if (currentPassword.isNotEmpty) 'currentPassword': currentPassword,
     if (errorVariable.isNotEmpty) 'errorVariable': errorVariable,
   };
 }
@@ -1821,6 +1860,8 @@ final class PlaySoundAction extends ActionDef {
     this.voiceId = '',
     this.frequency = '440',
     this.waveform = 'sine',
+    this.note = '',
+    this.duration = '',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1840,8 +1881,20 @@ final class PlaySoundAction extends ActionDef {
   /// with the same voiceId. `stopAll` releases the app's sustained tones.
   final String operation, voiceId, frequency;
 
-  /// Sustained tone shape: sine (default) or triangle.
+  /// A sustained voice's sound: `sine` (default), `triangle`, `square`,
+  /// `sawtooth`, or an instrument voice with its own envelope and filter:
+  /// `felt` (a soft electric piano), `reed` (an organ-like reed) or `pluck`
+  /// (a plucked string that dies away on its own).
   final String waveform;
+
+  /// A MIDI note number (60 = middle C, 69 = A 440) for `start`, used in
+  /// place of [frequency] when not empty: `${item.midi}`.
+  final String note;
+
+  /// Milliseconds after which a `start`ed voice releases by itself (a
+  /// latched note, an audition, a metronome tick); empty sustains until
+  /// `stop`.
+  final String duration;
 
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
@@ -1849,6 +1902,8 @@ final class PlaySoundAction extends ActionDef {
     voiceId: _s(m, 'voiceId'),
     frequency: _s(m, 'frequency', '440'),
     waveform: _s(m, 'waveform', 'sine'),
+    note: _s(m, 'note'),
+    duration: _s(m, 'duration'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1864,6 +1919,8 @@ final class PlaySoundAction extends ActionDef {
     if (voiceId.isNotEmpty) 'voiceId': voiceId,
     if (frequency != '440') 'frequency': frequency,
     if (waveform != 'sine') 'waveform': waveform,
+    if (note.isNotEmpty) 'note': note,
+    if (duration.isNotEmpty) 'duration': duration,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
@@ -2065,10 +2122,12 @@ final class ControlDragAction extends ActionDef {
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
     this.node = '',
+    this.item = '',
     this.durationMs = 400,
     this.curve = 'easeInOut',
     this.alignment = 0,
     this.offset = 0,
+    this.offsetFormula = '',
     this.axis,
     super.enabled,
     super.nonBlocking,
@@ -2080,19 +2139,31 @@ final class ScrollToAction extends ActionDef {
   String get type => typeName;
 
   final String node;
+
+  /// When [node] repeats (a list's item template, or a node inside it): the
+  /// key of the item whose copy to reveal (an expression; the list's item
+  /// key, `id` by default, or else its index). Empty: the first copy.
+  final String item;
   final int durationMs;
 
   /// A `Curves` name.
   final String curve;
   final double alignment, offset;
+
+  /// [offset] as an expression (JSON `"offset": "${...}"`): a link's
+  /// `${route.offset}`, a value computed at the time. Wins when it gives a
+  /// number.
+  final String offsetFormula;
   final ScrollAxis? axis;
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
     node: _s(m, 'node'),
+    item: _s(m, 'item'),
     durationMs: _i(m, 'durationMs', 400),
     curve: _s(m, 'curve', 'easeInOut'),
     alignment: _d(m, 'alignment', 0),
-    offset: _d(m, 'offset', 0),
+    offset: m['offset'] is String ? 0 : _d(m, 'offset', 0),
+    offsetFormula: m['offset'] is String ? m['offset'] as String : '',
     axis: _axis(m['axis']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -2102,10 +2173,14 @@ final class ScrollToAction extends ActionDef {
   @override
   Json get _fields => {
     'node': node,
+    if (item.isNotEmpty) 'item': item,
     if (durationMs != 400) 'durationMs': durationMs,
     if (curve != 'easeInOut') 'curve': curve,
     if (alignment != 0) 'alignment': writeDouble(alignment),
-    if (offset != 0) 'offset': writeDouble(offset),
+    if (offsetFormula.isNotEmpty)
+      'offset': offsetFormula
+    else if (offset != 0)
+      'offset': writeDouble(offset),
     'axis': ?axis?.name,
   };
 }
@@ -2206,11 +2281,13 @@ final class RunScriptAction extends ActionDef {
   @override
   List<ActionDef> get nested => onError;
 
+  /// `arguments`, or `args` as the editor API's own docs wrote it; a value
+  /// that isn't text (a number, a list, a map) is kept as its JSON.
   static RunScriptAction _fromJson(Json m, _Common c) => RunScriptAction(
     script: _s(m, 'script'),
     arguments: {
-      for (final e in _map(m, 'arguments').entries)
-        if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
+      for (final e in (m['arguments'] is Map ? _map(m, 'arguments') : _map(m, 'args')).entries)
+        if (e.value != null) e.key: e.value is String ? e.value as String : jsonEncode(e.value),
     },
     resultVariable: _s(m, 'resultVariable'),
     onError: _list(m, 'onError'),

@@ -64,7 +64,10 @@ final class ScriptParam {
   final String description;
   final Object? defaultValue;
 
+  /// A param from `{name, description?, defaultValue?}`, or from its bare
+  /// name.
   static ScriptParam? fromJson(Object? json) {
+    if (json is String) return json.isEmpty ? null : ScriptParam(name: json);
     final m = readMap(json);
     final name = readString(m?['name']);
     if (m == null || name == null || name.isEmpty) return null;
@@ -86,8 +89,12 @@ final class ScriptParam {
 
 /// A sample run of a [ScriptDef] and what it should give (the editor's test
 /// console): [args] by parameter, sample [vars] and input [nodes] values,
-/// and the result [expect]ed, or the error [expectError]: its type
-/// (`RangeError`), its message, or both (`Error: No slide nope`).
+/// and the result [expect]ed, or the error [expectError] (its type, its
+/// message, or `Type: message`).
+///
+/// In JSON `args` is a map by parameter name, or a list in parameter order
+/// (as `script.name(...)` and formulas pass them), which [fromJson] maps to
+/// the names it's given.
 @immutable
 final class ScriptTest {
   const ScriptTest({
@@ -104,17 +111,26 @@ final class ScriptTest {
   final Object? expect;
   final String? expectError;
 
-  static ScriptTest? fromJson(Object? json) {
+  static ScriptTest? fromJson(Object? json, [List<String> paramNames = const []]) {
     final m = readMap(json);
     if (m == null) return null;
     return ScriptTest(
       name: readString(m['name']) ?? '',
-      args: readMap(m['args']) ?? const {},
+      args: argsByName(m['args'], paramNames),
       vars: readMap(m['vars']) ?? const {},
       nodes: readMap(m['nodes']) ?? const {},
       expect: m['expect'],
       expectError: readString(m['expectError']),
     );
+  }
+
+  /// Arguments by parameter name from a map, or from a list in the order of
+  /// [paramNames] (items past the last parameter are dropped).
+  static Json argsByName(Object? args, List<String> paramNames) {
+    if (args is List) {
+      return {for (var i = 0; i < args.length && i < paramNames.length; i++) paramNames[i]: args[i]};
+    }
+    return readMap(args) ?? const {};
   }
 
   Json toJson() => {
@@ -260,18 +276,20 @@ final class ScriptDef {
     final name = readString(m?['name']);
     if (m == null || id == null || name == null) return null;
     final page = readString(m['pageId']);
+    final params = [...?readList(m['params'])?.map(ScriptParam.fromJson).nonNulls];
+    final names = [for (final p in params) p.name];
     return ScriptDef(
       id: id,
       name: name,
       description: readString(m['description']) ?? '',
-      params: [...?readList(m['params'])?.map(ScriptParam.fromJson).nonNulls],
+      params: params,
       source: readString(m['source']) ?? '',
       version: readInt(m['version']) ?? 1,
       capabilities: [...?readList(m['capabilities'])?.map(ScriptCapability.parse).nonNulls],
       timeoutMs: (readInt(m['timeoutMs']) ?? defaultTimeoutMs).clamp(1, maxTimeoutMs),
       memoryLimitMb: (readInt(m['memoryLimitMb']) ?? defaultMemoryLimitMb).clamp(1, 256),
       pageId: page == null || page.isEmpty ? null : page,
-      tests: [...?readList(m['tests'])?.map(ScriptTest.fromJson).nonNulls],
+      tests: [...?readList(m['tests'])?.map((t) => ScriptTest.fromJson(t, names)).nonNulls],
     );
   }
 

@@ -174,8 +174,22 @@ final class Alignment {
   static const Alignment topLeft = Alignment(-1, -1);
   static const Alignment topCenter = Alignment(0, -1);
   static const Alignment center = Alignment(0, 0);
+  static const Alignment topRight = Alignment(1, -1);
+  static const Alignment centerLeft = Alignment(-1, 0);
+  static const Alignment centerRight = Alignment(1, 0);
+  static const Alignment bottomLeft = Alignment(-1, 1);
+  static const Alignment bottomCenter = Alignment(0, 1);
+  static const Alignment bottomRight = Alignment(1, 1);
+
+  /// Flutter's named alignments, which JSON may give instead of `[x, y]`.
+  static const Map<String, Alignment> named = {
+    'topLeft': topLeft, 'topCenter': topCenter, 'topRight': topRight, //
+    'centerLeft': centerLeft, 'center': center, 'centerRight': centerRight,
+    'bottomLeft': bottomLeft, 'bottomCenter': bottomCenter, 'bottomRight': bottomRight,
+  };
 
   static Alignment? fromJson(Object? json) {
+    if (json is String) return named[json];
     final l = readList(json);
     if (l == null || l.length != 2) return null;
     final x = readDouble(l[0]), y = readDouble(l[1]);
