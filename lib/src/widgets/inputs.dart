@@ -142,12 +142,20 @@ abstract final class TextFieldProps {
   /// Markdown highlighting of the typed text.
   static const markdown = PropDef<Json?>('markdown', InputCodecs.json, null);
 
+  /// Characters [highlightStart] (0-based) up to [highlightEnd] (exclusive)
+  /// are drawn in [highlightStyle] over the field's style, e.g. the place a
+  /// syntax error was found. Null or an empty range highlights nothing.
+  static const highlightStart = PropDef<int?>('highlightStart', OptionalIntCodec(), null);
+  static const highlightEnd = PropDef<int?>('highlightEnd', OptionalIntCodec(), null);
+  static const highlightStyle = PropDef<TextStyle>('highlightStyle', Codecs.textStyle, TextStyle.empty);
+
   static const spec = WidgetSpec('textField', props: [
     initialValue, decoration, style, textAlign, textAlignVertical, keyboardType, keyboardDecimal, keyboardSigned, //
     textInputAction, textCapitalization, autocorrect, autofocus, enableInteractiveSelection, enabled, obscureText,
     obscuringCharacter, readOnly, showCursor, cursorColor, cursorHeight, cursorWidth, cursorRadius, maxLength,
     maxLines, minLines, expands, selectionHeightStyle, selectionWidthStyle, autofillHints, autovalidateMode,
-    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown,
+    selectAllOnFocus, focusRingColor, focusRingWidth, inputFormatter, validator, markdown, highlightStart,
+    highlightEnd, highlightStyle,
   ], doc: 'Flutter `TextField`.');
 }
 
@@ -215,10 +223,18 @@ abstract final class SwitchProps {
   /// Material's switch scaled to the box.
   static const thumbInset = PropDef<double?>('thumbInset', Codecs.optionalPositive, null);
 
+  /// The track's corner radius: null is a pill (half its height); a square
+  /// switch sets a small one. With it the switch is a plain toggle.
+  static const trackRadius = PropDef<double?>('trackRadius', Codecs.optionalPositive, null);
+
+  /// The thumb's corner radius: null is round; a square switch sets a small
+  /// one. With it the switch is a plain toggle.
+  static const thumbRadius = PropDef<double?>('thumbRadius', Codecs.optionalPositive, null);
+
   static const spec = WidgetSpec('switch', props: [
     value, autofocus, activeTrackColor, inactiveTrackColor, activeThumbColor, inactiveThumbColor, hoverColor, //
     focusColor, splashRadius, activeTrackOutlineColor, inactiveTrackOutlineColor, trackOutlineWidth, uniformThumb,
-    fillTrack, thumbShadows, thumbInset,
+    fillTrack, thumbShadows, thumbInset, trackRadius, thumbRadius,
   ], doc: 'Flutter `Switch`.');
 }
 
@@ -262,10 +278,25 @@ enum SliderThumbShape {
 
   /// A rectangle of [SliderProps.thumbSize] with an optional border and grip.
   rectangle,
+
+  /// A drafting ruler's index: a hairline across the track and a triangle
+  /// pointing up at it from below, in the thumb color, outlined in
+  /// [SliderProps.thumbStrokeColor] (default black).
+  pointer,
 }
 
 /// The slider's track (`SliderThemeData.trackShape`).
-enum SliderTrackShape { rectangle, roundedRectangle, gapped }
+enum SliderTrackShape {
+  rectangle,
+  roundedRectangle,
+  gapped,
+
+  /// A ruler: a strip in the inactive track color with [SliderProps.rulerTicks]
+  /// ticks (every [SliderProps.rulerMajorEvery]th long), and the active
+  /// color filled from zero (or the minimum) to the value. It spans the
+  /// slider's whole width.
+  ruler,
+}
 
 /// The value indicator (`SliderThemeData.valueIndicatorShape`).
 enum SliderValueIndicatorShape { rectangle, paddle, drop, roundedRectangle }
@@ -320,6 +351,17 @@ abstract final class SliderProps {
   static const trackShape = PropDef<SliderTrackShape?>('trackShape', EnumCodec(SliderTrackShape.values), null);
   static const thumbShape = PropDef<SliderThumbShape>('thumbShape', EnumCodec(SliderThumbShape.values), SliderThumbShape.circle);
 
+  /// A ruler track's divisions (ticks at both ends and between).
+  static const rulerTicks = PropDef<int>('rulerTicks', IntCodec(min: 1), 20);
+
+  /// Every this many ticks, a long one.
+  static const rulerMajorEvery = PropDef<int>('rulerMajorEvery', IntCodec(min: 1), 5);
+
+  /// A ruler's long ticks and baseline (default black) and short ticks
+  /// (default the long ticks' color).
+  static const rulerTickColor = PropDef<Color?>('rulerTickColor', Codecs.color, null);
+  static const rulerMinorTickColor = PropDef<Color?>('rulerMinorTickColor', Codecs.color, null);
+
   /// A circle thumb's radius.
   static const thumbRadius = PropDef<double>('thumbRadius', Codecs.positive, 10);
 
@@ -373,6 +415,7 @@ abstract final class SliderProps {
     thumbStrokeWidth, thumbBorderColor, thumbBorderWidth, thumbGripColor, thumbGlowColor, thumbGlowBlur,
     thumbGlowSpread, showThumb, tickMarkRadius, tickMarkStyle, notchEvery, orientation, inverted, fillFromEnd,
     activeTrackStartOpacity, markerValue, markerColor, markerWidth, markerHeight, selectableMin, selectableMax,
+    rulerTicks, rulerMajorEvery, rulerTickColor, rulerMinorTickColor,
   ], doc: 'Flutter `Slider`.');
 }
 
@@ -513,9 +556,13 @@ abstract final class SegmentedButtonProps {
   /// `shape: RoundedRectangleBorder(borderRadius)`; unset is Flutter's stadium.
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
 
+  /// Each segment's padding (`padding`); unset is Flutter's.
+  static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
+    padding,
   ], doc: 'Flutter `SegmentedButton`.');
 }
 

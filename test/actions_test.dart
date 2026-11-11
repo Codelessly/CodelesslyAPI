@@ -11,7 +11,7 @@ final samples = <Json>[
   {'type': 'openModal', 'to': 'd', 'presentation': 'popover', 'anchor': 'trigger', 'placement': 'aboveEnd', 'barrierColor': '#80000000', 'insets': [8, 8, 8, 8], 'sheetBelow': 'tablet', 'routeTransition': {'preset': 'iosModal'}},
   {'type': 'closeModal', 'result': {'ok': true}},
   {'type': 'openLink', 'url': 'https://x'},
-  {'type': 'submitForm', 'service': 'mailchimp', 'emailField': 'e', 'apiKey': 'k', 'listId': 'l'},
+  {'type': 'submitForm', 'service': 'local', 'payload': r'${answers}', 'responseVariable': 'rows'},
   {'type': 'setValue', 'node': 'c', 'values': [{'path': 'props.value', 'mode': 'toggle'}, {'path': 'visible', 'value': false}]},
   {'type': 'setVariant', 'node': 'v', 'variant': 'b'},
   {'type': 'setVariable', 'variable': 'rows', 'op': 'insert', 'value': r'${item}', 'index': '0', 'animateMs': '3600', 'curve': 'easeOutCubic'},
@@ -51,6 +51,7 @@ final samples = <Json>[
 ];
 
 void main() {
+  runScriptArgsAliasTests();
   test('every action type round-trips exactly', () {
     expect(samples.map((s) => s['type']).toSet(), ActionDef.types.toSet());
     for (final s in samples) {
@@ -143,5 +144,20 @@ void main() {
     }, id: 'b')!;
     expect(n.actions.single.actions.single, isA<SetVariableAction>());
     expect(Node.fromJson(n.toJson(), id: 'b'), n);
+  });
+}
+
+// The editor API documented runScript's arguments as `args`; both read, and
+// arguments that aren't text keep their JSON.
+void runScriptArgsAliasTests() {
+  test('runScript reads `args` as its arguments, and JSON values as JSON', () {
+    final a = ActionDef.fromJson({
+      'type': 'runScript',
+      'script': 'plotter',
+      'args': {'op': 'model', 'input': r'${= {a: 1}}', 'n': 3, 'opts': {'x': 1}},
+    }) as RunScriptAction;
+    expect(a.arguments, {'op': 'model', 'input': r'${= {a: 1}}', 'n': '3', 'opts': '{"x":1}'});
+    expect(a.toJson()['arguments'], a.arguments);
+    expect((ActionDef.fromJson(a.toJson()) as RunScriptAction).arguments, a.arguments);
   });
 }

@@ -14,6 +14,7 @@ export 'src/document.dart';
 export 'src/json.dart';
 export 'src/layout.dart';
 export 'src/logic.dart';
+export 'src/managed_components.dart';
 export 'src/node.dart';
 export 'src/props.dart';
 export 'src/route_transition.dart';

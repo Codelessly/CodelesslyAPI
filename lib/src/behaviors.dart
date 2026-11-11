@@ -34,7 +34,11 @@ enum AnimationCurve {
   elasticOut,
   bounceOut,
   spring,
-  step;
+  step,
+
+  /// Material 3's emphasized easing, `Cubic(0.2, 0, 0, 1)`: a quick start
+  /// that settles gently (entrances, page and sheet motion).
+  emphasized;
 
   /// The curve named [v] (any case, spaces and dashes ignored), or null.
   static AnimationCurve? parse(Object? v) {
@@ -68,6 +72,7 @@ enum AnimationCurve {
       bounceOut => _bounce(t),
       spring => 1 - math.exp(-6.5 * t) * math.cos(2 * math.pi * 1.25 * t) * (1 - t * t),
       step => t < 0.5 ? 0 : 1,
+      emphasized => _cubic(0.2, 0, 0, 1, t),
     };
   }
 
@@ -869,10 +874,25 @@ enum LoopAnimationType {
   bob,
 
   /// Swings [LoopAnimation.angle] degrees each way, once per run.
-  sway;
+  sway,
 
-  bool get scales => this == pulse || this == scale;
-  bool get fades => this == pulse || this == fade;
+  /// A candle flame or a lamp's glow: scales and fades between the `from`
+  /// and `to` values along an uneven, wavering path (three detuned waves),
+  /// not a steady pulse. A run loops seamlessly.
+  flicker;
+
+  bool get scales => this == pulse || this == scale || this == flicker;
+  bool get fades => this == pulse || this == fade || this == flicker;
+}
+
+/// How far (0–1) a [LoopAnimationType.flicker] is between its `from` and
+/// `to` values at [t] (0–1) of a run: waves of 3, 7 and 17 per run, so it
+/// wavers, flares and dips like a flame and ends where it began.
+double flickerAt(double t) {
+  final a = math.sin(t * 2 * math.pi * 3) * 0.35;
+  final b = math.sin(t * 2 * math.pi * 7 + 1.3) * 0.25;
+  final c = math.sin(t * 2 * math.pi * 17 + 0.4) * 0.15;
+  return (0.5 + (a + b + c) / 1.5).clamp(0.0, 1.0);
 }
 
 /// The pose of a [LoopAnimation] at one moment, about the node's center.
@@ -934,7 +954,8 @@ final class LoopAnimation extends _Value {
   /// The pose at [t] (0–1, before the curve) of a run. 0 is the first frame.
   LoopPose poseAt(double t) {
     if (!enabled) return (scale: 1, opacity: 1, turns: 0, dy: 0);
-    final c = curve.transform(t.clamp(0, 1));
+    final eased = curve.transform(t.clamp(0, 1));
+    final c = type == LoopAnimationType.flicker ? flickerAt(eased) : eased;
     return (
       scale: type.scales ? _lerp(scaleFrom, scaleTo, c) : 1,
       opacity: type.fades ? _lerp(opacityFrom.clamp(0, 1), opacityTo.clamp(0, 1), c) : 1,
@@ -2064,9 +2085,30 @@ final class EffectAnimation extends _Value {
   List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
 }
 
-enum ParticleShape { square, circle, strip, star }
+enum ParticleShape {
+  square,
+  circle,
+  strip,
+  star,
 
-/// Confetti or stars the node bursts with on cue.
+  /// A paper triangle.
+  triangle,
+
+  /// A wavy ribbon (stroked).
+  squiggle,
+
+  /// The emitter's [ParticleEmitter.glyph] (an emoji or any text), drawn at
+  /// the particle's size.
+  emoji,
+}
+
+/// Confetti, stars or emoji the node bursts with on cue.
+///
+/// Each particle leaves from the origin at [speed] (55–115%) in a direction
+/// within [spread] of [direction], slows by [drag], falls by [gravity] no
+/// faster than [terminalVelocity], sways [sway] px side to side, spins and
+/// turns over ([flutter]), and fades out over the last [fadeOut] ms of its
+/// [lifetime].
 @immutable
 final class ParticleEmitter extends _Value {
   const ParticleEmitter({
@@ -2085,6 +2127,15 @@ final class ParticleEmitter extends _Value {
     this.lifetime = 2600,
     this.playOnAppear = false,
     this.playKey,
+    this.delay = 0,
+    this.drag = 0,
+    this.terminalVelocity = 0,
+    this.sway = 0,
+    this.flutter = 8,
+    this.spin = 515,
+    this.fadeOut = 500,
+    this.mirror = false,
+    this.glyph = '',
   });
 
   static const List<Color> defaultColors = [
@@ -2106,6 +2157,37 @@ final class ParticleEmitter extends _Value {
   /// burst each time it changes.
   final String? playKey;
 
+  /// Wait after the cue before the first particle leaves (ms).
+  final int delay;
+
+  /// Air resistance: the speed falls by e^(-drag) each second (0: none).
+  final double drag;
+
+  /// The fastest a particle falls (px/s; 0: no limit). Paper floats.
+  final double terminalVelocity;
+
+  /// How far each particle sways side to side as it goes (px).
+  final double sway;
+
+  /// How fast each particle turns over in 3D (radians per second, up to;
+  /// 0 keeps it flat).
+  final double flutter;
+
+  /// The fastest a particle spins (degrees per second).
+  final double spin;
+
+  /// The last part of its life over which a particle fades out (ms).
+  final int fadeOut;
+
+  /// Every other particle leaves mirrored across the node's vertical
+  /// middle (its origin and direction flipped): two cannons facing each
+  /// other.
+  final bool mirror;
+
+  /// What [ParticleShape.emoji] particles draw (bindable as
+  /// `particles.glyph`).
+  final String glyph;
+
   static ParticleEmitter? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
@@ -2119,8 +2201,8 @@ final class ParticleEmitter extends _Value {
       shapes: shapes == null
           ? const [ParticleShape.square, ParticleShape.strip, ParticleShape.circle]
           : [
-              for (final s in ParticleShape.values)
-                if (shapes.contains(s.name)) s,
+              for (final s in shapes)
+                if (ParticleShape.values.where((v) => v.name == s).firstOrNull case final v?) v,
             ],
       size: r.d('size', 10),
       originX: r.d('originX', 0),
@@ -2133,6 +2215,15 @@ final class ParticleEmitter extends _Value {
       lifetime: r.ms('lifetime', 2600),
       playOnAppear: r.b('playOnAppear', false),
       playKey: m['playKey']?.toString(),
+      delay: r.ms('delay', 0),
+      drag: math.max(0, r.d('drag', 0)),
+      terminalVelocity: math.max(0, r.d('terminalVelocity', 0)),
+      sway: r.d('sway', 0),
+      flutter: math.max(0, r.d('flutter', 8)),
+      spin: r.d('spin', 515),
+      fadeOut: r.ms('fadeOut', 500),
+      mirror: r.b('mirror', false),
+      glyph: r.s('glyph'),
     );
   }
 
@@ -2155,14 +2246,95 @@ final class ParticleEmitter extends _Value {
       ..d('gravity', gravity, 900)
       ..i('lifetime', lifetime, 2600)
       ..b('playOnAppear', playOnAppear, false)
-      ..s('playKey', playKey);
+      ..s('playKey', playKey)
+      ..i('delay', delay, 0)
+      ..d('drag', drag, 0)
+      ..d('terminalVelocity', terminalVelocity, 0)
+      ..d('sway', sway, 0)
+      ..d('flutter', flutter, 8)
+      ..d('spin', spin, 515)
+      ..i('fadeOut', fadeOut, 500)
+      ..b('mirror', mirror, false)
+      ..s('glyph', glyph);
   }
 
   @override
   List<Object?> get props => [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear, playKey,
+    lifetime, playOnAppear, playKey, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
   ];
+}
+
+/// How a node with a [Behaviors.flightKey] flies in from where the node
+/// with the same key was: on a spring by default, or, with a [duration],
+/// along a curve that rises [lift] (or [liftShare] of the distance, the
+/// larger) above the higher end, swelling to [swell] at the middle and
+/// spinning [turns] times (toward the way it flies), trailing [trail] fading
+/// dots.
+@immutable
+final class Flight extends _Value {
+  const Flight({
+    this.duration = 0,
+    this.curve = AnimationCurve.easeInOut,
+    this.lift = 0,
+    this.liftShare = 0,
+    this.swell = 1,
+    this.turns = 0,
+    this.trail = 0,
+    this.trailColor = const Color(0xFFFFC83D),
+  });
+
+  /// The flight's length (ms); 0 flies on the node's spring.
+  final int duration;
+  final AnimationCurve curve;
+
+  /// How far the path's control point rises above the higher end (px), or
+  /// a share of the distance flown, whichever is larger; 0 and 0 fly
+  /// straight.
+  final double lift, liftShare;
+
+  /// The node's scale at the middle of the flight (1: none).
+  final double swell;
+
+  /// Whole turns over the flight, clockwise when flying right.
+  final double turns;
+
+  /// Fading dots left behind (0: none), in [trailColor].
+  final int trail;
+  final Color trailColor;
+
+  static Flight? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Flight(
+      duration: r.ms('duration', 0),
+      curve: r.e(AnimationCurve.values, 'curve', AnimationCurve.easeInOut),
+      lift: r.d('lift', 0),
+      liftShare: r.d('liftShare', 0),
+      swell: r.d('swell', 1),
+      turns: r.d('turns', 0),
+      trail: math.max(0, r.i('trail', 0)),
+      trailColor: Color.fromJson(m['trailColor']) ?? const Color(0xFFFFC83D),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..i('duration', duration, 0);
+    if (curve != AnimationCurve.easeInOut) j['curve'] = curve.name;
+    j
+      ..d('lift', lift, 0)
+      ..d('liftShare', liftShare, 0)
+      ..d('swell', swell, 1)
+      ..d('turns', turns, 0)
+      ..i('trail', trail, 0);
+    if (trailColor != const Color(0xFFFFC83D)) j['trailColor'] = trailColor.toJson();
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
 }
 
 // --- paint and scroll -------------------------------------------------------------
@@ -2176,6 +2348,13 @@ enum PathCurve { straight, vertical, horizontal }
 /// A line drawn through [points] in the node's box (a dotted trail, a
 /// connector), behind its content or [inFront] of it. x and y are fractions
 /// of the box or pixels, per [xUnit]/[yUnit].
+///
+/// With [drawMs] a running app draws the line along its length, like a pen
+/// (a map's passages inking in, a route tracing itself): over [drawMs] ms
+/// after [drawDelayMs], eased by [drawCurve], up to [progress]; when the
+/// node first shows, again from nothing when [drawKey] changes, and from
+/// where it is when [progress] changes. The design canvas draws it at
+/// [progress].
 @immutable
 final class StrokePath extends _Value {
   const StrokePath({
@@ -2189,6 +2368,10 @@ final class StrokePath extends _Value {
     this.dashPattern = const [],
     this.cap = StrokeCap.round,
     this.inFront = false,
+    this.drawMs = 0,
+    this.drawDelayMs = 0,
+    this.drawCurve = AnimationCurve.easeInOut,
+    this.drawKey = '',
   });
 
   final List<Offset> points;
@@ -2205,12 +2388,45 @@ final class StrokePath extends _Value {
   final StrokeCap cap;
   final bool inFront;
 
+  /// How long (ms) a running app takes to draw the line; 0 shows it at once.
+  final int drawMs;
+
+  /// How long (ms) it waits before drawing.
+  final int drawDelayMs;
+
+  /// How the drawing eases.
+  final AnimationCurve drawCurve;
+
+  /// A cue: the line draws again from nothing each time it changes (bindable
+  /// as `strokePath.drawKey`, e.g. `${route.id}`).
+  final String drawKey;
+
+  /// Whether a running app animates it.
+  bool get draws => drawMs > 0;
+
+  StrokePath copyWith({double? progress}) => StrokePath(
+        points: points,
+        xUnit: xUnit,
+        yUnit: yUnit,
+        curve: curve,
+        color: color,
+        width: width,
+        progress: progress ?? this.progress,
+        dashPattern: dashPattern,
+        cap: cap,
+        inFront: inFront,
+        drawMs: drawMs,
+        drawDelayMs: drawDelayMs,
+        drawCurve: drawCurve,
+        drawKey: drawKey,
+      );
+
   static StrokePath? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
     return StrokePath(
-      points: [...?readList(m['points'])?.where((p) => readList(p)?.length == 2).map(Offset.fromJson)],
+      points: [...?readList(m['points'])?.map(_pathPoint).nonNulls],
       xUnit: r.e(PathUnit.values, 'xUnit', PathUnit.fraction),
       yUnit: r.e(PathUnit.values, 'yUnit', PathUnit.pixels),
       curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
@@ -2220,7 +2436,21 @@ final class StrokePath extends _Value {
       dashPattern: r.doubles('dashPattern'),
       cap: r.e(StrokeCap.values, 'cap', StrokeCap.round),
       inFront: r.b('inFront', false),
+      drawMs: r.ms('drawMs', 0),
+      drawDelayMs: r.ms('drawDelayMs', 0),
+      drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
+      drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
     );
+  }
+
+  /// A point as `[x, y]` or `{"x", "y"}` (the form Firestore can store, and
+  /// what data bound to `strokePath.points` may give).
+  static Offset? _pathPoint(Object? p) {
+    final l = readList(p);
+    if (l != null) return l.length == 2 ? Offset.fromJson(l) : null;
+    final m = readMap(p);
+    final x = readDouble(m?['x']), y = readDouble(m?['y']);
+    return x == null || y == null ? null : Offset(x, y);
   }
 
   Json toJson() {
@@ -2235,13 +2465,111 @@ final class StrokePath extends _Value {
     j.d('width', width, 4);
     j.d('progress', progress, 1);
     if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
-    return j
+    j
       ..e('cap', cap, StrokeCap.round)
-      ..b('inFront', inFront, false);
+      ..b('inFront', inFront, false)
+      ..i('drawMs', drawMs, 0)
+      ..i('drawDelayMs', drawDelayMs, 0)
+      ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
+    if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
+    return j;
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey];
+}
+
+/// Text that types itself out in a running app, like a typewriter or a
+/// terminal: [charsPerSecond] characters a second after [delayMs], with a
+/// blinking block [caret] after the last one while it types. It types when
+/// the text first shows and again from the start when [playKey] changes; when
+/// the text grows by appending (a streamed reply) only the new characters
+/// type, and when it changes otherwise it types afresh. [skip] (bindable, e.g.
+/// to a tap that sets a variable) shows the rest at once; off [enabled] it
+/// shows all of it. The layout never changes as it types: the whole text is
+/// laid out and only what's typed is painted. The design canvas shows it
+/// all.
+@immutable
+final class Typewriter extends _Value {
+  const Typewriter({
+    this.enabled = true,
+    this.charsPerSecond = 40,
+    this.delayMs = 0,
+    this.caret = true,
+    this.caretColor,
+    this.caretWidth = 0,
+    this.blinkMs = 500,
+    this.skip = false,
+    this.playKey = '',
+  });
+
+  /// Off, the whole text shows (bindable as `typewriter.enabled`).
+  final bool enabled;
+
+  /// How fast it types (bindable as `typewriter.charsPerSecond`).
+  final double charsPerSecond;
+
+  /// How long (ms) it waits before the first character (bindable as
+  /// `typewriter.delayMs`, e.g. to follow the line before it).
+  final int delayMs;
+
+  /// Whether a block caret blinks after the last character while it types.
+  final bool caret;
+
+  /// The caret's color; null uses the text's.
+  final Color? caretColor;
+
+  /// The caret's width; 0 is about half the font size.
+  final double caretWidth;
+
+  /// How long the caret stays on, and off (ms).
+  final int blinkMs;
+
+  /// Shows the rest of the text at once (bindable as `typewriter.skip`).
+  final bool skip;
+
+  /// A cue: types again from the start each time it changes (bindable as
+  /// `typewriter.playKey`).
+  final String playKey;
+
+  /// Whether a running app types (rather than shows the whole text).
+  bool get types => enabled && !skip && charsPerSecond > 0;
+
+  static Typewriter? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    final cps = r.d('charsPerSecond', 40);
+    return Typewriter(
+      enabled: r.b('enabled', true),
+      charsPerSecond: cps.isFinite && cps > 0 ? cps : 40,
+      delayMs: r.ms('delayMs', 0),
+      caret: r.b('caret', true),
+      caretColor: r.color('caretColor'),
+      caretWidth: math.max(0, r.d('caretWidth', 0)),
+      blinkMs: math.max(1, r.ms('blinkMs', 500)),
+      skip: r.b('skip', false),
+      playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..b('enabled', enabled, true)
+      ..d('charsPerSecond', charsPerSecond, 40)
+      ..i('delayMs', delayMs, 0)
+      ..b('caret', caret, true);
+    if (caretColor != null) j['caretColor'] = caretColor!.toJson();
+    j
+      ..d('caretWidth', caretWidth, 0)
+      ..i('blinkMs', blinkMs, 500)
+      ..b('skip', skip, false);
+    if (playKey.isNotEmpty) j['playKey'] = playKey;
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
@@ -2506,11 +2834,13 @@ final class Behaviors extends _Value {
     this.floating = false,
     this.hero,
     this.flightKey = '',
+    this.flight,
     this.draggable,
     this.dropTarget,
     this.drag,
     this.reveal,
     this.strokePath,
+    this.typewriter,
     this.effectAnimations = const [],
     this.particles,
     this.textDirection,
@@ -2559,11 +2889,17 @@ final class Behaviors extends _Value {
 
   /// Flies the node in from where the node with the same key just was.
   final String flightKey;
+
+  /// How it flies there ([flightKey]); null flies on the node's spring.
+  final Flight? flight;
   final DragSource? draggable;
   final DropTarget? dropTarget;
   final DragMotion? drag;
   final Reveal? reveal;
   final StrokePath? strokePath;
+
+  /// A text that types itself out in a running app.
+  final Typewriter? typewriter;
   final List<EffectAnimation> effectAnimations;
   final ParticleEmitter? particles;
 
@@ -2597,7 +2933,7 @@ final class Behaviors extends _Value {
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
-    'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
+    'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
     'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
   };
 
@@ -2621,11 +2957,13 @@ final class Behaviors extends _Value {
       floating: r.b('floating', false),
       hero: HeroTag.fromJson(m['hero']),
       flightKey: r.s('flightKey'),
+      flight: Flight.fromJson(m['flight']),
       draggable: DragSource.fromJson(m['draggable']),
       dropTarget: DropTarget.fromJson(m['dropTarget']),
       drag: DragMotion.fromJson(m['drag']),
       reveal: Reveal.fromJson(m['reveal']),
       strokePath: StrokePath.fromJson(m['strokePath']),
+      typewriter: Typewriter.fromJson(m['typewriter']),
       effectAnimations: [...?readList(m['effectAnimations'])?.map(EffectAnimation.fromJson).nonNulls],
       particles: ParticleEmitter.fromJson(m['particles']),
       textDirection: m['textDirection'] is String
@@ -2655,11 +2993,13 @@ final class Behaviors extends _Value {
       ..b('floating', floating, false);
     if (hero != null) j['hero'] = hero!.toJson();
     j.s('flightKey', flightKey);
+    if (flight != null) j['flight'] = flight!.toJson();
     if (draggable != null) j['draggable'] = draggable!.toJson();
     if (dropTarget != null) j['dropTarget'] = dropTarget!.toJson();
     if (drag != null) j['drag'] = drag!.toJson();
     if (reveal != null) j['reveal'] = reveal!.toJson();
     if (strokePath != null) j['strokePath'] = strokePath!.toJson();
+    if (typewriter != null) j['typewriter'] = typewriter!.toJson();
     if (effectAnimations.isNotEmpty) j['effectAnimations'] = [for (final e in effectAnimations) e.toJson()];
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
@@ -2684,11 +3024,13 @@ final class Behaviors extends _Value {
     bool? floating,
     HeroTag? hero,
     String? flightKey,
+    Flight? flight,
     DragSource? draggable,
     DropTarget? dropTarget,
     DragMotion? drag,
     Reveal? reveal,
     StrokePath? strokePath,
+    Typewriter? typewriter,
     List<EffectAnimation>? effectAnimations,
     ParticleEmitter? particles,
     TextDirection? textDirection,
@@ -2711,11 +3053,13 @@ final class Behaviors extends _Value {
     floating: floating ?? this.floating,
     hero: hero ?? this.hero,
     flightKey: flightKey ?? this.flightKey,
+    flight: flight ?? this.flight,
     draggable: draggable ?? this.draggable,
     dropTarget: dropTarget ?? this.dropTarget,
     drag: drag ?? this.drag,
     reveal: reveal ?? this.reveal,
     strokePath: strokePath ?? this.strokePath,
+    typewriter: typewriter ?? this.typewriter,
     effectAnimations: effectAnimations ?? this.effectAnimations,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
@@ -2730,7 +3074,7 @@ final class Behaviors extends _Value {
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture, sticky, viewProgress, measure,
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }
