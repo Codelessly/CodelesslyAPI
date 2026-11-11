@@ -812,11 +812,17 @@ ManagedBuild buildManagedInstance({
   final source = def.document.toJson();
   final raw = readMap(source['nodes']) ?? const {};
   final ids = {for (final id in raw.keys) id: id == root ? topId : managedNodeId(topId, id)};
+  // Node references are renamed: string values (never keys) that are node
+  // ids, anywhere but in a node's props (texts, hints, labels: words a node
+  // id may equal), where only a variant's children are references.
   Object? rename(Object? v) => switch (v) {
     final String s when ids.containsKey(s) => ids[s],
     final List<Object?> l => [for (final x in l) rename(x)],
-    final Map<Object?, Object?> m => {for (final e in m.entries) (ids[e.key] ?? e.key): rename(e.value)},
+    final Map<Object?, Object?> m => {for (final e in m.entries) '${e.key}': rename(e.value)},
     _ => v,
+  };
+  Json renameNode(Json node) => {
+    for (final e in node.entries) e.key: e.key == 'props' ? _renameProps(e.value, rename) : rename(e.value),
   };
   final eventJson = {
     for (final e in ref.events.entries) e.key: [for (final a in e.value) a.toJson()],
@@ -837,8 +843,9 @@ ManagedBuild buildManagedInstance({
 
   final nodes = <String, Node>{};
   for (final id in [root, ...raw.keys.where((k) => k != root)]) {
-    final json = readMap(rename(raw[id]));
-    if (json == null) continue;
+    final source = readMap(raw[id]);
+    if (source == null) continue;
+    final json = renameNode(source);
     if (json['actions'] != null) json['actions'] = splice(json['actions']);
     final n = Node.fromJson(json, id: ids[id]);
     if (n != null) nodes[n.id] = n;
@@ -909,6 +916,20 @@ ManagedBuild buildManagedInstance({
     nodes: [nodes[topId]!, ...nodes.values.where((n) => n.id != topId)],
     variables: version.contract.variables,
   );
+}
+
+/// A node's [props] with only its variants' children renamed by [rename].
+Object? _renameProps(Object? props, Object? Function(Object?) rename) {
+  final m = readMap(props);
+  final variants = readList(m?['variants']);
+  if (m == null || variants == null) return props;
+  return {
+    ...m,
+    'variants': [
+      for (final v in variants)
+        if (readMap(v) case final Json variant) {...variant, 'children': rename(variant['children'])} else v,
+    ],
+  };
 }
 
 /// [document] with managed instance [topId] replaced by [build]: the

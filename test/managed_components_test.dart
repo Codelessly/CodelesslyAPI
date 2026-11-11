@@ -375,6 +375,50 @@ void main() {
       expect(b.variables.single.name, 'signInError');
     });
 
+    test('node references are renamed; words in props and map keys are not', () {
+      final v = ManagedComponentVersion.fromJson({
+        'id': 'c',
+        'version': 1,
+        'semver': '1.0.0',
+        'definition': {
+          'document': {
+            'roots': ['root'],
+            'nodes': {
+              'root': {
+                'type': 'column',
+                'children': ['email'],
+                'actions': [
+                  {
+                    'trigger': {'type': 'click'},
+                    'actions': [
+                      {'type': 'auth', 'operation': 'signIn', 'email': 'a@b.c', 'password': 'x'},
+                      {'type': 'submitForm', 'emailField': 'email'},
+                    ],
+                  },
+                ],
+              },
+              'email': {
+                'type': 'textField',
+                'props': {
+                  'autofillHints': ['email'],
+                },
+              },
+            },
+          },
+        },
+      })!;
+      final b = buildManagedInstance(version: v, topId: 't');
+      final top = b.nodes.first.toJson();
+      expect(top['children'], ['t__email']);
+      final chain = (top['actions'] as List).single['actions'] as List;
+      expect(chain[0], containsPair('email', 'a@b.c'));
+      expect(chain[0], containsPair('password', 'x'));
+      expect(chain[1], containsPair('emailField', 't__email'));
+      expect(b.nodes.last.toJson()['props'], {
+        'autofillHints': ['email'],
+      });
+    });
+
     test('without customization: version defaults, events removed', () {
       final b = buildManagedInstance(
         version: version(1, '1.0.0', title: 'Hello'),
