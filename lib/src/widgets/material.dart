@@ -137,6 +137,8 @@ abstract final class ChipProps {
 
   /// An icon glyph, or `{"image": url}` for a `CircleAvatar`.
   static const avatar = PropDef<IconGlyph>('avatar', _glyph, {});
+  /// The avatar's box; a selectable chip's checkmark is drawn in it too (at
+  /// 75 %), so it sizes the checkmark. Null: Material's.
   static const avatarSize = PropDef<double?>('avatarSize', _optionalDouble, null);
   static const avatarColor = PropDef<Color?>('avatarColor', _nullableColor, null);
   static const deleteIcon = PropDef<IconGlyph>('deleteIcon', _glyph, {});
