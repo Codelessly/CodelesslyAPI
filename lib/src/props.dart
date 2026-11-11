@@ -313,7 +313,15 @@ BoxConstraints? _constraintsIn(Object? j) => readMap(j) == null ? null : BoxCons
 TextRun? _runIn(Object? j) => TextRun.fromJson(j);
 Json? _jsonIn(Object? j) => readMap(j);
 Json? _glyphIn(Object? j) => _iconIn(j).let((m) => m == null || m.isEmpty ? null : m);
-Json? _iconIn(Object? j) => readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
+/// A bare string names a glyph: an image URL, else a Material icon (a
+/// binding like `playing ? 'pause' : 'play_arrow'` swaps the glyph).
+Json? _iconNamed(String s) {
+  final name = s.trim();
+  if (name.isEmpty) return const {};
+  if (name.startsWith('http://') || name.startsWith('https://') || name.startsWith('data:')) return {'image': name};
+  return {'type': 'MATERIAL_ICON', 'name': name, 'style': 'filled'};
+}
+Json? _iconIn(Object? j) => j is String ? _iconNamed(j) : readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
     ? m
     : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
 List<Json>? _jsonListIn(Object? j) => readList(j)?.map(readMap).nonNulls.toList();
@@ -422,7 +430,8 @@ abstract final class Codecs {
   /// An icon glyph (`IconData`, or an SVG / image): `{"source", "name",
   /// "codepoint", ...}` or `{"svg"|"image": url}`.
   /// An image icon's URL may also come as `imageUrl` (as JSON written by
-  /// hand often names it); it's read as `image`.
+  /// hand often names it); it's read as `image`. A plain string (often a
+  /// bound value) is a Material icon name, or an image URL.
   static const icon = ValueCodec<Json>(_iconIn, _same, PropTypes.icon);
   static const optionalIcon = ValueCodec<Json?>(_glyphIn, _same, PropTypes.icon);
 

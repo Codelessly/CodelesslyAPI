@@ -26,6 +26,9 @@ const _jsonList = Codecs.jsonList;
 const _optionalDouble = Codecs.optionalDouble;
 const _optionalPositive = Codecs.optionalPositive;
 
+/// Which pages of a page view draw on top where they overlap.
+enum PagePaintOrder { forward, reverse }
+
 /// How the items of a run are placed along it (Flutter's `WrapAlignment`).
 enum WrapAlignment { start, end, center, spaceBetween, spaceAround, spaceEvenly }
 
@@ -122,7 +125,8 @@ abstract final class ListViewProps {
   static const itemExtent = PropDef<double?>('itemExtent', _optionalPositive, null);
   static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.none);
 
-  /// The separator's extent; negative overlaps the items.
+  /// The separator's extent; negative overlaps the items. Without a
+  /// [separator] it is empty space (as a row's or column's spacing).
   static const spacing = PropDef<double>('spacing', Codecs.double, 0);
   static const dividerThickness = PropDef<double>('dividerThickness', Codecs.positive, 1);
   static const dividerColor = PropDef<Color>('dividerColor', Codecs.color, Color.black);
@@ -169,12 +173,27 @@ abstract final class ListViewProps {
   /// Actions revealed behind a swiped item.
   static const swipeActions = PropDef<SwipeActions?>('swipeActions', CollectionCodecs.swipeActions, null);
 
+  /// Pulling the list past its start fires its `refresh` reactions (a
+  /// `reloadCloudData`), with or without [pagination] (which reloads its
+  /// first page too). A list with a `refresh` reaction refreshes this way
+  /// too.
+  static const pullToRefresh = PropDef<bool>('pullToRefresh', Codecs.bool, false);
+
+  /// Opens at the end (the newest message of a chat, the latest line of a
+  /// log), keeps the items on screen in place when items are put before
+  /// them (older messages loaded), and follows items added at the end only
+  /// while it is scrolled to the end. The data stays in reading order
+  /// (oldest first). A runtime that doesn't know it opens at the start.
+  static const stickToEnd = PropDef<bool>('stickToEnd', Codecs.bool, false,
+      doc: 'Opens at the end, keeps its place when items are put before, follows new items at the end.');
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
-      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions,
+      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions, pullToRefresh,
+      stickToEnd,
     ],
     children: ChildModel.list,
     slots: CollectionSlots.list,
@@ -254,13 +273,31 @@ abstract final class PageViewProps {
   static const pageMotion =
       PropDef<Motion?>('pageMotion', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
 
+  /// The motion a page has one page *before* the current one, when the two
+  /// sides differ (a book: the page leaving turns over about the spine,
+  /// `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies
+  /// still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance
+  /// like [pageMotion] and not mirrored. Null: [pageMotion] mirrored.
+  static const pageMotionBefore =
+      PropDef<Motion?>('pageMotionBefore', ValueCodec(Motion.fromJson, _motionOut, motionType), null);
+
+  /// Which pages draw on top where they overlap: `forward` (Flutter's
+  /// order: later pages over earlier ones) or `reverse` (earlier pages on
+  /// top, so a page turning away covers the one it reveals). Taps reach the
+  /// page on top first.
+  static const paintOrder = PropDef<PagePaintOrder>(
+    'paintOrder',
+    EnumCodec(PagePaintOrder.values),
+    PagePaintOrder.forward,
+  );
+
   static const spec = WidgetSpec(
     'pageView',
     props: [
       CollectionScrollProps.scrollDirection, CollectionScrollProps.reverse, CollectionScrollProps.physics, //
       CollectionScrollProps.alwaysScroll, CollectionScrollProps.clipBehavior, CollectionScrollProps.itemCount,
       pageSnapping, padEnds, keepPage, initialPage, viewportFraction, allowImplicitScrolling, animationDuration,
-      animationCurve, pageMotion,
+      animationCurve, pageMotion, pageMotionBefore, paintOrder,
     ],
     children: ChildModel.list,
     childFits: cellChildFits,
@@ -539,11 +576,21 @@ abstract final class TableViewProps {
   /// The rows when no data is bound.
   static const rowCount = PropDef<int?>('rowCount', OptionalIntCodec(), null);
   static const rowHeight = PropDef<double>('rowHeight', Codecs.positive, 40);
+
+  /// The field of a row (a map) that holds its own height, for rows that
+  /// aren't all as tall (a summary row that grows with its content); rows
+  /// without a number there are [rowHeight] tall. Empty: every row is.
+  static const rowHeightKey = PropDef<String>('rowHeightKey', Codecs.string, '');
   static const headerHeight = PropDef<double>('headerHeight', Codecs.positive, 44);
 
   /// A column's width unless it sets its own.
   static const columnWidth = PropDef<double>('columnWidth', Codecs.positive, 120);
   static const rowHeaderWidth = PropDef<double>('rowHeaderWidth', Codecs.positive, 120);
+
+  /// Body columns grow to share the width the table has beyond all its
+  /// columns' widths (equally), so a week fills a wide screen and still
+  /// scrolls on a narrow one; no column is ever narrower than its width.
+  static const fillWidth = PropDef<bool>('fillWidth', Codecs.bool, false);
   static const pinHeaderRow = PropDef<bool>('pinHeaderRow', Codecs.bool, true);
   static const pinHeaderColumn = PropDef<bool>('pinHeaderColumn', Codecs.bool, true);
 
@@ -568,7 +615,8 @@ abstract final class TableViewProps {
   static const spec = WidgetSpec(
     'tableView',
     props: [
-      columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
+      columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
+      pinHeaderRow, pinHeaderColumn,
       gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, stretchLastColumn,
     ],
     children: ChildModel.slots,

@@ -89,7 +89,8 @@ final class ScriptParam {
 
 /// A sample run of a [ScriptDef] and what it should give (the editor's test
 /// console): [args] by parameter, sample [vars] and input [nodes] values,
-/// and the result [expect]ed, or the error type [expectError].
+/// and the result [expect]ed, or the error [expectError] (its type, its
+/// message, or `Type: message`).
 ///
 /// In JSON `args` is a map by parameter name, or a list in parameter order
 /// (as `script.name(...)` and formulas pass them), which [fromJson] maps to

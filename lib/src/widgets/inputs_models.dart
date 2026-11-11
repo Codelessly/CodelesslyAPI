@@ -255,7 +255,10 @@ abstract final class InputDecorationFields {
   static const hintText = PropDef<String?>('hintText', Codecs.string, null);
   static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
   static const hintMaxLines = PropDef<int?>('hintMaxLines', OptionalIntCodec(), null);
-  static const errorText = PropDef<String?>('errorText', Codecs.string, null);
+  /// The error under the field. Bound to a yes/no (SDK 8.x's error
+  /// switch), `true` puts the field in error without a message
+  /// ([kErrorWithoutMessage]: the error border only) and `false` clears it.
+  static const errorText = PropDef<String?>('errorText', ErrorTextCodec(), null);
   static const errorStyle = PropDef<TextStyle>('errorStyle', Codecs.textStyle, TextStyle.empty);
   static const errorMaxLines = PropDef<int?>('errorMaxLines', OptionalIntCodec(), null);
   static const floatingLabelBehavior =
@@ -355,3 +358,23 @@ abstract final class ButtonSegmentFields {
   static const spec =
       WidgetSpec('ButtonSegment', props: [value, label, icon, tooltip, enabled], doc: 'Flutter `ButtonSegment`.');
 }
+
+/// The [InputDecorationFields.errorText] of a field in error that shows no
+/// message (its error text bound to `true`): the error border only.
+const String kErrorWithoutMessage = '\u200B';
+
+/// Text, or a yes/no: `true` is [kErrorWithoutMessage], `false` no error.
+final class ErrorTextCodec extends PropCodec<String> {
+  const ErrorTextCodec();
+  @override
+  String? decode(Object? json) => switch (json) {
+        true => kErrorWithoutMessage,
+        false => null,
+        _ => const StringCodec().decode(json),
+      };
+  @override
+  Object encode(String value) => value;
+  @override
+  PropType get type => const PropType.string();
+}
+

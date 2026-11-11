@@ -409,6 +409,10 @@ enum TransformPan {
 
   /// Never (two fingers still move the focal point while pinching).
   never,
+
+  /// Only with two or more fingers (pinching pans too); a one-finger drag
+  /// goes to what's inside: painting on a board, drawing on a canvas.
+  multiTouch,
 }
 
 /// What the mouse wheel does over a [TransformGesture].
@@ -616,10 +620,12 @@ final class TransformGesture extends _Value {
   GesturePhysics get effectivePhysics => physics ?? GesturePhysics.standard;
 
   /// Whether one finger may pan at [scale].
+  /// (Two fingers pan with [TransformPan.always], [TransformPan.whenZoomed]
+  /// and [TransformPan.multiTouch].)
   bool pansAt(double scale) => switch (pan) {
     TransformPan.always => true,
     TransformPan.whenZoomed => scale > minScale + 0.001,
-    TransformPan.never => false,
+    TransformPan.never || TransformPan.multiTouch => false,
   };
 
   static TransformGesture? fromJson(Object? json) {
