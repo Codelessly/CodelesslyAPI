@@ -22,6 +22,17 @@
   or with an unknown service decodes as this (it never throws). The removed fields are read past and never written
   back out. `SubmitFormFields.service` offers only `local`.
 
+- Live cloud data bindings (all optional keys; older layouts decode and re-encode unchanged):
+  - `LoadCloudDataAction.limit` (a number or expression; `0`: all), `aggregate` (`CloudLoadAggregate`: count, sum,
+    average) with `aggregateField`, `refreshSeconds`, `reactive`; `kDefaultCloudLoadLimit` (500), the limit a
+    runtime applies when neither the action nor its query gives one.
+  - `CloudQueryDef.joins`: `CloudJoin {collection, as, id | localField + foreignField, many}`.
+  - `ReloadCloudDataAction` (`reloadCloudData { variable }`), with `ReloadCloudDataFields` and its `ActionSpec`.
+  - `CloudBatchAction.forEach` (steps per item of a list, one commit) and `kMaxCloudBatchWrites` (500).
+  - `Trigger.onceKey` (once per key per app session) and `Trigger.visibleMs` (enterViewport after staying in view).
+  - `ListViewProps.pullToRefresh`: pull to refresh without pagination.
+  - Their editor fields: `LoadCloudDataFields`, `CloudBatchFields.forEach`, `TriggerFields.visibleMs`/`onceKey`.
+
 **Migration**
 
 - Stored layouts need no change to load. An old newsletter submission no longer sends anything: a runtime fails

@@ -130,7 +130,7 @@ color); a value that can't be read leaves the property as it was.
 | `setVariable`, `animateVariable`, `setValue`, `setVariant`, `setStorage` | State |
 | `if`, `forEach`, `delay`, `confirm` | Flow |
 | `callFunction`, `runScript` | The app's code and scripts |
-| `callApi`, `loadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
+| `callApi`, `loadCloudData`, `reloadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
 | `auth`, `paywall` | Accounts and purchases |
 | `showToast`, `haptic`, `playSound`, `speak`, `copyToClipboard` | Feedback |
 | `submitForm`, `editText`, `focus`, `scrollTo`, `playAnimation`, `controlDrag` | Inputs and motion |
@@ -139,6 +139,34 @@ Every action has `enabled`, `nonBlocking` (not awaited) and `when` (a predicate)
 `UnknownAction` and round-trips. `ActionDef.fromJson(json)` decodes one (null for JSON that isn't an action);
 `action.toJson()` encodes it;
 `reaction.allActions` walks nested ones.
+
+### Cloud data bound to a layout
+
+`loadCloudData` keeps a document, a query's documents or a number in a variable, live:
+
+```json
+{"type": "loadCloudData", "variable": "cards", "single": false, "limit": "${shown}",
+ "query": {"enabled": true, "collectionPath": "cards",
+           "joins": [{"collection": "card_state", "as": "state", "id": "${auth.uid}_${item.id}"}]}}
+{"type": "loadCloudData", "variable": "unread", "single": false, "aggregate": "count",
+ "query": {"enabled": true, "collectionPath": "cards",
+           "whereFilters": [{"field": "read", "operator": "equal", "value": "false"}]}}
+```
+
+- `limit`: a number or expression over `query.limit`; empty: the query's, else `kDefaultCloudLoadLimit` (500);
+  `0`: every document. The variable's `hasMore` says whether more match.
+- `aggregate` (`count`, `sum`, `average`, with `aggregateField`): a number computed by the database, without the
+  documents; `refreshSeconds` also re-runs it on a timer.
+- `query.joins` (`CloudJoin`): per item, the matching document of another collection under `as`, matched by a key
+  template `id` (the match's document id, `${item.*}` reading the item) or `localField` = `foreignField`; `many`
+  keeps every match.
+- `reactive` (default true): the load runs again when a value its query reads changes. `reloadCloudData {variable}`
+  subscribes it afresh. One variable has one live load.
+- `cloudBatch.forEach`: its `cloudData` write steps per item (`${loop.item}`), committed together (500 writes per
+  commit, `kMaxCloudBatchWrites`; `transaction` refuses more).
+- `Trigger.onceKey` runs a reaction once per key per app session; `Trigger.visibleMs` makes `enterViewport` wait for
+  the node to stay in view. `ListViewProps.pullToRefresh` lets a list without pagination fire its `refresh`
+  reactions.
 
 ## Scripts
 

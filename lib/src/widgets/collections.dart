@@ -170,12 +170,18 @@ abstract final class ListViewProps {
   /// Actions revealed behind a swiped item.
   static const swipeActions = PropDef<SwipeActions?>('swipeActions', CollectionCodecs.swipeActions, null);
 
+  /// Pulling the list past its start fires its `refresh` reactions (a
+  /// `reloadCloudData`), with or without [pagination] (which reloads its
+  /// first page too). A list with a `refresh` reaction refreshes this way
+  /// too.
+  static const pullToRefresh = PropDef<bool>('pullToRefresh', Codecs.bool, false);
+
   static const spec = WidgetSpec(
     'listView',
     props: [
       ...CollectionScrollProps.all, scrollable, itemExtent, separator, spacing, dividerThickness, dividerColor, //
       dividerIndent, dividerEndIndent, layout, reversePaintOrder, itemPosition, wrap, wrapSpacing, runSpacing,
-      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions,
+      wrapAlignment, wrapCrossAlignment, stretchItems, pagination, reorder, sections, swipeActions, pullToRefresh,
     ],
     children: ChildModel.list,
     slots: CollectionSlots.list,

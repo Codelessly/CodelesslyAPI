@@ -117,6 +117,7 @@ final Map<String, _Decoder> _decoders = {
   SetStorageAction.typeName: SetStorageAction._fromJson,
   CloudDocumentsAction.typeName: CloudDocumentsAction._fromJson,
   LoadCloudDataAction.typeName: LoadCloudDataAction._fromJson,
+  ReloadCloudDataAction.typeName: ReloadCloudDataAction._fromJson,
   AuthAction.typeName: AuthAction._fromJson,
   IfAction.typeName: IfAction._fromJson,
   ForEachAction.typeName: ForEachAction._fromJson,
@@ -1138,12 +1139,40 @@ final class CloudDocumentsAction extends ActionDef {
   };
 }
 
+/// What a [LoadCloudDataAction] keeps in its variable instead of the
+/// documents: a number computed by the database over the query.
+enum CloudLoadAggregate {
+  /// The documents (or the document).
+  none,
+
+  /// How many documents match.
+  count,
+
+  /// The sum of [LoadCloudDataAction.aggregateField] over them.
+  sum,
+
+  /// Its average.
+  average,
+}
+
+/// The most documents a [LoadCloudDataAction] query loads when neither the
+/// action nor its query gives a limit.
+const int kDefaultCloudLoadLimit = 500;
+
 /// Streams a cloud document, or a collection query's documents, into
 /// variable [variable] while the screen shows: `{status: loading|loaded|
-/// error, data, ...}`. Blocking actions wait for the first value; an initial
-/// failure stops the chain. A later subscription failure stops any remaining
+/// error, isLoading, data, error, hasMore}`. A variable of type list gets
+/// the documents themselves, and with an [aggregate], a number variable the
+/// number. Blocking actions wait for the first value; an initial failure
+/// stops the chain. A later subscription failure stops any remaining
 /// actions from that invocation and fires the canvas's actionError reaction.
 /// Subscriptions close on error or when the screen is disposed.
+///
+/// One variable has one live load: running the action again (or a
+/// [ReloadCloudDataAction]) replaces the earlier subscription. Unless
+/// [reactive] is false, the load runs again by itself when a value its
+/// query reads changes (`${auth.uid}`, `${search}`, a [limit] bound to a
+/// variable), but never for a change of its own variable.
 final class LoadCloudDataAction extends ActionDef {
   const LoadCloudDataAction({
     this.variable = '',
@@ -1151,6 +1180,11 @@ final class LoadCloudDataAction extends ActionDef {
     this.id = '',
     this.query = const CloudQueryDef(),
     this.scope = CloudDataScope.screen,
+    this.limit = '',
+    this.aggregate = CloudLoadAggregate.none,
+    this.aggregateField = '',
+    this.refreshSeconds = 0,
+    this.reactive = true,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1167,7 +1201,7 @@ final class LoadCloudDataAction extends ActionDef {
   final String id;
 
   /// The collection ([CloudQueryDef.collectionPath]) and, for a query, its
-  /// filters, sorts and limit.
+  /// filters, sorts, limit and joins.
   final CloudQueryDef query;
 
   /// Who keeps the subscription: the screen (until it goes), or the app
@@ -1175,12 +1209,38 @@ final class LoadCloudDataAction extends ActionDef {
   /// screen, writing an app variable. Older runtimes load per screen.
   final CloudDataScope scope;
 
+  /// The most documents to load: a number or an expression (`${shown}`),
+  /// over [CloudQueryDef.limit]. Empty: the query's limit, else
+  /// [kDefaultCloudLoadLimit]. `0` (or less) loads every document. The
+  /// variable's `hasMore` says whether more documents match.
+  final String limit;
+
+  /// A number over the query instead of its documents, computed by the
+  /// database without loading them.
+  final CloudLoadAggregate aggregate;
+
+  /// [CloudLoadAggregate.sum] and [CloudLoadAggregate.average]: the number
+  /// field.
+  final String aggregateField;
+
+  /// An [aggregate] runs again after this app's writes to the collection
+  /// and, when above 0, every this many seconds (writes made elsewhere).
+  final int refreshSeconds;
+
+  /// Whether the load runs again when a value its query reads changes.
+  final bool reactive;
+
   static LoadCloudDataAction _fromJson(Json m, _Common c) => LoadCloudDataAction(
     variable: _s(m, 'variable'),
     single: _b(m, 'single', true),
     id: _s(m, 'id'),
     query: CloudQueryDef.fromJson(m['query']),
     scope: readEnum(CloudDataScope.values, m['scope'], CloudDataScope.screen),
+    limit: _s(m, 'limit'),
+    aggregate: _e(CloudLoadAggregate.values, m, 'aggregate', CloudLoadAggregate.none),
+    aggregateField: _s(m, 'aggregateField'),
+    refreshSeconds: (readInt(m['refreshSeconds']) ?? 0).clamp(0, 86400),
+    reactive: _b(m, 'reactive', true),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -1193,6 +1253,11 @@ final class LoadCloudDataAction extends ActionDef {
     if (id.isNotEmpty) 'id': id,
     'query': query.toJson(),
     if (scope != CloudDataScope.screen) 'scope': scope.name,
+    if (limit.isNotEmpty) 'limit': limit,
+    if (aggregate != CloudLoadAggregate.none) 'aggregate': aggregate.name,
+    if (aggregateField.isNotEmpty) 'aggregateField': aggregateField,
+    if (refreshSeconds != 0) 'refreshSeconds': refreshSeconds,
+    if (!reactive) 'reactive': false,
   };
 }
 
@@ -1208,6 +1273,30 @@ enum CloudDataScope {
   /// the same variable asks for another document or query). Its variable is
   /// an app variable, so every screen reads it.
   app,
+}
+
+/// Runs again the live load of [variable] (a [LoadCloudDataAction] that ran
+/// on this screen): it subscribes afresh, with the values its query reads
+/// now, and waits for the first value. Nothing when the variable has no
+/// load. A list's pull to refresh (its `refresh` reaction) runs it.
+final class ReloadCloudDataAction extends ActionDef {
+  const ReloadCloudDataAction({this.variable = '', super.enabled, super.nonBlocking, super.when});
+
+  static const typeName = 'reloadCloudData';
+  @override
+  String get type => typeName;
+
+  final String variable;
+
+  static ReloadCloudDataAction _fromJson(Json m, _Common c) => ReloadCloudDataAction(
+    variable: _s(m, 'variable'),
+    enabled: c.enabled,
+    nonBlocking: c.nonBlocking,
+    when: c.when,
+  );
+
+  @override
+  Json get _fields => {'variable': variable};
 }
 
 /// What a [CloudDataAction] does.
@@ -1320,12 +1409,23 @@ final class CloudDataAction extends ActionDef {
   };
 }
 
-/// Several [CloudDataAction] writes at once; in a [transaction], all or
-/// none.
+/// The most writes one atomic cloud commit takes (Firestore's limit).
+const int kMaxCloudBatchWrites = 500;
+
+/// Several [CloudDataAction] writes (create, update, delete) committed at
+/// once. With [forEach], [steps] run once per item of that list
+/// (`${loop.item}`, `${loop.index}`), every write in the same commit: "mark
+/// all read" in one write instead of one per item.
+///
+/// Up to [kMaxCloudBatchWrites] writes are all or none. More are committed
+/// in chunks of that size, each all or none; with [transaction], more fail
+/// before anything is written. A batch with a read step (get, query, count,
+/// sum, average) runs its steps one by one, as before.
 final class CloudBatchAction extends ActionDef {
   const CloudBatchAction({
     this.steps = const [],
     this.transaction = false,
+    this.forEach = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1338,16 +1438,25 @@ final class CloudBatchAction extends ActionDef {
   final List<CloudDataAction> steps;
   final bool transaction;
 
+  /// A list (a path or expression; a cloud data variable's documents): the
+  /// steps run per item. Empty: once.
+  final String forEach;
+
   static CloudBatchAction _fromJson(Json m, _Common c) => CloudBatchAction(
     steps: [...ActionDef.listFromJson(m['steps']).whereType<CloudDataAction>()],
     transaction: _b(m, 'transaction', false),
+    forEach: _s(m, 'forEach'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
   @override
-  Json get _fields => {'steps': _actionsJson(steps), if (transaction) 'transaction': true};
+  Json get _fields => {
+    'steps': _actionsJson(steps),
+    if (transaction) 'transaction': true,
+    if (forEach.isNotEmpty) 'forEach': forEach,
+  };
 }
 
 /// What a [CloudFilesAction] does.

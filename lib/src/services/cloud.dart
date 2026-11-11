@@ -111,6 +111,85 @@ enum QueryPaging {
   button,
 }
 
+/// Documents of another collection attached to each document a query
+/// loads: per item, the matching document of [collection] goes in field
+/// [as] (null when none; with [many], a list of every match).
+///
+/// A document matches by [id], a key template evaluated per item
+/// (`${auth.uid}_${item.id}`: the matching document's id), or else when its
+/// [foreignField] (empty: its id) equals the item's [localField]:
+///
+/// ```json
+/// {"collection": "user_state", "as": "state", "id": "${auth.uid}_${item.id}"}
+/// {"collection": "user_state", "as": "state", "localField": "id", "foreignField": "cardId"}
+/// ```
+///
+/// A runtime reads the matches with a few `in` queries (30 keys each, live,
+/// with the collection's rules applied), not one read per item.
+@immutable
+final class CloudJoin {
+  const CloudJoin({
+    required this.collection,
+    required this.as,
+    this.id = '',
+    this.localField = 'id',
+    this.foreignField = '',
+    this.many = false,
+  });
+
+  /// The collection's path; may hold `${...}`.
+  final String collection;
+
+  /// The field of each item that gets the match.
+  final String as;
+
+  /// A key template giving, per item (`${item.*}`), the matching document's
+  /// id. Empty: [localField] and [foreignField].
+  final String id;
+
+  /// The item's field compared (`id`: its document id).
+  final String localField;
+
+  /// The matching documents' field; empty: their id.
+  final String foreignField;
+
+  /// Every match, as a list, instead of the first.
+  final bool many;
+
+  static CloudJoin? fromJson(Object? json) {
+    final m = readMap(json);
+    final collection = readString(m?['collection']) ?? '';
+    final as = readString(m?['as']) ?? '';
+    if (m == null || collection.isEmpty || as.isEmpty) return null;
+    return CloudJoin(
+      collection: collection,
+      as: as,
+      id: readString(m['id']) ?? '',
+      localField: readString(m['localField']) ?? 'id',
+      foreignField: readString(m['foreignField']) ?? '',
+      many: readBool(m['many']) ?? false,
+    );
+  }
+
+  Json toJson() => {
+        'collection': collection,
+        'as': as,
+        if (id.isNotEmpty) 'id': id,
+        if (localField != 'id') 'localField': localField,
+        if (foreignField.isNotEmpty) 'foreignField': foreignField,
+        if (many) 'many': true,
+      };
+
+  @override
+  bool operator ==(Object other) => other is CloudJoin && jsonEquality.equals(other.toJson(), toJson());
+
+  @override
+  int get hashCode => jsonEquality.hash(toJson());
+
+  @override
+  String toString() => 'CloudJoin(${toJson()})';
+}
+
 /// A query of a cloud collection, as a data-bound list (`listView.query`)
 /// or a cloud data action stores it:
 ///
@@ -118,7 +197,8 @@ enum QueryPaging {
 /// {"enabled": true, "collectionPath": "tasks", "limit": 20,
 ///  "whereFilters": [{"field": "done", "operator": "equal", "value": "false"}],
 ///  "orderByFilters": [{"field": "due", "sortOrder": "descending"}],
-///  "loadRelated": ["author"]}
+///  "loadRelated": ["author"],
+///  "joins": [{"collection": "user_state", "as": "state", "id": "${auth.uid}_${item.id}"}]}
 /// ```
 @immutable
 final class CloudQueryDef {
@@ -130,6 +210,7 @@ final class CloudQueryDef {
     this.limit,
     this.paging = QueryPaging.scroll,
     this.loadRelated = const [],
+    this.joins = const [],
     this.extra = const {},
   });
 
@@ -148,12 +229,15 @@ final class CloudQueryDef {
   /// Reference fields whose documents load with each result.
   final List<String> loadRelated;
 
+  /// Documents of other collections attached to each result ([CloudJoin]).
+  final List<CloudJoin> joins;
+
   /// Keys this version doesn't model (a status variable...), kept.
   final Json extra;
 
   bool get isEmpty => !enabled && collectionPath.isEmpty;
 
-  static const _keys = {'enabled', 'collectionPath', 'whereFilters', 'orderByFilters', 'limit', 'paging', 'loadRelated'};
+  static const _keys = {'enabled', 'collectionPath', 'whereFilters', 'orderByFilters', 'limit', 'paging', 'loadRelated', 'joins'};
 
   static CloudQueryDef fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -166,6 +250,7 @@ final class CloudQueryDef {
       limit: limit != null && limit > 0 ? limit : null,
       paging: readEnum(QueryPaging.values, m['paging'], QueryPaging.scroll),
       loadRelated: readStrings(m['loadRelated']),
+      joins: [...?readList(m['joins'])?.map(CloudJoin.fromJson).nonNulls],
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key)) e.key: e.value,
@@ -181,6 +266,7 @@ final class CloudQueryDef {
         'limit': ?limit,
         if (paging != QueryPaging.scroll) 'paging': paging.name,
         if (loadRelated.isNotEmpty) 'loadRelated': loadRelated,
+        if (joins.isNotEmpty) 'joins': [for (final j in joins) j.toJson()],
         ...extra,
       };
 
