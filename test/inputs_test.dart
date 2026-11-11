@@ -177,4 +177,14 @@ void main() {
     expect(n.prop(DropdownProps.itemAlignment), const Alignment(-1, 0));
     expect(Node.fromJson(n.toJson(), id: 'd'), n);
   });
+
+  test('a dropdown and a date/time input keep their box decoration; a text field drops it', () {
+    const deco = {'fills': [{'color': '#FFFFFFFF'}], 'strokes': [{'color': '#FFB8C2CE'}], 'radius': 4};
+    for (final type in ['dropdown', 'dateTimeInput']) {
+      final n = Node.fromJson({'type': type, 'decoration': deco}, id: 'd')!;
+      expect(n.decoration.fills, hasLength(1), reason: type);
+      expect(n.decoration.radius, BorderRadius.circular(4), reason: type);
+    }
+    expect(Node.fromJson({'type': 'textField', 'decoration': deco}, id: 't')!.decoration.fills, isEmpty);
+  });
 }
