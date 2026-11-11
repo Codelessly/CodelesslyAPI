@@ -143,6 +143,9 @@ abstract final class MotionFields {
   );
   static const pulseKey = PropDef<String?>('pulseKey', Codecs.optionalString, null);
   static const revealOnScroll = PropDef<bool>('revealOnScroll', Codecs.bool, false);
+
+  /// Holds the entrance at its start while true (bindable).
+  static const enterHeld = PropDef<bool>('enterHeld', Codecs.bool, false);
   static const revealFraction = PropDef<double>('revealFraction', Codecs.double, 0.15);
 
   /// With [orientToPath]: never upside down.
@@ -178,7 +181,7 @@ abstract final class MotionFields {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
+    revealOnScroll, enterHeld, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
     shimmer,
   ];
 }
