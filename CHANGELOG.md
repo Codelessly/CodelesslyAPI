@@ -26,6 +26,18 @@
   `userAudience`, `neverExpires`, `expiryFieldFor`, `ownerFieldsFor`; traits `readsAudience`, `writtenByRole`.
   Older JSON decodes and re-encodes unchanged; an older reader drops the new rules (reads them as `app`), and the
   database rules then refuse its reads and writes instead of opening the collection.
+- Automations: `Automation` (`AutomationTrigger` `appStart`, `sessionStart`, `resume`, `event`, `interval`,
+  `screenShown`; a `when` formula; `maxRuns`, `maxPerSession`, `everyDays`; `delayMs`, `priority`; `actions`),
+  `AutomationFields`, and `PublishModel.automations` / `withAutomations` (the model's `automations`, kept in
+  `extra`: a model without them encodes as before).
+- `EmitEventAction` (`emitEvent`: `event`, `props`): fires an app event on the runtime's event bus.
+- `CaptureScreenshotAction` (`captureScreenshot`: `target` `layout` / `node` / `app`, `node`, `pixelRatio`):
+  `${result.image}` is a PNG `data:` URL.
+- `ModalPresentation.banner`: a modal along the top (or bottom) edge with no barrier. Runtimes that don't know
+  it decode it as `dialog`.
+- `CallFunctionAction.optional`: a function the app didn't register gives `null` instead of failing the chain.
+- `CloudFilesAction.source` and `fileName`: upload a value (a `data:` URL, `{"data", "name"}`, or a list)
+  instead of asking the user to pick files.
 - `FormService.unsupported`: older JSON with `service: mailchimp`, with no `service` and the removed fields,
   or with an unknown service decodes as this (it never throws). The removed fields are read past and never written
   back out. `SubmitFormFields.service` offers only `local`.
