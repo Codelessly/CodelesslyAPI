@@ -46,6 +46,11 @@ abstract final class PathProps {
   /// Null: [data] is in the box's own pixels.
   static const viewBox = PropDef<List<double>?>('viewBox', _size, null);
 
+  /// Whether the stroke (its width and dash lengths) is in [viewBox] units,
+  /// scaled with the drawing as in SVG, instead of the box's pixels (an
+  /// icon's line keeps its weight at any size; a diagram's grows with it).
+  static const scaleStroke = PropDef<bool>('scaleStroke', Codecs.bool, false);
+
   /// The stroked part of the path, as fractions of its length.
   static const trimStart = PropDef<double>('trimStart', DoubleCodec(min: 0, max: 1), 0);
   static const trimEnd = PropDef<double>('trimEnd', DoubleCodec(min: 0, max: 1), 1);
@@ -64,7 +69,7 @@ abstract final class PathProps {
   );
 
   static const spec = WidgetSpec('path',
-      props: [data, viewBox, trimStart, trimEnd, strokeJoin, subpathColors],
+      props: [data, viewBox, scaleStroke, trimStart, trimEnd, strokeJoin, subpathColors],
       decorated: true,
       doc: 'Flutter `CustomPaint` of an SVG path.');
 }
