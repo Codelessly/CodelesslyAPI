@@ -170,12 +170,21 @@ abstract final class CheckboxProps {
   static const borderRadius = PropDef<BorderRadius?>('borderRadius', InputCodecs.radius, null);
   static const side = PropDef<BorderSide?>('side', InputCodecs.borderSide, null);
 
+  /// The border when checked (a `WidgetStateBorderSide`); null keeps [side].
+  static const activeSide = PropDef<BorderSide?>('activeSide', InputCodecs.borderSide, null);
+
+  /// The box's fill when unchecked (`fillColor` for the unselected states);
+  /// [activeColor] fills it checked. Null keeps Flutter's (transparent).
+  static const fillColor = PropDef<Color?>('fillColor', Codecs.optionalColor, null);
+
   /// Its box is the checkbox itself (18 px), not its tap target (40 px).
+  /// The box and its check mark scale to the node, but its [borderRadius]
+  /// and sides' widths are node pixels.
   static const compact = PropDef<bool>('compact', Codecs.bool, false);
 
   static const spec = WidgetSpec('checkbox', props: [
     value, tristate, autofocus, checkColor, activeColor, hoverColor, focusColor, splashRadius, borderRadius, side, //
-    compact,
+    activeSide, fillColor, compact,
   ], doc: 'Flutter `Checkbox`.');
 }
 
@@ -567,6 +576,13 @@ Object? _strokesOut(List<List<Offset>> v) => [
       for (final s in v) [for (final p in s) p.toJson()],
     ];
 
+/// How a signature pad's sign line is stroked.
+enum SignLineStyle { solid, dashed }
+
+/// Where a signature pad's mark sits: over the line's start, or before the
+/// line (centred on it, the line starting after it).
+enum SignMarkPlacement { above, leading }
+
 /// A signature pad: strokes drawn with a finger or mouse, on a bordered card
 /// with a placeholder and a sign line.
 abstract final class SignatureProps {
@@ -586,8 +602,56 @@ abstract final class SignatureProps {
   static const placeholder = PropDef<String>('placeholder', Codecs.string, 'SIGN HERE');
   static const placeholderColor = PropDef<Color>('placeholderColor', Codecs.color, Color(0xFFA9ADA5));
   static const placeholderFontSize = PropDef<double>('placeholderFontSize', Codecs.positive, 12);
+  /// The placeholder's text style, over [placeholderColor] and
+  /// [placeholderFontSize] (weight 600, letter spacing 0.12 × the size
+  /// where it sets none).
+  static const placeholderStyle = PropDef<TextStyle>('placeholderStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// Where the placeholder sits in the pad, then moved by [placeholderOffset].
+  static const placeholderAlignment = PropDef<Alignment>('placeholderAlignment', Codecs.alignment, Alignment.center);
+  static const placeholderOffset = PropDef<Offset>('placeholderOffset', Codecs.offset, Offset.zero);
   static const showSignLine = PropDef<bool>('showSignLine', Codecs.bool, true);
   static const signLineColor = PropDef<Color>('signLineColor', Codecs.color, Color(0xFFA9ADA5));
+  static const signLineWidth = PropDef<double>('signLineWidth', Codecs.positive, 1);
+  static const signLineStyle = PropDef<SignLineStyle>('signLineStyle', EnumCodec(SignLineStyle.values), SignLineStyle.solid);
+
+  /// A dashed line's dash and gap lengths.
+  static const signLineDash = PropDef<double>('signLineDash', Codecs.positive, 6);
+  static const signLineGap = PropDef<double>('signLineGap', Codecs.positive, 6);
+
+  /// The line's distance from the pad's bottom, in pixels; null is 24% of
+  /// the pad's height.
+  static const signLineOffset = PropDef<double?>('signLineOffset', Codecs.optionalPositive, null);
+
+  /// The line's distance from the pad's left and right edges.
+  static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
+
+  /// The mark ("×") at the line's start.
+  static const showSignMark = PropDef<bool>('showSignMark', Codecs.bool, true);
+
+  /// The mark as an icon; null is a "×" glyph [signMarkSize] high.
+  static const signMarkIcon = PropDef<Json?>('signMarkIcon', Codecs.optionalIcon, null);
+  static const signMarkSize = PropDef<double>('signMarkSize', Codecs.positive, 16);
+
+  /// Null is [signLineColor].
+  static const signMarkColor = PropDef<Color?>('signMarkColor', Codecs.optionalColor, null);
+  static const signMarkPlacement =
+      PropDef<SignMarkPlacement>('signMarkPlacement', EnumCodec(SignMarkPlacement.values), SignMarkPlacement.above);
+
+  /// The space between the mark and the line: under it ([SignMarkPlacement.above])
+  /// or after it ([SignMarkPlacement.leading]).
+  static const signMarkGap = PropDef<double>('signMarkGap', Codecs.positive, 4);
+
+  /// A caption under the line ("SIGN ABOVE THE LINE"), shown with or
+  /// without strokes.
+  static const caption = PropDef<String>('caption', Codecs.string, '');
+  static const captionStyle = PropDef<TextStyle>('captionStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The space between the line and the caption's top.
+  static const captionGap = PropDef<double>('captionGap', Codecs.positive, 8);
+
+  /// The caption's alignment between the line's insets.
+  static const captionAlign = PropDef<TextAlign>('captionAlign', EnumCodec(TextAlign.values), TextAlign.start);
 
   /// Shows the error border.
   static const error = PropDef<bool>('error', Codecs.bool, false);
@@ -596,7 +660,9 @@ abstract final class SignatureProps {
 
   static const spec = WidgetSpec('signature', props: [
     value, normalized, inkColor, inkWidth, backgroundColor, borderColor, borderWidth, errorBorderColor, //
-    errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
-    error, enabled, readOnly,
+    errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, placeholderStyle,
+    placeholderAlignment, placeholderOffset, showSignLine, signLineColor, signLineWidth, signLineStyle, signLineDash,
+    signLineGap, signLineOffset, signLineInset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
+    signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }
