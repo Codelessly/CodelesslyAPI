@@ -6,6 +6,8 @@
 // `Hello ${name}`), evaluated when the action runs. `${result}` is what the
 // previous action of the chain gave (an API's response, a document id, a
 // for-each's item), or the trigger's event.
+import 'dart:convert' show jsonEncode;
+
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart' show AnimationCurve, DragDirection;
@@ -2008,8 +2010,13 @@ final class FocusAction extends ActionDef {
 
 /// What a [ControlDragAction] does to a draggable node. [step] turns a
 /// drag track control by [ControlDragAction.steps] of its step, as if
-/// dragged there (a dial's nudge buttons and arrow keys).
-enum DragCommand { fling, returnFrom, reset, shake, step }
+/// dragged there (a dial's nudge buttons and arrow keys). On a node with a
+/// transform gesture (a map, a photo): [reset] springs it to its rest pose,
+/// [zoom] scales it by [ControlDragAction.value] (a factor: `1.5` in, `0.67`
+/// out) about the middle of what its viewport shows (zoom buttons), and
+/// [pose] springs it to the pose [ControlDragAction.value] gives (`{x, y,
+/// scale, rotation}`, keys left out kept: "fit to route").
+enum DragCommand { fling, returnFrom, reset, shake, step, zoom, pose }
 
 /// Flings, returns, resets or shakes draggable node [node] (a swipe card),
 /// or steps a drag track.
@@ -2019,6 +2026,7 @@ final class ControlDragAction extends ActionDef {
     this.command = DragCommand.fling,
     this.direction = DragDirection.right,
     this.steps = '1',
+    this.value = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -2036,11 +2044,16 @@ final class ControlDragAction extends ActionDef {
   /// track's start; a number or an expression.
   final String steps;
 
+  /// [DragCommand.zoom]: the factor; [DragCommand.pose]: the pose (a map, its
+  /// JSON text, or an expression giving one).
+  final String value;
+
   static ControlDragAction _fromJson(Json m, _Common c) => ControlDragAction(
     node: _s(m, 'node'),
     command: _e(DragCommand.values, m, 'command', DragCommand.fling),
     direction: _e(DragDirection.values, m, 'direction', DragDirection.right),
     steps: _s(m, 'steps', '1'),
+    value: m['value'] is Map ? jsonEncode(m['value']) : _s(m, 'value'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -2052,6 +2065,7 @@ final class ControlDragAction extends ActionDef {
     if (command != DragCommand.fling) 'command': command.name,
     if (direction != DragDirection.right) 'direction': direction.name,
     if (steps != '1') 'steps': steps,
+    if (value.isNotEmpty) 'value': value,
   };
 }
 
