@@ -53,6 +53,27 @@ void main() {
     expect(Node.fromJson(n.toJson()), n);
   });
 
+  test('radial gauge round caps default to false and round-trip sparsely', () {
+    final defaults = Node.fromJson({'type': 'radialGauge'})!;
+    expect(defaults.prop(RadialGaugeProps.roundCaps), isFalse);
+    expect(
+      (defaults.toJson()['props'] as Map?)?.containsKey('roundCaps') ?? false,
+      isFalse,
+    );
+    final rounded = Node.fromJson({
+      'type': 'radialGauge',
+      'props': {'roundCaps': true},
+    })!;
+    expect(rounded.prop(RadialGaugeProps.roundCaps), isTrue);
+    expect((rounded.toJson()['props'] as Map)['roundCaps'], isTrue);
+    expect(Node.fromJson(rounded.toJson()), rounded);
+    final flat = rounded.withProp(RadialGaugeProps.roundCaps, false);
+    expect(
+      (flat.toJson()['props'] as Map?)?.containsKey('roundCaps') ?? false,
+      isFalse,
+    );
+  });
+
   test('bar values keep their gaps', () {
     final n = Node.fromJson({
       'type': 'barChart',
