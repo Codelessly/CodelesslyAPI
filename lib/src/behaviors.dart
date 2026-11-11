@@ -38,7 +38,12 @@ enum AnimationCurve {
 
   /// Material 3's emphasized easing, `Cubic(0.2, 0, 0, 1)`: a quick start
   /// that settles gently (entrances, page and sheet motion).
-  emphasized;
+  emphasized,
+
+  /// The web's ease-out-back, `cubic-bezier(0.34, 1.56, 0.64, 1)`: a
+  /// bigger overshoot than [easeOutBack], landing with a slap (stickers,
+  /// cards dropping onto a wall).
+  overshoot;
 
   /// The curve named [v] (any case, spaces and dashes ignored), or null.
   static AnimationCurve? parse(Object? v) {
@@ -73,6 +78,7 @@ enum AnimationCurve {
       spring => 1 - math.exp(-6.5 * t) * math.cos(2 * math.pi * 1.25 * t) * (1 - t * t),
       step => t < 0.5 ? 0 : 1,
       emphasized => _cubic(0.2, 0, 0, 1, t),
+      overshoot => _cubic(0.34, 1.56, 0.64, 1, t),
     };
   }
 
@@ -390,6 +396,8 @@ final class Motion extends _Value {
     this.duration = 0,
     this.delay = 0,
     this.curve = AnimationCurve.easeInOut,
+    this.rotateCurve,
+    this.fadeShare = 1,
     this.springStiffness = 380,
     this.springDamping = 20,
     this.spin = 0,
@@ -431,6 +439,15 @@ final class Motion extends _Value {
   /// A transition's length and its wait (ms).
   final int duration, delay;
   final AnimationCurve curve;
+
+  /// The rotation's own curve (an entrance that drops in on [curve] and
+  /// wobbles upright on `elasticOut`); null follows [curve].
+  final AnimationCurve? rotateCurve;
+
+  /// The share (0–1] of [duration] in which the opacity arrives, easing out:
+  /// a card fades in over its first third while it keeps settling. 1
+  /// follows [curve].
+  final double fadeShare;
 
   /// The spring of [AnimationCurve.spring] (mass 1).
   final double springStiffness, springDamping;
@@ -597,6 +614,8 @@ final class Motion extends _Value {
       duration: duration,
       delay: delay,
       curve: curve,
+      rotateCurve: rotateCurve,
+      fadeShare: fadeShare,
       springStiffness: springStiffness,
       springDamping: springDamping,
       spin: v['spin']!,
@@ -788,6 +807,8 @@ final class Motion extends _Value {
       duration: r.ms('duration', 0),
       delay: r.ms('delay', 0),
       curve: r.curve('curve', AnimationCurve.easeInOut),
+      rotateCurve: AnimationCurve.parse(m['rotateCurve']),
+      fadeShare: r.d('fadeShare', 1).clamp(0.01, 1).toDouble(),
       springStiffness: r.d('springStiffness', 380),
       springDamping: r.d('springDamping', 20),
       spin: r.d('spin', 0),
@@ -841,6 +862,8 @@ final class Motion extends _Value {
       ..i('duration', duration, 0)
       ..i('delay', delay, 0)
       ..e('curve', curve, AnimationCurve.easeInOut)
+      ..s('rotateCurve', rotateCurve?.name)
+      ..d('fadeShare', fadeShare, 1)
       ..d('springStiffness', springStiffness, 380)
       ..d('springDamping', springDamping, 20)
       ..i('spinRamp', spinRamp, 800)
@@ -881,10 +904,10 @@ final class Motion extends _Value {
   @override
   List<Object?> get props => [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
-    perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
-    loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing,
-    pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
+    perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare, springStiffness, springDamping,
+    spin, spinRamp, loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
+    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase,
+    pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
@@ -2570,6 +2593,8 @@ final class Typewriter extends _Value {
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
+    this.holdAtMs,
+    this.grow = false,
   });
 
   /// Off, the whole text shows (bindable as `typewriter.enabled`).
@@ -2601,6 +2626,18 @@ final class Typewriter extends _Value {
   /// `typewriter.playKey`).
   final String playKey;
 
+  /// Stops the typing clock this many ms after it starts (its delay
+  /// included): the text holds part-typed, caret blinking, as a still of
+  /// the moment (bindable as `typewriter.holdAtMs`). Lines that type one
+  /// after another (each delayed by the ones before) all stop at the same
+  /// moment. Null types to the end.
+  final int? holdAtMs;
+
+  /// The node is only as tall as the lines typed so far, growing line by
+  /// line (a note card that fills as it's written). Off, it keeps the whole
+  /// text's size from the start, so nothing around it moves.
+  final bool grow;
+
   /// Whether a running app types (rather than shows the whole text).
   bool get types => enabled && !skip && charsPerSecond > 0;
 
@@ -2619,6 +2656,8 @@ final class Typewriter extends _Value {
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
+      holdAtMs: m['holdAtMs'] == null || m['holdAtMs'] == '' ? null : math.max(0, r.ms('holdAtMs', 0)),
+      grow: r.b('grow', false),
     );
   }
 
@@ -2634,38 +2673,53 @@ final class Typewriter extends _Value {
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
+    if (holdAtMs != null) j['holdAtMs'] = holdAtMs;
+    j.b('grow', grow, false);
     return j;
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
 /// binding turns true), to [alignment] of the viewport (0 top, 1 bottom).
+/// With [follow] it stays there while the content around it moves (lines
+/// added above an end marker, an image that loads late), until the user
+/// scrolls away: a chat or transcript pinned to its newest line.
 @immutable
 final class Reveal extends _Value {
-  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true});
+  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true, this.follow = false});
 
   final double alignment;
   final int duration, delay;
   final bool when;
 
+  /// Keeps the node revealed as the content moves, until the user scrolls.
+  final bool follow;
+
   static Reveal? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0), when: r.b('when', true));
+    return Reveal(
+      alignment: r.d('alignment', 0.5),
+      duration: r.ms('duration', 600),
+      delay: r.ms('delay', 0),
+      when: r.b('when', true),
+      follow: r.b('follow', false),
+    );
   }
 
   Json toJson() => <String, Object?>{}
     ..d('alignment', alignment, 0.5)
     ..i('duration', duration, 600)
     ..i('delay', delay, 0)
-    ..b('when', when, true);
+    ..b('when', when, true)
+    ..b('follow', follow, false);
 
   @override
-  List<Object?> get props => [alignment, duration, delay, when];
+  List<Object?> get props => [alignment, duration, delay, when, follow];
 }
 
 /// Pins the node inside the scrolling row or column it scrolls in, as CSS

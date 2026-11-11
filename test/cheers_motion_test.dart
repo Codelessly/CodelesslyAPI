@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
@@ -50,5 +52,24 @@ void main() {
     expect(p.type, PaintType.image);
     expect(p.image!.repeat, ImageRepeat.repeat);
     expect(Paint.fromJson({'color': '#FFFFFFFF'})!.type, PaintType.solid);
+  });
+
+  test('a motion can time its rotation and its fade on their own', () {
+    final m = Motion.fromJson({'duration': 600, 'rotateCurve': 'elasticOut', 'fadeShare': 0.35})!;
+    expect(m.rotateCurve, AnimationCurve.elasticOut);
+    expect(m.fadeShare, 0.35);
+    expect(Motion.fromJson(m.toJson()), m);
+    expect(m.withValue('rotate', 4).rotateCurve, AnimationCurve.elasticOut);
+    expect(Motion.fromJson({'duration': 600})!.toJson().containsKey('fadeShare'), isFalse);
+    expect(MotionFields.all, containsAll([MotionFields.rotateCurve, MotionFields.fadeShare]));
+  });
+
+  test('overshoot is the web ease-out-back, past easeOutBack', () {
+    expect(AnimationCurve.parse('overshoot'), AnimationCurve.overshoot);
+    final peak = [for (var i = 1; i < 100; i++) AnimationCurve.overshoot.transform(i / 100)].reduce(math.max);
+    final back = [for (var i = 1; i < 100; i++) AnimationCurve.easeOutBack.transform(i / 100)].reduce(math.max);
+    expect(peak, greaterThan(back));
+    expect(peak, closeTo(1.1, 0.01));
+    expect(AnimationCurve.overshoot.transform(1), 1);
   });
 }

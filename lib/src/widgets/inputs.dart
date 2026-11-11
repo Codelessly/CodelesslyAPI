@@ -684,10 +684,15 @@ abstract final class SegmentedButtonProps {
   /// The shadows under a track's selected segment.
   static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
 
+  /// A track's selection is one thumb that slides between its segments
+  /// (single selection, horizontal, segments sharing the width); otherwise
+  /// each segment fills in place.
+  static const slidingThumb = PropDef<bool>('slidingThumb', Codecs.bool, false);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows,
+    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows, slidingThumb,
   ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
@@ -732,6 +737,10 @@ abstract final class SignatureProps {
   static const normalized = PropDef<bool>('normalized', Codecs.bool, false);
   static const inkColor = PropDef<Color>('inkColor', Codecs.color, Color(0xFF13306B));
   static const inkWidth = PropDef<double>('inkWidth', Codecs.positive, 2.6);
+
+  /// Strokes drawn as smooth curves through their points; false joins the
+  /// points with straight segments.
+  static const smooth = PropDef<bool>('smooth', Codecs.bool, true);
   static const backgroundColor = PropDef<Color>('backgroundColor', Codecs.color, Color(0xFFF8F8F5));
   static const borderColor = PropDef<Color>('borderColor', Codecs.color, Color(0xFFA9ADA5));
   static const borderWidth = PropDef<double>('borderWidth', Codecs.positive, 1.5);
@@ -817,6 +826,6 @@ abstract final class SignatureProps {
     signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
     placeholderStyle, placeholderAlignment, placeholderOffset, signLineWidth, signLineStyle, signLineDash,
     signLineGap, signLineOffset, showSignMark, signMarkIcon, signMarkSize, signMarkColor,
-    signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, error, enabled, readOnly,
+    signMarkPlacement, signMarkGap, caption, captionStyle, captionGap, captionAlign, smooth, error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }

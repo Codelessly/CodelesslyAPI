@@ -51,7 +51,7 @@ enum PublishSource {
 /// to route to it before its layout is loaded.
 @immutable
 final class PublishCanvas {
-  const PublishCanvas({required this.id, this.name = '', this.path});
+  const PublishCanvas({required this.id, this.name = '', this.path, this.route = ScreenRoute.none});
 
   final String id;
 
@@ -61,21 +61,31 @@ final class PublishCanvas {
   /// The screen's URL path pattern (`guide/:id`, `docs/*rest`), if it has one.
   final String? path;
 
+  /// How the screen opens from a link: the screen beneath it, and whether
+  /// it is drawn over that one (translucent).
+  final ScreenRoute route;
+
   static PublishCanvas? fromJson(Object? json) {
     final m = readMap(json);
     final id = readString(m?['id']);
     if (m == null || id == null) return null;
     final path = readString(m['path']);
-    return PublishCanvas(id: id, name: readString(m['name']) ?? '', path: path == null || path.isEmpty ? null : path);
+    return PublishCanvas(
+      id: id,
+      name: readString(m['name']) ?? '',
+      path: path == null || path.isEmpty ? null : path,
+      route: ScreenRoute.fromJson(m) ?? ScreenRoute.none,
+    );
   }
 
-  Json toJson() => {'id': id, if (name.isNotEmpty) 'name': name, 'path': ?path};
+  Json toJson() => {'id': id, if (name.isNotEmpty) 'name': name, 'path': ?path, ...route.toJson()};
 
   @override
-  bool operator ==(Object other) => other is PublishCanvas && other.id == id && other.name == name && other.path == path;
+  bool operator ==(Object other) =>
+      other is PublishCanvas && other.id == id && other.name == name && other.path == path && other.route == route;
 
   @override
-  int get hashCode => Object.hash(id, name, path);
+  int get hashCode => Object.hash(id, name, path, route);
 }
 
 /// What the publish model knows of one layout without loading it.
@@ -135,7 +145,7 @@ final class PublishLayoutInfo {
         pageId: layout.pageId,
         canvases: [
           for (final c in layout.canvasIds)
-            PublishCanvas(id: c, name: layout.document[c]?.name ?? '', path: layout.paths[c]),
+            PublishCanvas(id: c, name: layout.document[c]?.name ?? '', path: layout.paths[c], route: layout.routes[c] ?? ScreenRoute.none),
         ],
         fonts: layout.fonts,
         apis: layout.apis,

@@ -126,6 +126,16 @@ abstract final class MotionFields {
   static const duration = PropDef<int>('duration', _ms, 0);
   static const delay = PropDef<int>('delay', _ms, 0);
   static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.easeInOut);
+
+  /// The rotation's own curve; null follows [curve].
+  static const rotateCurve = PropDef<AnimationCurve?>(
+    'rotateCurve',
+    OptionalEnumCodec(AnimationCurve.values),
+    null,
+  );
+
+  /// The share of the duration in which the opacity arrives (easing out).
+  static const fadeShare = PropDef<double>('fadeShare', DoubleCodec(min: 0, max: 1), 1);
   static const springStiffness = PropDef<double>('springStiffness', Codecs.double, 380);
   static const springDamping = PropDef<double>('springDamping', Codecs.double, 20);
   static const spinRamp = PropDef<int>('spinRamp', _ms, 800);
@@ -191,10 +201,10 @@ abstract final class MotionFields {
 
   static const List<PropDef<Object?>> all = [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
-    pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
-    spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
-    pathWrap, pathViewBox, shimmer,
+    pathProgress, blur, perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare,
+    springStiffness, springDamping, spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path,
+    orientToPath, keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc,
+    paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
@@ -869,7 +879,11 @@ abstract final class TypewriterFields {
   static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
   static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  static const holdAtMs = PropDef<int?>('holdAtMs', Codecs.optionalInt, null,
+      doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
+  static const grow = PropDef<bool>('grow', Codecs.bool, false,
+      doc: 'Only as tall as the lines typed so far (off: the whole text\'s size from the start).');
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;
@@ -879,7 +893,10 @@ abstract final class RevealFields {
   static const alignment = PropDef<double>('alignment', Codecs.double, 0.5);
   static const duration = PropDef<int>('duration', _ms, 600);
   static const delay = PropDef<int>('delay', _ms, 0);
-  static const List<PropDef<Object?>> all = [alignment, duration, delay];
+
+  /// Stays revealed while the content moves, until the user scrolls away.
+  static const follow = PropDef<bool>('follow', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [alignment, duration, delay, follow];
 }
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
