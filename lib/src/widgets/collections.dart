@@ -34,6 +34,7 @@ enum WrapCrossAlignment { start, end, center }
 
 /// What a list draws between its items.
 enum ListSeparator {
+  /// Nothing: the items touch whatever [ListViewProps.spacing] says.
   none,
 
   /// Empty space, [ListViewProps.spacing] long; a negative spacing overlaps
@@ -110,9 +111,13 @@ abstract final class ListViewProps {
 
   /// Each item's extent along the scroll direction.
   static const itemExtent = PropDef<double?>('itemExtent', _optionalPositive, null);
-  static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.none);
+  /// What goes between the items: space by default, so [spacing] alone
+  /// spaces them like a column's spacing (`ListView.separated` with a
+  /// `SizedBox`).
+  static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.space);
 
-  /// The separator's extent; negative overlaps the items.
+  /// The room between the items along the list (the separator's extent);
+  /// negative overlaps the items.
   static const spacing = PropDef<double>('spacing', Codecs.double, 0);
   static const dividerThickness = PropDef<double>('dividerThickness', Codecs.positive, 1);
   static const dividerColor = PropDef<Color>('dividerColor', Codecs.color, Color.black);
