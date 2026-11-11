@@ -276,6 +276,51 @@ instances (`lib/src/components.dart`).
 External components (widgets the app builds by a builder id) are a widget
 type, `external`, not components.
 
+### 4.3 Linked, Codelessly-managed components
+
+Prebuilt UI (sign in, paywalls, inbox...) is published by Codelessly as
+versioned masters that projects reference instead of copying
+(`lib/src/managed_components.dart`). Same-major releases reach every app
+using one without a republish; a major never applies on its own.
+
+* **`ManagedComponentMaster`** (`managed_components/{id}`): `versions`
+  (number → `{semver, minSdk, createdAt}`), `channels` (`stable`/`beta` →
+  major → version number), `rollouts` (`{channel, version, percent}`,
+  bucketed per project by `managedRolloutBucket`), `blocked` (rolled back
+  versions). `resolve` picks what a channel offers one project for a major.
+* **`ManagedComponentVersion`** (`.../versions/{n}`, immutable): `semver`,
+  `minSdk`, `payload` (the JSON text of `{definition, contract}`), `digest`
+  (sha256 hex of the payload's UTF-8), `changelog`.
+* **`ManagedComponentContract`**: the instance panel's schema: `settings`
+  (`ComponentSetting`s with a stable `key`), `slots` (`{key, label, node}`),
+  `events` (`{key, label, payload}`), `tokens` (theme tokens its nodes bind as
+  `${theme.primary}`), `variables` (declared on the canvas) and `requires`.
+  A master's chains name an event with the placeholder action `{"type":
+  "componentEvent", "event": "onSuccess"}`.
+* **`ManagedComponentRef`** (`ComponentLink.managed`, on an instance's top
+  node): `channel`, `pin`, the snapshot's `semver` and `digest`, and the
+  instance's customization: `values` (by setting key), `slots` (slot key →
+  the page's node ids), `events` (event key → action chain), `tokens`.
+  `ComponentLink.version` is the version the snapshot was built from.
+* **The snapshot**: the instance's nodes in the page, built by
+  `buildManagedInstance(version, topId, ref)` (ids `topId__nodeId`, values
+  applied by key, tokens substituted, slots grafted, event placeholders
+  replaced by the instance's chains). It is what the editor shows, what a
+  publish carries (`PublishLayout.extra.managed`: instance → `{id, version,
+  semver, channel, pin, digest}`) and what an app falls back to.
+  `managedUpdateTarget` says which newer same-major version (or, for a
+  blocked snapshot, which older one) an app swaps in at run time;
+  `replaceManagedInstance` swaps it, keeping slot content.
+* **Forking**: editing an instance's inner nodes detaches it (a plain copy
+  that no longer updates).
+
+```json
+"signin": {"type": "column", "children": ["signin__title", "..."],
+           "component": {"id": "sign_in", "version": 3, "managed": {
+             "semver": "1.1.0", "digest": "9f2c...", "values": {"title": "Welcome back"},
+             "events": {"onSuccess": [{"type": "navigate", "to": "home"}]}}}}
+```
+
 ## 5. SDK
 
 ```

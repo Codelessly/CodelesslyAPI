@@ -358,7 +358,10 @@ abstract final class LoadCloudDataFields {
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
       doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
-  static const List<PropDef<Object?>> all = [variable, single, id, query];
+  static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
+      doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
+          'into an app variable every screen reads.');
+  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
 }
 
 /// [AuthAction].
@@ -368,8 +371,10 @@ abstract final class AuthFields {
   static const password = PropDef<String>('password', Codecs.string, '');
   static const displayName = PropDef<String>('displayName', Codecs.string, '');
   static const photoUrl = PropDef<String>('photoUrl', Codecs.string, '');
+  static const currentPassword = PropDef<String>('currentPassword', Codecs.string, '',
+      doc: 'Re-authenticates first (change password, delete account).');
   static const errorVariable = PropDef<String>('errorVariable', Codecs.string, '', doc: 'Gets a failure\'s message.');
-  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, errorVariable];
+  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, currentPassword, errorVariable];
 }
 
 /// [IfAction].
@@ -548,13 +553,15 @@ abstract final class SpeakFields {
 /// [ScrollToAction].
 abstract final class ScrollToFields {
   static const node = PropDef<String>('node', Codecs.string, '');
+  static const item = PropDef<String>('item', Codecs.string, '',
+      doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
   static const offset = PropDef<double>('offset', Codecs.double, 0);
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
-  static const List<PropDef<Object?>> all = [node, durationMs, curve, alignment, offset, axis];
+  static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
 }
 
 /// [PlaySoundAction].
@@ -563,11 +570,15 @@ abstract final class PlaySoundFields {
   static const operation = PropDef<String>('operation', Codecs.string, 'play', doc: 'play, start, stop, or stopAll.');
   static const voiceId = PropDef<String>('voiceId', Codecs.string, '', doc: 'The independently owned sustained voice.');
   static const frequency = PropDef<String>('frequency', Codecs.string, '440', doc: 'Sustained tone frequency in hertz.');
+  static const waveform = PropDef<String>('waveform', Codecs.string, 'sine',
+      doc: 'Sustained voice: sine, triangle, square, sawtooth, felt, reed or pluck.');
+  static const note = PropDef<String>('note', Codecs.string, '', doc: 'A MIDI note number (60 = middle C) in place of frequency.');
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'Milliseconds until a started voice releases itself; empty sustains.');
   static const volume = PropDef<String>('volume', Codecs.string, '1');
   static const pitch = PropDef<String>('pitch', Codecs.string, '1');
   static const at = PropDef<String>('at', Codecs.string, '', doc: 'A time on the sound clock.');
   static const url = PropDef<String>('url', Codecs.string, '', doc: 'A sound file.');
-  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, volume, pitch, at, url];
+  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, waveform, note, duration, volume, pitch, at, url];
 }
 
 /// [PlayAnimationAction].

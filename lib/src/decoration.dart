@@ -6,7 +6,9 @@ import 'values/geometry.dart';
 import 'values/paint.dart';
 
 /// Which sides a stroke draws.
-enum StrokeSides { all, left, top, right, bottom }
+/// Which sides a box's stroke runs along: every side (rounded with the
+/// corners), one side, or a pair of opposite sides (a ruled band).
+enum StrokeSides { all, left, top, right, bottom, topBottom, leftRight }
 
 /// A box's paint: Flutter's `BoxDecoration`, with stacked paints as in a
 /// design tool (fills bottom to top, then strokes).
