@@ -2236,25 +2236,27 @@ final class StrokePath extends _Value {
 /// binding turns true), to [alignment] of the viewport (0 top, 1 bottom).
 @immutable
 final class Reveal extends _Value {
-  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0});
+  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true});
 
   final double alignment;
   final int duration, delay;
+  final bool when;
 
   static Reveal? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0));
+    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0), when: r.b('when', true));
   }
 
   Json toJson() => <String, Object?>{}
     ..d('alignment', alignment, 0.5)
     ..i('duration', duration, 600)
-    ..i('delay', delay, 0);
+    ..i('delay', delay, 0)
+    ..b('when', when, true);
 
   @override
-  List<Object?> get props => [alignment, duration, delay];
+  List<Object?> get props => [alignment, duration, delay, when];
 }
 
 /// How a shared element flies between screens.
