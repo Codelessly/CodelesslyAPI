@@ -238,7 +238,8 @@ abstract final class SwitchProps {
   ], doc: 'Flutter `Switch`.');
 }
 
-/// Flutter `Radio<String>`, scaled to its box (32 px is its own size).
+/// Flutter `Radio<String>`, scaled to its box (32 px is its own size; its
+/// ring, 18 px, when [compact]).
 abstract final class RadioProps {
   static const value = PropDef<String>('value', Codecs.string, '');
 
@@ -257,9 +258,13 @@ abstract final class RadioProps {
   static const innerRadius = PropDef<double?>('innerRadius', Codecs.positive, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.color, null);
 
+  /// The ring fills the box (no tap padding around it), as a compact
+  /// checkbox's square does: an 18 px radio is an 18 px ring.
+  static const compact = PropDef<bool>('compact', Codecs.bool, false);
+
   static const spec = WidgetSpec('radio', props: [
     value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
-    innerRadius, backgroundColor,
+    innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
 
