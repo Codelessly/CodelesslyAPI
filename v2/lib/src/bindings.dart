@@ -361,7 +361,7 @@ abstract final class BindPaths {
   static bool _nullable(PropDef<Object?> def) => def.defaultValue == null;
 
   static Object? _forCodec(PropCodec<Object?> codec, Object value) => switch (codec) {
-        BoolCodec() => BindValue.boolean(value),
+        BoolCodec() || OptionalBoolCodec() => BindValue.boolean(value),
         DoubleCodec() || OptionalDoubleCodec() => BindValue.number(value),
         IntCodec() || OptionalIntCodec() => BindValue.number(value)?.round(),
         StringCodec() => BindValue.text(value),

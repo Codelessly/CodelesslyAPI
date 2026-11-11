@@ -34,4 +34,12 @@ void main() {
       expect(type == 'video' ? invalid.prop(VideoProps.volume) : invalid.prop(AudioPlayerProps.volume), 1);
     }
   });
+  test('playback bindings accept the same loose booleans as other controls', () {
+    final video=Node.fromJson({'type':'video'})!;
+    final playing=BindPaths.apply(video,'props.playing','true');
+    expect(playing.prop(VideoProps.playing),true);
+    expect(BindPaths.apply(playing,'props.playing','false').prop(VideoProps.playing),false);
+    expect(BindPaths.apply(video,'props.positionSeconds','2.375').prop(VideoProps.positionSeconds),2.375);
+  });
+
 }
