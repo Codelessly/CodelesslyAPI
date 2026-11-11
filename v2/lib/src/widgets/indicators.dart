@@ -341,10 +341,19 @@ abstract final class BarChartProps {
   /// Milliseconds.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// The grid labels on the left of the chart instead of its right.
+  static const gridLabelsLeft = PropDef<bool>('gridLabelsLeft', Codecs.bool, false);
+
+  /// The widest a bar gets, centred in its column (null: the column).
+  static const maxBarWidth = PropDef<double?>('maxBarWidth', Codecs.optionalPositive, null);
+
+  /// Each bar's value above it (whole numbers without decimals).
+  static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
+
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues,
   ], doc: 'Bar chart.');
 }
 
