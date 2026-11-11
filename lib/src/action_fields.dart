@@ -656,3 +656,58 @@ abstract final class ActionSpecs {
 
   static ActionSpec? of(String type) => _all[type];
 }
+
+/// Keys of action JSON that no field of its type reads, found in
+/// [reactions] (a node's `actions`: reactions `{trigger, actions}`, or a
+/// bare list of actions), nested chains included (`then`, `else`,
+/// `actions`, `onSuccess`, `onError`, `cancelActions`). Decoding drops such
+/// keys silently (a `delay` given `durationMs` waits its default 500 ms), so
+/// tools report them: each as "<path>: <type> has no "<key>" (it takes: ...)".
+List<String> unknownActionKeys(Object? reactions, {String at = 'actions'}) {
+  final out = <String>[];
+  const structural = {'type', 'id', 'enabled', 'nonBlocking', 'when'};
+  const nested = {'then', 'else', 'actions', 'onSuccess', 'onError', 'cancelActions'};
+  void action(Object? a, String path) {
+    final m = readMap(a);
+    if (m == null) return;
+    final type = m['type'];
+    final spec = type is String ? ActionSpecs.of(type) : null;
+    if (spec != null) {
+      final known = {...structural, for (final f in spec.fields) f.key};
+      for (final k in m.keys) {
+        if (!known.contains(k)) {
+          out.add('$path: ${spec.type} has no "$k" (it takes: ${spec.fields.map((f) => f.key).join(', ')})');
+        }
+      }
+    }
+    for (final k in nested) {
+      if (m[k] case final List list) {
+        for (var i = 0; i < list.length; i++) {
+          action(list[i], '$path.$k[$i]');
+        }
+      }
+    }
+  }
+
+  if (reactions is List) {
+    for (var i = 0; i < reactions.length; i++) {
+      final r = readMap(reactions[i]);
+      if (r == null) continue;
+      if (r.containsKey('trigger')) {
+        final trigger = readMap(r['trigger']);
+        final known = {for (final f in TriggerFields.all) f.key};
+        for (final k in trigger?.keys ?? const <String>[]) {
+          if (!known.contains(k)) out.add('$at[$i].trigger has no "$k" (it takes: ${known.join(', ')})');
+        }
+        if (r['actions'] case final List chain) {
+          for (var j = 0; j < chain.length; j++) {
+            action(chain[j], '$at[$i].actions[$j]');
+          }
+        }
+      } else {
+        action(r, '$at[$i]');
+      }
+    }
+  }
+  return out;
+}
