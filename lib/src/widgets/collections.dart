@@ -212,7 +212,7 @@ abstract final class GridViewProps {
   static const maxCrossAxisExtent = PropDef<double?>('maxCrossAxisExtent', _optionalPositive, null);
   static const mainAxisSpacing = PropDef<double>('mainAxisSpacing', Codecs.double, 0);
   static const crossAxisSpacing = PropDef<double>('crossAxisSpacing', Codecs.double, 0);
-  static const childAspectRatio = PropDef<double>('childAspectRatio', DoubleCodec(min: 0.0001), 1);
+  static const childAspectRatio = PropDef<double>('childAspectRatio', DoubleCodec(min: 0.0001, ratio: true), 1);
   static const mainAxisExtent = PropDef<double?>('mainAxisExtent', _optionalPositive, null);
 
   /// Each row (column, scrolling horizontally) as long as its longest item

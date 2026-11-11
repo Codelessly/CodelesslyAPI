@@ -5,10 +5,47 @@ import 'values/enums.dart';
 import 'values/geometry.dart';
 import 'values/paint.dart';
 
-/// Which sides a stroke draws.
 /// Which sides a box's stroke runs along: every side (rounded with the
-/// corners), one side, or a pair of opposite sides (a ruled band).
-enum StrokeSides { all, left, top, right, bottom, topBottom, leftRight }
+/// corners), one side, a pair of opposite sides (a ruled band), two sides
+/// meeting at a corner (`topRight`: the top and right sides, as a table's
+/// header corner), or every side but one (`noTop`), as Flutter's `Border`
+/// takes any of its sides.
+enum StrokeSides {
+  all,
+  left,
+  top,
+  right,
+  bottom,
+  topBottom,
+  leftRight,
+  topRight,
+  bottomRight,
+  bottomLeft,
+  topLeft,
+  noTop,
+  noRight,
+  noBottom,
+  noLeft;
+
+  /// The sides it strokes, of `top`, `right`, `bottom` and `left`.
+  Set<String> get sides => switch (this) {
+        all => const {'top', 'right', 'bottom', 'left'},
+        left => const {'left'},
+        top => const {'top'},
+        right => const {'right'},
+        bottom => const {'bottom'},
+        topBottom => const {'top', 'bottom'},
+        leftRight => const {'left', 'right'},
+        topRight => const {'top', 'right'},
+        bottomRight => const {'right', 'bottom'},
+        bottomLeft => const {'bottom', 'left'},
+        topLeft => const {'top', 'left'},
+        noTop => const {'right', 'bottom', 'left'},
+        noRight => const {'top', 'bottom', 'left'},
+        noBottom => const {'top', 'right', 'left'},
+        noLeft => const {'top', 'right', 'bottom'},
+      };
+}
 
 /// A box's paint: Flutter's `BoxDecoration`, with stacked paints as in a
 /// design tool (fills bottom to top, then strokes).

@@ -130,6 +130,17 @@ abstract final class RadialGaugeProps {
 
   /// Where the needle starts, as a fraction of the radius.
   static const needleClearance = PropDef<double>('needleClearance', Codecs.double, 0.62);
+
+  /// How far inside the arc's centre line the labels sit (null: inside the
+  /// track, clear of the ticks).
+  static const labelInset = PropDef<double?>('labelInset', IndicatorCodecs.optionalDouble, null);
+
+  /// A hairline tick just outside the arc at each label.
+  static const labelTicks = PropDef<bool>('labelTicks', Codecs.bool, false);
+
+  /// The target mark crosses the arc (a newspaper's "last time" line)
+  /// instead of sitting outside it.
+  static const targetAcross = PropDef<bool>('targetAcross', Codecs.bool, false);
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
   /// Milliseconds.
@@ -140,6 +151,7 @@ abstract final class RadialGaugeProps {
     zones, zoneThickness, zoneOpacity, majorTicks, minorTicks, tickColor, labels, labelColor, labelFontSize,
     labelFontFamily, showTarget, target, targetColor, showNeedle, needleColor, needleClearance, animate,
     animationDuration,
+    labelInset, labelTicks, targetAcross,
   ], doc: 'Radial gauge (dial).');
 }
 
@@ -262,6 +274,10 @@ abstract final class ChartProps {
   static const fitMinY = PropDef<bool>('fitMinY', Codecs.bool, false);
   static const yLabelPrefix = PropDef<String>('yLabelPrefix', Codecs.string, '');
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
+
+  /// The prefix and suffix go on the top y label only (`50%` over plain
+  /// `40`, `30` …), as a newspaper chart marks its unit once.
+  static const yLabelAffixTopOnly = PropDef<bool>('yLabelAffixTopOnly', Codecs.bool, false);
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
   /// Bars of other categories fade while one is selected (or hovered).
@@ -345,7 +361,7 @@ abstract final class ChartProps {
     showXAxis, xLabelEvery, axisLabelColor, axisFontSize, axisFontFamily, referenceLines, barWidthFraction,
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
-    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily, dimUnselected, tooltip,
+    selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
     showTotals, totalsColor, totalsSelectedColor, stackGap,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
@@ -364,6 +380,10 @@ abstract final class PlotChartProps {
   static const yMin = PropDef<double?>('yMin', IndicatorCodecs.optionalDouble, null);
   static const yMax = PropDef<double?>('yMax', IndicatorCodecs.optionalDouble, null);
   static const plotInset = PropDef<double>('plotInset', Codecs.double, 8);
+
+  /// Room round the plot (top, right, bottom; the left is [yAxisWidth]) in
+  /// place of [plotInset]: values map between them and ranges fill them.
+  static const plotPadding = PropDef<EdgeInsets?>('plotPadding', Codecs.insets, null);
   static const lineColor = PropDef<Color>('lineColor', Codecs.color, Color(0xFF1F6F78));
   static const lineWidth = PropDef<double>('lineWidth', Codecs.positive, 2);
   static const fillColor = PropDef<Color?>('fillColor', IndicatorCodecs.optionalColor, null);
@@ -490,7 +510,7 @@ abstract final class PlotChartProps {
   static const clip = PropDef<bool>('clip', Codecs.bool, true);
 
   static const spec = WidgetSpec('plotChart', props: [
-    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
+    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, plotPadding, lineColor, lineWidth, fillColor, smooth, gridStepX, //
     gridColor, axisColor, xLabels, gridLabels, labelStyle, labelHeight, ranges, markers, markerRadius,
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
