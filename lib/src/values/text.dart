@@ -28,6 +28,7 @@ final class TextStyle {
     this.fontFeatures = const [],
     this.leadingDistribution,
     this.shadows = const [],
+    this.naturalHeight,
   });
 
   static const TextStyle empty = TextStyle();
@@ -50,8 +51,13 @@ final class TextStyle {
   final double? letterSpacing;
 
   /// Line height as a multiple of the font size (Flutter's `height`); null
-  /// is the font's own line height.
+  /// is the text's base style's (the SDK's 1.33), unless [naturalHeight].
   final double? height;
+
+  /// With no [height], the font's own line height (its ascent and descent,
+  /// as Flutter's `TextStyle(height: null)`), not the base style's. A text
+  /// recreated from a Flutter app that sets no height matches it with this.
+  final bool? naturalHeight;
   final TextDecoration? decoration;
   final Color? decorationColor;
 
@@ -101,6 +107,7 @@ final class TextStyle {
       fontFeatures: other.fontFeatures.isNotEmpty ? other.fontFeatures : fontFeatures,
       leadingDistribution: other.leadingDistribution ?? leadingDistribution,
       shadows: other.shadows.isNotEmpty ? other.shadows : shadows,
+      naturalHeight: other.naturalHeight ?? naturalHeight,
     );
   }
 
@@ -132,6 +139,7 @@ final class TextStyle {
           ? null
           : readEnum(TextLeadingDistribution.values, m['leadingDistribution'], TextLeadingDistribution.proportional),
       shadows: Effect.listFromJson(m['shadows']),
+      naturalHeight: readBool(m['naturalHeight']),
     );
   }
 
@@ -155,6 +163,7 @@ final class TextStyle {
         if (fontFeatures.isNotEmpty) 'fontFeatures': fontFeatures,
         if (leadingDistribution != null) 'leadingDistribution': leadingDistribution!.name,
         if (shadows.isNotEmpty) 'shadows': [for (final e in shadows) e.toJson()],
+        if (naturalHeight != null) 'naturalHeight': naturalHeight,
       };
 
   @override
@@ -177,11 +186,12 @@ final class TextStyle {
       other.tabularFigures == tabularFigures &&
       listEquals(other.fontFeatures, fontFeatures) &&
       other.leadingDistribution == leadingDistribution &&
-      listEquals(other.shadows, shadows);
+      listEquals(other.shadows, shadows) &&
+      other.naturalHeight == naturalHeight;
 
   @override
   int get hashCode => Object.hash(fontFamily, Object.hashAll(fontFamilyFallback), fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
-      height, decoration, decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution);
+      height, decoration, decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution, naturalHeight);
 
   @override
   String toString() => 'TextStyle(${toJson()})';
