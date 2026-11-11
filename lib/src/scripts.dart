@@ -86,7 +86,8 @@ final class ScriptParam {
 
 /// A sample run of a [ScriptDef] and what it should give (the editor's test
 /// console): [args] by parameter, sample [vars] and input [nodes] values,
-/// and the result [expect]ed, or the error type [expectError].
+/// and the result [expect]ed, or the error [expectError]: its type
+/// (`RangeError`), its message, or both (`Error: No slide nope`).
 @immutable
 final class ScriptTest {
   const ScriptTest({
