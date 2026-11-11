@@ -131,7 +131,11 @@ enum TriggerType {
   /// `${result}` and `${drag}` hold the drag. A list with a `reorder` fires
   /// `dragStart` when a row is picked up and `dragCompleted` when it is let
   /// go (moved or not), with `${result.index}` and `${result.item}`: a list
-  /// can change while a row is lifted (fold its rows into tiles).
+  /// can change while a row is lifted (fold its rows into tiles). On a node
+  /// with a `drag` reaction (and no drag and drop), `dragStart` is the start
+  /// of that one-finger drag, where the finger went down (`${drag.x}`,
+  /// `${drag.y}`): begin a stroke there rather than on `pointerDown`, which
+  /// fires for every finger of a pinch.
   dragStart,
   dragCancel,
   dragCompleted,
