@@ -550,13 +550,15 @@ abstract final class SpeakFields {
 /// [ScrollToAction].
 abstract final class ScrollToFields {
   static const node = PropDef<String>('node', Codecs.string, '');
+  static const item = PropDef<String>('item', Codecs.string, '',
+      doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
   static const offset = PropDef<double>('offset', Codecs.double, 0);
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
-  static const List<PropDef<Object?>> all = [node, durationMs, curve, alignment, offset, axis];
+  static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
 }
 
 /// [PlaySoundAction].

@@ -2100,10 +2100,12 @@ final class ControlDragAction extends ActionDef {
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
     this.node = '',
+    this.item = '',
     this.durationMs = 400,
     this.curve = 'easeInOut',
     this.alignment = 0,
     this.offset = 0,
+    this.offsetFormula = '',
     this.axis,
     super.enabled,
     super.nonBlocking,
@@ -2115,19 +2117,31 @@ final class ScrollToAction extends ActionDef {
   String get type => typeName;
 
   final String node;
+
+  /// When [node] repeats (a list's item template, or a node inside it): the
+  /// key of the item whose copy to reveal (an expression; the list's item
+  /// key, `id` by default, or else its index). Empty: the first copy.
+  final String item;
   final int durationMs;
 
   /// A `Curves` name.
   final String curve;
   final double alignment, offset;
+
+  /// [offset] as an expression (JSON `"offset": "${...}"`): a link's
+  /// `${route.offset}`, a value computed at the time. Wins when it gives a
+  /// number.
+  final String offsetFormula;
   final ScrollAxis? axis;
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
     node: _s(m, 'node'),
+    item: _s(m, 'item'),
     durationMs: _i(m, 'durationMs', 400),
     curve: _s(m, 'curve', 'easeInOut'),
     alignment: _d(m, 'alignment', 0),
-    offset: _d(m, 'offset', 0),
+    offset: m['offset'] is String ? 0 : _d(m, 'offset', 0),
+    offsetFormula: m['offset'] is String ? m['offset'] as String : '',
     axis: _axis(m['axis']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -2137,10 +2151,14 @@ final class ScrollToAction extends ActionDef {
   @override
   Json get _fields => {
     'node': node,
+    if (item.isNotEmpty) 'item': item,
     if (durationMs != 400) 'durationMs': durationMs,
     if (curve != 'easeInOut') 'curve': curve,
     if (alignment != 0) 'alignment': writeDouble(alignment),
-    if (offset != 0) 'offset': writeDouble(offset),
+    if (offsetFormula.isNotEmpty)
+      'offset': offsetFormula
+    else if (offset != 0)
+      'offset': writeDouble(offset),
     'axis': ?axis?.name,
   };
 }
