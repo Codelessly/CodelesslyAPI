@@ -53,6 +53,7 @@ final samples = <Json>[
 ];
 
 void main() {
+  runScriptArgsAliasTests();
   test('every action type round-trips exactly', () {
     expect(samples.map((s) => s['type']).toSet(), ActionDef.types.toSet());
     for (final s in samples) {
@@ -145,5 +146,20 @@ void main() {
     }, id: 'b')!;
     expect(n.actions.single.actions.single, isA<SetVariableAction>());
     expect(Node.fromJson(n.toJson(), id: 'b'), n);
+  });
+}
+
+// The editor API documented runScript's arguments as `args`; both read, and
+// arguments that aren't text keep their JSON.
+void runScriptArgsAliasTests() {
+  test('runScript reads `args` as its arguments, and JSON values as JSON', () {
+    final a = ActionDef.fromJson({
+      'type': 'runScript',
+      'script': 'plotter',
+      'args': {'op': 'model', 'input': r'${= {a: 1}}', 'n': 3, 'opts': {'x': 1}},
+    }) as RunScriptAction;
+    expect(a.arguments, {'op': 'model', 'input': r'${= {a: 1}}', 'n': '3', 'opts': '{"x":1}'});
+    expect(a.toJson()['arguments'], a.arguments);
+    expect((ActionDef.fromJson(a.toJson()) as RunScriptAction).arguments, a.arguments);
   });
 }

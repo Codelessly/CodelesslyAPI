@@ -101,8 +101,13 @@ void main() {
           'junk',
         ],
         'selected': ['day'],
+        'textStyle': {'fontFamily': 'IBM Plex Sans', 'fontSize': 12.5, 'fontWeight': 600},
+        'padding': [12, 5, 12, 5],
       },
     }, id: 'b')!;
+    expect(seg.prop(SegmentedButtonProps.textStyle).fontSize, 12.5);
+    expect(seg.prop(SegmentedButtonProps.padding)!.left, 12);
+    expect(Node.fromJson(seg.toJson(), id: 'b'), seg);
     final segments = seg.prop(SegmentedButtonProps.segments);
     expect(segments.map((s) => s.value), ['day', 'week']);
     expect(segments[1].enabled, isFalse);

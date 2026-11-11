@@ -6,6 +6,7 @@
 // `Hello ${name}`), evaluated when the action runs. `${result}` is what the
 // previous action of the chain gave (an API's response, a document id, a
 // for-each's item), or the trigger's event.
+import 'dart:convert';
 import 'package:meta/meta.dart';
 
 import 'behaviors.dart' show AnimationCurve, DragDirection;
@@ -1430,6 +1431,7 @@ final class AuthAction extends ActionDef {
     this.password = '',
     this.displayName = '',
     this.photoUrl = '',
+    this.currentPassword = '',
     this.errorVariable = '',
     super.enabled,
     super.nonBlocking,
@@ -1442,6 +1444,12 @@ final class AuthAction extends ActionDef {
 
   final AuthOperation operation;
   final String email, password, displayName, photoUrl;
+
+  /// For [AuthOperation.updatePassword] and [AuthOperation.deleteAccount]:
+  /// the signed-in user's current password, which re-authenticates them
+  /// first (Firebase asks for a recent sign-in before these). Empty: no
+  /// re-authentication.
+  final String currentPassword;
   final String errorVariable;
 
   static AuthAction _fromJson(Json m, _Common c) => AuthAction(
@@ -1450,6 +1458,7 @@ final class AuthAction extends ActionDef {
     password: _s(m, 'password'),
     displayName: _s(m, 'displayName'),
     photoUrl: _s(m, 'photoUrl'),
+    currentPassword: _s(m, 'currentPassword'),
     errorVariable: _s(m, 'errorVariable'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1463,6 +1472,7 @@ final class AuthAction extends ActionDef {
     if (password.isNotEmpty) 'password': password,
     if (displayName.isNotEmpty) 'displayName': displayName,
     if (photoUrl.isNotEmpty) 'photoUrl': photoUrl,
+    if (currentPassword.isNotEmpty) 'currentPassword': currentPassword,
     if (errorVariable.isNotEmpty) 'errorVariable': errorVariable,
   };
 }
@@ -1866,6 +1876,8 @@ final class PlaySoundAction extends ActionDef {
     this.voiceId = '',
     this.frequency = '440',
     this.waveform = 'sine',
+    this.note = '',
+    this.duration = '',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1885,8 +1897,20 @@ final class PlaySoundAction extends ActionDef {
   /// with the same voiceId. `stopAll` releases the app's sustained tones.
   final String operation, voiceId, frequency;
 
-  /// Sustained tone shape: sine (default) or triangle.
+  /// A sustained voice's sound: `sine` (default), `triangle`, `square`,
+  /// `sawtooth`, or an instrument voice with its own envelope and filter:
+  /// `felt` (a soft electric piano), `reed` (an organ-like reed) or `pluck`
+  /// (a plucked string that dies away on its own).
   final String waveform;
+
+  /// A MIDI note number (60 = middle C, 69 = A 440) for `start`, used in
+  /// place of [frequency] when not empty: `${item.midi}`.
+  final String note;
+
+  /// Milliseconds after which a `start`ed voice releases by itself (a
+  /// latched note, an audition, a metronome tick); empty sustains until
+  /// `stop`.
+  final String duration;
 
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
@@ -1894,6 +1918,8 @@ final class PlaySoundAction extends ActionDef {
     voiceId: _s(m, 'voiceId'),
     frequency: _s(m, 'frequency', '440'),
     waveform: _s(m, 'waveform', 'sine'),
+    note: _s(m, 'note'),
+    duration: _s(m, 'duration'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1909,6 +1935,8 @@ final class PlaySoundAction extends ActionDef {
     if (voiceId.isNotEmpty) 'voiceId': voiceId,
     if (frequency != '440') 'frequency': frequency,
     if (waveform != 'sine') 'waveform': waveform,
+    if (note.isNotEmpty) 'note': note,
+    if (duration.isNotEmpty) 'duration': duration,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
@@ -2251,11 +2279,13 @@ final class RunScriptAction extends ActionDef {
   @override
   List<ActionDef> get nested => onError;
 
+  /// `arguments`, or `args` as the editor API's own docs wrote it; a value
+  /// that isn't text (a number, a list, a map) is kept as its JSON.
   static RunScriptAction _fromJson(Json m, _Common c) => RunScriptAction(
     script: _s(m, 'script'),
     arguments: {
-      for (final e in _map(m, 'arguments').entries)
-        if (e.value != null) e.key: e.value is String ? e.value as String : '${e.value}',
+      for (final e in (m['arguments'] is Map ? _map(m, 'arguments') : _map(m, 'args')).entries)
+        if (e.value != null) e.key: e.value is String ? e.value as String : jsonEncode(e.value),
     },
     resultVariable: _s(m, 'resultVariable'),
     onError: _list(m, 'onError'),

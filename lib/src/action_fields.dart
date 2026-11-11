@@ -368,8 +368,10 @@ abstract final class AuthFields {
   static const password = PropDef<String>('password', Codecs.string, '');
   static const displayName = PropDef<String>('displayName', Codecs.string, '');
   static const photoUrl = PropDef<String>('photoUrl', Codecs.string, '');
+  static const currentPassword = PropDef<String>('currentPassword', Codecs.string, '',
+      doc: 'Re-authenticates first (change password, delete account).');
   static const errorVariable = PropDef<String>('errorVariable', Codecs.string, '', doc: 'Gets a failure\'s message.');
-  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, errorVariable];
+  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, currentPassword, errorVariable];
 }
 
 /// [IfAction].
@@ -576,11 +578,15 @@ abstract final class PlaySoundFields {
   static const operation = PropDef<String>('operation', Codecs.string, 'play', doc: 'play, start, stop, or stopAll.');
   static const voiceId = PropDef<String>('voiceId', Codecs.string, '', doc: 'The independently owned sustained voice.');
   static const frequency = PropDef<String>('frequency', Codecs.string, '440', doc: 'Sustained tone frequency in hertz.');
+  static const waveform = PropDef<String>('waveform', Codecs.string, 'sine',
+      doc: 'Sustained voice: sine, triangle, square, sawtooth, felt, reed or pluck.');
+  static const note = PropDef<String>('note', Codecs.string, '', doc: 'A MIDI note number (60 = middle C) in place of frequency.');
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'Milliseconds until a started voice releases itself; empty sustains.');
   static const volume = PropDef<String>('volume', Codecs.string, '1');
   static const pitch = PropDef<String>('pitch', Codecs.string, '1');
   static const at = PropDef<String>('at', Codecs.string, '', doc: 'A time on the sound clock.');
   static const url = PropDef<String>('url', Codecs.string, '', doc: 'A sound file.');
-  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, volume, pitch, at, url];
+  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, waveform, note, duration, volume, pitch, at, url];
 }
 
 /// [PlayAnimationAction].
