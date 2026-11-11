@@ -32,7 +32,7 @@ enum TriggerType {
   /// A pointer went down on the node.
   pointerDown,
 
-  /// A pointer went up (or was cancelled) on the node.
+  /// A pointer went up (or was canceled) on the node.
   pointerUp,
 
   /// The mouse cursor moved over the node (fires when it enters, too).

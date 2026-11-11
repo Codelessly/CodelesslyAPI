@@ -1,12 +1,12 @@
-// A node's behaviours and the fields of their models, declared as PropDefs
+// A node's behaviors and the fields of their models, declared as PropDefs
 // like value_fields.dart declares layout and decoration: each key is the
 // JSON key the model reads and writes, with its codec and default. A
-// properties panel builds the behaviour sections from these alone.
+// properties panel builds the behavior sections from these alone.
 //
-// The models keep their own fromJson/toJson (behaviours.dart); the codecs
+// The models keep their own fromJson/toJson (behaviors.dart); the codecs
 // here call them, and test/value_fields_test.dart proves each declaration
 // matches the model's JSON. Durations are whole milliseconds.
-import 'behaviours.dart';
+import 'behaviors.dart';
 import 'json.dart';
 import 'props.dart';
 import 'values/color.dart';
@@ -115,7 +115,7 @@ abstract final class MotionFields {
   static const blur = PropDef<double>('blur', Codecs.positive, 0);
   static const perspective = PropDef<double>('perspective', Codecs.double, 1);
 
-  /// The transform's origin in the box (-1–1, 0 the centre).
+  /// The transform's origin in the box (-1–1, 0 the center).
   static const originX = PropDef<double>('originX', Codecs.double, 0);
   static const originY = PropDef<double>('originY', Codecs.double, 0);
   static const duration = PropDef<int>('duration', _ms, 0);
@@ -776,15 +776,15 @@ abstract final class RevealFields {
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
 
-// --- Behaviours -----------------------------------------------------------------
+// --- Behaviors -----------------------------------------------------------------
 
-/// A node's [Behaviours], one per key of [Behaviours.keys]: stored flat in
+/// A node's [Behaviors], one per key of [Behaviors.keys]: stored flat in
 /// the node's JSON (`"motion": {...}`, `"tooltip": "..."`), defaults as in
-/// [Behaviours.none].
-abstract final class BehaviourFields {
+/// [Behaviors.none].
+abstract final class BehaviorFields {
   static const motion = PropDef<Motion?>('motion', ValueCodec(Motion.fromJson, _out, motionType), null);
 
-  /// `Transform.scale` about the centre; a value not above 0 reads as 1.
+  /// `Transform.scale` about the center; a value not above 0 reads as 1.
   static const scale = PropDef<double>('scale', Codecs.positive, 1);
   static const loops = PropDef<List<LoopAnimation>>(
     'loops',
@@ -852,7 +852,7 @@ abstract final class BehaviourFields {
     null,
   );
 
-  /// In [Behaviours.keys]' order.
+  /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,

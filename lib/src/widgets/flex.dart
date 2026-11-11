@@ -29,7 +29,7 @@ abstract final class FlexProps {
   /// A scrolling row/column's content is at least as long as its viewport
   /// (`ConstrainedBox(minHeight: viewport)` in a `SingleChildScrollView`):
   /// alignment and expanded children use the whole viewport while it fits.
-  /// Already so when it centres or spreads its children or has a flex
+  /// Already so when it centers or spreads its children or has a flex
   /// child; this makes it so in every case.
   static const fillViewport = PropDef<bool>('fillViewport', Codecs.bool, false);
 
