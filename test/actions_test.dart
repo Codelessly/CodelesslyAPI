@@ -54,6 +54,7 @@ final samples = <Json>[
   {'type': 'print', 'node': 'badge'},
   {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
   {'type': 'reloadCloudData', 'variable': 'tasks'},
+  {'type': 'retryFailed'},
 ];
 
 void main() {
@@ -101,6 +102,14 @@ void main() {
     final none = ActionDef.fromJson({'type': 'closeModal'})! as CloseModalAction;
     expect(none.result, isNull);
     expect(none.toJson().containsKey('result'), isFalse);
+  });
+
+  test('retryFailed round-trips, with its common fields', () {
+    final a = ActionDef.fromJson({'type': 'retryFailed', 'when': {'left': r'${error.retryable}', 'op': 'isTrue'}})!;
+    expect(a, isA<RetryFailedAction>());
+    expect(a.toJson()['type'], 'retryFailed');
+    expect(a.when, isNotNull);
+    expect(ActionSpecs.of('retryFailed')?.label, 'Retry failed actions');
   });
 
   test('a popover anchors to a named node, in a list the copy of an item', () {

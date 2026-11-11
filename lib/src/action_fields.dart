@@ -703,6 +703,8 @@ abstract final class ActionSpecs {
       const ActionSpec(NavigateAction.typeName, label: 'Navigate', fields: NavigateFields.all),
       const ActionSpec(OpenModalAction.typeName, label: 'Open modal', fields: OpenModalFields.all),
       const ActionSpec(CloseModalAction.typeName, label: 'Close modal', fields: CloseModalFields.all),
+      const ActionSpec(RetryFailedAction.typeName, label: 'Retry failed actions', fields: [],
+          doc: 'In an actionError reaction: runs the failed action chain again.'),
       const ActionSpec(OpenLinkAction.typeName, label: 'Open link', fields: OpenLinkFields.all),
       const ActionSpec(PrintAction.typeName, label: 'Print', fields: PrintFields.all),
       const ActionSpec(SubmitFormAction.typeName, label: 'Submit form', fields: SubmitFormFields.all),
