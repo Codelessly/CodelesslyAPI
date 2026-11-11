@@ -324,6 +324,7 @@ final class OpenModalAction extends ActionDef {
     this.sheetBelow = '',
     this.maxHeightFactor = 1,
     this.fullHeight = false,
+    this.cover = false,
     this.enterScale = 1,
     this.routeTransition,
     super.enabled,
@@ -369,6 +370,12 @@ final class OpenModalAction extends ActionDef {
       breakpoints.byId(sheetBelow)?.minWidth ?? (breakpoints.length > 1 ? breakpoints.list[1].minWidth : 0);
   final double maxHeightFactor;
   final bool fullHeight;
+
+  /// A dialog that covers the screen (inside [insets]): its screen fills it
+  /// and is laid out at that size, so its breakpoint and responsive layouts
+  /// follow the device, as a screen navigated to does. Not a page route:
+  /// the screen behind stays visible through a transparent design.
+  final bool cover;
   final double enterScale;
 
   /// A custom transition for the modal: its entrance, what the screen
@@ -395,6 +402,7 @@ final class OpenModalAction extends ActionDef {
     sheetBelow: _s(m, 'sheetBelow'),
     maxHeightFactor: _d(m, 'maxHeightFactor', 1),
     fullHeight: _b(m, 'fullHeight', false),
+    cover: _b(m, 'cover', false),
     enterScale: _d(m, 'enterScale', 1),
     routeTransition: RouteTransition.fromJson(m['routeTransition']),
     enabled: c.enabled,
@@ -422,6 +430,7 @@ final class OpenModalAction extends ActionDef {
     if (sheetBelow.isNotEmpty) 'sheetBelow': sheetBelow,
     if (maxHeightFactor != 1) 'maxHeightFactor': writeDouble(maxHeightFactor),
     if (fullHeight) 'fullHeight': true,
+    if (cover) 'cover': true,
     if (enterScale != 1) 'enterScale': writeDouble(enterScale),
     'routeTransition': ?routeTransition?.toJson(),
   };
