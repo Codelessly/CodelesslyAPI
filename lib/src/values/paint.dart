@@ -217,9 +217,23 @@ final class Paint {
   static Paint? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
-    // A paint with an image and no type is an image paint (not a solid
-    // that drops it).
-    final type = m['type'] == null && m['image'] is Map ? PaintType.image : readEnum(PaintType.values, m['type'], PaintType.solid);
+    // Without a type, a paint is what its keys say: an `image` paints the
+    // image, gradient `stops` a linear gradient, anything else a color.
+    final type = m['type'] == null
+        ? (readMap(m['image']) != null
+              ? PaintType.image
+              : (readList(m['stops'])?.isNotEmpty ?? false)
+              ? PaintType.linear
+              : PaintType.solid)
+        : readEnum(PaintType.values, m['type'], PaintType.solid);
+    // An image's settings may also sit beside it (`{"image": {"url"}, "fit": "cover"}`).
+    final imageJson = type == PaintType.image
+        ? {
+            for (final k in const ['fit', 'alignment', 'repeat', 'scale', 'tint', 'flipX', 'flipY'])
+              if (m.containsKey(k)) k: m[k],
+            ...?readMap(m['image']),
+          }
+        : null;
     return Paint(
       type: type,
       id: readString(m['id']),
@@ -231,7 +245,7 @@ final class Paint {
       transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList() ??
           (type == PaintType.linear ? linearTransform(Alignment.fromJson(m['begin']), Alignment.fromJson(m['end'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
-      image: type == PaintType.image ? ImagePaint.fromJson(m['image']) : null,
+      image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
       gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
           (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
     );

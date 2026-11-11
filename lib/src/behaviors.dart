@@ -407,6 +407,7 @@ final class Motion extends _Value {
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
+    this.enterHeld = false,
     this.revealFraction = 0.15,
     this.orientUpright = false,
     this.uprightMirror = false,
@@ -473,6 +474,12 @@ final class Motion extends _Value {
 
   /// Waits to enter until [revealFraction] of the node scrolls into view.
   final bool revealOnScroll;
+
+  /// Holds the entrance at its start while true; it plays once this turns
+  /// false (bindable as `motion.enterHeld`: a page's characters wait for
+  /// the page to settle, `${= abs(pageOffset) > 0.01}`). Once played, it
+  /// doesn't hold again.
+  final bool enterHeld;
   final double revealFraction;
 
   /// With [orientToPath], never upside down: the path's direction folded
@@ -607,6 +614,7 @@ final class Motion extends _Value {
       keyframes: keyframes,
       pulseKey: pulseKey,
       revealOnScroll: revealOnScroll,
+      enterHeld: enterHeld,
       revealFraction: revealFraction,
       orientUpright: orientUpright,
       uprightMirror: uprightMirror,
@@ -797,6 +805,7 @@ final class Motion extends _Value {
       keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
       pulseKey: r.sn('pulseKey'),
       revealOnScroll: r.b('revealOnScroll', false),
+      enterHeld: r.b('enterHeld', false),
       revealFraction: r.d('revealFraction', 0.15),
       orientUpright: r.b('orientUpright', false),
       uprightMirror: r.b('uprightMirror', false),
@@ -853,6 +862,7 @@ final class Motion extends _Value {
     j
       ..s('pulseKey', pulseKey)
       ..b('revealOnScroll', revealOnScroll, false)
+      ..b('enterHeld', enterHeld, false)
       ..d('revealFraction', revealFraction, 0.15)
       ..b('orientUpright', orientUpright, false)
       ..b('uprightMirror', uprightMirror, false)
@@ -873,7 +883,7 @@ final class Motion extends _Value {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing,
+    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing,
     pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
@@ -2040,7 +2050,10 @@ final class DragMotion extends _Value {
 
 // --- one-shot effects -----------------------------------------------------------
 
-enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin }
+/// A one-shot effect's shape. `keyframes` plays the effect's own
+/// [EffectAnimation.keyframes] (a hop with squash and stretch, a fly-away
+/// and back) from rest and back to rest.
+enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin, keyframes }
 
 /// A one-shot effect the node plays on cue (an action, a bound play key,
 /// or when it appears).
@@ -2057,10 +2070,20 @@ final class EffectAnimation extends _Value {
     this.playOnAppear = false,
     this.cycles = 0,
     this.playKey,
+    this.keyframes = const [],
+    this.curve = AnimationCurve.linear,
   });
 
   final String name;
   final EffectAnimationType type;
+
+  /// A `keyframes` effect's poses (translateX/Y, scale, scaleX/Y, rotate in
+  /// degrees, opacity) at times 0–1; it starts and ends at rest, and values a
+  /// keyframe leaves out follow the keyframes around it.
+  final List<MotionKeyframe> keyframes;
+
+  /// How a `keyframes` effect's time runs (the keyframes' times are on it).
+  final AnimationCurve curve;
   final int duration, delay;
   final double amount, originX, originY;
   final bool playOnAppear;
@@ -2088,10 +2111,25 @@ final class EffectAnimation extends _Value {
       playOnAppear: r.b('playOnAppear', false),
       cycles: math.max(0, r.d('cycles', 0)),
       playKey: m['playKey']?.toString(),
+      keyframes: [...?readList(m['keyframes'] is String ? _decodeList(m['keyframes'] as String) : m['keyframes'])?.map(MotionKeyframe.fromJson).nonNulls],
+      curve: AnimationCurve.parse(m['curve']) ?? AnimationCurve.linear,
     );
   }
 
-  Json toJson() => <String, Object?>{'name': name, 'type': type.name}
+  static Object? _decodeList(String s) {
+    try {
+      return jsonDecode(s);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Json toJson() => <String, Object?>{
+    'name': name,
+    'type': type.name,
+    if (keyframes.isNotEmpty) 'keyframes': [for (final k in keyframes) k.toJson()],
+    if (curve != AnimationCurve.linear) 'curve': curve.name,
+  }
     ..i('duration', duration, 520)
     ..i('delay', delay, 0)
     ..d('amount', amount, 1)
@@ -2102,14 +2140,19 @@ final class EffectAnimation extends _Value {
     ..s('playKey', playKey);
 
   @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey, keyframes, curve];
 }
 
+/// A particle's shape; `image` draws the emitter's [ParticleEmitter.image].
 enum ParticleShape {
   square,
   circle,
   strip,
   star,
+
+  /// The emitter's [ParticleEmitter.image] (a URL), [ParticleEmitter.size]
+  /// wide at the image's aspect ratio.
+  image,
 
   /// A paper triangle.
   triangle,
@@ -2147,6 +2190,7 @@ final class ParticleEmitter extends _Value {
     this.lifetime = 2600,
     this.playOnAppear = false,
     this.playKey,
+    this.image = '',
     this.delay = 0,
     this.drag = 0,
     this.terminalVelocity = 0,
@@ -2177,6 +2221,9 @@ final class ParticleEmitter extends _Value {
   /// burst each time it changes.
   final String? playKey;
 
+  /// The image `image` particles draw (a URL; petals, seeds, raindrops),
+  /// [size] wide, spinning as they fly.
+  final String image;
   /// Wait after the cue before the first particle leaves (ms).
   final int delay;
 
@@ -2244,6 +2291,7 @@ final class ParticleEmitter extends _Value {
       fadeOut: r.ms('fadeOut', 500),
       mirror: r.b('mirror', false),
       glyph: r.s('glyph'),
+      image: r.s('image'),
     );
   }
 
@@ -2275,13 +2323,14 @@ final class ParticleEmitter extends _Value {
       ..d('spin', spin, 515)
       ..i('fadeOut', fadeOut, 500)
       ..b('mirror', mirror, false)
-      ..s('glyph', glyph);
+      ..s('glyph', glyph)
+      ..s('image', image.isEmpty ? null : image);
   }
 
   @override
   List<Object?> get props => [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear, playKey, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
+    lifetime, playOnAppear, playKey, image, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
   ];
 }
 
@@ -2521,6 +2570,8 @@ final class Typewriter extends _Value {
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
+    this.holdAtMs,
+    this.grow = false,
   });
 
   /// Off, the whole text shows (bindable as `typewriter.enabled`).
@@ -2552,6 +2603,18 @@ final class Typewriter extends _Value {
   /// `typewriter.playKey`).
   final String playKey;
 
+  /// Stops the typing clock this many ms after it starts (its delay
+  /// included): the text holds part-typed, caret blinking, as a still of
+  /// the moment (bindable as `typewriter.holdAtMs`). Lines that type one
+  /// after another (each delayed by the ones before) all stop at the same
+  /// moment. Null types to the end.
+  final int? holdAtMs;
+
+  /// The node is only as tall as the lines typed so far, growing line by
+  /// line (a note card that fills as it's written). Off, it keeps the whole
+  /// text's size from the start, so nothing around it moves.
+  final bool grow;
+
   /// Whether a running app types (rather than shows the whole text).
   bool get types => enabled && !skip && charsPerSecond > 0;
 
@@ -2570,6 +2633,8 @@ final class Typewriter extends _Value {
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
+      holdAtMs: m['holdAtMs'] == null || m['holdAtMs'] == '' ? null : math.max(0, r.ms('holdAtMs', 0)),
+      grow: r.b('grow', false),
     );
   }
 
@@ -2585,38 +2650,53 @@ final class Typewriter extends _Value {
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
+    if (holdAtMs != null) j['holdAtMs'] = holdAtMs;
+    j.b('grow', grow, false);
     return j;
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
 /// binding turns true), to [alignment] of the viewport (0 top, 1 bottom).
+/// With [follow] it stays there while the content around it moves (lines
+/// added above an end marker, an image that loads late), until the user
+/// scrolls away: a chat or transcript pinned to its newest line.
 @immutable
 final class Reveal extends _Value {
-  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true});
+  const Reveal({this.alignment = 0.5, this.duration = 600, this.delay = 0, this.when = true, this.follow = false});
 
   final double alignment;
   final int duration, delay;
   final bool when;
 
+  /// Keeps the node revealed as the content moves, until the user scrolls.
+  final bool follow;
+
   static Reveal? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final r = _R(m);
-    return Reveal(alignment: r.d('alignment', 0.5), duration: r.ms('duration', 600), delay: r.ms('delay', 0), when: r.b('when', true));
+    return Reveal(
+      alignment: r.d('alignment', 0.5),
+      duration: r.ms('duration', 600),
+      delay: r.ms('delay', 0),
+      when: r.b('when', true),
+      follow: r.b('follow', false),
+    );
   }
 
   Json toJson() => <String, Object?>{}
     ..d('alignment', alignment, 0.5)
     ..i('duration', duration, 600)
     ..i('delay', delay, 0)
-    ..b('when', when, true);
+    ..b('when', when, true)
+    ..b('follow', follow, false);
 
   @override
-  List<Object?> get props => [alignment, duration, delay, when];
+  List<Object?> get props => [alignment, duration, delay, when, follow];
 }
 
 /// Pins the node inside the scrolling row or column it scrolls in, as CSS

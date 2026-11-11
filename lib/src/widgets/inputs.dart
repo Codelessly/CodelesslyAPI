@@ -563,8 +563,27 @@ abstract final class DateTimeInputProps {
   static const min = PropDef<String?>('min', Codecs.string, null);
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
+  /// Material's localized date and time.
+  static const format = PropDef<String?>('format', Codecs.optionalString, null);
+
+  /// The value's text style.
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// Shown while empty (null: "Select date" / "Select time").
+  static const hint = PropDef<String?>('hint', Codecs.optionalString, null);
+  static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The icon after the value (null: a calendar or clock).
+  static const icon = PropDef<InputIcon?>('icon', InputCodecs.icon, null);
+
+  /// Only the value and its icon, no Material field around them: the node's
+  /// own fill, border and padding make the box.
+  static const bare = PropDef<bool>('bare', Codecs.bool, false);
+
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled],
+      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare],
       decorated: true,
       doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
@@ -654,6 +673,15 @@ Object? _strokesOut(List<List<Offset>> v) => [
       for (final s in v) [for (final p in s) p.toJson()],
     ];
 
+/// Where a signature pad's placeholder sits.
+enum SignaturePlaceholderPosition {
+  /// In the middle of the pad.
+  center,
+
+  /// Under the sign line, at its start (a form's "Sign here" caption).
+  belowLine,
+}
+
 /// A signature pad: strokes drawn with a finger or mouse, on a bordered card
 /// with a placeholder and a sign line.
 abstract final class SignatureProps {
@@ -676,6 +704,23 @@ abstract final class SignatureProps {
   static const showSignLine = PropDef<bool>('showSignLine', Codecs.bool, true);
   static const signLineColor = PropDef<Color>('signLineColor', Codecs.color, Color(0xFFA9ADA5));
 
+  /// The × at the start of the sign line.
+  static const signLineMark = PropDef<bool>('signLineMark', Codecs.bool, true);
+
+  /// The sign line's inset from the pad's sides.
+  static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
+
+  /// The sign line's distance from the pad's bottom (null: a quarter of its height).
+  static const signLineBottom = PropDef<double?>('signLineBottom', Codecs.optionalPositive, null);
+
+  /// Where the placeholder sits: centered, or under the sign line at its start.
+  static const placeholderPosition = PropDef<SignaturePlaceholderPosition>(
+      'placeholderPosition', EnumCodec(SignaturePlaceholderPosition.values), SignaturePlaceholderPosition.center);
+  static const placeholderFontWeight = PropDef<int>('placeholderFontWeight', IntCodec(min: 100), 600);
+
+  /// Null: 12% of the font size.
+  static const placeholderLetterSpacing = PropDef<double?>('placeholderLetterSpacing', Codecs.optionalDouble, null);
+
   /// Shows the error border.
   static const error = PropDef<bool>('error', Codecs.bool, false);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
@@ -684,6 +729,7 @@ abstract final class SignatureProps {
   static const spec = WidgetSpec('signature', props: [
     value, normalized, inkColor, inkWidth, backgroundColor, borderColor, borderWidth, errorBorderColor, //
     errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
+    signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
     error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }
