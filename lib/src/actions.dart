@@ -1821,6 +1821,8 @@ final class PlaySoundAction extends ActionDef {
     this.voiceId = '',
     this.frequency = '440',
     this.waveform = 'sine',
+    this.note = '',
+    this.duration = '',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1840,8 +1842,20 @@ final class PlaySoundAction extends ActionDef {
   /// with the same voiceId. `stopAll` releases the app's sustained tones.
   final String operation, voiceId, frequency;
 
-  /// Sustained tone shape: sine (default) or triangle.
+  /// A sustained voice's sound: `sine` (default), `triangle`, `square`,
+  /// `sawtooth`, or an instrument voice with its own envelope and filter:
+  /// `felt` (a soft electric piano), `reed` (an organ-like reed) or `pluck`
+  /// (a plucked string that dies away on its own).
   final String waveform;
+
+  /// A MIDI note number (60 = middle C, 69 = A 440) for `start`, used in
+  /// place of [frequency] when not empty: `${item.midi}`.
+  final String note;
+
+  /// Milliseconds after which a `start`ed voice releases by itself (a
+  /// latched note, an audition, a metronome tick); empty sustains until
+  /// `stop`.
+  final String duration;
 
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
@@ -1849,6 +1863,8 @@ final class PlaySoundAction extends ActionDef {
     voiceId: _s(m, 'voiceId'),
     frequency: _s(m, 'frequency', '440'),
     waveform: _s(m, 'waveform', 'sine'),
+    note: _s(m, 'note'),
+    duration: _s(m, 'duration'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1864,6 +1880,8 @@ final class PlaySoundAction extends ActionDef {
     if (voiceId.isNotEmpty) 'voiceId': voiceId,
     if (frequency != '440') 'frequency': frequency,
     if (waveform != 'sine') 'waveform': waveform,
+    if (note.isNotEmpty) 'note': note,
+    if (duration.isNotEmpty) 'duration': duration,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
