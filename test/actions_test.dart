@@ -49,6 +49,7 @@ final samples = <Json>[
 
   {'type': 'print', 'node': 'badge'},
   {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
+  {'type': 'reloadCloudData', 'variable': 'tasks'},
 ];
 
 void main() {

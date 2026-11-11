@@ -54,8 +54,13 @@ abstract final class TriggerFields {
   static const runWhen = PropDef<String>('runWhen', Codecs.string, '');
   static const lookaheadMs = PropDef<int>('lookaheadMs', Codecs.int, 100);
   static const visibleFraction = PropDef<double>('visibleFraction', Codecs.double, kDefaultVisibleFraction);
+  static const visibleMs = PropDef<int>('visibleMs', IntCodec(min: 0), 0,
+      doc: 'Viewport: how long it stays in view before firing (ms).');
+  static const onceKey = PropDef<String>('onceKey', Codecs.string, '',
+      doc: 'Runs once per key (an expression, such as \${item.id}) per app session.');
   static const List<PropDef<Object?>> all = [
     type, debounceMs, variable, intervalMs, key, when, holdMs, every, runWhen, lookaheadMs, visibleFraction, //
+    visibleMs, onceKey,
   ];
 }
 
@@ -359,11 +364,29 @@ abstract final class LoadCloudDataFields {
   static const single = PropDef<bool>('single', Codecs.bool, true, doc: 'One document, or the query\'s documents.');
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
-      doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
+      doc: 'The collection and, for a query, its filters, sorts, limit and joins (a CloudQueryDef).');
   static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
       doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
           'into an app variable every screen reads.');
-  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
+  static const limit = PropDef<String>('limit', Codecs.string, '',
+      doc: 'The most documents: a number or expression; empty: the query\'s, else $kDefaultCloudLoadLimit; 0: all.');
+  static const aggregate = PropDef<CloudLoadAggregate>(
+      'aggregate', EnumCodec(CloudLoadAggregate.values), CloudLoadAggregate.none,
+      doc: 'A number (count, sum, average) instead of the documents, without loading them.');
+  static const aggregateField = PropDef<String>('aggregateField', Codecs.string, '', doc: 'Sum and average: the field.');
+  static const refreshSeconds = PropDef<int>('refreshSeconds', IntCodec(min: 0), 0,
+      doc: 'Aggregate: also runs again this often (writes made elsewhere); 0: after this app\'s writes only.');
+  static const reactive = PropDef<bool>('reactive', Codecs.bool, true,
+      doc: 'Runs again when a value its query reads changes (\${auth.uid}, a bound limit).');
+  static const List<PropDef<Object?>> all = [
+    variable, single, id, query, scope, limit, aggregate, aggregateField, refreshSeconds, reactive, //
+  ];
+}
+
+/// [ReloadCloudDataAction].
+abstract final class ReloadCloudDataFields {
+  static const variable = PropDef<String>('variable', Codecs.string, '', doc: 'A variable a load cloud data action fills.');
+  static const List<PropDef<Object?>> all = [variable];
 }
 
 /// [AuthAction].
@@ -494,8 +517,11 @@ abstract final class CloudDataFields {
 /// [CloudBatchAction].
 abstract final class CloudBatchFields {
   static const steps = PropDef<Object?>('steps', Codecs.any, null, doc: 'Nested cloudData actions.');
-  static const transaction = PropDef<bool>('transaction', Codecs.bool, false, doc: 'All or none.');
-  static const List<PropDef<Object?>> all = [steps, transaction];
+  static const transaction = PropDef<bool>('transaction', Codecs.bool, false,
+      doc: 'All or none: more than $kMaxCloudBatchWrites writes fail instead of committing in chunks.');
+  static const forEach = PropDef<String>('forEach', Codecs.string, '',
+      doc: 'A list: the steps run per item (\${loop.item}, \${loop.index}), all in one commit.');
+  static const List<PropDef<Object?>> all = [steps, transaction, forEach];
 }
 
 /// [CopyToClipboardAction].
@@ -635,6 +661,7 @@ abstract final class ActionSpecs {
       const ActionSpec(SetStorageAction.typeName, label: 'Set storage', fields: SetStorageFields.all),
       const ActionSpec(CloudDocumentsAction.typeName, label: 'Cloud documents', fields: CloudDocumentsFields.all),
       const ActionSpec(LoadCloudDataAction.typeName, label: 'Load cloud data', fields: LoadCloudDataFields.all),
+      const ActionSpec(ReloadCloudDataAction.typeName, label: 'Reload cloud data', fields: ReloadCloudDataFields.all),
       const ActionSpec(AuthAction.typeName, label: 'Auth', fields: AuthFields.all),
       const ActionSpec(IfAction.typeName, label: 'If', fields: IfFields.all),
       const ActionSpec(ForEachAction.typeName, label: 'For each', fields: ForEachFields.all),
