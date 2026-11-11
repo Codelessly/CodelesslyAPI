@@ -12,6 +12,7 @@ import 'props.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
+import 'values/text.dart';
 
 Object? _out(Object? v) => v == null ? null : (v as dynamic).toJson();
 Object? _same(Object? v) => v;
@@ -881,6 +882,8 @@ abstract final class TypewriterFields {
   static const caretHeight = PropDef<double>('caretHeight', Codecs.positive, 0,
       doc: 'Centered on the text\'s middle; 0 is about three quarters of the line.');
   static const caretGap = PropDef<double>('caretGap', Codecs.double, 1, doc: 'Space between the last character and the caret.');
+  static const caretAlignStyle = PropDef<TextStyle>('caretAlignStyle', Codecs.textStyle, TextStyle.empty,
+      doc: 'With a caret height: the style whose middle it centers on (empty: the text\'s).');
   static const blinkMs = PropDef<int>('blinkMs', IntCodec(min: 1), 500, doc: 'How long the caret stays on, and off.');
   static const skip = PropDef<bool>('skip', Codecs.bool, false, doc: 'Shows the rest at once.');
   static const playKey = PropDef<String>('playKey', Codecs.string, '', doc: 'Types again from the start when it changes.');
@@ -888,7 +891,7 @@ abstract final class TypewriterFields {
       doc: 'Stops the typing clock this many ms in (delay included): a part-typed still. Null types to the end.');
   static const grow = PropDef<bool>('grow', Codecs.bool, false,
       doc: 'Only as tall as the lines typed so far (off: the whole text\'s size from the start).');
-  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, blinkMs, skip, playKey, holdAtMs, grow];
+  static const List<PropDef<Object?>> all = [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, caretAlignStyle, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 List<PropDef<Object?>> typewriterFields() => TypewriterFields.all;

@@ -15,6 +15,7 @@ import 'json.dart';
 import 'values/color.dart';
 import 'values/enums.dart';
 import 'values/geometry.dart';
+import 'values/text.dart';
 
 part 'gestures.dart';
 
@@ -2632,6 +2633,7 @@ final class Typewriter extends _Value {
     this.caretWidth = 0,
     this.caretHeight = 0,
     this.caretGap = 1,
+    this.caretAlignStyle = TextStyle.empty,
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
@@ -2666,6 +2668,12 @@ final class Typewriter extends _Value {
 
   /// The space between the last character and the caret.
   final double caretGap;
+
+  /// With [caretHeight]: the style whose middle the caret centers on, as a
+  /// middle-aligned widget span outside the text's own span takes its
+  /// paragraph's style (e.g. the app's default text style). Empty: the
+  /// text's own.
+  final TextStyle caretAlignStyle;
 
   /// How long the caret stays on, and off (ms).
   final int blinkMs;
@@ -2706,6 +2714,7 @@ final class Typewriter extends _Value {
       caretWidth: math.max(0, r.d('caretWidth', 0)),
       caretHeight: math.max(0, r.d('caretHeight', 0)),
       caretGap: r.d('caretGap', 1),
+      caretAlignStyle: TextStyle.fromJson(m['caretAlignStyle']),
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
@@ -2724,7 +2733,9 @@ final class Typewriter extends _Value {
     j
       ..d('caretWidth', caretWidth, 0)
       ..d('caretHeight', caretHeight, 0)
-      ..d('caretGap', caretGap, 1)
+      ..d('caretGap', caretGap, 1);
+    if (!caretAlignStyle.isEmpty) j['caretAlignStyle'] = caretAlignStyle.toJson();
+    j
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
@@ -2734,7 +2745,7 @@ final class Typewriter extends _Value {
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, blinkMs, skip, playKey, holdAtMs, grow];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, caretAlignStyle, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
