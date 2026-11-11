@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 
 import 'document.dart';
 import 'json.dart';
+import 'managed_components.dart';
 
 /// What a node is to its component.
 enum ComponentRole {
@@ -27,9 +28,19 @@ enum ComponentRole {
 ///
 /// JSON (sparse): `{"id": "cmp1", "role": "main", "version": 3,
 /// "settings": [...]}`; `role` defaults to `instance`, `version` to 1.
+///
+/// A linked, Codelessly-managed instance also has [managed] (`"managed":
+/// {...}`, [ManagedComponentRef]): [id] is then the managed component's id
+/// and [version] the version its nodes (the snapshot) were built from.
 @immutable
 final class ComponentLink {
-  const ComponentLink({required this.id, this.role = ComponentRole.instance, this.version = 1, this.settings = const []});
+  const ComponentLink({
+    required this.id,
+    this.role = ComponentRole.instance,
+    this.version = 1,
+    this.settings = const [],
+    this.managed,
+  });
 
   /// The component's id (its [ComponentDefinition.id]).
   final String id;
@@ -43,21 +54,35 @@ final class ComponentLink {
   /// tree (an instance's targets are its own copies' ids).
   final List<ComponentSetting> settings;
 
+  /// What a managed instance customizes and follows (channel, pin, setting
+  /// values by key, slots, events, theme tokens); null for a project
+  /// component's link.
+  final ManagedComponentRef? managed;
+
   bool get isMain => role == ComponentRole.main;
   bool get isInstance => role == ComponentRole.instance;
 
-  ComponentLink copyWith({String? id, ComponentRole? role, int? version, List<ComponentSetting>? settings}) =>
-      ComponentLink(
-        id: id ?? this.id,
-        role: role ?? this.role,
-        version: version ?? this.version,
-        settings: settings ?? this.settings,
-      );
+  /// Whether this is an instance of a Codelessly-managed component.
+  bool get isManaged => managed != null && isInstance;
+
+  ComponentLink copyWith({
+    String? id,
+    ComponentRole? role,
+    int? version,
+    List<ComponentSetting>? settings,
+    ManagedComponentRef? managed,
+  }) => ComponentLink(
+    id: id ?? this.id,
+    role: role ?? this.role,
+    version: version ?? this.version,
+    settings: settings ?? this.settings,
+    managed: managed ?? this.managed,
+  );
 
   /// The link with every setting target's node id mapped by [ids] (a copy
   /// of the tree with new ids). Ids [ids] doesn't have are kept.
   ComponentLink remapped(Map<String, String> ids) =>
-      copyWith(settings: [for (final s in settings) s.remapped(ids)]);
+      copyWith(settings: [for (final s in settings) s.remapped(ids)], managed: managed?.remapped(ids));
 
   /// Null without an id. Also reads the marker the editor kept in a
   /// node's `extra` before this model (`{"id", "marker": "component" |
@@ -75,15 +100,17 @@ final class ComponentLink {
       role: role,
       version: readInt(m['version']) ?? 1,
       settings: ComponentSetting.listFromJson(m['settings']),
+      managed: ManagedComponentRef.fromJson(m['managed']),
     );
   }
 
   Json toJson() => {
-        'id': id,
-        if (role != ComponentRole.instance) 'role': role.name,
-        if (version != 1) 'version': version,
-        if (settings.isNotEmpty) 'settings': [for (final s in settings) s.toJson()],
-      };
+    'id': id,
+    if (role != ComponentRole.instance) 'role': role.name,
+    if (version != 1) 'version': version,
+    if (settings.isNotEmpty) 'settings': [for (final s in settings) s.toJson()],
+    if (managed != null) 'managed': managed!.toJson(),
+  };
 
   @override
   bool operator ==(Object other) =>
@@ -91,10 +118,11 @@ final class ComponentLink {
       other.id == id &&
       other.role == role &&
       other.version == version &&
-      jsonEquality.equals(other.settings, settings);
+      jsonEquality.equals(other.settings, settings) &&
+      other.managed == managed;
 
   @override
-  int get hashCode => Object.hash(id, role, version, Object.hashAll(settings));
+  int get hashCode => Object.hash(id, role, version, Object.hashAll(settings), managed);
 
   @override
   String toString() => 'ComponentLink(${toJson()})';
@@ -102,7 +130,7 @@ final class ComponentLink {
 
 /// One thing a component lets an instance customize, or a group of them.
 ///
-/// JSON: `{"label": "Title", "type": "string", "value": "Hi",
+/// JSON: `{"key": "title", "label": "Title", "type": "string", "value": "Hi",
 /// "targets": [{"node": "t1", "path": "props.text"}]}`; a group is
 /// `{"type": "group", "label": ..., "settings": [...]}`. The editor's
 /// control options (`min`, `max`, `fractionDigits`, `options`,
@@ -110,6 +138,7 @@ final class ComponentLink {
 @immutable
 final class ComponentSetting {
   const ComponentSetting({
+    this.key = '',
     this.label = '',
     this.type = 'string',
     this.description,
@@ -119,7 +148,15 @@ final class ComponentSetting {
     this.extra = const {},
   });
 
+  /// The setting's stable name: what an instance's value is stored under
+  /// ([ManagedComponentRef.values]), kept across versions while the label
+  /// changes. Empty: [effectiveKey] falls back to the label's slug.
+  final String key;
+
   final String label;
+
+  /// [key], or the slug of [label] (`"Button label"` → `button_label`).
+  String get effectiveKey => key.isNotEmpty ? key : settingSlug(label);
 
   /// The control: `string`, `number` (`int`, `double`), `bool`, `color`,
   /// `radius`, `spacing`, `options`, `icon`..., or `group`.
@@ -139,21 +176,23 @@ final class ComponentSetting {
   bool get isGroup => type == 'group';
 
   ComponentSetting remapped(Map<String, String> ids) => ComponentSetting(
-        label: label,
-        type: type,
-        description: description,
-        targets: [for (final t in targets) t.remapped(ids)],
-        value: value,
-        settings: [for (final s in settings) s.remapped(ids)],
-        extra: extra,
-      );
+    key: key,
+    label: label,
+    type: type,
+    description: description,
+    targets: [for (final t in targets) t.remapped(ids)],
+    value: value,
+    settings: [for (final s in settings) s.remapped(ids)],
+    extra: extra,
+  );
 
-  static const _keys = {'label', 'type', 'description', 'targets', 'value', 'settings'};
+  static const _keys = {'key', 'label', 'type', 'description', 'targets', 'value', 'settings'};
 
   static ComponentSetting? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     return ComponentSetting(
+      key: readString(m['key']) ?? '',
       label: readString(m['label']) ?? '',
       type: readString(m['type']) ?? 'string',
       description: readString(m['description']),
@@ -170,14 +209,15 @@ final class ComponentSetting {
   static List<ComponentSetting> listFromJson(Object? json) => [...?readList(json)?.map(fromJson).nonNulls];
 
   Json toJson() => {
-        if (label.isNotEmpty) 'label': label,
-        'type': type,
-        'description': ?description,
-        if (targets.isNotEmpty) 'targets': [for (final t in targets) t.toJson()],
-        'value': ?value,
-        if (settings.isNotEmpty) 'settings': [for (final s in settings) s.toJson()],
-        ...extra,
-      };
+    if (key.isNotEmpty) 'key': key,
+    if (label.isNotEmpty) 'label': label,
+    'type': type,
+    'description': ?description,
+    if (targets.isNotEmpty) 'targets': [for (final t in targets) t.toJson()],
+    'value': ?value,
+    if (settings.isNotEmpty) 'settings': [for (final s in settings) s.toJson()],
+    ...extra,
+  };
 
   @override
   bool operator ==(Object other) => other is ComponentSetting && jsonEquality.equals(other.toJson(), toJson());
@@ -185,6 +225,10 @@ final class ComponentSetting {
   @override
   int get hashCode => jsonEquality.hash(toJson());
 }
+
+/// [label] as a setting key: lower case, runs of other characters as `_`.
+String settingSlug(String label) =>
+    label.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_').replaceAll(RegExp(r'^_+|_+$'), '');
 
 /// Where a [ComponentSetting] writes: a node and a binding path into it
 /// (DESIGN.md §5.1), as a condition's `set` entries. A field path in the
@@ -217,7 +261,8 @@ final class SettingTarget {
   Json toJson() => {'node': node, 'path': ?path, 'v1': ?v1};
 
   @override
-  bool operator ==(Object other) => other is SettingTarget && other.node == node && other.path == path && other.v1 == v1;
+  bool operator ==(Object other) =>
+      other is SettingTarget && other.node == node && other.path == path && other.v1 == v1;
 
   @override
   int get hashCode => Object.hash(node, path, v1);
@@ -310,23 +355,23 @@ final class ComponentDefinition {
   }
 
   Json toJson() => {
-        'schema': kSchemaVersion,
-        'id': id,
-        if (name.isNotEmpty) 'name': name,
-        if (version != 1) 'version': version,
-        if (width != 0 || height != 0) 'size': [writeDouble(width), writeDouble(height)],
-        'document': document.toJson(),
-        if (previewUrl != null || blurhash.isNotEmpty)
-          'preview': {'url': ?previewUrl, if (blurhash.isNotEmpty) 'blurhash': blurhash},
-        if (projectId.isNotEmpty || pageId.isNotEmpty || sourceNodeId.isNotEmpty)
-          'source': {
-            if (projectId.isNotEmpty) 'project': projectId,
-            if (pageId.isNotEmpty) 'page': pageId,
-            if (sourceNodeId.isNotEmpty) 'node': sourceNodeId,
-          },
-        'createdAt': ?createdAt,
-        ...extra,
-      };
+    'schema': kSchemaVersion,
+    'id': id,
+    if (name.isNotEmpty) 'name': name,
+    if (version != 1) 'version': version,
+    if (width != 0 || height != 0) 'size': [writeDouble(width), writeDouble(height)],
+    'document': document.toJson(),
+    if (previewUrl != null || blurhash.isNotEmpty)
+      'preview': {'url': ?previewUrl, if (blurhash.isNotEmpty) 'blurhash': blurhash},
+    if (projectId.isNotEmpty || pageId.isNotEmpty || sourceNodeId.isNotEmpty)
+      'source': {
+        if (projectId.isNotEmpty) 'project': projectId,
+        if (pageId.isNotEmpty) 'page': pageId,
+        if (sourceNodeId.isNotEmpty) 'node': sourceNodeId,
+      },
+    'createdAt': ?createdAt,
+    ...extra,
+  };
 
   @override
   bool operator ==(Object other) => other is ComponentDefinition && jsonEquality.equals(other.toJson(), toJson());

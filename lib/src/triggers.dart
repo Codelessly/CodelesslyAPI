@@ -119,14 +119,23 @@ enum TriggerType {
   scroll,
   scrollEnd,
 
-  /// At least [Trigger.visibleFraction] of the node became visible, or it
-  /// fell below that after being visible.
+  /// At least [Trigger.visibleFraction] of the node became visible (and
+  /// stayed so for [Trigger.visibleMs]), or it fell below that after being
+  /// visible. With [Trigger.onceKey] (`${item.id}`), an impression: once
+  /// per item per app session.
   enterViewport,
   exitViewport,
 
   /// Drag and drop: on a draggable (start, cancel, completed) and on a drop
   /// target (drop, enter, exit, hover, rejected; full: [dropFull]).
-  /// `${result}` and `${drag}` hold the drag.
+  /// `${result}` and `${drag}` hold the drag. A list with a `reorder` fires
+  /// `dragStart` when a row is picked up and `dragCompleted` when it is let
+  /// go (moved or not), with `${result.index}` and `${result.item}`: a list
+  /// can change while a row is lifted (fold its rows into tiles). On a node
+  /// with a `drag` reaction (and no drag and drop), `dragStart` is the start
+  /// of that one-finger drag, where the finger went down (`${drag.x}`,
+  /// `${drag.y}`): begin a stroke there rather than on `pointerDown`, which
+  /// fires for every finger of a pinch.
   dragStart,
   dragCancel,
   dragCompleted,
@@ -147,8 +156,9 @@ enum TriggerType {
   /// `${result.toList}`.
   reorder,
 
-  /// A list or grid was pulled past its start to refresh (its pagination's
-  /// `pullToRefresh`); its pagination reloads its first page too.
+  /// A list or grid was pulled past its start to refresh (its
+  /// `pullToRefresh`, or its pagination's); its pagination reloads its first
+  /// page too. A list with this reaction can always be pulled.
   refresh,
 
   /// A swipe action of a list item ran (the list's `swipeActions`):
@@ -204,6 +214,8 @@ final class Trigger {
     this.lookaheadMs = 100,
     this.visibleFraction = kDefaultVisibleFraction,
     this.repeat = false,
+    this.visibleMs = 0,
+    this.onceKey = '',
   });
 
   final TriggerType type;
@@ -244,6 +256,14 @@ final class Trigger {
   /// keyboard repeats it (`${result.repeat}` is true for those), as text
   /// fields and games do for arrows and backspace.
   final bool repeat;
+  /// [TriggerType.enterViewport]: how long (ms) the node stays in view
+  /// before it fires; leaving sooner doesn't fire it. 0: at once.
+  final int visibleMs;
+
+  /// Any trigger: a key (an expression, `${item.id}`); the reaction runs
+  /// once per node and key for as long as the app runs, and never again
+  /// for that key. Empty: every time.
+  final String onceKey;
 
   /// The shortest timer interval.
   static const int minIntervalMs = 16;
@@ -275,6 +295,8 @@ final class Trigger {
       lookaheadMs: readInt(m['lookaheadMs']) ?? 100,
       visibleFraction: (readDouble(m['visibleFraction']) ?? kDefaultVisibleFraction).clamp(0, 1).toDouble(),
       repeat: m['repeat'] == true,
+      visibleMs: (readInt(m['visibleMs']) ?? 0).clamp(0, 600000),
+      onceKey: readString(m['onceKey']) ?? '',
     );
   }
 
@@ -299,6 +321,8 @@ final class Trigger {
         if (lookaheadMs != 100) 'lookaheadMs': lookaheadMs,
         if (visibleFraction != kDefaultVisibleFraction) 'visibleFraction': writeDouble(visibleFraction),
         if (repeat) 'repeat': true,
+        if (visibleMs != 0) 'visibleMs': visibleMs,
+        if (onceKey.isNotEmpty) 'onceKey': onceKey,
       };
 
   @override

@@ -133,6 +133,36 @@ void main() {
     expect(bob.dy, closeTo(-10, 1e-9));
   });
 
+  test('stroke path points read as pairs or {x, y} maps', () {
+    final a = StrokePath.fromJson({
+      'points': [
+        [0, 1],
+        {'x': 2, 'y': 3},
+        {'x': 'bad'},
+      ],
+    })!;
+    expect(a.points, const [Offset(0, 1), Offset(2, 3)]);
+  });
+
+  test('a flicker wavers between its values and loops seamlessly', () {
+    const glow = LoopAnimation(type: LoopAnimationType.flicker, scaleFrom: 0.9, scaleTo: 1.1, opacityFrom: 0.6, opacityTo: 1);
+    final samples = [for (var i = 0; i <= 100; i++) glow.poseAt(i / 100)];
+    for (final p in samples) {
+      expect(p.scale, inInclusiveRange(0.9, 1.1));
+      expect(p.opacity, inInclusiveRange(0.6, 1));
+    }
+    // Not a steady pulse: it changes direction many times in a run.
+    var turns = 0;
+    for (var i = 2; i < samples.length; i++) {
+      final a = samples[i - 1].opacity - samples[i - 2].opacity, b = samples[i].opacity - samples[i - 1].opacity;
+      if (a.sign != b.sign && a != 0 && b != 0) turns++;
+    }
+    expect(turns, greaterThan(6));
+    expect(glow.poseAt(0).opacity, closeTo(glow.poseAt(1).opacity, 1e-9));
+    expect(LoopAnimation.fromJson(glow.toJson()), glow);
+    expect(LoopAnimationType.flicker.scales && LoopAnimationType.flicker.fades, isTrue);
+  });
+
   test('motion: rest, entrance start, keyframes', () {
     const m = Motion(rotate: 30, translateX: 10, enterFrom: Motion(opacity: 0));
     expect(m.hasTransform, isTrue);
@@ -198,5 +228,26 @@ void main() {
     expect(BindPaths.apply(n, 'effectAnimations[1].delay', 250).behaviors.effectAnimations[1].delay, 250);
     expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviors.particles!.playKey, 'w1');
     expect(EffectAnimation.fromJson(cued.behaviors.effectAnimations[1].toJson())!.playKey, '3');
+  });
+
+  test('reveal.follow round-trips and defaults off', () {
+    expect(Reveal.fromJson({'alignment': 1})!.follow, isFalse);
+    final r = Reveal.fromJson({'alignment': 1, 'duration': 0, 'follow': true})!;
+    expect(r.follow, isTrue);
+    expect(r.toJson(), {'alignment': 1.0, 'duration': 0, 'follow': true});
+    expect(Reveal.fromJson(r.toJson()), r);
+    expect(Reveal.fromJson({'follow': false})!.toJson().containsKey('follow'), isFalse);
+  });
+
+  test('typewriter.holdAtMs round-trips; absent types to the end', () {
+    expect(Typewriter.fromJson({'charsPerSecond': 95})!.holdAtMs, isNull);
+    final t = Typewriter.fromJson({'charsPerSecond': 95, 'holdAtMs': 1200})!;
+    expect(t.holdAtMs, 1200);
+    expect(t.toJson()['holdAtMs'], 1200);
+    expect(Typewriter.fromJson(t.toJson()), t);
+    expect(Typewriter.fromJson({'holdAtMs': ''})!.holdAtMs, isNull, reason: 'an empty binding is no hold');
+    expect(Typewriter.fromJson({'holdAtMs': -5})!.holdAtMs, 0);
+    expect(Typewriter.fromJson({'grow': true})!.toJson(), {'grow': true});
+    expect(Typewriter.fromJson({})!.grow, isFalse);
   });
 }
