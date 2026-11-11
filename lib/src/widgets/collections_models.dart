@@ -7,6 +7,8 @@
 import '../json.dart';
 import '../props.dart';
 import '../values/color.dart';
+import '../values/geometry.dart' show BorderRadius;
+import '../values/text.dart';
 import 'inputs_models.dart' show FieldValue;
 
 Object? _valueOut(FieldValue? v) => v?.toJson();
@@ -312,6 +314,14 @@ final class ListSections extends FieldValue {
   String get groupBy => get(ListSectionsFields.groupBy);
   bool get sticky => get(ListSectionsFields.sticky);
   bool get indexBar => get(ListSectionsFields.indexBar);
+  List<String> get indexKeys => get(ListSectionsFields.indexKeys);
+  TextStyle get indexStyle => get(ListSectionsFields.indexStyle);
+  Color? get indexActiveColor => get(ListSectionsFields.indexActiveColor);
+  Color? get indexMutedColor => get(ListSectionsFields.indexMutedColor);
+  double get indexWidth => get(ListSectionsFields.indexWidth);
+  bool get indexBubble => get(ListSectionsFields.indexBubble);
+  Color? get indexBubbleColor => get(ListSectionsFields.indexBubbleColor);
+  TextStyle get indexBubbleStyle => get(ListSectionsFields.indexBubbleStyle);
 }
 
 abstract final class ListSectionsFields {
@@ -324,8 +334,31 @@ abstract final class ListSectionsFields {
   /// An index of the sections' keys along the list's edge (A–Z).
   static const indexBar = PropDef<bool>('indexBar', Codecs.bool, false);
 
-  static const spec =
-      WidgetSpec('ListSections', props: [groupBy, sticky, indexBar], doc: 'A list\'s items under section headers.');
+  /// The keys the index shows, in order (`A`…`Z`); empty shows the
+  /// sections'. A key no item has is drawn in [indexMutedColor] and does
+  /// nothing. With a data-paged list the keys of every item count, and
+  /// picking one loads pages until its section is in.
+  static const indexKeys = PropDef<List<String>>('indexKeys', Codecs.strings, []);
+
+  /// The index's text (font, size, weight, color).
+  static const indexStyle = PropDef<TextStyle>('indexStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// A key while it is touched.
+  static const indexActiveColor = PropDef<Color?>('indexActiveColor', Codecs.optionalColor, null);
+
+  /// A key no item has.
+  static const indexMutedColor = PropDef<Color?>('indexMutedColor', Codecs.optionalColor, null);
+  static const indexWidth = PropDef<double>('indexWidth', Codecs.positive, 20);
+
+  /// The touched key pops up large beside the index while it is dragged.
+  static const indexBubble = PropDef<bool>('indexBubble', Codecs.bool, false);
+  static const indexBubbleColor = PropDef<Color?>('indexBubbleColor', Codecs.optionalColor, null);
+  static const indexBubbleStyle = PropDef<TextStyle>('indexBubbleStyle', Codecs.textStyle, TextStyle.empty);
+
+  static const spec = WidgetSpec('ListSections', props: [
+    groupBy, sticky, indexBar, indexKeys, indexStyle, indexActiveColor, indexMutedColor, indexWidth, indexBubble, //
+    indexBubbleColor, indexBubbleStyle,
+  ], doc: 'A list\'s items under section headers.');
 }
 
 // --- Swipe actions ---------------------------------------------------------------
@@ -351,6 +384,10 @@ final class SwipeAction extends FieldValue {
   Color get background => get(SwipeActionFields.background);
   Color get foreground => get(SwipeActionFields.foreground);
   bool get removes => get(SwipeActionFields.removes);
+  String get when => get(SwipeActionFields.when);
+  TextStyle get labelStyle => get(SwipeActionFields.labelStyle);
+  double get iconSize => get(SwipeActionFields.iconSize);
+  bool get inline => get(SwipeActionFields.inline);
 }
 
 abstract final class SwipeActionFields {
@@ -365,8 +402,21 @@ abstract final class SwipeActionFields {
   /// back.
   static const removes = PropDef<bool>('removes', Codecs.bool, true);
 
+  /// Offered for an item only while this holds (an expression reading
+  /// `${item}`, e.g. `${= item.done}`); empty: always. The first action of
+  /// a side that holds is the one a full swipe runs.
+  static const when = PropDef<String>('when', Codecs.string, '');
+
+  /// The label's text (font, size, weight; its color is [foreground]).
+  static const labelStyle = PropDef<TextStyle>('labelStyle', Codecs.textStyle, TextStyle.empty);
+  static const iconSize = PropDef<double>('iconSize', Codecs.positive, 22);
+
+  /// The icon beside the label instead of above it.
+  static const inline = PropDef<bool>('inline', Codecs.bool, false);
+
   static const spec = WidgetSpec('SwipeAction',
-      props: [id, label, icon, background, foreground, removes], doc: 'An action behind a swiped list item.');
+      props: [id, label, icon, background, foreground, removes, when, labelStyle, iconSize, inline],
+      doc: 'An action behind a swiped list item.');
 }
 
 /// Swipe actions on a list's items (`Dismissible`): toward the start reveals
@@ -392,6 +442,9 @@ final class SwipeActions extends FieldValue {
   int get undoMs => get(SwipeActionsFields.undoMs);
   String get undoMessage => get(SwipeActionsFields.undoMessage);
   ListApply get apply => get(SwipeActionsFields.apply);
+  BorderRadius get radius => get(SwipeActionsFields.radius);
+  double get armedScale => get(SwipeActionsFields.armedScale);
+  bool get armHaptic => get(SwipeActionsFields.armHaptic);
 }
 
 abstract final class SwipeActionsFields {
@@ -411,8 +464,17 @@ abstract final class SwipeActionsFields {
   static const undoMessage = PropDef<String>('undoMessage', Codecs.string, r'${result.label}');
   static const apply = PropDef<ListApply>('apply', EnumCodec(ListApply.values), ListApply.none);
 
+  /// The revealed actions' corners (round them to match the item's).
+  static const radius = PropDef<BorderRadius>('radius', Codecs.radius, BorderRadius.zero);
+
+  /// The action's label grows to this scale once a release would run it.
+  static const armedScale = PropDef<double>('armedScale', Codecs.positive, 1);
+
+  /// A selection click when a swipe passes the threshold either way.
+  static const armHaptic = PropDef<bool>('armHaptic', Codecs.bool, false);
+
   static const spec = WidgetSpec('SwipeActions',
-      props: [enabled, startActions, endActions, threshold, undo, undoMs, undoMessage, apply],
+      props: [enabled, startActions, endActions, threshold, undo, undoMs, undoMessage, apply, radius, armedScale, armHaptic],
       doc: 'Actions behind a list\'s swiped items (`Dismissible`).');
 }
 
