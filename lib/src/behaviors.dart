@@ -2630,6 +2630,8 @@ final class Typewriter extends _Value {
     this.caret = true,
     this.caretColor,
     this.caretWidth = 0,
+    this.caretHeight = 0,
+    this.caretGap = 1,
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
@@ -2650,11 +2652,20 @@ final class Typewriter extends _Value {
   /// Whether a block caret blinks after the last character while it types.
   final bool caret;
 
-  /// The caret's color; null uses the text's.
+  /// The caret's color, painted as given; null uses the text's, a little
+  /// faded.
   final Color? caretColor;
 
   /// The caret's width; 0 is about half the font size.
   final double caretWidth;
+
+  /// The caret's height, centered on the text's middle (as a widget span
+  /// aligned to the middle of the line); 0 is about three quarters of the
+  /// line, from just below its top.
+  final double caretHeight;
+
+  /// The space between the last character and the caret.
+  final double caretGap;
 
   /// How long the caret stays on, and off (ms).
   final int blinkMs;
@@ -2693,6 +2704,8 @@ final class Typewriter extends _Value {
       caret: r.b('caret', true),
       caretColor: r.color('caretColor'),
       caretWidth: math.max(0, r.d('caretWidth', 0)),
+      caretHeight: math.max(0, r.d('caretHeight', 0)),
+      caretGap: r.d('caretGap', 1),
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
@@ -2710,6 +2723,8 @@ final class Typewriter extends _Value {
     if (caretColor != null) j['caretColor'] = caretColor!.toJson();
     j
       ..d('caretWidth', caretWidth, 0)
+      ..d('caretHeight', caretHeight, 0)
+      ..d('caretGap', caretGap, 1)
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
@@ -2719,7 +2734,7 @@ final class Typewriter extends _Value {
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs, grow];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, caretHeight, caretGap, blinkMs, skip, playKey, holdAtMs, grow];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
