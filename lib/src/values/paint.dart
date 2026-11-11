@@ -63,7 +63,7 @@ final class ImagePaint {
   /// Mirrors the image horizontally / vertically.
   final bool flipX, flipY;
 
-  /// Color saturation: 1 keeps the colors, 0 is greyscale.
+  /// Color saturation: 1 keeps the colors, 0 is grayscale.
   final double saturation;
 
   /// Where the image is drawn, `[left, top, width, height]` in the box at

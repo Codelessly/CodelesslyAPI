@@ -148,7 +148,7 @@ Iterable<PropDef<Object?>> get _everyTopDef sync* {
   yield* LayoutFields.all;
   yield* DecorationFields.all;
   yield* NodeFields.all;
-  yield* BehaviourFields.all;
+  yield* BehaviorFields.all;
   // Models actions hold.
   yield NavigateFields.routeTransition;
 }
@@ -220,23 +220,23 @@ void main() {
     }
   });
 
-  test('a node\'s behaviour fields are its flat behaviour keys', () {
+  test('a node\'s behavior fields are its flat behavior keys', () {
     final seen = <String>{};
-    for (final f in BehaviourFields.all) {
+    for (final f in BehaviorFields.all) {
       checkField(
-        'behaviours',
+        'behaviors',
         f,
         (j) => Node.fromJson({'id': 'a', 'type': 'box', ...j})!.toJson(),
         const PropType.json(),
         seen,
       );
     }
-    expect({for (final f in BehaviourFields.all) f.key}, Behaviours.keys);
-    // Defaults are Behaviours.none's: a default value isn't stored.
-    for (final f in BehaviourFields.all) {
+    expect({for (final f in BehaviorFields.all) f.key}, Behaviors.keys);
+    // Defaults are Behaviors.none's: a default value isn't stored.
+    for (final f in BehaviorFields.all) {
       if (f.defaultValue == null) continue;
       final n = Node.fromJson({'id': 'a', 'type': 'box', f.key: f.encode(f.defaultValue)})!;
-      expect(n.behaviours, Behaviours.none, reason: f.key);
+      expect(n.behaviors, Behaviors.none, reason: f.key);
     }
   });
 
