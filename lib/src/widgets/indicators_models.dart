@@ -173,7 +173,14 @@ final class ChartReferenceLine extends PropRecord {
   static const colorDef = PropDef<Color>('color', Codecs.color, Color(0x99FFFFFF));
   static const dashedDef = PropDef<bool>('dashed', Codecs.bool, true);
   static const strokeWidthDef = PropDef<double>('strokeWidth', Codecs.positive, 1.5);
-  static const spec = WidgetSpec('ChartReferenceLine', props: [valueDef, colorDef, dashedDef, strokeWidthDef]);
+
+  /// Text at the line's right end ("CAPACITY 360"), above it unless
+  /// [labelBelow]; in [labelColor], else the line's color.
+  static const labelDef = PropDef<String>('label', Codecs.string, '');
+  static const labelColorDef = PropDef<Color?>('labelColor', Codecs.optionalColor, null);
+  static const labelBelowDef = PropDef<bool>('labelBelow', Codecs.bool, false);
+  static const spec = WidgetSpec('ChartReferenceLine',
+      props: [valueDef, colorDef, dashedDef, strokeWidthDef, labelDef, labelColorDef, labelBelowDef]);
 
   @override
   WidgetSpec get schema => spec;
@@ -181,6 +188,9 @@ final class ChartReferenceLine extends PropRecord {
   Color get color => get(colorDef);
   bool get dashed => get(dashedDef);
   double get strokeWidth => get(strokeWidthDef);
+  String get label => get(labelDef);
+  Color? get labelColor => get(labelColorDef);
+  bool get labelBelow => get(labelBelowDef);
 
   static ChartReferenceLine? fromJson(Object? json) =>
       readMap(json) == null ? null : ChartReferenceLine._(Props.fromJson(spec, json));
