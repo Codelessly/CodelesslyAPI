@@ -111,6 +111,10 @@ void main() {
     test('an icon image may be given as imageUrl', () {
       expect(IconProps.icon.decode({'imageUrl': 'u'}), {'image': 'u'});
       expect(IconProps.icon.decode({'image': 'a', 'imageUrl': 'u'}), {'image': 'a', 'imageUrl': 'u'});
+      // A bound name swaps the glyph.
+      expect(IconProps.icon.decode('pause'), {'type': 'MATERIAL_ICON', 'name': 'pause', 'style': 'filled'});
+      expect(IconProps.icon.decode('https://x/i.png'), {'image': 'https://x/i.png'});
+      expect(IconProps.icon.decode(''), <String, Object?>{});
     });
   });
 }
