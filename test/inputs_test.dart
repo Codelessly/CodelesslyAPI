@@ -117,6 +117,21 @@ void main() {
     expect(seg.prop(SegmentedButtonProps.textStyle).fontSize, 12.5);
     expect(seg.prop(SegmentedButtonProps.padding)!.left, 12);
     expect(Node.fromJson(seg.toJson(), id: 'b'), seg);
+    expect(seg.prop(SegmentedButtonProps.variant), SegmentedVariant.material);
+    final track = Node.fromJson({
+      'type': 'segmentedButton',
+      'props': {
+        'variant': 'track',
+        'trackPadding': 4,
+        'selectedShadows': [
+          {'type': 'dropShadow', 'color': '#14000000', 'offset': [0, 2], 'blurRadius': 8},
+        ],
+      },
+    }, id: 't')!;
+    expect(track.prop(SegmentedButtonProps.variant), SegmentedVariant.track);
+    expect(track.prop(SegmentedButtonProps.trackPadding), 4);
+    expect(track.prop(SegmentedButtonProps.selectedShadows), hasLength(1));
+    expect(Node.fromJson(track.toJson(), id: 't'), track);
     final segments = seg.prop(SegmentedButtonProps.segments);
     expect(segments.map((s) => s.value), ['day', 'week']);
     expect(segments[1].enabled, isFalse);
