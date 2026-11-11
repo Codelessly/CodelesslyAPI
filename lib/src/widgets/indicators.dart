@@ -335,6 +335,9 @@ abstract final class BarChartProps {
   /// The value of a full bar; 0 uses the largest value.
   static const max = PropDef<double>('max', Codecs.double, 0);
   static const color = PropDef<Color>('color', Codecs.color, Color(0xFFF2C130));
+
+  /// Per-bar colours; missing entries fall back to color.
+  static const colors = PropDef<List<Color>>('colors', ListCodec<Color>(Codecs.color), []);
   static const dimmedOpacity = PropDef<double>('dimmedOpacity', Codecs.double, 0.55);
   static const barGap = PropDef<double>('barGap', Codecs.double, 3);
   static const barRadius = PropDef<double>('barRadius', Codecs.double, 1);
@@ -356,7 +359,7 @@ abstract final class BarChartProps {
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
   static const spec = WidgetSpec('barChart', props: [
-    values, labels, highlight, max, color, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
+    values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
     highlightLabelColor, labelGap, animate, animationDuration,
   ], doc: 'Bar chart.');
