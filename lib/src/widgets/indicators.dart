@@ -249,6 +249,21 @@ abstract final class ChartProps {
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
+  /// Line charts: the row field holding each point's x value, placed over
+  /// [domainMin]–[domainMax] (minutes, years...) instead of one slot per
+  /// row. Unset: rows sit in slots ([xSlots]).
+  static const xField = PropDef<String?>('xField', IndicatorCodecs.optionalString, null);
+
+  /// Line charts with [xField]: x-axis labels at values (`{"x", "label"}`),
+  /// drawn instead of each row's label.
+  static const xLabels = PropDef<List<PlotChartLabel>>('xLabels', PlotChartLabel.codec, []);
+
+  /// Room right of the plot for series end labels ([ChartSeries.endLabel]).
+  static const endLabelWidth = PropDef<double>('endLabelWidth', Codecs.double, 0);
+
+  /// Decimals of the values in series end labels.
+  static const endLabelDecimals = PropDef<int>('endLabelDecimals', IntCodec(min: 0), 1);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -261,6 +276,7 @@ abstract final class ChartProps {
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily,
+    xField, xLabels, endLabelWidth, endLabelDecimals,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
@@ -310,6 +326,26 @@ abstract final class PlotChartProps {
   static const selectionDotColor = PropDef<Color>('selectionDotColor', Codecs.color, Color.white);
   static const selectionDotStrokeColor = PropDef<Color>('selectionDotStrokeColor', Codecs.color, Color.black);
   static const selectionDotStrokeWidth = PropDef<double>('selectionDotStrokeWidth', Codecs.double, 2.5);
+
+  /// Horizontal lines: grid lines with y-axis labels, and references (a
+  /// dashed target with an inline label).
+  static const yLines = PropDef<List<PlotChartYLine>>('yLines', PlotChartYLine.codec, []);
+
+  /// Room left of the plot for the y lines' axis labels.
+  static const yAxisWidth = PropDef<double>('yAxisWidth', Codecs.double, 0);
+
+  /// Where the curve (and the area under it) stops, an x value: the rest
+  /// of the domain stays empty (a series that hasn't happened yet). Unset:
+  /// the whole domain.
+  static const lineEndX = PropDef<double?>('lineEndX', IndicatorCodecs.optionalDouble, null);
+
+  /// A dot of this radius where the curve ends, in the line color with a
+  /// [selectionDotColor] ring; 0 for none.
+  static const endDotRadius = PropDef<double>('endDotRadius', Codecs.double, 0);
+
+  /// Markers are rings (the marker's color round a [selectionDotColor]
+  /// center) instead of dots.
+  static const markerHollow = PropDef<bool>('markerHollow', Codecs.bool, false);
 
   // --- Cartesian graph -------------------------------------------------------
 
@@ -381,6 +417,7 @@ abstract final class PlotChartProps {
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
     selectionDotColor, selectionDotStrokeColor, selectionDotStrokeWidth,
+    yLines, yAxisWidth, lineEndX, endDotRadius, markerHollow,
     series, gridAnchor, gridStepY, minorDivisions, minorGridColor, originAxes, axisWidth, axisArrows, xAxisTitle,
     yAxisTitle, axisTitleStyle, labelBackground, labelMargin, selectionY, selectionSeries, selectionGuides,
     selectionXLabel, selectionYLabel, selectionTagColor, selectionTagStyle, selectionHaloRadius, selectionHaloColor,
@@ -409,6 +446,8 @@ abstract final class BarChartProps {
   static const emptyHeight = PropDef<double>('emptyHeight', Codecs.double, 2);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 3);
   static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF2B3038));
+  /// The grid lines' labels, bottom up; one more than [gridLines] labels
+  /// the baseline first ("0").
   static const gridLabels = PropDef<List<String>>('gridLabels', IndicatorCodecs.strings, []);
   static const gridLabelWidth = PropDef<double>('gridLabelWidth', Codecs.double, 40);
   static const baselineColor = PropDef<Color>('baselineColor', Codecs.color, Color(0xFF3A3F47));
@@ -431,10 +470,23 @@ abstract final class BarChartProps {
   /// Each bar's value above it (whole numbers without decimals).
   static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
 
+  /// The weight of the labels under the bars and of the values (100–900).
+  static const labelFontWeight = PropDef<int>('labelFontWeight', IntCodec(min: 100), 400);
+
+  /// Whether the label under the [highlight]ed bar takes
+  /// [highlightLabelColor] (its value above always does).
+  static const highlightLabels = PropDef<bool>('highlightLabels', Codecs.bool, true);
+
+  /// The grid labels' own color, size and weight (null: the labels').
+  static const gridLabelColor = PropDef<Color?>('gridLabelColor', Codecs.color, null);
+  static const gridLabelFontSize = PropDef<double?>('gridLabelFontSize', Codecs.optionalPositive, null);
+  static const gridLabelFontWeight = PropDef<int?>('gridLabelFontWeight', Codecs.optionalInt, null);
+
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight,
+    highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
 

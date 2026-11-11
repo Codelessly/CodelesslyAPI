@@ -238,7 +238,8 @@ abstract final class SwitchProps {
   ], doc: 'Flutter `Switch`.');
 }
 
-/// Flutter `Radio<String>`, scaled to its box (32 px is its own size).
+/// Flutter `Radio<String>`, scaled to its box (32 px is its own size; its
+/// ring, 18 px, when [compact]).
 abstract final class RadioProps {
   static const value = PropDef<String>('value', Codecs.string, '');
 
@@ -257,9 +258,13 @@ abstract final class RadioProps {
   static const innerRadius = PropDef<double?>('innerRadius', Codecs.positive, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.color, null);
 
+  /// The ring fills the box (no tap padding around it), as a compact
+  /// checkbox's square does: an 18 px radio is an 18 px ring.
+  static const compact = PropDef<bool>('compact', Codecs.bool, false);
+
   static const spec = WidgetSpec('radio', props: [
     value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
-    innerRadius, backgroundColor,
+    innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
 
@@ -487,7 +492,7 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], doc: 'Flutter `DropdownButton`.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- date and time ------------------------------------------------------------
@@ -559,10 +564,24 @@ abstract final class DateTimeInputProps {
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled], doc: 'Flutter `InputDecorator`.');
+      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled],
+      decorated: true,
+      doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- segmentedButton ----------------------------------------------------------
+
+/// How a segmented button is drawn.
+enum SegmentedVariant {
+  /// Flutter's `SegmentedButton`: outlined segments with dividers.
+  material,
+
+  /// A tinted track ([SegmentedButtonProps.backgroundColor], [side],
+  /// [borderRadius]) holding the segments, the selected one raised on it
+  /// ([SegmentedButtonProps.selectedBackgroundColor], `selectedShadows`),
+  /// with no dividers: the filter control of dashboards and toolbars.
+  track,
+}
 
 /// Flutter `SegmentedButton<String>`.
 abstract final class SegmentedButtonProps {
@@ -589,11 +608,30 @@ abstract final class SegmentedButtonProps {
   /// Each segment's padding (`padding`); unset is Flutter's.
   static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
 
+  /// Each segment's height (`ButtonStyle.minimumSize` / `maximumSize`);
+  /// unset is Flutter's 40.
+  static const segmentHeight = PropDef<double?>('segmentHeight', Codecs.optionalDouble, null);
+
+  /// The segments share the node's width equally (`expandedInsets: zero`).
+  static const expanded = PropDef<bool>('expanded', Codecs.bool, false);
+
+  /// No extra space round the segments for touch (`MaterialTapTargetSize.shrinkWrap`).
+  static const shrinkTapTarget = PropDef<bool>('shrinkTapTarget', Codecs.bool, false);
+
+  /// Material's segmented button, or a [SegmentedVariant.track].
+  static const variant = PropDef<SegmentedVariant>('variant', EnumCodec(SegmentedVariant.values), SegmentedVariant.material);
+
+  /// A track's inset around its segments.
+  static const trackPadding = PropDef<double>('trackPadding', Codecs.double, 3);
+
+  /// The shadows under a track's selected segment.
+  static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-    padding,
-  ], doc: 'Flutter `SegmentedButton`.');
+    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows,
+  ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
 // --- signature ----------------------------------------------------------------

@@ -138,9 +138,13 @@ final class ChartSeries extends PropRecord {
   static const fillToDef = PropDef<String?>('fillTo', IndicatorCodecs.optionalString, null);
   static const fillOpacityDef = PropDef<double>('fillOpacity', DoubleCodec(min: 0, max: 1), 0.25);
 
+  /// Line and area series: its [name] and last value written at the end of
+  /// its line, in its color (labels of different series are kept apart).
+  static const endLabelDef = PropDef<bool>('endLabel', Codecs.bool, false);
+
   static const spec = WidgetSpec('ChartSeries', props: [
     fieldDef, nameDef, kindDef, colorDef, colorFieldDef, stackDef, dashedDef, strokeWidthDef, endDotDef, //
-    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef,
+    endDotHaloColorDef, curvedDef, fillToDef, fillOpacityDef, endLabelDef,
   ]);
 
   @override
@@ -158,6 +162,7 @@ final class ChartSeries extends PropRecord {
   bool get curved => get(curvedDef);
   String? get fillTo => get(fillToDef);
   double get fillOpacity => get(fillOpacityDef);
+  bool get endLabel => get(endLabelDef);
 
   ChartSeries withColor(Color color) => ChartSeries._(props.set(colorDef, color));
 
@@ -212,13 +217,19 @@ final class PlotChartRange extends PropRecord {
   static const fromDef = PropDef<double>('from', Codecs.double, 0);
   static const toDef = PropDef<double>('to', Codecs.double, 0);
   static const colorDef = PropDef<Color>('color', Codecs.color, Color(0x19000000));
-  static const spec = WidgetSpec('PlotChartRange', props: [fromDef, toDef, colorDef]);
+
+  /// Written at the range's top left (the chart's marker label style, muted).
+  static const labelDef = PropDef<String>('label', Codecs.string, '');
+  static const labelColorDef = PropDef<Color?>('labelColor', IndicatorCodecs.optionalColor, null);
+  static const spec = WidgetSpec('PlotChartRange', props: [fromDef, toDef, colorDef, labelDef, labelColorDef]);
 
   @override
   WidgetSpec get schema => spec;
   double get from => get(fromDef);
   double get to => get(toDef);
   Color get color => get(colorDef);
+  String get label => get(labelDef);
+  Color? get labelColor => get(labelColorDef);
 
   static PlotChartRange? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartRange._(Props.fromJson(spec, json));
@@ -283,6 +294,39 @@ final class PlotChartMarker extends PropRecord {
   static PlotChartMarker? fromJson(Object? json) =>
       readMap(json) == null ? null : PlotChartMarker._(Props.fromJson(spec, json));
   static const codec = ListCodec<PlotChartMarker>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartMarker', spec)));
+}
+
+/// A horizontal line across a plot chart at [y]: a grid line, or a
+/// reference such as a target (dashed, with an inline [label]). [axisLabel]
+/// is written in the chart's y-axis gutter ([PlotChartProps.yAxisWidth]).
+final class PlotChartYLine extends PropRecord {
+  const PlotChartYLine._(super.props);
+
+  static const yDef = PropDef<double>('y', Codecs.double, 0);
+  static const colorDef = PropDef<Color>('color', Codecs.color, Color(0x19000000));
+  static const widthDef = PropDef<double>('width', Codecs.positive, 1);
+  static const dashedDef = PropDef<bool>('dashed', Codecs.bool, false);
+
+  /// Written above the line at the plot's left, on a box of [labelBackground].
+  static const labelDef = PropDef<String>('label', Codecs.string, '');
+  static const labelBackgroundDef = PropDef<Color?>('labelBackground', IndicatorCodecs.optionalColor, null);
+  static const axisLabelDef = PropDef<String>('axisLabel', Codecs.string, '');
+  static const spec = WidgetSpec('PlotChartYLine',
+      props: [yDef, colorDef, widthDef, dashedDef, labelDef, labelBackgroundDef, axisLabelDef]);
+
+  @override
+  WidgetSpec get schema => spec;
+  double get y => get(yDef);
+  Color get color => get(colorDef);
+  double get width => get(widthDef);
+  bool get dashed => get(dashedDef);
+  String get label => get(labelDef);
+  Color? get labelBackground => get(labelBackgroundDef);
+  String get axisLabel => get(axisLabelDef);
+
+  static PlotChartYLine? fromJson(Object? json) =>
+      readMap(json) == null ? null : PlotChartYLine._(Props.fromJson(spec, json));
+  static const codec = ListCodec<PlotChartYLine>(ValueCodec(fromJson, _recordOut, PropType.record('PlotChartYLine', spec)));
 }
 
 /// One more curve on a plot chart, over the chart's x domain: [points] are
