@@ -261,6 +261,13 @@ abstract final class ChartProps {
   /// The tooltip's first line: this row field, else the category label.
   static const tooltipTitleField = PropDef<String>('tooltipTitleField', Codecs.string, '');
 
+  /// The tooltip's title, series names and values, merged over the
+  /// defaults (12 bold, 13 semibold, 13 bold; the axis font family, in
+  /// [tooltipTextColor]).
+  static const tooltipTitleStyle = PropDef<TextStyle>('tooltipTitleStyle', _style, TextStyle.empty);
+  static const tooltipLabelStyle = PropDef<TextStyle>('tooltipLabelStyle', _style, TextStyle.empty);
+  static const tooltipValueStyle = PropDef<TextStyle>('tooltipValueStyle', _style, TextStyle.empty);
+
   /// Each bar group's total above it; the selected one in
   /// [totalsSelectedColor].
   static const showTotals = PropDef<bool>('showTotals', Codecs.bool, false);
@@ -293,7 +300,8 @@ abstract final class ChartProps {
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily, dimUnselected, tooltip,
-    tooltipColor, tooltipTextColor, tooltipTitleField, showTotals, totalsColor, totalsSelectedColor, stackGap,
+    tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
+    showTotals, totalsColor, totalsSelectedColor, stackGap,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
@@ -434,8 +442,19 @@ abstract final class LineChartProps {
   static const axisTitleStyle = PropDef<TextStyle>('axisTitleStyle', _style, TextStyle.empty);
   static const markerLabelStyle = PropDef<TextStyle>('markerLabelStyle', _style, TextStyle.empty);
   static const tagTextStyle = PropDef<TextStyle>('tagTextStyle', _style, TextStyle.empty);
+  /// The tooltip at [selectedX]: its first line (the x, small) and the y
+  /// value (bigger, bold), each merged over its default.
   static const tooltipLabelStyle = PropDef<TextStyle>('tooltipLabelStyle', _style, TextStyle.empty);
   static const tooltipValueStyle = PropDef<TextStyle>('tooltipValueStyle', _style, TextStyle.empty);
+
+  /// The tooltip's first line: this row field, else the x ([tooltipXFormat]
+  /// for dates).
+  static const tooltipLabelField = PropDef<String>('tooltipLabelField', Codecs.string, '');
+
+  /// The point (nearest x) with the cursor and tooltip; null for none.
+  static const selectedX = PropDef<double?>('selectedX', IndicatorCodecs.optionalDouble, null);
+
+  /// Hovering or dragging selects the nearest point in a running app.
   static const scrubEnabled = PropDef<bool>('scrubEnabled', Codecs.bool, false);
   static const scrubStep = PropDef<double>('scrubStep', Codecs.double, 1);
   static const tooltipXFormat = PropDef<String>('tooltipXFormat', Codecs.string, 'h:mm a');
@@ -454,7 +473,10 @@ abstract final class LineChartProps {
   /// Parts of the area under the curve: `[{"from", "to", "below", "color", "barColor"?}]`.
   static const areaBands = PropDef<List<Json>>('areaBands', IndicatorCodecs.objects, []);
 
-  /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off]}]`.
+  /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off],
+  /// "label"?, "labelColor"?, "labelBelow"?}]`; a label sits at the right
+  /// end, above the line unless labelBelow, in [axisLabelStyle] (bold, the
+  /// line's color unless labelColor).
   static const referenceLines = PropDef<List<Json>>('referenceLines', IndicatorCodecs.objects, []);
 
   /// X axis ticks: `[{"x", "label"}]`.
@@ -479,7 +501,7 @@ abstract final class LineChartProps {
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
     cursorRingFill, tooltipBackground, tooltipShadowColor, yAxisTitle, axisLabelStyle, axisTitleStyle,
-    markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, scrubEnabled, scrubStep, tooltipXFormat,
+    markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, tooltipLabelField, selectedX, scrubEnabled, scrubStep, tooltipXFormat,
     tooltipYScale, tooltipYDecimals, tooltipYSuffix, tooltipTrend, semanticLabel, bands, yTicks, areaBands,
     referenceLines, xTicks, markers, verticalLines, animateIn,
     animate, animationDuration,
