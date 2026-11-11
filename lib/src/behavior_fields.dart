@@ -49,10 +49,14 @@ const dropTargetType = PropType.object('DropTarget', dropTargetFields);
 const dragTrackType = PropType.object('DragTrack', dragTrackFields);
 const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
+const stickyType = PropType.object('Sticky', stickyFields);
+const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
+const measureType = PropType.object('Measure', measureFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
+const flightType = PropType.object('Flight', flightFields);
 const motionShimmerType = PropType.object('MotionShimmer', motionShimmerFields);
 const gesturePhysicsType = PropType.object('GesturePhysics', gesturePhysicsFields);
 const gestureSnapType = PropType.object('GestureSnap', gestureSnapFields);
@@ -144,10 +148,16 @@ abstract final class MotionFields {
   );
   static const pulseKey = PropDef<String?>('pulseKey', Codecs.optionalString, null);
   static const revealOnScroll = PropDef<bool>('revealOnScroll', Codecs.bool, false);
+
+  /// Holds the entrance at its start while true (bindable).
+  static const enterHeld = PropDef<bool>('enterHeld', Codecs.bool, false);
   static const revealFraction = PropDef<double>('revealFraction', Codecs.double, 0.15);
 
   /// With [orientToPath]: never upside down.
   static const orientUpright = PropDef<bool>('orientUpright', Codecs.bool, false);
+
+  /// With [orientUpright]: heading left mirrors the node, so its front leads.
+  static const uprightMirror = PropDef<bool>('uprightMirror', Codecs.bool, false);
 
   /// A change of position bends this share of its distance off the line.
   static const arc = PropDef<double>('arc', Codecs.double, 0);
@@ -169,6 +179,10 @@ abstract final class MotionFields {
 
   /// Reads the progress modulo 1.
   static const pathWrap = PropDef<bool>('pathWrap', Codecs.bool, false);
+
+  /// The path's coordinate space `[width, height]`, stretched over the
+  /// node's parent; empty: pixels.
+  static const pathViewBox = PropDef<List<double>>('pathViewBox', Codecs.doubles, []);
   static const shimmer = PropDef<MotionShimmer?>(
     'shimmer',
     ValueCodec(MotionShimmer.fromJson, _out, motionShimmerType),
@@ -179,8 +193,8 @@ abstract final class MotionFields {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
-    shimmer,
+    revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
+    pathWrap, pathViewBox, shimmer,
   ];
 }
 
@@ -705,8 +719,16 @@ abstract final class EffectAnimationFields {
 
   /// Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own.
   static const cycles = PropDef<double>('cycles', Codecs.positive, 0);
+
+  /// A `keyframes` effect's poses at times 0–1 (from rest, back to rest).
+  static const keyframes = PropDef<List<MotionKeyframe>>(
+    'keyframes',
+    ListCodec(ValueCodec(MotionKeyframe.fromJson, _out, motionKeyframeType)),
+    [],
+  );
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
   static const List<PropDef<Object?>> all = [
-    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, //
+    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, keyframes, curve, //
   ];
 }
 
@@ -735,11 +757,65 @@ abstract final class ParticleEmitterFields {
   static const gravity = PropDef<double>('gravity', Codecs.double, 900);
   static const lifetime = PropDef<int>('lifetime', _ms, 2600);
   static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
+
+  /// Wait after the cue (ms).
+  static const delay = PropDef<int>('delay', _ms, 0);
+
+  /// Speed lost per second, e^(-drag).
+  static const drag = PropDef<double>('drag', Codecs.positive, 0);
+
+  /// The fastest fall (px/s; 0: no limit).
+  static const terminalVelocity = PropDef<double>('terminalVelocity', Codecs.positive, 0);
+
+  /// Side-to-side sway (px).
+  static const sway = PropDef<double>('sway', Codecs.double, 0);
+
+  /// Turning over in 3D (radians per second, up to).
+  static const flutter = PropDef<double>('flutter', Codecs.positive, 8);
+
+  /// Spin (degrees per second, up to).
+  static const spin = PropDef<double>('spin', Codecs.double, 515);
+
+  /// Fade out over the end of each particle's life (ms).
+  static const fadeOut = PropDef<int>('fadeOut', _ms, 500);
+
+  /// Two cannons: every other particle mirrored across the middle.
+  static const mirror = PropDef<bool>('mirror', Codecs.bool, false);
+
+  /// The text emoji particles draw.
+  static const glyph = PropDef<String>('glyph', Codecs.string, '');
+  /// The image `image` particles draw (a URL).
+  static const image = PropDef<String>('image', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear,
+    lifetime, playOnAppear, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph, image,
   ];
 }
+
+abstract final class FlightFields {
+  /// 0: on the node's spring.
+  static const duration = PropDef<int>('duration', _ms, 0);
+  static const curve = PropDef<AnimationCurve>('curve', EnumCodec(AnimationCurve.values), AnimationCurve.easeInOut);
+
+  /// Rise of the path's control point above the higher end (px).
+  static const lift = PropDef<double>('lift', Codecs.double, 0);
+
+  /// The same as a share of the distance flown (the larger wins).
+  static const liftShare = PropDef<double>('liftShare', Codecs.double, 0);
+
+  /// Scale at the middle of the flight.
+  static const swell = PropDef<double>('swell', Codecs.positive, 1);
+
+  /// Turns over the flight, clockwise when flying right.
+  static const turns = PropDef<double>('turns', Codecs.double, 0);
+
+  /// Fading dots left behind.
+  static const trail = PropDef<int>('trail', IntCodec(min: 0), 0);
+  static const trailColor = PropDef<Color>('trailColor', Codecs.color, Color(0xFFFFC83D));
+  static const List<PropDef<Object?>> all = [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
+}
+
+List<PropDef<Object?>> flightFields() => FlightFields.all;
 
 List<PropDef<Object?>> particleEmitterFields() => ParticleEmitterFields.all;
 
@@ -815,6 +891,51 @@ abstract final class RevealFields {
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
 
+abstract final class StickyFields {
+  /// Distance from the view's leading edge where it pins (px).
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [offset];
+}
+
+List<PropDef<Object?>> stickyFields() => StickyFields.all;
+
+abstract final class ViewProgressFields {
+  static const mode = PropDef<ViewProgressMode>('mode', EnumCodec(ViewProgressMode.values), ViewProgressMode.travel);
+
+  /// Where progress is 0 (travel) or where the line is (pass): a fraction
+  /// of the viewport from its leading edge.
+  static const from = PropDef<double>('from', Codecs.double, 1);
+
+  /// Where progress is 1 (travel).
+  static const to = PropDef<double>('to', Codecs.double, 0);
+
+  /// Pixels added to both.
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+
+  /// A variable the progress is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [mode, from, to, offset, variable, key];
+}
+
+List<PropDef<Object?>> viewProgressFields() => ViewProgressFields.all;
+
+abstract final class MeasureFields {
+  /// The variable its box is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+
+  /// An ancestor node whose box it's measured in; empty: the screen.
+  static const relativeTo = PropDef<String>('relativeTo', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [variable, key, relativeTo];
+}
+
+List<PropDef<Object?>> measureFields() => MeasureFields.all;
+
 // --- Behaviors -----------------------------------------------------------------
 
 /// A node's [Behaviors], one per key of [Behaviors.keys]: stored flat in
@@ -851,6 +972,7 @@ abstract final class BehaviorFields {
   static const floating = PropDef<bool>('floating', Codecs.bool, false);
   static const hero = PropDef<HeroTag?>('hero', ValueCodec(HeroTag.fromJson, _heroOut, heroTagType), null);
   static const flightKey = PropDef<String>('flightKey', Codecs.string, '');
+  static const flight = PropDef<Flight?>('flight', ValueCodec(Flight.fromJson, _out, flightType), null);
   static const draggable = PropDef<DragSource?>(
     'draggable',
     ValueCodec(DragSource.fromJson, _out, dragSourceType),
@@ -896,10 +1018,23 @@ abstract final class BehaviorFields {
     null,
   );
 
+  /// Pinned in its scrolling view while its parent is in view.
+  static const sticky = PropDef<Sticky?>('sticky', ValueCodec(Sticky.fromJson, _out, stickyType), null);
+
+  /// `${view.progress}` through the viewport.
+  static const viewProgress = PropDef<ViewProgress?>(
+    'viewProgress',
+    ValueCodec(ViewProgress.fromJson, _out, viewProgressType),
+    null,
+  );
+
+  /// Its laid-out box, written to a variable.
+  static const measure = PropDef<Measure?>('measure', ValueCodec(Measure.fromJson, _out, measureType), null);
+
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
-    textDirection, flip, tilt, transformGesture,
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }
