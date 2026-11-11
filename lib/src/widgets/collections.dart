@@ -122,7 +122,8 @@ abstract final class ListViewProps {
   static const itemExtent = PropDef<double?>('itemExtent', _optionalPositive, null);
   static const separator = PropDef<ListSeparator>('separator', EnumCodec(ListSeparator.values), ListSeparator.none);
 
-  /// The separator's extent; negative overlaps the items.
+  /// The separator's extent; negative overlaps the items. Without a
+  /// [separator] it is empty space (as a row's or column's spacing).
   static const spacing = PropDef<double>('spacing', Codecs.double, 0);
   static const dividerThickness = PropDef<double>('dividerThickness', Codecs.positive, 1);
   static const dividerColor = PropDef<Color>('dividerColor', Codecs.color, Color.black);
