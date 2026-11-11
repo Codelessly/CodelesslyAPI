@@ -74,6 +74,23 @@ void main() {
       ],
     };
 
+    test('test args may be a list in param order', () {
+      final s = ScriptDef.fromJson({
+        'id': 's2',
+        'name': 'move',
+        'params': ['from', 'to', 'speed'],
+        'source': 'return [from, to];',
+        'tests': [
+          {'name': 'positional', 'args': ['camp', 'cairn'], 'expect': ['camp', 'cairn']},
+          {'name': 'too many', 'args': [1, 2, 3, 4]},
+        ],
+      })!;
+      expect(s.tests[0].args, {'from': 'camp', 'to': 'cairn'});
+      expect(s.tests[1].args, {'from': 1, 'to': 2, 'speed': 3});
+      expect(ScriptTest.argsByName({'from': 'x'}, const []), {'from': 'x'});
+      expect(ScriptDef.fromJson(s.toJson()), s);
+    });
+
     test('round-trip, unknown capabilities dropped', () {
       final s = ScriptDef.fromJson({
         ...json,

@@ -57,6 +57,16 @@ enum ListLayout {
   deck,
 }
 
+/// Which lane a masonry grid puts each item in.
+enum MasonryPlacement {
+  /// Item i in lane i modulo the lane count, in reading order.
+  cycle,
+
+  /// Each item in the lane that is shortest so far (the first on a tie), as
+  /// a staggered `MasonryGridView` does: lanes end close to even.
+  shortest,
+}
+
 /// When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`).
 enum KeyboardDismissBehavior { manual, onDrag }
 
@@ -189,8 +199,16 @@ abstract final class GridViewProps {
   /// instead of a fixed extent.
   static const shrinkWrapRows = PropDef<bool>('shrinkWrapRows', Codecs.bool, false);
 
-  /// Natural-height items in independent lanes, cycling in reading order.
+  /// Natural-height items in independent lanes, placed by
+  /// [masonryPlacement].
   static const masonry = PropDef<bool>('masonry', Codecs.bool, false);
+
+  /// A masonry grid's lane for each item: in turn, or the shortest.
+  static const masonryPlacement = PropDef<MasonryPlacement>(
+    'masonryPlacement',
+    EnumCodec(MasonryPlacement.values),
+    MasonryPlacement.cycle,
+  );
 
   /// Loads the items page by page (see [ListViewProps.pagination]).
   static const pagination = ListViewProps.pagination;
@@ -202,7 +220,7 @@ abstract final class GridViewProps {
     'gridView',
     props: [
       ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
-      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, pagination, reorder,
+      childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, masonryPlacement, pagination, reorder,
     ],
     slots: CollectionSlots.grid,
     children: ChildModel.list,
@@ -551,6 +569,10 @@ abstract final class TableViewProps {
   static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
+  /// The last column takes the width the columns leave over, so the ruled
+  /// rows run to the table's edge.
+  static const stretchLastColumn = PropDef<bool>('stretchLastColumn', Codecs.bool, false);
+
   static const cell = 'cell', columnHeader = 'columnHeader', rowHeader = 'rowHeader', corner = 'corner';
 
   static const spec = WidgetSpec(
@@ -558,7 +580,7 @@ abstract final class TableViewProps {
     props: [
       columns, rowCount, rowHeight, rowHeightKey, headerHeight, columnWidth, rowHeaderWidth, fillWidth, //
       pinHeaderRow, pinHeaderColumn,
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, stretchLastColumn,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
