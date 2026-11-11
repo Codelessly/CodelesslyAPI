@@ -238,7 +238,8 @@ abstract final class SwitchProps {
   ], doc: 'Flutter `Switch`.');
 }
 
-/// Flutter `Radio<String>`, scaled to its box (32 px is its own size).
+/// Flutter `Radio<String>`, scaled to its box (32 px is its own size; its
+/// ring, 18 px, when [compact]).
 abstract final class RadioProps {
   static const value = PropDef<String>('value', Codecs.string, '');
 
@@ -257,9 +258,13 @@ abstract final class RadioProps {
   static const innerRadius = PropDef<double?>('innerRadius', Codecs.positive, null);
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.color, null);
 
+  /// The ring fills the box (no tap padding around it), as a compact
+  /// checkbox's square does: an 18 px radio is an 18 px ring.
+  static const compact = PropDef<bool>('compact', Codecs.bool, false);
+
   static const spec = WidgetSpec('radio', props: [
     value, groupValue, toggleable, autofocus, activeColor, inactiveColor, hoverColor, focusColor, splashRadius, side, //
-    innerRadius, backgroundColor,
+    innerRadius, backgroundColor, compact,
   ], doc: 'Flutter `Radio`.');
 }
 
@@ -487,7 +492,7 @@ abstract final class DropdownProps {
     alignment, hint, hintStyle, iconDisabledColor, iconEnabledColor, iconSize, icon, dropdownColor, focusColor,
     hoverColor, splashColor, elevation, borderRadius, underline, useDataSource, itemLabel, itemImage, itemImageSize,
     itemImageRadius, menuStyle,
-  ], doc: 'Flutter `DropdownButton`.');
+  ], decorated: true, doc: 'Flutter `DropdownButton`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- date and time ------------------------------------------------------------
@@ -558,11 +563,44 @@ abstract final class DateTimeInputProps {
   static const min = PropDef<String?>('min', Codecs.string, null);
   static const max = PropDef<String?>('max', Codecs.string, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+
+  /// How the value reads: an `intl` pattern (`MMM d, y`, `h:mm a`); null is
+  /// Material's localized date and time.
+  static const format = PropDef<String?>('format', Codecs.optionalString, null);
+
+  /// The value's text style.
+  static const style = PropDef<TextStyle>('style', Codecs.textStyle, TextStyle.empty);
+
+  /// Shown while empty (null: "Select date" / "Select time").
+  static const hint = PropDef<String?>('hint', Codecs.optionalString, null);
+  static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
+
+  /// The icon after the value (null: a calendar or clock).
+  static const icon = PropDef<InputIcon?>('icon', InputCodecs.icon, null);
+
+  /// Only the value and its icon, no Material field around them: the node's
+  /// own fill, border and padding make the box.
+  static const bare = PropDef<bool>('bare', Codecs.bool, false);
+
   static const spec = WidgetSpec('dateTimeInput',
-      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled], doc: 'Flutter `InputDecorator`.');
+      props: [mode, value, labelText, firstDate, lastDate, min, max, enabled, format, style, hint, hintStyle, icon, bare],
+      decorated: true,
+      doc: 'Flutter `InputDecorator`; its fill, border, shadow and padding draw a box around it.');
 }
 
 // --- segmentedButton ----------------------------------------------------------
+
+/// How a segmented button is drawn.
+enum SegmentedVariant {
+  /// Flutter's `SegmentedButton`: outlined segments with dividers.
+  material,
+
+  /// A tinted track ([SegmentedButtonProps.backgroundColor], [side],
+  /// [borderRadius]) holding the segments, the selected one raised on it
+  /// ([SegmentedButtonProps.selectedBackgroundColor], `selectedShadows`),
+  /// with no dividers: the filter control of dashboards and toolbars.
+  track,
+}
 
 /// Flutter `SegmentedButton<String>`.
 abstract final class SegmentedButtonProps {
@@ -589,11 +627,35 @@ abstract final class SegmentedButtonProps {
   /// Each segment's padding (`padding`); unset is Flutter's.
   static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
 
+  /// Each segment's height (`ButtonStyle.minimumSize` / `maximumSize`);
+  /// unset is Flutter's 40.
+  static const segmentHeight = PropDef<double?>('segmentHeight', Codecs.optionalDouble, null);
+
+  /// The segments share the node's width equally (`expandedInsets: zero`).
+  static const expanded = PropDef<bool>('expanded', Codecs.bool, false);
+
+  /// No extra space round the segments for touch (`MaterialTapTargetSize.shrinkWrap`).
+  static const shrinkTapTarget = PropDef<bool>('shrinkTapTarget', Codecs.bool, false);
+
+  /// Material's segmented button, or a [SegmentedVariant.track].
+  static const variant = PropDef<SegmentedVariant>('variant', EnumCodec(SegmentedVariant.values), SegmentedVariant.material);
+
+  /// A track's inset around its segments.
+  static const trackPadding = PropDef<double>('trackPadding', Codecs.double, 3);
+
+  /// The shadows under a track's selected segment.
+  static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
+
+  /// A track's selection is one thumb that slides between its segments
+  /// (single selection, horizontal, segments sharing the width); otherwise
+  /// each segment fills in place.
+  static const slidingThumb = PropDef<bool>('slidingThumb', Codecs.bool, false);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-    padding,
-  ], doc: 'Flutter `SegmentedButton`.');
+    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows, slidingThumb,
+  ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
 // --- signature ----------------------------------------------------------------
@@ -610,6 +672,15 @@ List<List<Offset>>? _strokesIn(Object? json) => [
 Object? _strokesOut(List<List<Offset>> v) => [
       for (final s in v) [for (final p in s) p.toJson()],
     ];
+
+/// Where a signature pad's placeholder sits.
+enum SignaturePlaceholderPosition {
+  /// In the middle of the pad.
+  center,
+
+  /// Under the sign line, at its start (a form's "Sign here" caption).
+  belowLine,
+}
 
 /// A signature pad: strokes drawn with a finger or mouse, on a bordered card
 /// with a placeholder and a sign line.
@@ -633,6 +704,23 @@ abstract final class SignatureProps {
   static const showSignLine = PropDef<bool>('showSignLine', Codecs.bool, true);
   static const signLineColor = PropDef<Color>('signLineColor', Codecs.color, Color(0xFFA9ADA5));
 
+  /// The × at the start of the sign line.
+  static const signLineMark = PropDef<bool>('signLineMark', Codecs.bool, true);
+
+  /// The sign line's inset from the pad's sides.
+  static const signLineInset = PropDef<double>('signLineInset', Codecs.positive, 20);
+
+  /// The sign line's distance from the pad's bottom (null: a quarter of its height).
+  static const signLineBottom = PropDef<double?>('signLineBottom', Codecs.optionalPositive, null);
+
+  /// Where the placeholder sits: centered, or under the sign line at its start.
+  static const placeholderPosition = PropDef<SignaturePlaceholderPosition>(
+      'placeholderPosition', EnumCodec(SignaturePlaceholderPosition.values), SignaturePlaceholderPosition.center);
+  static const placeholderFontWeight = PropDef<int>('placeholderFontWeight', IntCodec(min: 100), 600);
+
+  /// Null: 12% of the font size.
+  static const placeholderLetterSpacing = PropDef<double?>('placeholderLetterSpacing', Codecs.optionalDouble, null);
+
   /// Shows the error border.
   static const error = PropDef<bool>('error', Codecs.bool, false);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
@@ -641,6 +729,7 @@ abstract final class SignatureProps {
   static const spec = WidgetSpec('signature', props: [
     value, normalized, inkColor, inkWidth, backgroundColor, borderColor, borderWidth, errorBorderColor, //
     errorBorderWidth, borderRadius, placeholder, placeholderColor, placeholderFontSize, showSignLine, signLineColor,
+    signLineMark, signLineInset, signLineBottom, placeholderPosition, placeholderFontWeight, placeholderLetterSpacing,
     error, enabled, readOnly,
   ], doc: 'A signature pad.');
 }
