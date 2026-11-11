@@ -2298,6 +2298,40 @@ final class Sticky extends _Value {
   List<Object?> get props => [offset];
 }
 
+/// Writes where the node is laid out, `{x, y, width, height, centerX,
+/// centerY}` in pixels, to a variable as layout changes: in the
+/// coordinates of the ancestor node [relativeTo] (empty: the screen),
+/// under [key] when the variable is a map. Other nodes then follow it: a
+/// marker travelling to the chip of the reader's layer on a timeline whose
+/// chips are laid out by data. The design canvas measures too.
+@immutable
+final class Measure extends _Value {
+  const Measure({this.variable = '', this.key = '', this.relativeTo = ''});
+
+  final String variable;
+
+  /// With [variable] a map: the key (an expression, `${item.id}`).
+  final String key;
+
+  /// The id of an ancestor node whose box the position is measured in.
+  final String relativeTo;
+
+  static Measure? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Measure(variable: r.s('variable'), key: r.s('key'), relativeTo: r.s('relativeTo'));
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..s('variable', variable)
+    ..s('key', key)
+    ..s('relativeTo', relativeTo);
+
+  @override
+  List<Object?> get props => [variable, key, relativeTo];
+}
+
 /// How a [ViewProgress] measures its node against the viewport.
 enum ViewProgressMode {
   /// The node's leading edge travels from [ViewProgress.from] to
@@ -2485,6 +2519,7 @@ final class Behaviors extends _Value {
     this.transformGesture,
     this.sticky,
     this.viewProgress,
+    this.measure,
   });
 
   static const Behaviors none = Behaviors();
@@ -2552,6 +2587,9 @@ final class Behaviors extends _Value {
   /// `${view.progress}`: how far it has scrolled through the viewport.
   final ViewProgress? viewProgress;
 
+  /// Its laid-out box, written to a variable.
+  final Measure? measure;
+
   /// [transformGesture], or what [zoomable] amounts to.
   TransformGesture? get effectiveTransformGesture =>
       transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
@@ -2560,7 +2598,7 @@ final class Behaviors extends _Value {
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
     'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath',
-    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress',
+    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
   };
 
   bool get isNone => this == none;
@@ -2598,6 +2636,7 @@ final class Behaviors extends _Value {
       transformGesture: TransformGesture.fromJson(m['transformGesture']),
       sticky: Sticky.fromJson(m['sticky']),
       viewProgress: ViewProgress.fromJson(m['viewProgress']),
+      measure: Measure.fromJson(m['measure']),
     );
   }
 
@@ -2629,6 +2668,7 @@ final class Behaviors extends _Value {
     if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
     if (sticky != null) j['sticky'] = sticky!.toJson();
     if (viewProgress != null) j['viewProgress'] = viewProgress!.toJson();
+    if (measure != null) j['measure'] = measure!.toJson();
   }
 
   Behaviors copyWith({
@@ -2657,6 +2697,7 @@ final class Behaviors extends _Value {
     TransformGesture? transformGesture,
     Sticky? sticky,
     ViewProgress? viewProgress,
+    Measure? measure,
   }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
@@ -2683,12 +2724,13 @@ final class Behaviors extends _Value {
     transformGesture: transformGesture ?? this.transformGesture,
     sticky: sticky ?? this.sticky,
     viewProgress: viewProgress ?? this.viewProgress,
+    measure: measure ?? this.measure,
   );
 
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture, sticky, viewProgress,
+    tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }

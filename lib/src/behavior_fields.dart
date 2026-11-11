@@ -51,6 +51,7 @@ const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
 const stickyType = PropType.object('Sticky', stickyFields);
 const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
+const measureType = PropType.object('Measure', measureFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
@@ -814,6 +815,20 @@ abstract final class ViewProgressFields {
 
 List<PropDef<Object?>> viewProgressFields() => ViewProgressFields.all;
 
+abstract final class MeasureFields {
+  /// The variable its box is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+
+  /// An ancestor node whose box it's measured in; empty: the screen.
+  static const relativeTo = PropDef<String>('relativeTo', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [variable, key, relativeTo];
+}
+
+List<PropDef<Object?>> measureFields() => MeasureFields.all;
+
 // --- Behaviors -----------------------------------------------------------------
 
 /// A node's [Behaviors], one per key of [Behaviors.keys]: stored flat in
@@ -900,10 +915,13 @@ abstract final class BehaviorFields {
     null,
   );
 
+  /// Its laid-out box, written to a variable.
+  static const measure = PropDef<Measure?>('measure', ValueCodec(Measure.fromJson, _out, measureType), null);
+
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, draggable, dropTarget, drag, reveal, strokePath, effectAnimations, particles, textDirection, flip,
-    tilt, transformGesture, sticky, viewProgress,
+    tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }
