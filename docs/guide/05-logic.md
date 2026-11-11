@@ -191,7 +191,7 @@ without them is unchanged): what the project does on its own at app-level moment
 ```json
 "automations": [
   {"id": "rate-us", "trigger": "event", "event": "order_completed",
-   "when": "usage.events.order_completed.count >= 3 && !auth.isAnonymous",
+   "when": "usage.events.order_completed.count >= 3 && auth.isSignedIn",
    "maxRuns": 1, "delayMs": 1500, "priority": 1,
    "actions": [{"type": "openModal", "to": "rate-us"}]}
 ]
@@ -199,7 +199,7 @@ without them is unchanged): what the project does on its own at app-level moment
 
 | Field | Meaning |
 |---|---|
-| `trigger` | `appStart`, `sessionStart` (start, or a return after `sessionTimeoutMs` in the background), `resume`, `event` (`event`), `interval` (`intervalMs`), `screenShown` (`screen`; empty: any) |
+| `trigger` | `appStart`, `sessionStart` (start, or a return after a while in the background: the runtime's session timeout), `resume`, `event` (`event`), `interval` (`intervalMs`), `screenShown` (`screen`; empty: any) |
 | `when` | A formula over `event` (`name`, `props`), `usage`, the app's variables, `auth`, `storage`, `data`; empty: always |
 | `maxRuns`, `maxPerSession`, `everyDays` | How often: once (`maxRuns: 1`), once per session, at most every n days; 0: no limit |
 | `delayMs`, `priority` | Wait after the trigger (then `when` is checked again); which presentation shows first when several wait |

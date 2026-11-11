@@ -12,7 +12,6 @@ void main() {
         'event': 'order_completed',
         'screen': 'home',
         'intervalMs': 5000,
-        'sessionTimeoutMs': 60000,
         'when': 'usage.events.order_completed.count >= 3',
         'maxRuns': 1,
         'maxPerSession': 1,
@@ -30,21 +29,34 @@ void main() {
       expect(a.actions.single, isA<OpenModalAction>());
       expect((a.actions.single as OpenModalAction).presentation, ModalPresentation.banner);
       expect(a.toJson(), json);
-      expect(Automation(id: 'x').toJson(), {'id': 'x', 'trigger': 'event'});
-      expect(Automation.fromJson({'id': 'x'}), Automation(id: 'x'));
+      expect(const Automation(id: 'x').toJson(), {'id': 'x', 'trigger': 'event'});
+      expect(Automation.fromJson({'id': 'x'}), const Automation(id: 'x'));
     });
 
     test('never throws; entries without an id are left out', () {
       expect(Automation.fromJson(null), isNull);
       expect(Automation.fromJson({'trigger': 'appStart'}), isNull);
       expect(Automation.fromJson({'id': ''}), isNull);
-      final odd = Automation.fromJson({'id': 'a', 'trigger': 'later', 'intervalMs': 1, 'maxRuns': -3, 'everyDays': 'x'})!;
+      final odd = Automation.fromJson({
+        'id': 'a',
+        'trigger': 'later',
+        'intervalMs': 1,
+        'maxRuns': -3,
+        'everyDays': 'x',
+      })!;
       expect(odd.trigger, AutomationTrigger.event);
       expect(odd.intervalMs, 1000);
       expect(odd.maxRuns, 0);
       expect(odd.everyDays, 0);
-      expect(Automation.listFromJson([{'id': 'a'}, 3, {'no': 'id'}, {'id': 'b', 'trigger': 'appStart'}]).map((a) => a.id),
-          ['a', 'b']);
+      expect(
+        Automation.listFromJson([
+          {'id': 'a'},
+          3,
+          {'no': 'id'},
+          {'id': 'b', 'trigger': 'appStart'},
+        ]).map((a) => a.id),
+        ['a', 'b'],
+      );
     });
 
     test('a publish model keeps them in extra: a model without any is unchanged', () {
@@ -52,7 +64,7 @@ void main() {
       final model = PublishModel.fromJson(plain);
       expect(model.automations, isEmpty);
       expect(model.toJson(), plain);
-      final withOne = model.withAutomations([Automation(id: 'hello', trigger: AutomationTrigger.appStart)]);
+      final withOne = model.withAutomations([const Automation(id: 'hello', trigger: AutomationTrigger.appStart)]);
       expect(withOne.toJson()['automations'], [
         {'id': 'hello', 'trigger': 'appStart'},
       ]);
@@ -64,11 +76,26 @@ void main() {
 
     test('fields declare every key with its default', () {
       final keys = {for (final f in AutomationFields.all) f.key};
-      expect(keys, containsAll(Automation(id: 'x', name: 'n', event: 'e', screen: 's', when: 'w', maxRuns: 1,
-              maxPerSession: 1, everyDays: 1, delayMs: 1, priority: 1, intervalMs: 2000, sessionTimeoutMs: 1,
-              enabled: false, actions: [const DelayAction()])
-          .toJson()
-          .keys));
+      expect(
+        keys,
+        containsAll(
+          const Automation(
+            id: 'x',
+            name: 'n',
+            event: 'e',
+            screen: 's',
+            when: 'w',
+            maxRuns: 1,
+            maxPerSession: 1,
+            everyDays: 1,
+            delayMs: 1,
+            priority: 1,
+            intervalMs: 2000,
+            enabled: false,
+            actions: [DelayAction()],
+          ).toJson().keys,
+        ),
+      );
       for (final f in AutomationFields.all) {
         if (f.defaultValue == null || f.key == 'id' || f.key == 'trigger') continue;
         final defaults = Automation.fromJson({'id': 'x'})!.toJson();
@@ -79,7 +106,11 @@ void main() {
 
   group('app event and capture actions', () {
     test('emitEvent round-trips', () {
-      final json = {'type': 'emitEvent', 'event': 'signed_up', 'props': {'plan': r'${plan}'}};
+      final json = {
+        'type': 'emitEvent',
+        'event': 'signed_up',
+        'props': {'plan': r'${plan}'},
+      };
       final a = ActionDef.fromJson(json)! as EmitEventAction;
       expect(a.event, 'signed_up');
       expect(a.toJson(), json);
@@ -92,8 +123,10 @@ void main() {
       final a = ActionDef.fromJson(json)! as CaptureScreenshotAction;
       expect(a.target, CaptureTarget.node);
       expect(a.toJson(), json);
-      expect((ActionDef.fromJson({'type': 'captureScreenshot', 'target': 'moon'})! as CaptureScreenshotAction).target,
-          CaptureTarget.layout);
+      expect(
+        (ActionDef.fromJson({'type': 'captureScreenshot', 'target': 'moon'})! as CaptureScreenshotAction).target,
+        CaptureTarget.layout,
+      );
     });
 
     test('callFunction optional and cloudFiles source are sparse', () {
@@ -112,9 +145,15 @@ void main() {
     });
 
     test('a banner modal round-trips; an unknown presentation is a dialog', () {
-      final json = {'type': 'openModal', 'to': 'promo', 'presentation': 'banner', 'alignment': [0, 1]};
+      final json = {
+        'type': 'openModal',
+        'to': 'promo',
+        'presentation': 'banner',
+        'alignment': [0, 1],
+      };
       expect(ActionDef.fromJson(json)!.toJson(), json);
-      final unknown = ActionDef.fromJson({'type': 'openModal', 'to': 'x', 'presentation': 'hologram'})! as OpenModalAction;
+      final unknown =
+          ActionDef.fromJson({'type': 'openModal', 'to': 'x', 'presentation': 'hologram'})! as OpenModalAction;
       expect(unknown.presentation, ModalPresentation.dialog);
     });
   });
