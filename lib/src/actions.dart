@@ -1847,14 +1847,16 @@ final class PlaySoundAction extends ActionDef {
 
 // --- purchases ----------------------------------------------------------------------
 
-/// What a [PaywallAction] does, inside a paywall screen.
-enum PaywallOperation { purchase, restore, selectProduct, closePaywall, openLegalLink }
+/// Opens a placement, or acts inside a paywall screen.
+enum PaywallOperation { purchase, restore, selectProduct, closePaywall, openLegalLink, openPaywall }
 
 /// A paywall interaction: buy the selected (or [slot]'s) product, restore
-/// purchases, select a product, close the paywall, open a legal [url].
+/// purchases, select a product, close the paywall, open a legal [url], or
+/// open a server-resolved [placement].
 final class PaywallAction extends ActionDef {
   const PaywallAction({
     this.operation = PaywallOperation.purchase,
+    this.placement,
     this.slot,
     this.url,
     super.enabled,
@@ -1867,11 +1869,15 @@ final class PaywallAction extends ActionDef {
   String get type => typeName;
 
   final PaywallOperation operation;
+
+  /// Server-resolved placement to open; required for [PaywallOperation.openPaywall].
+  final String? placement;
   final String? slot;
   final String? url;
 
   static PaywallAction _fromJson(Json m, _Common c) => PaywallAction(
     operation: _e(PaywallOperation.values, m, 'operation', PaywallOperation.purchase),
+    placement: _sOrNull(m, 'placement'),
     slot: _sOrNull(m, 'slot'),
     url: _sOrNull(m, 'url'),
     enabled: c.enabled,
@@ -1880,7 +1886,7 @@ final class PaywallAction extends ActionDef {
   );
 
   @override
-  Json get _fields => {'operation': operation.name, 'slot': ?slot, 'url': ?url};
+  Json get _fields => {'operation': operation.name, 'placement': ?placement, 'slot': ?slot, 'url': ?url};
 }
 
 // --- nodes --------------------------------------------------------------------------

@@ -509,10 +509,11 @@ abstract final class EditTextFields {
 
 /// [PaywallAction].
 abstract final class PaywallFields {
+  static const placement = PropDef<String?>('placement', Codecs.optionalString, null, doc: 'The server-resolved placement to open.');
   static const operation = PropDef<PaywallOperation>('operation', EnumCodec(PaywallOperation.values), PaywallOperation.purchase);
   static const slot = PropDef<String?>('slot', Codecs.optionalString, null);
   static const url = PropDef<String?>('url', Codecs.optionalString, null, doc: 'A legal link.');
-  static const List<PropDef<Object?>> all = [operation, slot, url];
+  static const List<PropDef<Object?>> all = [operation, placement, slot, url];
 }
 
 /// [FocusAction].
