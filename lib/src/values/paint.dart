@@ -149,6 +149,7 @@ final class Paint {
     this.tileMode = TileMode.clamp,
     this.image,
     this.gradientPerSubpath = false,
+    this.radius,
   });
 
   const Paint.solid(Color this.color, {this.id, this.opacity = 1})
@@ -159,7 +160,8 @@ final class Paint {
         transform = null,
         tileMode = TileMode.clamp,
         image = null,
-        gradientPerSubpath = false;
+        gradientPerSubpath = false,
+        radius = null;
 
   final PaintType type;
 
@@ -188,6 +190,12 @@ final class Paint {
   /// cells shades each alike. Only paths paint per shape. JSON also reads
   /// SVG's `gradientUnits: "subpath"`.
   final bool gradientPerSubpath;
+
+  /// A radial gradient's radius as a share of the box's shortest side,
+  /// centered (Flutter's `RadialGradient(radius:)`), in place of the one
+  /// [transform] gives (which reaches the box's edge across its width).
+  /// Null: the transform's.
+  final double? radius;
 
   bool get isGradient => type != PaintType.solid && type != PaintType.image;
 
@@ -248,6 +256,7 @@ final class Paint {
       image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
       gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
           (m['gradientUnits'] is String && (m['gradientUnits'] as String).toLowerCase() == 'subpath'),
+      radius: switch (readDouble(m['radius'])) { final double r when r > 0 && r.isFinite => r, _ => null },
     );
   }
 
@@ -266,6 +275,7 @@ final class Paint {
     put(j, 'tileMode', tileMode.name, TileMode.clamp.name);
     put(j, 'image', image?.toJson());
     put(j, 'gradientPerSubpath', gradientPerSubpath, false);
+    put(j, 'radius', radius == null ? null : writeDouble(radius!));
     return j;
   }
 
@@ -282,10 +292,11 @@ final class Paint {
       _listEq(other.transform, transform) &&
       other.tileMode == tileMode &&
       other.image == image &&
-      other.gradientPerSubpath == gradientPerSubpath;
+      other.gradientPerSubpath == gradientPerSubpath &&
+      other.radius == radius;
 
   @override
-  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath);
+  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }
