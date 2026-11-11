@@ -52,4 +52,13 @@ void main() {
       expect(v.progressAt(-1000, 0, 800), 1);
     });
   });
+
+  group('measure', () {
+    test('round-trips; empty stays empty', () {
+      final n = Node.fromJson({'type': 'row', 'measure': {'variable': 'chipBoxes', 'key': r'${item.id}', 'relativeTo': 'spine'}}, id: 'c')!;
+      expect(n.behaviors.measure, const Measure(variable: 'chipBoxes', key: r'${item.id}', relativeTo: 'spine'));
+      expect(Node.fromJson(n.toJson(), id: 'c'), n);
+      expect(const Measure().toJson(), isEmpty);
+    });
+  });
 }
