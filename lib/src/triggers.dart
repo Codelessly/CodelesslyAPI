@@ -203,6 +203,7 @@ final class Trigger {
     this.runWhen = '',
     this.lookaheadMs = 100,
     this.visibleFraction = kDefaultVisibleFraction,
+    this.repeat = false,
   });
 
   final TriggerType type;
@@ -239,6 +240,11 @@ final class Trigger {
   /// Viewport triggers: the visible share (0–1) that counts as in view.
   final double visibleFraction;
 
+  /// [TriggerType.keyDown]: also fire while the key is held and the
+  /// keyboard repeats it (`${result.repeat}` is true for those), as text
+  /// fields and games do for arrows and backspace.
+  final bool repeat;
+
   /// The shortest timer interval.
   static const int minIntervalMs = 16;
 
@@ -268,6 +274,7 @@ final class Trigger {
       runWhen: readString(m['runWhen']) ?? '',
       lookaheadMs: readInt(m['lookaheadMs']) ?? 100,
       visibleFraction: (readDouble(m['visibleFraction']) ?? kDefaultVisibleFraction).clamp(0, 1).toDouble(),
+      repeat: m['repeat'] == true,
     );
   }
 
@@ -291,6 +298,7 @@ final class Trigger {
         if (runWhen.isNotEmpty) 'runWhen': runWhen,
         if (lookaheadMs != 100) 'lookaheadMs': lookaheadMs,
         if (visibleFraction != kDefaultVisibleFraction) 'visibleFraction': writeDouble(visibleFraction),
+        if (repeat) 'repeat': true,
       };
 
   @override
