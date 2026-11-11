@@ -46,6 +46,20 @@ abstract final class BindPaths {
   /// The items a repeating widget (list, grid, page view) builds one per.
   static const data = 'data';
 
+  /// Interaction states driven by data: true puts the node in
+  /// [WidgetState.selected] / [WidgetState.disabled], so its state styles
+  /// (`states.selected`, `states.disabled`) patch it and its descendants,
+  /// as hover and press do (`"selected": "${= item.id == selectedId}"`).
+  static const selected = 'selected';
+  static const disabled = 'disabled';
+
+  /// The interaction state a binding path drives, or null.
+  static WidgetState? stateOf(String path) => switch (path) {
+        selected => WidgetState.selected,
+        disabled => WidgetState.disabled,
+        _ => null,
+      };
+
   /// `props.<key>`.
   static String prop(String key) => 'props.$key';
 
