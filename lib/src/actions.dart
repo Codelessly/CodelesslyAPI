@@ -2155,6 +2155,11 @@ enum PaywallOperation { purchase, restore, selectProduct, closePaywall, openLega
 /// A paywall interaction: buy the selected (or [slot]'s) product, restore
 /// purchases, select a product, close the paywall, open a legal [url], or
 /// open a server-resolved [placement].
+///
+/// [PaywallOperation.openPaywall] shows the placement's screen as a
+/// navigation would: with [routeTransition] (a custom transition: a cover
+/// from the bottom, a reveal...) or [transition], [transitionMs] and
+/// [reverseTransitionMs]; it plays in reverse when the paywall closes.
 final class PaywallAction extends ActionDef {
   const PaywallAction({
     this.operation = PaywallOperation.purchase,
@@ -2162,6 +2167,10 @@ final class PaywallAction extends ActionDef {
     this.offer,
     this.slot,
     this.url,
+    this.transition = PageTransition.platform,
+    this.transitionMs,
+    this.reverseTransitionMs,
+    this.routeTransition,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -2181,19 +2190,43 @@ final class PaywallAction extends ActionDef {
   final String? slot;
   final String? url;
 
+  /// [PaywallOperation.openPaywall]: how its screen opens, as
+  /// [NavigateAction.transition] (and its durations) does.
+  final PageTransition transition;
+  final int? transitionMs, reverseTransitionMs;
+
+  /// [PaywallOperation.openPaywall]: a custom transition for its screen; when
+  /// set it replaces [transition], [transitionMs] and [reverseTransitionMs]
+  /// (as [NavigateAction.routeTransition]).
+  final RouteTransition? routeTransition;
+
   static PaywallAction _fromJson(Json m, _Common c) => PaywallAction(
     operation: _e(PaywallOperation.values, m, 'operation', PaywallOperation.purchase),
     placement: _sOrNull(m, 'placement'),
     offer: _sOrNull(m, 'offer'),
     slot: _sOrNull(m, 'slot'),
     url: _sOrNull(m, 'url'),
+    transition: _e(PageTransition.values, m, 'transition', PageTransition.platform),
+    transitionMs: readInt(m['transitionMs']),
+    reverseTransitionMs: readInt(m['reverseTransitionMs']),
+    routeTransition: RouteTransition.fromJson(m['routeTransition']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
   );
 
   @override
-  Json get _fields => {'operation': operation.name, 'placement': ?placement, 'offer': ?offer, 'slot': ?slot, 'url': ?url};
+  Json get _fields => {
+    'operation': operation.name,
+    'placement': ?placement,
+    'offer': ?offer,
+    'slot': ?slot,
+    'url': ?url,
+    if (transition != PageTransition.platform) 'transition': transition.name,
+    'transitionMs': ?transitionMs,
+    'reverseTransitionMs': ?reverseTransitionMs,
+    'routeTransition': ?routeTransition?.toJson(),
+  };
 }
 
 // --- nodes --------------------------------------------------------------------------
