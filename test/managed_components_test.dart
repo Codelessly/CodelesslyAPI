@@ -392,7 +392,7 @@ void main() {
                     'trigger': {'type': 'click'},
                     'actions': [
                       {'type': 'auth', 'operation': 'signIn', 'email': 'a@b.c', 'password': 'x'},
-                      {'type': 'submitForm', 'emailField': 'email'},
+                      {'type': 'focus', 'node': 'email'},
                     ],
                   },
                 ],
@@ -413,7 +413,7 @@ void main() {
       final chain = (top['actions'] as List).single['actions'] as List;
       expect(chain[0], containsPair('email', 'a@b.c'));
       expect(chain[0], containsPair('password', 'x'));
-      expect(chain[1], containsPair('emailField', 't__email'));
+      expect(chain[1], containsPair('node', 't__email'));
       expect(b.nodes.last.toJson()['props'], {
         'autofillHints': ['email'],
       });
