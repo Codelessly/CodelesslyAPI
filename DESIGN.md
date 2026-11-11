@@ -109,6 +109,10 @@ renderer computes.
 * **Sizing per axis** is `fixed`, `fill` (Expanded/stretch), `flexible`
   (Flexible, loose) or `hug` (size to content). The number is the design size:
   the size used for `fixed`, and the fallback when a mode can't apply.
+  A child that fills the cross axis of a row or column hugging that axis
+  stretches to the thickness its siblings give, and its number is measured
+  as its own thickness: a timeline rail that should add no height of its
+  own fills with 0.
 * **Freeform position per axis** follows `Positioned`/`Align`: `{"start": d}`,
   `{"end": d}`, `{"start": a, "end": b}` (stretch between), `{"align": -1..1}`
   (`Align`, by the laid-out size) or `{"relative": d}` (d from the start at
