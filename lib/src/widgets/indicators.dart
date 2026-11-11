@@ -551,7 +551,9 @@ abstract final class LineChartProps {
   /// Parts of the area under the curve: `[{"from", "to", "below", "color", "barColor"?}]`.
   static const areaBands = PropDef<List<Json>>('areaBands', IndicatorCodecs.objects, []);
 
-  /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off]}]`.
+  /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off],
+  /// "label"?, "labelAlign"?: "end" | "start"}]`; a label is written above
+  /// the line at its end (or start), in the line's colour.
   static const referenceLines = PropDef<List<Json>>('referenceLines', IndicatorCodecs.objects, []);
 
   /// X axis ticks: `[{"x", "label"}]`.
