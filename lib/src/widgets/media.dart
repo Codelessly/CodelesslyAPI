@@ -85,7 +85,7 @@ abstract final class VideoProps {
   static const volume = PropDef<double>('volume', DoubleCodec(min: 0, max: 1), 1);
   static const loop = PropDef<bool>('loop', Codecs.bool, false);
 
-  static const spec = WidgetSpec('video', props: [url, autoPlay, showControls, playing, positionSeconds, volume, loop], doc: '`VideoPlayer`.');
+  static const spec = WidgetSpec('video', props: [url, autoPlay, showControls, playing, positionSeconds, volume, loop], doc: '`VideoPlayer`. Its changed trigger reports ready/error and, when ready, durationSeconds/positionSeconds without autoplay.');
 }
 
 /// Where an embedded video is hosted.
