@@ -1742,6 +1742,9 @@ final class SpeakAction extends ActionDef {
 final class PlaySoundAction extends ActionDef {
   const PlaySoundAction({
     this.sound = 'wood',
+    this.operation = 'play',
+    this.voiceId = '',
+    this.frequency = '440',
     this.volume = '1',
     this.pitch = '1',
     this.at = '',
@@ -1757,8 +1760,15 @@ final class PlaySoundAction extends ActionDef {
 
   final String sound, volume, pitch, at, url;
 
+  /// `play` is the existing one-shot; `start` sustains a tone until `stop`
+  /// with the same voiceId. `stopAll` releases the app's sustained tones.
+  final String operation, voiceId, frequency;
+
   static PlaySoundAction _fromJson(Json m, _Common c) => PlaySoundAction(
     sound: _s(m, 'sound', 'wood'),
+    operation: _s(m, 'operation', 'play'),
+    voiceId: _s(m, 'voiceId'),
+    frequency: _s(m, 'frequency', '440'),
     volume: _s(m, 'volume', '1'),
     pitch: _s(m, 'pitch', '1'),
     at: _s(m, 'at'),
@@ -1770,6 +1780,9 @@ final class PlaySoundAction extends ActionDef {
 
   @override
   Json get _fields => {
+    if (operation != 'play') 'operation': operation,
+    if (voiceId.isNotEmpty) 'voiceId': voiceId,
+    if (frequency != '440') 'frequency': frequency,
     if (sound != 'wood') 'sound': sound,
     if (volume != '1') 'volume': volume,
     if (pitch != '1') 'pitch': pitch,
