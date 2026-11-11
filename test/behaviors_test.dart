@@ -229,4 +229,13 @@ void main() {
     expect(BindPaths.apply(n, 'particles.playKey', 'w1').behaviors.particles!.playKey, 'w1');
     expect(EffectAnimation.fromJson(cued.behaviors.effectAnimations[1].toJson())!.playKey, '3');
   });
+
+  test('reveal.follow round-trips and defaults off', () {
+    expect(Reveal.fromJson({'alignment': 1})!.follow, isFalse);
+    final r = Reveal.fromJson({'alignment': 1, 'duration': 0, 'follow': true})!;
+    expect(r.follow, isTrue);
+    expect(r.toJson(), {'alignment': 1.0, 'duration': 0, 'follow': true});
+    expect(Reveal.fromJson(r.toJson()), r);
+    expect(Reveal.fromJson({'follow': false})!.toJson().containsKey('follow'), isFalse);
+  });
 }

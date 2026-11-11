@@ -803,7 +803,10 @@ abstract final class RevealFields {
   static const alignment = PropDef<double>('alignment', Codecs.double, 0.5);
   static const duration = PropDef<int>('duration', _ms, 600);
   static const delay = PropDef<int>('delay', _ms, 0);
-  static const List<PropDef<Object?>> all = [alignment, duration, delay];
+
+  /// Stays revealed while the content moves, until the user scrolls away.
+  static const follow = PropDef<bool>('follow', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [alignment, duration, delay, follow];
 }
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
