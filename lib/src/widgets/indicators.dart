@@ -198,6 +198,21 @@ abstract final class GaugeMeterProps {
 /// What a series chart draws.
 enum ChartType { bar, line, timeline, donut }
 
+/// Where a series chart's y labels sit in the gutter left of the plot: [end]
+/// right-aligned 8 px left of the plot, [start] left-aligned at the chart's
+/// left edge.
+enum ChartYLabelAlign { end, start }
+
+/// How a series chart places its grid lines (and solid reference lines).
+/// [centered]: centred on the value's rounded y (the bottom line one pixel
+/// row up, inside the plot); a 1 px line there straddles two pixel rows.
+/// [crisp] (the default): whole pixel rows from the value's rounded y down
+/// (the bottom line's up, inside the plot), so a line of whole width is
+/// sharp; other widths stay centred on the value. [exact]: the rows just above the value's
+/// unrounded y, like a Flutter box of that height whose bottom edge sits at
+/// the value (sharp when that is a whole pixel, soft otherwise).
+enum ChartGridLineMode { centered, crisp, exact }
+
 /// A chart of data rows: bars, lines and areas over categories, a timeline
 /// of segments, or a donut.
 abstract final class ChartProps {
@@ -303,6 +318,22 @@ abstract final class ChartProps {
   /// Decimals of the values in series end labels.
   static const endLabelDecimals = PropDef<int>('endLabelDecimals', IntCodec(min: 0), 1);
 
+  /// Where the y labels sit: right-aligned by the plot, or left-aligned at
+  /// the chart's left edge.
+  static const yLabelAlign =
+      PropDef<ChartYLabelAlign>('yLabelAlign', EnumCodec(ChartYLabelAlign.values), ChartYLabelAlign.end);
+
+  /// The x-axis label band's height below the plot.
+  static const xAxisHeight = PropDef<double>('xAxisHeight', Codecs.positive, 22);
+
+  /// The x labels' top this far below the plot; null centres them in the
+  /// band ([xAxisHeight]).
+  static const xLabelGap = PropDef<double?>('xLabelGap', IndicatorCodecs.optionalDouble, null);
+
+  /// How grid lines and solid reference lines meet the pixel grid.
+  static const gridLineMode =
+      PropDef<ChartGridLineMode>('gridLineMode', EnumCodec(ChartGridLineMode.values), ChartGridLineMode.crisp);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -318,7 +349,7 @@ abstract final class ChartProps {
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
     showTotals, totalsColor, totalsSelectedColor, stackGap,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
-    xField, xLabels, endLabelWidth, endLabelDecimals,
+    xField, xLabels, endLabelWidth, endLabelDecimals, yLabelAlign, xAxisHeight, xLabelGap, gridLineMode,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
@@ -545,6 +576,12 @@ abstract final class BarChartProps {
   ], doc: 'Bar chart.');
 }
 
+/// Where a line chart's x labels sit about their tick.
+/// [edgeClamped]: centred, the first starting at the tick and the last
+/// ending there (so both stay over the plot). [start]: starting at the tick.
+/// [center]: centred on it. [end]: ending at it.
+enum LineChartXLabelAnchor { edgeClamped, start, center, end }
+
 /// A line chart of data rows ([xField], [yField]; dates or numbers on x),
 /// with bands, ticks, markers and lines given as data (usually bound).
 abstract final class LineChartProps {
@@ -634,13 +671,24 @@ abstract final class LineChartProps {
   /// Draws in (rising from zero) when it first shows (a running app).
   static const animateIn = PropDef<bool>('animateIn', Codecs.bool, false);
 
+  /// Clips the chart to its box; off, labels (a reference line's above the
+  /// plot) and out-of-domain values can draw beyond it.
+  static const clip = PropDef<bool>('clip', Codecs.bool, true);
+
+  /// Where each x label sits about its tick ([xLabelOffset] then moves it).
+  static const xLabelAnchor = PropDef<LineChartXLabelAnchor>(
+      'xLabelAnchor', EnumCodec(LineChartXLabelAnchor.values), LineChartXLabelAnchor.edgeClamped);
+
+  /// Moves every x label right by this much (negative: left).
+  static const xLabelOffset = PropDef<double>('xLabelOffset', Codecs.double, 0);
+
   static const spec = WidgetSpec('lineChart', props: [
     data, xField, yField, xMin, xMax, yMin, yMax, plotPadding, smooth, lineColor, lineWidth, areaTopColor, //
     areaBottomColor, gridColor, zeroLineColor, axisColor, markerHollowColor, tagBackground, cursorColor,
     cursorRingFill, tooltipBackground, tooltipShadowColor, yAxisTitle, axisLabelStyle, axisTitleStyle,
     markerLabelStyle, tagTextStyle, tooltipLabelStyle, tooltipValueStyle, tooltipLabelField, selectedX, scrubEnabled, scrubStep, tooltipXFormat,
     tooltipYScale, tooltipYDecimals, tooltipYSuffix, tooltipTrend, semanticLabel, bands, yTicks, areaBands,
-    referenceLines, xTicks, markers, verticalLines, animateIn,
+    referenceLines, xTicks, markers, verticalLines, animateIn, clip, xLabelAnchor, xLabelOffset,
     animate, animationDuration,
   ], doc: 'Line chart.');
 }
