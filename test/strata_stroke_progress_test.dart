@@ -29,10 +29,10 @@ void main() {
         },
       })!;
       final next = BindPaths.apply(n, 'strokePath.progress', .4);
-      expect(next.behaviours.strokePath!.progress, .4);
+      expect(next.behaviors.strokePath!.progress, .4);
       expect(
-        next.behaviours.strokePath!.points,
-        n.behaviours.strokePath!.points,
+        next.behaviors.strokePath!.points,
+        n.behaviors.strokePath!.points,
       );
     },
   );
