@@ -2482,10 +2482,15 @@ final class StrokePath extends _Value {
     this.drawDelayMs = 0,
     this.drawCurve = AnimationCurve.easeInOut,
     this.drawKey = '',
+    this.fillColor,
   });
 
   final List<Offset> points;
   final PathUnit xUnit, yUnit;
+
+  /// The shape the points enclose (the path closed), filled behind the
+  /// line: a hand-drawn box with its own wobble. It fades in as the line
+  /// draws (its alpha times [progress]). Null: no fill.
   final PathCurve curve;
   final Color color;
   final double width;
@@ -2511,6 +2516,8 @@ final class StrokePath extends _Value {
   /// as `strokePath.drawKey`, e.g. `${route.id}`).
   final String drawKey;
 
+  final Color? fillColor;
+
   /// Whether a running app animates it.
   bool get draws => drawMs > 0;
 
@@ -2529,6 +2536,7 @@ final class StrokePath extends _Value {
         drawDelayMs: drawDelayMs,
         drawCurve: drawCurve,
         drawKey: drawKey,
+        fillColor: fillColor,
       );
 
   static StrokePath? fromJson(Object? json) {
@@ -2550,6 +2558,7 @@ final class StrokePath extends _Value {
       drawDelayMs: r.ms('drawDelayMs', 0),
       drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
       drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
+      fillColor: r.color('fillColor'),
     );
   }
 
@@ -2582,11 +2591,12 @@ final class StrokePath extends _Value {
       ..i('drawDelayMs', drawDelayMs, 0)
       ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
     if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
+    if (fillColor != null) j['fillColor'] = fillColor!.toJson();
     return j;
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey, fillColor];
 }
 
 /// Text that types itself out in a running app, like a typewriter or a

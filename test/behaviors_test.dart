@@ -267,4 +267,12 @@ void main() {
     expect(Typewriter.fromJson({'grow': true})!.toJson(), {'grow': true});
     expect(Typewriter.fromJson({})!.grow, isFalse);
   });
+
+  test('strokePath.fillColor round-trips; absent is no fill', () {
+    expect(StrokePath.fromJson({'points': []})!.fillColor, isNull);
+    final p = StrokePath.fromJson({'points': [[0, 0], [10, 0], [10, 10]], 'fillColor': '#59FFF6DE'})!;
+    expect(p.fillColor, const Color(0x59FFF6DE));
+    expect(StrokePath.fromJson(p.toJson()), p);
+    expect(p.copyWith(progress: 0.5).fillColor, p.fillColor);
+  });
 }
