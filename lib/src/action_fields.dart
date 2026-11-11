@@ -568,7 +568,15 @@ abstract final class PaywallFields {
   static const operation = PropDef<PaywallOperation>('operation', EnumCodec(PaywallOperation.values), PaywallOperation.purchase);
   static const slot = PropDef<String?>('slot', Codecs.optionalString, null);
   static const url = PropDef<String?>('url', Codecs.optionalString, null, doc: 'A legal link.');
-  static const List<PropDef<Object?>> all = [operation, placement, offer, slot, url];
+  static const transition = PropDef<PageTransition>('transition', EnumCodec(PageTransition.values), PageTransition.platform,
+      doc: 'openPaywall: how its screen opens.');
+  static const transitionMs = PropDef<int?>('transitionMs', Codecs.optionalInt, null);
+  static const reverseTransitionMs = PropDef<int?>('reverseTransitionMs', Codecs.optionalInt, null);
+  static const routeTransition = PropDef<RouteTransition?>('routeTransition', routeTransitionCodec, null,
+      doc: 'openPaywall: a custom transition for its screen; replaces transition and its times.');
+  static const List<PropDef<Object?>> all = [
+    operation, placement, offer, slot, url, transition, transitionMs, reverseTransitionMs, routeTransition, //
+  ];
 }
 
 /// [FocusAction].
