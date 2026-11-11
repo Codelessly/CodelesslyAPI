@@ -148,6 +148,9 @@ abstract final class MotionFields {
   /// With [orientToPath]: never upside down.
   static const orientUpright = PropDef<bool>('orientUpright', Codecs.bool, false);
 
+  /// With [orientUpright]: heading left mirrors the node, so its front leads.
+  static const uprightMirror = PropDef<bool>('uprightMirror', Codecs.bool, false);
+
   /// A change of position bends this share of its distance off the line.
   static const arc = PropDef<double>('arc', Codecs.double, 0);
 
@@ -178,8 +181,8 @@ abstract final class MotionFields {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
-    revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
-    shimmer,
+    revealOnScroll, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing, pathFocusX, pathFocusY,
+    pathWrap, shimmer,
   ];
 }
 
