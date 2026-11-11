@@ -642,6 +642,9 @@ abstract final class TableViewProps {
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
+    // A table can sit in its own frame: a fill, border, rounded corners
+    // that clip its cells (a bordered week grid).
+    decorated: true,
     doc: 'Flutter `TableView`; its slots are the cell templates.',
   );
 }
