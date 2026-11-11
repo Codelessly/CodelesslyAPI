@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 /// A gradient's transform is a 2x3 affine matrix; JSON may give it as rows
 /// (`[[a, b, c], [d, e, f]]`) or flat (`[a, b, c, d, e, f]`, as stored).
-/// Rows threw "'List<dynamic>' is not a subtype of type 'num'" wherever a
+/// Rows threw `'List<dynamic>' is not a subtype of type 'num'` wherever a
 /// paint was read outside the node shorthands (states, text styles).
 void main() {
   Map<String, dynamic> gradient(Object transform) => {
