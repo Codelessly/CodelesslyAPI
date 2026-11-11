@@ -63,6 +63,9 @@ abstract final class TextStyleFields {
   static const height = PropDef<double?>('height', Codecs.optionalPositive, null);
   static const decoration = PropDef<TextDecoration?>('decoration', OptionalEnumCodec(TextDecoration.values), null);
   static const decorationColor = PropDef<Color?>('decorationColor', Codecs.optionalColor, null);
+
+  /// Painted behind the glyphs.
+  static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
   static const decorationStyle = PropDef<TextDecorationStyle?>(
     'decorationStyle',
     OptionalEnumCodec(TextDecorationStyle.values),
@@ -86,7 +89,7 @@ abstract final class TextStyleFields {
 
   static const List<PropDef<Object?>> all = [
     fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
-    decorationColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
+    decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
     shadows,
   ];
 }
