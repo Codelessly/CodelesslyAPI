@@ -18,6 +18,14 @@
   `darkColor`; `ThemeTokens.dark` (the colors that differ in dark mode), `ThemeTokens.colors` and
   `ThemeTokens.textStyles` (every named style by `ThemeTokens.themeKey`), `forBrightness(dark:)` and `hasDark`.
   `StyleSheet.theme` fills them. Old style sheets and themes decode and re-encode unchanged.
+- Data rules for server-written data: `DataRule.ownerRead` (each user reads their own documents; only the project's
+  editors, the server and the collection's role write) and `DataRule.audience` (a user reads a document whose
+  `audience` list names `*`, `signedIn`, `role:{role}` or `user:{uid}`, checked at read time). `DataRules.ownerFields`
+  lists the fields an `ownerRead` owner may change (a `read` flag); `DataRules.expiry` names a collection's expiry
+  field, past which app users can't read a document. Helpers: `DataRules.audienceOf`, `roleAudience`,
+  `userAudience`, `neverExpires`, `expiryFieldFor`, `ownerFieldsFor`; traits `readsAudience`, `writtenByRole`.
+  Older JSON decodes and re-encodes unchanged; an older reader drops the new rules (reads them as `app`), and the
+  database rules then refuse its reads and writes instead of opening the collection.
 - `FormService.unsupported`: older JSON with `service: mailchimp`, with no `service` and the removed fields,
   or with an unknown service decodes as this (it never throws). The removed fields are read past and never written
   back out. `SubmitFormFields.service` offers only `local`.

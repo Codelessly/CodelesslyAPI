@@ -198,6 +198,33 @@ Published with the model: `HttpApi` (an API's method, URL, headers, query, body 
 and, read live by the SDK rather than published, `DataRules` (who may read and write each cloud collection).
 `ServiceConfig` groups the APIs and paywall setup.
 
+`DataRules` (the document `data_rules/{projectId}`): `collections` maps each top-level collection to a `DataRule`:
+
+| Rule | Reads | Writes |
+|---|---|---|
+| `app` (default) | anyone using the app | anyone using the app |
+| `signedIn` | signed-in users | signed-in users |
+| `owner` | the owner (`ownerId`) | the owner |
+| `publicReadOwnerWrite` | anyone | the owner |
+| `roleWrite` | anyone | users with the collection's role (`roles`, default `admin`) |
+| `ownerRead` | the owner | the project's editors, the server and the collection's role; the owner changes only `ownerFields` |
+| `audience` | users the `audience` list names (`*`, `signedIn`, `role:{role}`, `user:{uid}`) | as `ownerRead` |
+
+The project's editors read and write every collection. `ownerFields: {collection: [field]}` are the fields an
+`ownerRead` owner may change on an existing document (never `ownerId`, `audience` or the expiry field).
+`expiry: {collection: field}` makes documents unreadable to app users past the time in that field (ISO-8601 UTC
+text such as `2026-12-01T00:00:00.000Z`; `DataRules.neverExpires` for none); queries on the collection must filter
+`field > now`, which the SDK adds, and expired documents are deleted by a scheduled function.
+
+```json
+{
+  "collections": {"notes": "ownerRead", "news": "audience"},
+  "roles": {"news": "admin"},
+  "ownerFields": {"notes": ["read", "readAt"]},
+  "expiry": {"news": "expiresAt"}
+}
+```
+
 ## Breakpoints, theme, identity
 
 - `Breakpoints` and `Breakpoint` (`id`, `name`, `minWidth`, design `width` and `height`): the project's size
