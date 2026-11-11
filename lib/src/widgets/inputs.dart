@@ -627,10 +627,15 @@ abstract final class SegmentedButtonProps {
   /// The shadows under a track's selected segment.
   static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
 
+  /// A track's selection is one thumb that slides between its segments
+  /// (single selection, horizontal, segments sharing the width); otherwise
+  /// each segment fills in place.
+  static const slidingThumb = PropDef<bool>('slidingThumb', Codecs.bool, false);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows,
+    padding, segmentHeight, expanded, shrinkTapTarget, variant, trackPadding, selectedShadows, slidingThumb,
   ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
