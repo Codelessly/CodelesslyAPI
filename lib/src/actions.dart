@@ -484,19 +484,27 @@ final class PrintAction extends ActionDef {
 }
 
 /// Where a form goes.
-enum FormService { mailchimp, local }
+enum FormService {
+  /// Validated and stored in the app's own variables; no network.
+  local,
 
-/// Submits a sign-up form to a newsletter service: the email in text field
-/// [emailField] (and names in [firstNameField], [lastNameField]).
+  /// A service this version doesn't run: a submission saved by an older
+  /// version with a built-in third-party integration that has since been
+  /// removed, or one from a newer version. It decodes so the layout still
+  /// loads, and fails without sending anything when it runs (a runtime
+  /// reports it as the action's error). It is never offered for new actions.
+  unsupported,
+}
+
+/// Validates a form's answers and stores them in the app's own variables
+/// (`service: local`). See `docs/submit_form.md`.
+///
+/// A remote destination is an explicit later action (`callApi` in
+/// [onSuccess]) to an endpoint the app defines; this action itself never
+/// calls a service.
 final class SubmitFormAction extends ActionDef {
   const SubmitFormAction({
-    this.service = FormService.mailchimp,
-    this.emailField = '',
-    this.apiKey = '',
-    this.dataCenter = '',
-    this.listId = '',
-    this.firstNameField = '',
-    this.lastNameField = '',
+    this.service = FormService.local,
     this.payload = '',
     this.validationScript = '',
     this.validationArguments = const {},
@@ -516,12 +524,8 @@ final class SubmitFormAction extends ActionDef {
 
   final FormService service;
 
-  /// Node ids of the text fields read.
-  final String emailField, firstNameField, lastNameField;
-  final String apiKey, dataCenter, listId;
-
-  /// Local submission: an expression yielding a JSON object. An awaited
-  /// validator may replace it with its normalized `payload`.
+  /// An expression yielding a JSON object. An awaited validator may replace
+  /// it with its normalized `payload`.
   final String payload, validationScript, responseVariable, resultVariable;
   final Map<String, String> validationArguments;
   final bool prepend;
@@ -530,14 +534,19 @@ final class SubmitFormAction extends ActionDef {
   @override
   List<ActionDef> get nested => [...onSuccess, ...onError];
 
+  /// Older layouts' newsletter submissions: `service` other than `local`,
+  /// or no `service` with the removed provider settings. Their credentials
+  /// and field ids are read past, never kept.
+  static const _legacyKeys = ['apiKey', 'dataCenter', 'listId', 'emailField', 'firstNameField', 'lastNameField'];
+
+  static FormService _service(Json m) {
+    final s = m['service'];
+    if (s == null) return _legacyKeys.any(m.containsKey) ? FormService.unsupported : FormService.local;
+    return s == FormService.local.name ? FormService.local : FormService.unsupported;
+  }
+
   static SubmitFormAction _fromJson(Json m, _Common c) => SubmitFormAction(
-    service: _e(FormService.values, m, 'service', FormService.mailchimp),
-    emailField: _s(m, 'emailField'),
-    apiKey: _s(m, 'apiKey'),
-    dataCenter: _s(m, 'dataCenter'),
-    listId: _s(m, 'listId'),
-    firstNameField: _s(m, 'firstNameField'),
-    lastNameField: _s(m, 'lastNameField'),
+    service: _service(m),
     payload: _s(m, 'payload'),
     validationScript: _s(m, 'validationScript'),
     validationArguments: {for (final e in _map(m, 'validationArguments').entries) if (e.value != null) e.key: '${e.value}'},
@@ -554,12 +563,6 @@ final class SubmitFormAction extends ActionDef {
   @override
   Json get _fields => {
     'service': service.name,
-    'emailField': emailField,
-    if (apiKey.isNotEmpty) 'apiKey': apiKey,
-    if (dataCenter.isNotEmpty) 'dataCenter': dataCenter,
-    if (listId.isNotEmpty) 'listId': listId,
-    if (firstNameField.isNotEmpty) 'firstNameField': firstNameField,
-    if (lastNameField.isNotEmpty) 'lastNameField': lastNameField,
     if (payload.isNotEmpty) 'payload': payload,
     if (validationScript.isNotEmpty) 'validationScript': validationScript,
     if (validationArguments.isNotEmpty) 'validationArguments': validationArguments,
