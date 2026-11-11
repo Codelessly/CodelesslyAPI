@@ -468,7 +468,7 @@ final class OpenLinkAction extends ActionDef {
 }
 
 /// Where a form goes.
-enum FormService { mailchimp }
+enum FormService { mailchimp, local }
 
 /// Submits a sign-up form to a newsletter service: the email in text field
 /// [emailField] (and names in [firstNameField], [lastNameField]).
@@ -481,6 +481,14 @@ final class SubmitFormAction extends ActionDef {
     this.listId = '',
     this.firstNameField = '',
     this.lastNameField = '',
+    this.payload = '',
+    this.validationScript = '',
+    this.validationArguments = const {},
+    this.responseVariable = '',
+    this.prepend = false,
+    this.resultVariable = '',
+    this.onSuccess = const [],
+    this.onError = const [],
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -496,6 +504,16 @@ final class SubmitFormAction extends ActionDef {
   final String emailField, firstNameField, lastNameField;
   final String apiKey, dataCenter, listId;
 
+  /// Local submission: an expression yielding a JSON object. An awaited
+  /// validator may replace it with its normalized `payload`.
+  final String payload, validationScript, responseVariable, resultVariable;
+  final Map<String, String> validationArguments;
+  final bool prepend;
+  final List<ActionDef> onSuccess, onError;
+
+  @override
+  List<ActionDef> get nested => [...onSuccess, ...onError];
+
   static SubmitFormAction _fromJson(Json m, _Common c) => SubmitFormAction(
     service: _e(FormService.values, m, 'service', FormService.mailchimp),
     emailField: _s(m, 'emailField'),
@@ -504,6 +522,14 @@ final class SubmitFormAction extends ActionDef {
     listId: _s(m, 'listId'),
     firstNameField: _s(m, 'firstNameField'),
     lastNameField: _s(m, 'lastNameField'),
+    payload: _s(m, 'payload'),
+    validationScript: _s(m, 'validationScript'),
+    validationArguments: {for (final e in _map(m, 'validationArguments').entries) if (e.value != null) e.key: '${e.value}'},
+    responseVariable: _s(m, 'responseVariable'),
+    prepend: _b(m, 'prepend', false),
+    resultVariable: _s(m, 'resultVariable'),
+    onSuccess: _list(m, 'onSuccess'),
+    onError: _list(m, 'onError'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -518,6 +544,14 @@ final class SubmitFormAction extends ActionDef {
     if (listId.isNotEmpty) 'listId': listId,
     if (firstNameField.isNotEmpty) 'firstNameField': firstNameField,
     if (lastNameField.isNotEmpty) 'lastNameField': lastNameField,
+    if (payload.isNotEmpty) 'payload': payload,
+    if (validationScript.isNotEmpty) 'validationScript': validationScript,
+    if (validationArguments.isNotEmpty) 'validationArguments': validationArguments,
+    if (responseVariable.isNotEmpty) 'responseVariable': responseVariable,
+    if (prepend) 'prepend': true,
+    if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
+    if (onSuccess.isNotEmpty) 'onSuccess': _actionsJson(onSuccess),
+    if (onError.isNotEmpty) 'onError': _actionsJson(onError),
   };
 }
 

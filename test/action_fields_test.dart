@@ -36,7 +36,7 @@ Object? _anySample(String type, String key) => switch (key) {
       'condition' => {'left': 'a', 'op': 'equalsTo', 'right': 'b'},
       'icon' => {'codepoint': 1},
       'look' => {'a': 1},
-      'variables' || 'arguments' => {'a': 'x'},
+      'variables' || 'arguments' || 'validationArguments' => {'a': 'x'},
       _ => throw StateError('No Codecs.any sample for $type.$key'),
     };
 
