@@ -194,6 +194,26 @@ final class Paint {
   /// The solid color with the paint's opacity applied.
   Color? get effectiveColor => color?.multiplyOpacity(opacity);
 
+  /// The [transform] of a linear gradient from [begin] to [end], as
+  /// Flutter's `LinearGradient(begin, end)` draws it: the gradient's axis
+  /// runs from the point [begin] names to the point [end] names. JSON may
+  /// give `begin` and `end` (alignments: `[x, y]` in -1..1, or names such as
+  /// `"topCenter"`) instead of a transform; they are read into one.
+  static List<double>? linearTransform(Alignment? begin, Alignment? end) {
+    if (begin == null && end == null) return null;
+    final b = begin ?? Alignment.centerLeft, e = end ?? Alignment.centerRight;
+    // Box unit square coordinates of the two points.
+    final p0x = (b.x + 1) / 2, p0y = (b.y + 1) / 2;
+    final dx = (e.x + 1) / 2 - p0x, dy = (e.y + 1) / 2 - p0y;
+    final l2 = dx * dx + dy * dy;
+    if (l2 == 0) return null;
+    // u runs 0 → 1 from begin to end; v is 0.5 on the axis.
+    return [
+      dx / l2, dy / l2, -(p0x * dx + p0y * dy) / l2,
+      -dy / l2, dx / l2, 0.5 - (-dy * p0x + dx * p0y) / l2,
+    ].map((v) => v == 0 ? 0.0 : v).toList();
+  }
+
   static Paint? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
@@ -206,7 +226,8 @@ final class Paint {
       blendMode: readEnum(BlendMode.values, m['blendMode'], BlendMode.srcOver),
       color: Color.fromJson(m['color']),
       stops: [...?readList(m['stops'])?.map(ColorStop.fromJson).nonNulls],
-      transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList(),
+      transform: readList(m['transform'])?.map((v) => readDouble(v) ?? 0).toList() ??
+          (type == PaintType.linear ? linearTransform(Alignment.fromJson(m['begin']), Alignment.fromJson(m['end'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
       image: type == PaintType.image ? ImagePaint.fromJson(m['image']) : null,
       gradientPerSubpath: readBool(m['gradientPerSubpath']) ??
