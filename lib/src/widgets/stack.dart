@@ -1,13 +1,23 @@
 import '../props.dart';
 import '../value_fields.dart';
 import '../values/enums.dart';
+import '../values/geometry.dart';
 import 'scroll.dart';
 
 /// A freeform container: children placed by `layout.x`/`layout.y`
 /// (Flutter `Stack` with `Positioned`/`Align` children).
 abstract final class StackProps {
+  /// Scales the children, laid out at the stack's design size, into the
+  /// stack's box (Flutter `FittedBox`): `cover` fills it and crops,
+  /// `contain` letterboxes. `none` lays them out in the box itself.
+  static const contentFit = PropDef<BoxFit>('contentFit', EnumCodec(BoxFit.values), BoxFit.none,
+      doc: 'Scales the content, designed at the stack\'s design size, into its box (FittedBox).');
+
+  /// Where scaled content sits in the box (`FittedBox.alignment`).
+  static const contentAlignment = PropDef<Alignment>('contentAlignment', Codecs.alignment, Alignment.center);
+
   static const spec = WidgetSpec('stack',
-      props: ScrollProps.all,
+      props: [...ScrollProps.all, contentFit, contentAlignment],
       children: ChildModel.list,
       decorated: true,
       childFields: [LayoutFields.x, LayoutFields.y],

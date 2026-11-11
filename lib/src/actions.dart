@@ -1779,6 +1779,14 @@ final class DownloadFileAction extends ActionDef {
 
 /// Reads [text] aloud, or [stop]s speaking. [rate] and [pitch] are numbers
 /// or expressions.
+///
+/// With [readAlong] the words are timed for a read-along highlight
+/// (`speech.wordIndex`): the text is said a phrase at a time, each word gets
+/// time by its syllables from the moment its phrase starts sounding, and the
+/// voice's word boundaries (when it reports them) snap the highlight to the
+/// real word and set the pace; without a voice the words are read along
+/// silently at that pace. It starts at [startWord] and the action waits until
+/// the text has been said (its result: `{completed: bool}`).
 final class SpeakAction extends ActionDef {
   const SpeakAction({
     this.text = '',
@@ -1786,6 +1794,8 @@ final class SpeakAction extends ActionDef {
     this.rate = '1',
     this.pitch = '',
     this.stop = false,
+    this.readAlong = false,
+    this.startWord = '',
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1795,8 +1805,8 @@ final class SpeakAction extends ActionDef {
   @override
   String get type => typeName;
 
-  final String text, language, rate, pitch;
-  final bool stop;
+  final String text, language, rate, pitch, startWord;
+  final bool stop, readAlong;
 
   static SpeakAction _fromJson(Json m, _Common c) => SpeakAction(
     text: _s(m, 'text'),
@@ -1804,6 +1814,8 @@ final class SpeakAction extends ActionDef {
     rate: _s(m, 'rate', '1'),
     pitch: _s(m, 'pitch'),
     stop: _b(m, 'stop', false),
+    readAlong: _b(m, 'readAlong', false),
+    startWord: _s(m, 'startWord'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -1816,6 +1828,8 @@ final class SpeakAction extends ActionDef {
     if (rate != '1') 'rate': rate,
     if (pitch.isNotEmpty) 'pitch': pitch,
     if (stop) 'stop': true,
+    if (readAlong) 'readAlong': true,
+    if (startWord.isNotEmpty) 'startWord': startWord,
   };
 }
 
