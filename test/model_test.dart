@@ -4,6 +4,19 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {
+  test('a position given as a number is its distance from the start', () {
+    // DESIGN.md: layout.x / layout.y take a distance from the start or a
+    // position map; a bound `layout.x` of 42 used to place the node at 0.
+    expect(AxisPosition.fromJson(42), const AxisPosition.start(42));
+    expect(AxisPosition.fromJson(12.5), const AxisPosition.start(12.5));
+    expect(AxisPosition.fromJson({'start': 3}), const AxisPosition.start(3));
+    expect(AxisPosition.fromJson({'align': 0}), const AxisPosition.align(0));
+    expect(AxisPosition.fromJson(null), AxisPosition.zero);
+    final l = Layout.fromJson({'x': 42, 'y': 7});
+    expect(l.x, const AxisPosition.start(42));
+    expect(l.y, const AxisPosition.start(7));
+  });
+
   final docJson = <String, Object?>{
     'schema': 2,
     'id': 'L',
