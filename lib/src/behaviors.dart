@@ -494,8 +494,10 @@ final class Motion extends _Value {
 
   /// The coordinate space of [path], `[width, height]`, stretched over the
   /// node's parent: the path follows the figure it's drawn on as that
-  /// resizes (a marker walking a line of a diagram). Empty: [path] is in
-  /// pixels from the node's place.
+  /// resizes (a marker walking a line of a diagram). Its points are where
+  /// the node goes, from the parent's origin (lay the node out at the
+  /// origin, offset by half its size to centre it on the path). Empty:
+  /// [path] is in pixels, as offsets from its start, from the node's place.
   final List<double> pathViewBox;
 
   /// A band of light sweeping across the node; null for none.
