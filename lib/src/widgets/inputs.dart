@@ -564,6 +564,18 @@ abstract final class DateTimeInputProps {
 
 // --- segmentedButton ----------------------------------------------------------
 
+/// How a segmented button is drawn.
+enum SegmentedVariant {
+  /// Flutter's `SegmentedButton`: outlined segments with dividers.
+  material,
+
+  /// A tinted track ([SegmentedButtonProps.backgroundColor], [side],
+  /// [borderRadius]) holding the segments, the selected one raised on it
+  /// ([SegmentedButtonProps.selectedBackgroundColor], `selectedShadows`),
+  /// with no dividers: the filter control of dashboards and toolbars.
+  track,
+}
+
 /// Flutter `SegmentedButton<String>`.
 abstract final class SegmentedButtonProps {
   static const segments = PropDef<List<ButtonSegment>>('segments', InputCodecs.segments, []);
@@ -589,11 +601,20 @@ abstract final class SegmentedButtonProps {
   /// Each segment's padding (`padding`); unset is Flutter's.
   static const padding = PropDef<EdgeInsets?>('padding', Codecs.insets, null);
 
+  /// Material's segmented button, or a [SegmentedVariant.track].
+  static const variant = PropDef<SegmentedVariant>('variant', EnumCodec(SegmentedVariant.values), SegmentedVariant.material);
+
+  /// A track's inset around its segments.
+  static const trackPadding = PropDef<double>('trackPadding', Codecs.double, 3);
+
+  /// The shadows under a track's selected segment.
+  static const selectedShadows = PropDef<List<Effect>>('selectedShadows', Codecs.effects, []);
+
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
     enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
-    padding,
-  ], doc: 'Flutter `SegmentedButton`.');
+    padding, variant, trackPadding, selectedShadows,
+  ], doc: 'Flutter `SegmentedButton`, or a filter track (`variant: track`).');
 }
 
 // --- signature ----------------------------------------------------------------
