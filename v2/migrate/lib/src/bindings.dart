@@ -178,6 +178,9 @@ const Map<String, Map<String, String>> _byType = {
   'dropdown': {'data': 'props.items'},
   // A grid's column count from data (GridViewNode.crossAxisCountVariable).
   'gridView': {'crossAxisCount': 'props.crossAxisCount'},
+  // The page shown from data (PageViewNode's index binding): v2 shows a page
+  // view at its initial page.
+  'pageView': {'indexValue': 'props.initialPage', 'index': 'props.initialPage'},
   'checkbox': {'value': 'props.value'},
   'switch': {'value': 'props.value'},
   'radio': {'value': 'props.value', 'groupValue': 'props.groupValue'},

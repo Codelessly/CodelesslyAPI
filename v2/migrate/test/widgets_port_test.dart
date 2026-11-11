@@ -54,10 +54,13 @@ void main() {
           'type': 'pageView',
           'children': ['i'],
           'properties': {'pageMotion': {'rotateY': -50, 'scale': 0.8}},
+          // The page shown, from data (a kanban's column tabs).
+          'variables': {'indexValue': r'${lanePage}'},
         },
         'i': {'type': 'rectangle', 'parentID': 'pv'},
       }), report: report);
       expect(props(v2, 'pv')['pageMotion'], {'rotateY': -50, 'scale': 0.8});
+      expect(node(v2, 'pv')['bind'], {'props.initialPage': r'${lanePage}'});
       expect(unmapped(report), isEmpty);
     });
 
