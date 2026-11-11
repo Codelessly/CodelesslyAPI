@@ -170,6 +170,10 @@ abstract final class MotionFields {
 
   /// Reads the progress modulo 1.
   static const pathWrap = PropDef<bool>('pathWrap', Codecs.bool, false);
+
+  /// The path's coordinate space `[width, height]`, stretched over the
+  /// node's parent; empty: pixels.
+  static const pathViewBox = PropDef<List<double>>('pathViewBox', Codecs.doubles, []);
   static const shimmer = PropDef<MotionShimmer?>(
     'shimmer',
     ValueCodec(MotionShimmer.fromJson, _out, motionShimmerType),
@@ -181,7 +185,7 @@ abstract final class MotionFields {
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
     revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
-    shimmer,
+    pathViewBox, shimmer,
   ];
 }
 
