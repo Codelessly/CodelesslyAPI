@@ -503,6 +503,7 @@ abstract final class SegmentedButtonProps {
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
 
   // ButtonStyle (SegmentedButton.styleFrom).
+  static const textStyle = PropDef<TextStyle>('textStyle', Codecs.textStyle, TextStyle.empty);
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.color, null);
   static const selectedBackgroundColor = PropDef<Color?>('selectedBackgroundColor', Codecs.color, null);
   static const foregroundColor = PropDef<Color?>('foregroundColor', Codecs.color, null);
@@ -514,7 +515,7 @@ abstract final class SegmentedButtonProps {
 
   static const spec = WidgetSpec('segmentedButton', props: [
     segments, selected, multiSelectionEnabled, emptySelectionAllowed, showSelectedIcon, selectedIcon, direction, //
-    enabled, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
+    enabled, textStyle, backgroundColor, selectedBackgroundColor, foregroundColor, selectedForegroundColor, side, borderRadius,
   ], doc: 'Flutter `SegmentedButton`.');
 }
 
