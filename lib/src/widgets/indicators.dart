@@ -409,6 +409,8 @@ abstract final class BarChartProps {
   static const emptyHeight = PropDef<double>('emptyHeight', Codecs.double, 2);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 3);
   static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF2B3038));
+  /// The grid lines' labels, bottom up; one more than [gridLines] labels
+  /// the baseline first ("0").
   static const gridLabels = PropDef<List<String>>('gridLabels', IndicatorCodecs.strings, []);
   static const gridLabelWidth = PropDef<double>('gridLabelWidth', Codecs.double, 40);
   static const baselineColor = PropDef<Color>('baselineColor', Codecs.color, Color(0xFF3A3F47));
@@ -431,10 +433,23 @@ abstract final class BarChartProps {
   /// Each bar's value above it (whole numbers without decimals).
   static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
 
+  /// The weight of the labels under the bars and of the values (100–900).
+  static const labelFontWeight = PropDef<int>('labelFontWeight', IntCodec(min: 100), 400);
+
+  /// Whether the label under the [highlight]ed bar takes
+  /// [highlightLabelColor] (its value above always does).
+  static const highlightLabels = PropDef<bool>('highlightLabels', Codecs.bool, true);
+
+  /// The grid labels' own color, size and weight (null: the labels').
+  static const gridLabelColor = PropDef<Color?>('gridLabelColor', Codecs.color, null);
+  static const gridLabelFontSize = PropDef<double?>('gridLabelFontSize', Codecs.optionalPositive, null);
+  static const gridLabelFontWeight = PropDef<int?>('gridLabelFontWeight', Codecs.optionalInt, null);
+
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight,
+    highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
 
