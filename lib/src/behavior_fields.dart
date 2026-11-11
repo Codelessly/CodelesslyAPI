@@ -704,8 +704,16 @@ abstract final class EffectAnimationFields {
 
   /// Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own.
   static const cycles = PropDef<double>('cycles', Codecs.positive, 0);
+
+  /// A `keyframes` effect's poses at times 0–1 (from rest, back to rest).
+  static const keyframes = PropDef<List<MotionKeyframe>>(
+    'keyframes',
+    ListCodec(ValueCodec(MotionKeyframe.fromJson, _out, motionKeyframeType)),
+    [],
+  );
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
   static const List<PropDef<Object?>> all = [
-    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, //
+    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, keyframes, curve, //
   ];
 }
 
@@ -734,9 +742,12 @@ abstract final class ParticleEmitterFields {
   static const gravity = PropDef<double>('gravity', Codecs.double, 900);
   static const lifetime = PropDef<int>('lifetime', _ms, 2600);
   static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
+
+  /// The image `image` particles draw (a URL).
+  static const image = PropDef<String>('image', Codecs.string, '');
   static const List<PropDef<Object?>> all = [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear,
+    lifetime, playOnAppear, image,
   ];
 }
 

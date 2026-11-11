@@ -1987,7 +1987,10 @@ final class DragMotion extends _Value {
 
 // --- one-shot effects -----------------------------------------------------------
 
-enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin }
+/// A one-shot effect's shape. `keyframes` plays the effect's own
+/// [EffectAnimation.keyframes] (a hop with squash and stretch, a fly-away
+/// and back) from rest and back to rest.
+enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin, keyframes }
 
 /// A one-shot effect the node plays on cue (an action, a bound play key,
 /// or when it appears).
@@ -2004,10 +2007,20 @@ final class EffectAnimation extends _Value {
     this.playOnAppear = false,
     this.cycles = 0,
     this.playKey,
+    this.keyframes = const [],
+    this.curve = AnimationCurve.linear,
   });
 
   final String name;
   final EffectAnimationType type;
+
+  /// A `keyframes` effect's poses (translateX/Y, scale, scaleX/Y, rotate in
+  /// degrees, opacity) at times 0–1; it starts and ends at rest, and values a
+  /// keyframe leaves out follow the keyframes around it.
+  final List<MotionKeyframe> keyframes;
+
+  /// How a `keyframes` effect's time runs (the keyframes' times are on it).
+  final AnimationCurve curve;
   final int duration, delay;
   final double amount, originX, originY;
   final bool playOnAppear;
@@ -2035,10 +2048,25 @@ final class EffectAnimation extends _Value {
       playOnAppear: r.b('playOnAppear', false),
       cycles: math.max(0, r.d('cycles', 0)),
       playKey: m['playKey']?.toString(),
+      keyframes: [...?readList(m['keyframes'] is String ? _decodeList(m['keyframes'] as String) : m['keyframes'])?.map(MotionKeyframe.fromJson).nonNulls],
+      curve: AnimationCurve.parse(m['curve']) ?? AnimationCurve.linear,
     );
   }
 
-  Json toJson() => <String, Object?>{'name': name, 'type': type.name}
+  static Object? _decodeList(String s) {
+    try {
+      return jsonDecode(s);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Json toJson() => <String, Object?>{
+    'name': name,
+    'type': type.name,
+    if (keyframes.isNotEmpty) 'keyframes': [for (final k in keyframes) k.toJson()],
+    if (curve != AnimationCurve.linear) 'curve': curve.name,
+  }
     ..i('duration', duration, 520)
     ..i('delay', delay, 0)
     ..d('amount', amount, 1)
@@ -2049,10 +2077,11 @@ final class EffectAnimation extends _Value {
     ..s('playKey', playKey);
 
   @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey, keyframes, curve];
 }
 
-enum ParticleShape { square, circle, strip, star }
+/// A particle's shape; `image` draws the emitter's [ParticleEmitter.image].
+enum ParticleShape { square, circle, strip, star, image }
 
 /// Confetti or stars the node bursts with on cue.
 @immutable
@@ -2073,6 +2102,7 @@ final class ParticleEmitter extends _Value {
     this.lifetime = 2600,
     this.playOnAppear = false,
     this.playKey,
+    this.image = '',
   });
 
   static const List<Color> defaultColors = [
@@ -2093,6 +2123,10 @@ final class ParticleEmitter extends _Value {
   /// A cue the node's bindings set (`particles.playKey`): the particles
   /// burst each time it changes.
   final String? playKey;
+
+  /// The image `image` particles draw (a URL; petals, seeds, raindrops),
+  /// [size] wide, spinning as they fly.
+  final String image;
 
   static ParticleEmitter? fromJson(Object? json) {
     final m = readMap(json);
@@ -2121,6 +2155,7 @@ final class ParticleEmitter extends _Value {
       lifetime: r.ms('lifetime', 2600),
       playOnAppear: r.b('playOnAppear', false),
       playKey: m['playKey']?.toString(),
+      image: r.s('image'),
     );
   }
 
@@ -2143,13 +2178,14 @@ final class ParticleEmitter extends _Value {
       ..d('gravity', gravity, 900)
       ..i('lifetime', lifetime, 2600)
       ..b('playOnAppear', playOnAppear, false)
-      ..s('playKey', playKey);
+      ..s('playKey', playKey)
+      ..s('image', image.isEmpty ? null : image);
   }
 
   @override
   List<Object?> get props => [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear, playKey,
+    lifetime, playOnAppear, playKey, image,
   ];
 }
 
