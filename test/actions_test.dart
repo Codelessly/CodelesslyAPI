@@ -103,6 +103,16 @@ void main() {
     expect(none.toJson().containsKey('result'), isFalse);
   });
 
+  test('a popover anchors to a named node, in a list the copy of an item', () {
+    final json = {'type': 'openModal', 'to': 's', 'anchor': 'node', 'anchorNode': 'lane', 'anchorItem': r'${route.lane}'};
+    final a = ActionDef.fromJson(json)! as OpenModalAction;
+    expect(a.anchor, ModalAnchor.node);
+    expect(a.anchorNode, 'lane');
+    expect(a.anchorItem, r'${route.lane}');
+    expect(a.toJson(), json);
+    expect(const OpenModalAction(to: 's').toJson().keys, isNot(contains('anchorNode')));
+  });
+
   test('a popover keeps the room it reserves', () {
     final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'popover', 'anchorReserve': 360})! as OpenModalAction;
     expect(a.anchorReserve, 360);
