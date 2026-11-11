@@ -537,7 +537,9 @@ abstract final class ControlDragFields {
   static const command = PropDef<DragCommand>('command', EnumCodec(DragCommand.values), DragCommand.fling);
   static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
   static const steps = PropDef<String>('steps', Codecs.string, '1', doc: 'Step: how many steps (an expression).');
-  static const List<PropDef<Object?>> all = [node, command, direction, steps];
+  static const value = PropDef<String>('value', Codecs.string, '',
+      doc: 'Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, direction, steps, value];
 }
 
 /// [SpeakAction].
