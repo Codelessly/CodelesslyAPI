@@ -650,3 +650,7 @@ Image-fill lifecycle reactions: `imageLoading`, `imageLoaded` and
 `imageError` report the actual renderer fetch/decode state. Their result is
 `{url, status}` (`loading`, `loaded`, `error`). A cached image may go straight
 to loaded. Use a changed source URL to retry a failed request.
+
+`Reveal.when` is bindable (default true). The runtime requests scroll into
+view when a node appears or this gate turns false-to-true, honoring delay,
+duration and alignment for ordinary-container and Flutter viewports.
