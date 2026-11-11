@@ -243,7 +243,7 @@ abstract final class LayoutFields {
 
   /// Degrees, clockwise.
   static const rotation = PropDef<double>('rotation', Codecs.double, 0);
-  static const aspectRatio = PropDef<double?>('aspectRatio', OptionalDoubleCodec(min: 0), null);
+  static const aspectRatio = PropDef<double?>('aspectRatio', OptionalDoubleCodec(min: 0, ratio: true), null);
 
   /// Under a row/column: share of the free space (`Expanded.flex`).
   static const flex = PropDef<int>('flex', IntCodec(min: 0), 1);

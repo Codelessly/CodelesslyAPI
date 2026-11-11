@@ -92,6 +92,17 @@ void main() {
     expect(unknown.scope, CloudDataScope.screen);
   });
 
+  test('closeModal returns any value: a menu choice, a picked date, a map', () {
+    for (final r in ['duplicate', r'${item.iso}', 3, {'ok': true}, ['a', 'b']]) {
+      final a = ActionDef.fromJson({'type': 'closeModal', 'result': r})! as CloseModalAction;
+      expect(a.result, r);
+      expect(a.toJson()['result'], r);
+    }
+    final none = ActionDef.fromJson({'type': 'closeModal'})! as CloseModalAction;
+    expect(none.result, isNull);
+    expect(none.toJson().containsKey('result'), isFalse);
+  });
+
   test('a popover keeps the room it reserves', () {
     final a = ActionDef.fromJson({'type': 'openModal', 'to': 's', 'presentation': 'popover', 'anchorReserve': 360})! as OpenModalAction;
     expect(a.anchorReserve, 360);
