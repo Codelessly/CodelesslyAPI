@@ -130,6 +130,17 @@ abstract final class RadialGaugeProps {
 
   /// Where the needle starts, as a fraction of the radius.
   static const needleClearance = PropDef<double>('needleClearance', Codecs.double, 0.62);
+
+  /// How far inside the arc's centre line the labels sit (null: inside the
+  /// track, clear of the ticks).
+  static const labelInset = PropDef<double?>('labelInset', IndicatorCodecs.optionalDouble, null);
+
+  /// A hairline tick just outside the arc at each label.
+  static const labelTicks = PropDef<bool>('labelTicks', Codecs.bool, false);
+
+  /// The target mark crosses the arc (a newspaper's "last time" line)
+  /// instead of sitting outside it.
+  static const targetAcross = PropDef<bool>('targetAcross', Codecs.bool, false);
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
   /// Milliseconds.
@@ -140,6 +151,7 @@ abstract final class RadialGaugeProps {
     zones, zoneThickness, zoneOpacity, majorTicks, minorTicks, tickColor, labels, labelColor, labelFontSize,
     labelFontFamily, showTarget, target, targetColor, showNeedle, needleColor, needleClearance, animate,
     animationDuration,
+    labelInset, labelTicks, targetAcross,
   ], doc: 'Radial gauge (dial).');
 }
 
