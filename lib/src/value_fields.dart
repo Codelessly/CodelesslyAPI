@@ -190,6 +190,9 @@ abstract final class PaintFields {
   );
   /// A path paints the gradient in each of its shapes.
   static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
+  /// A radial gradient's radius as a share of the box's shortest side.
+  static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null,
+      doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's.");
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -202,6 +205,7 @@ abstract final class PaintFields {
     tileMode,
     image,
     gradientPerSubpath,
+    radius,
   ];
 }
 
