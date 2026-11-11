@@ -63,7 +63,7 @@ Object? _sample(String type, PropDef<Object?> def) {
     // A write op that keeps its value.
     if (def.key == 'op') return 'add';
     final values = codec.values;
-    // A single-value enum (submitForm's service) can only be its default.
+    // A single-value enum (submitForm's offered service) can only be its default.
     return (values.length == 1 ? values.first : values.firstWhere((v) => v != def.defaultValue)).name;
   }
   if (codec is StringCodec || codec is OptionalStringCodec) return 'x';
