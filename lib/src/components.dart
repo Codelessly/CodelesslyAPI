@@ -39,7 +39,7 @@ final class ComponentLink {
   /// an instance below [ComponentDefinition.version] has an update.
   final int version;
 
-  /// What the component lets an instance customise, aimed at this node's
+  /// What the component lets an instance customize, aimed at this node's
   /// tree (an instance's targets are its own copies' ids).
   final List<ComponentSetting> settings;
 
@@ -100,7 +100,7 @@ final class ComponentLink {
   String toString() => 'ComponentLink(${toJson()})';
 }
 
-/// One thing a component lets an instance customise, or a group of them.
+/// One thing a component lets an instance customize, or a group of them.
 ///
 /// JSON: `{"label": "Title", "type": "string", "value": "Hi",
 /// "targets": [{"node": "t1", "path": "props.text"}]}`; a group is
@@ -276,7 +276,7 @@ final class ComponentDefinition {
   /// The root node's id.
   String? get rootId => document.roots.firstOrNull;
 
-  /// What an instance can customise: the root's settings.
+  /// What an instance can customize: the root's settings.
   List<ComponentSetting> get settings => document[rootId ?? '']?.component?.settings ?? const [];
 
   static const _keys = {'schema', 'id', 'name', 'version', 'size', 'document', 'preview', 'source', 'createdAt'};

@@ -1,4 +1,4 @@
-// Behaviours: motion's shimmer, arc, phase, pause and
+// Behaviors: motion's shimmer, arc, phase, pause and
 // path pacing, loop phases, effect cycles, gesture physics and bounds,
 // drag tracks' settings, flip cards, tilt, transform gestures, hero
 // placeholders, and a node's insert key.
@@ -29,7 +29,7 @@ void main() {
       },
     };
     final n = _node(j);
-    final m = n.behaviours.motion!;
+    final m = n.behaviors.motion!;
     expect(m.loop, MotionLoop.swing);
     expect(m.paused, isTrue);
     expect(m.pathPacing, MotionPathPacing.area);
@@ -53,9 +53,9 @@ void main() {
       'motion': {'rotate': 5},
     });
     n = BindPaths.apply(n, 'motion.paused', 1);
-    expect(n.behaviours.motion!.paused, isTrue);
+    expect(n.behaviors.motion!.paused, isTrue);
     n = BindPaths.apply(n, 'motion.keyframes', '[{"t": 0.4, "translateY": -60}]');
-    expect(n.behaviours.motion!.keyframes, [const MotionKeyframe(t: 0.4, translateY: -60)]);
+    expect(n.behaviors.motion!.keyframes, [const MotionKeyframe(t: 0.4, translateY: -60)]);
   });
 
   test('path helpers', () {
@@ -110,7 +110,7 @@ void main() {
       },
       'dropTarget': {'slotSize': 'node', 'slotWhenRefused': false},
     });
-    final b = n.behaviours;
+    final b = n.behaviors;
     expect(b.drag!.hasBounds, isTrue);
     expect(b.drag!.minY, -560);
     expect(b.drag!.effectivePhysics!.duration, 420);
@@ -198,17 +198,17 @@ void main() {
     };
     final n = _node(j);
     expect(n.key, 'content');
-    expect(n.behaviours.flip!.axis, FlipAxis.x);
-    expect(n.behaviours.tilt!.max.rotateX, 6);
-    expect(n.behaviours.transformGesture!.handles!.snapAngle, 15);
-    expect(n.behaviours.hero!.placeholder, HeroPlaceholder.source);
-    expect(n.behaviours.hero!.flight.crossFades, isTrue);
+    expect(n.behaviors.flip!.axis, FlipAxis.x);
+    expect(n.behaviors.tilt!.max.rotateX, 6);
+    expect(n.behaviors.transformGesture!.handles!.snapAngle, 15);
+    expect(n.behaviors.hero!.placeholder, HeroPlaceholder.source);
+    expect(n.behaviors.hero!.flight.crossFades, isTrue);
     final out = n.toJson();
     for (final k in j.keys) {
       expect(out[k], j[k], reason: k);
     }
     // zoomable is a transform gesture's first form.
-    expect(_node({'zoomable': true}).behaviours.effectiveTransformGesture, TransformGesture.zoomable);
+    expect(_node({'zoomable': true}).behaviors.effectiveTransformGesture, TransformGesture.zoomable);
     expect(_node({'flip': <String, Object?>{}}).toJson()['flip'], isEmpty);
   });
 
@@ -219,7 +219,7 @@ void main() {
       expect(DropTarget.fromJson({'enabled': v})!.enabled, on, reason: '$v');
     }
     final n = BindPaths.apply(_node({'drag': <String, Object?>{}}), 'drag.enabled', 0);
-    expect(n.behaviours.drag!.enabled, isFalse);
-    expect(BindPaths.apply(n, 'drag.restX', '40').behaviours.drag!.restX, 40);
+    expect(n.behaviors.drag!.enabled, isFalse);
+    expect(BindPaths.apply(n, 'drag.restX', '40').behaviors.drag!.restX, 40);
   });
 }

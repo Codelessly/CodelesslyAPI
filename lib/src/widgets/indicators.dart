@@ -24,7 +24,7 @@ abstract final class CircularProgressIndicatorProps {
   static const backgroundColor = PropDef<Color?>('backgroundColor', IndicatorCodecs.optionalColor, null);
   static const strokeWidth = PropDef<double>('strokeWidth', Codecs.positive, 4);
 
-  /// -1 inside the bounds, 0 centred on them, 1 outside.
+  /// -1 inside the bounds, 0 centered on them, 1 outside.
   static const strokeAlign = PropDef<double>('strokeAlign', Codecs.double, 0);
   static const strokeCap = PropDef<StrokeCap?>('strokeCap', OptionalEnumCodec(StrokeCap.values), null);
   static const trackGap = PropDef<double?>('trackGap', IndicatorCodecs.optionalDouble, null);
@@ -462,7 +462,7 @@ enum BarcodeSymbology {
         code128 || ean13 => false,
       };
 
-  /// Square modules: kept square and centred; the others stretch.
+  /// Square modules: kept square and centered; the others stretch.
   bool get hasSquareModules => this == qrCode || this == aztec || this == dataMatrix;
 }
 

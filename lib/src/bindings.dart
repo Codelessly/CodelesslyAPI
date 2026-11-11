@@ -1,12 +1,12 @@
 // Binding paths: what a key of `Node.bind` names, and how a value lands
-// there. See DESIGN.md §5.1 for the grammar and the catalogue.
+// there. See DESIGN.md §5.1 for the grammar and the catalog.
 //
 // Values arrive as whatever an expression gave (a number, text, a bool, a
 // list, a map) and are read loosely: `"12"` is a number,
 // `1` is true, `"#F00"`... is a color. A value that can't be read leaves the
 // node as it was. The common paths (visibility, opacity, layout, paints,
 // radius, stroke width, top-level props, text style) are set on the typed
-// model directly; the rest (nested props, behaviours) through that one
+// model directly; the rest (nested props, behaviors) through that one
 // value's JSON.
 import 'json.dart';
 import 'layout.dart';
@@ -18,7 +18,7 @@ import 'values/geometry.dart';
 import 'values/paint.dart';
 import 'values/text.dart';
 import 'widgets/text.dart';
-import 'behaviours.dart';
+import 'behaviors.dart';
 
 /// One step of a binding path: a key, an index (`[2]`), or every item (`*`).
 typedef PathKey = Object;
@@ -106,11 +106,11 @@ abstract final class BindPaths {
         // itself doesn't hold it.
         return null;
     }
-    if (head is String && Behaviours.keys.contains(head)) {
+    if (head is String && Behaviors.keys.contains(head)) {
       final j = <String, Object?>{};
-      n.behaviours.writeTo(j);
+      n.behaviors.writeTo(j);
       final next = setJsonPath(j, keys, _jsonValue(value));
-      return next == null ? null : n.copyWith(behaviours: Behaviours.fromJson(next));
+      return next == null ? null : n.copyWith(behaviors: Behaviors.fromJson(next));
     }
     return null;
   }
