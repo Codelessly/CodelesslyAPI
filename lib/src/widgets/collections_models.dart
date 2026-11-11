@@ -489,10 +489,12 @@ SwipeAction? _swipeActionIn(Object? j) => SwipeAction.fromJson(j);
 final class TableColumn extends FieldValue {
   const TableColumn._(super.fields);
 
-  factory TableColumn({required String key, String label = '', double? width}) => TableColumn._(Props.empty
-      .set(TableColumnFields.key, key)
-      .set(TableColumnFields.label, label)
-      .set(TableColumnFields.width, width));
+  factory TableColumn({required String key, String label = '', double? width, double flex = 0}) => TableColumn._(
+      Props.empty
+          .set(TableColumnFields.key, key)
+          .set(TableColumnFields.label, label)
+          .set(TableColumnFields.width, width)
+          .set(TableColumnFields.flex, flex));
 
   /// A column from JSON, or from a bound value: a map like this one's JSON,
   /// or any other value as the column's key and label.
@@ -508,13 +510,18 @@ final class TableColumn extends FieldValue {
   String get key => get(TableColumnFields.key);
   String get label => get(TableColumnFields.label);
   double? get width => get(TableColumnFields.width);
+  double get flex => get(TableColumnFields.flex);
 }
 
 abstract final class TableColumnFields {
   static const key = PropDef<String>('key', Codecs.string, '');
   static const label = PropDef<String>('label', Codecs.string, '');
   static const width = PropDef<double?>('width', Codecs.optionalPositive, null);
-  static const spec = WidgetSpec('TableColumn', props: [key, label, width], doc: 'A table view\'s column.');
+
+  /// The column's share of the room left when the table is wider than its
+  /// columns (its width is then the least it takes); 0: fixed.
+  static const flex = PropDef<double>('flex', Codecs.positive, 0);
+  static const spec = WidgetSpec('TableColumn', props: [key, label, width, flex], doc: 'A table view\'s column.');
 }
 
 const tableColumnCodec =

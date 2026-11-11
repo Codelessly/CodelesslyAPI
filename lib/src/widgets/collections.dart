@@ -541,13 +541,33 @@ abstract final class TableViewProps {
   static const cacheExtent = PropDef<double?>('cacheExtent', _optionalPositive, null);
   static const clipBehavior = PropDef<Clip>('clipBehavior', EnumCodec(Clip.values), Clip.hardEdge);
 
+  /// Space before the first column and after the last.
+  static const horizontalPadding = PropDef<double>('horizontalPadding', Codecs.positive, 0);
+
+  /// A line under the header row only.
+  static const headerBorderColor = PropDef<Color?>('headerBorderColor', _optionalColor, null);
+  static const headerBorderWidth = PropDef<double>('headerBorderWidth', Codecs.positive, 1);
+
+  /// A body row's background while the pointer is over it.
+  static const rowHoverColor = PropDef<Color?>('rowHoverColor', _optionalColor, null);
+
+  /// The selected body row (bind it), -1 for none: drawn in
+  /// [selectedRowColor] with a [selectedRowEdgeWidth] edge at its start in
+  /// [selectedRowEdgeColor].
+  static const selectedRow = PropDef<int>('selectedRow', Codecs.int, -1);
+  static const selectedRowColor = PropDef<Color?>('selectedRowColor', _optionalColor, null);
+  static const selectedRowEdgeColor = PropDef<Color?>('selectedRowEdgeColor', _optionalColor, null);
+  static const selectedRowEdgeWidth = PropDef<double>('selectedRowEdgeWidth', Codecs.positive, 4);
+
   static const cell = 'cell', columnHeader = 'columnHeader', rowHeader = 'rowHeader', corner = 'corner';
 
   static const spec = WidgetSpec(
     'tableView',
     props: [
       columns, rowCount, rowHeight, headerHeight, columnWidth, rowHeaderWidth, pinHeaderRow, pinHeaderColumn, //
-      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior,
+      gridLineColor, gridLineWidth, stripeColor, headerColor, cacheExtent, clipBehavior, horizontalPadding,
+      headerBorderColor, headerBorderWidth, rowHoverColor, selectedRow, selectedRowColor, selectedRowEdgeColor,
+      selectedRowEdgeWidth,
     ],
     children: ChildModel.slots,
     slots: [cell, columnHeader, rowHeader, corner],
