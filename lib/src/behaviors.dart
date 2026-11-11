@@ -2496,6 +2496,7 @@ final class StrokePath extends _Value {
     this.drawCurve = AnimationCurve.easeInOut,
     this.drawKey = '',
     this.fillColor,
+    this.untilWidth = false,
   });
 
   final List<Offset> points;
@@ -2531,6 +2532,12 @@ final class StrokePath extends _Value {
 
   final Color? fillColor;
 
+  /// Draws only the segments that start within the box's width, as a
+  /// painter's loop `for (x = 0; x <= width; ...)` does: a long run of
+  /// points (a hand-ruled line) rules any width, its last segment running
+  /// past the edge as the painter's does.
+  final bool untilWidth;
+
   /// Whether a running app animates it.
   bool get draws => drawMs > 0;
 
@@ -2550,6 +2557,7 @@ final class StrokePath extends _Value {
         drawCurve: drawCurve,
         drawKey: drawKey,
         fillColor: fillColor,
+        untilWidth: untilWidth,
       );
 
   static StrokePath? fromJson(Object? json) {
@@ -2572,6 +2580,7 @@ final class StrokePath extends _Value {
       drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
       drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
       fillColor: r.color('fillColor'),
+      untilWidth: r.b('untilWidth', false),
     );
   }
 
@@ -2605,11 +2614,12 @@ final class StrokePath extends _Value {
       ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
     if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
     if (fillColor != null) j['fillColor'] = fillColor!.toJson();
+    j.b('untilWidth', untilWidth, false);
     return j;
   }
 
   @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey, fillColor];
+  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey, fillColor, untilWidth];
 }
 
 /// Text that types itself out in a running app, like a typewriter or a
