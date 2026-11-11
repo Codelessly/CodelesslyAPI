@@ -87,10 +87,13 @@ abstract final class TextStyleFields {
     null,
   );
 
+  /// With no height, the font's own line height instead of the base style's.
+  static const naturalHeight = PropDef<bool?>('naturalHeight', Codecs.optionalBool, null);
+
   static const List<PropDef<Object?>> all = [
     fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
     decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
-    shadows,
+    shadows, naturalHeight,
   ];
 }
 
