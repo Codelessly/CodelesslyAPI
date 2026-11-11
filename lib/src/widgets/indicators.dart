@@ -249,6 +249,21 @@ abstract final class ChartProps {
   static const yLabelSuffix = PropDef<String>('yLabelSuffix', Codecs.string, '');
   static const yAxisFontFamily = PropDef<String?>('yAxisFontFamily', IndicatorCodecs.optionalString, null);
 
+  /// Line charts: the row field holding each point's x value, placed over
+  /// [domainMin]–[domainMax] (minutes, years...) instead of one slot per
+  /// row. Unset: rows sit in slots ([xSlots]).
+  static const xField = PropDef<String?>('xField', IndicatorCodecs.optionalString, null);
+
+  /// Line charts with [xField]: x-axis labels at values (`{"x", "label"}`),
+  /// drawn instead of each row's label.
+  static const xLabels = PropDef<List<PlotChartLabel>>('xLabels', PlotChartLabel.codec, []);
+
+  /// Room right of the plot for series end labels ([ChartSeries.endLabel]).
+  static const endLabelWidth = PropDef<double>('endLabelWidth', Codecs.double, 0);
+
+  /// Decimals of the values in series end labels.
+  static const endLabelDecimals = PropDef<int>('endLabelDecimals', IntCodec(min: 0), 1);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -261,6 +276,7 @@ abstract final class ChartProps {
     maxBarWidth, barGap, barRadius, dashEmpty, selectionColor, xSlots, startField, endField, segmentColorField,
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yAxisFontFamily,
+    xField, xLabels, endLabelWidth, endLabelDecimals,
     animate, animationDuration,
   ], doc: 'Series chart (bar, line, timeline, donut).');
 }
@@ -311,6 +327,26 @@ abstract final class PlotChartProps {
   static const selectionDotStrokeColor = PropDef<Color>('selectionDotStrokeColor', Codecs.color, Color.black);
   static const selectionDotStrokeWidth = PropDef<double>('selectionDotStrokeWidth', Codecs.double, 2.5);
 
+  /// Horizontal lines: grid lines with y-axis labels, and references (a
+  /// dashed target with an inline label).
+  static const yLines = PropDef<List<PlotChartYLine>>('yLines', PlotChartYLine.codec, []);
+
+  /// Room left of the plot for the y lines' axis labels.
+  static const yAxisWidth = PropDef<double>('yAxisWidth', Codecs.double, 0);
+
+  /// Where the curve (and the area under it) stops, an x value: the rest
+  /// of the domain stays empty (a series that hasn't happened yet). Unset:
+  /// the whole domain.
+  static const lineEndX = PropDef<double?>('lineEndX', IndicatorCodecs.optionalDouble, null);
+
+  /// A dot of this radius where the curve ends, in the line color with a
+  /// [selectionDotColor] ring; 0 for none.
+  static const endDotRadius = PropDef<double>('endDotRadius', Codecs.double, 0);
+
+  /// Markers are rings (the marker's color round a [selectionDotColor]
+  /// center) instead of dots.
+  static const markerHollow = PropDef<bool>('markerHollow', Codecs.bool, false);
+
   /// Animates numeric data changes; initial and design-canvas values rest.
   static const animate = PropDef<bool>('animate', Codecs.bool, true);
 
@@ -323,6 +359,7 @@ abstract final class PlotChartProps {
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
     selectionDotColor, selectionDotStrokeColor, selectionDotStrokeWidth,
+    yLines, yAxisWidth, lineEndX, endDotRadius, markerHollow,
     animate, animationDuration,
   ], doc: 'Plot chart (line/area over an x domain).');
 }
