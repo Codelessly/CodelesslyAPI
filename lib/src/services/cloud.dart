@@ -384,6 +384,11 @@ final class CollectionSchema {
 }
 
 /// Who can read and write a collection.
+///
+/// Firestore's rules (`firebase/firestore.rules`) enforce each one; a rule
+/// they don't know lets no app user in, and an SDK that doesn't know a rule
+/// reads it as [app], so its reads and writes are refused rather than
+/// widened.
 enum DataRule {
   /// Anyone using the app. The default.
   app,
@@ -398,13 +403,36 @@ enum DataRule {
   publicReadOwnerWrite,
 
   /// Anyone reads; users with the collection's role write.
-  roleWrite;
+  roleWrite,
+
+  /// Each signed-in user reads only their own documents (those whose
+  /// [DataRules.ownerField] is theirs); only the project's editors, the
+  /// server and users with the collection's role ([DataRules.roles],
+  /// default `admin`) write them. The owner may change only the fields
+  /// [DataRules.ownerFields] lists (a `read` flag), on an existing document.
+  ownerRead,
+
+  /// A user reads a document whose [DataRules.audienceField] list names
+  /// them: everyone ([DataRules.everyone]), signed-in users
+  /// ([DataRules.signedInUsers]), their role ([DataRules.roleAudience]) or
+  /// them ([DataRules.userAudience]). Checked at read time, so users who
+  /// sign up or change role later see what is addressed to them. Writes as
+  /// [ownerRead].
+  audience;
 
   /// Whether writes record the signed-in user as the document's owner.
   bool get stampsOwner => this == owner || this == publicReadOwnerWrite;
 
   /// Whether reads return only the signed-in user's documents.
-  bool get readsOwnOnly => this == owner;
+  bool get readsOwnOnly => this == owner || this == ownerRead;
+
+  /// Whether reads return only the documents addressed to the reader
+  /// ([audience]).
+  bool get readsAudience => this == audience;
+
+  /// Whether only the project's editors, the server and users with the
+  /// collection's role write (besides an [ownerRead] owner's own fields).
+  bool get writtenByRole => this == roleWrite || this == ownerRead || this == audience;
 
   /// Whether writing needs a signed-in user.
   bool get writeNeedsSignIn => this != app;
@@ -414,10 +442,46 @@ enum DataRule {
 /// collections.
 @immutable
 final class DataRules {
-  const DataRules({this.collections = const {}, this.schemas = const {}, this.indexes = const {}, this.roles = const {}});
+  const DataRules({
+    this.collections = const {},
+    this.schemas = const {},
+    this.indexes = const {},
+    this.roles = const {},
+    this.ownerFields = const {},
+    this.expiry = const {},
+  });
 
   /// The field holding the uid of the user who owns a document.
   static const ownerField = 'ownerId';
+
+  /// The list field of an [DataRule.audience] document: who reads it.
+  static const audienceField = 'audience';
+
+  /// In [audienceField]: everyone using the app, signed in or not.
+  static const everyone = '*';
+
+  /// In [audienceField]: every signed-in (not anonymous) user.
+  static const signedInUsers = 'signedIn';
+
+  /// In [audienceField]: the users with [role].
+  static String roleAudience(String role) => 'role:$role';
+
+  /// In [audienceField]: the user [uid].
+  static String userAudience(String uid) => 'user:$uid';
+
+  /// What a reader matches in [audienceField]: everyone, the user, their
+  /// [role] when known, and signed-in users when [signedIn]. A reader whose
+  /// role is unknown leaves it out (the rules accept a subset).
+  static List<String> audienceOf(String uid, {String? role, bool signedIn = false}) => [
+        everyone,
+        userAudience(uid),
+        if (role != null && role.isNotEmpty) roleAudience(role),
+        if (signedIn) signedInUsers,
+      ];
+
+  /// An [expiry] value that never comes: documents of an expiring
+  /// collection carry it when they don't expire.
+  static const neverExpires = '9999-12-31T23:59:59.999Z';
 
   /// Top-level collection → rule; unlisted collections are [DataRule.app].
   final Map<String, DataRule> collections;
@@ -432,6 +496,20 @@ final class DataRules {
   /// Collection name → the role a user needs to write it
   /// ([DataRule.roleWrite]).
   final Map<String, String> roles;
+
+  /// Collection name → the fields the owner of a document may change in a
+  /// [DataRule.ownerRead] collection (e.g. `[read, readAt]`). Never
+  /// [ownerField], [audienceField] or the expiry field. Empty: the owner
+  /// changes nothing.
+  final Map<String, List<String>> ownerFields;
+
+  /// Top-level collection → the field holding each document's expiry time
+  /// (ISO-8601 UTC text, as the SDK writes dates; [neverExpires] when it
+  /// doesn't expire). App users never read a document past it (the rules
+  /// allow up to 10 minutes for device clocks), and they can't read a
+  /// document without it. Queries filter `field > now`, which the SDK adds;
+  /// a scheduled function deletes expired documents.
+  final Map<String, String> expiry;
 
   static DataRules fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -452,6 +530,14 @@ final class DataRules {
         for (final e in (readMap(m['roles']) ?? const {}).entries)
           if (e.value case final String r) e.key: r,
       },
+      ownerFields: {
+        for (final e in (readMap(m['ownerFields']) ?? const {}).entries)
+          if (readList(e.value) != null) e.key: readStrings(e.value),
+      },
+      expiry: {
+        for (final e in (readMap(m['expiry']) ?? const {}).entries)
+          if (e.value case final String f when f.trim().isNotEmpty) e.key: f.trim(),
+      },
     );
   }
 
@@ -461,6 +547,8 @@ final class DataRules {
           'schemas': {for (final e in schemas.entries) e.key: e.value.toJson()..remove('name')},
         if (indexes.isNotEmpty) 'indexes': {for (final e in indexes.entries) e.key: e.value.toList()},
         if (roles.isNotEmpty) 'roles': roles,
+        if (ownerFields.isNotEmpty) 'ownerFields': ownerFields,
+        if (expiry.isNotEmpty) 'expiry': expiry,
       };
 
   static final _separator = RegExp(r'[./]');
@@ -487,6 +575,13 @@ final class DataRules {
 
   /// The schema of the collection [path] names, else of its top collection.
   CollectionSchema? schemaFor(String path) => schemas[collectionName(path)] ?? schemas[topCollection(path)];
+
+  /// The expiry field of the documents under [path] (set on its top-level
+  /// collection, like the rule), or null when they don't expire.
+  String? expiryFieldFor(String path) => expiry[topCollection(path)];
+
+  /// The fields an owner may change in the documents under [path].
+  List<String> ownerFieldsFor(String path) => ownerFields[topCollection(path)] ?? const [];
 
   /// The composite indexes ready for the collection [path] names.
   Set<String> readyIndexesFor(String path) => indexes[collectionName(path)] ?? const {};
