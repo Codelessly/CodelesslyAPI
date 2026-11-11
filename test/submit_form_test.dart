@@ -1,16 +1,87 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
-void main(){
- test('legacy submissions retain their Mailchimp default and JSON shape',(){
-  final json={'type':'submitForm','service':'mailchimp','emailField':'email','apiKey':'key','dataCenter':'us1','listId':'list'};
-  expect(ActionDef.fromJson(json)!.toJson(),json);
-  expect((ActionDef.fromJson({'type':'submitForm'}) as SubmitFormAction).service,FormService.mailchimp);
- });
- test('generic local submissions roundtrip typed payload, validator and callbacks',(){
-  final json={'type':'submitForm','service':'local','emailField':'','payload':r'${answers}','validationScript':'validate','validationArguments':{'schema':r'${schema}'},'responseVariable':'responses','prepend':true,'resultVariable':'submitted','onSuccess':[{'type':'setVariable','variable':'done','value':'true'}],'onError':[{'type':'showToast','message':'Invalid'}]};
-  final action=ActionDef.fromJson(json) as SubmitFormAction;
-  expect(action.toJson(),json);expect(action.nested.length,2);
-  final fields=SubmitFormFields.all.map((f)=>f.key);
-  expect(fields,containsAll(['payload','validationScript','validationArguments','responseVariable','prepend','resultVariable','onSuccess','onError']));
- });
+
+/// Keys only the removed built-in newsletter integration wrote.
+const _removedKeys = ['apiKey', 'dataCenter', 'listId', 'emailField', 'firstNameField', 'lastNameField'];
+
+void main() {
+  group('older newsletter submissions', () {
+    final stored = <Json>[
+      {'type': 'submitForm', 'service': 'mailchimp', 'emailField': 'email', 'apiKey': 'key-us1', 'dataCenter': 'us1', 'listId': 'list',
+       'firstNameField': 'first', 'lastNameField': 'last', 'nonBlocking': true},
+      // Before `service` was written, its default was the newsletter.
+      {'type': 'submitForm', 'emailField': 'email', 'apiKey': 'key-us1', 'dataCenter': 'us1', 'listId': 'list'},
+      {'type': 'submitForm', 'service': 'mailchimp', 'emailField': ''},
+      // A service a newer version might add.
+      {'type': 'submitForm', 'service': 'someFutureService'},
+    ];
+
+    test('decode without throwing, as unsupported', () {
+      for (final json in stored) {
+        final a = ActionDef.fromJson(json);
+        expect(a, isA<SubmitFormAction>(), reason: '$json');
+        expect((a! as SubmitFormAction).service, FormService.unsupported, reason: '$json');
+      }
+      expect(ActionDef.fromJson(stored.first)!.nonBlocking, isTrue);
+    });
+
+    test('re-encode drops the removed fields and keeps them unsupported', () {
+      for (final json in stored) {
+        final out = ActionDef.fromJson(json)!.toJson();
+        for (final k in _removedKeys) {
+          expect(out.containsKey(k), isFalse, reason: '$k in $out');
+        }
+        expect(out['service'], 'unsupported');
+        expect(out.values.whereType<String>(), isNot(contains('key-us1')));
+        // Stable: decoding the re-encoded action gives the same action.
+        expect(ActionDef.fromJson(out), ActionDef.fromJson(json));
+      }
+    });
+
+    test('in a reaction list, inside callbacks too', () {
+      final list = ActionDef.listFromJson([
+        {'type': 'submitForm', 'service': 'local', 'onError': [stored.first]},
+        stored[1],
+      ]);
+      expect(list, hasLength(2));
+      final nested = (list.first as SubmitFormAction).onError.single as SubmitFormAction;
+      expect(nested.service, FormService.unsupported);
+      expect(list.first.toJson().toString(), isNot(contains('apiKey')));
+    });
+  });
+
+  test('a new submission is local', () {
+    expect((ActionDef.fromJson({'type': 'submitForm'})! as SubmitFormAction).service, FormService.local);
+    expect(const SubmitFormAction().service, FormService.local);
+    expect(SubmitFormFields.service.defaultValue, FormService.local);
+    final offered = (SubmitFormFields.service.codec as EnumCodec<FormService>).values;
+    expect(offered, [FormService.local]);
+  });
+
+  test('the removed fields are not offered', () {
+    final keys = SubmitFormFields.all.map((f) => f.key);
+    for (final k in _removedKeys) {
+      expect(keys, isNot(contains(k)));
+    }
+  });
+
+  test('generic local submissions roundtrip typed payload, validator and callbacks', () {
+    final json = {
+      'type': 'submitForm', 'service': 'local', 'payload': r'${answers}', 'validationScript': 'validate',
+      'validationArguments': {'schema': r'${schema}'}, 'responseVariable': 'responses', 'prepend': true, 'resultVariable': 'submitted',
+      'onSuccess': [{'type': 'setVariable', 'variable': 'done', 'value': 'true'}],
+      'onError': [{'type': 'showToast', 'message': 'Invalid'}],
+    };
+    final action = ActionDef.fromJson(json)! as SubmitFormAction;
+    expect(action.toJson(), json);
+    expect(action.nested.length, 2);
+    final fields = SubmitFormFields.all.map((f) => f.key);
+    expect(fields, containsAll(['payload', 'validationScript', 'validationArguments', 'responseVariable', 'prepend', 'resultVariable', 'onSuccess', 'onError']));
+  });
+
+  test('older local submissions with an empty emailField still roundtrip without it', () {
+    final a = ActionDef.fromJson({'type': 'submitForm', 'service': 'local', 'emailField': '', 'payload': r'${answers}'})! as SubmitFormAction;
+    expect(a.service, FormService.local);
+    expect(a.toJson(), {'type': 'submitForm', 'service': 'local', 'payload': r'${answers}'});
+  });
 }

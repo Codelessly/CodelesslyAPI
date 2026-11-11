@@ -249,14 +249,9 @@ abstract final class PrintFields {
 
 /// [SubmitFormAction].
 abstract final class SubmitFormFields {
-  static const service = PropDef<FormService>('service', EnumCodec(FormService.values), FormService.mailchimp);
-  static const emailField = PropDef<String>('emailField', Codecs.string, '', doc: 'The email text field\'s node id.');
-  static const apiKey = PropDef<String>('apiKey', Codecs.string, '');
-  static const dataCenter = PropDef<String>('dataCenter', Codecs.string, '');
-  static const listId = PropDef<String>('listId', Codecs.string, '');
-  static const firstNameField = PropDef<String>('firstNameField', Codecs.string, '');
-  static const lastNameField = PropDef<String>('lastNameField', Codecs.string, '');
-  static const payload = PropDef<String>('payload', Codecs.string, '', doc: 'Local submission: an expression yielding a JSON object.');
+  /// Only `local` is offered: [FormService.unsupported] marks old data.
+  static const service = PropDef<FormService>('service', EnumCodec([FormService.local]), FormService.local);
+  static const payload = PropDef<String>('payload', Codecs.string, '', doc: 'An expression yielding a JSON object.');
   static const validationScript = PropDef<String>('validationScript', Codecs.string, '', doc: 'Await a script returning {valid, errors?, payload?}.');
   static const validationArguments = PropDef<Object?>('validationArguments', Codecs.any, null, doc: 'Named script argument expressions.');
   static const responseVariable = PropDef<String>('responseVariable', Codecs.string, '', doc: 'Optional mutable list variable receiving the validated payload. Persist the variable to keep submissions.');
@@ -264,8 +259,8 @@ abstract final class SubmitFormFields {
   static const resultVariable = PropDef<String>('resultVariable', Codecs.string, '');
   static const onSuccess = PropDef<Object?>('onSuccess', Codecs.any, null);
   static const onError = PropDef<Object?>('onError', Codecs.any, null);
-  static const List<PropDef<Object?>> all = [service, emailField, apiKey, dataCenter, listId, firstNameField, lastNameField,
-    payload, validationScript, validationArguments, responseVariable, prepend, resultVariable, onSuccess, onError];
+  static const List<PropDef<Object?>> all = [service, payload, validationScript, validationArguments, responseVariable,
+    prepend, resultVariable, onSuccess, onError];
 }
 
 /// [SetValueAction].
@@ -363,7 +358,10 @@ abstract final class LoadCloudDataFields {
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
       doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
-  static const List<PropDef<Object?>> all = [variable, single, id, query];
+  static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
+      doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
+          'into an app variable every screen reads.');
+  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
 }
 
 /// [AuthAction].
@@ -373,8 +371,10 @@ abstract final class AuthFields {
   static const password = PropDef<String>('password', Codecs.string, '');
   static const displayName = PropDef<String>('displayName', Codecs.string, '');
   static const photoUrl = PropDef<String>('photoUrl', Codecs.string, '');
+  static const currentPassword = PropDef<String>('currentPassword', Codecs.string, '',
+      doc: 'Re-authenticates first (change password, delete account).');
   static const errorVariable = PropDef<String>('errorVariable', Codecs.string, '', doc: 'Gets a failure\'s message.');
-  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, errorVariable];
+  static const List<PropDef<Object?>> all = [operation, email, password, displayName, photoUrl, currentPassword, errorVariable];
 }
 
 /// [IfAction].
@@ -553,13 +553,15 @@ abstract final class SpeakFields {
 /// [ScrollToAction].
 abstract final class ScrollToFields {
   static const node = PropDef<String>('node', Codecs.string, '');
+  static const item = PropDef<String>('item', Codecs.string, '',
+      doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
   static const offset = PropDef<double>('offset', Codecs.double, 0);
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
-  static const List<PropDef<Object?>> all = [node, durationMs, curve, alignment, offset, axis];
+  static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
 }
 
 /// [PlaySoundAction].
@@ -568,11 +570,15 @@ abstract final class PlaySoundFields {
   static const operation = PropDef<String>('operation', Codecs.string, 'play', doc: 'play, start, stop, or stopAll.');
   static const voiceId = PropDef<String>('voiceId', Codecs.string, '', doc: 'The independently owned sustained voice.');
   static const frequency = PropDef<String>('frequency', Codecs.string, '440', doc: 'Sustained tone frequency in hertz.');
+  static const waveform = PropDef<String>('waveform', Codecs.string, 'sine',
+      doc: 'Sustained voice: sine, triangle, square, sawtooth, felt, reed or pluck.');
+  static const note = PropDef<String>('note', Codecs.string, '', doc: 'A MIDI note number (60 = middle C) in place of frequency.');
+  static const duration = PropDef<String>('duration', Codecs.string, '', doc: 'Milliseconds until a started voice releases itself; empty sustains.');
   static const volume = PropDef<String>('volume', Codecs.string, '1');
   static const pitch = PropDef<String>('pitch', Codecs.string, '1');
   static const at = PropDef<String>('at', Codecs.string, '', doc: 'A time on the sound clock.');
   static const url = PropDef<String>('url', Codecs.string, '', doc: 'A sound file.');
-  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, volume, pitch, at, url];
+  static const List<PropDef<Object?>> all = [sound, operation, voiceId, frequency, waveform, note, duration, volume, pitch, at, url];
 }
 
 /// [PlayAnimationAction].
