@@ -470,6 +470,14 @@ abstract final class BarChartProps {
   /// Each bar's value above it (whole numbers without decimals).
   static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
 
+  /// Decimals of the values over the bars (null: whole numbers without
+  /// decimals, else one), and text after each (`%`).
+  static const valueDecimals = PropDef<int?>('valueDecimals', Codecs.optionalInt, null);
+  static const valueSuffix = PropDef<String>('valueSuffix', Codecs.string, '');
+
+  /// Letter spacing of the labels under the bars.
+  static const labelLetterSpacing = PropDef<double>('labelLetterSpacing', Codecs.double, 0);
+
   /// The weight of the labels under the bars and of the values (100–900).
   static const labelFontWeight = PropDef<int>('labelFontWeight', IntCodec(min: 100), 400);
 
@@ -485,7 +493,7 @@ abstract final class BarChartProps {
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing,
     highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
