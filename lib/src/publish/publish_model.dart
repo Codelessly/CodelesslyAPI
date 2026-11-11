@@ -236,6 +236,7 @@ final class PublishModel {
     this.layoutIDMap = const {},
     this.disabledLayouts = const [],
     this.overlayLayoutIds = const [],
+    this.backdropLayoutIds = const [],
     this.theme = ThemeTokens.none,
     this.fonts = const {},
     this.apis = const {},
@@ -278,6 +279,18 @@ final class PublishModel {
   List<String> get overlays => [
         for (final id in overlayLayoutIds)
           if (layouts.containsKey(id) && !disabledLayouts.contains(id)) id,
+      ];
+
+  /// The backdrop screens ([CanvasProps.backdrop]): layouts drawn once
+  /// beneath every screen of the app, outside navigation, in order (later
+  /// on top). A layout that is an overlay isn't a backdrop. Listed so an app
+  /// can show them without loading every layout.
+  final List<String> backdropLayoutIds;
+
+  /// [backdropLayoutIds] that are published, not disabled and not overlays.
+  List<String> get backdrops => [
+        for (final id in backdropLayoutIds)
+          if (layouts.containsKey(id) && !disabledLayouts.contains(id) && !overlayLayoutIds.contains(id)) id,
       ];
 
   /// The project's theme.
@@ -394,6 +407,7 @@ final class PublishModel {
       },
       disabledLayouts: readStrings(m['disabledLayouts']),
       overlayLayoutIds: readStrings(m['overlayLayoutIds']),
+      backdropLayoutIds: readStrings(m['backdropLayoutIds']),
       theme: ThemeTokens.fromJson(m['theme']),
       fonts: {
         for (final e in fonts.entries)
@@ -413,7 +427,7 @@ final class PublishModel {
 
   static const Set<String> _keys = {
     'schema', 'projectId', 'slug', 'entryLayoutId', 'entryPageId', 'entryCanvasId', 'pages', 'layouts', //
-    'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
+    'layoutIDMap', 'disabledLayouts', 'overlayLayoutIds', 'backdropLayoutIds', 'theme', 'fonts', 'apis', 'variables', 'appIdentity', 'breakpoints', 'lastUpdated',
   };
 
   /// [json] (a publish model or bundle) upgraded to [kPublishSchemaVersion].
@@ -440,6 +454,7 @@ final class PublishModel {
         if (layoutIDMap.isNotEmpty) 'layoutIDMap': layoutIDMap,
         if (disabledLayouts.isNotEmpty) 'disabledLayouts': disabledLayouts,
         if (overlayLayoutIds.isNotEmpty) 'overlayLayoutIds': overlayLayoutIds,
+        if (backdropLayoutIds.isNotEmpty) 'backdropLayoutIds': backdropLayoutIds,
         if (!theme.isEmpty) 'theme': theme.toJson(),
         if (fonts.isNotEmpty) 'fonts': {for (final e in fonts.entries) e.key: e.value.toJson()},
         if (apis.isNotEmpty) 'apis': apis,
@@ -461,6 +476,7 @@ final class PublishModel {
     Map<String, String>? layoutIDMap,
     List<String>? disabledLayouts,
     List<String>? overlayLayoutIds,
+    List<String>? backdropLayoutIds,
     ThemeTokens? theme,
     Map<String, PublishFont>? fonts,
     Json? apis,
@@ -481,6 +497,7 @@ final class PublishModel {
         layoutIDMap: layoutIDMap ?? this.layoutIDMap,
         disabledLayouts: disabledLayouts ?? this.disabledLayouts,
         overlayLayoutIds: overlayLayoutIds ?? this.overlayLayoutIds,
+        backdropLayoutIds: backdropLayoutIds ?? this.backdropLayoutIds,
         theme: theme ?? this.theme,
         fonts: fonts ?? this.fonts,
         apis: apis ?? this.apis,
