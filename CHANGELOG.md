@@ -10,6 +10,10 @@
 
 **New**
 
+- Backdrop screens: `CanvasProps.backdrop` (`"props": {"backdrop": true}` on a canvas) marks a screen drawn once
+  beneath every screen, outside navigation (a sky that stays still while screens move over it). `PublishModel`
+  lists them in `backdropLayoutIds` (omitted when empty); `backdrops` is the published, enabled ones. A canvas both
+  `overlay` and `backdrop` is an overlay.
 - `LoadCloudDataAction.scope` (`CloudDataScope.screen`, the default, or `app`; `LoadCloudDataFields.scope`):
   `"scope": "app"` asks the runtime to keep one live subscription for the whole app, shared by every screen that
   runs the same load, writing an app variable. Omitted when `screen`, so existing JSON is unchanged; older
