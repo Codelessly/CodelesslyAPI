@@ -2338,6 +2338,7 @@ final class Typewriter extends _Value {
     this.blinkMs = 500,
     this.skip = false,
     this.playKey = '',
+    this.holdAtMs,
   });
 
   /// Off, the whole text shows (bindable as `typewriter.enabled`).
@@ -2369,6 +2370,13 @@ final class Typewriter extends _Value {
   /// `typewriter.playKey`).
   final String playKey;
 
+  /// Stops the typing clock this many ms after it starts (its delay
+  /// included): the text holds part-typed, caret blinking, as a still of
+  /// the moment (bindable as `typewriter.holdAtMs`). Lines that type one
+  /// after another (each delayed by the ones before) all stop at the same
+  /// moment. Null types to the end.
+  final int? holdAtMs;
+
   /// Whether a running app types (rather than shows the whole text).
   bool get types => enabled && !skip && charsPerSecond > 0;
 
@@ -2387,6 +2395,7 @@ final class Typewriter extends _Value {
       blinkMs: math.max(1, r.ms('blinkMs', 500)),
       skip: r.b('skip', false),
       playKey: readString(m['playKey']) ?? (m['playKey'] == null ? '' : '${m['playKey']}'),
+      holdAtMs: m['holdAtMs'] == null || m['holdAtMs'] == '' ? null : math.max(0, r.ms('holdAtMs', 0)),
     );
   }
 
@@ -2402,11 +2411,12 @@ final class Typewriter extends _Value {
       ..i('blinkMs', blinkMs, 500)
       ..b('skip', skip, false);
     if (playKey.isNotEmpty) j['playKey'] = playKey;
+    if (holdAtMs != null) j['holdAtMs'] = holdAtMs;
     return j;
   }
 
   @override
-  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey];
+  List<Object?> get props => [enabled, charsPerSecond, delayMs, caret, caretColor, caretWidth, blinkMs, skip, playKey, holdAtMs];
 }
 
 /// Scrolls the node into view when it appears (or when its `reveal.when`
