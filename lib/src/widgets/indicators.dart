@@ -453,8 +453,13 @@ abstract final class PlotChartProps {
   /// Milliseconds. Zero applies data changes immediately.
   static const animationDuration = PropDef<int>('animationDuration', IntCodec(min: 0), 700);
 
+  /// Clips the drawing to the chart's box. Off, a line's stroke at the
+  /// edge overhangs it, as a Flutter `CustomPaint` (which doesn't clip)
+  /// draws it.
+  static const clip = PropDef<bool>('clip', Codecs.bool, true);
+
   static const spec = WidgetSpec('plotChart', props: [
-    selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
+    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
     gridColor, axisColor, xLabels, gridLabels, labelStyle, labelHeight, ranges, markers, markerRadius,
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
@@ -512,6 +517,14 @@ abstract final class BarChartProps {
   /// Each bar's value above it (whole numbers without decimals).
   static const showValues = PropDef<bool>('showValues', Codecs.bool, false);
 
+  /// Decimals of the values over the bars (null: whole numbers without
+  /// decimals, else one), and text after each (`%`).
+  static const valueDecimals = PropDef<int?>('valueDecimals', Codecs.optionalInt, null);
+  static const valueSuffix = PropDef<String>('valueSuffix', Codecs.string, '');
+
+  /// Letter spacing of the labels under the bars.
+  static const labelLetterSpacing = PropDef<double>('labelLetterSpacing', Codecs.double, 0);
+
   /// The weight of the labels under the bars and of the values (100–900).
   static const labelFontWeight = PropDef<int>('labelFontWeight', IntCodec(min: 100), 400);
 
@@ -527,7 +540,7 @@ abstract final class BarChartProps {
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing,
     highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
@@ -597,9 +610,10 @@ abstract final class LineChartProps {
   static const areaBands = PropDef<List<Json>>('areaBands', IndicatorCodecs.objects, []);
 
   /// Dashed horizontal lines: `[{"y", "color"?, "width"?, "dash"?: [on, off],
-  /// "label"?, "labelColor"?, "labelBelow"?}]`; a label sits at the right
-  /// end, above the line unless labelBelow, in [axisLabelStyle] (bold, the
-  /// line's color unless labelColor).
+  /// "label"?, "labelColor"?, "labelBelow"?, "labelAlign"?: "end" | "start"}]`;
+  /// a label sits at the line's end (or start, with labelAlign "start"),
+  /// above the line unless labelBelow, in [axisLabelStyle] (bold, the line's
+  /// color unless labelColor).
   static const referenceLines = PropDef<List<Json>>('referenceLines', IndicatorCodecs.objects, []);
 
   /// X axis ticks: `[{"x", "label"}]`.
