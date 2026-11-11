@@ -1143,6 +1143,7 @@ final class LoadCloudDataAction extends ActionDef {
     this.single = true,
     this.id = '',
     this.query = const CloudQueryDef(),
+    this.scope = CloudDataScope.screen,
     super.enabled,
     super.nonBlocking,
     super.when,
@@ -1162,11 +1163,17 @@ final class LoadCloudDataAction extends ActionDef {
   /// filters, sorts and limit.
   final CloudQueryDef query;
 
+  /// Who keeps the subscription: the screen (until it goes), or the app
+  /// ([CloudDataScope.app]): one subscription per app, shared by every
+  /// screen, writing an app variable. Older runtimes load per screen.
+  final CloudDataScope scope;
+
   static LoadCloudDataAction _fromJson(Json m, _Common c) => LoadCloudDataAction(
     variable: _s(m, 'variable'),
     single: _b(m, 'single', true),
     id: _s(m, 'id'),
     query: CloudQueryDef.fromJson(m['query']),
+    scope: readEnum(CloudDataScope.values, m['scope'], CloudDataScope.screen),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
     when: c.when,
@@ -1178,7 +1185,22 @@ final class LoadCloudDataAction extends ActionDef {
     if (!single) 'single': false,
     if (id.isNotEmpty) 'id': id,
     'query': query.toJson(),
+    if (scope != CloudDataScope.screen) 'scope': scope.name,
   };
+}
+
+/// Who keeps a [LoadCloudDataAction]'s live subscription.
+enum CloudDataScope {
+  /// The screen that ran the action: the subscription ends when it goes,
+  /// and each screen that runs it opens its own.
+  screen,
+
+  /// The app (the runtime's project instance): the first run opens the
+  /// subscription and every later run of the same document or query, from
+  /// any screen, shares it; it lives until the app is done (or a run for
+  /// the same variable asks for another document or query). Its variable is
+  /// an app variable, so every screen reads it.
+  app,
 }
 
 /// What a [CloudDataAction] does.
@@ -2138,10 +2160,12 @@ final class ControlDragAction extends ActionDef {
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
     this.node = '',
+    this.item = '',
     this.durationMs = 400,
     this.curve = 'easeInOut',
     this.alignment = 0,
     this.offset = 0,
+    this.offsetFormula = '',
     this.axis,
     super.enabled,
     super.nonBlocking,
@@ -2153,19 +2177,31 @@ final class ScrollToAction extends ActionDef {
   String get type => typeName;
 
   final String node;
+
+  /// When [node] repeats (a list's item template, or a node inside it): the
+  /// key of the item whose copy to reveal (an expression; the list's item
+  /// key, `id` by default, or else its index). Empty: the first copy.
+  final String item;
   final int durationMs;
 
   /// A `Curves` name.
   final String curve;
   final double alignment, offset;
+
+  /// [offset] as an expression (JSON `"offset": "${...}"`): a link's
+  /// `${route.offset}`, a value computed at the time. Wins when it gives a
+  /// number.
+  final String offsetFormula;
   final ScrollAxis? axis;
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
     node: _s(m, 'node'),
+    item: _s(m, 'item'),
     durationMs: _i(m, 'durationMs', 400),
     curve: _s(m, 'curve', 'easeInOut'),
     alignment: _d(m, 'alignment', 0),
-    offset: _d(m, 'offset', 0),
+    offset: m['offset'] is String ? 0 : _d(m, 'offset', 0),
+    offsetFormula: m['offset'] is String ? m['offset'] as String : '',
     axis: _axis(m['axis']),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -2175,10 +2211,14 @@ final class ScrollToAction extends ActionDef {
   @override
   Json get _fields => {
     'node': node,
+    if (item.isNotEmpty) 'item': item,
     if (durationMs != 400) 'durationMs': durationMs,
     if (curve != 'easeInOut') 'curve': curve,
     if (alignment != 0) 'alignment': writeDouble(alignment),
-    if (offset != 0) 'offset': writeDouble(offset),
+    if (offsetFormula.isNotEmpty)
+      'offset': offsetFormula
+    else if (offset != 0)
+      'offset': writeDouble(offset),
     'axis': ?axis?.name,
   };
 }

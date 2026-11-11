@@ -50,6 +50,7 @@ final samples = <Json>[
   {'type': 'playSound', 'operation': 'stopAll'},
 
   {'type': 'print', 'node': 'badge'},
+  {'type': 'loadCloudData', 'variable': 'unread', 'single': false, 'query': {'enabled': true, 'collectionPath': 'inbox'}, 'scope': 'app'},
 ];
 
 void main() {
@@ -75,6 +76,17 @@ void main() {
     final branch = ActionDef.fromJson(samples[14])! as IfAction;
     expect(branch.condition, isA<Comparison>());
     expect(branch.selfAndNested.map((a) => a.type), ['if', 'openLink', 'openLink']);
+  });
+
+  test('loadCloudData is screen scoped unless it says app', () {
+    final old = ActionDef.fromJson({'type': 'loadCloudData', 'variable': 'v', 'query': {'collectionPath': 'c'}})! as LoadCloudDataAction;
+    expect(old.scope, CloudDataScope.screen);
+    expect(old.toJson().containsKey('scope'), isFalse);
+    final app = ActionDef.fromJson({...old.toJson(), 'scope': 'app'})! as LoadCloudDataAction;
+    expect(app.scope, CloudDataScope.app);
+    expect(app.toJson()['scope'], 'app');
+    final unknown = ActionDef.fromJson({...old.toJson(), 'scope': 'galaxy'})! as LoadCloudDataAction;
+    expect(unknown.scope, CloudDataScope.screen);
   });
 
   test('an adaptive modal is a sheet below a project breakpoint', () {

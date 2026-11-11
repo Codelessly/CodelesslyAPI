@@ -31,8 +31,16 @@ abstract final class CanvasProps {
   /// breakpoint's min width.
   static const breakpointMinWidth =
       PropDef<double?>('breakpointMinWidth', Codecs.optionalPositive, null, doc: 'Its own switch point.');
+
+  /// An overlay screen: drawn above every other screen of the app (a mini
+  /// player and tab bar that stay while screens change under them), outside
+  /// navigation. Its empty parts let taps through to the screen below. It
+  /// isn't a screen to navigate to: it has no URL path and is never the
+  /// entry screen. Its layout is an overlay when any of its canvases is.
+  static const overlay =
+      PropDef<bool>('overlay', Codecs.bool, false, doc: 'Shown above every screen, outside navigation.');
   static const spec = WidgetSpec('canvas',
-      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
+      props: [scaleMode, blockBack, breakpoint, screen, breakpointMinWidth, overlay], children: ChildModel.slots, slots: ['body', 'appBar', 'floatingActionButton', 'bottomNavigationBar'],
       decorated: true, doc: 'Flutter `Scaffold`.');
 }
 

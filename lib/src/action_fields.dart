@@ -358,7 +358,10 @@ abstract final class LoadCloudDataFields {
   static const id = PropDef<String>('id', Codecs.string, '');
   static const query = PropDef<Object?>('query', Codecs.any, null,
       doc: 'The collection and, for a query, its filters, sorts and limit (a CloudQueryDef).');
-  static const List<PropDef<Object?>> all = [variable, single, id, query];
+  static const scope = PropDef<CloudDataScope>('scope', EnumCodec(CloudDataScope.values), CloudDataScope.screen,
+      doc: 'Screen: a subscription per screen, until it goes. App: one subscription the whole app shares, '
+          'into an app variable every screen reads.');
+  static const List<PropDef<Object?>> all = [variable, single, id, query, scope];
 }
 
 /// [AuthAction].
@@ -563,13 +566,15 @@ abstract final class SpeakFields {
 /// [ScrollToAction].
 abstract final class ScrollToFields {
   static const node = PropDef<String>('node', Codecs.string, '');
+  static const item = PropDef<String>('item', Codecs.string, '',
+      doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);
   static const curve = PropDef<String>('curve', Codecs.string, 'easeInOut', doc: 'A Curves name.');
   static const alignment = PropDef<double>('alignment', Codecs.double, 0, doc: '0: at the start of the view, 1: at the end.');
   static const offset = PropDef<double>('offset', Codecs.double, 0);
   static const axis = PropDef<ScrollAxis?>('axis', OptionalEnumCodec(ScrollAxis.values), null,
       doc: 'Only the scroll views along this axis; null: every one.');
-  static const List<PropDef<Object?>> all = [node, durationMs, curve, alignment, offset, axis];
+  static const List<PropDef<Object?>> all = [node, item, durationMs, curve, alignment, offset, axis];
 }
 
 /// [PlaySoundAction].

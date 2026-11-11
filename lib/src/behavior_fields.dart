@@ -49,6 +49,9 @@ const dropTargetType = PropType.object('DropTarget', dropTargetFields);
 const dragTrackType = PropType.object('DragTrack', dragTrackFields);
 const dragMotionType = PropType.object('DragMotion', dragMotionFields);
 const revealType = PropType.object('Reveal', revealFields);
+const stickyType = PropType.object('Sticky', stickyFields);
+const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
+const measureType = PropType.object('Measure', measureFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
 const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
@@ -173,6 +176,10 @@ abstract final class MotionFields {
 
   /// Reads the progress modulo 1.
   static const pathWrap = PropDef<bool>('pathWrap', Codecs.bool, false);
+
+  /// The path's coordinate space `[width, height]`, stretched over the
+  /// node's parent; empty: pixels.
+  static const pathViewBox = PropDef<List<double>>('pathViewBox', Codecs.doubles, []);
   static const shimmer = PropDef<MotionShimmer?>(
     'shimmer',
     ValueCodec(MotionShimmer.fromJson, _out, motionShimmerType),
@@ -184,7 +191,7 @@ abstract final class MotionFields {
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, springStiffness, springDamping,
     spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path, orientToPath, keyframes, pulseKey,
     revealOnScroll, enterHeld, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap,
-    shimmer,
+    pathViewBox, shimmer,
   ];
 }
 
@@ -874,6 +881,51 @@ abstract final class RevealFields {
 
 List<PropDef<Object?>> revealFields() => RevealFields.all;
 
+abstract final class StickyFields {
+  /// Distance from the view's leading edge where it pins (px).
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [offset];
+}
+
+List<PropDef<Object?>> stickyFields() => StickyFields.all;
+
+abstract final class ViewProgressFields {
+  static const mode = PropDef<ViewProgressMode>('mode', EnumCodec(ViewProgressMode.values), ViewProgressMode.travel);
+
+  /// Where progress is 0 (travel) or where the line is (pass): a fraction
+  /// of the viewport from its leading edge.
+  static const from = PropDef<double>('from', Codecs.double, 1);
+
+  /// Where progress is 1 (travel).
+  static const to = PropDef<double>('to', Codecs.double, 0);
+
+  /// Pixels added to both.
+  static const offset = PropDef<double>('offset', Codecs.double, 0);
+
+  /// A variable the progress is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [mode, from, to, offset, variable, key];
+}
+
+List<PropDef<Object?>> viewProgressFields() => ViewProgressFields.all;
+
+abstract final class MeasureFields {
+  /// The variable its box is written to.
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// The key it's written under, for a map variable.
+  static const key = PropDef<String>('key', Codecs.string, '');
+
+  /// An ancestor node whose box it's measured in; empty: the screen.
+  static const relativeTo = PropDef<String>('relativeTo', Codecs.string, '');
+  static const List<PropDef<Object?>> all = [variable, key, relativeTo];
+}
+
+List<PropDef<Object?>> measureFields() => MeasureFields.all;
+
 // --- Behaviors -----------------------------------------------------------------
 
 /// A node's [Behaviors], one per key of [Behaviors.keys]: stored flat in
@@ -956,10 +1008,23 @@ abstract final class BehaviorFields {
     null,
   );
 
+  /// Pinned in its scrolling view while its parent is in view.
+  static const sticky = PropDef<Sticky?>('sticky', ValueCodec(Sticky.fromJson, _out, stickyType), null);
+
+  /// `${view.progress}` through the viewport.
+  static const viewProgress = PropDef<ViewProgress?>(
+    'viewProgress',
+    ValueCodec(ViewProgress.fromJson, _out, viewProgressType),
+    null,
+  );
+
+  /// Its laid-out box, written to a variable.
+  static const measure = PropDef<Measure?>('measure', ValueCodec(Measure.fromJson, _out, measureType), null);
+
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
     flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
-    textDirection, flip, tilt, transformGesture,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }
