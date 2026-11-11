@@ -407,8 +407,10 @@ final class Motion extends _Value {
     this.keyframes = const [],
     this.pulseKey,
     this.revealOnScroll = false,
+    this.enterHeld = false,
     this.revealFraction = 0.15,
     this.orientUpright = false,
+    this.uprightMirror = false,
     this.arc = 0,
     this.paused = false,
     this.phase = 0,
@@ -416,6 +418,7 @@ final class Motion extends _Value {
     this.pathFocusX = 0,
     this.pathFocusY = 0,
     this.pathWrap = false,
+    this.pathViewBox = const [],
     this.shimmer,
     this.named = const {},
   });
@@ -455,7 +458,10 @@ final class Motion extends _Value {
   /// Hidden while its back faces the viewer.
   final bool backfaceHidden;
 
-  /// An SVG path the node moves along, at [pathProgress] (0–1).
+  /// An SVG path the node moves along, at [pathProgress] (0–1). It is
+  /// followed from where the node is laid out: the node is moved by the
+  /// path's offset from its start point, so a node tracing a route drawn in
+  /// its parent's coordinates sits at the route's first point.
   final String? path;
   final double pathProgress;
 
@@ -468,11 +474,22 @@ final class Motion extends _Value {
 
   /// Waits to enter until [revealFraction] of the node scrolls into view.
   final bool revealOnScroll;
+
+  /// Holds the entrance at its start while true; it plays once this turns
+  /// false (bindable as `motion.enterHeld`: a page's characters wait for
+  /// the page to settle, `${= abs(pageOffset) > 0.01}`). Once played, it
+  /// doesn't hold again.
+  final bool enterHeld;
   final double revealFraction;
 
   /// With [orientToPath], never upside down: the path's direction folded
   /// into -90–90 degrees.
   final bool orientUpright;
+
+  /// With [orientUpright], a node heading left is mirrored (scaleX -1) as
+  /// well as turned upright, so its front still leads: a train, a car, a
+  /// fish. Without it the node keeps facing right, backwards.
+  final bool uprightMirror;
 
   /// Bends every change of position (translate, shift) into a quadratic
   /// curve whose middle sits this share of the distance off the straight
@@ -495,6 +512,14 @@ final class Motion extends _Value {
   /// Reads [pathProgress] modulo 1 (a closed path goes round and round); a
   /// transition goes the short way round.
   final bool pathWrap;
+
+  /// The coordinate space of [path], `[width, height]`, stretched over the
+  /// node's parent: the path follows the figure it's drawn on as that
+  /// resizes (a marker walking a line of a diagram). Its points are where
+  /// the node goes, from the parent's origin (lay the node out at the
+  /// origin, offset by half its size to centre it on the path). Empty:
+  /// [path] is in pixels, as offsets from its start, from the node's place.
+  final List<double> pathViewBox;
 
   /// A band of light sweeping across the node; null for none.
   final MotionShimmer? shimmer;
@@ -589,8 +614,10 @@ final class Motion extends _Value {
       keyframes: keyframes,
       pulseKey: pulseKey,
       revealOnScroll: revealOnScroll,
+      enterHeld: enterHeld,
       revealFraction: revealFraction,
       orientUpright: orientUpright,
+      uprightMirror: uprightMirror,
       arc: arc,
       paused: paused,
       phase: phase,
@@ -598,6 +625,7 @@ final class Motion extends _Value {
       pathFocusX: pathFocusX,
       pathFocusY: pathFocusY,
       pathWrap: pathWrap,
+      pathViewBox: pathViewBox,
       shimmer: shimmer,
       named: named,
     );
@@ -658,6 +686,14 @@ final class Motion extends _Value {
     if (a > math.pi / 2) return a - math.pi;
     if (a < -math.pi / 2) return a + math.pi;
     return a;
+  }
+
+  /// Whether a path direction [radians] heads left, so [uprightAngle] turns
+  /// it half round (and [uprightMirror] mirrors the node).
+  static bool headsLeft(double radians) {
+    var a = radians % (2 * math.pi);
+    if (a > math.pi) a -= 2 * math.pi;
+    return a > math.pi / 2 || a < -math.pi / 2;
   }
 
   /// The pose [t] (0–1, already eased) of the way from [a] to [b], through
@@ -769,8 +805,10 @@ final class Motion extends _Value {
       keyframes: [...?readList(_jsonText(m['keyframes']))?.map(MotionKeyframe.fromJson).nonNulls],
       pulseKey: r.sn('pulseKey'),
       revealOnScroll: r.b('revealOnScroll', false),
+      enterHeld: r.b('enterHeld', false),
       revealFraction: r.d('revealFraction', 0.15),
       orientUpright: r.b('orientUpright', false),
+      uprightMirror: r.b('uprightMirror', false),
       arc: r.d('arc', 0),
       paused: _loose(m['paused']) ?? false,
       phase: r.d('phase', 0),
@@ -778,6 +816,7 @@ final class Motion extends _Value {
       pathFocusX: r.d('pathFocusX', 0),
       pathFocusY: r.d('pathFocusY', 0),
       pathWrap: r.b('pathWrap', false),
+      pathViewBox: r.doubles('pathViewBox'),
       shimmer: MotionShimmer.fromJson(m['shimmer']),
       named: {
         for (final p in properties)
@@ -823,8 +862,10 @@ final class Motion extends _Value {
     j
       ..s('pulseKey', pulseKey)
       ..b('revealOnScroll', revealOnScroll, false)
+      ..b('enterHeld', enterHeld, false)
       ..d('revealFraction', revealFraction, 0.15)
       ..b('orientUpright', orientUpright, false)
+      ..b('uprightMirror', uprightMirror, false)
       ..d('arc', arc, 0)
       ..b('paused', paused, false)
       ..d('phase', phase, 0)
@@ -832,6 +873,7 @@ final class Motion extends _Value {
       ..d('pathFocusX', pathFocusX, 0)
       ..d('pathFocusY', pathFocusY, 0)
       ..b('pathWrap', pathWrap, false);
+    if (pathViewBox.isNotEmpty) j['pathViewBox'] = pathViewBox.map(writeDouble).toList();
     if (shimmer != null) j['shimmer'] = shimmer!.toJson();
     return j;
   }
@@ -841,8 +883,8 @@ final class Motion extends _Value {
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, //
     perspective, originX, originY, duration, delay, curve, springStiffness, springDamping, spin, spinRamp,
     loop, repeat, enter, enterFrom, replayKey, blur, backfaceHidden, path, pathProgress, orientToPath,
-    keyframes, pulseKey, revealOnScroll, revealFraction, orientUpright, arc, paused, phase, pathPacing, pathFocusX,
-    pathFocusY, pathWrap, shimmer,
+    keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc, paused, phase, pathPacing,
+    pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
 
@@ -2008,7 +2050,10 @@ final class DragMotion extends _Value {
 
 // --- one-shot effects -----------------------------------------------------------
 
-enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin }
+/// A one-shot effect's shape. `keyframes` plays the effect's own
+/// [EffectAnimation.keyframes] (a hop with squash and stretch, a fly-away
+/// and back) from rest and back to rest.
+enum EffectAnimationType { shake, bounce, pop, wiggle, jelly, flash, spin, keyframes }
 
 /// A one-shot effect the node plays on cue (an action, a bound play key,
 /// or when it appears).
@@ -2025,10 +2070,20 @@ final class EffectAnimation extends _Value {
     this.playOnAppear = false,
     this.cycles = 0,
     this.playKey,
+    this.keyframes = const [],
+    this.curve = AnimationCurve.linear,
   });
 
   final String name;
   final EffectAnimationType type;
+
+  /// A `keyframes` effect's poses (translateX/Y, scale, scaleX/Y, rotate in
+  /// degrees, opacity) at times 0–1; it starts and ends at rest, and values a
+  /// keyframe leaves out follow the keyframes around it.
+  final List<MotionKeyframe> keyframes;
+
+  /// How a `keyframes` effect's time runs (the keyframes' times are on it).
+  final AnimationCurve curve;
   final int duration, delay;
   final double amount, originX, originY;
   final bool playOnAppear;
@@ -2056,10 +2111,25 @@ final class EffectAnimation extends _Value {
       playOnAppear: r.b('playOnAppear', false),
       cycles: math.max(0, r.d('cycles', 0)),
       playKey: m['playKey']?.toString(),
+      keyframes: [...?readList(m['keyframes'] is String ? _decodeList(m['keyframes'] as String) : m['keyframes'])?.map(MotionKeyframe.fromJson).nonNulls],
+      curve: AnimationCurve.parse(m['curve']) ?? AnimationCurve.linear,
     );
   }
 
-  Json toJson() => <String, Object?>{'name': name, 'type': type.name}
+  static Object? _decodeList(String s) {
+    try {
+      return jsonDecode(s);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Json toJson() => <String, Object?>{
+    'name': name,
+    'type': type.name,
+    if (keyframes.isNotEmpty) 'keyframes': [for (final k in keyframes) k.toJson()],
+    if (curve != AnimationCurve.linear) 'curve': curve.name,
+  }
     ..i('duration', duration, 520)
     ..i('delay', delay, 0)
     ..d('amount', amount, 1)
@@ -2070,12 +2140,38 @@ final class EffectAnimation extends _Value {
     ..s('playKey', playKey);
 
   @override
-  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey];
+  List<Object?> get props => [name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, playKey, keyframes, curve];
 }
 
-enum ParticleShape { square, circle, strip, star }
+/// A particle's shape; `image` draws the emitter's [ParticleEmitter.image].
+enum ParticleShape {
+  square,
+  circle,
+  strip,
+  star,
 
-/// Confetti or stars the node bursts with on cue.
+  /// The emitter's [ParticleEmitter.image] (a URL), [ParticleEmitter.size]
+  /// wide at the image's aspect ratio.
+  image,
+
+  /// A paper triangle.
+  triangle,
+
+  /// A wavy ribbon (stroked).
+  squiggle,
+
+  /// The emitter's [ParticleEmitter.glyph] (an emoji or any text), drawn at
+  /// the particle's size.
+  emoji,
+}
+
+/// Confetti, stars or emoji the node bursts with on cue.
+///
+/// Each particle leaves from the origin at [speed] (55–115%) in a direction
+/// within [spread] of [direction], slows by [drag], falls by [gravity] no
+/// faster than [terminalVelocity], sways [sway] px side to side, spins and
+/// turns over ([flutter]), and fades out over the last [fadeOut] ms of its
+/// [lifetime].
 @immutable
 final class ParticleEmitter extends _Value {
   const ParticleEmitter({
@@ -2094,6 +2190,16 @@ final class ParticleEmitter extends _Value {
     this.lifetime = 2600,
     this.playOnAppear = false,
     this.playKey,
+    this.image = '',
+    this.delay = 0,
+    this.drag = 0,
+    this.terminalVelocity = 0,
+    this.sway = 0,
+    this.flutter = 8,
+    this.spin = 515,
+    this.fadeOut = 500,
+    this.mirror = false,
+    this.glyph = '',
   });
 
   static const List<Color> defaultColors = [
@@ -2115,6 +2221,40 @@ final class ParticleEmitter extends _Value {
   /// burst each time it changes.
   final String? playKey;
 
+  /// The image `image` particles draw (a URL; petals, seeds, raindrops),
+  /// [size] wide, spinning as they fly.
+  final String image;
+  /// Wait after the cue before the first particle leaves (ms).
+  final int delay;
+
+  /// Air resistance: the speed falls by e^(-drag) each second (0: none).
+  final double drag;
+
+  /// The fastest a particle falls (px/s; 0: no limit). Paper floats.
+  final double terminalVelocity;
+
+  /// How far each particle sways side to side as it goes (px).
+  final double sway;
+
+  /// How fast each particle turns over in 3D (radians per second, up to;
+  /// 0 keeps it flat).
+  final double flutter;
+
+  /// The fastest a particle spins (degrees per second).
+  final double spin;
+
+  /// The last part of its life over which a particle fades out (ms).
+  final int fadeOut;
+
+  /// Every other particle leaves mirrored across the node's vertical
+  /// middle (its origin and direction flipped): two cannons facing each
+  /// other.
+  final bool mirror;
+
+  /// What [ParticleShape.emoji] particles draw (bindable as
+  /// `particles.glyph`).
+  final String glyph;
+
   static ParticleEmitter? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
@@ -2128,8 +2268,8 @@ final class ParticleEmitter extends _Value {
       shapes: shapes == null
           ? const [ParticleShape.square, ParticleShape.strip, ParticleShape.circle]
           : [
-              for (final s in ParticleShape.values)
-                if (shapes.contains(s.name)) s,
+              for (final s in shapes)
+                if (ParticleShape.values.where((v) => v.name == s).firstOrNull case final v?) v,
             ],
       size: r.d('size', 10),
       originX: r.d('originX', 0),
@@ -2142,6 +2282,16 @@ final class ParticleEmitter extends _Value {
       lifetime: r.ms('lifetime', 2600),
       playOnAppear: r.b('playOnAppear', false),
       playKey: m['playKey']?.toString(),
+      delay: r.ms('delay', 0),
+      drag: math.max(0, r.d('drag', 0)),
+      terminalVelocity: math.max(0, r.d('terminalVelocity', 0)),
+      sway: r.d('sway', 0),
+      flutter: math.max(0, r.d('flutter', 8)),
+      spin: r.d('spin', 515),
+      fadeOut: r.ms('fadeOut', 500),
+      mirror: r.b('mirror', false),
+      glyph: r.s('glyph'),
+      image: r.s('image'),
     );
   }
 
@@ -2164,14 +2314,96 @@ final class ParticleEmitter extends _Value {
       ..d('gravity', gravity, 900)
       ..i('lifetime', lifetime, 2600)
       ..b('playOnAppear', playOnAppear, false)
-      ..s('playKey', playKey);
+      ..s('playKey', playKey)
+      ..i('delay', delay, 0)
+      ..d('drag', drag, 0)
+      ..d('terminalVelocity', terminalVelocity, 0)
+      ..d('sway', sway, 0)
+      ..d('flutter', flutter, 8)
+      ..d('spin', spin, 515)
+      ..i('fadeOut', fadeOut, 500)
+      ..b('mirror', mirror, false)
+      ..s('glyph', glyph)
+      ..s('image', image.isEmpty ? null : image);
   }
 
   @override
   List<Object?> get props => [
     count, emit, colors, shapes, size, originX, originY, originWidth, direction, spread, speed, gravity, //
-    lifetime, playOnAppear, playKey,
+    lifetime, playOnAppear, playKey, image, delay, drag, terminalVelocity, sway, flutter, spin, fadeOut, mirror, glyph,
   ];
+}
+
+/// How a node with a [Behaviors.flightKey] flies in from where the node
+/// with the same key was: on a spring by default, or, with a [duration],
+/// along a curve that rises [lift] (or [liftShare] of the distance, the
+/// larger) above the higher end, swelling to [swell] at the middle and
+/// spinning [turns] times (toward the way it flies), trailing [trail] fading
+/// dots.
+@immutable
+final class Flight extends _Value {
+  const Flight({
+    this.duration = 0,
+    this.curve = AnimationCurve.easeInOut,
+    this.lift = 0,
+    this.liftShare = 0,
+    this.swell = 1,
+    this.turns = 0,
+    this.trail = 0,
+    this.trailColor = const Color(0xFFFFC83D),
+  });
+
+  /// The flight's length (ms); 0 flies on the node's spring.
+  final int duration;
+  final AnimationCurve curve;
+
+  /// How far the path's control point rises above the higher end (px), or
+  /// a share of the distance flown, whichever is larger; 0 and 0 fly
+  /// straight.
+  final double lift, liftShare;
+
+  /// The node's scale at the middle of the flight (1: none).
+  final double swell;
+
+  /// Whole turns over the flight, clockwise when flying right.
+  final double turns;
+
+  /// Fading dots left behind (0: none), in [trailColor].
+  final int trail;
+  final Color trailColor;
+
+  static Flight? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Flight(
+      duration: r.ms('duration', 0),
+      curve: r.e(AnimationCurve.values, 'curve', AnimationCurve.easeInOut),
+      lift: r.d('lift', 0),
+      liftShare: r.d('liftShare', 0),
+      swell: r.d('swell', 1),
+      turns: r.d('turns', 0),
+      trail: math.max(0, r.i('trail', 0)),
+      trailColor: Color.fromJson(m['trailColor']) ?? const Color(0xFFFFC83D),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{}
+      ..i('duration', duration, 0);
+    if (curve != AnimationCurve.easeInOut) j['curve'] = curve.name;
+    j
+      ..d('lift', lift, 0)
+      ..d('liftShare', liftShare, 0)
+      ..d('swell', swell, 1)
+      ..d('turns', turns, 0)
+      ..i('trail', trail, 0);
+    if (trailColor != const Color(0xFFFFC83D)) j['trailColor'] = trailColor.toJson();
+    return j;
+  }
+
+  @override
+  List<Object?> get props => [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
 }
 
 // --- paint and scroll -------------------------------------------------------------
@@ -2467,6 +2699,158 @@ final class Reveal extends _Value {
   List<Object?> get props => [alignment, duration, delay, when, follow];
 }
 
+/// Pins the node inside the scrolling row or column it scrolls in, as CSS
+/// `position: sticky`: once its leading edge reaches [offset] from the
+/// view's leading edge it stays there, drawn above the content scrolling
+/// under it, until the end of its parent (the section it heads) pushes it
+/// on. `${sticky.stuck}` says whether it is pinned now (the node's own
+/// bindings and the nodes inside it read it). The design canvas, which
+/// doesn't scroll, draws it in place. JSON `true` or `{"offset": 8}`.
+@immutable
+final class Sticky extends _Value {
+  const Sticky({this.offset = 0});
+
+  /// Distance from the view's leading edge where it pins, in pixels.
+  final double offset;
+
+  static Sticky? fromJson(Object? json) {
+    if (json == true) return const Sticky();
+    final m = readMap(json);
+    if (m == null) return null;
+    return Sticky(offset: _R(m).d('offset', 0));
+  }
+
+  Json toJson() => <String, Object?>{}..d('offset', offset, 0);
+
+  @override
+  List<Object?> get props => [offset];
+}
+
+/// Writes where the node is laid out, `{x, y, width, height, centerX,
+/// centerY}` in pixels, to a variable as layout changes: in the
+/// coordinates of the ancestor node [relativeTo] (empty: the screen),
+/// under [key] when the variable is a map. Other nodes then follow it: a
+/// marker travelling to the chip of the reader's layer on a timeline whose
+/// chips are laid out by data. The design canvas measures too.
+@immutable
+final class Measure extends _Value {
+  const Measure({this.variable = '', this.key = '', this.relativeTo = ''});
+
+  final String variable;
+
+  /// With [variable] a map: the key (an expression, `${item.id}`).
+  final String key;
+
+  /// The id of an ancestor node whose box the position is measured in.
+  final String relativeTo;
+
+  static Measure? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return Measure(variable: r.s('variable'), key: r.s('key'), relativeTo: r.s('relativeTo'));
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..s('variable', variable)
+    ..s('key', key)
+    ..s('relativeTo', relativeTo);
+
+  @override
+  List<Object?> get props => [variable, key, relativeTo];
+}
+
+/// How a [ViewProgress] measures its node against the viewport.
+enum ViewProgressMode {
+  /// The node's leading edge travels from [ViewProgress.from] to
+  /// [ViewProgress.to] of the viewport (0 to 1).
+  travel,
+
+  /// A line at [ViewProgress.from] of the viewport passes over the node,
+  /// from its leading edge (0) to its trailing edge (1).
+  pass,
+}
+
+/// How far the node has scrolled through the viewport of the scrolling row
+/// or column (or list) it is in, as `${view.progress}` (0–1) and
+/// `${view.visible}` for its own bindings and the nodes inside it: a
+/// figure that draws itself as it scrolls up the screen (a path's
+/// `trimEnd`), a heading that fades in, a gauge reading how far through a
+/// section the reader is. Positions are fractions of the viewport's extent
+/// from its leading edge (0 top, 1 bottom), plus [offset] pixels. With
+/// [variable], the progress is also written to that screen (or app)
+/// variable, under [key] when it's a map, for nodes elsewhere to read.
+/// The design canvas reads progress 0 above the fold and 1 for a node it
+/// shows whole.
+@immutable
+final class ViewProgress extends _Value {
+  const ViewProgress({
+    this.mode = ViewProgressMode.travel,
+    this.from = 1,
+    this.to = 0,
+    this.offset = 0,
+    this.variable = '',
+    this.key = '',
+  });
+
+  final ViewProgressMode mode;
+
+  /// [ViewProgressMode.travel]: where the leading edge is at progress 0;
+  /// [ViewProgressMode.pass]: where the line is.
+  final double from;
+
+  /// [ViewProgressMode.travel]: where the leading edge is at progress 1.
+  final double to;
+
+  /// Pixels added to [from] and [to] (a sticky header's height).
+  final double offset;
+
+  /// A variable the progress is written to as it changes (rounded to 0.001).
+  final String variable;
+
+  /// With [variable] a map: the key it's written under.
+  final String key;
+
+  /// The progress of a node whose leading edge is [lead] pixels from the
+  /// viewport's leading edge, [extent] long, in a viewport [viewport] long.
+  double progressAt(double lead, double extent, double viewport) {
+    final a = from * viewport + offset;
+    if (mode == ViewProgressMode.pass) {
+      if (extent <= 0) return a >= lead ? 1 : 0;
+      return ((a - lead) / extent).clamp(0.0, 1.0);
+    }
+    final b = to * viewport + offset;
+    if (a == b) return lead <= b ? 1 : 0;
+    return ((a - lead) / (a - b)).clamp(0.0, 1.0);
+  }
+
+  static ViewProgress? fromJson(Object? json) {
+    if (json == true) return const ViewProgress();
+    final m = readMap(json);
+    if (m == null) return null;
+    final r = _R(m);
+    return ViewProgress(
+      mode: r.e(ViewProgressMode.values, 'mode', ViewProgressMode.travel),
+      from: r.d('from', 1),
+      to: r.d('to', 0),
+      offset: r.d('offset', 0),
+      variable: r.s('variable'),
+      key: r.s('key'),
+    );
+  }
+
+  Json toJson() => <String, Object?>{}
+    ..e('mode', mode, ViewProgressMode.travel)
+    ..d('from', from, 1)
+    ..d('to', to, 0)
+    ..d('offset', offset, 0)
+    ..s('variable', variable)
+    ..s('key', key);
+
+  @override
+  List<Object?> get props => [mode, from, to, offset, variable, key];
+}
+
 /// How a shared element flies between screens.
 enum HeroFlightShuttle {
   /// Flutter's `Hero` flight.
@@ -2550,6 +2934,7 @@ final class Behaviors extends _Value {
     this.floating = false,
     this.hero,
     this.flightKey = '',
+    this.flight,
     this.draggable,
     this.dropTarget,
     this.drag,
@@ -2562,6 +2947,9 @@ final class Behaviors extends _Value {
     this.flip,
     this.tilt,
     this.transformGesture,
+    this.sticky,
+    this.viewProgress,
+    this.measure,
   });
 
   static const Behaviors none = Behaviors();
@@ -2601,6 +2989,9 @@ final class Behaviors extends _Value {
 
   /// Flies the node in from where the node with the same key just was.
   final String flightKey;
+
+  /// How it flies there ([flightKey]); null flies on the node's spring.
+  final Flight? flight;
   final DragSource? draggable;
   final DropTarget? dropTarget;
   final DragMotion? drag;
@@ -2626,6 +3017,15 @@ final class Behaviors extends _Value {
   /// [zoomable]: see [effectiveTransformGesture]).
   final TransformGesture? transformGesture;
 
+  /// Pinned in its scrolling view while its parent is in view.
+  final Sticky? sticky;
+
+  /// `${view.progress}`: how far it has scrolled through the viewport.
+  final ViewProgress? viewProgress;
+
+  /// Its laid-out box, written to a variable.
+  final Measure? measure;
+
   /// [transformGesture], or what [zoomable] amounts to.
   TransformGesture? get effectiveTransformGesture =>
       transformGesture ?? (zoomable ? TransformGesture.zoomable : null);
@@ -2633,8 +3033,8 @@ final class Behaviors extends _Value {
   /// The node JSON keys these are stored under.
   static const Set<String> keys = {
     'motion', 'scale', 'loops', 'transitions', 'inkWell', 'states', 'tooltip', 'ignorePointer', 'zoomable', //
-    'floating', 'hero', 'flightKey', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
-    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture',
+    'floating', 'hero', 'flightKey', 'flight', 'draggable', 'dropTarget', 'drag', 'reveal', 'strokePath', 'typewriter',
+    'effectAnimations', 'particles', 'textDirection', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
   };
 
   bool get isNone => this == none;
@@ -2657,6 +3057,7 @@ final class Behaviors extends _Value {
       floating: r.b('floating', false),
       hero: HeroTag.fromJson(m['hero']),
       flightKey: r.s('flightKey'),
+      flight: Flight.fromJson(m['flight']),
       draggable: DragSource.fromJson(m['draggable']),
       dropTarget: DropTarget.fromJson(m['dropTarget']),
       drag: DragMotion.fromJson(m['drag']),
@@ -2671,6 +3072,9 @@ final class Behaviors extends _Value {
       flip: FlipCard.fromJson(m['flip']),
       tilt: Tilt.fromJson(m['tilt']),
       transformGesture: TransformGesture.fromJson(m['transformGesture']),
+      sticky: Sticky.fromJson(m['sticky']),
+      viewProgress: ViewProgress.fromJson(m['viewProgress']),
+      measure: Measure.fromJson(m['measure']),
     );
   }
 
@@ -2689,6 +3093,7 @@ final class Behaviors extends _Value {
       ..b('floating', floating, false);
     if (hero != null) j['hero'] = hero!.toJson();
     j.s('flightKey', flightKey);
+    if (flight != null) j['flight'] = flight!.toJson();
     if (draggable != null) j['draggable'] = draggable!.toJson();
     if (dropTarget != null) j['dropTarget'] = dropTarget!.toJson();
     if (drag != null) j['drag'] = drag!.toJson();
@@ -2701,6 +3106,9 @@ final class Behaviors extends _Value {
     if (flip != null) j['flip'] = flip!.toJson();
     if (tilt != null) j['tilt'] = tilt!.toJson();
     if (transformGesture != null) j['transformGesture'] = transformGesture!.toJson();
+    if (sticky != null) j['sticky'] = sticky!.toJson();
+    if (viewProgress != null) j['viewProgress'] = viewProgress!.toJson();
+    if (measure != null) j['measure'] = measure!.toJson();
   }
 
   Behaviors copyWith({
@@ -2716,6 +3124,7 @@ final class Behaviors extends _Value {
     bool? floating,
     HeroTag? hero,
     String? flightKey,
+    Flight? flight,
     DragSource? draggable,
     DropTarget? dropTarget,
     DragMotion? drag,
@@ -2728,6 +3137,9 @@ final class Behaviors extends _Value {
     FlipCard? flip,
     Tilt? tilt,
     TransformGesture? transformGesture,
+    Sticky? sticky,
+    ViewProgress? viewProgress,
+    Measure? measure,
   }) => Behaviors(
     motion: motion ?? this.motion,
     scale: scale ?? this.scale,
@@ -2741,6 +3153,7 @@ final class Behaviors extends _Value {
     floating: floating ?? this.floating,
     hero: hero ?? this.hero,
     flightKey: flightKey ?? this.flightKey,
+    flight: flight ?? this.flight,
     draggable: draggable ?? this.draggable,
     dropTarget: dropTarget ?? this.dropTarget,
     drag: drag ?? this.drag,
@@ -2753,12 +3166,15 @@ final class Behaviors extends _Value {
     flip: flip ?? this.flip,
     tilt: tilt ?? this.tilt,
     transformGesture: transformGesture ?? this.transformGesture,
+    sticky: sticky ?? this.sticky,
+    viewProgress: viewProgress ?? this.viewProgress,
+    measure: measure ?? this.measure,
   );
 
   @override
   List<Object?> get props => [
     motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
-    textDirection, flip, tilt, transformGesture,
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure,
   ];
 }

@@ -31,16 +31,33 @@ final class NamedTextStyle {
   int get hashCode => jsonEquality.hash(toJson());
 }
 
-/// A named color style: a paint (a solid color or a gradient).
+/// A named color style: a paint (a solid color or a gradient), and
+/// optionally the [dark] paint it has in dark mode.
+///
+/// ```json
+/// {"id": "c1", "name": "Surface", "paint": {"color": "#FFFFFFFF"}, "dark": {"color": "#FF121212"}}
+/// ```
+///
+/// A node the style is applied to keeps the light values; one whose color
+/// binds to the theme (`${theme.surface}`, `${theme.colors.brandBlue}`)
+/// follows the device's mode at run time ([StyleSheet.theme]).
 final class NamedColorStyle {
-  const NamedColorStyle({required this.id, required this.name, required this.paint});
+  const NamedColorStyle({required this.id, required this.name, required this.paint, this.dark});
 
   final String id;
   final String name;
   final Paint paint;
 
+  /// The paint in dark mode; null: [paint] in both modes.
+  final Paint? dark;
+
   /// The paint's color with its opacity, for a solid paint.
-  Color? get color {
+  Color? get color => _solid(paint);
+
+  /// The dark paint's color with its opacity, for a solid dark paint.
+  Color? get darkColor => dark == null ? null : _solid(dark!);
+
+  static Color? _solid(Paint paint) {
     final c = paint.color;
     if (c == null) return null;
     return paint.opacity >= 1 ? c : c.withAlpha((c.alpha * paint.opacity).round());
@@ -51,10 +68,10 @@ final class NamedColorStyle {
     final id = readString(m?['id']);
     final paint = Paint.fromJson(m?['paint']);
     if (m == null || id == null || id.isEmpty || paint == null) return null;
-    return NamedColorStyle(id: id, name: readString(m['name']) ?? '', paint: paint);
+    return NamedColorStyle(id: id, name: readString(m['name']) ?? '', paint: paint, dark: Paint.fromJson(m['dark']));
   }
 
-  Json toJson() => {'id': id, 'name': name, 'paint': paint.toJson()};
+  Json toJson() => {'id': id, 'name': name, 'paint': paint.toJson(), if (dark != null) 'dark': dark!.toJson()};
 
   @override
   bool operator ==(Object other) => other is NamedColorStyle && jsonEquality.equals(other.toJson(), toJson());
@@ -122,12 +139,31 @@ final class StyleSheet {
 
   /// The app's theme, from the styles by name: color styles named Primary,
   /// On Primary, Surface, On Surface, Error, Success and Warning, and text
-  /// styles named Body and Title (or Heading) for the fonts.
+  /// styles named Body and Title (or Heading) for the fonts; every solid
+  /// color style and every text style by key ([ThemeTokens.colors],
+  /// [ThemeTokens.textStyles]); and the dark colors of the styles that
+  /// have one ([ThemeTokens.dark]).
   ThemeTokens get theme {
     String key(String label) => label.toLowerCase().replaceAll(RegExp('[^a-z]'), '');
-    Color? color(String name) => colorStyles.where((s) => key(s.name) == name).firstOrNull?.color;
+    NamedColorStyle? named(String name) => colorStyles.where((s) => key(s.name) == name).firstOrNull;
+    Color? color(String name) => named(name)?.color;
+    Color? darkColor(String name) => named(name)?.darkColor;
     String? font(List<String> names) =>
         textStyles.where((s) => names.contains(key(s.name))).firstOrNull?.style.fontFamily;
+    Map<String, Color> byKey(Color? Function(NamedColorStyle) of) => {
+          for (final s in colorStyles)
+            if ((ThemeTokens.themeKey(s.name), of(s)) case (final k, final Color c) when k.isNotEmpty) k: c,
+        };
+    final dark = ThemeTokens(
+      primary: darkColor('primary'),
+      onPrimary: darkColor('onprimary'),
+      surface: darkColor('surface'),
+      onSurface: darkColor('onsurface'),
+      error: darkColor('error'),
+      success: darkColor('success'),
+      warning: darkColor('warning'),
+      colors: byKey((s) => s.darkColor),
+    );
     return ThemeTokens(
       primary: color('primary'),
       onPrimary: color('onprimary'),
@@ -138,6 +174,12 @@ final class StyleSheet {
       warning: color('warning'),
       fontFamily: font(const ['body', 'text']),
       titleFontFamily: font(const ['title', 'heading']),
+      colors: byKey((s) => s.color),
+      textStyles: {
+        for (final s in textStyles)
+          if (ThemeTokens.themeKey(s.name) case final k when k.isNotEmpty) k: s.style,
+      },
+      dark: dark.isEmpty ? null : dark,
     );
   }
 }
