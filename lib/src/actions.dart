@@ -8,7 +8,7 @@
 // for-each's item), or the trigger's event.
 import 'package:meta/meta.dart';
 
-import 'behaviours.dart' show AnimationCurve, DragDirection;
+import 'behaviors.dart' show AnimationCurve, DragDirection;
 import 'conditions.dart';
 import 'json.dart';
 import 'publish/breakpoints.dart' show Breakpoint, Breakpoints;
@@ -1955,7 +1955,7 @@ final class ControlDragAction extends ActionDef {
 
 /// Scrolls node [node] into view: [alignment] 0 puts it at the start of the
 /// view, 1 at the end; [offset] moves it further. [axis] limits it to the
-/// scroll views along one axis (a map in a sideways window centres a point
+/// scroll views along one axis (a map in a sideways window centers a point
 /// without scrolling the page under it); null scrolls every one around it.
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
