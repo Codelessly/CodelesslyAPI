@@ -156,6 +156,11 @@ enum TriggerType {
   /// `${result.index}`.
   swipeAction,
 
+  /// A table view's body row was tapped: `${result.row}` (the row's data),
+  /// `${result.rowIndex}`, `${result.column}` (the tapped column's key),
+  /// `${result.columnIndex}`.
+  rowTap,
+
   /// On the current canvas: a failed action chain or cloud subscription.
   /// `${result.error}` is `{type, message, action, nodeId}` (no stack or
   /// raw service objects). A failure in this reaction reports to the host
