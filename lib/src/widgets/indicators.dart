@@ -588,10 +588,25 @@ abstract final class BarChartProps {
   static const gridLabelFontSize = PropDef<double?>('gridLabelFontSize', Codecs.optionalPositive, null);
   static const gridLabelFontWeight = PropDef<int?>('gridLabelFontWeight', Codecs.optionalInt, null);
 
+  /// The band under the plot for the labels (null: the labels' line and
+  /// [labelGap]); the labels sit [labelGap] below the baseline.
+  static const labelAreaHeight = PropDef<double?>('labelAreaHeight', Codecs.optionalPositive, null);
+
+  /// Room above the top grid line (null: the values' line when [showValues]).
+  static const plotTopInset = PropDef<double?>('plotTopInset', Codecs.optionalDouble, null);
+
+  /// Pixels kept above a full bar inside the plot, for its value: bars scale
+  /// to the plot's height less this while the grid keeps the whole plot.
+  static const barHeadroom = PropDef<double>('barHeadroom', Codecs.double, 0);
+
+  /// The values' size (null: the labels') and their gap above the bars.
+  static const valueFontSize = PropDef<double?>('valueFontSize', Codecs.optionalPositive, null);
+  static const valueGap = PropDef<double>('valueGap', Codecs.double, 2);
+
   static const spec = WidgetSpec('barChart', props: [
     values, labels, highlight, max, color, colors, dimmedOpacity, barGap, barRadius, emptyColor, emptyHeight, gridLines, //
     gridColor, gridLabels, gridLabelWidth, baselineColor, labelFontFamily, labelFontSize, labelColor,
-    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing,
+    highlightLabelColor, labelGap, animate, animationDuration, gridLabelsLeft, maxBarWidth, showValues, labelFontWeight, valueDecimals, valueSuffix, labelLetterSpacing, labelAreaHeight, plotTopInset, barHeadroom, valueFontSize, valueGap,
     highlightLabels, gridLabelColor, gridLabelFontSize, gridLabelFontWeight,
   ], doc: 'Bar chart.');
 }
