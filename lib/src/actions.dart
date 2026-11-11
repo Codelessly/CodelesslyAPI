@@ -2062,6 +2062,7 @@ final class ControlDragAction extends ActionDef {
 final class ScrollToAction extends ActionDef {
   const ScrollToAction({
     this.node = '',
+    this.item = '',
     this.durationMs = 400,
     this.curve = 'easeInOut',
     this.alignment = 0,
@@ -2077,6 +2078,11 @@ final class ScrollToAction extends ActionDef {
   String get type => typeName;
 
   final String node;
+
+  /// When [node] repeats (a list's item template, or a node inside it): the
+  /// key of the item whose copy to reveal (an expression; the list's item
+  /// key, `id` by default, or else its index). Empty: the first copy.
+  final String item;
   final int durationMs;
 
   /// A `Curves` name.
@@ -2086,6 +2092,7 @@ final class ScrollToAction extends ActionDef {
 
   static ScrollToAction _fromJson(Json m, _Common c) => ScrollToAction(
     node: _s(m, 'node'),
+    item: _s(m, 'item'),
     durationMs: _i(m, 'durationMs', 400),
     curve: _s(m, 'curve', 'easeInOut'),
     alignment: _d(m, 'alignment', 0),
@@ -2099,6 +2106,7 @@ final class ScrollToAction extends ActionDef {
   @override
   Json get _fields => {
     'node': node,
+    if (item.isNotEmpty) 'item': item,
     if (durationMs != 400) 'durationMs': durationMs,
     if (curve != 'easeInOut') 'curve': curve,
     if (alignment != 0) 'alignment': writeDouble(alignment),
