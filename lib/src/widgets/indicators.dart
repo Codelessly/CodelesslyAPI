@@ -349,6 +349,10 @@ abstract final class PlotChartProps {
   static const yMin = PropDef<double?>('yMin', IndicatorCodecs.optionalDouble, null);
   static const yMax = PropDef<double?>('yMax', IndicatorCodecs.optionalDouble, null);
   static const plotInset = PropDef<double>('plotInset', Codecs.double, 8);
+
+  /// Room round the plot (top, right, bottom; the left is [yAxisWidth]) in
+  /// place of [plotInset]: values map between them and ranges fill them.
+  static const plotPadding = PropDef<EdgeInsets?>('plotPadding', Codecs.insets, null);
   static const lineColor = PropDef<Color>('lineColor', Codecs.color, Color(0xFF1F6F78));
   static const lineWidth = PropDef<double>('lineWidth', Codecs.positive, 2);
   static const fillColor = PropDef<Color?>('fillColor', IndicatorCodecs.optionalColor, null);
@@ -475,7 +479,7 @@ abstract final class PlotChartProps {
   static const clip = PropDef<bool>('clip', Codecs.bool, true);
 
   static const spec = WidgetSpec('plotChart', props: [
-    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, lineColor, lineWidth, fillColor, smooth, gridStepX, //
+    clip, selectedX, points, xMin, xMax, yMin, yMax, plotInset, plotPadding, lineColor, lineWidth, fillColor, smooth, gridStepX, //
     gridColor, axisColor, xLabels, gridLabels, labelStyle, labelHeight, ranges, markers, markerRadius,
     markerLabelStyle, referenceX, referenceColor, referenceWidth, referenceDashed, selectable, selectionStep,
     selectionMin, selectionMax, selectionColor, selectionLineColor, selectionLineWidth, selectionDotRadius,
