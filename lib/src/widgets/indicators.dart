@@ -225,6 +225,12 @@ enum ChartYLabelAlign { end, start }
 /// the value (sharp when that is a whole pixel, soft otherwise).
 enum ChartGridLineMode { centered, crisp, exact }
 
+/// Where a stacked bar's [ChartProps.stackGap] goes. [between] (the
+/// default): under each segment but the first, so the bar keeps its height.
+/// [top]: over every segment, the top one included, as a column of boxes
+/// each with a top margin (the bar's top sits the gap below its value).
+enum ChartStackGapEdge { between, top }
+
 /// A chart of data rows: bars, lines and areas over categories, a timeline
 /// of segments, or a donut.
 abstract final class ChartProps {
@@ -308,6 +314,10 @@ abstract final class ChartProps {
   /// Space between the segments of a stacked bar.
   static const stackGap = PropDef<double>('stackGap', Codecs.positive, 0);
 
+  /// Where [stackGap] goes (see [ChartStackGapEdge]).
+  static const stackGapEdge =
+      PropDef<ChartStackGapEdge>('stackGapEdge', EnumCodec(ChartStackGapEdge.values), ChartStackGapEdge.between);
+
   /// The x labels' color (the y labels keep [axisLabelColor]).
   static const xAxisLabelColor = PropDef<Color?>('xAxisLabelColor', Codecs.optionalColor, null);
 
@@ -363,7 +373,7 @@ abstract final class ChartProps {
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
-    showTotals, totalsColor, totalsSelectedColor, stackGap,
+    showTotals, totalsColor, totalsSelectedColor, stackGap, stackGapEdge,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     xField, xLabels, endLabelWidth, endLabelDecimals, yLabelAlign, xAxisHeight, xLabelGap, gridLineMode,
     animate, animationDuration,
