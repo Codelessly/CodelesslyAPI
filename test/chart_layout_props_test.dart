@@ -9,6 +9,7 @@ void main() {
     expect(chart.prop(ChartProps.xLabelGap), isNull);
     expect(chart.prop(ChartProps.gridLineMode), ChartGridLineMode.crisp);
     expect(chart.prop(ChartProps.stackGapEdge), ChartStackGapEdge.between);
+    expect(chart.prop(ChartProps.totalsGap), isNull);
     final line = Node.fromJson({'type': 'lineChart'}, id: 'b')!;
     expect(line.prop(LineChartProps.clip), isTrue);
     expect(line.prop(LineChartProps.xLabelAnchor), LineChartXLabelAnchor.edgeClamped);
@@ -18,7 +19,7 @@ void main() {
   test('chart layout props round-trip', () {
     final chart = Node.fromJson({
       'type': 'chart',
-      'props': {'yLabelAlign': 'start', 'xAxisHeight': 26, 'xLabelGap': 8, 'gridLineMode': 'exact', 'stackGapEdge': 'top'},
+      'props': {'yLabelAlign': 'start', 'xAxisHeight': 26, 'xLabelGap': 8, 'gridLineMode': 'exact', 'stackGapEdge': 'top', 'totalsGap': 4},
     }, id: 'a')!;
     final again = Node.fromJson(chart.toJson(), id: 'a')!;
     expect(again.prop(ChartProps.yLabelAlign), ChartYLabelAlign.start);
@@ -26,6 +27,7 @@ void main() {
     expect(again.prop(ChartProps.xLabelGap), 8);
     expect(again.prop(ChartProps.gridLineMode), ChartGridLineMode.exact);
     expect(again.prop(ChartProps.stackGapEdge), ChartStackGapEdge.top);
+    expect(again.prop(ChartProps.totalsGap), 4);
     final line = Node.fromJson({
       'type': 'lineChart',
       'props': {'clip': false, 'xLabelAnchor': 'start', 'xLabelOffset': -8},

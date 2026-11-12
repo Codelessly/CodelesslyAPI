@@ -311,6 +311,10 @@ abstract final class ChartProps {
   static const totalsColor = PropDef<Color?>('totalsColor', Codecs.optionalColor, null);
   static const totalsSelectedColor = PropDef<Color?>('totalsSelectedColor', Codecs.optionalColor, null);
 
+  /// Each total's bottom this far above its bar; null centres it 10 px
+  /// above the bar.
+  static const totalsGap = PropDef<double?>('totalsGap', IndicatorCodecs.optionalDouble, null);
+
   /// Space between the segments of a stacked bar.
   static const stackGap = PropDef<double>('stackGap', Codecs.positive, 0);
 
@@ -373,7 +377,7 @@ abstract final class ChartProps {
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
-    showTotals, totalsColor, totalsSelectedColor, stackGap, stackGapEdge,
+    showTotals, totalsColor, totalsSelectedColor, totalsGap, stackGap, stackGapEdge,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     xField, xLabels, endLabelWidth, endLabelDecimals, yLabelAlign, xAxisHeight, xLabelGap, gridLineMode,
     animate, animationDuration,
