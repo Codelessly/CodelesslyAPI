@@ -1,4 +1,4 @@
-## Unreleased
+## 24.0.0
 
 **Breaking changes**
 
