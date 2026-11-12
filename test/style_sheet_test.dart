@@ -87,4 +87,16 @@ void main() {
     expect(ThemeTokens.themeKey('UI accent'), 'uiAccent');
     expect(ThemeTokens.themeKey(' / '), '');
   });
+
+  test('natural line height: a project setting the theme carries', () {
+    final sheet = StyleSheet.fromJson({'schema': 2, 'naturalLineHeight': true});
+    expect(sheet.naturalLineHeight, isTrue);
+    expect(sheet.toJson()['naturalLineHeight'], isTrue);
+    expect(sheet.extra.containsKey('naturalLineHeight'), isFalse);
+    expect(sheet.theme.naturalLineHeight, isTrue);
+    expect(ThemeTokens.fromJson(sheet.theme.toJson()), sheet.theme);
+    expect(sheet.theme.forBrightness(dark: true).naturalLineHeight, isTrue);
+    expect(sheet.copyWith(naturalLineHeight: false).theme.naturalLineHeight, isNull);
+    expect(const StyleSheet().toJson().containsKey('naturalLineHeight'), isFalse);
+  });
 }
