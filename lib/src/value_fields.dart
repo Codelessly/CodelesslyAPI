@@ -222,6 +222,9 @@ abstract final class EffectFields {
   static const blurRadius = PropDef<double>('blurRadius', Codecs.positive, 0);
   static const spreadRadius = PropDef<double>('spreadRadius', Codecs.double, 0);
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
+
+  /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
+  static const shape = PropDef<DecorationShape>('shape', EnumCodec(DecorationShape.values), DecorationShape.rectangle);
   static const List<PropDef<Object?>> all = [type, id, visible, color, offset, blurRadius, spreadRadius, blendMode];
 }
 
@@ -282,9 +285,11 @@ abstract final class DecorationFields {
   static const effects = PropDef<List<Effect>>('effects', Codecs.effects, []);
   static const clip = PropDef<Clip>('clip', EnumCodec(Clip.values), Clip.none);
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
+  /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
+  static const shape = PropDef<DecorationShape>('shape', EnumCodec(DecorationShape.values), DecorationShape.rectangle);
   static const List<PropDef<Object?>> all = [
     fills, strokes, strokeWidth, strokeAlign, strokeSides, strokeCap, dashPattern, radius, effects, clip, //
-    blendMode, foregroundFills,
+    blendMode, foregroundFills, shape,
   ];
 }
 
