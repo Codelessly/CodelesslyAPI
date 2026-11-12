@@ -66,6 +66,14 @@ abstract final class ProgressBarProps {
   static const direction = PropDef<Axis>('direction', EnumCodec(Axis.values), Axis.horizontal);
   static const borderRadius = PropDef<BorderRadius>('borderRadius', _radius, BorderRadius.zero);
 
+  /// Bar: the fill is the exact fraction (false: whole percents, as a flex
+  /// row of the two parts).
+  static const exactFill = PropDef<bool>('exactFill', Codecs.bool, false);
+
+  /// Bar: the fill is cut by the track's rounded shape (round only where
+  /// the track is, square at its end) instead of rounded itself.
+  static const clipFill = PropDef<bool>('clipFill', Codecs.bool, false);
+
   /// Animates changes of [value].
   static const animate = PropDef<bool>('animate', Codecs.bool, false);
 
@@ -86,6 +94,7 @@ abstract final class ProgressBarProps {
   static const arcHeadDot = PropDef<bool>('arcHeadDot', Codecs.bool, false);
 
   static const spec = WidgetSpec('progressBar', props: [
+    exactFill, clipFill,
     value, max, color, backgroundColor, direction, borderRadius, animate, animationDuration, shape, arcStartAngle, //
     arcSweepAngle, arcStrokeWidth, needleColor, tickCount, tickColor, bands, arcFit, arcRoundCaps, progressEndColor,
     arcGlow, arcHeadDot,
