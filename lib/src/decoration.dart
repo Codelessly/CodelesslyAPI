@@ -47,6 +47,16 @@ enum StrokeSides {
       };
 }
 
+/// The shape a [Decoration] paints: Flutter's `BoxShape`.
+enum DecorationShape {
+  /// The box, its corners rounded by [Decoration.radius].
+  rectangle,
+
+  /// A circle the box's shortest side across, in its middle: painted (fill
+  /// and stroke) as circles, as Flutter's `BoxShape.circle`.
+  circle,
+}
+
 /// A box's paint: Flutter's `BoxDecoration`, with stacked paints as in a
 /// design tool (fills bottom to top, then strokes).
 @immutable
@@ -64,6 +74,7 @@ final class Decoration {
     this.effects = const [],
     this.clip = Clip.none,
     this.blendMode = BlendMode.srcOver,
+    this.shape = DecorationShape.rectangle,
   });
 
   static const Decoration none = Decoration();
@@ -87,6 +98,9 @@ final class Decoration {
   final Clip clip;
   final BlendMode blendMode;
 
+  /// A rectangle (rounded by [radius]) or a circle.
+  final DecorationShape shape;
+
   bool get isNone => this == none;
   Iterable<Paint> get visibleFills => fills.where((p) => p.visible);
   Iterable<Paint> get visibleStrokes => strokeWidth <= 0 ? const [] : strokes.where((p) => p.visible);
@@ -104,6 +118,7 @@ final class Decoration {
     List<Effect>? effects,
     Clip? clip,
     BlendMode? blendMode,
+    DecorationShape? shape,
   }) =>
       Decoration(
         fills: fills ?? this.fills,
@@ -118,6 +133,7 @@ final class Decoration {
         effects: effects ?? this.effects,
         clip: clip ?? this.clip,
         blendMode: blendMode ?? this.blendMode,
+        shape: shape ?? this.shape,
       );
 
   static Decoration fromJson(Object? json) {
@@ -136,6 +152,7 @@ final class Decoration {
       effects: Effect.listFromJson(m['effects']),
       clip: readEnum(Clip.values, m['clip'], Clip.none),
       blendMode: readEnum(BlendMode.values, m['blendMode'], BlendMode.srcOver),
+      shape: readEnum(DecorationShape.values, m['shape'], DecorationShape.rectangle),
     );
   }
 
@@ -155,6 +172,7 @@ final class Decoration {
     if (effects.isNotEmpty) j['effects'] = [for (final e in effects) e.toJson()];
     put(j, 'clip', clip.name, Clip.none.name);
     put(j, 'blendMode', blendMode.name, BlendMode.srcOver.name);
+    put(j, 'shape', shape.name, DecorationShape.rectangle.name);
     return j;
   }
 
@@ -172,9 +190,10 @@ final class Decoration {
       other.radius == radius &&
       listEquals(other.effects, effects) &&
       other.clip == clip &&
-      other.blendMode == blendMode;
+      other.blendMode == blendMode &&
+      other.shape == shape;
 
   @override
   int get hashCode => Object.hash(Object.hashAll(fills), Object.hashAll(strokes), strokeWidth, strokeAlign,
-      strokeSides, radius, Object.hashAll(effects), clip, blendMode);
+      strokeSides, radius, Object.hashAll(effects), clip, blendMode, shape);
 }
