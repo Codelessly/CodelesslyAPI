@@ -257,6 +257,10 @@ abstract final class ChartProps {
   static const maxY = PropDef<double?>('maxY', IndicatorCodecs.optionalDouble, null);
   static const gridLines = PropDef<int>('gridLines', IntCodec(min: 0), 4);
   static const gridColor = PropDef<Color>('gridColor', Codecs.color, Color(0xFF292E33));
+
+  /// The grid's bottom line (the baseline), drawn with the grid under the
+  /// bars; null: [gridColor].
+  static const baselineColor = PropDef<Color?>('baselineColor', Codecs.optionalColor, null);
   static const showYAxis = PropDef<bool>('showYAxis', Codecs.bool, true);
   static const yAxisWidth = PropDef<double>('yAxisWidth', Codecs.double, 36);
   static const showXAxis = PropDef<bool>('showXAxis', Codecs.bool, true);
@@ -386,7 +390,7 @@ abstract final class ChartProps {
     domainMin, domainMax, nowValue, nowColor, trackColor, divisions, donutThickness, sliceGap, startAngle,
     selectOnHover, plotInset, fitMinY, yLabelPrefix, yLabelSuffix, yLabelAffixTopOnly, yAxisFontFamily, dimUnselected, tooltip,
     tooltipColor, tooltipTextColor, tooltipTitleField, tooltipTitleStyle, tooltipLabelStyle, tooltipValueStyle,
-    showTotals, totalsColor, totalsSelectedColor, totalsGap, stackGap, stackGapEdge,
+    showTotals, totalsColor, totalsSelectedColor, totalsGap, stackGap, stackGapEdge, baselineColor,
     xAxisLabelColor, highlightIndex, highlightColor, animateIn,
     xField, xLabels, endLabelWidth, endLabelDecimals, yLabelAlign, xAxisHeight, xLabelGap, gridLineMode,
     animate, animationDuration,
