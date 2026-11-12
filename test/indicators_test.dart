@@ -93,6 +93,11 @@ void main() {
     expect(bar.prop(ProgressBarProps.borderRadius), const BorderRadius.circular(4));
     expect(bar.prop(ProgressBarProps.bands).single, ProgressBand(end: 0.5, color: const Color(0xFF00FF00)));
     expect(bar.prop(ProgressBarProps.max), 100);
+    expect(bar.prop(ProgressBarProps.exactFill), isFalse);
+    expect(bar.prop(ProgressBarProps.clipFill), isFalse);
+    final clipped = Node.fromJson({'type': 'progressBar', 'props': {'exactFill': true, 'clipFill': true}})!;
+    expect(clipped.prop(ProgressBarProps.exactFill), isTrue);
+    expect(clipped.prop(ProgressBarProps.clipFill), isTrue);
 
     final radial = Node.fromJson({'type': 'radialGauge', 'props': {'zones': [{'from': 0, 'to': 60}]}})!;
     expect(radial.prop(RadialGaugeProps.zones).single.to, 60);
