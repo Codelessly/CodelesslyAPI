@@ -87,6 +87,7 @@ final class StyleSheet {
     this.colorStyles = const [],
     this.defaultTextStyle,
     this.defaultColorStyle,
+    this.naturalLineHeight = false,
     this.extra = const {},
   });
 
@@ -98,10 +99,16 @@ final class StyleSheet {
   /// The ids of the styles new text and new fills start from.
   final String? defaultTextStyle, defaultColorStyle;
 
+  /// Whether text without a line height takes its font's own, as Flutter's
+  /// does, rather than the SDK's 1.33 (Material's): a project built after a
+  /// Flutter app sets it once instead of on every run
+  /// ([ThemeTokens.naturalLineHeight]).
+  final bool naturalLineHeight;
+
   /// Keys this version doesn't model (privacy, timestamps), round-tripped.
   final Json extra;
 
-  static const _keys = {'schema', 'textStyles', 'colorStyles', 'defaultTextStyle', 'defaultColorStyle'};
+  static const _keys = {'schema', 'textStyles', 'colorStyles', 'defaultTextStyle', 'defaultColorStyle', 'naturalLineHeight'};
 
   static StyleSheet fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -110,6 +117,7 @@ final class StyleSheet {
       colorStyles: [...?readList(m['colorStyles'])?.map(NamedColorStyle.fromJson).nonNulls],
       defaultTextStyle: readString(m['defaultTextStyle']),
       defaultColorStyle: readString(m['defaultColorStyle']),
+      naturalLineHeight: m['naturalLineHeight'] == true,
       extra: {
         for (final e in m.entries)
           if (!_keys.contains(e.key)) e.key: e.value,
@@ -127,13 +135,16 @@ final class StyleSheet {
         'colorStyles': [for (final s in colorStyles) s.toJson()],
         'defaultTextStyle': ?defaultTextStyle,
         'defaultColorStyle': ?defaultColorStyle,
+        if (naturalLineHeight) 'naturalLineHeight': true,
       };
 
-  StyleSheet copyWith({List<NamedTextStyle>? textStyles, List<NamedColorStyle>? colorStyles}) => StyleSheet(
+  StyleSheet copyWith({List<NamedTextStyle>? textStyles, List<NamedColorStyle>? colorStyles, bool? naturalLineHeight}) =>
+      StyleSheet(
         textStyles: textStyles ?? this.textStyles,
         colorStyles: colorStyles ?? this.colorStyles,
         defaultTextStyle: defaultTextStyle,
         defaultColorStyle: defaultColorStyle,
+        naturalLineHeight: naturalLineHeight ?? this.naturalLineHeight,
         extra: extra,
       );
 
@@ -180,6 +191,7 @@ final class StyleSheet {
           if (ThemeTokens.themeKey(s.name) case final k when k.isNotEmpty) k: s.style,
       },
       dark: dark.isEmpty ? null : dark,
+      naturalLineHeight: naturalLineHeight ? true : null,
     );
   }
 }

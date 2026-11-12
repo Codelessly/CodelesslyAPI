@@ -31,6 +31,7 @@ final class ThemeTokens {
     this.colors = const {},
     this.textStyles = const {},
     this.dark,
+    this.naturalLineHeight,
   });
 
   /// Primary buttons and info toasts.
@@ -77,6 +78,10 @@ final class ThemeTokens {
   /// light ones (its other fields are not used).
   final ThemeTokens? dark;
 
+  /// Whether text without a line height takes its font's own (Flutter's
+  /// default) rather than the SDK's 1.33 ([StyleSheet.naturalLineHeight]).
+  final bool? naturalLineHeight;
+
   static const ThemeTokens none = ThemeTokens();
 
   /// Whether [dark] gives any color.
@@ -101,6 +106,7 @@ final class ThemeTokens {
       buttonRadius: buttonRadius,
       colors: {...colors, ...d.colors},
       textStyles: textStyles,
+      naturalLineHeight: naturalLineHeight,
     );
   }
 
@@ -146,6 +152,7 @@ final class ThemeTokens {
           if (readMap(e.value) != null) e.key: TextStyle.fromJson(e.value),
       },
       dark: m['dark'] == null ? null : fromJson(m['dark']),
+      naturalLineHeight: readBool(m['naturalLineHeight']),
     );
   }
 
@@ -165,6 +172,7 @@ final class ThemeTokens {
     if (colors.isNotEmpty) j['colors'] = {for (final e in colors.entries) e.key: e.value.toJson()};
     if (textStyles.isNotEmpty) j['textStyles'] = {for (final e in textStyles.entries) e.key: e.value.toJson()};
     if (dark != null && !dark!.isEmpty) j['dark'] = dark!.toJson();
+    put(j, 'naturalLineHeight', naturalLineHeight);
     return j;
   }
 
@@ -184,9 +192,10 @@ final class ThemeTokens {
       other.buttonRadius == buttonRadius &&
       jsonEquality.equals(other.colors, colors) &&
       jsonEquality.equals(other.textStyles, textStyles) &&
-      other.dark == dark;
+      other.dark == dark &&
+      other.naturalLineHeight == naturalLineHeight;
 
   @override
   int get hashCode => Object.hash(primary, onPrimary, surface, onSurface, error, success, warning, fontFamily,
-      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark);
+      titleFontFamily, radius, buttonRadius, jsonEquality.hash(colors), jsonEquality.hash(textStyles), dark, naturalLineHeight);
 }
