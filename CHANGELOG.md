@@ -10,6 +10,8 @@
 
 **New**
 
+- `StyleSheet.naturalLineHeight` (published as `ThemeTokens.naturalLineHeight`): text without a line height
+  takes its font's own, as Flutter's does, rather than the SDK's 1.33.
 - `RetryFailedAction` (`retryFailed`): in an `actionError` reaction, runs the failed action chain again.
 - Paywall test store data: `ProductSlot.test` (`ProductTestData`: `price`, `rawPrice`, `currency`,
   `currencySymbol`, `period` — `week`, `month`, `year` or '' for lifetime —, `trialDays`, `entitlementId` and
