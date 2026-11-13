@@ -434,9 +434,9 @@ What the model is given, by surface:
 
 | Item | Design time (files/MCP) | Runtime (`describeForModel`) |
 |---|---|---|
-| Starter: document, eight core types, layout, text, one example | `AGENTS.md`, generated; 6.4k words today (`experiments/m05/STARTER.md`) | A runtime starter: ≈2.5k words, one example screen |
+| Starter: document, eight core types, layout, text, one example | The base, `docs/reference/STARTER.md` (≈ 5.5k words, ends with the index) | The same base, runtime form (`runtimeStarter()`, ≈ 5.6k words) |
 | Catalog slice | `codelessly describe <type>`; feature sections appended by `--features` | `catalog.select(...)` per app, compact JSON, only allowed types |
-| Reference | By link: files in the package (`docs/reference/*.md`); agents read 15–25k of 66.7k words | Not given; `ui_describe` tool if the app enables it |
+| Reference | By link: one page per feature area (`docs/reference/<page>.md`, same six sections), `index.md` | The same pages by section: the `ui_docs` tool |
 | Examples | Two worked pages, linked | One screen in the starter |
 | Current UI | Files; outline | Outline in each turn; full nodes on request |
 | Operations and errors | In the starter, one page | In the tool description |
@@ -667,15 +667,19 @@ Implemented 2026-11-13 (codelessly_api `lib/src/core/edit`, `lib/src/validate/ed
   as JSON (`explainDiagnostic`). Lints of a finished UI (`empty_button`, `low_contrast`, `missing_glyph`, `no_size`)
   go back through the same channel: the weather card's empty yellow button was a model mistake (a `box` with a
   click reaction and no label: a box takes no children) that nothing reported; now `empty_button` does.
-* **Runtime context: a base set plus a link to the full reference.** §4's ≈2.5k-word starter became
-  `runtimeStarter` (generated from the declarations for the profile's types: rules, ops, layout and decoration
-  essentials, one table of the base node types including the button family and the inputs, two verified examples)
-  and the `ui_docs` tool (`docsTopic`: any node type, action type, trigger, behavior or guide area, generated from
-  the same declarations and templates as docs/reference). 15,125 characters with 2,126 of compact tools against
-  72,898 + 8,369 (full STARTER and full schemas). Not counted with a tokenizer here: ≈ 4,900 tokens at 3.5
-  characters per token, ≈ 7,300 at the 2.37 the API measured for the full prompt (28,768 tokens): within §4's 6k
-  budget only at the first estimate; the interactive components' tables were kept over the budget, as the owner
-  asked.
+* **One base plus links, for files and runtime alike (the owner's direction: "create that base set and give it
+  that, with link to full for ability to add full features ... include the base, and links to the additional API
+  features, organized and structured").** The m05 runs read the guide or starter end to end, sampled 3–20% of the
+  per-kind pages and never opened triggers, behaviors or the catalog; a ~7k-word starter plus the rest by link
+  matched the full reference, and what agents could not *find* cost more than what was missing. So the reference
+  is now one base (`docs/reference/STARTER.md`, ≈ 5.5k words) given up front, and one page per feature area with
+  the same six sections, reached through one index (a task table from the friction logs and an A–Z of every
+  declared name). The runtime prompt is the same base (`runtimeStarter()` = `baseDocument(form: runtime)`), with
+  the op rules and examples as its envelope, and `ui_docs` answers with the same pages' sections: files by link
+  and lookup by tool are one map. The runtime base grew from 15,125 to ≈ 43k characters (≈ 12k tokens at 3.5 per
+  token): above §4's 6k-token runtime budget, the cost of one base; it is cached. TODO: measure the runtime
+  base against the earlier 15k-character base on the live matrix (`record_all.sh --prompt compact`), and trim the
+  runtime form's index (tasks and page list, ≈ 2k words) if lookups stay rare.
 * **Apps may run scripts** (`TrustProfile.agentApps`): the `scripts` op writes the document's sandboxed scripts,
   capabilities limited to variables and the clock; `agent` (chat cards) stays script-free.
 * **Forced tool use only where the model takes it.** Haiku 5.5 with thinking off gets `tool_choice: any`; Sonnet
