@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../catalog.dart';
 import '../document.dart';
 import '../conditions.dart';
 import '../json.dart';
@@ -235,13 +236,14 @@ final class PublishLayout {
   /// The conditions of canvas [canvasId].
   List<Condition> conditionsOf(String canvasId) => logic.conditionsOf(canvasId);
 
-  /// Decodes a published layout of any schema. Never throws.
-  static PublishLayout fromJson(Object? json) {
+  /// Decodes a published layout of any schema, its nodes and actions with
+  /// [catalog] (default: [Catalog.current]). Never throws.
+  static PublishLayout fromJson(Object? json, {Catalog? catalog}) {
     final m = readMap(json) ?? const {};
     final document = LayoutDocument.fromJson({
       for (final e in m.entries)
         if (!_ownKeys.contains(e.key)) e.key: e.value,
-    });
+    }, catalog: catalog);
     final docExtra = document.extra;
     return PublishLayout(
       // The layout's keys the document doesn't know go in [extra], not the

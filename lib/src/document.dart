@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import 'catalog.dart';
 import 'json.dart';
 import 'node.dart';
 
@@ -20,6 +21,7 @@ final class LayoutDocument {
     this.roots = const [],
     Map<String, Node> nodes = const {},
     this.extra = const {},
+    this.catalog,
   }) : nodes = Map.unmodifiable(nodes);
 
   final String id;
@@ -30,6 +32,10 @@ final class LayoutDocument {
 
   /// Keys this version doesn't model (variables, conditions...), kept.
   final Json extra;
+
+  /// The catalog the document was decoded with; null for one built in code.
+  /// Not part of its value.
+  final Catalog? catalog;
 
   late final Map<String, String> _parents = {
     for (final n in nodes.values)
@@ -57,17 +63,25 @@ final class LayoutDocument {
         roots: roots ?? this.roots,
         nodes: nodes ?? this.nodes,
         extra: extra ?? this.extra,
+        catalog: catalog,
       );
 
-  /// Decodes a document of any schema, upgrading it first. Never throws:
-  /// entries that aren't nodes are dropped.
-  static LayoutDocument fromJson(Object? json) {
+  /// Decodes a document of any schema with [catalog] (default:
+  /// [Catalog.current]), upgrading it first. Never throws: entries that
+  /// aren't nodes are dropped; a node or action type the catalog doesn't
+  /// declare is kept as it is.
+  static LayoutDocument fromJson(Object? json, {Catalog? catalog}) {
+    final c = catalog ?? Catalog.current;
+    return identical(c, Catalog.current) ? _fromJson(json, c) : Catalog.run(c, () => _fromJson(json, c));
+  }
+
+  static LayoutDocument _fromJson(Object? json, Catalog catalog) {
     var m = readMap(json) ?? const {};
     m = migrateSchema(m);
     final raw = readMap(m['nodes']) ?? const {};
     final nodes = <String, Node>{
       for (final e in raw.entries)
-        if (Node.fromJson(e.value, id: e.key) case final Node n) e.key: n,
+        if (Node.fromJson(e.value, id: e.key, catalog: catalog) case final Node n) e.key: n,
     };
     return LayoutDocument(
       id: readString(m['id']) ?? '',
@@ -77,6 +91,7 @@ final class LayoutDocument {
         for (final e in m.entries)
           if (!const {'schema', 'id', 'roots', 'nodes'}.contains(e.key)) e.key: e.value,
       },
+      catalog: catalog,
     );
   }
 
