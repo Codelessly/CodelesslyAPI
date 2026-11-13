@@ -1,7 +1,7 @@
 import '../json.dart';
 import '../node.dart';
 import '../props.dart';
-import '../publish/breakpoints.dart';
+import '../breakpoints.dart';
 import '../value_fields.dart';
 
 /// How a screen fits the device.

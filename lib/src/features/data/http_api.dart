@@ -3,7 +3,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../json.dart';
+import '../../core/json.dart';
 
 /// An HTTP request method.
 enum HttpMethod {

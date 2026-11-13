@@ -5,7 +5,7 @@
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../json.dart';
+import '../../core/json.dart';
 
 /// A product slot: a stable id (`monthly`, `annual`) bindings use, mapped to
 /// each store's product id.

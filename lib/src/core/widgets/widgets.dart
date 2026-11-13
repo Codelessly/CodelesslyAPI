@@ -1,5 +1,5 @@
 import '../props.dart';
-import '../standard_catalog.dart';
+import '../../standard_catalog.dart';
 import 'canvas.dart';
 import 'collections.dart';
 import 'flex.dart';

@@ -13,7 +13,7 @@ import 'package:meta/meta.dart';
 import 'catalog.dart';
 import 'document.dart';
 import 'json.dart';
-import 'managed_components.dart';
+import '../features/managed/managed_components.dart';
 
 /// What a node is to its component.
 enum ComponentRole {

@@ -10,7 +10,7 @@ import 'actions.dart';
 import 'behavior_fields.dart' show AnimationCurveCodec, motionType;
 import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
 import 'catalog.dart';
-import 'standard_catalog.dart';
+import '../standard_catalog.dart';
 import 'json.dart' show readMap, readString;
 import 'props.dart';
 import 'route_transition.dart';
