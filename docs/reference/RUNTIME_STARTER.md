@@ -179,7 +179,7 @@ only in a row or column that has some (a fill or fixed main size).
 ### Padding, margin, constraints, a capped width
 
 - `padding` is space inside the node's box, `margin` outside it: a number (all sides) or **four** numbers
-  `[left, top, right, bottom]` (two numbers are not read). A `text` has no padding: use `margin` or a row around it.
+  `[left, top, right, bottom]` (two numbers are not read).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`. `aspectRatio`: width / height.
 - **A full-width band with capped, centered content** (CSS `max-width: 1200px; margin: 0 auto`): the band fills
   the width and holds the background; its one child fills with `"constraints": {"maxWidth": 1200}`, centered by the
@@ -310,7 +310,8 @@ A `text` node has `props.text` and `props.style`: a theme style's name (`"style"
 `decoration`, `fontStyle`), plus `textAlign`, `maxLines` and `overflow` (`ellipsis`).
 
 - **No `color`: the text is painted white.** Always set it (in the style or the named style).
-- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto).
+- No `fontSize`: 12. No `fontWeight`: 400. No `fontFamily`: the platform's default (Roboto). No `height`: the
+  nearest `defaultTextStyle`'s, else the font's own line height (text (ui_docs "theme-text")).
 - Size: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide (it wraps) × `{"hug": n}` high.
 - `text` may hold expressions: `"Hello, ${user.name}"`; `"$${price}"` shows `$47`.
 - Symbols the font has no glyph for (✦, ✓, →) draw as empty boxes (`missing_glyph`): use an `icon` node.
@@ -577,7 +578,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 | How one value type is written (colour, alignment, insets) | "values-colours-and-alignments" |
 
 - "layout": Responsive layout. Documents canvas, row, column, flex, stack, box, spacer, divider, verticalDivider, variance, sticky, floating, measure, scroll, scrollEnd, enterViewport, exitViewport, scrollTo.
-- "theme": Theme and text. Documents text, textDirection.
+- "theme": Theme and text. Documents text, textDirection, defaultTextStyle.
 - "decoration": Decoration, images, icons and drawing. Documents icon, path, customPaint, strokePath, imageLoading, imageLoaded, imageError.
 - "forms": Buttons, forms and inputs. Documents filledButton, elevatedButton, outlinedButton, textButton, iconButton, floatingActionButton, textField, checkbox, switch, radio, slider, dropdown, segmentedButton, datePicker, timePicker, dateTimeInput, signature, chip, actionChip, choiceChip, filterChip, inputChip, changed, changeEnd, submitted, editingComplete, focusGained, focusLost, keyDown, keyUp, focus.
 - "lists": Lists, grids, tables and repeated data. Documents listView, gridView, pageView, tableView, listTile, pagination, reorderHandle, reorder, refresh, swipeAction, rowTap, paginate.

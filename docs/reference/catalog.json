@@ -11978,7 +11978,8 @@
         "default": null,
         "nullable": true,
         "object": "TextStyle",
-        "doc": "The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height."
+        "doc": "The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height.",
+        "docs": "theme.md#behavior-defaultTextStyle"
       },
       {
         "key": "flip",

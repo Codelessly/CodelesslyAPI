@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5588
+      "words": 5589
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5695
+      "words": 5698
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 7021
+      "words": 7054
     },
     {
       "topic": "layout-layout-fields",
@@ -25,7 +25,7 @@
       "anchor": "layout-layout-fields",
       "title": "Layout fields",
       "summary": "A node's `\"layout\"`: its size, spacing and placement in its parent.",
-      "words": 442
+      "words": 475
     },
     {
       "topic": "layout-which-sizing-modes-each-parent-allows",
@@ -137,7 +137,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 1958
+      "words": 1979
     },
     {
       "topic": "theme-theme-keys",
@@ -145,7 +145,7 @@
       "anchor": "theme-theme-keys",
       "title": "Theme keys",
       "summary": "The theme (`site.json`'s `theme`, or the app's theme at run time):",
-      "words": 273
+      "words": 251
     },
     {
       "topic": "theme-named-colours-and-styles",
@@ -177,7 +177,7 @@
       "anchor": "theme-text",
       "title": "Text",
       "summary": "A `text` node has `props.text` and `props.style`.",
-      "words": 118
+      "words": 138
     },
     {
       "topic": "theme-superscripts-and-a-raised-currency-sign",
@@ -505,7 +505,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6372
+      "words": 6373
     },
     {
       "topic": "state-variables",
@@ -1782,6 +1782,7 @@
       "floating": "layout.md#behavior-floating",
       "measure": "layout.md#behavior-measure",
       "textDirection": "theme.md#behavior-textDirection",
+      "defaultTextStyle": "theme.md#behavior-defaultTextStyle",
       "customPaint": "decoration.md#behavior-customPaint",
       "strokePath": "decoration.md#behavior-strokePath",
       "reorderHandle": "lists.md#behavior-reorderHandle",

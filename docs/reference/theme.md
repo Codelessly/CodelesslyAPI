@@ -63,7 +63,6 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
 | `titleFontFamily` | Font family of titles. |
 | `radius` | Corner radius of dialogs. |
 | `buttonRadius` | Corner radius of buttons. |
-| `naturalLineHeight` | Whether text without a line height takes its font's own (Flutter's default) rather than the SDK's 1.33 (`StyleSheet.naturalLineHeight`). |
 
 <a id="node-text"></a>
 ### `text`
@@ -98,8 +97,15 @@ A node key (beside `layout` and `props`). Type: [TextDirection](values.md#enum-T
 
 Null inherits.
 
+<a id="behavior-defaultTextStyle"></a>
+### `defaultTextStyle` (behavior)
+
+A node key (beside `layout` and `props`). Type: [TextStyle](theme.md#type-TextStyle). Default: unset.
+
+The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height.
+
 <a id="type-TextStyle"></a>
-### TextStyle
+#### TextStyle
 
 Flutter's `TextStyle`. Every field is optional: a span's style is merged over its text's base style, as in `Text.rich`.
 
@@ -113,7 +119,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `color` | [Color](values.md#type-Color) | unset |  | Solid text color. |
 | `foreground` | [Paint](decoration.md#type-Paint) | unset |  | A gradient or image paint for the glyphs, used instead of `color`. |
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
-| `height` | double | unset | ≥ 0 | Line height, as a multiple of the font size. |
+| `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](values.md#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` | A line through the text: `underline`, `overline`, `lineThrough` or `none`. |
 | `decorationColor` | [Color](values.md#type-Color) | unset |  | The colour of the `decoration` line; without one, the text's colour. |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  | Painted behind the glyphs. |
@@ -123,7 +129,6 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `fontFeatures` | List<[FontFeature](values.md#type-FontFeature)> | `[]` |  | OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`). |
 | `leadingDistribution` | [TextLeadingDistribution](values.md#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
 | `shadows` | List<[Effect](decoration.md#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
-| `naturalHeight` | bool | unset |  | With no height, the font's own line height instead of the base style's. |
 
 <a id="type-TextRun"></a>
 ### TextRun
@@ -173,7 +178,8 @@ the device's mode. `${theme.isDark}` is true in dark mode.
 
 A `text` node has `props.text` and `props.style`. What a text looks like when the style leaves something out: no
 `color`, white; no `fontSize`, 12; no `fontWeight`, 400; no `fontFamily`, the platform's default (Roboto on Android
-and the web). Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
+and the web); no `height`, the nearest `defaultTextStyle`'s (a node key, Flutter's `DefaultTextStyle`, for its
+whole subtree), else the font's own line height. Sizing: one line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide × `{"hug": n}` high. A
 fixed height shorter than the lines clips them (`text_clipped`).
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
@@ -202,7 +208,6 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
   `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
-- A `text` has no padding (its box is its lines): use `margin`, or a row with padding around it.
 - Run offsets count characters, `\n` as one.
 
 <a id="theme-see-also"></a>
