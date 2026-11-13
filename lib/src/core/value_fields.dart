@@ -239,6 +239,7 @@ abstract final class PaintFields {
     null,
   );
   /// A path paints the gradient in each of its shapes.
+  /// Schema 3 only ([Paint.gradientPerSubpath]).
   static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
   /// A radial gradient's radius as a share of the box's shortest side.
   static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null,

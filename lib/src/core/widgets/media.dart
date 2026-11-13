@@ -59,6 +59,9 @@ abstract final class PathProps {
   /// The miter limit of [StrokeJoin.miter] corners (`Paint.strokeMiterLimit`).
   static const strokeMiterLimit = PropDef<double>('strokeMiterLimit', Codecs.positive, 4);
 
+  /// **Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops,
+  /// one per color (`paint.perShape` in migrate/steps_paint4.dart).
+  ///
   /// Colors of the path's shapes, one per closed subpath (`M ... Z`) in
   /// drawing order, repeating when shorter; a subpath inside the previous
   /// shape's bounds (a hole) belongs to it. They replace the solid fills'
