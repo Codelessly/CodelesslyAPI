@@ -16,7 +16,8 @@ enum Severity {
   warning,
 
   /// Nothing wrong: a note (a schema-2 document, which is migrated when
-  /// read).
+  /// read; a subtree written several times over that could be a
+  /// component).
   info,
 }
 
@@ -183,6 +184,8 @@ abstract final class Codes {
       'A slot node in a document that is not a component: nothing fills it, its own children show.');
   static const rootPlacementBound = DiagnosticCode('root_placement_bound', Severity.warning,
       'A component root binds its size or placement: the call sizes and places the root, so the binding is dropped.');
+  static const repeatedSubtree = DiagnosticCode('repeated_subtree', Severity.info,
+      'A subtree written several times over, node for node (ids and names aside): a component, or a list template, would write it once.');
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [
@@ -197,7 +200,7 @@ abstract final class Codes {
     invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
-    callFieldNotAllowed, slotOutsideComponent, rootPlacementBound,
+    callFieldNotAllowed, slotOutsideComponent, rootPlacementBound, repeatedSubtree,
   ];
 }
 

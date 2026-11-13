@@ -168,8 +168,10 @@ bool isLayoutDocumentJson(Object? json) {
 /// a component definition, a site manifest, a plugin package, or a file
 /// holding several) with every schema-2 document in it migrated
 /// ([migrate2to3]) and every other `"schema": 2` (the carriers') set to 3.
-/// Text that holds a document (a stored payload) is left as it is: its
-/// digest covers the text, so it is migrated when it is read. Never throws.
+/// Text that holds a document (a stored payload) and a stored published
+/// component (a `document` with a `digest`) are left as they are: the digest
+/// covers what was stored, so they are migrated when they are read. Never
+/// throws.
 Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
   Object? walk(Object? v, String at) {
     if (v is Map) {
@@ -184,6 +186,9 @@ Object? migrateJson2to3(Object? json, {MigrationReport? report}) {
           report.document = before;
         }
       }
+      // A stored published component: its digest is over its document as
+      // stored, so it is migrated when it is read, not here.
+      if (m['digest'] is String && isLayoutDocumentJson(m['document'])) return m;
       final carrier = m.containsKey('schema') && schemaOf(m) < kSchemaVersion;
       return <String, Object?>{
         for (final e in m.entries) e.key: e.key == 'schema' && carrier ? kSchemaVersion : walk(e.value, '$at/${e.key}'),
