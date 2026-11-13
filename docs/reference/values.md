@@ -263,18 +263,6 @@ Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1 toward 
 | `returnDuration` | int | unset |  | Null: `movementDuration` and `curve`. |
 | `returnCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  |  |
 | `returnSpring` | [Spring](values.md#type-Spring) | unset |  | The spring it returns on, carrying the release's speed; null returns over `returnDuration`. |
-| `restX` | double | `0` |  | Deprecated: where it rests, from its layout's place. |
-| `restY` | double | `0` |  | Where it rests, from where its layout puts it (pixels); a new value moves it there. Deprecated (one app): a `motion.translateX` binding. |
-| `xVariable` | String | `""` |  | Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`. |
-| `yVariable` | String | `""` |  | Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`. |
-| `flyOutRotate` | double | `0` |  | Deprecated: degrees it turns while flying off. |
-| `rotateFactor` | double | `0` |  | Deprecated: degrees of tilt per the node's width of travel. |
-| `originX` | double | `0` |  |  |
-| `originY` | double | `0` |  |  |
-| `shakeWhenDisabled` | bool | `false` |  | Deprecated: wiggles when a disabled drag is tried. |
-| `disabledFollow` | double | `0` |  | Deprecated: the share of the travel a disabled drag follows. |
-| `shareAs` | String | `""` |  | Deprecated: a variable the live drag values are written to. |
-| `follow` | bool | `true` |  | Deprecated: off, the node only reports its drag. |
 
 <a id="type-DragSource"></a>
 ### DragSource
@@ -312,9 +300,6 @@ Takes `DragSource`s of the groups it `accepts` (Flutter's `DragTarget`).
 | `slot` | [DropSlot](values.md#enum-DropSlot) | `"gap"` | `none`, `gap`, `node` |  |
 | `slotNodeId` | String | `""` |  |  |
 | `slotSize` | [DropSlotSize](values.md#enum-DropSlotSize) | `"dragged"` | `dragged`, `node`, `inGap` |  |
-| `slotWhenRefused` | bool | `true` |  | Opens the slot for a drop `acceptIf` refuses too. |
-| `hoverDelay` | int | `0` | ≥ 0 |  |
-| `fullIf` | String | `""` |  |  |
 | `enabled` | bool | `true` |  |  |
 
 <a id="type-Effect"></a>
@@ -400,7 +385,6 @@ The places a released node settles at (`GesturePhysics.snap`).
 | `points` | List<[Offset](values.md#type-Offset)> | `[]` |  | Offsets from rest. |
 | `gridX` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
 | `gridY` | double | `0` | ≥ 0 | For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis. |
-| `projectVelocity` | bool | `true` |  | Picks the target nearest to where a fling would stop, not to where the pointer let go: a flick moves a sheet one stop. |
 
 <a id="type-HeroTag"></a>
 ### HeroTag
@@ -766,13 +750,6 @@ Inside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`, `${pan.settling}`, `${pan
 | `maxX` | double | unset |  |  |
 | `minY` | double | unset |  |  |
 | `maxY` | double | unset |  |  |
-| `rotateFactor` | double | `0` |  | Deprecated: degrees of tilt per the node's width of travel. |
-| `originX` | double | `0` |  |  |
-| `originY` | double | `0` |  |  |
-| `shakeWhenDisabled` | bool | `false` |  | Deprecated: wiggles when a disabled drag is tried. |
-| `disabledFollow` | double | `0` |  | Deprecated: the share of the travel a disabled drag follows. |
-| `shareAs` | String | `""` |  | Deprecated: a variable the live drag values are written to. |
-| `follow` | bool | `true` |  | Deprecated: off, the node only reports its drag. |
 
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter
@@ -822,9 +799,7 @@ JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5, "orient": "tan
 | `path` | String | `""` |  | SVG path data. |
 | `viewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place. |
 | `progress` | double | `0` |  | 0–1 of its length; wraps on a closed path. |
-| `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright`, `uprightFlip` |  |
-| `pacing` | [PathPacing](values.md#enum-PathPacing) | `"length"` | `length`, `area` | Deprecated: `area` pacing (one app). |
-| `focus` | List<double> | `[0,0]` |  | Deprecated: the focus `[x, y]` of `area` pacing. |
+| `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright` |  |
 
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
@@ -1162,7 +1137,7 @@ Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` 
 <a id="type-Track"></a>
 ### Track
 
-A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.
+A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.
 
 Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`.
 
@@ -1202,15 +1177,6 @@ Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= pare
 | `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`). |
 | `snap` | int | `0` | ≥ 0 | Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps. |
 | `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutBack"` |  |  |
-| `defaultValue` | double | unset |  | Deprecated: what a double tap resets to, or moves between. |
-| `doubleTapValues` | List<double> | `[]` |  |  |
-| `parkedProgress` | double | unset |  | Deprecated: where it parks while the value is out of range or empty. |
-| `fineStep` | double | `0` | ≥ 0 | Deprecated: fine mode. |
-| `finePixelsPerRange` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`. |
-| `fineHold` | int | `380` | ≥ 0 |  |
-| `fineVariable` | String | `""` |  |  |
-| `smooth` | bool | `false` |  | Deprecated: drawn between steps while moving. |
-| `gain` | double | `1` |  | Deprecated: the turn per degree round an arc followed by angle. |
 
 <a id="type-TransformGesture"></a>
 ### TransformGesture
@@ -1229,7 +1195,6 @@ Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Fl
 | `bounds` | [GestureBounds](values.md#enum-GestureBounds) | `"cover"` | `none`, `contain`, `cover` |  |
 | `doubleTapScale` | double | `2.5` |  | 0 turns double tap zoom off. |
 | `wheel` | [WheelZoom](values.md#enum-WheelZoom) | `"ctrlZoom"` | `none`, `ctrlZoom`, `zoom`, `pan` |  |
-| `rotationSnap` | double | `0` |  | Degrees; 0 is free. |
 | `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | Null for `GesturePhysics.standard`. |
 | `xVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
 | `yVariable` | String | `""` |  | Number variables holding the pose, two-way (a zoom slider). |
@@ -1283,7 +1248,6 @@ How a change of `property` animates (Flutter's implicit animations: `AnimatedCon
 | `spring` | [Spring](values.md#type-Spring) | unset |  | Replaces `duration` and `curve`. |
 | `keyframes` | List<[Keyframe](values.md#type-Keyframe)> | `[]` |  | Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{"at": 0.5, "value": {"scale": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says. |
 | `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` |  |
-| `arc` | double | `0` |  | Deprecated: bends position changes off the straight line. |
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -2136,15 +2100,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `none` | It keeps its own rotation. |
 | `tangent` | Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`). |
 | `upright` | The same, folded into −90…90 degrees so it is never upside down. |
-| `uprightFlip` | `upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish. |
-
-<a id="enum-PathPacing"></a>
-### PathPacing
-
-| Value | Meaning |
-|---|---|
-| `length` | The share of the path's length: even speed along the curve. |
-| `area` | The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun). |
 
 <a id="enum-PathUnit"></a>
 ### PathUnit
@@ -2697,15 +2652,13 @@ Written as the value's name, a JSON string (`"center"`).
 | `scrollEnd` |  |
 | `enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | `exitViewport` |  |
-| `dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, hover, rejected; full: `dropFull`). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
+| `dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | `dragCancel` |  |
 | `dragCompleted` |  |
 | `drop` |  |
 | `dragEnter` |  |
 | `dragExit` |  |
-| `dragHover` |  |
 | `dropRejected` |  |
-| `dropFull` | On a drop target that is full (its `fullIf` holds) when a drag of a group it accepts is let go on it: the drag springs back and these run, reading the drop as `drop` does; `${drag.full}` is true. |
 | `reorder` | A data list row was dragged to a new place by this node, its reorder handle (`${result.from}`, `${result.to}`). A list with a `reorder` fires it too, with `${result.item}`, `${result.fromList}`, `${result.toList}`. |
 | `refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | `swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |

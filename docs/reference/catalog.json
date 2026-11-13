@@ -12138,7 +12138,7 @@
       },
       {
         "type": "dragStart",
-        "doc": "Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, hover, rejected; full: `dropFull`). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch.",
+        "doc": "Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch.",
         "group": "other"
       },
       {
@@ -12167,18 +12167,8 @@
         "group": "other"
       },
       {
-        "type": "dragHover",
-        "doc": "",
-        "group": "other"
-      },
-      {
         "type": "dropRejected",
         "doc": "",
-        "group": "other"
-      },
-      {
-        "type": "dropFull",
-        "doc": "On a drop target that is full (its `fullIf` holds) when a drag of a group it accepts is let go on it: the drag springs back and these run, reading the drop as `drop` does; `${drag.full}` is true.",
         "group": "other"
       },
       {
@@ -12502,14 +12492,6 @@
             "doc": ""
           },
           {
-            "key": "showCloseButton",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
-            "nullable": false,
-            "doc": ""
-          },
-          {
             "key": "showDragHandle",
             "type": "bool",
             "kind": "boolean",
@@ -12638,14 +12620,6 @@
             "type": "double",
             "kind": "number",
             "default": 1,
-            "nullable": false,
-            "doc": ""
-          },
-          {
-            "key": "fullHeight",
-            "type": "bool",
-            "kind": "boolean",
-            "default": false,
             "nullable": false,
             "doc": ""
           },
@@ -16084,102 +16058,6 @@
           "nullable": true,
           "object": "Spring",
           "doc": "The spring it returns on, carrying the release's speed; null returns over `returnDuration`."
-        },
-        {
-          "key": "restX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: where it rests, from its layout's place."
-        },
-        {
-          "key": "restY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Where it rests, from where its layout puts it (pixels); a new value moves it there. Deprecated (one app): a `motion.translateX` binding."
-        },
-        {
-          "key": "xVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`."
-        },
-        {
-          "key": "yVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`."
-        },
-        {
-          "key": "flyOutRotate",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: degrees it turns while flying off."
-        },
-        {
-          "key": "rotateFactor",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: degrees of tilt per the node's width of travel."
-        },
-        {
-          "key": "originX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "originY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "shakeWhenDisabled",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Deprecated: wiggles when a disabled drag is tried."
-        },
-        {
-          "key": "disabledFollow",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: the share of the travel a disabled drag follows."
-        },
-        {
-          "key": "shareAs",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "Deprecated: a variable the live drag values are written to."
-        },
-        {
-          "key": "follow",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Deprecated: off, the node only reports its drag."
         }
       ]
     },
@@ -16395,31 +16273,6 @@
             "node",
             "inGap"
           ],
-          "doc": ""
-        },
-        {
-          "key": "slotWhenRefused",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Opens the slot for a drop `acceptIf` refuses too."
-        },
-        {
-          "key": "hoverDelay",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "fullIf",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
           "doc": ""
         },
         {
@@ -16785,14 +16638,6 @@
           "nullable": false,
           "min": 0.0,
           "doc": "For `SnapKind.grid`: the pitch per axis; 0 doesn't snap that axis."
-        },
-        {
-          "key": "projectVelocity",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Picks the target nearest to where a fling would stop, not to where the pointer let go: a flick moves a sheet one stop."
         }
       ]
     },
@@ -18768,62 +18613,6 @@
           "default": null,
           "nullable": true,
           "doc": ""
-        },
-        {
-          "key": "rotateFactor",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: degrees of tilt per the node's width of travel."
-        },
-        {
-          "key": "originX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "originY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "shakeWhenDisabled",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Deprecated: wiggles when a disabled drag is tried."
-        },
-        {
-          "key": "disabledFollow",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: the share of the travel a disabled drag follows."
-        },
-        {
-          "key": "shareAs",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "Deprecated: a variable the live drag values are written to."
-        },
-        {
-          "key": "follow",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Deprecated: off, the node only reports its drag."
         }
       ]
     },
@@ -19097,36 +18886,9 @@
           "values": [
             "none",
             "tangent",
-            "upright",
-            "uprightFlip"
+            "upright"
           ],
           "doc": ""
-        },
-        {
-          "key": "pacing",
-          "type": "PathPacing",
-          "kind": "enumeration",
-          "default": "length",
-          "nullable": false,
-          "enum": "PathPacing",
-          "values": [
-            "length",
-            "area"
-          ],
-          "doc": "Deprecated: `area` pacing (one app)."
-        },
-        {
-          "key": "focus",
-          "type": "List<double>",
-          "kind": "list",
-          "default": [
-            0,
-            0
-          ],
-          "nullable": false,
-          "item": "double",
-          "itemKind": "number",
-          "doc": "Deprecated: the focus `[x, y]` of `area` pacing."
         }
       ]
     },
@@ -20645,7 +20407,7 @@
       ]
     },
     "Track": {
-      "doc": "A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.\n\nIts settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`.",
+      "doc": "A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.\n\nIts settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`.",
       "fields": [
         {
           "key": "enabled",
@@ -20958,83 +20720,6 @@
           "nullable": false,
           "enum": "AnimationCurve",
           "doc": ""
-        },
-        {
-          "key": "defaultValue",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "Deprecated: what a double tap resets to, or moves between."
-        },
-        {
-          "key": "doubleTapValues",
-          "type": "List<double>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "double",
-          "itemKind": "number",
-          "doc": ""
-        },
-        {
-          "key": "parkedProgress",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "Deprecated: where it parks while the value is out of range or empty."
-        },
-        {
-          "key": "fineStep",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "Deprecated: fine mode."
-        },
-        {
-          "key": "finePixelsPerRange",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`."
-        },
-        {
-          "key": "fineHold",
-          "type": "int",
-          "kind": "integer",
-          "default": 380,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "fineVariable",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "smooth",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Deprecated: drawn between steps while moving."
-        },
-        {
-          "key": "gain",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": "Deprecated: the turn per degree round an arc followed by angle."
         }
       ]
     },
@@ -21145,14 +20830,6 @@
             "pan"
           ],
           "doc": ""
-        },
-        {
-          "key": "rotationSnap",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees; 0 is free."
         },
         {
           "key": "physics",
@@ -21457,14 +21134,6 @@
             "monotoneCubic"
           ],
           "doc": ""
-        },
-        {
-          "key": "arc",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Deprecated: bends position changes off the straight line."
         }
       ]
     },
@@ -23477,20 +23146,6 @@
       {
         "value": "upright",
         "doc": "The same, folded into −90…90 degrees so it is never upside down."
-      },
-      {
-        "value": "uprightFlip",
-        "doc": "`upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish."
-      }
-    ],
-    "PathPacing": [
-      {
-        "value": "length",
-        "doc": "The share of the path's length: even speed along the curve."
-      },
-      {
-        "value": "area",
-        "doc": "The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun)."
       }
     ],
     "PathUnit": [
@@ -24736,7 +24391,7 @@
       },
       {
         "value": "dragStart",
-        "doc": "Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, hover, rejected; full: `dropFull`). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch."
+        "doc": "Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch."
       },
       {
         "value": "dragCancel",
@@ -24759,16 +24414,8 @@
         "doc": ""
       },
       {
-        "value": "dragHover",
-        "doc": ""
-      },
-      {
         "value": "dropRejected",
         "doc": ""
-      },
-      {
-        "value": "dropFull",
-        "doc": "On a drop target that is full (its `fullIf` holds) when a drag of a group it accepts is let go on it: the drag springs back and these run, reading the drop as `drop` does; `${drag.full}` is true."
       },
       {
         "value": "reorder",

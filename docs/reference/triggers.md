@@ -66,15 +66,13 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-scrollEnd"></a>`scrollEnd` |  |
 | <a id="trigger-enterViewport"></a>`enterViewport` | At least `Trigger.visibleFraction` of the node became visible (and stayed so for `Trigger.visibleMs`), or it fell below that after being visible. With `Trigger.onceKey` (`${item.id}`), an impression: once per item per app session. |
 | <a id="trigger-exitViewport"></a>`exitViewport` |  |
-| <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, hover, rejected; full: `dropFull`). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
+| <a id="trigger-dragStart"></a>`dragStart` | Drag and drop: on a draggable (start, cancel, completed) and on a drop target (drop, enter, exit, rejected). `${result}` and `${drag}` hold the drag. A list with a `reorder` fires `dragStart` when a row is picked up and `dragCompleted` when it is let go (moved or not), with `${result.index}` and `${result.item}`: a list can change while a row is lifted (fold its rows into tiles). On a node with a `drag` reaction (and no drag and drop), `dragStart` is the start of that one-finger drag, where the finger went down (`${drag.x}`, `${drag.y}`): begin a stroke there rather than on `pointerDown`, which fires for every finger of a pinch. |
 | <a id="trigger-dragCancel"></a>`dragCancel` |  |
 | <a id="trigger-dragCompleted"></a>`dragCompleted` |  |
 | <a id="trigger-drop"></a>`drop` |  |
 | <a id="trigger-dragEnter"></a>`dragEnter` |  |
 | <a id="trigger-dragExit"></a>`dragExit` |  |
-| <a id="trigger-dragHover"></a>`dragHover` |  |
 | <a id="trigger-dropRejected"></a>`dropRejected` |  |
-| <a id="trigger-dropFull"></a>`dropFull` | On a drop target that is full (its `fullIf` holds) when a drag of a group it accepts is let go on it: the drag springs back and these run, reading the drop as `drop` does; `${drag.full}` is true. |
 | <a id="trigger-reorder"></a>`reorder` | A data list row was dragged to a new place by this node, its reorder handle (`${result.from}`, `${result.to}`). A list with a `reorder` fires it too, with `${result.item}`, `${result.fromList}`, `${result.toList}`. |
 | <a id="trigger-refresh"></a>`refresh` | A list or grid was pulled past its start to refresh (its `pullToRefresh`, or its pagination's); its pagination reloads its first page too. A list with this reaction can always be pulled. |
 | <a id="trigger-swipeAction"></a>`swipeAction` | A swipe action of a list item ran (the list's `swipeActions`): `${result.action}`, `${result.label}`, `${result.item}`, `${result.index}`. |

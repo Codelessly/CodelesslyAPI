@@ -47,7 +47,6 @@ Shows a screen (canvas) as a modal: a dialog, a sheet, a popover. The `CloseModa
 | `barrierDismissible` | bool | `true` |  |  |
 | `barrierColor` | [Color](values.md#type-Color) | unset |  | Null: the default scrim. |
 | `barrierBlur` | double | `0` |  |  |
-| `showCloseButton` | bool | `false` |  |  |
 | `showDragHandle` | bool | `false` |  |  |
 | `alignment` | List<double> | `[0,0]` |  | A dialog's alignment, [x, y] (-1 to 1). |
 | `anchor` | [ModalAnchor](values.md#enum-ModalAnchor) | `"none"` | `none`, `trigger`, `pointer`, `node` |  |
@@ -62,7 +61,6 @@ Shows a screen (canvas) as a modal: a dialog, a sheet, a popover. The `CloseModa
 | `sheetRadius` | double | unset |  | A bottom sheet's top corner radius; the sheet clips the screen to it (null: the default). |
 | `sheetBelow` | String | `""` |  | Adaptive: a bottom sheet on breakpoints narrower than this one (a breakpoint id; empty: the second). |
 | `maxHeightFactor` | double | `1` |  |  |
-| `fullHeight` | bool | `false` |  |  |
 | `cover` | bool | `false` |  | A dialog that covers the screen: its screen fills it at the device size (its breakpoint follows the device). |
 | `enterScale` | double | `1` |  |  |
 | `routeTransition` | [RouteTransition](values.md#type-RouteTransition) | unset |  | A custom transition: entrance, the screen behind, barrier, drag to dismiss. |
