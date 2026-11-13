@@ -5,7 +5,8 @@ You write Codelessly user interfaces directly as JSON files: screens, their layo
 behavior. This file is the **base**: read it in full first; it is enough to build most pages. Everything else is on
 a page of its own in this folder, linked from here and listed in the [index](#base-index) at the end (the same
 index, with an A–Z of every name, is `index.md`). Open a page when you need what it covers; do not read the folder
-end to end. This describes `codelessly_api` {{version}}; every example here is checked by a test.
+end to end. On a page, *Patterns* is usually what you need; *Reference* holds the generated tables to look one prop
+up. This describes `codelessly_api` {{version}}; every example here is checked by a test.
 <!-- end -->
 <!-- if runtime noScripts -->
 You build and edit user interfaces by calling the ui_apply tool with edit ops. A UI is a Codelessly document: a
@@ -281,8 +282,8 @@ Types: {{variableTypes}}. A variable with a `formula` is **computed**: read-only
 binding.
 
 **Expressions**: `${name}` or `${path}` reads a value (`${user.name}`, `${items[0].price}`, `${item.title}`);
-`${= formula}` computes one (`${= count * price}`, `${= annual ? 'Yearly' : 'Monthly'}`). A text that is exactly
-one expression keeps the value's type. `${false}` reads a variable called `false`: a literal is `${= false}`.
+`${= formula}` computes one (`${= count * price}`, `${= annual ? 'Yearly' : 'Monthly'}`, a list
+`${= popular ? [0, 0, 0, 0] : [0, 28, 0, 0]}`). A text that is exactly one expression keeps the value's type. `${false}` reads a variable called `false`: a literal is `${= false}`.
 Every formula function, grouped (text, numbers, money, lists, dates): [formula functions](@state-formula-functions).
 
 **Bindings** put an expression on a field: `"bind": {path: expression}`, updated whenever what it reads changes.
@@ -310,7 +311,8 @@ A node's `actions` is a list of **reactions**: a trigger and the actions it runs
   `timer`... (all of them: [triggers](@interaction-triggers)).
 - `setVariable` (`op`: `set` (default), `toggle`, `add`, `subtract`, `insert`, `removeAt`...; `value` is an
   expression), `navigate` (`to`: a canvas id; `"mode": "pop"` goes back), `openModal` / `closeModal`, `showToast`,
-  `if` (`condition`, `then`, `else`), `scrollTo`, `componentEvent` (a component's event, or at run time the event
+  `if` (`"condition"`: a predicate, `{"left": "${count}", "op": "greaterThan", "right": "5"}` or `{"left":
+  "${= valid}", "op": "isTrue"}`; `then` and `else`: action lists), `scrollTo`, `componentEvent` (a component's event, or at run time the event
   to the host app). Action types here: {{actionTypes}}.
 - In a chain `${result}` is the trigger's event (a text field's text) until an action gives another value.
 - A tap on a control inside a tappable row runs the control's reaction only: to toggle from the whole row, give the

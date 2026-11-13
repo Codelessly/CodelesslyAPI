@@ -42,7 +42,8 @@ The theme (`site.json`'s `theme`, or the app's theme at run time):
   "color": "ember"}` (`textTheme.titleLarge.merge(...)`: the fields written win). Runs, a button's `textStyle` and
   an input's styles take the same two forms.
 - Changing a colour or style in the theme changes every node that names it, and only those.
-- In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`.
+- In a binding a name is not read: bind the value, `"${theme.colors.ember}"` or `"${theme.text.title}"`; inside
+  a formula, `${= done ? theme.colors.sage : theme.colors.mist}`.
 
 ### A type scale that changes with the screen size
 

@@ -39,7 +39,9 @@ A node's `actions` is a list of **reactions**: a trigger and the chain of action
   control's reaction only, as Flutter's gesture arena gives the tap to the innermost recognizer. To toggle from the
   whole row with one handler, give the control `"ignorePointer": true` and bind its value.
 - Screen triggers (`load`, `valueChanged`, `timer`, `frame`, `keyDown`) go on the canvas.
-- Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds).
+- Every action also takes `enabled`, `nonBlocking` and `when` (run only while a predicate holds:
+  `{"left": "${count}", "op": "greaterThan", "right": "5"}`; the ops are in [Conditions](@state-conditions)). A
+  trigger's own `when` is a formula string.
 - Write each action's fields flat in the action object; a misspelled key is dropped by the runtime and reported by
   validation (`unknown_action_key`).
 

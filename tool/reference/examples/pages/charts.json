@@ -12,7 +12,7 @@
             "props": {"max": 7, "color": "#FF16A34A", "backgroundColor": "#FFE5E7EB", "borderRadius": 5},
             "bind": {"props.value": "${done}"}},
     "week": {"type": "barChart", "layout": {"width": {"fill": 342}, "height": 160},
-             "props": {"values": [1, 1, 0, 1, 1, 0, 0], "labels": ["M", "T", "W", "T", "F", "S", "S"], "color": "#FF16A34A"}}
+             "props": {"values": [1, 1, 0, 1, 1, 0, 0], "labels": ["M", "T", "W", "T", "F", "S", "S"], "color": "#FF16A34A", "labelFontFamily": "Roboto"}}
   },
   "variables": {"stats": [{"name": "done", "type": "integer", "value": 4}]}
 }

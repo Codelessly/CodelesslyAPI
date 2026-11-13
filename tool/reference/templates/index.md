@@ -35,6 +35,7 @@ section's anchor is its topic.
 | Background grid lines, a repeating pattern in pixels, grain | @@decoration-a-pattern-in-pixels-a-background-grid-grain |
 | A border on one side, a rule under a text, dashed borders, shadows, frosted glass | @@decoration-borders-rules-and-shadows |
 | A dark gradient over a photo with a caption | @@decoration-a-scrim-over-a-photo |
+| A border hidden by a child's fill (paint order) | @@decoration-borders-rules-and-shadows |
 | Images (local files, cover, aspect ratio) | @@decoration-images |
 | Icons, their size and style | @@decoration-icons |
 | A star, sparkle or other mark the font does not have; a custom shape | @@decoration-small-marks-and-shapes |
@@ -49,7 +50,7 @@ section's anchor is its topic.
 | A button's label, colours, corners and label size | @@forms-buttons |
 | Every prop of a text field | @@node-textField |
 | Repeat one template per item of a list | @@lists-one-template-from-data |
-| A grid of cards from data, as many columns as fit | @@lists-a-grid-of-cards |
+| A grid of cards from data, as many columns as fit; gaps between wrapped items | @@lists-a-grid-of-cards |
 | Nested lists; the outer item inside the inner list (`parent`) | @@lists-nested-lists |
 | A comparison table from one row and one cell template | @@lists-a-table-from-one-template |
 | A weekly grid (days × habits) | @@lists-a-weekly-grid |

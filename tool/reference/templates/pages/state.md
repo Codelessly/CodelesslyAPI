@@ -94,17 +94,30 @@ not in every binding. A function variable's name must not be a formula function'
 
 ### A streak and other counts from data
 
-Derive, do not store: a computed variable over the records. Habits done today: `count(habits, h => h.done)`. A
-streak from a list of days, newest first: a function variable, or a script for anything with a loop. Totals:
-`sum(map(cart, i => i.price * i.qty))`. Dates: `formatDate(today(), 'EEE d')`, `addDays(today(), -i)`,
-`weekday(date)` (Monday is 1).
+Derive, do not store: a computed variable over the records. Habits done today: `count(habits, h => h.done)`.
+Totals: `sum(map(cart, i => i.price * i.qty))`. Dates: `formatDate(today(), 'EEE d')`, `addDays(today(), -i)`,
+`weekday(date)` (Monday is 1). Function variables may call each other. A streak (checked days in a row ending at
+day `end` of a list of booleans): the days up to `end`, reversed, and the index of the first unchecked one.
+
+```json
+"variables": {"page_variables": [
+  {"name": "todayIdx", "type": "integer", "formula": "weekday(today()) - 1"},
+  {"name": "gapAt", "type": "integer", "parameters": ["days", "end"], "formula": "findIndex(reverse(take(days, end + 1)), d => !d)"},
+  {"name": "streak", "type": "integer", "parameters": ["days", "end"], "formula": "gapAt(days, end) < 0 ? end + 1 : gapAt(days, end)"}
+]}
+```
+
+`${= streak(item.days, todayIdx)}` in a habit's row; `${= streak(item.days, todayIdx - 1)}` when today is not
+checked yet. For anything with a real loop, a script.
 
 ### Changing state from a reaction
 
 `setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges),
 `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`. `value` is an expression. A chain that branches:
-`if` with a `condition` (a predicate: `{"left": "${count}", "op": "greaterThan", "right": "5"}`) and `then` / `else`
-chains; every action also takes `when` (run only while it holds). `forEach` runs a chain per item; `delay` waits.
+`if` with a `condition` (a predicate: `{"left": "${count}", "op": "greaterThan", "right": "5"}`, `{"left":
+"${name}", "op": "isEmpty"}`; every op is in [Conditions](@state-conditions)) and `then` / `else` chains. Every
+action also takes `when`, the same kind of predicate object (run only while it holds); a trigger's `when` is a
+formula string instead (`"when": "!item.future"`). `forEach` runs a chain per item; `delay` waits.
 
 ### Setting several nodes with a condition
 

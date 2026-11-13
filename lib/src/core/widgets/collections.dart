@@ -229,7 +229,13 @@ abstract final class GridViewProps {
   static const mainAxisSpacing = PropDef<double>('mainAxisSpacing', Codecs.double, 0);
   /// The gap between columns, in pixels.
   static const crossAxisSpacing = PropDef<double>('crossAxisSpacing', Codecs.double, 0);
+  /// Each cell's width / height when no `mainAxisExtent` is set (Flutter's
+  /// `childAspectRatio`): 1 makes square cells.
   static const childAspectRatio = PropDef<double>('childAspectRatio', DoubleCodec(min: 0.0001, ratio: true), 1);
+
+  /// Each cell's height (its length along the scrolling axis), in pixels,
+  /// whatever its width; wins over `childAspectRatio`. A cell fills it: give
+  /// the item `{"fill": n}` on that axis, not a fixed size.
   static const mainAxisExtent = PropDef<double?>('mainAxisExtent', _optionalPositive, null);
 
   /// Each row (column, scrolling horizontally) as long as its longest item
