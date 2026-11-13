@@ -45,7 +45,15 @@ guide; docs/design/schema-3-migration-report.md is the migration over the refere
   documents render the same): a text's `layout.padding` is applied (`Padding(child: Text)`, counted in a hugging
   size); schema 2 ignored it and the migration drops it from schema-2 texts (step `text.padding`, with the
   bindings and state and media patches that set it). The `layout_field_ignored` warning for a text's padding is
-  gone.
+  gone. A text style without a `height` takes the inherited `defaultTextStyle` (new behavior on any node,
+  Flutter's `DefaultTextStyle`: the nearest one wins, `{}` gives Flutter's defaults back), else the font's own
+  line height (Flutter's `height: null`), not 1.33; the migration keeps 1.33 for schema-2 documents with one
+  `"defaultTextStyle": {"height": 1.33}` per top-level node (step `text.lineHeight`; +0.08% bytes over the
+  corpus). **Breaking (Dart and JSON):** `TextStyle.naturalHeight` (`TextStyleFields.naturalHeight`),
+  `ThemeTokens.naturalLineHeight` and `StyleSheet.naturalLineHeight` are removed; the migration turns a natural
+  style into its node's `"defaultTextStyle": {}`, and drops (reporting) a theme's flags, which a document
+  migrated on its own cannot see. `migrateJson2to3` and `migratePublish2to3` drop them from carriers;
+  `dropNaturalLineHeightFlags`. `tool/migration_corpus.dart` reports the encoded size before and after.
 - **Behaviour changes** (all reported by the migration, per document): a track with no value is drawn at
   its minimum, not at `defaultValue`, and a double tap resets nothing; the fine mode, `smooth`, a dismissible's
   tilt and fly-off spin, disabled follow and shake, `shareAs`, area pacing, the upright flip, a transition's

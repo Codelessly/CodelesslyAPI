@@ -76,6 +76,81 @@ void main() {
     },
   };
 
+  documentSamples['text.lineHeight'] = {
+    'type': 'text',
+    'props': {
+      'text': 'ab',
+      'style': {'fontSize': 12, 'naturalHeight': true},
+      'runs': [
+        {'start': 0, 'end': 1, 'style': {'color': '#FF000000'}},
+      ],
+    },
+  };
+
+  test('text.lineHeight: schema 2\'s 1.33 on the top-level nodes only; a natural style\'s node takes the font\'s own', () {
+    final report = MigrationReport();
+    final doc = migrate2to3({
+      'schema': 2,
+      'roots': ['c'],
+      'nodes': {
+        'c': {'type': 'canvas', 'layout': {}, 'slots': {'body': 'col'}},
+        'col': {'type': 'column', 'layout': {}, 'children': ['plain', 'nat', 'btn']},
+        'plain': {'type': 'text', 'layout': {}, 'props': {'text': 'a', 'style': {'fontSize': 14}}},
+        'nat': {
+          'type': 'text',
+          'layout': {},
+          'props': {'text': 'b', 'style': {'fontSize': 14, 'naturalHeight': true}},
+          'typewriter': {'caretAlignStyle': {'fontSize': 9}},
+        },
+        'btn': {
+          'type': 'chip',
+          'layout': {},
+          'props': {'labelStyle': {'fontSize': 11, 'naturalHeight': false}},
+          'states': {'hovered': {'plain': {'props': {'style': {'naturalHeight': true}}}}},
+        },
+        'dialog': {'type': 'box', 'layout': {}},
+      },
+    }, report: report);
+    final nodes = (doc['nodes'] as Map).cast<String, Map>();
+    expect(nodes['c']!['defaultTextStyle'], {'height': 1.33});
+    expect(nodes['dialog']!['defaultTextStyle'], {'height': 1.33});
+    for (final id in ['col', 'plain', 'btn']) {
+      expect(nodes[id]!.containsKey('defaultTextStyle'), isFalse, reason: id);
+    }
+    expect(nodes['nat']!['defaultTextStyle'], <String, Object?>{});
+    expect((nodes['nat']!['props'] as Map)['style'], {'fontSize': 14});
+    expect((nodes['nat']!['typewriter'] as Map)['caretAlignStyle'], {'fontSize': 9, 'height': 1.33});
+    expect((nodes['btn']!['props'] as Map)['labelStyle'], {'fontSize': 11});
+    expect((((nodes['btn']!['states'] as Map)['hovered'] as Map)['plain'] as Map), {'props': {'style': <String, Object?>{}}});
+    expect(report.behaviourChanges.map((e) => e.path), ['/nodes/btn/states/hovered/plain/props/style/naturalHeight']);
+    expect(jsonEncode(doc), isNot(contains('naturalHeight')));
+    // Decoded: the text below the canvas inherits 1.33 (the nearest default wins).
+    final d = LayoutDocument.fromJson(doc, catalog: standardCatalog);
+    expect(d['c']!.behaviors.defaultTextStyle, const TextStyle(height: 1.33));
+    expect(d['nat']!.behaviors.defaultTextStyle, TextStyle.empty);
+    // Again: nothing changes.
+    expect(jsonEncode(migrate2to3({...doc, 'schema': 2})), jsonEncode({...doc}));
+  });
+
+  test('text.lineHeight: a natural text\'s runs inherit its base; a natural run beside 1.33 ones is reported', () {
+    final (out, report) = migrated(documentSamples['text.lineHeight']!);
+    expect(out['defaultTextStyle'], <String, Object?>{});
+    expect(((out['props'] as Map)['runs'] as List).single, {'start': 0, 'end': 1, 'style': {'color': '#FF000000'}});
+    expect(report.behaviourChanges, isEmpty);
+    final (out2, report2) = migrated({
+      'type': 'text',
+      'props': {
+        'text': 'ab',
+        'style': {'fontSize': 12},
+        'runs': [
+          {'start': 0, 'end': 1, 'style': {'naturalHeight': true}},
+        ],
+      },
+    });
+    expect((out2['props'] as Map)['style'], {'fontSize': 12, 'height': 1.33});
+    expect(report2.behaviourChanges.single.path, '/nodes/n/props/runs');
+  });
+
   test('every step has a sample here', () {
     expect(byId.keys.toSet().difference({...samples.keys, ...documentSamples.keys, 'patches.legacy'}), isEmpty);
   });

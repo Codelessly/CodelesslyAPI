@@ -52,4 +52,5 @@ final List<MigrationStep> migrationSteps2to3 = [
 /// renders the same.
 final List<MigrationStep> _flutterDefaultSteps = [
   textPaddingStep,
+  textLineHeightStep,
 ];

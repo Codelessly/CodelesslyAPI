@@ -75,6 +75,7 @@ document renders the same; a schema-3 document written new gets Flutter's behavi
 
 | Schema 2 | Schema 3 | Migration | Step |
 |---|---|---|---|
+| a text style with no `height` was drawn at 1.33 (Material's `bodySmall`), unless it said `naturalHeight: true` (or the project's theme `naturalLineHeight`) | the inherited `defaultTextStyle`'s height (Flutter's `DefaultTextStyle`), else the font's own line height (Flutter's `height: null`, CSS `line-height: normal`); `naturalHeight` and `naturalLineHeight` are gone | `"defaultTextStyle": {"height": 1.33}` on each top-level node of the document (one place per tree, not per style: 380 over 106 corpus documents, +0.08% bytes); a node with a `naturalHeight` style gets `"defaultTextStyle": {}` and 1.33 written on its other styles. Reported: a natural run beside 1.33 runs, a theme style a natural node names, a patch or binding switching it, a theme's `naturalLineHeight` or style's `naturalHeight` (a project's theme is not in its documents: remove `defaultTextStyle` from the top-level nodes of its migrated documents) | `text.lineHeight` |
 | a text's `layout.padding` was ignored (the lines sat at the node's edge; a hugging text did not grow) | applied around the lines, as `Padding(child: Text)`, and counted in a hugging size | dropped from text nodes, their `layout.padding` bindings, the state patches that target a text and a text's media patches (it did nothing) | `text.padding` |
 
 ## What is dropped (behaviour changes)

@@ -1576,7 +1576,7 @@ final class _Validator {
 /// The keys a theme (the site manifest's `theme`) reads.
 const Set<String> themeKeys = {
   'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', 'fontFamily', 'titleFontFamily', //
-  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'naturalLineHeight', 'media',
+  'radius', 'buttonRadius', 'colors', 'textStyles', 'dark', 'media',
 };
 
 /// Checks a theme's JSON (the site manifest's `theme`, at [at]): its keys,
@@ -1674,7 +1674,6 @@ List<Diagnostic> validateTheme(Object? json, {String at = '/theme', Breakpoints?
           final def = switch (e.key) {
             'fontFamily' || 'titleFontFamily' => const PropType.string(),
             'radius' || 'buttonRadius' => const PropType.number(),
-            'naturalLineHeight' => const PropType.boolean(),
             _ => PropTypes.color,
           };
           values.check(def, e.value, p);

@@ -25,6 +25,10 @@ const Map<int, SchemaMigration> publishSchemaMigrations = {3: migratePublish2to3
 Json migratePublish2to3(Json json, {MigrationReport? report}) {
   if (schemaOf(json) >= 3) return json;
   final out = <String, Object?>{...json, 'schema': 3};
+  // The theme's natural line height flags (a model's `theme`, a layout's).
+  for (final k in const ['theme']) {
+    if (out[k] != null) out[k] = dropNaturalLineHeightFlags(out[k], report: report, at: '/$k');
+  }
   final model = readMap(json['model']);
   if (model != null) out['model'] = migratePublish2to3(model, report: report);
   final layouts = readMap(json['layouts']);
