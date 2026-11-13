@@ -791,3 +791,100 @@ adds `component_missing` (a call rendered without its definition: an empty box o
 
 Components made by copying a node tree into the library (`ComponentLink`, DESIGN.md §4.2) are still read and
 drawn as before: their instances are copies.
+
+<a id="guide-edit"></a>
+## 20. Editing with ops, and streaming
+
+A document is built and changed with six **edit operations**, each addressed by node id: what an agent sends in a
+`ui_apply` tool call, what `codelessly apply` takes, and what an app's `UiSession` applies while a model streams
+(`applyOps`, `decodeOps`, `OpStreamDecoder` in `package:codelessly_api/core.dart`). Generation is just the first
+batch of ops; every change after it is a few more.
+
+{{editOps}}
+
+Rules:
+
+* A `patch` is an RFC 7396 merge patch on one node, shaped like the node: objects merge, lists and values replace,
+  `null` deletes a key. It never changes `children`, `slots` or `type` (`structural_key_in_patch`): child lists
+  change only through `set` (with `parent`), `move` and `remove`.
+* A `set` of an id that exists replaces the node (the result says which ids it created). Replacing a node that had
+  children it no longer lists is `would_orphan`: keep them, move or remove them first, or patch instead.
+* Each op is checked on its own, against what it touched: its structure (one parent, no cycle, no canvas as a child,
+  a parent that takes children there), the trust profile, and the nodes' fields (the strict validator of
+  §17 on the nodes the op created or changed, their parents and children). A rejected op changes nothing; the others
+  apply (with `"atomic": true`, all or none).
+* A batch may carry `"baseRev"`, the revision the author read: a patch of a field, or a set of a node, that another
+  author changed since is `stale_rev`, with the current value. Every applied batch has inverse ops: applied
+  atomically, they restore the document (undo).
+
+The ops that build the smallest document of §1, top-down, as a model streams them:
+
+{{editBuild}}
+
+Then a follow-up instruction ("add a button under the title, drop the body text, make the title say Welcome") is
+a few ops, not a new document:
+
+```json
+{"ops": [
+  {"op": "set", "id": "cta", "parent": "page", "index": 1,
+   "node": {"type": "row", "children": ["ctaText"], "layout": {"width": {"hug": 140}, "height": 44, "padding": [16, 0, 16, 0]},
+            "decoration": {"fills": [{"color": "#FF2563EB"}], "radius": 10}}},
+  {"op": "set", "id": "ctaText", "node": {"type": "text", "layout": {"width": {"hug": 100}, "height": {"hug": 20}},
+            "props": {"text": "Get started", "style": {"fontSize": 15, "fontWeight": 600, "color": "#FFFFFFFF"}}}},
+  {"op": "remove", "ids": ["body"]},
+  {"op": "patch", "id": "title", "patch": {"props": {"text": "Welcome"}}},
+  {"op": "vars", "scope": "home", "set": {"taps": {"type": "integer", "value": 0}}},
+  {"op": "patch", "id": "cta", "patch": {"actions": [{"trigger": {"type": "click"},
+            "actions": [{"type": "setVariable", "variable": "taps", "op": "add", "value": 1}]}]}},
+  {"op": "move", "id": "cta", "parent": "page", "index": 0}
+]}
+```
+
+A batch with a mistake: the second op misspells `fills`. It is rejected with a code, the path and a suggestion; the
+first applies:
+
+{{editRejected}}
+
+### Streaming
+
+LLM APIs deliver a tool call's input as text deltas cut anywhere. `OpStreamDecoder` yields each op the moment its
+closing brace arrives (inside a `set` with `nodes`, each node as its own brace closes), whatever the cuts; a stream
+cut mid-op keeps every complete op and reports the tail (`truncated_op`). While a document streams in, it is
+incomplete by nature:
+
+* **Order.** Root first, then top-down: the `roots` op, the canvas, its container, then each section complete before
+  the next. Nothing breaks if a model does otherwise.
+* **Forward references.** A child id listed before its node arrives is **pending**, not an error; a reference to a
+  node, screen or variable that has not arrived yet (a state that patches it, a navigation to it) is a warning while
+  the stream runs (`applyOps(..., incomplete: true)`). When the stream ends, `endOfStream` reports every id still
+  dangling (`dangling_child`), so the model can send it.
+* **Rendering** (the SDK's `UiSession`): nothing paints until a root canvas has content; a pending child takes no
+  room (or the size a `set`'s `placeholders` gave it); a container none of whose children has arrived waits for
+  its first, so no empty shells flash; text and values are never shown half-written (an op applies only whole).
+
+### What a model reads
+
+`outline(document)` is one row per node, `[id, type, label, depth, {what is bound, states, triggers}]`, a sixth to
+a seventh of the document's size (the two m05 pages: 6.7 KB for 147 nodes against 47.6 KB, 8.3 KB for 196 nodes
+against 55.4 KB). `readUi` answers the `ui_read` tool: the outline, or whole nodes by id.
+
+The two tools (`uiTools(catalog)`), their input schemas generated from the op declarations and the catalog's
+node types (the agent profile over the core: [ui_tools.json](ui_tools.json)):
+
+{{uiTools}}
+
+### The trust profile
+
+`TrustProfile` is what an edited document may use: node types and action types (a restricted catalog,
+`profile.restrict(catalog)`), scripts, link and image hosts, navigation, and limits (nodes, depth, text length, ops
+per call). `TrustProfile.agent`, the default for agent-written UI, allows the core's node types and its local
+actions (variables, values, in-document navigation, modals, toasts, scrolling, animation, `componentEvent`): no
+scripts, no links, no host functions, no feature library's types. A violation is `capability_not_allowed` or
+`limit_exceeded`, with the op and the path.
+
+`componentEvent` in a document that is not a component (an agent's UI) is the event to the document's host: the
+session delivers it to the app, which sends it to the model.
+
+### Codes of the edit layer
+
+{{editCodes}}
