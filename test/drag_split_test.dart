@@ -177,4 +177,43 @@ void main() {
     expect(Behaviors.legacyKeys, contains('drag'));
     expect(_node({'drag': <String, Object?>{}}).extra, isEmpty);
   });
+
+  test("draggable takes Flutter's names; one return spring", () {
+    final d = DragSource.fromJson({
+      'group': 'cards',
+      'whileDragging': 'hidden',
+      'feedbackNodeId': 'ghost',
+      'feedbackAnchor': 'center',
+      'spring': {'stiffness': 300},
+    })!;
+    expect(d.childWhenDragging, DragSourceStyle.hidden);
+    expect(d.feedback, 'ghost');
+    expect(d.dragAnchor, DragAnchor.center);
+    expect(d.returnSpring, const Spring.physical(stiffness: 300, damping: 14));
+    expect(d.toJson(), {
+      'group': 'cards',
+      'childWhenDragging': 'hidden',
+      'feedback': 'ghost',
+      'dragAnchor': 'center',
+      'returnSpring': {'stiffness': 300},
+    });
+    expect(DragSource.fromJson(d.toJson()), d);
+    // No return spring: `returnSpring: false`, written back as false.
+    final none = DragSource.fromJson({'returnSpring': false})!;
+    expect(none.returnSpring, isNull);
+    expect(none.toJson(), {'returnSpring': false});
+    expect(DragSource.fromJson(none.toJson()), none);
+    // The legacy physics overrides the bool, its spring is the return.
+    expect(
+      DragSource.fromJson({
+        'returnSpring': false,
+        'physics': {'bounce': 0.2, 'duration': 300},
+      })!.returnSpring,
+      const Spring(duration: 300, bounce: 0.2),
+    );
+    // The default: the old 260 / 14 spring (existing documents rely on it).
+    expect(DragSource.fromJson(<String, Object?>{})!.returnSpring, DragSource.defaultSpring);
+    expect(DragSource.fromJson({'feedbackAnchor': 'grab'})!.dragAnchor, DragAnchor.child);
+    expect(DragSource.fromJson({'dragAnchorStrategy': 'pointer'})!.dragAnchor, DragAnchor.center);
+  });
 }

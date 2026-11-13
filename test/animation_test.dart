@@ -103,10 +103,10 @@ void main() {
       expect(m.spring, const Spring.physical(stiffness: 500, damping: 20));
       expect(m.toJson(), {'spring': {'stiffness': 500}});
       expect(Motion.fromJson(m.toJson()), m);
-      // DragSource.springStiffness/Damping (260 / 14).
+      // DragSource.springStiffness/Damping (260 / 14), now its returnSpring.
       final d = DragSource.fromJson({'springDamping': 9})!;
-      expect(d.spring, const Spring.physical(stiffness: 260, damping: 9));
-      expect(d.toJson()['spring'], {'damping': 9});
+      expect(d.returnSpring, const Spring.physical(stiffness: 260, damping: 9));
+      expect(d.toJson()['returnSpring'], {'damping': 9});
       expect(d.toJson().containsKey('springDamping'), isFalse);
       expect(d.effectivePhysics!.effectiveStiffness, 260);
       // Track.settleStiffness/Damping (380 / 20).
