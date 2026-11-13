@@ -130,10 +130,55 @@ Json uiApplyInputSchema(Catalog catalog) => {
       'additionalProperties': false,
     };
 
+/// The `ui_apply` tool's description in the compact tools, whose node
+/// contents the system prompt (the runtime starter) describes.
+const String uiApplyCompactDescription =
+    'Build or change the UI with edit ops, applied in order (the system prompt describes the ops and the nodes). '
+    'Balanced JSON; every child id you list is set in the same call. The result lists rejected ops and pending ids: '
+    'fix them by patching, never start over.';
+
+/// The compact `ui_apply` input schema: the op envelope, strictly (op names,
+/// field names and kinds from [EditOp.specs]); a node is any object, its
+/// contents described by the starter and checked by validation.
+Json uiApplyCompactInputSchema() {
+  final fields = <String, EditOpField>{};
+  for (final s in EditOp.specs) {
+    for (final f in s.fields) {
+      fields.putIfAbsent(f.key, () => f);
+    }
+  }
+  return {
+    'type': 'object',
+    'required': ['ops'],
+    'properties': {
+      'ops': {
+        'type': 'array',
+        'items': {
+          'type': 'object',
+          'required': ['op'],
+          'properties': {
+            for (final f in fields.values)
+              f.key: f.key == 'op' ? {'enum': [for (final s in EditOp.specs) s.op]} : _fieldSchema(f),
+          },
+          'additionalProperties': false,
+        },
+      },
+      'baseRev': {'type': 'integer'},
+      'atomic': {'type': 'boolean'},
+    },
+    'additionalProperties': false,
+  };
+}
+
 /// The `ui_read` tool input's JSON Schema.
 const Json uiReadInputSchema = {
   'type': 'object',
   'properties': {
+    'types': {
+      'type': 'array',
+      'items': {'type': 'string'},
+      'description': 'Node types whose props to describe (one you have not used yet).',
+    },
     'ids': {
       'type': 'array',
       'items': {'type': 'string'},
@@ -147,7 +192,16 @@ const Json uiReadInputSchema = {
 
 /// The two tools, as `{"name", "description", "input_schema"}` (the shape
 /// most providers take; rename `input_schema` for one that differs).
-List<Json> uiTools(Catalog catalog) => [
-      {'name': 'ui_apply', 'description': uiApplyDescription, 'input_schema': uiApplyInputSchema(catalog)},
-      {'name': 'ui_read', 'description': uiReadDescription, 'input_schema': uiReadInputSchema},
+/// [compact]: the op envelope only ([uiApplyCompactInputSchema]), for a
+/// system prompt that describes the nodes (`runtimeStarter`); otherwise
+/// every node type and key of [catalog] is in the schema.
+List<Json> uiTools(Catalog catalog, {bool compact = false}) => [
+      compact
+          ? {'name': 'ui_apply', 'description': uiApplyCompactDescription, 'input_schema': uiApplyCompactInputSchema()}
+          : {'name': 'ui_apply', 'description': uiApplyDescription, 'input_schema': uiApplyInputSchema(catalog)},
+      {'name': 'ui_read', 'description': compact ? uiReadCompactDescription : uiReadDescription, 'input_schema': uiReadInputSchema},
     ];
+
+/// The `ui_read` tool's description in the compact tools.
+const String uiReadCompactDescription =
+    'Read the UI before changing it (the outline, or full nodes by id), or the props of node types ("types").';

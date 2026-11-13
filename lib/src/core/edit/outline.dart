@@ -4,7 +4,9 @@
 import '../document.dart';
 import '../json.dart';
 import '../node.dart';
+import '../catalog.dart';
 import 'apply.dart' show pendingIds;
+import 'starter.dart' show describeTypes;
 
 /// The outline of [document]: `{"rev": rev, "outline": [[id, type, label,
 /// depth, extras?], ...], "pending": [...]}`. The label is the node's name,
@@ -61,12 +63,15 @@ List<Object?> outlineRow(Node n, int depth, {int labelLength = 40}) {
 /// Answers a `ui_read` tool call ([input]: `{"ids": [...], "outline": true}`):
 /// the full nodes asked for (as the document holds them), missing ids,
 /// and the outline when asked or when no ids are given.
-Json readUi(LayoutDocument document, Object? input, {int rev = 0}) {
+Json readUi(LayoutDocument document, Object? input, {int rev = 0, Catalog? catalog}) {
   final m = readMap(input) ?? const {};
   final ids = readStrings(m['ids']);
-  final wantOutline = readBool(m['outline']) ?? ids.isEmpty;
+  final types = readStrings(m['types']);
+  final wantOutline = readBool(m['outline']) ?? (ids.isEmpty && types.isEmpty);
+  final c = catalog ?? document.catalog ?? Catalog.current;
   return {
     'rev': rev,
+    if (types.isNotEmpty) 'types': describeTypes(c, types),
     if (ids.isNotEmpty)
       'nodes': {
         for (final id in ids)
@@ -74,6 +79,6 @@ Json readUi(LayoutDocument document, Object? input, {int rev = 0}) {
       },
     if (ids.any((id) => document[id] == null)) 'missing': [for (final id in ids) if (document[id] == null) id],
     if (wantOutline) ...outline(document, rev: rev),
-    if (m['variables'] == true || ids.isEmpty) 'variables': document.extra['variables'] ?? const {},
+    if (m['variables'] == true || (ids.isEmpty && types.isEmpty)) 'variables': document.extra['variables'] ?? const {},
   };
 }
