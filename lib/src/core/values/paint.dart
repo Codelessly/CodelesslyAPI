@@ -5,7 +5,58 @@ import 'color.dart';
 import 'enums.dart';
 import 'geometry.dart';
 
-enum PaintType { solid, linear, radial, sweep, diamond, image }
+enum PaintType { solid, linear, radial, sweep, diamond, image, noise }
+
+/// SVG `feTurbulence`'s `type`: Perlin noise summed (`fractalNoise`, a soft
+/// grain) or its absolute values summed (`turbulence`, ridged).
+enum NoiseType { fractalNoise, turbulence }
+
+/// A `noise` paint's procedural noise, parameterised as SVG's
+/// `<feTurbulence>` (`baseFrequency`, `numOctaves`, `seed`, `type`): the
+/// texture a web page's grain overlay draws (`filter: url(#grain)`), here
+/// a paint, drawn as a seamless tile repeated over the box.
+@immutable
+final class NoisePaint {
+  const NoisePaint({this.baseFrequency = 0.8, this.numOctaves = 3, this.seed = 0, this.type = NoiseType.fractalNoise});
+
+  /// Lattice cells per pixel (feTurbulence `baseFrequency`): 0.8 is a fine
+  /// film grain, 0.05 soft clouds.
+  final double baseFrequency;
+
+  /// Octaves summed, each twice the frequency at half the amplitude (1–8).
+  final int numOctaves;
+
+  /// The random seed: the same seed draws the same grain.
+  final int seed;
+  final NoiseType type;
+
+  static NoisePaint? fromJson(Object? json) {
+    final m = readMap(json);
+    if (m == null) return null;
+    return NoisePaint(
+      baseFrequency: (readDouble(m['baseFrequency']) ?? 0.8).clamp(0.0, 4.0).toDouble(),
+      numOctaves: (readDouble(m['numOctaves'])?.round() ?? 3).clamp(1, 8),
+      seed: readDouble(m['seed'])?.round() ?? 0,
+      type: readEnum(NoiseType.values, m['type'], NoiseType.fractalNoise),
+    );
+  }
+
+  Json toJson() {
+    final j = <String, Object?>{};
+    put(j, 'baseFrequency', writeDouble(baseFrequency), 0.8);
+    put(j, 'numOctaves', numOctaves, 3);
+    put(j, 'seed', seed, 0);
+    put(j, 'type', type.name, NoiseType.fractalNoise.name);
+    return j;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is NoisePaint && other.baseFrequency == baseFrequency && other.numOctaves == numOctaves && other.seed == seed && other.type == type;
+
+  @override
+  int get hashCode => Object.hash(baseFrequency, numOctaves, seed, type);
+}
 
 /// One gradient stop.
 @immutable
@@ -153,6 +204,8 @@ final class Paint {
     this.begin,
     this.end,
     this.center,
+    this.length,
+    this.noise,
   });
 
   const Paint.solid(Color this.color, {this.id, this.opacity = 1})
@@ -167,7 +220,9 @@ final class Paint {
         radius = null,
         begin = null,
         end = null,
-        center = null;
+        center = null,
+        length = null,
+        noise = null;
 
   final PaintType type;
 
@@ -212,7 +267,18 @@ final class Paint {
   /// `RadialGradient.center`), kept for encoding; [transform] holds it.
   final Alignment? center;
 
-  bool get isGradient => type != PaintType.solid && type != PaintType.image;
+  /// A gradient's length in logical pixels (CSS
+  /// `repeating-linear-gradient(..., 80px)`, Flutter's `ui.Gradient.linear`
+  /// between two points in pixels): linear, from [begin] toward [end];
+  /// radial, its radius. With `tileMode: repeated` the pattern repeats every
+  /// [length] px whatever the box's size. Null: the extent [begin]/[end],
+  /// [radius] or [transform] gives (a share of the box).
+  final double? length;
+
+  /// A `noise` paint's noise (null for other types).
+  final NoisePaint? noise;
+
+  bool get isGradient => type != PaintType.solid && type != PaintType.image && type != PaintType.noise;
 
   /// The solid color with the paint's opacity applied.
   Color? get effectiveColor => color?.multiplyOpacity(opacity);
@@ -253,6 +319,8 @@ final class Paint {
     final type = m['type'] == null
         ? (readMap(m['image']) != null
               ? PaintType.image
+              : readMap(m['noise']) != null
+              ? PaintType.noise
               : (readList(m['stops'])?.isNotEmpty ?? false)
               ? PaintType.linear
               : PaintType.solid)
@@ -284,6 +352,8 @@ final class Paint {
       begin: Alignment.fromJson(m['begin']),
       end: Alignment.fromJson(m['end']),
       center: Alignment.fromJson(m['center']),
+      length: switch (readDouble(m['length'])) { final double l when l > 0 && l.isFinite => l, _ => null },
+      noise: type == PaintType.noise ? (NoisePaint.fromJson(m['noise']) ?? const NoisePaint()) : null,
     );
   }
 
@@ -309,6 +379,8 @@ final class Paint {
     put(j, 'image', image?.toJson());
     put(j, 'gradientPerSubpath', gradientPerSubpath, false);
     put(j, 'radius', radius == null ? null : writeDouble(radius!));
+    put(j, 'length', length == null ? null : writeDouble(length!));
+    if (noise case final n?) j['noise'] = n.toJson();
     return j;
   }
 
@@ -329,10 +401,13 @@ final class Paint {
       other.radius == radius &&
       other.begin == begin &&
       other.end == end &&
-      other.center == center;
+      other.center == center &&
+      other.length == length &&
+      other.noise == noise;
 
   @override
-  int get hashCode => Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius);
+  int get hashCode =>
+      Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius, length, noise);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }
