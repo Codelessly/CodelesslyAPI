@@ -144,7 +144,11 @@ abstract final class ListViewProps {
   static const itemPosition = PropDef<Offset?>('itemPosition', Codecs.optionalOffset, null);
 
   /// Flows the items onto further runs (`Wrap`) instead of one line.
-  static const wrap = PropDef<bool>('wrap', Codecs.bool, false);
+  static const wrap = PropDef<bool>('wrap', Codecs.bool, false,
+      doc: 'Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: '
+          'with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto '
+          'new rows set `"scrollDirection": "horizontal"`. For cards in equal columns from data, a `gridView` with '
+          '`minCrossAxisExtent` is usually what is wanted.');
   static const wrapSpacing = PropDef<double>('wrapSpacing', Codecs.positive, 0);
   static const runSpacing = PropDef<double>('runSpacing', Codecs.positive, 0);
   static const wrapAlignment = PropDef<WrapAlignment>(

@@ -215,27 +215,73 @@ is the entry screen.
 <a id="guide-responsive"></a>
 ## 7. Responsive design
 
+Responsive layout works as on the web: flexbox and grid lay content out so it fits any width, and media queries
+change what must change at a width. Use these, in this order:
+
+1. **Intrinsic layout, no breakpoints.** A wrapping row (CSS `flex-wrap: wrap`) whose children set
+   `layout.basis` (CSS `flex-basis`) and fill the main axis: lines break by the basis, and the children on each line
+   grow (by `flex`, CSS `flex-grow`) to share it. Three `{"fill": n}` cards with `"basis": 280` sit three across at
+   1000 px, two at 700 and one at 390; a text and a photo with `"basis": 320` sit side by side, then stack. For
+   repeated data, a `gridView` with `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`) makes as many
+   equal columns as fit. A content column capped and centered (CSS `max-width` + `margin: auto`) is a `{"fill": n}`
+   width with `constraints.maxWidth`, centered by its parent's `crossAxisAlignment` (`center`, the default). A
+   share of the parent (CSS `width: 60%`) is `layout.widthFactor: 0.6`.
+2. **Media rules** for what must change at a width: direction, order, visibility, type size, padding. A node's
+   `media` is a list of rules, each a CSS media query over the node itself:
+   `{"minWidth": "tablet", "patch": {"props": {"style": {"fontSize": 40}}}}` is
+   `@media (min-width: 600px) { #title { font-size: 40px } }`. `minWidth` and `maxWidth` are pixels (inclusive, as in
+   CSS) or a breakpoint name (`minWidth: "tablet"`: from tablet's min width; `maxWidth: "tablet"`: up to the next
+   breakpoint, so tablet and narrower); `orientation` is `portrait` or `landscape`; all conditions of a rule must
+   hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`) and merged over
+   it (objects merge, `null` removes). Rules apply in order, a later one winning where two set the same field (the
+   CSS cascade): write the node for phones and add `minWidth` rules for wider screens (mobile first), or the other
+   way round with `maxWidth`. Validation checks every patched value as the node's own.
+   - **A row that becomes a column**: a `flex` node (Flutter `Flex`) with `"direction": "horizontal"` and a rule
+     patching `"direction": "vertical"`. Its children stay the same nodes, keeping their state.
+   - **Another order at a width**: each child's `layout.order` (CSS `order`; ascending, equal orders as listed),
+     patched in the child's own rule: `{"maxWidth": "mobile", "patch": {"layout": {"order": -1}}}` puts it first.
+   - **Hidden at a width**: `{"maxWidth": "tablet", "patch": {"visible": false}}`. A hidden node takes no room and
+     no slot (CSS `display: none`).
+   - Precedence: the node's own values, then its media rules, then an active interaction state's patch
+     ([section 11](#guide-states)), then its bindings, then conditions. A field both patched and bound shows the
+     binding (validation warns: `media_overridden`).
+3. **Bindings on `${screen}`** for values computed from the size, the escape hatch:
+   `"bind": {"layout.width": "${= min(screen.width - 32, 760)}"}`. `${screen}` has `width`, `height`,
+   `breakpoint` (the id), `is.<name>` and `atLeast.<name>` (`${= screen.atLeast.tablet ? 3 : 1}`), and
+   `isMobile`/`isTablet`/`isDesktop` (one per breakpoint id). `${screen.width}` prints a decimal (`390.0`);
+   `${= screen.width}` prints `390`. Nothing can check such a formula's result type: prefer media rules.
+4. **A canvas per breakpoint**, only for screens that are genuinely different designs. Canvases with the same
+   `props.screen` are one screen; each sets `props.breakpoint` to the breakpoint it is for. At a given width the
+   screen shows the canvas whose breakpoint's `minWidth` is the highest at or below the width, else its narrowest.
+   Each canvas has its own nodes; share state with `page_variables` ([section 8](#guide-variables)). A `variance`
+   node does the same for one part of a screen.
+
 The project's **breakpoints** name size classes by minimum width. Unless a document's `breakpoints` key says
 otherwise they are:
 
 {{breakpointDefaults}}
 
-There are three tools, which combine:
+This page uses all four web patterns: a header whose links collapse to a menu icon below desktop (media rules on
+`visible`), a 3 → 2 → 1 card grid from data with no breakpoint (`minCrossAxisExtent`), a text-and-photo section
+that stacks with the photo first on phones (`basis` in a wrapping row, the photo's `order` patched), and a title
+whose size steps up with the width (media rules on `fontSize`), inside a content column capped at 1200 and
+centered:
 
-1. **Fluid layout inside one canvas**: `fill` widths, `constraints.maxWidth`, `wrap` rows. Good for small
-   differences.
-2. **A canvas per breakpoint.** Canvases with the same `props.screen` are one screen; each sets
-   `props.breakpoint` to the breakpoint it is the design for. At a given window width the screen shows the canvas
-   whose breakpoint's `minWidth` is the highest at or below the width, else its narrowest. So with mobile and
-   desktop canvases only, an 834 wide tablet shows the mobile canvas. Each canvas has its own nodes (its own ids);
-   share state between them with `page_variables` ([section 8](#guide-variables)).
-3. **A `variance` node**: one node whose `props.variants` each list children for a breakpoint
-   (`{"id", "name", "breakpoint", "children": [...]}`); it shows the variant of the current breakpoint, else of the
-   widest narrower one, else the narrowest. Its `children` lists every variant's children.
+{{example:responsive_web}}
 
-`${screen}` describes the window in expressions: `screen.width`, `screen.height`, `screen.breakpoint` (the id),
-`screen.isMobile`, `screen.isTablet`, `screen.isDesktop` (one per breakpoint id), `screen.atLeast.tablet`,
-`screen.is.mobile`. `${screen.width}` prints a decimal (`390.0`); `${= screen.width}` prints `390`.
+The same page in CSS:
+
+```css
+#nav { display: none } @media (min-width: 1024px) { #nav { display: flex } #menu { display: none } }
+#plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px }
+#split { display: flex; flex-wrap: wrap; gap: 16px 48px } #split > * { flex: 1 1 320px }
+@media (max-width: 599px) { #split-photo { order: -1 } }
+#title { font-size: 32px } @media (min-width: 600px) { #title { font-size: 40px } }
+@media (min-width: 1024px) { #title { font-size: 56px } }
+#content { max-width: 1200px; margin: 0 auto }
+```
+
+Older documents use a canvas per breakpoint:
 
 {{example:responsive}}
 

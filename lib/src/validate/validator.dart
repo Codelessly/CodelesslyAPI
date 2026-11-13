@@ -21,6 +21,7 @@ import '../core/value_fields.dart';
 import '../core/variables.dart';
 import '../core/widgets/canvas.dart';
 import '../core/widgets/flex.dart';
+import '../core/widgets/collections.dart';
 import '../core/values/enums.dart';
 import '../standard_catalog.dart';
 import 'bind_paths.dart';
@@ -456,6 +457,12 @@ final class _Validator {
     _bind(n, raw['bind'], pointer(at, 'bind'));
     _reactions(n, raw['actions'], pointer(at, 'actions'));
     if (raw.containsKey('media')) _media(n, raw['media'], pointer(at, 'media'));
+    if (n.type == 'listView' && n.props.get(ListViewProps.wrap) && n.props.get(CollectionScrollProps.scrollDirection) == Axis.vertical) {
+      r.add(Codes.verticalWrap, pointer(pointer(at, 'props'), 'wrap'),
+          'This wrapping list runs along its scrollDirection (vertical): its items flow top to bottom and wrap into columns. '
+          'For items side by side that wrap onto new rows, set "scrollDirection": "horizontal"; for equal columns from data, use a gridView with "minCrossAxisExtent".',
+          suggestion: 'scrollDirection: horizontal');
+    }
     for (final def in BehaviorFields.all) {
       if (!raw.containsKey(def.key)) continue;
       if (def.key == BehaviorFields.states.key) {
@@ -662,6 +669,13 @@ final class _Validator {
         if (reason != null) {
           r.add(Codes.fitNotAllowed, pointer(at, axis), '${size.fit.name} is not honored here: $reason');
         }
+      }
+      // A spacer without its parent's main-axis size is 0 long: Flutter's
+      // Spacer() fills, so say how to write that.
+      final parentAxis = parent == null ? null : flexAxisOf(parent);
+      if (n.type == 'spacer' && parentAxis != null && (parentAxis == Axis.horizontal) == (axis == 'width') && size.isFixed && size.value == 0) {
+        r.add(Codes.zeroSize, pointer(at, axis),
+            'This spacer has no $axis, so it is 0 long and does nothing. For Flutter\'s Spacer() (the free space of the ${parent!.type}) write "$axis": {"fill": 0}; for a fixed gap, a number (or use the ${parent.type}\'s "spacing").');
       }
       if (size.isFixed && size.value == 0 && !(m?.containsKey(axis) ?? false) && n.type != 'spacer' && n.type != 'canvas') {
         r.add(Codes.zeroSize, pointer(at, axis),
@@ -1272,6 +1286,14 @@ final class _Validator {
         roots = report.paths.map(rootName).nonNulls;
       } else {
         roots = [?rootName(e.source)];
+      }
+      // `${false}`, `${12}`, `${'a'}`: `${...}` reads a name; a literal
+      // value is a formula.
+      if (!e.formula && RegExp(r'''^\s*(true|false|null|-?\d+(\.\d+)?|'.*'|".*")\s*$''').hasMatch(e.source)) {
+        r.add(Codes.unknownName, at,
+            '"\${${e.source}}" reads a variable named "${e.source.trim()}"; "\${...}" only reads names. For the value itself write "\${= ${e.source.trim()}}", or set the field to ${e.source.trim()} without a binding.',
+            suggestion: '\${= ${e.source.trim()}}');
+        continue;
       }
       for (final name in roots) {
         if (declared.contains(name) || runtimeScopes.contains(name)) continue;

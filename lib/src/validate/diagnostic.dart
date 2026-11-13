@@ -91,6 +91,8 @@ abstract final class Codes {
       'A layout field the node\'s parent does not read (x/y outside a stack, flex/align outside a row or column).');
   static const fitNotAllowed = DiagnosticCode('fit_not_allowed', Severity.warning,
       'A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column).');
+  static const verticalWrap = DiagnosticCode('vertical_wrap', Severity.warning,
+      'A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side.');
   static const zeroSize = DiagnosticCode('zero_size', Severity.warning,
       'A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible.');
 
@@ -150,7 +152,7 @@ abstract final class Codes {
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,
     danglingChild, danglingSlot, multipleParents, cycle, unreachableNode, unknownSlot, childrenNotAllowed, slotsNotAllowed,
-    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize,
+    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap,
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,

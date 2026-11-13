@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 52); // invalid_media, media_overridden: test/media_test.dart
+    expect(Codes.all.length, 53); // invalid_media, media_overridden: test/media_test.dart
   });
 
   group('document', () {
@@ -227,6 +227,23 @@ void main() {
       node(d, 'box').remove('layout');
       expectOne(d, Codes.zeroSize, path: '/nodes/box/layout/width');
     });
+    test('vertical_wrap; a wrapping list keeps its items\' sizes (no fit_not_allowed)', () {
+      final d = base();
+      nodes(d)['list'] = <String, Object?>{'type': 'listView', 'children': ['it'], 'layout': {'width': {'fill': 390}, 'height': {'hug': 40}}, 'props': <String, Object?>{'wrap': true}};
+      nodes(d)['it'] = {'type': 'box', 'layout': {'width': 120, 'height': {'hug': 40}}};
+      (node(d, 'col')['children'] as List).add('list');
+      expect(validateDocument(d).map((x) => x.code.name), ['vertical_wrap']);
+      (node(d, 'list')['props'] as Map)['scrollDirection'] = 'horizontal';
+      expect(validateDocument(d), isEmpty);
+    });
+    test('zero_size: a spacer with no main-axis size is 0 long (Flutter Spacer() is {"fill": 0})', () {
+      final d = base();
+      nodes(d)['sp'] = {'type': 'spacer'};
+      (node(d, 'col')['children'] as List).add('sp');
+      final found = withCode(d, Codes.zeroSize);
+      expect(found.map((x) => x.path), ['/nodes/sp/layout/height']);
+      expect(found.single.message, contains('{"fill": 0}'));
+    });
   });
 
   group('bindings and expressions', () {
@@ -255,6 +272,11 @@ void main() {
       final d = base();
       (node(d, 'title')['props'] as Map)['text'] = r'${cuont} clicks';
       expectOne(d, Codes.unknownName, suggestion: 'count');
+    });
+    test('unknown_name for a literal in \${...}: says to write \${= ...}', () {
+      final d = base();
+      node(d, 'title')['bind'] = {'visible': r'${false}'};
+      expectOne(d, Codes.unknownName, suggestion: r'${= false}');
     });
     test('unknown_name in a formula, with a formula checker', () {
       final d = base();
