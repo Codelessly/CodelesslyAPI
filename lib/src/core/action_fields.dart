@@ -395,7 +395,9 @@ abstract final class ControlTransformFields {
 
 /// [ScrollToAction].
 abstract final class ScrollToFields {
-  static const node = PropDef<String>('node', Codecs.string, '');
+  static const node = PropDef<String>('node', Codecs.string, '',
+      doc: 'The node to reveal: its id, or an expression giving one (`"cmp-col-\${cmpCol + 1}"`). A node that is not on '
+          'screen when the action runs is reported as an action error, not skipped silently.');
   static const item = PropDef<String>('item', Codecs.string, '',
       doc: 'For a repeated node: the key (or index) of the list item whose copy to reveal.');
   static const durationMs = PropDef<int>('durationMs', Codecs.int, 400);

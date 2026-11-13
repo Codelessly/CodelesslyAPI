@@ -8,8 +8,8 @@ import 'values/paint.dart';
 /// Which sides a box's stroke runs along: every side (rounded with the
 /// corners), one side, a pair of opposite sides (a ruled band), two sides
 /// meeting at a corner (`topRight`: the top and right sides, as a table's
-/// header corner), or every side but one (`noTop`), as Flutter's `Border`
-/// takes any of its sides.
+/// header corner), every side but one (`noTop`), or none, as Flutter's
+/// `Border` takes any of its sides.
 enum StrokeSides {
   all,
   left,
@@ -25,7 +25,11 @@ enum StrokeSides {
   noTop,
   noRight,
   noBottom,
-  noLeft;
+  noLeft,
+
+  /// No side: Flutter's `Border()` (every side `BorderSide.none`), CSS
+  /// `border-style: none`; for a stroke bound or patched off.
+  none;
 
   /// The sides it strokes, of `top`, `right`, `bottom` and `left`.
   Set<String> get sides => switch (this) {
@@ -44,6 +48,7 @@ enum StrokeSides {
         noRight => const {'top', 'bottom', 'left'},
         noBottom => const {'top', 'right', 'left'},
         noLeft => const {'top', 'right', 'bottom'},
+        none => const {},
       };
 }
 

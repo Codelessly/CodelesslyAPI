@@ -940,16 +940,22 @@ final class _Validator {
       return;
     }
     for (var i = 0; i < json.length; i++) {
-      final p = pointer(at, i);
-      final m = readMap(json[i]);
+      _reaction(json[i], pointer(at, i));
+    }
+  }
+
+  /// One reaction of a list of them, at [p].
+  void _reaction(Object? json, String p) {
+    {
+      final m = readMap(json);
       if (m == null) {
         r.add(Codes.invalidReaction, p, 'A reaction is an object {"trigger": {"type": "click"}, "actions": [...]}.');
-        continue;
+        return;
       }
       if (!m.containsKey('trigger') && m['type'] is String) {
         r.add(Codes.invalidReaction, p,
             'This is an action, not a reaction: wrap it as {"trigger": {"type": "click"}, "actions": [${'{"type": "${m['type']}", ...}'}]}.');
-        continue;
+        return;
       }
       for (final k in m.keys) {
         if (!const {'id', 'name', 'trigger', 'actions'}.contains(k)) {
@@ -1466,7 +1472,13 @@ final class _Validator {
   /// Free-form JSON whose meaning the validator knows.
   bool _jsonHook(PropDef<Object?>? def, PropType type, Object? json, String path) {
     if (type.name == 'Reaction') {
-      _reactions(nodes[r.node] ?? const Node(id: '', type: ''), json, path);
+      // One item of a List<Reaction> (an input icon's, a navigation
+      // destination's actions), or a whole list given as one value.
+      if (json is List) {
+        _reactions(nodes[r.node] ?? const Node(id: '', type: ''), json, path);
+      } else {
+        _reaction(json, path);
+      }
       return true;
     }
     return false;

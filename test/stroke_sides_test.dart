@@ -10,6 +10,7 @@ void main() {
     }
     expect(StrokeSides.bottomRight.sides, {'right', 'bottom'});
     expect(StrokeSides.noTop.sides, {'right', 'bottom', 'left'});
-    expect({for (final s in StrokeSides.values) (s.sides.toList()..sort()).join(',')}.length, 15);
+    expect({for (final s in StrokeSides.values) (s.sides.toList()..sort()).join(',')}.length, 16);
+    expect(StrokeSides.none.sides, isEmpty, reason: 'a stroke bound or patched off: Flutter\'s Border()');
   });
 }

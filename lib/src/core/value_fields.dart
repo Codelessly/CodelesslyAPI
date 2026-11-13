@@ -215,6 +215,25 @@ abstract final class PaintFields {
       doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width "
           "(as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): "
           'end a glow on a transparent stop, or it fills the rest of the box.');
+  /// A gradient's length in pixels (CSS `repeating-linear-gradient(..., 80px)`).
+  static const length = PropDef<double?>('length', Codecs.optionalPositive, null,
+      doc: 'A gradient\'s length in logical pixels, whatever the box\'s size: linear, from `begin` toward `end` (only their '
+          'direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: '
+          'CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is '
+          '`{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": '
+          '[{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, '
+          '{"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints).');
+
+  /// A `noise` paint's noise (SVG `feTurbulence`).
+  static const noise = PropDef<NoisePaint?>(
+    'noise',
+    ValueCodec(_noiseIn, _out, PropType.object('NoisePaint', noisePaintFields)),
+    null,
+    doc: 'Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, '
+        '"type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise '
+        'channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` '
+        '(`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box.',
+  );
   static const List<PropDef<Object?>> all = [
     type,
     id,
@@ -231,7 +250,25 @@ abstract final class PaintFields {
     image,
     gradientPerSubpath,
     radius,
+    length,
+    noise,
   ];
+}
+
+NoisePaint? _noiseIn(Object? j) => NoisePaint.fromJson(j);
+
+List<PropDef<Object?>> noisePaintFields() => NoisePaintFields.all;
+
+/// [NoisePaint]: SVG `feTurbulence`'s attributes.
+abstract final class NoisePaintFields {
+  static const baseFrequency = PropDef<double>('baseFrequency', DoubleCodec(min: 0, max: 4), 0.8,
+      doc: 'Lattice cells per pixel (feTurbulence `baseFrequency`): 0.8 a fine grain, 0.05 soft clouds.');
+  static const numOctaves = PropDef<int>('numOctaves', IntCodec(min: 1), 3,
+      doc: 'Octaves summed, each twice the frequency at half the amplitude.');
+  static const seed = PropDef<int>('seed', Codecs.int, 0, doc: 'The random seed: the same seed draws the same grain.');
+  static const type = PropDef<NoiseType>('type', EnumCodec(NoiseType.values), NoiseType.fractalNoise,
+      doc: '`fractalNoise` (a soft grain) or `turbulence` (ridged).');
+  static const List<PropDef<Object?>> all = [baseFrequency, numOctaves, seed, type];
 }
 
 List<PropDef<Object?>> paintFields() => PaintFields.all;
