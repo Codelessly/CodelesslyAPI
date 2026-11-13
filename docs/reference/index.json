@@ -3,11 +3,11 @@
   "base": {
     "files": {
       "file": "STARTER.md",
-      "words": 5510
+      "words": 5577
     },
     "runtime": {
       "file": "RUNTIME_STARTER.md",
-      "words": 5636
+      "words": 5684
     }
   },
   "topics": [
@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 6937
+      "words": 7021
     },
     {
       "topic": "layout-layout-fields",
@@ -105,7 +105,7 @@
       "anchor": "layout-overlap-and-bleed",
       "title": "Overlap and bleed",
       "summary": "**Overlapping a neighbour** (CSS `margin-top: -36px`, `transform: translateY(-36px)`): Flutter's answer is `Transform.translate`: `\"motion\": {\"translateY\": -36}` moves what the node paints, not its layout, so the next node does not move up; a node later in its parent paints over the ones before it.",
-      "words": 173
+      "words": 205
     },
     {
       "topic": "layout-scrolling",
@@ -121,7 +121,7 @@
       "anchor": "layout-a-sticky-header-or-column",
       "title": "A sticky header or column",
       "summary": "A header that stays at the top while the page scrolls under it: the scrolling column's first child with `\"sticky\": {\"offset\": 0}` (CSS `position: sticky`); it is drawn above the content and is pushed on by the end of its parent.",
-      "words": 145
+      "words": 197
     },
     {
       "topic": "layout-a-canvas-per-breakpoint",
@@ -137,7 +137,7 @@
       "anchor": "page-theme",
       "title": "Theme and text",
       "summary": "A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction).",
-      "words": 1949
+      "words": 1958
     },
     {
       "topic": "theme-theme-keys",
@@ -153,7 +153,7 @@
       "anchor": "theme-named-colours-and-styles",
       "title": "Named colours and styles",
       "summary": "- **Colours**: `colors` maps a name to `\"#AARRGGBB\"` (or to another colour's name: `\"accent\": \"ember\"`).",
-      "words": 130
+      "words": 139
     },
     {
       "topic": "theme-a-type-scale-that-changes-with-the-screen-size",
@@ -201,7 +201,7 @@
       "anchor": "page-decoration",
       "title": "Decoration, images, icons and drawing",
       "summary": "What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing.",
-      "words": 3873
+      "words": 3939
     },
     {
       "topic": "decoration-decoration-fields",
@@ -240,8 +240,8 @@
       "file": "decoration.md",
       "anchor": "decoration-borders-rules-and-shadows",
       "title": "Borders, rules and shadows",
-      "summary": "`strokes` with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`, `outside`), `strokeSides` (`all`, `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`).",
-      "words": 58
+      "summary": "A node's border is painted with its own box, **under its children**: a child with a fill covers an `inside` border (the default).",
+      "words": 103
     },
     {
       "topic": "decoration-a-scrim-over-a-photo",
@@ -281,7 +281,7 @@
       "anchor": "page-forms",
       "title": "Buttons, forms and inputs",
       "summary": "Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard.",
-      "words": 10127
+      "words": 10159
     },
     {
       "topic": "forms-triggers",
@@ -313,7 +313,7 @@
       "anchor": "forms-validation-and-an-error-state",
       "title": "Validation and an error state",
       "summary": "Keep the values in variables, set a `tried` flag on submit, and show errors from computed variables: bind `props.decoration.errorText` (the field turns to its `errorBorder` and shows the text) or a separate text's `visible`.",
-      "words": 134
+      "words": 166
     },
     {
       "topic": "forms-a-stepper-around-a-field",
@@ -369,7 +369,7 @@
       "anchor": "page-lists",
       "title": "Lists, grids, tables and repeated data",
       "summary": "Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering.",
-      "words": 5750
+      "words": 6101
     },
     {
       "topic": "lists-triggers",
@@ -393,7 +393,7 @@
       "anchor": "lists-a-grid-of-cards",
       "title": "A grid of cards",
       "summary": "For cards in columns from one list inside a scrolling page, use a `gridView` with `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `\"shrinkWrapRows\": true` and `\"physics\": \"never\"` (it lays out every item and the page scrolls).",
-      "words": 72
+      "words": 92
     },
     {
       "topic": "lists-equal-height-cards",
@@ -425,7 +425,7 @@
       "anchor": "lists-a-weekly-grid",
       "title": "A weekly grid",
       "summary": "Seven columns of days from data: a `gridView` with `\"crossAxisCount\": 7` bound to the days (`${= range(7)}`, or a computed list of `{day, done}` records), each cell a box whose fill is bound to the item.",
-      "words": 64
+      "words": 339
     },
     {
       "topic": "lists-a-carousel-pages-and-pagination",
@@ -505,7 +505,7 @@
       "anchor": "page-state",
       "title": "State and logic",
       "summary": "Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts.",
-      "words": 6257
+      "words": 6372
     },
     {
       "topic": "state-variables",
@@ -641,7 +641,7 @@
       "anchor": "state-a-streak-and-other-counts-from-data",
       "title": "A streak and other counts from data",
       "summary": "Derive, do not store: a computed variable over the records.",
-      "words": 54
+      "words": 144
     },
     {
       "topic": "state-changing-state-from-a-reaction",
@@ -649,7 +649,7 @@
       "anchor": "state-changing-state-from-a-reaction",
       "title": "Changing state from a reaction",
       "summary": "`setVariable` with `op`: `set` (default), `toggle`, `add` (a number adds; a list appends; a map merges), `subtract`, `insert` / `removeAt` / `update` at `index`, `remove`.",
-      "words": 68
+      "words": 93
     },
     {
       "topic": "state-setting-several-nodes-with-a-condition",
@@ -673,7 +673,7 @@
       "anchor": "page-interaction",
       "title": "Interaction: reactions, states and gestures",
       "summary": "What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics.",
-      "words": 5101
+      "words": 5120
     },
     {
       "topic": "interaction-trigger-fields",
@@ -705,7 +705,7 @@
       "anchor": "interaction-reactions",
       "title": "Reactions",
       "summary": "A node's `actions` is a list of **reactions**: a trigger and the chain of actions it runs, in order.",
-      "words": 175
+      "words": 194
     },
     {
       "topic": "interaction-hover-press-and-other-states",
@@ -753,7 +753,7 @@
       "anchor": "page-animation",
       "title": "Animation and motion",
       "summary": "Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games.",
-      "words": 4524
+      "words": 4536
     },
     {
       "topic": "animation-triggers",
@@ -945,7 +945,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 6502
+      "words": 6522
     },
     {
       "topic": "charts-progress-from-state",
@@ -1185,7 +1185,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2249
+      "words": 2341
     },
     {
       "topic": "render-what-it-does",
@@ -1201,7 +1201,7 @@
       "anchor": "render-steps-before-the-capture",
       "title": "Steps before the capture",
       "summary": "In order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another node is reported, not made), `--hover <id>`, `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`.",
-      "words": 142
+      "words": 234
     },
     {
       "topic": "render-validation-codes",
@@ -1398,6 +1398,11 @@
       "anchor": "decoration-a-scrim-over-a-photo"
     },
     {
+      "need": "A border hidden by a child's fill (paint order)",
+      "file": "decoration.md",
+      "anchor": "decoration-borders-rules-and-shadows"
+    },
+    {
       "need": "Images (local files, cover, aspect ratio)",
       "file": "decoration.md",
       "anchor": "decoration-images"
@@ -1468,7 +1473,7 @@
       "anchor": "lists-one-template-from-data"
     },
     {
-      "need": "A grid of cards from data, as many columns as fit",
+      "need": "A grid of cards from data, as many columns as fit; gaps between wrapped items",
       "file": "lists.md",
       "anchor": "lists-a-grid-of-cards"
     },

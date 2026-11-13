@@ -1021,7 +1021,8 @@ Keep the values in variables, set a `tried` flag on submit, and show errors from
     "border": {"type": "outline", "borderRadius": 8}, "errorBorder": {"type": "outline", "borderRadius": 8, "borderSide": {"color": "#FFDC2626"}}}}}
 ```
 
-A form submitted to a service: `submitForm` ([data](data.md#page-data)).
+Give a field that may show an error a hug height (`{"hug": 56}`): it grows by the error line, and the form with it;
+a fixed height keeps the field that tall. A form submitted to a service: `submitForm` ([data](data.md#page-data)).
 
 <a id="forms-a-stepper-around-a-field"></a>
 ### A stepper around a field

@@ -463,8 +463,8 @@ physics and game loops. Keep the state in variables and the work in a script whe
 - `motion` and `scale` do not change layout: neighbours do not move. To make room, animate a layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
-- Animations run in a running app; the render command captures the frame at the moment of capture (`--wait <ms>`
-  to let one finish).
+- Animations run in a running app. The render command settles about a second after each step, so a short
+  animation is over when it captures; to check one mid-flight, lengthen its duration in a copy.
 
 <a id="animation-see-also"></a>
 ## See also

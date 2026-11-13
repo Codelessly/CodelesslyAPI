@@ -38,6 +38,7 @@ section's anchor is its topic.
 | Background grid lines, a repeating pattern in pixels, grain | [decoration.md#decoration-a-pattern-in-pixels-a-background-grid-grain](decoration.md#decoration-a-pattern-in-pixels-a-background-grid-grain) |
 | A border on one side, a rule under a text, dashed borders, shadows, frosted glass | [decoration.md#decoration-borders-rules-and-shadows](decoration.md#decoration-borders-rules-and-shadows) |
 | A dark gradient over a photo with a caption | [decoration.md#decoration-a-scrim-over-a-photo](decoration.md#decoration-a-scrim-over-a-photo) |
+| A border hidden by a child's fill (paint order) | [decoration.md#decoration-borders-rules-and-shadows](decoration.md#decoration-borders-rules-and-shadows) |
 | Images (local files, cover, aspect ratio) | [decoration.md#decoration-images](decoration.md#decoration-images) |
 | Icons, their size and style | [decoration.md#decoration-icons](decoration.md#decoration-icons) |
 | A star, sparkle or other mark the font does not have; a custom shape | [decoration.md#decoration-small-marks-and-shapes](decoration.md#decoration-small-marks-and-shapes) |
@@ -52,7 +53,7 @@ section's anchor is its topic.
 | A button's label, colours, corners and label size | [forms.md#forms-buttons](forms.md#forms-buttons) |
 | Every prop of a text field | [forms.md#node-textField](forms.md#node-textField) |
 | Repeat one template per item of a list | [lists.md#lists-one-template-from-data](lists.md#lists-one-template-from-data) |
-| A grid of cards from data, as many columns as fit | [lists.md#lists-a-grid-of-cards](lists.md#lists-a-grid-of-cards) |
+| A grid of cards from data, as many columns as fit; gaps between wrapped items | [lists.md#lists-a-grid-of-cards](lists.md#lists-a-grid-of-cards) |
 | Nested lists; the outer item inside the inner list (`parent`) | [lists.md#lists-nested-lists](lists.md#lists-nested-lists) |
 | A comparison table from one row and one cell template | [lists.md#lists-a-table-from-one-template](lists.md#lists-a-table-from-one-template) |
 | A weekly grid (days × habits) | [lists.md#lists-a-weekly-grid](lists.md#lists-a-weekly-grid) |
@@ -103,18 +104,18 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](STARTER.md) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4191 |
-| [layout.md](layout.md) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 6937 |
-| [theme.md](theme.md) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1949 |
-| [decoration.md](decoration.md) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3873 |
-| [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10127 |
-| [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 5750 |
+| [STARTER.md](STARTER.md) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4241 |
+| [layout.md](layout.md) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7021 |
+| [theme.md](theme.md) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1958 |
+| [decoration.md](decoration.md) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
+| [forms.md](forms.md) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
+| [lists.md](lists.md) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](navigation.md) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6257 |
-| [interaction.md](interaction.md) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5101 |
-| [animation.md](animation.md) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4524 |
+| [state.md](state.md) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6372 |
+| [interaction.md](interaction.md) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
+| [animation.md](animation.md) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
 | [components.md](components.md) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2288 |
-| [charts.md](charts.md) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6502 |
+| [charts.md](charts.md) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6522 |
 | [data.md](data.md) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
 | [auth.md](auth.md) | The `auth` feature library: signing app users in, up and out, and managing their account, with `${auth}` to show who is signed in. | 468 |
 | [commerce.md](commerce.md) | The `commerce` feature library: a paywall screen's interactions (buy, restore, select a product, close, open a legal link). | 439 |
@@ -122,7 +123,7 @@ section's anchor is its topic.
 | [engage.md](engage.md) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](publish.md) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](edit-ops.md) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](render.md) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2249 |
+| [render.md](render.md) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2341 |
 | [values.md](values.md) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 12872 |
 
 <a id="index-a-z"></a>
