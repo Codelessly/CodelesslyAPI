@@ -23,7 +23,10 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-flight"></a>
 <a id="behavior-draggable"></a>
 <a id="behavior-dropTarget"></a>
-<a id="behavior-drag"></a>
+<a id="behavior-track"></a>
+<a id="behavior-dismissible"></a>
+<a id="behavior-pan"></a>
+<a id="behavior-reorderHandle"></a>
 <a id="behavior-reveal"></a>
 <a id="behavior-strokePath"></a>
 <a id="behavior-typewriter"></a>
@@ -53,7 +56,10 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `flight` | [Flight](values.md#type-Flight) | unset |  | How it flies there (`flightKey`); null flies on the node's spring. |
 | `draggable` | [DragSource](values.md#type-DragSource) | unset |  |  |
 | `dropTarget` | [DropTarget](values.md#type-DropTarget) | unset |  |  |
-| `drag` | [DragMotion](values.md#type-DragMotion) | unset |  |  |
+| `track` | [Track](values.md#type-Track) | unset |  | A value set by dragging (Flutter's `Slider`, along any path). |
+| `dismissible` | [DismissibleBehavior](values.md#type-DismissibleBehavior) | unset |  | Swiped away (Flutter's `Dismissible`). |
+| `pan` | [Pan](values.md#type-Pan) | unset |  | Follows the pointer. |
+| `reorderHandle` | bool | `false` |  | A reorderable list row's drag handle (`ReorderableDragStartListener`). |
 | `reveal` | [Reveal](values.md#type-Reveal) | unset |  |  |
 | `strokePath` | [StrokePath](values.md#type-StrokePath) | unset |  |  |
 | `typewriter` | [Typewriter](values.md#type-Typewriter) | unset |  | A text that types itself out in a running app. |
@@ -67,5 +73,5 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [Track](values.md#type-Track), [DismissibleBehavior](values.md#type-DismissibleBehavior), [Pan](values.md#type-Pan), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 

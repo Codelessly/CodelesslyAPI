@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -757,7 +757,7 @@ Types: `integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`,
 - A text that is exactly one expression gives its value with its type (a number stays a number, a list a list);
   any other text with `${...}` is text with the values inserted.
 
-Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
+Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
 above; `item` and `index` exist inside a list's item ([section 13](#guide-lists)); `result` is what the previous
 action of a chain gave.
 
@@ -3503,42 +3503,32 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `isComplex`: bool = `false`
 - `willChange`: bool = `false`
 
-<a id="type-DragMotion"></a>
-### DragMotion
+<a id="type-DismissibleBehavior"></a>
+### DismissibleBehavior
 
+- `enabled`: bool = `true`
+- `directions`: List<[DragDirection](#enum-DragDirection)> = `["left","right"]` (`left`, `right`, `up`, `down`)
 - `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
-- `release`: [DragRelease](#enum-DragRelease) = `"snapBack"` (`snapBack`, `stay`, `dismiss`)
-- `directions`: List<[DragDirection](#enum-DragDirection)> = `["left","right","up","down"]` (`left`, `right`, `up`, `down`)
-- `distanceThreshold`: double = `0.35`
-- `verticalThreshold`: double = unset
-- `velocityThreshold`: double = `800`
+- `dismissThresholds`: DismissThresholds = `{}`
+- `flingVelocity`: double = `700` (≥ 0)
+- `resistance`: double = `0` (≥ 0, ≤ 1)
+- `movementDuration`: int = `200` (≥ 0)
+- `curve`: [AnimationCurve](#enum-AnimationCurve) = `"linear"`
+- `returnDuration`: int = unset
+- `returnCurve`: [AnimationCurve](#enum-AnimationCurve) = unset
+- `returnSpring`: [Spring](#type-Spring) = unset
+- `restX`: double = `0`
+- `restY`: double = `0`
+- `xVariable`: String = `""`
+- `yVariable`: String = `""`
+- `flyOutRotate`: double = `0`
 - `rotateFactor`: double = `0`
 - `originX`: double = `0`
 - `originY`: double = `0`
-- `resistance`: double = `0`
-- `snapBack`: int = `450` (≥ 0)
-- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"spring"`
-- `flyOut`: int = `320` (≥ 0)
-- `flyOutCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeIn"`
-- `flyOutDistance`: double = unset
-- `flyOutRotate`: double = `0`
-- `enabled`: bool = `true`
 - `shakeWhenDisabled`: bool = `false`
 - `disabledFollow`: double = `0`
 - `shareAs`: String = `""`
-- `restX`: double = `0`
-- `restY`: double = `0`
-- `track`: [DragTrack](#type-DragTrack) = unset
-- `reorder`: bool = `false`
 - `follow`: bool = `true`
-- `xVariable`: String = `""`
-- `yVariable`: String = `""`
-- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
-- `bounds`: [GestureBounds](#enum-GestureBounds) = `"none"` (`none`, `contain`, `cover`)
-- `minX`: double = unset
-- `maxX`: double = unset
-- `minY`: double = unset
-- `maxY`: double = unset
 
 <a id="type-DragSource"></a>
 ### DragSource
@@ -3559,60 +3549,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `spring`: [Spring](#type-Spring) = `{}`
 - `enabled`: bool = `true`
 - `physics`: [GesturePhysics](#type-GesturePhysics) = unset
-
-<a id="type-DragTrack"></a>
-### DragTrack
-
-- `variable`: String = `""`
-- `shape`: [DragTrackShape](#enum-DragTrackShape) = `"line"` (`line`, `arc`, `path`)
-- `min`: double = `0`
-- `max`: double = `1`
-- `step`: double = `0`
-- `defaultValue`: double = unset
-- `input`: [DragTrackInput](#enum-DragTrackInput) = `"follow"` (`follow`, `vertical`, `horizontal`, `both`)
-- `pixelsPerRange`: double = `200`
-- `x1`: double = `0`
-- `y1`: double = `0`
-- `x2`: double = `0`
-- `y2`: double = `-100`
-- `startAngle`: double = `-135`
-- `endAngle`: double = `135`
-- `pivotX`: double = `0`
-- `pivotY`: double = `0`
-- `rotate`: bool = `true`
-- `path`: String = unset
-- `orientToPath`: bool = `false`
-- `jumpOnTap`: bool = `false`
-- `wheel`: bool = `true`
-- `value`: double = unset
-- `orientUpright`: bool = `false`
-- `detent`: double = `0` (≥ 0, ≤ 1)
-- `overscroll`: double = `0` (≥ 0, ≤ 1)
-- `settle`: int = `0` (≥ 0)
-- `settleCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
-- `settleSpring`: [Spring](#type-Spring) = `{}`
-- `parkedProgress`: double = unset
-- `keyboard`: bool = `true`
-- `viewBoxWidth`: double = `0` (≥ 0)
-- `viewBoxHeight`: double = `0` (≥ 0)
-- `relative`: bool = `false`
-- `wheelStep`: double = unset
-- `doubleTapValues`: List<double> = `[]`
-- `keyStep`: double = unset
-- `hitArea`: [DragTrackHitArea](#enum-DragTrackHitArea) = `"self"` (`self`, `parent`)
-- `units`: [DragTrackUnits](#enum-DragTrackUnits) = `"pixels"` (`pixels`, `parent`)
-- `fineStep`: double = `0` (≥ 0)
-- `finePixelsPerRange`: double = `0` (≥ 0)
-- `fineHold`: int = `380` (≥ 0)
-- `fineVariable`: String = `""`
-- `snap`: int = `0` (≥ 0)
-- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
-- `write`: bool = `true`
-- `endless`: bool = `false`
-- `momentum`: bool = `false`
-- `friction`: double = `2.6`
-- `smooth`: bool = `false`
-- `gain`: double = `1`
 
 <a id="type-DropTarget"></a>
 ### DropTarget
@@ -3994,6 +3930,32 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `gradientPerSubpath`: bool = `false`
 - `radius`: double = unset (≥ 0)
 
+<a id="type-Pan"></a>
+### Pan
+
+- `enabled`: bool = `true`
+- `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
+- `release`: [PanRelease](#enum-PanRelease) = `"snapBack"` (`snapBack`, `stay`)
+- `returnDuration`: int = `450` (≥ 0)
+- `returnCurve`: [AnimationCurve](#enum-AnimationCurve) = `"spring"`
+- `x`: double = `0`
+- `y`: double = `0`
+- `xVariable`: String = `""`
+- `yVariable`: String = `""`
+- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
+- `bounds`: [GestureBounds](#enum-GestureBounds) = `"none"` (`none`, `contain`, `cover`)
+- `minX`: double = unset
+- `maxX`: double = unset
+- `minY`: double = unset
+- `maxY`: double = unset
+- `rotateFactor`: double = `0`
+- `originX`: double = `0`
+- `originY`: double = `0`
+- `shakeWhenDisabled`: bool = `false`
+- `disabledFollow`: double = `0`
+- `shareAs`: String = `""`
+- `follow`: bool = `true`
+
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter
 
@@ -4234,6 +4196,61 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `drag`: bool = `true`
 - `reset`: int = `400` (≥ 0)
 - `curve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
+
+<a id="type-Track"></a>
+### Track
+
+- `enabled`: bool = `true`
+- `variable`: String = `""`
+- `shape`: [TrackShape](#enum-TrackShape) = `"line"` (`line`, `arc`, `path`)
+- `min`: double = `0`
+- `max`: double = `1`
+- `step`: double = `0`
+- `defaultValue`: double = unset
+- `input`: [TrackInput](#enum-TrackInput) = `"follow"` (`follow`, `vertical`, `horizontal`, `both`)
+- `pixelsPerRange`: double = `200`
+- `x1`: double = `0`
+- `y1`: double = `0`
+- `x2`: double = `0`
+- `y2`: double = `-100`
+- `startAngle`: double = `-135`
+- `endAngle`: double = `135`
+- `pivotX`: double = `0`
+- `pivotY`: double = `0`
+- `rotate`: bool = `true`
+- `path`: String = unset
+- `orientToPath`: bool = `false`
+- `jumpOnTap`: bool = `false`
+- `wheel`: bool = `true`
+- `value`: double = unset
+- `orientUpright`: bool = `false`
+- `detent`: double = `0` (≥ 0, ≤ 1)
+- `overscroll`: double = `0` (≥ 0, ≤ 1)
+- `settle`: int = `0` (≥ 0)
+- `settleCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
+- `settleSpring`: [Spring](#type-Spring) = `{}`
+- `parkedProgress`: double = unset
+- `keyboard`: bool = `true`
+- `viewBoxWidth`: double = `0` (≥ 0)
+- `viewBoxHeight`: double = `0` (≥ 0)
+- `relative`: bool = `false`
+- `wheelStep`: double = unset
+- `doubleTapValues`: List<double> = `[]`
+- `keyStep`: double = unset
+- `hitArea`: [TrackHitArea](#enum-TrackHitArea) = `"self"` (`self`, `parent`)
+- `units`: [TrackUnits](#enum-TrackUnits) = `"pixels"` (`pixels`, `parent`)
+- `fineStep`: double = `0` (≥ 0)
+- `finePixelsPerRange`: double = `0` (≥ 0)
+- `fineHold`: int = `380` (≥ 0)
+- `fineVariable`: String = `""`
+- `snap`: int = `0` (≥ 0)
+- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
+- `write`: bool = `true`
+- `endless`: bool = `false`
+- `momentum`: bool = `false`
+- `friction`: double = `2.6`
+- `smooth`: bool = `false`
+- `gain`: double = `1`
 
 <a id="type-TransformGesture"></a>
 ### TransformGesture
@@ -4545,11 +4562,6 @@ Written as the value's name, a JSON string (`"center"`).
 
 `left`, `right`, `up`, `down`
 
-<a id="enum-DragRelease"></a>
-### DragRelease
-
-`snapBack`, `stay`, `dismiss`
-
 <a id="enum-DragSourceStyle"></a>
 ### DragSourceStyle
 
@@ -4559,26 +4571,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### DragStart
 
 `press`, `longPress`, `auto`
-
-<a id="enum-DragTrackHitArea"></a>
-### DragTrackHitArea
-
-`self`, `parent`
-
-<a id="enum-DragTrackInput"></a>
-### DragTrackInput
-
-`follow`, `vertical`, `horizontal`, `both`
-
-<a id="enum-DragTrackShape"></a>
-### DragTrackShape
-
-`line`, `arc`, `path`
-
-<a id="enum-DragTrackUnits"></a>
-### DragTrackUnits
-
-`pixels`, `parent`
 
 <a id="enum-DropSlot"></a>
 ### DropSlot
@@ -4794,6 +4786,11 @@ Written as the value's name, a JSON string (`"center"`).
 ### PaintType
 
 `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
+
+<a id="enum-PanRelease"></a>
+### PanRelease
+
+`snapBack`, `stay`
 
 <a id="enum-ParticleShape"></a>
 ### ParticleShape
@@ -5060,6 +5057,26 @@ Written as the value's name, a JSON string (`"center"`).
 
 `replace`, `add`, `multiply`
 
+<a id="enum-TrackHitArea"></a>
+### TrackHitArea
+
+`self`, `parent`
+
+<a id="enum-TrackInput"></a>
+### TrackInput
+
+`follow`, `vertical`, `horizontal`, `both`
+
+<a id="enum-TrackShape"></a>
+### TrackShape
+
+`line`, `arc`, `path`
+
+<a id="enum-TrackUnits"></a>
+### TrackUnits
+
+`pixels`, `parent`
+
 <a id="enum-TransformPan"></a>
 ### TransformPan
 
@@ -5157,7 +5174,10 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-flight"></a>
 <a id="behavior-draggable"></a>
 <a id="behavior-dropTarget"></a>
-<a id="behavior-drag"></a>
+<a id="behavior-track"></a>
+<a id="behavior-dismissible"></a>
+<a id="behavior-pan"></a>
+<a id="behavior-reorderHandle"></a>
 <a id="behavior-reveal"></a>
 <a id="behavior-strokePath"></a>
 <a id="behavior-typewriter"></a>
@@ -5185,7 +5205,10 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 - `flight`: [Flight](#type-Flight) = unset
 - `draggable`: [DragSource](#type-DragSource) = unset
 - `dropTarget`: [DropTarget](#type-DropTarget) = unset
-- `drag`: [DragMotion](#type-DragMotion) = unset
+- `track`: [Track](#type-Track) = unset
+- `dismissible`: [DismissibleBehavior](#type-DismissibleBehavior) = unset
+- `pan`: [Pan](#type-Pan) = unset
+- `reorderHandle`: bool = `false`
 - `reveal`: [Reveal](#type-Reveal) = unset
 - `strokePath`: [StrokePath](#type-StrokePath) = unset
 - `typewriter`: [Typewriter](#type-Typewriter) = unset
@@ -5199,7 +5222,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 - `measure`: [Measure](#type-Measure) = unset
 - `customPaint`: [CustomPaint](#type-CustomPaint) = unset
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [DragMotion](#type-DragMotion), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
 
 ---
 
@@ -5768,11 +5791,11 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 
-Names an expression may start with besides the screen's variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`.
+Names an expression may start with besides the screen's variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`.
 
 ---
 
