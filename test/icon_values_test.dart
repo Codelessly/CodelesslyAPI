@@ -7,11 +7,11 @@ import 'package:test/test.dart';
 
 void main() {
   const material = {'type': 'MATERIAL_ICON', 'name': 'search', 'style': 'filled'};
-  test('InputIcon.icon reads a name string, as props.icon does', () {
+  test('an input icon given as a name reads as the icon prop does', () {
     expect(InputIcon.fromJson({'icon': 'search'})!.icon, material);
     expect(Node.fromJson({'type': 'icon', 'props': {'icon': 'search'}}, id: 'i')!.prop(IconProps.icon), material);
   });
-  test('an untyped {"name"} is the Material icon it names', () {
+  test('an icon given only by name is the Material icon of that name', () {
     expect(InputIcon.fromJson({'icon': {'name': 'search'}})!.icon, material);
     expect(Node.fromJson({'type': 'icon', 'props': {'icon': {'name': 'menu', 'style': 'rounded'}}}, id: 'i')!.prop(IconProps.icon),
         {'type': 'MATERIAL_ICON', 'name': 'menu', 'style': 'rounded'});

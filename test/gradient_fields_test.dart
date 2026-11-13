@@ -21,11 +21,11 @@ void main() {
     {'position': 0, 'color': '#FFFF0000'},
     {'position': 1, 'color': '#00FF0000'},
   ];
-  test('begin/end and center/radius validate', () {
+  test('a gradient\'s begin, end, center and radius validate', () {
     expect(codes(doc({'type': 'linear', 'begin': [-1, 0], 'end': [-0.9, 0], 'tileMode': 'repeated', 'stops': stops})), isEmpty);
     expect(codes(doc({'type': 'radial', 'center': 'topCenter', 'radius': 0.8, 'stops': stops})), isEmpty);
   });
-  test('center is read into the transform: the gradient center at the alignment', () {
+  test('a gradient\'s center is read into its transform', () {
     final p = Paint.fromJson({'type': 'radial', 'center': [0, -1], 'stops': stops})!;
     // u = x + 0.5 - 0.5, v = y + 0.5 - 0: the top edge's middle maps to (0.5, 0.5).
     expect(p.transform, [1, 0, 0, 0, 1, 0.5]);

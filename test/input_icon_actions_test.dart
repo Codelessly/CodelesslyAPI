@@ -29,7 +29,7 @@ void main() {
         },
       };
 
-  test('a clear-field "×": a reaction list validates', () {
+  test('an input icon\'s reactions, such as a clear button, validate', () {
     expect(validateDocument(doc([
       {'trigger': {'type': 'click'}, 'actions': [{'type': 'setVariable', 'variable': 'query', 'value': ''}]},
     ])), isEmpty);

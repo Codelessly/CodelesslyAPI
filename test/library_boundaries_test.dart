@@ -68,13 +68,13 @@ Set<String> _closure(String entry) {
 }
 
 void main() {
-  test('the import graph was read', () {
+  test('the import graph of the library is found', () {
     expect(_uris.keys.where(_isCore).length, greaterThan(40));
     expect(_uris.keys.where((f) => _featureOf(f) != null).map(_featureOf).toSet(),
         {'data', 'auth', 'commerce', 'media', 'engage', 'publish', 'managed'});
   });
 
-  test('(1) the core imports nothing but the core', () {
+  test('the core imports nothing but the core', () {
     final bad = [
       for (final file in _uris.keys.where(_isCore))
         for (final to in _targets(file))
@@ -84,7 +84,7 @@ void main() {
     expect(bad, isEmpty);
   });
 
-  test('(2) a feature imports the core, itself and its listed dependencies', () {
+  test('a feature imports only the core, itself and its listed dependencies', () {
     final bad = [
       for (final file in _uris.keys)
         if (_featureOf(file) case final String feature)
@@ -102,7 +102,7 @@ void main() {
     expect(packages, isEmpty);
   });
 
-  test('(3) core.dart compiles no feature; each feature library only itself and its dependencies', () {
+  test('the core library compiles no feature, and each feature library only itself and its dependencies', () {
     final core = _closure('lib/core.dart');
     expect(core.where((f) => !_external(f) && !_isCore(f) && f != 'lib/core.dart'), isEmpty);
     for (final feature in ['data', 'auth', 'commerce', 'media', 'engage', 'publish', 'managed']) {
@@ -121,7 +121,7 @@ void main() {
     expect(_exceptions, isEmpty);
   });
 
-  test('(4) with the core catalog, feature types decode whole and re-encode byte for byte', () {
+  test('with only the core catalog, feature types are kept whole and write back byte for byte', () {
     final json = {
       'schema': 3,
       'roots': ['c'],

@@ -158,7 +158,7 @@ void main() {
     expect(OpStreamDecoder().close().diagnostics.single.code, 'missing_field');
   });
 
-  test('decodeOpStream over a Stream', () async {
+  test('operations decode from a stream of text chunks', () async {
     final got = await decodeOpStream(Stream.fromIterable(_chunks(text, Random(1)))).toList();
     expect(got.length, ops.length);
   });

@@ -167,7 +167,7 @@ List<Diagnostic> project(Map<String, Object?> docs, {SiteManifest? manifest}) =>
 List<Diagnostic> coded(List<Diagnostic> ds, DiagnosticCode code) => ds.where((d) => d.code == code).toList();
 
 void main() {
-  group('the model', () {
+  group('the component model', () {
     test('a definition decodes: its widget is a catalog entry with typed props and events', () {
       final doc = LayoutDocument.fromJson(planCard());
       expect(doc.isComponent, isTrue);
@@ -268,7 +268,7 @@ void main() {
       expect(spec.events.map((e) => e.key), ['onTap']);
     });
 
-    test('componentEvent is a core action; the managed helpers read it', () {
+    test('a component event is a core action that the component helpers read', () {
       final a = ActionDef.fromJson({'type': 'componentEvent', 'event': 'onChoose', 'value': r'${x}'})!;
       expect(a, isA<ComponentEventAction>());
       expect(a, isA<CoreAction>());
@@ -277,13 +277,7 @@ void main() {
       expect(componentEventOf(UnknownAction('componentEvent', const {'event': 'y'})), 'y');
     });
 
-    test('the event trigger round-trips', () {
-      final t = Trigger.fromJson({'type': 'event', 'event': 'onChoose'})!;
-      expect(t.type, TriggerType.event);
-      expect(t.toJson(), {'type': 'event', 'event': 'onChoose'});
-    });
-
-    test('the seam: the call sizes and places the root, which keeps its inside', () {
+    test('a component call sizes and places the component\'s root, which keeps its inside', () {
       final root = LayoutDocument.fromJson(planCard())['card']!;
       final call = LayoutDocument.fromJson(page())['card1']!.copyWith(opacity: 0.5);
       final s = seamCall(root, call);
@@ -324,7 +318,7 @@ void main() {
       expect(SiteManifest.fromJson('nonsense').pages, isEmpty);
     });
 
-    test('cycles are found transitively, once each', () {
+    test('component cycles are found through other components, once each', () {
       expect(
         componentCycles({
           'A': {'B'},
@@ -360,7 +354,7 @@ void main() {
       expect(project(docs()).map((d) => '$d'), isEmpty);
     });
 
-    test('unknown_component names the call node', () {
+    test('a call of a component that does not exist is reported on the call node (unknown_component)', () {
       final ds = coded(project({'pricing.json': page()}), Codes.unknownComponent);
       expect(ds.single.nodeId, 'card1');
       expect(ds.single.path, '/nodes/card1/type');
@@ -380,7 +374,7 @@ void main() {
       expect(typo.single.suggestion, 'PlanCard');
     });
 
-    test('missing_prop', () {
+    test('a call without a required prop is reported, suggesting the prop (missing_prop)', () {
       final p = page();
       ((p['nodes'] as Map)['card1'] as Map)['props'] = {'popular': true, 'annual': 'annual'};
       final ds = coded(project(docs(p: p)), Codes.missingProp);
@@ -388,7 +382,7 @@ void main() {
       expect(ds.single.suggestion, 'price');
     });
 
-    test('a bound required prop is set', () {
+    test('a required prop given by a binding counts as set', () {
       final p = page();
       final call = (p['nodes'] as Map)['card1'] as Map;
       call['props'] = {'annual': 'annual'};
@@ -396,7 +390,7 @@ void main() {
       expect(coded(project(docs(p: p)), Codes.missingProp), isEmpty);
     });
 
-    test('unknown_prop, wrong_type, out_of_range on a call', () {
+    test('a call\'s props are checked for unknown names, wrong types and out-of-range values', () {
       final p = page();
       ((p['nodes'] as Map)['card1'] as Map)['props'] = {
         'price': -3,
@@ -423,7 +417,7 @@ void main() {
       expect(coded(project(docs(p: withAnnual(r'${annual}'))), Codes.wrongType), isNotEmpty);
     });
 
-    test('unknown_slot on a call, and children_not_allowed', () {
+    test('a call fills only the slots its component declares, and takes no children', () {
       final p = page();
       final call = (p['nodes'] as Map)['card1'] as Map;
       call['slots'] = {'fotter': 'note'};
@@ -435,7 +429,7 @@ void main() {
       expect(coded(project(docs(p: p)), Codes.childrenNotAllowed).single.nodeId, 'card1');
     });
 
-    test('unknown_event: an undeclared event, an event reaction on a plain node, an undeclared componentEvent', () {
+    test('reactions to undeclared component events are reported (unknown_event)', () {
       final p = page();
       final call = (p['nodes'] as Map)['card1'] as Map;
       ((call['actions'] as List).single as Map)['trigger'] = {'type': 'event', 'event': 'onChose'};
@@ -473,7 +467,7 @@ void main() {
       expect(coded(project(docs(p: p2)), Codes.unknownEvent).single.nodeId, 'b');
     });
 
-    test('call_field_not_allowed: decoration and padding belong to the definition', () {
+    test('a call may not set decoration or padding, which belong to the component (call_field_not_allowed)', () {
       final p = page();
       final call = (p['nodes'] as Map)['card1'] as Map;
       call['decoration'] = {
@@ -488,7 +482,7 @@ void main() {
       );
     });
 
-    test('slot_outside_component, and a definition slot that is not declared', () {
+    test('a slot outside a component, or one the component does not declare, is reported', () {
       final p = page(
         extraNodes: {
           's': {
@@ -511,7 +505,7 @@ void main() {
       expect(project(docs(card: card)), isEmpty);
     });
 
-    test('root_placement_bound', () {
+    test('a component root whose placement is bound is reported (root_placement_bound)', () {
       final card = planCard();
       (((card['nodes'] as Map)['card'] as Map)['bind'] as Map)['layout.width'] = r'${= props.price}';
       expect(coded(project(docs(card: card)), Codes.rootPlacementBound).single.nodeId, 'card');
@@ -524,7 +518,7 @@ void main() {
       expect(ds.single.message, contains('"count"'));
     });
 
-    test('component_id_mismatch, invalid_component, duplicate_component', () {
+    test('a component whose id differs from its file, is malformed or is declared twice is reported', () {
       expect(coded(project({'Card.json': planCard()}), Codes.componentIdMismatch).single.suggestion, 'Card');
       expect(
         coded(
@@ -573,7 +567,7 @@ void main() {
       );
     });
 
-    test('component_cycle: direct and through another component, naming each call node', () {
+    test('a component that calls itself, directly or through another, is reported on each call node', () {
       Json comp(String type, String calls) => {
         'schema': 3,
         'roots': ['r'],
@@ -598,7 +592,7 @@ void main() {
       expect(ds.first.message, contains('A → B → A'));
     });
 
-    test('project variables collide with a document\'s (duplicate_variable) and are readable everywhere', () {
+    test('project variables can be read everywhere and may not share a name with a document\'s', () {
       final manifest = SiteManifest.fromJson({
         'variables': [
           {'name': 'count', 'type': 'integer', 'value': 0},

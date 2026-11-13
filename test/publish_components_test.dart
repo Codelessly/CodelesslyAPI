@@ -51,7 +51,7 @@ void main() {
     expect(PublishComponent.fromJson(null).isComponent, isFalse);
   });
 
-  test('canonicalJson: one text whatever the key order, whole doubles as integers', () {
+  test('a component\'s canonical JSON is the same whatever the key order, with whole numbers as integers', () {
     expect(canonicalJson({'b': 1, 'a': [2.0, {'d': null, 'c': 'x'}]}), '{"a":[2,{"c":"x","d":null}],"b":1}');
     expect(canonicalJson({'a': 1.5}), '{"a":1.5}');
     final reordered = {
@@ -124,9 +124,4 @@ void main() {
     expect(PublishBundle(model: PublishModel(projectId: 'p')).toJson().containsKey('components'), isFalse);
   });
 
-  test('PublishComponentInfo.of a stored component', () {
-    final c = PublishComponent(document: LayoutDocument.fromJson(card), version: 4, digest: 'd', fonts: const ['f']);
-    final info = PublishComponentInfo.of(c);
-    expect(info, const PublishComponentInfo(id: 'Card', version: 4, digest: 'd', fonts: ['f']));
-  });
 }

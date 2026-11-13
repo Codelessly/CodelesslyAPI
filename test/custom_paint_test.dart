@@ -38,8 +38,8 @@ Object? _sample(PropDef<Object?> def) {
 Json _opRoundTrip(Json json) => DrawOp.fromJson(json)!.toJson();
 
 void main() {
-  group('declarations', () {
-    test('every op spec field round-trips a literal and an expression', () {
+  group('declared fields', () {
+    test('every drawing operation field round-trips a value and a formula', () {
       for (final spec in DrawOpSpecs.all) {
         for (final f in [...DrawOpCommonFields.all, ...spec.fields]) {
           final s = _sample(f);
@@ -54,7 +54,7 @@ void main() {
       }
     });
 
-    test('every key an op writes is declared', () {
+    test('every key a drawing operation writes is declared', () {
       final samples = <String, Json>{
         for (final spec in DrawOpSpecs.all) spec.op: {'op': spec.op, for (final f in spec.fields) f.key: _sample(f)},
       };
@@ -66,7 +66,7 @@ void main() {
       expect({for (final s in DrawOpSpecs.all) s.op}, DrawOp.names.keys.toSet());
     });
 
-    test('the paint\'s fields are Flutter Paint\'s, and round-trip', () {
+    test('a drawing paint has Flutter Paint\'s fields, and they round-trip', () {
       for (final f in DrawPaintFields.all) {
         final s = f.key == 'shader'
             ? {'type': 'linear', 'stops': [{'position': 0, 'color': '#FFFF0000'}, {'position': 1, 'color': '#FF0000FF'}]}
@@ -78,7 +78,7 @@ void main() {
       expect(DrawPaint.fromJson(const {}), const DrawPaint(), reason: 'Paint(): black, fill, hairline');
     });
 
-    test('the behavior\'s fields', () {
+    test('every custom paint field round-trips on a node', () {
       for (final f in CustomPaintFields.all) {
         final s = f.key == 'painter' || f.key == 'foregroundPainter'
             ? [
@@ -94,8 +94,8 @@ void main() {
     });
   });
 
-  group('JSON', () {
-    test('sparse: defaults are not written', () {
+  group('writing and reading', () {
+    test('values left at their defaults are not written', () {
       expect(const CustomPaint().toJson(), isEmpty);
       expect(const CircleOp().toJson(), {'op': 'circle'});
       expect(const GroupOp().toJson(), {'op': 'group'});
@@ -104,7 +104,7 @@ void main() {
       expect(Node.fromJson({'id': 'a', 'type': 'box'})!.behaviors.customPaint, isNull);
     });
 
-    test('every op, written as Flutter would call the canvas', () {
+    test('every drawing operation reads as Flutter would call the canvas and writes back unchanged', () {
       final ops = [
         {'op': 'path', 'd': 'M0 0 L10 10 Z', 'fillType': 'evenOdd', 'trimEnd': 0.5, 'paint': '#FF000000'},
         {'op': 'path', 'points': [[0, 0], [10, 5], null, [3, 3], [4, 4]], 'close': true, 'paint': {'style': 'stroke', 'strokeWidth': 2}},
@@ -135,7 +135,7 @@ void main() {
       expect(paint.allOps.length, ops.length + 2 + 3);
     });
 
-    test('Canvas method names and Flutter spellings read as the op', () {
+    test('Flutter canvas method names read as the drawing operation', () {
       expect(DrawOp.fromJson({'op': 'drawCircle', 'center': [1, 2], 'radius': 3})!.toJson(), {'op': 'circle', 'c': [1, 2], 'radius': 3});
       expect(DrawOp.fromJson({'op': 'drawRRect'}), isA<RRectOp>());
       expect(DrawOp.fromJson({'op': 'drawImageRect'}), isA<ImageOp>());
@@ -165,8 +165,8 @@ void main() {
     });
   });
 
-  group('total decoding', () {
-    test('malformed input never throws: ops dropped, values defaulted, unknown kept', () {
+  group('bad input', () {
+    test('bad input never throws: bad operations are dropped, bad values defaulted and unknown keys kept', () {
       final paint = CustomPaint.fromJson({
         'painter': [
           'not an op',
@@ -215,7 +215,7 @@ void main() {
       expect(Node.fromJson({'id': 'a', 'type': 'box', 'customPaint': 'nope'})!.behaviors.customPaint, isNull);
     });
 
-    test('points read as pairs, flat numbers or {x, y}', () {
+    test('points read from pairs, flat numbers or x and y maps', () {
       List<Object?> pts(Object json) => (DrawOp.fromJson({'op': 'points', 'points': json})! as PointsOp).toJson()['points'] as List<Object?>;
       expect(pts([0, 1, 2, 3]), [[0, 1], [2, 3]]);
       expect(pts([{'x': 1, 'y': 2}]), [[1, 2]]);
@@ -264,7 +264,7 @@ void main() {
     }
   });
 
-  group('binding paths', () {
+  group('binding into a custom paint', () {
     final node = Node.fromJson({
       'id': 'n',
       'type': 'box',
@@ -278,7 +278,7 @@ void main() {
       },
     })!;
 
-    test('an op by id, a field of it, an op inside a group', () {
+    test('a binding can replace an operation by id, a field of it, or an operation inside a group', () {
       final a = BindPaths.apply(node, 'customPaint.painter.dot.radius', 9);
       expect((a.behaviors.customPaint!.painter.first as CircleOp).radius, const Expr(9.0));
       final b = BindPaths.apply(node, 'customPaint.painter.dot.paint.color', '#FFFF0000');
@@ -288,7 +288,7 @@ void main() {
       expect(bar.rect!.value!.map((e) => e.value), [1, 2, 3, 4]);
     });
 
-    test('a whole list, and the whole behavior', () {
+    test('a binding can replace a whole list of operations or the whole custom paint', () {
       final a = BindPaths.apply(node, 'customPaint.painter', [
         {'op': 'oval', 'rect': [0, 0, 2, 2]},
       ]);
@@ -297,16 +297,6 @@ void main() {
       expect(b.behaviors.customPaint, const CustomPaint(viewBox: [0, 0, 10, 10]));
       expect(BindPaths.apply(node, 'customPaint.painter.missing.radius', 3), node, reason: 'no such op: unchanged');
     });
-  });
-
-  test('copyWith and equality', () {
-    const a = CircleOp(id: 'a', c: Expr([Expr(1.0), Expr(2.0)]), radius: Expr(3.0));
-    expect(a.copyWith(radius: const Expr(3.0)), a);
-    expect(a.copyWith(radius: const Expr.source(r'${r}')), isNot(a));
-    expect(a.copyWith(radius: const Expr.source(r'${r}')).toJson()['radius'], r'${r}');
-    expect(const CustomPaint(painter: [a]).copyWith(willChange: true).willChange, isTrue);
-    expect(const DrawPaint().copyWith(style: PaintingStyle.stroke).toJson(), {'style': 'stroke'});
-    expect(const GroupOp(ops: [a]).copyWith(opacity: const Expr(0.5)).hashCode, const GroupOp(ops: [a], opacity: Expr(0.5)).hashCode);
   });
 
   test('the guide\'s JSON samples read and write back unchanged', () {

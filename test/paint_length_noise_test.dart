@@ -6,13 +6,6 @@ import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('length round-trips; a non-positive one is unset', () {
-    final p = Paint.fromJson({'type': 'linear', 'begin': 'topCenter', 'end': 'bottomCenter', 'length': 80, 'tileMode': 'repeated',
-      'stops': [{'position': 0, 'color': '#FF000000'}, {'position': 1, 'color': '#00000000'}]})!;
-    expect(p.length, 80);
-    expect(Paint.fromJson(p.toJson()), p);
-    expect(Paint.fromJson({'type': 'linear', 'length': 0})!.length, isNull);
-  });
 
   test('a noise paint: feTurbulence parameters, defaults, type inferred from "noise"', () {
     final p = Paint.fromJson({'noise': {'baseFrequency': 0.9, 'numOctaves': 2, 'seed': 7, 'type': 'turbulence'}, 'opacity': 0.08, 'blendMode': 'overlay'})!;

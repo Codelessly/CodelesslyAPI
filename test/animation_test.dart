@@ -74,8 +74,8 @@ double _v(NodeAnimation a, String track, double t) =>
 }
 
 void main() {
-  group('Spring', () {
-    test('physical, or by duration and bounce (Flutter\'s formulas)', () {
+  group('springs', () {
+    test('a spring is set by its physical constants or by duration and bounce, with Flutter\'s formulas', () {
       const physical = Spring.physical(stiffness: 200, damping: 30, mass: 2);
       expect((physical.effectiveStiffness, physical.effectiveDamping), (200, 30));
       const perceptual = Spring(duration: 500, bounce: 0.3);
@@ -88,13 +88,13 @@ void main() {
       expect(Spring.fromJson({'stiffness': 200, 'damping': 30, 'mass': 2}), physical);
     });
 
-    test('a constant left out takes the owner\'s default; written sparse over it', () {
+    test('a spring constant left out takes its owner\'s default and is not written', () {
       final s = Spring.fromJson({'stiffness': 200}, fallback: FlipCard.defaultSpring)!;
       expect((s.stiffness, s.damping), (200, 36));
       expect(s.toJsonOver(FlipCard.defaultSpring), {'stiffness': 200});
     });
 
-    test('the six legacy shapes read as it, with their defaults', () {
+    test('the six older spring shapes read as one spring with their defaults', () {
       // FlipSpring (380 / 36 / 1).
       expect(FlipCard.fromJson({'spring': {'damping': 20}})!.spring, const Spring.physical(stiffness: 380, damping: 20));
       expect(FlipCard.fromJson({})!.spring, const Spring.physical(stiffness: 380, damping: 36));
@@ -125,7 +125,7 @@ void main() {
       expect(GesturePhysics.fromJson(b.toJson()), b);
     });
 
-    test('gesture physics presets keep their springs; flat keys under a preset as before', () {
+    test('gesture physics presets keep their springs, and a preset still ignores flat spring keys', () {
       final gentle = GesturePhysics.fromJson({'preset': 'gentle'})!;
       expect(gentle.spring, const Spring(duration: 450));
       // A bounce preset ignored a flat stiffness, as the legacy reader did.
@@ -138,8 +138,8 @@ void main() {
     });
   });
 
-  group('NodeAnimation', () {
-    test('an animation with two tracks round-trips', () {
+  group('node animations', () {
+    test('an animation\'s tracks run between their ends over their intervals, and round-trip', () {
       const json = {
         'id': 'enter',
         'duration': 700,
@@ -163,7 +163,7 @@ void main() {
       expect(readDouble(a.tracks[1].valueAt(0.165, own: 1)), closeTo(AnimationCurve.easeOut.transform(0.5), 1e-9));
     });
 
-    test('decoding is total and lenient; encoding sparse', () {
+    test('an animation with bad or loosely written values still loads, and writes only what is set', () {
       final a = NodeAnimation.fromJson({'name': 'x', 'repeat': true, 'tracks': '[{"path": "opacity", "to": 0}]', 'paused': 'on'})!;
       expect(a.id, 'x');
       expect(a.repeat, AnimationRepeat.forever);
@@ -175,7 +175,7 @@ void main() {
       expect(const NodeAnimation(id: 'a').toJson(), {'id': 'a'});
     });
 
-    test('keyframes are a TweenSequence; colors interpolate; other values switch at the end', () {
+    test('keyframes play in sequence, colors blend, and other values switch at the end', () {
       const t = AnimationTrack(path: 'motion.rotate', from: 0, keyframes: [
         Keyframe(at: 0.5, value: 10, curve: AnimationCurve.easeIn),
         Keyframe(at: 1, value: 0),
@@ -188,7 +188,7 @@ void main() {
       expect(AnimationTrack.lerpValue('a', 'b', 1), 'b');
     });
 
-    test('a preset stays short in JSON; expanded it is tracks, its fields over the preset\'s', () {
+    test('a preset is written short and expands to tracks, its own values over the preset\'s', () {
       final n = _node({
         'animations': [
           {'id': 'halo', 'preset': 'pulse', 'params': {'scaleTo': 1.4, 'opacityTo': 0}, 'duration': 1600},
@@ -211,8 +211,8 @@ void main() {
     });
   });
 
-  group('legacy loops', () {
-    test('each type expands to tracks giving its old pose', () {
+  group('older loop animations', () {
+    test('each loop type plays the same pose it did before', () {
       // LoopAnimation.poseAt: scale/opacity lerp, turns·c, sin(2πc)·angle,
       // -sin(πc)·distance.
       for (final c in [0.0, 0.1, 0.25, 0.4, 0.5, 0.77, 1.0]) {
@@ -230,7 +230,7 @@ void main() {
       }
     });
 
-    test('timing: duration, delay, curve, reverse, enabled, phase less lag', () {
+    test('a loop keeps its timing, and its lag folds into its phase', () {
       final a = legacyLoop(
           {'type': 'fade', 'duration': 500, 'delay': 30, 'curve': 'easeIn', 'reverse': true, 'enabled': false, 'phase': 0.3, 'lag': 100},
           2)!;
@@ -243,7 +243,7 @@ void main() {
       expect(legacyLoop({'type': 'scale', 'lag': 250}, 0)!.phase, 0.75);
     });
 
-    test('bindings into loops address the animation; phase and lag become one formula', () {
+    test('bindings into a loop move to its animation, and phase and lag become one formula', () {
       final n = _node({
         'loops': [
           {'type': 'pulse', 'duration': 500, 'reverse': true},
@@ -276,8 +276,8 @@ void main() {
     });
   });
 
-  group('legacy effects', () {
-    test('each type expands to tracks giving its old pose exactly', () {
+  group('older effect animations', () {
+    test('each effect type plays exactly the pose it did before', () {
       for (final type in ['shake', 'bounce', 'pop', 'wiggle', 'jelly', 'flash']) {
         for (final (amount, cycles) in [(1.0, 0.0), (1.7, 5.0)]) {
           final a = legacyEffect({'name': 'e', 'type': type, 'amount': amount, 'cycles': cycles}, 0)!;
@@ -295,7 +295,7 @@ void main() {
       }
     });
 
-    test('spin turns once on its curve; keyframes run from rest and back', () {
+    test('a spin effect turns once on its curve, and a keyframe effect runs from rest and back', () {
       final spin = legacyEffect({'name': 's', 'type': 'spin', 'amount': 2, 'duration': 600}, 0)!;
       final e = spin.expanded;
       expect((e.repeat, e.effectiveCurve, e.autoplays, e.durationMs), (AnimationRepeat.once, AnimationCurve.easeInOutCubic, false, 600));
@@ -317,7 +317,7 @@ void main() {
       expect(hop.expanded.effectiveCurve, AnimationCurve.easeOut);
     });
 
-    test('cue, appear, origin and delay carry over; bindings follow the name', () {
+    test('an effect keeps its cue, autoplay, origin and delay, and its bindings follow its name', () {
       final n = _node({
         'effectAnimations': [
           {'name': 'nudge', 'type': 'shake', 'playOnAppear': true, 'originX': -1, 'delay': 40, 'playKey': 'k'},
@@ -333,7 +333,7 @@ void main() {
     });
   });
 
-  test('motion.pulseKey (never played before) is a play-key animation through the keyframes', () {
+  test('a motion\'s pulse key becomes an animation that plays its keyframes when the key changes', () {
     final n = _node({
       'motion': {
         'duration': 280,
@@ -353,8 +353,8 @@ void main() {
     expect((n.toJson()['motion']! as Map).containsKey('pulseKey'), isFalse);
   });
 
-  group('animate action', () {
-    test('reads playAnimation and every animateVariable mode', () {
+  group('the animate action', () {
+    test('older play-animation and animate-variable actions read as the animate action', () {
       final play = legacyAction({'type': 'playAnimation', 'node': 'n', 'animation': 'pop', 'nonBlocking': true}) as AnimateAction;
       expect(play.toJson(), {'type': 'animate', 'node': 'n', 'animation': 'pop', 'from': '0', 'nonBlocking': true});
       AnimateAction v(Json j) => legacyAction({'type': 'animateVariable', 'variable': 't', ...j}) as AnimateAction;
@@ -373,7 +373,7 @@ void main() {
   });
 
   group('triggers', () {
-    test('the clock is a timer: every → intervalMs, runWhen → when; lookaheadMs dropped', () {
+    test('an older clock trigger reads as a timer with the same interval and guard', () {
       final t = legacyTrigger({'type': 'clock', 'every': 'period', 'runWhen': 'playing', 'lookaheadMs': 50});
       expect(t.type, TriggerType.timer);
       expect(t.intervalMs, const Expr<int>.source(r'${= period}'));
@@ -383,7 +383,7 @@ void main() {
       expect(legacyTrigger({'type': 'clock'}).effectiveIntervalMs, isNull);
     });
 
-    test('timer intervals are numbers or expressions; a frame ticker has a guard', () {
+    test('a timer\'s interval is a number or a formula with a lower limit, and a frame trigger can be guarded', () {
       expect(Trigger.fromJson({'type': 'timer'})!.effectiveIntervalMs, 1000);
       expect(Trigger.fromJson({'type': 'timer', 'intervalMs': 5})!.effectiveIntervalMs, Trigger.minIntervalMs);
       final e = Trigger.fromJson({'type': 'timer', 'intervalMs': r'${= 60000 / bpm}'})!;

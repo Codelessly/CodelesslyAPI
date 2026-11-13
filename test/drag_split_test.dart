@@ -12,7 +12,7 @@ import 'legacy_support.dart';
 Node _node(Json j) => legacyNode(j);
 
 void main() {
-  test('a drag with a track is the track; drag.enabled is its enabled', () {
+  test('an older drag with a track becomes the track, switched by the drag\'s enabled', () {
     final n = _node({
       'drag': {
         'enabled': false,
@@ -32,7 +32,7 @@ void main() {
     expect(_node(out), n);
   });
 
-  test('drag.reorder is a reorder handle', () {
+  test('an older reordering drag becomes a reorder handle', () {
     final n = _node({
       'drag': {'reorder': true},
     });
@@ -42,7 +42,7 @@ void main() {
     expect(n.toJson().containsKey('drag'), isFalse);
   });
 
-  test('a dismissing drag is a dismissible with its old defaults written out', () {
+  test('an older dismissing drag becomes a dismissible with its old defaults written out', () {
     final n = _node({
       'drag': {
         'release': 'dismiss',
@@ -108,7 +108,7 @@ void main() {
     expect(DismissibleBehavior.fromJson(j)!.toJson(), j);
   });
 
-  test('any other drag is a pan', () {
+  test('any other older drag becomes a pan', () {
     final n = _node({
       'drag': {
         'axis': 'vertical',
@@ -145,7 +145,7 @@ void main() {
     expect(_node({'drag': <String, Object?>{}}).behaviors.pan, const Pan());
   });
 
-  test('legacy drag binding paths address the behavior the drag became', () {
+  test('bindings into an older drag move to the behavior it became', () {
     final card = _node({
       'drag': {'release': 'dismiss'},
       'bind': {
@@ -183,7 +183,7 @@ void main() {
     expect(_node({'drag': <String, Object?>{}}).extra, isEmpty);
   });
 
-  test("draggable takes Flutter's names; one return spring", () {
+  test("a draggable takes Flutter's names and has one return spring", () {
     final d = legacyDraggable({
       'group': 'cards',
       'whileDragging': 'hidden',
@@ -222,7 +222,7 @@ void main() {
     expect(legacyDraggable({'dragAnchorStrategy': 'pointer'})!.dragAnchor, DragAnchor.center);
   });
 
-  test('controlDrag reads as the typed action of its command', () {
+  test('an older drag control action reads as the typed action of its command', () {
     ActionDef read(Json j) => legacyAction({'type': 'controlDrag', 'node': 'k', ...j});
     expect(read({'command': 'step', 'steps': '-2', 'direction': 'left'}), const ControlTrackAction(node: 'k', steps: '-2'));
     expect(read({}), const ControlDismissibleAction(node: 'k'));
@@ -244,7 +244,7 @@ void main() {
     expect(ActionDef.fromJson(pose.toJson()), pose);
   });
 
-  test('track special-case keys read into generic ones', () {
+  test('a track\'s special-case keys read into general ones', () {
     // A combination dial (safecracker): endless, momentum, a gain round its arc.
     final dial = legacyTrack({
       'shape': 'arc', 'variable': 'dial', 'max': 40, 'step': 1, 'startAngle': 0, 'endAngle': 360, //

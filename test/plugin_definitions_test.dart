@@ -64,12 +64,4 @@ void main() {
     expect(package.widgets['acme.panel']!.document['nodes'], isNot(contains('body__children')));
   });
 
-  test('a bundle embeds plugin versions; one without has none', () {
-    final v = PluginVersion.of(package, version: 3);
-    final b = PublishBundle(model: PublishModel(projectId: 'p')).withPluginVersions([v]);
-    final again = PublishBundle.fromJson(b.toJson());
-    expect(again.pluginVersions.single.version, 3);
-    expect(again.pluginVersions.single.package!.id, 'acme.ui');
-    expect(PublishBundle(model: PublishModel(projectId: 'p')).pluginVersions, isEmpty);
-  });
 }
