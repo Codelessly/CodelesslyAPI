@@ -299,7 +299,7 @@ final class NavigationDestination {
 // --- field declarations ---------------------------------------------------------
 //
 // The models' fields as PropDefs (JSON keys, codecs, defaults): what a
-// properties panel edits. test/value_fields_test.dart checks them against
+// properties panel edits. test/document/declared_fields_test.dart checks them against
 // the models' own JSON.
 
 Object? _out(Object? v) => v == null ? null : (v as dynamic).toJson();
