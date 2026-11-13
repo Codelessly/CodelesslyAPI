@@ -43,6 +43,7 @@ export 'src/core/path_follow.dart';
 export 'src/core/props.dart';
 export 'src/core/media.dart';
 export 'src/core/migrate/migrate.dart';
+export 'src/core/migrate/steps_paint4.dart' show paintSteps4;
 export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';
 export 'src/core/sections.dart';

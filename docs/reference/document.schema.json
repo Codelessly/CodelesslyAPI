@@ -15459,6 +15459,10 @@
                   "strokeJoin": {
                     "$ref": "#/$defs/enum.StrokeJoin"
                   },
+                  "strokeMiterLimit": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
                   "subpathColors": {
                     "type": "array",
                     "items": {

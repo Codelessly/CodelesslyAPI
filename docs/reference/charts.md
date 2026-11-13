@@ -501,23 +501,23 @@ A line/area chart of `points` spread evenly over an x domain, with an x value se
 | `lineEndX` | double | unset |  | Where the curve (and the area under it) stops, an x value: the rest of the domain stays empty (a series that hasn't happened yet). Unset: the whole domain. |
 | `endDotRadius` | double | `0` |  | A dot of this radius where the curve ends, in the line color with a `selectionDotColor` ring; 0 for none. |
 | `markerHollow` | bool | `false` |  | Markers are rings (the marker's color round a `selectionDotColor` center) instead of dots. |
-| `series` | List<[PlotChartSeries](charts.md#type-PlotChartSeries)> | `[]` |  | More curves over the same x domain, each with gaps (null points). |
+| `series` | List<[PlotChartSeries](charts.md#type-PlotChartSeries)> | `[]` |  | More curves over the same x domain, each with gaps (null points): a chart's series (fl_chart's `LineChartData.lineBarsData`). |
 | `gridAnchor` | [PlotChartGridAnchor](values.md#enum-PlotChartGridAnchor) | `"start"` | `start`, `zero` | Where vertical grid lines start: xMin (default) or multiples of the step. |
-| `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset). |
-| `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart. |
+| `gridStepY` | double | unset |  | Horizontal grid lines at multiples of this step (none when unset): the grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`). |
+| `minorDivisions` | int | `0` | ≥ 0 | Minor lines between grid lines (0: none), drawn in `minorGridColor` only while at least 6px apart: minor gridlines, as a plotting library's minor ticks. |
 | `minorGridColor` | [Color](values.md#type-Color) | `"#0D000000"` |  |  |
-| `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge. |
+| `originAxes` | bool | `false` |  | Draws the x axis at y = 0 and the y axis at x = 0 (in `axisColor`) instead of a baseline, with tick labels at grid lines along them; labels of an axis off the plot stick to the nearest edge: axes that cross at the origin (a plotting library's spines at zero). |
 | `axisWidth` | double | `1` | ≥ 0 |  |
 | `axisArrows` | bool | `false` |  | Arrowheads at the positive ends of the origin axes. |
 | `xAxisTitle` | String | `""` |  | Titles at the positive ends of the origin axes (`x`, `y`). |
 | `yAxisTitle` | String | `""` |  |  |
 | `axisTitleStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |
 | `labelBackground` | [Color](values.md#type-Color) | unset |  | Behind each axis label, so grid lines don't run through it. |
-| `labelMargin` | [EdgeInsets](values.md#type-EdgeInsets) | `2` |  | Room kept clear of axis labels at each edge (left, top, right, bottom), e.g. for buttons over the chart. |
+| `labelMargin` | [EdgeInsets](values.md#type-EdgeInsets) | `2` |  | Room kept clear of axis labels at each edge (left, top, right, bottom), for whatever sits over the chart's edges (a legend, buttons). |
 | `selectionY` | double | unset |  | The selection's y (default: the curve at selectedX). |
 | `selectionSeries` | String | `""` |  | The curve the selection follows: the id of a `series`, or empty for the chart's own points. |
 | `selectionGuides` | [PlotChartSelectionGuides](values.md#enum-PlotChartSelectionGuides) | `"line"` | `line`, `axes`, `none` |  |
-| `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag). |
+| `selectionXLabel` | String | `""` |  | Text in tags where the guides meet the axes (empty: no tag): a crosshair's axis labels. |
 | `selectionYLabel` | String | `""` |  |  |
 | `selectionTagColor` | [Color](values.md#type-Color) | `"#FF000000"` |  |  |
 | `selectionTagStyle` | [TextStyle](theme.md#type-TextStyle) | `{}` |  |  |

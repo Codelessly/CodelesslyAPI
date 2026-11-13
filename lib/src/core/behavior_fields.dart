@@ -871,6 +871,7 @@ List<PropDef<Object?>> particleEmitterFields() => ParticleEmitterFields.all;
 
 // --- paint and scroll ---------------------------------------------------------
 
+/// **Schema 3 only** ([StrokePath]): schema 4 writes a `customPaint` path op.
 abstract final class StrokePathFields {
   /// In the box: fractions or pixels per [xUnit] / [yUnit].
   static const points = PropDef<List<Offset>>(

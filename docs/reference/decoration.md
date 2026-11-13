@@ -121,7 +121,8 @@ An SVG path, filled and stroked with the node's decoration (Flutter `CustomPaint
 | `trimStart` | double | `0` | ≥ 0, ≤ 1 | The stroked part of the path, as fractions of its length. |
 | `trimEnd` | double | `1` | ≥ 0, ≤ 1 |  |
 | `strokeJoin` | [StrokeJoin](values.md#enum-StrokeJoin) | `"miter"` | `miter`, `round`, `bevel` | How segments meet when stroked (`Paint.strokeJoin`). |
-| `subpathColors` | List<[Color](values.md#type-Color)> | `[]` |  | Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
+| `strokeMiterLimit` | double | `4` | ≥ 0 | The miter limit of `StrokeJoin.miter` corners (`Paint.strokeMiterLimit`). |
+| `subpathColors` | List<[Color](values.md#type-Color)> | `[]` |  | **Schema 3 only**: schema 4 draws the shapes as `customPaint` path ops, one per color (`paint.perShape` in migrate/steps_paint4.dart).<br><br>Colors of the path's shapes, one per closed subpath (`M ... Z`) in drawing order, repeating when shorter; a subpath inside the previous shape's bounds (a hole) belongs to it. They replace the solid fills' color (keeping each fill's opacity); null keeps the fill's color. |
 
 <a id="behavior-customPaint"></a>
 ### `customPaint` (behavior)
@@ -153,6 +154,8 @@ A node key (beside `layout` and `props`). Type: [StrokePath](decoration.md#type-
 
 <a id="type-StrokePath"></a>
 #### StrokePath
+
+**Schema 3 only.** Schema 4 draws it as a `customPaint` path op (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders a migrated document; this stays readable until schema 4's version gate removes it.
 
 A line drawn through `points` in the node's box (a dotted trail, a connector), behind its content or `inFront` of it. x and y are fractions of the box or pixels, per `xUnit`/`yUnit`.
 
@@ -208,7 +211,7 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `center` | [Alignment](values.md#type-Alignment) | unset |  | Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). Read into `transform`; default the box's center. |
 | `tileMode` | [TileMode](values.md#enum-TileMode) | `"clamp"` | `clamp`, `repeated`, `mirror`, `decal` | What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`. |
 | `image` | [ImagePaint](decoration.md#type-ImagePaint) | unset |  | Image (type `image`). |
-| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
+| `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. Schema 3 only (`Paint.gradientPerSubpath`). |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width (as the transform maps it). Past the last stop the gradient keeps the last stop's color (`tileMode` clamp): end a glow on a transparent stop, or it fills the rest of the box. |
 | `length` | double | unset | ≥ 0 | A gradient's length in logical pixels, whatever the box's size: linear, from `begin` toward `end` (only their direction counts then); radial, its radius. With `"tileMode": "repeated"` the stops repeat every `length` px: CSS `repeating-linear-gradient(to bottom, #1F2937 0 1px, transparent 1px 80px)` is `{"type": "linear", "begin": "topCenter", "end": "bottomCenter", "length": 80, "tileMode": "repeated", "stops": [{"position": 0, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#FF1F2937"}, {"position": 0.0125, "color": "#00000000"}, {"position": 1, "color": "#00000000"}]}`: a 1 px line every 80 px (a background grid is two such paints). |
 | `noise` | [NoisePaint](decoration.md#type-NoisePaint) | unset |  | Type `noise`: procedural grain, as SVG `<feTurbulence>`: `{"baseFrequency": 0.8, "numOctaves": 3, "seed": 0, "type": "fractalNoise"}`. With `color` the grain is that color, its alpha the noise; without, the four noise channels feTurbulence gives. Fade it with `opacity` (a film grain: 0.05 to 0.12) and set a `blendMode` (`overlay`, `softLight`) as CSS `mix-blend-mode`. Drawn as a seamless 256 px tile repeated over the box. |
@@ -400,16 +403,23 @@ glyph's size, centered in the node's box; without it the glyph fills the box). A
 ### Small marks and shapes
 
 A mark the font lacks (✦, ✳): an `icon` (`"auto_awesome"`, `"star"`), or a `path` node with SVG path data and a
-`viewBox` so it scales to its box. Custom drawing beyond one path (several shapes, strokes along a path, text on a
-canvas): the `customPaint` behavior's draw lists, behind or over the node's content.
+`viewBox` so it scales to its box: the one decorated shape (fills, strokes and shadows from its `decoration`). Custom
+drawing beyond one path (several shapes, a line through points, shapes in different colors, text on a canvas): the
+`customPaint` behavior's draw lists, behind or over the node's content. A line through points is a `path` op with
+`points` (a formula of `${size.width}` for a share of the box), or with `commands` (Flutter's `Path` calls:
+`moveTo`, `lineTo`, `quadraticBezierTo`, `cubicTo`, `close`) for curves; shapes in different colors are one `path`
+op per color. `strokePath`, a box's `props.path` and a path's `subpathColors` are schema 3's spellings of these
+(`deprecated_key`): schema 4 rewrites them so.
 
 <a id="decoration-pitfalls"></a>
 ## Pitfalls
 
 - An effect needs its `type`; without it the effect is dropped.
 - Colours are `"#AARRGGBB"`, `"#RRGGBB"` or a theme name; `"#FFF"`, `rgb()` and CSS names are not read.
-- A `path` is drawn in its box's own pixels from the top left and is not clipped to the box (as Flutter's
-  `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
+- A `path` node without a `viewBox` is drawn in its box's own pixels from the top left and is not clipped to the
+  box (as Flutter's `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`). Write a
+  shape as a `path` node, not as a box's `props.path` (schema 3's spelling, which also filled only the part inside the
+  box).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
 - A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.

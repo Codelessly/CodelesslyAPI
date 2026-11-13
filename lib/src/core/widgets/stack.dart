@@ -28,8 +28,13 @@ abstract final class StackProps {
 /// A leaf box: Flutter `Container` with a decoration and no child.
 abstract final class BoxProps {
   /// An SVG path drawn instead of the rectangle (shapes, vectors).
+  ///
+  /// **Schema 3 only**, as are [strokeJoin] and [strokeMiterLimit]: schema 4
+  /// makes the box a `path` node with this as its `data`
+  /// (`paint.boxPath` in migrate/steps_paint4.dart).
   static const path = PropDef<String>('path', Codecs.string, '',
-      doc: 'An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration\'s fills and strokes. '
+      doc: 'Schema 3 only: write a `path` node (schema 4 makes this box one, with the path as its `data`). '
+          'An SVG path (`"M0 0 L10 5 L0 10 Z"`) drawn instead of the rectangle, with the decoration\'s fills and strokes. '
           'Its coordinates are the box\'s own pixels from its top left, not scaled to the box and not clipped to it '
           '(as Flutter\'s `CustomPaint`): make the box the size of the path. For a scaled drawing use a `path` node with a `viewBox`.');
 

@@ -17,7 +17,7 @@
       "anchor": "page-layout",
       "title": "Responsive layout",
       "summary": "Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column).",
-      "words": 7041
+      "words": 7060
     },
     {
       "topic": "layout-layout-fields",
@@ -201,7 +201,7 @@
       "anchor": "page-decoration",
       "title": "Decoration, images, icons and drawing",
       "summary": "What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing.",
-      "words": 3939
+      "words": 4116
     },
     {
       "topic": "decoration-decoration-fields",
@@ -272,8 +272,8 @@
       "file": "decoration.md",
       "anchor": "decoration-small-marks-and-shapes",
       "title": "Small marks and shapes",
-      "summary": "A mark the font lacks (✦, ✳): an `icon` (`\"auto_awesome\"`, `\"star\"`), or a `path` node with SVG path data and a `viewBox` so it scales to its box.",
-      "words": 54
+      "summary": "A mark the font lacks (✦, ✳): an `icon` (`\"auto_awesome\"`, `\"star\"`), or a `path` node with SVG path data and a `viewBox` so it scales to its box: the one decorated shape (fills, strokes and shadows from its `decoration`).",
+      "words": 132
     },
     {
       "topic": "forms",
@@ -953,7 +953,7 @@
       "anchor": "page-charts",
       "title": "Charts, gauges and indicators",
       "summary": "Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes.",
-      "words": 6522
+      "words": 6561
     },
     {
       "topic": "charts-progress-from-state",
@@ -1193,7 +1193,7 @@
       "anchor": "page-render",
       "title": "The render command: checking your work",
       "summary": "Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do.",
-      "words": 2348
+      "words": 2394
     },
     {
       "topic": "render-what-it-does",

@@ -468,8 +468,15 @@ abstract final class PlotChartProps {
   static const markerHollow = PropDef<bool>('markerHollow', Codecs.bool, false);
 
   // --- Cartesian graph -------------------------------------------------------
+  //
+  // The general parts of a line chart's model (series, grid, axes, the
+  // selection's guides), as chart libraries name them; any plot can use
+  // them, and each is computed from the data as it paints (extents, tick
+  // positions and labels), which a draw list would have to be handed
+  // (docs/design/01-paint-node.md, "Schema 4").
 
-  /// More curves over the same x domain, each with gaps (null points).
+  /// More curves over the same x domain, each with gaps (null points): a
+  /// chart's series (fl_chart's `LineChartData.lineBarsData`).
   static const series = PropDef<List<PlotChartSeries>>('series', PlotChartSeries.codec, []);
 
   /// Where vertical grid lines start: xMin (default) or multiples of the
@@ -477,17 +484,20 @@ abstract final class PlotChartProps {
   static const gridAnchor =
       PropDef<PlotChartGridAnchor>('gridAnchor', EnumCodec(PlotChartGridAnchor.values), PlotChartGridAnchor.start);
 
-  /// Horizontal grid lines at multiples of this step (none when unset).
+  /// Horizontal grid lines at multiples of this step (none when unset): the
+  /// grid's horizontal interval (fl_chart's `FlGridData.horizontalInterval`).
   static const gridStepY = PropDef<double?>('gridStepY', IndicatorCodecs.optionalDouble, null);
 
   /// Minor lines between grid lines (0: none), drawn in [minorGridColor]
-  /// only while at least 6px apart.
+  /// only while at least 6px apart: minor gridlines, as a plotting library's
+  /// minor ticks.
   static const minorDivisions = PropDef<int>('minorDivisions', IntCodec(min: 0), 0);
   static const minorGridColor = PropDef<Color>('minorGridColor', Codecs.color, Color(0x0D000000));
 
   /// Draws the x axis at y = 0 and the y axis at x = 0 (in [axisColor])
   /// instead of a baseline, with tick labels at grid lines along them;
-  /// labels of an axis off the plot stick to the nearest edge.
+  /// labels of an axis off the plot stick to the nearest edge: axes that
+  /// cross at the origin (a plotting library's spines at zero).
   static const originAxes = PropDef<bool>('originAxes', Codecs.bool, false);
   static const axisWidth = PropDef<double>('axisWidth', Codecs.positive, 1);
 
@@ -503,7 +513,7 @@ abstract final class PlotChartProps {
   static const labelBackground = PropDef<Color?>('labelBackground', IndicatorCodecs.optionalColor, null);
 
   /// Room kept clear of axis labels at each edge (left, top, right, bottom),
-  /// e.g. for buttons over the chart.
+  /// for whatever sits over the chart's edges (a legend, buttons).
   static const labelMargin = PropDef<EdgeInsets>('labelMargin', Codecs.insets, EdgeInsets.all(2));
 
   /// The selection's y (default: the curve at selectedX).
@@ -515,7 +525,8 @@ abstract final class PlotChartProps {
   static const selectionGuides = PropDef<PlotChartSelectionGuides>(
       'selectionGuides', EnumCodec(PlotChartSelectionGuides.values), PlotChartSelectionGuides.line);
 
-  /// Text in tags where the guides meet the axes (empty: no tag).
+  /// Text in tags where the guides meet the axes (empty: no tag): a
+  /// crosshair's axis labels.
   static const selectionXLabel = PropDef<String>('selectionXLabel', Codecs.string, '');
   static const selectionYLabel = PropDef<String>('selectionYLabel', Codecs.string, '');
   static const selectionTagColor = PropDef<Color>('selectionTagColor', Codecs.color, Color.black);
