@@ -226,6 +226,7 @@ flat in the node's JSON. Every key is optional and sparse.
 | `sticky` | `true` or `{offset}` | Pinned at its scrolling view's leading edge while its parent is in view (`SliverPersistentHeader(pinned)`); `${sticky.stuck}`. |
 | `viewProgress` | `ViewProgress` | `${view.progress}`: how far the node has scrolled through the viewport, optionally written to a variable. |
 | `measure` | `Measure` | The node's laid-out box, written to a variable as layout changes. |
+| `customPaint` | `CustomPaint` | Flutter's `CustomPaint`: `painter` drawn behind the node's content and `foregroundPainter` over it, each a list of draw ops that are `Canvas` calls (`path`, `line`, `rect`, `rrect`, `circle`, `oval`, `arc`, `points`, `paragraph`, `image`) with a `paint` (Flutter's `Paint`), `group` (save, transforms, clips, a layer, restore) and `repeat` (over a list: `item`, `index`, `count`); values may be inline expressions; a `viewBox` with a `fit`; ops with `hit` are hit regions whose id, view point and item reach the node's pointer reactions. Guide chapter 7. |
 
 `strokePath.progress` is a bindable fraction (0–1, default 1). It reveals the stroke by path length; dash patterns are clipped to that revealed prefix.
 
