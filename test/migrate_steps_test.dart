@@ -35,6 +35,7 @@ void main() {
       'effectAnimations': [{'name': 'pop', 'type': 'pop'}],
       'bind': {'loops[0].phase': r'${p}', 'motion.opacity': r'${o}'},
     },
+    'pose.legacy': {'props': {'pageMotionBefore': {'shiftX': 1, 'originX': -1, 'opacity': 0.5}}},
     'drag.split': {'drag': {'release': 'dismiss', 'restX': 4}, 'bind': {'drag.enabled': r'${on}'}},
     'track.legacy': {'track': {'variable': 'v', 'endAngle': 90, 'jumpOnTap': true, 'momentum': true, 'write': false}},
     'zoomable': {'zoomable': true},
@@ -98,6 +99,24 @@ void main() {
     expect(((out['media'] as List).single as Map)['patch'], {
       'transformGesture': {'target': 'content', 'pan': 'whenZoomed'},
     });
+  });
+
+  test('pose.legacy: a page view pose and a route transition side', () {
+    final (out, _) = migrated({
+      'type': 'pageView',
+      'props': {'pageMotionBefore': {'shiftX': 1, 'originX': -1, 'opacity': 0.5}},
+      'actions': [
+        {
+          'trigger': {'type': 'click'},
+          'actions': [
+            {'type': 'navigate', 'transition': {'enter': {'motion': {'originY': 1, 'scale': 0.9}}}},
+          ],
+        },
+      ],
+    });
+    expect((out['props'] as Map)['pageMotionBefore'], {'shiftX': 1, 'alignment': [-1, 0], 'opacity': 0.5});
+    final nav = (((out['actions'] as List).single as Map)['actions'] as List).single as Map;
+    expect(((nav['transition'] as Map)['enter'] as Map)['motion'], {'scale': 0.9, 'alignment': [0, 1]});
   });
 
   test('a bound legacy origin binds the alignment', () {
