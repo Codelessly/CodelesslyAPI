@@ -1,0 +1,23 @@
+{"schema": 3, "roots": ["home"],
+ "nodes": {
+  "home": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 400}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+  "col": {"type": "column", "children": ["habitList"], "layout": {"width": {"fill": 390}, "height": {"fill": 400}, "padding": 24}},
+  "habitList": {"type": "listView", "children": ["habit"], "bind": {"data": "${habits}"}, "props": {"scrollable": false, "spacing": 12},
+                "layout": {"width": {"fill": 342}, "height": {"hug": 200}}},
+  "habit": {"type": "column", "children": ["name", "week"], "props": {"crossAxisAlignment": "start", "spacing": 6},
+            "layout": {"width": {"fill": 342}, "height": {"hug": 70}}},
+  "name": {"type": "text", "props": {"text": "${item.name}: ${= count(item.days, d => d)}", "style": {"fontSize": 15, "color": "#FF111827"}},
+           "layout": {"width": {"fill": 342}, "height": {"hug": 20}}},
+  "week": {"type": "gridView", "children": ["day"], "bind": {"data": "${item.days}"},
+           "props": {"crossAxisCount": 7, "mainAxisExtent": 40, "crossAxisSpacing": 6, "physics": "never"},
+           "layout": {"width": {"fill": 342}, "height": {"hug": 40}}},
+  "day":  {"type": "box", "layout": {"width": {"fill": 40}, "height": {"fill": 40}},
+           "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 20},
+           "bind": {"decoration.fills[0].color": "${= item ? '#FF16A34A' : '#FFE5E7EB'}"},
+           "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "habits",
+             "value": "${= setAt(habits, parent.index, set(parent.item, 'days', setAt(parent.item.days, index, !item)))}"}]}]}
+ },
+ "variables": {"home": [{"name": "habits", "type": "list", "value": [
+   {"name": "Water", "days": [true, true, false, false, false, false, false]},
+   {"name": "Read", "days": [false, true, false, false, false, false, false]}]}]}
+}

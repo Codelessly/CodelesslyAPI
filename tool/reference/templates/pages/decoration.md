@@ -54,7 +54,9 @@ two of them, one `topCenter` → `bottomCenter`, one `centerLeft` → `centerRig
 
 ### Borders, rules and shadows
 
-`strokes` with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`, `outside`), `strokeSides` (`all`,
+A node's border is painted with its own box, **under its children**: a child with a fill covers an `inside` border
+(the default). Give the parent padding of the border's width, set `"strokeAlign": "outside"`, or put the border (or
+the rule) on the filled child. `strokes` with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`, `outside`), `strokeSides` (`all`,
 `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). A rule under a text: the text inside a `row` or `column`
 with `"strokes": [{"color": ...}], "strokeSides": "bottom"`, or a `box` 1 high. `strokeWidth` without `strokes`
 draws nothing. Effects: `dropShadow`, `innerShadow`, `layerBlur`, `backgroundBlur` (frosted glass), each with
@@ -98,6 +100,7 @@ canvas): the `customPaint` behavior's draw lists, behind or over the node's cont
   `CustomPaint`): give it a `viewBox` to scale it, or clip an ancestor (`path_overflow`).
 - Decoration on a type that draws no box (a `text`, a `listView`) is ignored (`decoration_ignored`): wrap it.
 - `clip` is needed for children to follow rounded corners.
+- A child's fill covers its parent's inside border: pad the parent, stroke outside, or move the border to the child.
 
 ## See also
 

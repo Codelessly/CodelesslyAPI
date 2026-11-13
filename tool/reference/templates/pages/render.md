@@ -33,7 +33,12 @@ scrolled to the middle first, and a tap that would land on another node is repor
 `--focus <id>`, `--unfocus`, `--type <id>=<text>`, `--key <key>`, `--set <variable>=<json>`, `--scroll <id or
 screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name` too. In a site, steps
 name nodes inside components by path (`--tap plans/card1/cta`). `--label <name>` keeps the screenshots and
-`diagnostics-<name>.json` of each state apart. `--full-page` captures the whole page from its top, its own scroll
+`diagnostics-<name>.json` of each state apart. After each step the page settles before the next one and the capture
+(about a second): an animation shorter than that is over when the screenshot is taken; to see one mid-flight,
+lengthen its duration in a copy. `--key` presses a key for the screen's `keyDown` reactions; it does not submit a
+focused text field (test `submitted` chains through a button). In nested lists `#n` counts the copies across the
+whole repeat, outer item by outer item, from 0: with a 7-day grid per habit, `day#9` is the second habit's third
+day. `--full-page` captures the whole page from its top, its own scroll
 height, with content fixed to the window drawn in the first window; without it the capture is the window where the
 steps left the page. `--fonts <dir>` adds font files; `--component <Type>` and `--components-all` render
 components alone.

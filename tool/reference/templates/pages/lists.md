@@ -34,7 +34,8 @@ For cards in columns from one list inside a scrolling page, use a `gridView` wit
 `repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `"shrinkWrapRows": true` and
 `"physics": "never"` (it lays out every item and the page scrolls). A fixed number of columns: `crossAxisCount`. A
 `listView` with `"wrap": true` lays its items out at their own sizes in runs along its `scrollDirection`: set
-`"scrollDirection": "horizontal"` for chips side by side.
+`"scrollDirection": "horizontal"` for chips or nav links side by side. In wrap mode the gap between items is
+`wrapSpacing` and between runs `runSpacing`; `spacing` does not apply.
 
 ### Equal-height cards
 
@@ -81,7 +82,12 @@ table written four times. For a column that stays while the others scroll sidewa
 Seven columns of days from data: a `gridView` with `"crossAxisCount": 7` bound to the days (`${= range(7)}`, or a
 computed list of `{day, done}` records), each cell a box whose fill is bound to the item. Rows of habits × days: a
 `listView` of habits whose item holds a label and that 7-column grid bound to `${item.days}`; in a cell, `${parent}`
-is the habit.
+is the habit and `${index}` the day. A grid sizes its cells: set the cell height with `mainAxisExtent` and give
+the cell `fill` on both axes (a fixed size is `fit_not_allowed`).
+
+A tap on a day flips it in the habit's record (`setAt` and `set` build the new list); the label counts the checks:
+
+{{example:pages/weekly}}
 
 ### A carousel, pages and pagination
 
@@ -93,8 +99,8 @@ neighbours' edges; `initialPage`). Long lists that load in pages: the list's `pa
 
 - Only the first child is the template; other children are ignored.
 - `item` and `index` are the innermost list's; the outer one is `parent`.
-- A list inside a scrolling page needs `"scrollable": false` (a grid `"physics": "never"`), or it takes its design
-  height and scrolls inside itself.
+- A list inside a scrolling page needs `"scrollable": false` (or `"physics": "never"`, which a `gridView` needs:
+  it has no `scrollable`), or it takes its design height and scrolls inside itself.
 - A wrapping `listView` runs along its `scrollDirection`: with the default `vertical` it flows top to bottom into
   columns (`vertical_wrap`).
 - Decoration on a `listView` or `gridView` is ignored (`decoration_ignored`): put the list inside a column that has
