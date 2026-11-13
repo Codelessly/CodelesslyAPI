@@ -33,14 +33,12 @@ abstract final class BindPaths {
   static const width = 'layout.width';
   static const height = 'layout.height';
   static const flex = 'layout.flex';
-  static const rotation = 'layout.rotation';
   static const margin = 'layout.margin';
   static const padding = 'layout.padding';
   static const x = 'layout.x';
   static const y = 'layout.y';
   static const radius = 'decoration.radius';
   static const strokeWidth = 'decoration.strokeWidth';
-  static const scale = 'scale';
   static const textDirection = 'textDirection';
 
   /// The items a repeating widget (list, grid, page view) builds one per.
@@ -141,7 +139,6 @@ abstract final class BindPaths {
         'height' => _axisSize(l.height, value)?.let((h) => l.copyWith(height: h)),
         // A row/column needs a positive flex (at least 1).
         'flex' => BindValue.number(value)?.let((f) => l.copyWith(flex: f.round() < 1 ? 1 : f.round())),
-        'rotation' => BindValue.number(value)?.let((r) => l.copyWith(rotation: r)),
         'margin' => BindValue.insets(value)?.let((m) => l.copyWith(margin: m)),
         'padding' => BindValue.insets(value)?.let((p) => l.copyWith(padding: p)),
         'x' => _position(value)?.let((p) => l.copyWith(x: p)),
@@ -159,7 +156,7 @@ abstract final class BindPaths {
     return next == null || next == l ? null : n.copyWith(layout: next);
   }
 
-  static const _typedLayout = {'width', 'height', 'flex', 'rotation', 'margin', 'padding', 'x', 'y', 'aspectRatio'};
+  static const _typedLayout = {'width', 'height', 'flex', 'margin', 'padding', 'x', 'y', 'aspectRatio'};
 
   /// A number sets the design size (the fit stays); `{"fill": 200}` and
   /// the like set both.

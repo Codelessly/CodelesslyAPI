@@ -162,7 +162,6 @@ final class Layout {
     this.x = AxisPosition.zero,
     this.y = AxisPosition.zero,
     this.align,
-    this.rotation = 0,
     this.aspectRatio,
     this.widthFactor,
     this.heightFactor,
@@ -196,9 +195,6 @@ final class Layout {
   /// Alignment in its slot under a row/column parent (`Align`).
   final Alignment? align;
 
-  /// Degrees, clockwise, about the center.
-  final double rotation;
-
   /// Width / height the node keeps when its parent resizes it.
   final double? aspectRatio;
 
@@ -229,7 +225,6 @@ final class Layout {
     AxisPosition? x,
     AxisPosition? y,
     Alignment? Function()? align,
-    double? rotation,
     double? Function()? aspectRatio,
     double? Function()? widthFactor,
     double? Function()? heightFactor,
@@ -247,7 +242,6 @@ final class Layout {
         x: x ?? this.x,
         y: y ?? this.y,
         align: align == null ? this.align : align(),
-        rotation: rotation ?? this.rotation,
         aspectRatio: aspectRatio == null ? this.aspectRatio : aspectRatio(),
         widthFactor: widthFactor == null ? this.widthFactor : widthFactor(),
         heightFactor: heightFactor == null ? this.heightFactor : heightFactor(),
@@ -270,7 +264,6 @@ final class Layout {
       x: AxisPosition.fromJson(m['x']),
       y: AxisPosition.fromJson(m['y']),
       align: Alignment.fromJson(m['align']),
-      rotation: readDouble(m['rotation']) ?? 0,
       aspectRatio: ratio != null && ratio > 0 ? ratio : null,
       widthFactor: _factor(m['widthFactor']),
       heightFactor: _factor(m['heightFactor']),
@@ -297,7 +290,6 @@ final class Layout {
     if (x != AxisPosition.zero) j['x'] = x.toJson();
     if (y != AxisPosition.zero) j['y'] = y.toJson();
     if (align != null) j['align'] = align!.toJson();
-    if (rotation != 0) j['rotation'] = writeDouble(rotation);
     if (aspectRatio != null) j['aspectRatio'] = writeRatio(aspectRatio!);
     if (widthFactor != null) j['widthFactor'] = writeDouble(widthFactor!);
     if (heightFactor != null) j['heightFactor'] = writeDouble(heightFactor!);
@@ -319,7 +311,6 @@ final class Layout {
       other.x == x &&
       other.y == y &&
       other.align == align &&
-      other.rotation == rotation &&
       other.aspectRatio == aspectRatio &&
       other.widthFactor == widthFactor &&
       other.heightFactor == heightFactor &&
@@ -328,5 +319,5 @@ final class Layout {
 
   @override
   int get hashCode =>
-      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, rotation, aspectRatio, widthFactor, heightFactor, order, basis);
+      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, aspectRatio, widthFactor, heightFactor, order, basis);
 }

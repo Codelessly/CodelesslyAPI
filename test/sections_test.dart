@@ -10,7 +10,7 @@ import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 Json planCard() => {
-  'schema': 3,
+  'schema': 4,
   'id': 'PlanCard',
   'roots': ['card'],
   'widget': {
@@ -105,7 +105,7 @@ Json planCard() => {
 };
 
 Json page({Json? call, Map<String, Object?> extraNodes = const {}}) => {
-  'schema': 3,
+  'schema': 4,
   'id': 'pricing',
   'roots': ['pricing'],
   'variables': {
@@ -293,7 +293,7 @@ void main() {
 
     test('the site manifest round-trips, keeping what it does not model', () {
       final json = {
-        'schema': 3,
+        'schema': 4,
         'pages': ['pages/pricing.json'],
         'components': ['components/PlanCard.json'],
         'variables': [
@@ -569,7 +569,7 @@ void main() {
 
     test('a component that calls itself, directly or through another, is reported on each call node', () {
       Json comp(String type, String calls) => {
-        'schema': 3,
+        'schema': 4,
         'roots': ['r'],
         'widget': {'type': type},
         'nodes': {
