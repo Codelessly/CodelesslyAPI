@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](nodes.md)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](behaviors.md)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](behaviors.md)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -767,7 +767,7 @@ Types: | Value | Meaning |
 - A text that is exactly one expression gives its value with its type (a number stays a number, a list a list);
   any other text with `${...}` is text with the values inserted.
 
-Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
+Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
 above; `item` and `index` exist inside a list's item ([section 13](#guide-lists)); `result` is what the previous
 action of a chain gave.
 
