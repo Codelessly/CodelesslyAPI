@@ -1,0 +1,40 @@
+{"ops": [
+{"op":"roots","roots":["card"]},
+{"op":"set","id":"card","node":{"type":"canvas","slots":{"body":"wrap"},"layout":{"width":390,"height":{"hug":640}}}},
+{"op":"vars","scope":"card","set":{"sel":{"type":"integer","value":0},"opts":{"type":"list","value":[{"airline":"TAP Air Portugal","price":142,"dep":"07:30","arr":"09:50"},{"airline":"easyJet","price":98,"dep":"11:15","arr":"13:45"},{"airline":"British Airways","price":176,"dep":"16:40","arr":"19:00"}]},"total":{"type":"integer","formula":"opts[sel].price"},"airline":{"type":"text","formula":"opts[sel].airline"}}},
+{"op":"set","id":"wrap","node":{"type":"column","children":["head","list","footer"],"layout":{"width":{"fill":390},"height":{"hug":640},"padding":20},"props":{"crossAxisAlignment":"stretch","spacing":16},"decoration":{"fills":[{"color":"#FFFFFFFF"}],"radius":20}}},
+{"op":"set","id":"head","node":{"type":"column","children":["hTitle","hSub"],"layout":{"width":{"fill":350},"height":{"hug":50}},"props":{"crossAxisAlignment":"start","spacing":4}}},
+{"op":"set","id":"hTitle","node":{"type":"text","layout":{"width":{"fill":350},"height":{"hug":28}},"props":{"text":"London → Lisbon","style":{"fontSize":22,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"hSub","node":{"type":"text","layout":{"width":{"fill":350},"height":{"hug":18}},"props":{"text":"Friday · 1 adult · Select a flight","style":{"fontSize":14,"color":"#FF6B7280"}}}},
+{"op":"set","id":"list","node":{"type":"column","children":["o0","o1","o2"],"layout":{"width":{"fill":350},"height":{"hug":420}},"props":{"spacing":12,"crossAxisAlignment":"stretch"}}},
+
+{"op":"set","id":"o0","node":{"type":"column","children":["o0a","o0b","o0c"],"layout":{"width":{"fill":350},"height":{"hug":120},"padding":14},"props":{"spacing":8,"crossAxisAlignment":"stretch"},"decoration":{"fills":[{"color":"#FFF9FAFB"}],"radius":14,"strokes":[{"color":"#FFE5E7EB"}],"strokeWidth":1.5},"bind":{"decoration.strokes[0].color":"${= sel == 0 ? '#FF2563EB' : '#FFE5E7EB'}","decoration.fills[0].color":"${= sel == 0 ? '#FFEFF6FF' : '#FFF9FAFB'}"},"actions":[{"trigger":{"type":"click"},"actions":[{"type":"setVariable","variable":"sel","op":"set","value":"0"}]}]}},
+{"op":"set","id":"o0a","node":{"type":"row","children":["o0t","o0p"],"layout":{"width":{"fill":322},"height":{"hug":28}},"props":{"mainAxisAlignment":"spaceBetween"}}},
+{"op":"set","id":"o0t","node":{"type":"text","layout":{"hug":0,"width":{"hug":160},"height":{"hug":26}},"props":{"text":"07:30 → 09:50","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o0p","node":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":26}},"props":{"text":"£142","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o0b","node":{"type":"text","layout":{"width":{"fill":322},"height":{"hug":18}},"props":{"text":"TAP Air Portugal · Direct · 2h 20m","style":{"fontSize":13,"color":"#FF4B5563"}}}},
+{"op":"set","id":"o0c","node":{"type":"row","children":["o0g"],"layout":{"width":{"fill":322},"height":{"hug":24}}}},
+{"op":"set","id":"o0g","node":{"type":"box","children":["o0gt"],"layout":{"width":{"hug":90},"height":24,"padding":[10,4,10,4]},"decoration":{"fills":[{"color":"#FFDCFCE7"}],"radius":12}}},
+{"op":"set","id":"o0gt","node":{"type":"text","layout":{"width":{"hug":70},"height":{"hug":16}},"props":{"text":"Best time","style":{"fontSize":12,"fontWeight":600,"color":"#FF166534"}}}},
+
+{"op":"set","id":"o1","node":{"type":"column","children":["o1a","o1b","o1c"],"layout":{"width":{"fill":350},"height":{"hug":120},"padding":14},"props":{"spacing":8,"crossAxisAlignment":"stretch"},"decoration":{"fills":[{"color":"#FFF9FAFB"}],"radius":14,"strokes":[{"color":"#FFE5E7EB"}],"strokeWidth":1.5},"bind":{"decoration.strokes[0].color":"${= sel == 1 ? '#FF2563EB' : '#FFE5E7EB'}","decoration.fills[0].color":"${= sel == 1 ? '#FFEFF6FF' : '#FFF9FAFB'}"},"actions":[{"trigger":{"type":"click"},"actions":[{"type":"setVariable","variable":"sel","op":"set","value":"1"}]}]}},
+{"op":"set","id":"o1a","node":{"type":"row","children":["o1t","o1p"],"layout":{"width":{"fill":322},"height":{"hug":28}},"props":{"mainAxisAlignment":"spaceBetween"}}},
+{"op":"set","id":"o1t","node":{"type":"text","layout":{"width":{"hug":160},"height":{"hug":26}},"props":{"text":"11:15 → 13:45","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o1p","node":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":26}},"props":{"text":"£98","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o1b","node":{"type":"text","layout":{"width":{"fill":322},"height":{"hug":18}},"props":{"text":"easyJet · 1 stop (Porto) · 3h 30m","style":{"fontSize":13,"color":"#FF4B5563"}}}},
+{"op":"set","id":"o1c","node":{"type":"row","children":["o1g"],"layout":{"width":{"fill":322},"height":{"hug":24}}}},
+{"op":"set","id":"o1g","node":{"type":"box","children":["o1gt"],"layout":{"width":{"hug":90},"height":24,"padding":[10,4,10,4]},"decoration":{"fills":[{"color":"#FFFEF3C7"}],"radius":12}}},
+{"op":"set","id":"o1gt","node":{"type":"text","layout":{"width":{"hug":70},"height":{"hug":16}},"props":{"text":"Cheapest","style":{"fontSize":12,"fontWeight":600,"color":"#FF92400E"}}}},
+
+{"op":"set","id":"o2","node":{"type":"column","children":["o2a","o2b"],"layout":{"width":{"fill":350},"height":{"hug":96},"padding":14},"props":{"spacing":8,"crossAxisAlignment":"stretch"},"decoration":{"fills":[{"color":"#FFF9FAFB"}],"radius":14,"strokes":[{"color":"#FFE5E7EB"}],"strokeWidth":1.5},"bind":{"decoration.strokes[0].color":"${= sel == 2 ? '#FF2563EB' : '#FFE5E7EB'}","decoration.fills[0].color":"${= sel == 2 ? '#FFEFF6FF' : '#FFF9FAFB'}"},"actions":[{"trigger":{"type":"click"},"actions":[{"type":"setVariable","variable":"sel","op":"set","value":"2"}]}]}},
+{"op":"set","id":"o2a","node":{"type":"row","children":["o2t","o2p"],"layout":{"width":{"fill":322},"height":{"hug":28}},"props":{"mainAxisAlignment":"spaceBetween"}}},
+{"op":"set","id":"o2t","node":{"type":"text","layout":{"width":{"hug":160},"height":{"hug":26}},"props":{"text":"16:40 → 19:00","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o2p","node":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":26}},"props":{"text":"£176","style":{"fontSize":19,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"o2b","node":{"type":"text","layout":{"width":{"fill":322},"height":{"hug":18}},"props":{"text":"British Airways · Direct · 2h 20m","style":{"fontSize":13,"color":"#FF4B5563"}}}},
+
+{"op":"set","id":"footer","node":{"type":"column","children":["totRow","confirm"],"layout":{"width":{"fill":350},"height":{"hug":100}},"props":{"spacing":14,"crossAxisAlignment":"stretch"}}},
+{"op":"set","id":"totRow","node":{"type":"row","children":["totLbl","totVal"],"layout":{"width":{"fill":350},"height":{"hug":28}},"props":{"mainAxisAlignment":"spaceBetween"}}},
+{"op":"set","id":"totLbl","node":{"type":"text","layout":{"width":{"hug":60},"height":{"hug":22}},"props":{"text":"Total","style":{"fontSize":16,"color":"#FF6B7280"}}}},
+{"op":"set","id":"totVal","node":{"type":"text","layout":{"width":{"hug":80},"height":{"hug":28}},"props":{"text":"£${total}","style":{"fontSize":24,"fontWeight":700,"color":"#FF111827"}}}},
+{"op":"set","id":"confirm","node":{"type":"filledButton","layout":{"width":{"fill":350},"height":48},"props":{"label":"Confirm flight","text":"Confirm flight"},"decoration":{"fills":[{"color":"#FF2563EB"}],"radius":12},"actions":[{"trigger":{"type":"click"},"actions":[{"type":"componentEvent","event":"flightConfirmed","value":{"index":"${sel}","airline":"${airline}","price":"${total}"}}]}]}}
+]}
