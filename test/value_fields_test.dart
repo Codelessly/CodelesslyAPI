@@ -251,11 +251,12 @@ void main() {
     expect(
       seen,
       containsAll([
-        'Motion', 'MotionKeyframe', 'LoopAnimation', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles', //
+        'Motion', 'MotionKeyframe', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
+        'Spring', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles',
         'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
-        'EffectAnimation', 'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
-        'FlipSpring', 'Tilt', 'TransformGesture', 'TransformHandles',
-        'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'TransitionSpring', 'CustomPaint',
+        'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
+        'Tilt', 'TransformGesture', 'TransformHandles',
+        'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'CustomPaint',
       ]),
     );
   });
