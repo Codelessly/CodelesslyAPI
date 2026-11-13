@@ -25,7 +25,6 @@ held is now here (the old links still land on the right line):
 - <a id="behavior-pan"></a>`pan`: [interaction.md#behavior-pan](interaction.md#behavior-pan)
 - <a id="behavior-transformGesture"></a>`transformGesture`: [interaction.md#behavior-transformGesture](interaction.md#behavior-transformGesture)
 - <a id="behavior-motion"></a>`motion`: [animation.md#behavior-motion](animation.md#behavior-motion)
-- <a id="behavior-scale"></a>`scale`: [animation.md#behavior-scale](animation.md#behavior-scale)
 - <a id="behavior-animations"></a>`animations`: [animation.md#behavior-animations](animation.md#behavior-animations)
 - <a id="behavior-transitions"></a>`transitions`: [animation.md#behavior-transitions](animation.md#behavior-transitions)
 - <a id="behavior-shimmer"></a>`shimmer`: [animation.md#behavior-shimmer](animation.md#behavior-shimmer)
@@ -35,8 +34,6 @@ held is now here (the old links still land on the right line):
 - <a id="behavior-flip"></a>`flip`: [animation.md#behavior-flip](animation.md#behavior-flip)
 - <a id="behavior-tilt"></a>`tilt`: [animation.md#behavior-tilt](animation.md#behavior-tilt)
 - <a id="behavior-hero"></a>`hero`: [animation.md#behavior-hero](animation.md#behavior-hero)
-- <a id="behavior-flightKey"></a>`flightKey`: [animation.md#behavior-flightKey](animation.md#behavior-flightKey)
-- <a id="behavior-flight"></a>`flight`: [animation.md#behavior-flight](animation.md#behavior-flight)
 - <a id="behavior-viewProgress"></a>`viewProgress`: [animation.md#behavior-viewProgress](animation.md#behavior-viewProgress)
 
 Everything by name: [the A–Z](index.md#index-a-z).

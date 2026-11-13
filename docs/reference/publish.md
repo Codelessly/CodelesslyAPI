@@ -17,7 +17,7 @@ A page whose canvas has a URL path and a name (its default title):
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "id": "pricing",
   "roots": ["pricing"],
   "nodes": {

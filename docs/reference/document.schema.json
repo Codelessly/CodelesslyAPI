@@ -6,7 +6,7 @@
   "type": "object",
   "properties": {
     "schema": {
-      "const": 3
+      "const": 4
     },
     "id": {
       "type": "string"
@@ -2218,6 +2218,12 @@
         "vibrate"
       ]
     },
+    "enum.HeroFlies": {
+      "enum": [
+        "betweenScreens",
+        "inPlace"
+      ]
+    },
     "enum.HeroFlightShuttle": {
       "enum": [
         "standard",
@@ -3092,9 +3098,6 @@
         "padding": {
           "$ref": "#/$defs/value.EdgeInsets"
         },
-        "rotation": {
-          "type": "number"
-        },
         "aspectRatio": {
           "anyOf": [
             {
@@ -3870,11 +3873,24 @@
         "tag": {
           "type": "string"
         },
-        "flight": {
+        "flies": {
+          "$ref": "#/$defs/enum.HeroFlies"
+        },
+        "flightShuttle": {
           "$ref": "#/$defs/enum.HeroFlightShuttle"
         },
         "placeholder": {
           "$ref": "#/$defs/enum.HeroPlaceholder"
+        },
+        "flight": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Flight"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -7194,10 +7210,6 @@
             }
           ]
         },
-        "scale": {
-          "type": "number",
-          "minimum": 0.0
-        },
         "animations": {
           "type": "array",
           "items": {
@@ -7266,19 +7278,6 @@
                   ]
                 }
               ]
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "flightKey": {
-          "type": "string"
-        },
-        "flight": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Flight"
             },
             {
               "type": "null"

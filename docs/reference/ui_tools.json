@@ -316,7 +316,7 @@
             },
             "layout": {
               "type": "object",
-              "description": "Size and placement: width, height, constraints, margin, padding, rotation, aspectRatio, flex, squeezable, x, y, align, order, basis."
+              "description": "Size and placement: width, height, constraints, margin, padding, aspectRatio, flex, squeezable, x, y, align, order, basis."
             },
             "decoration": {
               "type": "object",
@@ -348,7 +348,6 @@
               "description": "Rules by screen width: [{\"maxWidth\": 599, \"patch\": {...}}]."
             },
             "motion": {},
-            "scale": {},
             "animations": {},
             "transitions": {},
             "shimmer": {},
@@ -358,8 +357,6 @@
             "ignorePointer": {},
             "floating": {},
             "hero": {},
-            "flightKey": {},
-            "flight": {},
             "draggable": {},
             "dropTarget": {},
             "track": {},

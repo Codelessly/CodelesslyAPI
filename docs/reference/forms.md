@@ -17,7 +17,7 @@ good one:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["contact"],
   "nodes": {
     "contact": {

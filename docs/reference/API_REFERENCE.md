@@ -38,7 +38,7 @@ flat map:
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
+| `schema` | Always 4 (`kSchemaVersion`). A schema-2 or schema-3 document (or one with none) loads, migrated in memory (`migrate2to3`, `migrate3to4`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -52,7 +52,7 @@ its default.
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -99,7 +99,7 @@ The theme is the `theme` of the site manifest, `site.json`, next to the pages:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -207,7 +207,7 @@ under a stack (`layout_field_ignored`).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
@@ -269,7 +269,7 @@ Colours are `"#AARRGGBB"` (alpha first: `#FF` opaque, `#80` half), `"#RRGGBB"` o
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -611,7 +611,7 @@ Every page is in this folder; `index.md` has the full task table and an A–Z of
 - [navigation.md](#page-navigation): Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm, openLink.
 - [state.md](#page-state): State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, callFunction, if, forEach, delay, runScript, retryFailed.
 - [interaction.md](#page-interaction): Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, controlTrack, controlDismissible, controlTransform, copyToClipboard, haptic.
-- [animation.md](#page-animation): Animation and motion. Documents motion, scale, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, flightKey, flight, viewProgress, timer, frame, animate.
+- [animation.md](#page-animation): Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - [components.md](#page-components): Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - [charts.md](#page-charts): Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
 - [data.md](#page-data): Data: APIs, cloud data, storage and form submission. Documents callApi, setStorage, cloudDocuments, loadCloudData, reloadCloudData, cloudFiles, cloudData, cloudBatch, submitForm.
@@ -732,16 +732,16 @@ section's anchor is its topic.
 
 | Page | What it covers | Words |
 |---|---|---|
-| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4252 |
-| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7054 |
+| [STARTER.md](#page-base) | The base (give it up front): the document, layout, decoration, text, the base node types, state, reactions, the rules. | 4255 |
+| [layout.md](#page-layout) | Sizes, rows and columns, stacks, scrolling and screen sizes beyond the base: every layout field, which sizing modes each parent allows, media rules and breakpoints, and the web layouts agents ask for (a capped band, cards that wrap, a row that becomes a column, overlap and bleed, a sticky header or column). | 7041 |
 | [theme.md](#page-theme) | A site's palette and type scale, declared once and named everywhere; dark mode and a type scale that changes with the screen size; and the `text` node in depth (runs, links, superscripts, fonts, text direction). | 1979 |
 | [decoration.md](#page-decoration) | What a node's box paints beyond the base: gradients, pixel patterns and grain, borders on some sides, shadows and blurs, scrims over children, images, icons, SVG-like paths and custom drawing. | 3939 |
 | [forms.md](#page-forms) | Buttons, text fields, checkboxes, switches, radios, sliders, dropdowns, segmented buttons, date and time pickers, chips and signatures: every control's props, **how to style each one (in one place, below)**, two-way binding to a variable, validation and error states, focus and the keyboard. | 10159 |
 | [lists.md](#page-lists) | Anything repeated from data: lists and grids from one item template, nested lists (`item`, `index`, `parent`), equal-height card grids, tables, carousels (`pageView`), list tiles, pagination, pull to refresh, swipe actions and reordering. | 6101 |
 | [navigation.md](#page-navigation) | Several screens and moving between them, a page's URL path, passing values to a screen, dialogs, bottom sheets and popovers, confirmations and toasts, app bars, navigation bars, tabs and disclosure (accordions). | 4125 |
-| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6373 |
+| [state.md](#page-state) | Variables and where they live, computed and function variables, expressions and every binding path with the value it expects, conditions, the formula functions (grouped: text, numbers, money, lists, objects, dates, colours), the actions that change state, and sandboxed scripts. | 6353 |
 | [interaction.md](#page-interaction) | What a node does when it is tapped, hovered, pressed, dragged or swiped: reactions and every trigger, hover and pressed styles (`states`), ink ripples, tooltips, letting taps through, drag and drop, values set by dragging (`track`), swipe to dismiss, pan, pinch and rotate, keys, the clipboard and haptics. | 5120 |
-| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4536 |
+| [animation.md](#page-animation) | Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving, scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and games. | 4483 |
 | [components.md](#page-components) | Splitting a page into parts, each a file: a component used in several places with different values (a card, a chip, a row), a section used once (a header, a hero, an FAQ), their parameters (every kind, `variable` included), slots and events, the site manifest, and when to use a component, a list template or a section. | 2383 |
 | [charts.md](#page-charts) | Showing numbers as pictures: progress bars and rings, activity spinners, badges, gauges, bar, line and series charts, scatter plots and barcodes. | 6522 |
 | [data.md](#page-data) | The `data` feature library: calling HTTP APIs, reading and writing the project's cloud documents and files, storing values on the device, and submitting forms. | 2181 |
@@ -751,8 +751,8 @@ section's anchor is its topic.
 | [engage.md](#page-engage) | The `engage` feature library: firing app events that the project's automations listen for (a popup after a lesson, a review prompt after the third order), and the `${usage}` counters they read. | 311 |
 | [publish.md](#page-publish) | What happens to documents after they are written: a published app's model (its layouts, components, theme and identity), page paths and titles, components published by reference, managed component releases and hosted plugins. | 672 |
 | [edit-ops.md](#page-edit-ops) | Building and changing a document with edit operations: what a model sends in a `ui_apply` tool call, what an app's `UiSession` applies while the model streams, the retry protocol for rejected ops, the tools' schemas and the trust profiles that limit what a model may use. | 3297 |
-| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2341 |
-| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 12872 |
+| [render.md](#page-render) | Checking a document or a site before trusting it: strict validation, screenshots at each size, the states after taps, typing and scrolling, and a diagnostic for every problem with a code, a JSON pointer and what to do. | 2348 |
+| [values.md](#page-values) | Looking up how one value is written: a value type (a colour, an alignment, insets), a model no feature page shows (its fields) or an enum (its names). | 13207 |
 
 <a id="index-a-z"></a>
 ## A–Z
@@ -769,11 +769,11 @@ Every declared name and the page that documents it.
 
 **E** · [`EdgeInsets`](#type-EdgeInsets) value type · [`editingComplete`](#trigger-editingComplete) trigger · [`editText`](#action-editText) action · [`EditTextOperation`](#enum-EditTextOperation) enum · [`Effect`](#type-Effect) model · [`EffectType`](#enum-EffectType) enum · [`elevatedButton`](#node-elevatedButton) node type · [`embeddedVideo`](#node-embeddedVideo) node type · [`EmbeddedVideoSource`](#enum-EmbeddedVideoSource) enum · [`emitEvent`](#action-emitEvent) action · [`endsWith`](#fn-endsWith) formula function · [`enterViewport`](#trigger-enterViewport) trigger · [`event`](#trigger-event) trigger · [`exitViewport`](#trigger-exitViewport) trigger · [`exp`](#fn-exp) formula function · [`expansionTile`](#node-expansionTile) node type · [`external`](#node-external) node type
 
-**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flight`](#behavior-flight) behavior · [`flightKey`](#behavior-flightKey) behavior · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusGained`](#trigger-focusGained) trigger · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
+**F** · [`feetInches`](#fn-feetInches) formula function · [`fill`](#fn-fill) formula function · [`filledButton`](#node-filledButton) node type · [`filter`](#fn-filter) formula function · [`filterChip`](#node-filterChip) node type · [`find`](#fn-find) formula function · [`findIndex`](#fn-findIndex) formula function · [`first`](#fn-first) formula function · [`fixed`](#fn-fixed) formula function · [`flatMap`](#fn-flatMap) formula function · [`flatten`](#fn-flatten) formula function · [`flex`](#node-flex) node type · [`Flight`](#type-Flight) model · [`flip`](#behavior-flip) behavior · [`FlipAxis`](#enum-FlipAxis) enum · [`FlipCard`](#type-FlipCard) model · [`floating`](#behavior-floating) behavior · [`floatingActionButton`](#node-floatingActionButton) node type · [`FloatingActionButtonLocation`](#enum-FloatingActionButtonLocation) enum · [`FloatingActionButtonType`](#enum-FloatingActionButtonType) enum · [`FloatingLabelBehavior`](#enum-FloatingLabelBehavior) enum · [`floor`](#fn-floor) formula function · [`focus`](#action-focus) action · [`focusGained`](#trigger-focusGained) trigger · [`focusLost`](#trigger-focusLost) trigger · [`FontFeature`](#type-FontFeature) value type · [`FontStyle`](#enum-FontStyle) enum · [`FontWeight`](#type-FontWeight) value type · [`forEach`](#action-forEach) action · [`formatAmount`](#fn-formatAmount) formula function · [`formatCurrency`](#fn-formatCurrency) formula function · [`formatDate`](#fn-formatDate) formula function · [`formatDuration`](#fn-formatDuration) formula function · [`formatNumber`](#fn-formatNumber) formula function · [`formatPercent`](#fn-formatPercent) formula function · [`formatRelative`](#fn-formatRelative) formula function · [`FormService`](#enum-FormService) enum · [`frame`](#trigger-frame) trigger · [`fromCharCode`](#fn-fromCharCode) formula function
 
 **G** · [`GaugeLimitStyle`](#enum-GaugeLimitStyle) enum · [`gaugeMeter`](#node-gaugeMeter) node type · [`GaugeShape`](#enum-GaugeShape) enum · [`GaugeZone`](#type-GaugeZone) model · [`GestureBounds`](#enum-GestureBounds) enum · [`GesturePhysics`](#type-GesturePhysics) model · [`GestureSnap`](#type-GestureSnap) model · [`get`](#fn-get) formula function · [`gridView`](#node-gridView) node type · [`groupBy`](#fn-groupBy) formula function
 
-**H** · [`haptic`](#action-haptic) action · [`HapticKind`](#enum-HapticKind) enum · [`hero`](#behavior-hero) behavior · [`HeroFlightShuttle`](#enum-HeroFlightShuttle) enum · [`HeroPlaceholder`](#enum-HeroPlaceholder) enum · [`HeroTag`](#type-HeroTag) model · [`hold`](#trigger-hold) trigger · [`hour`](#fn-hour) formula function · [`hover`](#trigger-hover) trigger · [`hypot`](#fn-hypot) formula function
+**H** · [`haptic`](#action-haptic) action · [`HapticKind`](#enum-HapticKind) enum · [`hero`](#behavior-hero) behavior · [`HeroFlies`](#enum-HeroFlies) enum · [`HeroFlightShuttle`](#enum-HeroFlightShuttle) enum · [`HeroPlaceholder`](#enum-HeroPlaceholder) enum · [`HeroTag`](#type-HeroTag) model · [`hold`](#trigger-hold) trigger · [`hour`](#fn-hour) formula function · [`hover`](#trigger-hover) trigger · [`hypot`](#fn-hypot) formula function
 
 **I** · [`icon`](#node-icon) node type · [`IconAction`](#type-IconAction) model · [`IconAlignment`](#enum-IconAlignment) enum · [`iconButton`](#node-iconButton) node type · [`IconData`](#type-IconData) value type · [`if`](#action-if) action · [`if`](#fn-if) formula function · [`ignorePointer`](#behavior-ignorePointer) behavior · [`imageError`](#trigger-imageError) trigger · [`imageLoaded`](#trigger-imageLoaded) trigger · [`imageLoading`](#trigger-imageLoading) trigger · [`ImagePaint`](#type-ImagePaint) model · [`ImageRepeat`](#enum-ImageRepeat) enum · [`indexOf`](#fn-indexOf) formula function · [`inkWell`](#behavior-inkWell) behavior · [`InkWellStyle`](#type-InkWellStyle) model · [`InputBorder`](#type-InputBorder) model · [`InputBorderType`](#enum-InputBorderType) enum · [`inputChip`](#node-inputChip) node type · [`InputDecoration`](#type-InputDecoration) model · [`InputIcon`](#type-InputIcon) model · [`insertAt`](#fn-insertAt) formula function · [`interpolate`](#fn-interpolate) formula function · [`isAfter`](#fn-isAfter) formula function · [`isBefore`](#fn-isBefore) formula function · [`isEmpty`](#fn-isEmpty) formula function · [`isFuture`](#fn-isFuture) formula function · [`isNotEmpty`](#fn-isNotEmpty) formula function · [`isPast`](#fn-isPast) formula function · [`isSameDay`](#fn-isSameDay) formula function · [`isToday`](#fn-isToday) formula function
 
@@ -793,7 +793,7 @@ Every declared name and the page that documents it.
 
 **R** · [`radialGauge`](#node-radialGauge) node type · [`radians`](#fn-radians) formula function · [`radio`](#node-radio) node type · [`random`](#fn-random) formula function · [`range`](#fn-range) formula function · [`Rect`](#type-Rect) value type · [`refresh`](#trigger-refresh) trigger · [`regexReplace`](#fn-regexReplace) formula function · [`reloadCloudData`](#action-reloadCloudData) action · [`removeAt`](#fn-removeAt) formula function · [`removeWhere`](#fn-removeWhere) formula function · [`reorder`](#trigger-reorder) trigger · [`reorderHandle`](#behavior-reorderHandle) behavior · [`ReorderPlaceholder`](#enum-ReorderPlaceholder) enum · [`ReorderStart`](#enum-ReorderStart) enum · [`replace`](#fn-replace) formula function · [`retryFailed`](#action-retryFailed) action · [`Reveal`](#type-Reveal) model · [`reveal`](#behavior-reveal) behavior · [`RevealOrigin`](#enum-RevealOrigin) enum · [`RevealShape`](#enum-RevealShape) enum · [`reverse`](#fn-reverse) formula function · [`right`](#fn-right) formula function · [`round`](#fn-round) formula function · [`RouteDismiss`](#type-RouteDismiss) model · [`RouteSwipeBack`](#enum-RouteSwipeBack) enum · [`RouteTransition`](#type-RouteTransition) model · [`RouteTransitionPreset`](#enum-RouteTransitionPreset) enum · [`row`](#node-row) node type · [`rowTap`](#trigger-rowTap) trigger · [`runs`](#fn-runs) formula function · [`runScript`](#action-runScript) action
 
-**S** · [`scale`](#behavior-scale) behavior · [`ScaleMode`](#enum-ScaleMode) enum · [`scroll`](#trigger-scroll) trigger · [`ScrollAxis`](#enum-ScrollAxis) enum · [`scrollEnd`](#trigger-scrollEnd) trigger · [`ScrollPhysicsType`](#enum-ScrollPhysicsType) enum · [`scrollTo`](#action-scrollTo) action · [`second`](#fn-second) formula function · [`secondaryClick`](#trigger-secondaryClick) trigger · [`seconds`](#fn-seconds) formula function · [`segmentedButton`](#node-segmentedButton) node type · [`SegmentedVariant`](#enum-SegmentedVariant) enum · [`set`](#fn-set) formula function · [`setAt`](#fn-setAt) formula function · [`setStorage`](#action-setStorage) action · [`setValue`](#action-setValue) action · [`setVariable`](#action-setVariable) action · [`setVariant`](#action-setVariant) action · [`ShapeBorder`](#type-ShapeBorder) model · [`ShapeBorderType`](#enum-ShapeBorderType) enum · [`Shimmer`](#type-Shimmer) model · [`shimmer`](#behavior-shimmer) behavior · [`showToast`](#action-showToast) action · [`ShowValueIndicator`](#enum-ShowValueIndicator) enum · [`sign`](#fn-sign) formula function · [`signature`](#node-signature) node type · [`SignaturePlaceholderPosition`](#enum-SignaturePlaceholderPosition) enum · [`SignLineStyle`](#enum-SignLineStyle) enum · [`SignMarkPlacement`](#enum-SignMarkPlacement) enum · [`sin`](#fn-sin) formula function · [`singlePlaceholder`](#node-singlePlaceholder) node type · [`Size`](#type-Size) value type · [`skip`](#fn-skip) formula function · [`slice`](#fn-slice) formula function · [`slider`](#node-slider) node type · [`SliderThumbShape`](#enum-SliderThumbShape) enum · [`SliderTickMarkStyle`](#enum-SliderTickMarkStyle) enum · [`SliderTrackShape`](#enum-SliderTrackShape) enum · [`SliderValueIndicatorShape`](#enum-SliderValueIndicatorShape) enum · [`slot`](#node-slot) node type · [`slug`](#fn-slug) formula function · [`SnapKind`](#enum-SnapKind) enum · [`sortBy`](#fn-sortBy) formula function · [`sortByDesc`](#fn-sortByDesc) formula function · [`spacer`](#node-spacer) node type · [`speak`](#action-speak) action · [`split`](#fn-split) formula function · [`Spring`](#type-Spring) model · [`sqrt`](#fn-sqrt) formula function · [`stack`](#node-stack) node type · [`startsWith`](#fn-startsWith) formula function · [`states`](#behavior-states) behavior · [`StateStyles`](#type-StateStyles) model · [`Sticky`](#type-Sticky) model · [`sticky`](#behavior-sticky) behavior · [`StorageOperation`](#enum-StorageOperation) enum · [`StrokeAlign`](#enum-StrokeAlign) enum · [`StrokeCap`](#enum-StrokeCap) enum · [`StrokeJoin`](#enum-StrokeJoin) enum · [`StrokePath`](#type-StrokePath) model · [`strokePath`](#behavior-strokePath) behavior · [`StrokeSides`](#enum-StrokeSides) enum · [`submitForm`](#action-submitForm) action · [`submitted`](#trigger-submitted) trigger · [`substring`](#fn-substring) formula function · [`sum`](#fn-sum) formula function · [`SwipeAction`](#type-SwipeAction) model · [`swipeAction`](#trigger-swipeAction) trigger · [`SwipeActions`](#type-SwipeActions) model · [`swipeDown`](#trigger-swipeDown) trigger · [`swipeLeft`](#trigger-swipeLeft) trigger · [`swipeRight`](#trigger-swipeRight) trigger · [`swipeUp`](#trigger-swipeUp) trigger · [`switch`](#node-switch) node type
+**S** · [`ScaleMode`](#enum-ScaleMode) enum · [`scroll`](#trigger-scroll) trigger · [`ScrollAxis`](#enum-ScrollAxis) enum · [`scrollEnd`](#trigger-scrollEnd) trigger · [`ScrollPhysicsType`](#enum-ScrollPhysicsType) enum · [`scrollTo`](#action-scrollTo) action · [`second`](#fn-second) formula function · [`secondaryClick`](#trigger-secondaryClick) trigger · [`seconds`](#fn-seconds) formula function · [`segmentedButton`](#node-segmentedButton) node type · [`SegmentedVariant`](#enum-SegmentedVariant) enum · [`set`](#fn-set) formula function · [`setAt`](#fn-setAt) formula function · [`setStorage`](#action-setStorage) action · [`setValue`](#action-setValue) action · [`setVariable`](#action-setVariable) action · [`setVariant`](#action-setVariant) action · [`ShapeBorder`](#type-ShapeBorder) model · [`ShapeBorderType`](#enum-ShapeBorderType) enum · [`Shimmer`](#type-Shimmer) model · [`shimmer`](#behavior-shimmer) behavior · [`showToast`](#action-showToast) action · [`ShowValueIndicator`](#enum-ShowValueIndicator) enum · [`sign`](#fn-sign) formula function · [`signature`](#node-signature) node type · [`SignaturePlaceholderPosition`](#enum-SignaturePlaceholderPosition) enum · [`SignLineStyle`](#enum-SignLineStyle) enum · [`SignMarkPlacement`](#enum-SignMarkPlacement) enum · [`sin`](#fn-sin) formula function · [`singlePlaceholder`](#node-singlePlaceholder) node type · [`Size`](#type-Size) value type · [`skip`](#fn-skip) formula function · [`slice`](#fn-slice) formula function · [`slider`](#node-slider) node type · [`SliderThumbShape`](#enum-SliderThumbShape) enum · [`SliderTickMarkStyle`](#enum-SliderTickMarkStyle) enum · [`SliderTrackShape`](#enum-SliderTrackShape) enum · [`SliderValueIndicatorShape`](#enum-SliderValueIndicatorShape) enum · [`slot`](#node-slot) node type · [`slug`](#fn-slug) formula function · [`SnapKind`](#enum-SnapKind) enum · [`sortBy`](#fn-sortBy) formula function · [`sortByDesc`](#fn-sortByDesc) formula function · [`spacer`](#node-spacer) node type · [`speak`](#action-speak) action · [`split`](#fn-split) formula function · [`Spring`](#type-Spring) model · [`sqrt`](#fn-sqrt) formula function · [`stack`](#node-stack) node type · [`startsWith`](#fn-startsWith) formula function · [`states`](#behavior-states) behavior · [`StateStyles`](#type-StateStyles) model · [`Sticky`](#type-Sticky) model · [`sticky`](#behavior-sticky) behavior · [`StorageOperation`](#enum-StorageOperation) enum · [`StrokeAlign`](#enum-StrokeAlign) enum · [`StrokeCap`](#enum-StrokeCap) enum · [`StrokeJoin`](#enum-StrokeJoin) enum · [`StrokePath`](#type-StrokePath) model · [`strokePath`](#behavior-strokePath) behavior · [`StrokeSides`](#enum-StrokeSides) enum · [`submitForm`](#action-submitForm) action · [`submitted`](#trigger-submitted) trigger · [`substring`](#fn-substring) formula function · [`sum`](#fn-sum) formula function · [`SwipeAction`](#type-SwipeAction) model · [`swipeAction`](#trigger-swipeAction) trigger · [`SwipeActions`](#type-SwipeActions) model · [`swipeDown`](#trigger-swipeDown) trigger · [`swipeLeft`](#trigger-swipeLeft) trigger · [`swipeRight`](#trigger-swipeRight) trigger · [`swipeUp`](#trigger-swipeUp) trigger · [`switch`](#node-switch) node type
 
 **T** · [`TabAlignment`](#enum-TabAlignment) enum · [`tabBar`](#node-tabBar) node type · [`TabBarIndicatorSize`](#enum-TabBarIndicatorSize) enum · [`TabContent`](#enum-TabContent) enum · [`TabIndicatorStyle`](#enum-TabIndicatorStyle) enum · [`TableColumn`](#type-TableColumn) model · [`tableView`](#node-tableView) node type · [`tabs`](#node-tabs) node type · [`take`](#fn-take) formula function · [`tan`](#fn-tan) formula function · [`text`](#fn-text) formula function · [`text`](#node-text) node type · [`TextAlign`](#enum-TextAlign) enum · [`TextAlignVertical`](#enum-TextAlignVertical) enum · [`textButton`](#node-textButton) node type · [`TextCapitalization`](#enum-TextCapitalization) enum · [`TextDecoration`](#enum-TextDecoration) enum · [`TextDecorationStyle`](#enum-TextDecorationStyle) enum · [`TextDirection`](#enum-TextDirection) enum · [`textDirection`](#fn-textDirection) formula function · [`textDirection`](#behavior-textDirection) behavior · [`textDirectionOf`](#fn-textDirectionOf) formula function · [`textField`](#node-textField) node type · [`TextInputAction`](#enum-TextInputAction) enum · [`TextInputType`](#enum-TextInputType) enum · [`TextLeadingDistribution`](#enum-TextLeadingDistribution) enum · [`TextOverflow`](#enum-TextOverflow) enum · [`TextRun`](#type-TextRun) model · [`TextStyle`](#type-TextStyle) model · [`thousands`](#fn-thousands) formula function · [`TileMode`](#enum-TileMode) enum · [`Tilt`](#type-Tilt) model · [`tilt`](#behavior-tilt) behavior · [`timeAgo`](#fn-timeAgo) formula function · [`timePicker`](#node-timePicker) node type · [`timer`](#trigger-timer) trigger · [`titleCase`](#fn-titleCase) formula function · [`ToastPosition`](#enum-ToastPosition) enum · [`ToastStyle`](#enum-ToastStyle) enum · [`today`](#fn-today) formula function · [`toMap`](#fn-toMap) formula function · [`tooltip`](#behavior-tooltip) behavior · [`Track`](#type-Track) model · [`track`](#behavior-track) behavior · [`TrackBlend`](#enum-TrackBlend) enum · [`TrackCommand`](#enum-TrackCommand) enum · [`TrackHitArea`](#enum-TrackHitArea) enum · [`TrackInput`](#enum-TrackInput) enum · [`TrackInteraction`](#enum-TrackInteraction) enum · [`TrackShape`](#enum-TrackShape) enum · [`TrackUnits`](#enum-TrackUnits) enum · [`TransformCommand`](#enum-TransformCommand) enum · [`TransformGesture`](#type-TransformGesture) model · [`transformGesture`](#behavior-transformGesture) behavior · [`TransformHandles`](#type-TransformHandles) model · [`TransformPan`](#enum-TransformPan) enum · [`TransformTarget`](#enum-TransformTarget) enum · [`Transition`](#type-Transition) model · [`TransitionReveal`](#type-TransitionReveal) model · [`transitions`](#behavior-transitions) behavior · [`TransitionSide`](#type-TransitionSide) model · [`TriggerType`](#enum-TriggerType) enum · [`trim`](#fn-trim) formula function · [`Typewriter`](#type-Typewriter) model · [`typewriter`](#behavior-typewriter) behavior
 
@@ -855,7 +855,7 @@ free space 1 : 2 (`flex`) beside a fixed grey box.
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["sizing"],
   "nodes": {
     "sizing": {
@@ -916,7 +916,6 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 <a id="layout-constraints"></a>
 <a id="layout-margin"></a>
 <a id="layout-padding"></a>
-<a id="layout-rotation"></a>
 <a id="layout-aspectRatio"></a>
 <a id="layout-flex"></a>
 <a id="layout-squeezable"></a>
@@ -932,7 +931,6 @@ A node's `"layout"`: its size, spacing and placement in its parent. `width` and 
 | `constraints` | [BoxConstraints](#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
 | `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
-| `rotation` | double | `0` |  | Degrees, clockwise. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
 | `squeezable` | bool | `false` |  | Under a row/column: a hugging child that may shrink (`Flexible`). |
@@ -1314,7 +1312,7 @@ column capped at 1200:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -1485,7 +1483,7 @@ comparison table built from one row template and one cell template:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -1632,7 +1630,7 @@ giving one; `"axis": "horizontal"` moves only sideways scroll views).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["article"],
   "nodes": {
     "article": {
@@ -1696,7 +1694,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home-mobile", "home-desktop"],
   "nodes": {
     "home-mobile": {
@@ -1759,7 +1757,7 @@ one part of a screen. Older documents use this:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["page"],
   "nodes": {
     "page": {
@@ -1861,7 +1859,7 @@ A site manifest (`site.json`) with a theme: a palette and a type scale. The page
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "pages": ["home.json"],
   "theme": {
     "colors": {"ink": "#FF1B1B1B", "ember": "#FFE4572E", "paper": "#FFF6F1E9"},
@@ -2051,7 +2049,7 @@ name. The render command uses font files from `--fonts <dir>` plus Roboto, and r
 
 - A text without a colour is white (`text_no_color` when rendered): set it in the style or the named style.
 - A name the theme does not have is `unknown_theme_name` (with the nearest name); a theme of the wrong shape is
-  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 3, "pages": ["home.json"],
+  `invalid_theme`. Without a `site.json`, put the page in a folder with one: `{"schema": 4, "pages": ["home.json"],
   "theme": {...}}`.
 - A theme colour's name is not read from a formula: bind `${theme.colors.ember}`.
 - Run offsets count characters, `\n` as one.
@@ -2081,7 +2079,7 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -2409,7 +2407,7 @@ fetch network images (`image_network`).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["gallery"],
   "nodes": {
     "gallery": {
@@ -2507,7 +2505,7 @@ good one:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["contact"],
   "nodes": {
     "contact": {
@@ -3613,7 +3611,7 @@ A `listView` repeats its first child once per item of its `data` binding; inside
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["faq"],
   "nodes": {
     "faq": {
@@ -4140,7 +4138,7 @@ A tap on a day flips it in the habit's record (`setAt` and `set` build the new l
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -4260,7 +4258,7 @@ Two screens: a list that opens a detail screen with a parameter, a modal, and a 
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home", "about", "signup"],
   "nodes": {
     "home": {
@@ -4813,7 +4811,7 @@ A counter: a variable, two buttons that change it, and a text and a colour bound
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["counter"],
   "nodes": {
     "counter": {
@@ -4920,7 +4918,6 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 | `layout.constraints` | `BoxConstraints` | {"minWidth", "maxWidth", "minHeight", "maxHeight"} (each optional, numbers >= 0) |
 | `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
 | `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
-| `layout.rotation` | `double` | a number |
 | `layout.aspectRatio` | `double` | a number |
 | `layout.flex` | `int` | a whole number |
 | `layout.squeezable` | `bool` | `true` or `false` |
@@ -4946,10 +4943,10 @@ read and the field keeps its value. Values are read loosely: `"12"` is a number,
 `props.<prop>` takes what the prop's type is written as: `"${= open ? 'vertical' : 'horizontal'}"` for
 `props.direction`, a TextStyle object or a theme style's name for `props.style`. Every bindable field:
 
-- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
+- `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type, and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`scale`](#behavior-scale), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`flightKey`](#behavior-flightKey), [`flight`](#behavior-flight), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`strokePath`](#behavior-strokePath), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint).
+- `<behavior>` and `<behavior>.<field>`: [`motion`](#behavior-motion), [`animations`](#behavior-animations), [`transitions`](#behavior-transitions), [`shimmer`](#behavior-shimmer), [`inkWell`](#behavior-inkWell), [`states`](#behavior-states), [`tooltip`](#behavior-tooltip), [`ignorePointer`](#behavior-ignorePointer), [`floating`](#behavior-floating), [`hero`](#behavior-hero), [`draggable`](#behavior-draggable), [`dropTarget`](#behavior-dropTarget), [`track`](#behavior-track), [`dismissible`](#behavior-dismissible), [`pan`](#behavior-pan), [`reorderHandle`](#behavior-reorderHandle), [`reveal`](#behavior-reveal), [`strokePath`](#behavior-strokePath), [`typewriter`](#behavior-typewriter), [`particles`](#behavior-particles), [`textDirection`](#behavior-textDirection), [`defaultTextStyle`](#behavior-defaultTextStyle), [`flip`](#behavior-flip), [`tilt`](#behavior-tilt), [`transformGesture`](#behavior-transformGesture), [`sticky`](#behavior-sticky), [`viewProgress`](#behavior-viewProgress), [`measure`](#behavior-measure), [`customPaint`](#behavior-customPaint).
 
 Named paths:
 
@@ -4963,14 +4960,12 @@ Named paths:
 | `layout.width` |  |
 | `layout.height` |  |
 | `layout.flex` |  |
-| `layout.rotation` |  |
 | `layout.margin` |  |
 | `layout.padding` |  |
 | `layout.x` |  |
 | `layout.y` |  |
 | `decoration.radius` |  |
 | `decoration.strokeWidth` |  |
-| `scale` |  |
 | `textDirection` |  |
 
 <a id="state-conditions"></a>
@@ -5418,7 +5413,7 @@ over the node's binding. A binding with a formula is often simpler; conditions s
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["plans"],
   "nodes": {
     "plans": {
@@ -5530,7 +5525,7 @@ A button-like row that changes colour while hovered and pressed, and while selec
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["buttons"],
   "nodes": {
     "buttons": {
@@ -6026,7 +6021,7 @@ field has the focus: arrow keys between tabs are two reactions that set the tab 
 ## When to use
 
 Anything that moves: a change that animates (implicit transitions), keyframe animations and presets, moving,
-scaling and turning a node without changing layout (`motion`), shared-element flights between screens, reveal on
+scaling and turning a node without changing layout (`motion`), shared-element flights (`hero`), reveal on
 scroll, shimmer, typewriter text, particles, flip cards and tilt, and the timer and frame triggers for clocks and
 games.
 
@@ -6038,7 +6033,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["habit"],
   "nodes": {
     "habit": {
@@ -6092,7 +6087,7 @@ A habit check-off: tapping the circle toggles `done`; its fill and scale change 
 
 A node key (beside `layout` and `props`). Type: [Motion](#type-Motion). Default: unset.
 
-The transform over the layout (Flutter's `Transform`).
+The transform over the layout (Flutter's `Transform`): its move, scale and rotation are drawn, never laid out.
 
 <a id="type-Motion"></a>
 #### Motion
@@ -6119,13 +6114,6 @@ Schema 2's other motion keys (`originX`/`originY`, the flat path keys, `opacity`
 | `alignment` | [Alignment](#type-Alignment) | `[0,0]` |  | The point scale and rotation are about (`Transform.alignment`). |
 | `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
 | `path` | [PathFollow](#type-PathFollow) | unset |  | A path the node sits on. |
-
-<a id="behavior-scale"></a>
-### `scale` (behavior)
-
-A node key (beside `layout` and `props`). Type: double. Default: `1`. Allowed: ≥ 0.
-
-Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`.
 
 <a id="behavior-animations"></a>
 ### `animations` (behavior)
@@ -6343,46 +6331,20 @@ Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` 
 
 A node key (beside `layout` and `props`). Type: [HeroTag](#type-HeroTag). Default: unset.
 
+A shared element (Flutter's `Hero`): the tag, or `{"tag", "flies", ...}`.
+
 <a id="type-HeroTag"></a>
 #### HeroTag
 
-Makes the node a shared element (Flutter's `Hero`): it flies between its places on two screens with the same `tag` while a navigation plays.
+Makes the node a shared element (Flutter's `Hero`): it flies from where the node with the same `tag` was to where it is, between two screens while a navigation plays (`HeroFlies.betweenScreens`, Flutter's) or when it appears in place (`HeroFlies.inPlace`). JSON: the tag alone (`"hero": "avatar-1"`) or `{"tag", "flies", "flightShuttle", "placeholder", "flight"}`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `tag` | String | `""` |  |  |
-| `flight` | [HeroFlightShuttle](#enum-HeroFlightShuttle) | `"standard"` | `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform` |  |
-| `placeholder` | [HeroPlaceholder](#enum-HeroPlaceholder) | `"none"` | `none`, `source` | What the destination shows until its own image has loaded. |
-
-<a id="behavior-flightKey"></a>
-### `flightKey` (behavior)
-
-A node key (beside `layout` and `props`). Type: String. Default: `""`.
-
-Flies the node in from where the node with the same key just was.
-
-<a id="behavior-flight"></a>
-### `flight` (behavior)
-
-A node key (beside `layout` and `props`). Type: [Flight](#type-Flight). Default: unset.
-
-How it flies there (`flightKey`); null flies on the node's spring.
-
-<a id="type-Flight"></a>
-#### Flight
-
-How a node with a `Behaviors.flightKey` flies in from where the node with the same key was: on a spring by default, or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end, swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `duration` | int | `0` | ≥ 0 | 0: on the node's spring. |
-| `curve` | [AnimationCurve](#enum-AnimationCurve) | `"easeInOut"` |  |  |
-| `lift` | double | `0` |  | Rise of the path's control point above the higher end (px). |
-| `liftShare` | double | `0` |  | The same as a share of the distance flown (the larger wins). |
-| `swell` | double | `1` | ≥ 0 | Scale at the middle of the flight. |
-| `turns` | double | `0` |  | Turns over the flight, clockwise when flying right. |
-| `trail` | int | `0` | ≥ 0 | Fading dots left behind. |
-| `trailColor` | [Color](#type-Color) | `"#FFFFC83D"` |  |  |
+| `tag` | String | `""` |  | Flutter's `Hero.tag`: the node with the same tag is where it flies from. |
+| `flies` | [HeroFlies](#enum-HeroFlies) | `"betweenScreens"` | `betweenScreens`, `inPlace` | When it flies: `betweenScreens` (Flutter's `Hero`: while a navigation plays) or `inPlace` (when it appears, from where the node with its tag just was on screen). |
+| `flightShuttle` | [HeroFlightShuttle](#enum-HeroFlightShuttle) | `"standard"` | `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform` | What a flight between screens draws (`Hero.flightShuttleBuilder`). |
+| `placeholder` | [HeroPlaceholder](#enum-HeroPlaceholder) | `"none"` | `none`, `source` | What the destination shows until its own image has loaded (between screens). |
+| `flight` | [Flight](#type-Flight) | unset |  | How it flies in place: on a spring when unset, or timed along an arc. |
 
 <a id="behavior-viewProgress"></a>
 ### `viewProgress` (behavior)
@@ -6447,8 +6409,11 @@ This is the simplest way to animate a check-off, a selected card or an opening p
 ### Move, scale or turn without changing layout (motion)
 
 `motion` is a transform painted over the node's layout (Flutter's `Transform`): `translateX`/`translateY` in pixels,
-`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment`. Nothing else moves. Bind
-a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it.
+`scale`, `rotate` in degrees, 3D `rotateX`/`rotateY` with `perspective`, about `alignment` (the center by default).
+It is the one way to scale or turn a node: there is no node `scale` and no `layout.rotation` (a turned node keeps
+its unturned box in the layout, as `Transform.rotate` does; Flutter's `RotatedBox` has no counterpart). Nothing else
+moves. Bind a field (`"motion.rotate": "${= open ? 180 : 0}"`) and add a transition to animate it; a transition on
+`motion.scale` times the scale apart from the rest of the motion (`AnimatedScale` beside `AnimatedSlide`).
 
 <a id="animation-play-an-animation-animations-and-presets"></a>
 ### Play an animation (animations and presets)
@@ -6464,11 +6429,15 @@ change of `playKey`. A screen-wide animation sits on the canvas.
 `reveal` plays when the node scrolls into view; `viewProgress` gives `${view.progress}` (0–1 through the viewport)
 to bind to; the `enterViewport` and `exitViewport` triggers run actions.
 
-<a id="animation-shared-elements-between-screens"></a>
-### Shared elements between screens
+<a id="animation-shared-elements-hero"></a>
+### Shared elements (hero)
 
-`hero` (a tag) flies the node from one screen to the matching one on the next; `flightKey` flies a node in from
-where the node with the same key just was (a card that becomes a detail header), with `flight` saying how.
+`hero` is Flutter's `Hero`: a tag (`"hero": "avatar-${item.id}"`) flies the node from its place on the screen a
+navigation leaves to the node with the same tag on the screen it opens; `flightShuttle` picks what flies (`morph`,
+`containerTransform`...). With `"flies": "inPlace"` it flies when it appears instead, from where the node with its
+tag was a moment ago on screen (a picked emoji flying from its picker to its chip, a card dropped into a column):
+`{"hero": {"tag": "react", "flies": "inPlace", "flight": {"duration": 720, "lift": 110}}}`, on a spring without a
+`flight`.
 
 <a id="animation-clocks-and-game-loops"></a>
 ### Clocks and game loops
@@ -6480,7 +6449,8 @@ physics and game loops. Keep the state in variables and the work in a script whe
 <a id="animation-pitfalls"></a>
 ## Pitfalls
 
-- `motion` and `scale` do not change layout: neighbours do not move. To make room, animate a layout field.
+- `motion` (its scale and rotate too) does not change layout: neighbours do not move. To make room, animate a
+  layout field.
 - A transition animates changes only; a value that never changes needs an animation that autoplays.
 - An animation's `id` is what `animate` names; without `autoplay` it waits.
 - Animations run in a running app. The render command settles about a second after each step, so a short
@@ -6511,7 +6481,7 @@ slots and events, the site manifest, and when to use a component, a list templat
 A definition (`components/Chip.json`; the file is named after the type):
 
 ```json
-{"schema": 3, "id": "Chip", "roots": ["chip"],
+{"schema": 4, "id": "Chip", "roots": ["chip"],
  "widget": {"type": "Chip", "doc": "A label with a remove button.", "children": "list", "slots": ["leading"],
    "props": [
      {"key": "label", "type": {"kind": "string", "flutter": "String"}, "default": "Chip", "required": true},
@@ -6575,7 +6545,7 @@ A directory with a `site.json` is a site: its pages, its components and its proj
 bare name in every page and component (a page or component variable of the same name is `duplicate_variable`).
 
 ```json
-{"schema": 3, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
+{"schema": 4, "pages": ["pages/home.json"], "components": ["components/Chip.json"],
  "variables": [{"name": "tags", "type": "list", "value": [{"name": "Design"}, {"name": "Code"}]}]}
 ```
 
@@ -6832,7 +6802,7 @@ A goal's progress as a bar bound to a variable, and a week as a bar chart:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["stats"],
   "nodes": {
     "stats": {
@@ -7540,7 +7510,7 @@ A value saved on the device and read back as `${storage.theme}`:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["prefs"],
   "nodes": {
     "prefs": {
@@ -7794,7 +7764,7 @@ A sign-in form whose error appears in a text:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["signIn"],
   "nodes": {
     "signIn": {
@@ -7918,7 +7888,7 @@ legal link).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["upgrade"],
   "nodes": {
     "upgrade": {
@@ -8008,7 +7978,7 @@ playing sounds, printing, capturing a screenshot, downloading a file and preload
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["watch"],
   "nodes": {
     "watch": {
@@ -8257,7 +8227,7 @@ lesson, a review prompt after the third order), and the `${usage}` counters they
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["done"],
   "nodes": {
     "done": {
@@ -8336,7 +8306,7 @@ A page whose canvas has a URL path and a name (its default title):
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "id": "pricing",
   "roots": ["pricing"],
   "nodes": {
@@ -8756,7 +8726,7 @@ The smallest document, and the command that checks it at three sizes:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -8831,9 +8801,9 @@ From `package:codelessly_api/validate.dart`:
 | Code | Severity | Meaning |
 |---|---|---|
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
-| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
-| `legacy_value` | warning | A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read. |
+| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2, 3 and 4, and writes 4). |
+| `schema_outdated` | info | A schema-2 or schema-3 document: it loads, migrated to schema 4 in memory (`migrate2to3`, `migrate3to4`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
+| `legacy_value` | warning | A `legacy.<name>` key a schema migration kept: a value that had no form in the newer schema and is no longer read. |
 | `unknown_document_key` | error | A top-level key of the document that nothing reads. |
 | `dangling_root` | error | A root id that names no node. |
 | `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |
@@ -9105,6 +9075,22 @@ On a replacing track a wave's amplitude is a share of the way from `from` to `to
 | `curve` | [AnimationCurve](#enum-AnimationCurve) | `"linear"` |  |  |
 | `blend` | [TrackBlend](#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
 | `interpolation` | [KeyframeInterpolation](#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` | How `keyframes` are joined. |
+
+<a id="type-Flight"></a>
+### Flight
+
+How a hero that flies in place (`HeroFlies.inPlace`) flies in from where the node with its tag was: on a spring by default (the node's `motion` transition's, when it has one with a spring), or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end (as Flutter's `MaterialRectArcTween` bends a hero's path), swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `duration` | int | `0` | ≥ 0 | 0: on the node's spring. |
+| `curve` | [AnimationCurve](#enum-AnimationCurve) | `"easeInOut"` |  |  |
+| `lift` | double | `0` |  | Rise of the path's control point above the higher end (px). |
+| `liftShare` | double | `0` |  | The same as a share of the distance flown (the larger wins). |
+| `swell` | double | `1` | ≥ 0 | Scale at the middle of the flight. |
+| `turns` | double | `0` |  | Turns over the flight, clockwise when flying right. |
+| `trail` | int | `0` | ≥ 0 | Fading dots left behind. |
+| `trailColor` | [Color](#type-Color) | `"#FFFFC83D"` |  |  |
 
 <a id="type-GesturePhysics"></a>
 ### GesturePhysics
@@ -9756,6 +9742,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `medium` |  |
 | `heavy` |  |
 | `vibrate` | A long buzz: an error, an alarm. |
+
+<a id="enum-HeroFlies"></a>
+### HeroFlies
+
+| Value | Meaning |
+|---|---|
+| `betweenScreens` | While a navigation plays, from its place on the screen that goes to its place on the screen that comes, when both have the tag (Flutter's `Hero`). |
+| `inPlace` | When it appears, from where the node with its tag was a moment ago (a node hidden or removed in the last two seconds, a dropped drag copy, a node on a screen that is closing): a picked emoji flying from its picker to its chip. Flutter's `Hero` has no such trigger (the `local_hero` package's `LocalHero` is the nearest). Heroes that fly in place find each other only. |
 
 <a id="enum-HeroFlightShuttle"></a>
 ### HeroFlightShuttle

@@ -19,7 +19,7 @@ stored layouts.
 
 ```dart
 final document = LayoutDocument.fromJson({
-  'schema': 3,
+  'schema': 4,
   'id': 'hello',
   'roots': ['home'],
   'nodes': {
