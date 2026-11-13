@@ -80,6 +80,8 @@ enum AutovalidateMode { disabled, always, onUserInteraction, onUnfocus }
 abstract final class TextFieldProps {
   /// The text it starts with (`TextFormField.initialValue`).
   static const initialValue = PropDef<String>('initialValue', Codecs.string, '');
+  /// The field's label, hint, helper and error texts, border (per state), fill, padding and icons (Flutter's
+  /// `InputDecoration`).
   static const decoration = PropDef<InputDecoration>('decoration', InputCodecs.decoration, InputDecoration.empty);
 
   /// The typed text's style; unset is the theme's.
@@ -87,6 +89,8 @@ abstract final class TextFieldProps {
   static const textAlign = PropDef<TextAlign>('textAlign', EnumCodec(TextAlign.values), TextAlign.start);
   static const textAlignVertical =
       PropDef<TextAlignVertical?>('textAlignVertical', EnumCodec(TextAlignVertical.values), null);
+  /// The on-screen keyboard to show (Flutter's `TextInputType`): `text`, `number`, `emailAddress`, `phone`, `url`,
+  /// `multiline`...
   static const keyboardType = PropDef<TextInputType>('keyboardType', EnumCodec(TextInputType.values), TextInputType.text);
 
   /// A number keyboard with a decimal point (`TextInputType.numberWithOptions(decimal: true)`).
@@ -102,6 +106,7 @@ abstract final class TextFieldProps {
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
   static const enableInteractiveSelection = PropDef<bool>('enableInteractiveSelection', Codecs.bool, true);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+  /// Hides what is typed (a password field).
   static const obscureText = PropDef<bool>('obscureText', Codecs.bool, false);
   static const obscuringCharacter = PropDef<String>('obscuringCharacter', Codecs.string, '•');
   static const readOnly = PropDef<bool>('readOnly', Codecs.bool, false);
@@ -171,6 +176,7 @@ abstract final class CheckboxProps {
   static const tristate = PropDef<bool>('tristate', Codecs.bool, false);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
   static const checkColor = PropDef<Color?>('checkColor', Codecs.color, null);
+  /// The box's fill when checked.
   static const activeColor = PropDef<Color?>('activeColor', Codecs.color, null);
   static const hoverColor = PropDef<Color?>('hoverColor', Codecs.color, null);
   static const focusColor = PropDef<Color?>('focusColor', Codecs.color, null);
@@ -200,8 +206,10 @@ abstract final class CheckboxProps {
 
 /// Flutter `Switch`, scaled to its box (59 px wide is Flutter's own size).
 abstract final class SwitchProps {
+  /// Whether the switch is on. Bind it to a variable and store the `changed` value in that variable.
   static const value = PropDef<bool>('value', Codecs.bool, false);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
+  /// The track's colour when on.
   static const activeTrackColor = PropDef<Color?>('activeTrackColor', Codecs.color, null);
   static const inactiveTrackColor = PropDef<Color?>('inactiveTrackColor', Codecs.color, null);
   static const activeThumbColor = PropDef<Color?>('activeThumbColor', Codecs.color, null);
@@ -277,12 +285,14 @@ abstract final class SwitchProps {
 /// Flutter `Radio<String>`, scaled to its box (32 px is its own size; its
 /// ring, 18 px, when [compact]).
 abstract final class RadioProps {
+  /// The value this radio stands for; it is selected when `groupValue` equals it.
   static const value = PropDef<String>('value', Codecs.string, '');
 
   /// The group's selected value; this radio is on when it equals [value].
   static const groupValue = PropDef<String?>('groupValue', Codecs.string, null);
   static const toggleable = PropDef<bool>('toggleable', Codecs.bool, false);
   static const autofocus = PropDef<bool>('autofocus', Codecs.bool, false);
+  /// The dot's colour when selected.
   static const activeColor = PropDef<Color?>('activeColor', Codecs.color, null);
 
   /// `fillColor` when not selected.
@@ -353,9 +363,14 @@ enum SliderTickMarkStyle {
 
 /// Flutter `Slider` with its `SliderThemeData`, at its box's design size.
 abstract final class SliderProps {
+  /// The current value, between `min` and `max`. Bind it to a variable and store the `changed` value in that
+  /// variable.
   static const value = PropDef<double>('value', Codecs.double, 0);
+  /// The value at the start of the track.
   static const min = PropDef<double>('min', Codecs.double, 0);
+  /// The value at the end of the track.
   static const max = PropDef<double>('max', Codecs.double, 1);
+  /// Snaps to this many equal steps between `min` and `max`. Null: continuous.
   static const divisions = PropDef<int?>('divisions', OptionalIntCodec(), null);
 
   /// The value indicator's text; `${value}` is the value.
@@ -369,6 +384,7 @@ abstract final class SliderProps {
 
   // SliderThemeData.
   static const trackHeight = PropDef<double?>('trackHeight', Codecs.positive, null);
+  /// The track's colour from `min` to the thumb.
   static const activeTrackColor = PropDef<Color?>('activeTrackColor', Codecs.color, null);
   static const inactiveTrackColor = PropDef<Color?>('inactiveTrackColor', Codecs.color, null);
   static const secondaryActiveTrackColor = PropDef<Color?>('secondaryActiveTrackColor', Codecs.color, null);
@@ -488,6 +504,7 @@ abstract final class DropdownProps {
 
   /// The selected item's alignment in the button.
   static const alignment = PropDef<Alignment>('alignment', InputCodecs.alignment, Alignment(-1, 0));
+  /// The text shown while no item is selected.
   static const hint = PropDef<String?>('hint', Codecs.string, null);
   static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
   static const iconDisabledColor = PropDef<Color?>('iconDisabledColor', Codecs.color, null);
@@ -662,7 +679,9 @@ enum SegmentedVariant {
 
 /// Flutter `SegmentedButton<String>`.
 abstract final class SegmentedButtonProps {
+  /// The segments, in order: each a value, a label and an optional icon.
   static const segments = PropDef<List<ButtonSegment>>('segments', InputCodecs.segments, []);
+  /// The values of the selected segments.
   static const selected = PropDef<List<String>>('selected', InputCodecs.strings, []);
   static const multiSelectionEnabled = PropDef<bool>('multiSelectionEnabled', Codecs.bool, false);
   static const emptySelectionAllowed = PropDef<bool>('emptySelectionAllowed', Codecs.bool, false);

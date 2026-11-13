@@ -49,11 +49,14 @@ final class FontWeightCodec extends PropCodec<int?> {
 // --- TextStyle ---------------------------------------------------------------
 
 abstract final class TextStyleFields {
+  /// The font family (`"Inter"`); `fontWeight` picks its file. Without one: the platform's default (Roboto).
   static const fontFamily = PropDef<String?>('fontFamily', Codecs.optionalString, null);
 
   /// Flutter's `FontWeight`: 100–900, in hundreds.
   static const fontWeight = PropDef<int?>('fontWeight', FontWeightCodec(), null);
+  /// `normal` or `italic`.
   static const fontStyle = PropDef<FontStyle?>('fontStyle', OptionalEnumCodec(FontStyle.values), null);
+  /// The font size in logical pixels. Without one: 12.
   static const fontSize = PropDef<double?>('fontSize', Codecs.optionalPositive, null);
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
   static const foreground = PropDef<Paint?>('foreground', Codecs.paint, null);
@@ -61,16 +64,20 @@ abstract final class TextStyleFields {
 
   /// Line height, as a multiple of the font size.
   static const height = PropDef<double?>('height', Codecs.optionalPositive, null);
+  /// A line through the text: `underline`, `overline`, `lineThrough` or `none`.
   static const decoration = PropDef<TextDecoration?>('decoration', OptionalEnumCodec(TextDecoration.values), null);
+  /// The colour of the `decoration` line; without one, the text's colour.
   static const decorationColor = PropDef<Color?>('decorationColor', Codecs.optionalColor, null);
 
   /// Painted behind the glyphs.
   static const backgroundColor = PropDef<Color?>('backgroundColor', Codecs.optionalColor, null);
+  /// The `decoration` line's style: `solid`, `double`, `dotted`, `dashed`, `wavy`.
   static const decorationStyle = PropDef<TextDecorationStyle?>(
     'decorationStyle',
     OptionalEnumCodec(TextDecorationStyle.values),
     null,
   );
+  /// The `decoration` line's thickness, as a multiple of the font's default.
   static const decorationThickness = PropDef<double?>('decorationThickness', Codecs.optionalDouble, null);
   static const tabularFigures = PropDef<bool?>('tabularFigures', Codecs.optionalBool, null);
   static const shadows = PropDef<List<Effect>>('shadows', Codecs.effects, []);
@@ -118,9 +125,13 @@ List<PropDef<Object?>> textRunFields() => TextRunFields.all;
 // --- BorderSide --------------------------------------------------------------
 
 abstract final class BorderSideFields {
+  /// The line's colour.
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
+  /// The line's width in pixels.
   static const width = PropDef<double>('width', Codecs.positive, 1);
+  /// `solid` or `none`.
   static const style = PropDef<BorderStyle>('style', EnumCodec(BorderStyle.values), BorderStyle.solid);
+  /// Where the line sits on the edge: inside, centered on it, or outside.
   static const strokeAlign = PropDef<StrokeAlign>('strokeAlign', EnumCodec(StrokeAlign.values), StrokeAlign.inside);
   static const List<PropDef<Object?>> all = [color, width, style, strokeAlign];
 }
@@ -130,7 +141,9 @@ List<PropDef<Object?>> borderSideFields() => BorderSideFields.all;
 // --- Paint -------------------------------------------------------------------
 
 abstract final class ColorStopFields {
+  /// Where the colour sits along the gradient, 0 (its start) to 1 (its end).
   static const position = PropDef<double>('position', DoubleCodec(min: 0, max: 1), 0);
+  /// The colour at `position`.
   static const color = PropDef<Color>('color', Codecs.color, Color.black);
   static const List<PropDef<Object?>> all = [position, color];
 }
@@ -138,10 +151,16 @@ abstract final class ColorStopFields {
 List<PropDef<Object?>> colorStopFields() => ColorStopFields.all;
 
 abstract final class ImagePaintFields {
+  /// The image's URL: `https://`, a `data:image/...` URL, or (for the render command's drafts) a path relative to
+  /// the document.
   static const url = PropDef<String?>('url', Codecs.optionalString, null);
+  /// A project asset's id, for images uploaded to the project.
   static const assetId = PropDef<String?>('assetId', Codecs.optionalString, null);
+  /// How the image fills the box (Flutter's `BoxFit`): `cover`, `contain`, `fill`, `fitWidth`...
   static const fit = PropDef<BoxFit>('fit', EnumCodec(BoxFit.values), BoxFit.cover);
+  /// Where the image sits in the box when it does not fill it, or which part shows when it is cropped.
   static const alignment = PropDef<Alignment>('alignment', Codecs.alignment, Alignment.center);
+  /// Whether the image repeats to fill the box (Flutter's `ImageRepeat`).
   static const repeat = PropDef<ImageRepeat>('repeat', EnumCodec(ImageRepeat.values), ImageRepeat.noRepeat);
   static const scale = PropDef<double>('scale', Codecs.positive, 1);
   static const tint = PropDef<Color?>('tint', Codecs.optionalColor, null);
@@ -169,10 +188,15 @@ abstract final class ImagePaintFields {
 List<PropDef<Object?>> imagePaintFields() => ImagePaintFields.all;
 
 abstract final class PaintFields {
+  /// What the paint is: `solid` (a colour), `linear`, `radial`, `sweep` or `diamond` (a gradient of `stops`),
+  /// `image`, or `noise`. Without one: an image if it has `image`, a linear gradient if it has `stops`, else solid.
   static const type = PropDef<PaintType>('type', EnumCodec(PaintType.values), PaintType.solid);
   static const id = PropDef<String?>('id', Codecs.optionalString, null);
+  /// False keeps the paint but does not draw it.
   static const visible = PropDef<bool>('visible', Codecs.bool, true);
+  /// The paint's opacity, 0 to 1, multiplied with its colours' own alpha.
   static const opacity = PropDef<double>('opacity', DoubleCodec(min: 0, max: 1), 1);
+  /// How the paint blends with what is under it (CSS `mix-blend-mode`).
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
   static const stops = PropDef<List<ColorStop>>(
@@ -208,6 +232,7 @@ abstract final class PaintFields {
   static const center = PropDef<Alignment?>('center', Codecs.optionalAlignment, null,
       doc: 'Radial: its center, an alignment (`[0, -1]`: the middle of the top edge; Flutter `RadialGradient.center`). '
           'Read into `transform`; default the box\'s center.');
+  /// What a gradient does past `begin` and `end`: `clamp` (keeps the end colours), `repeated`, `mirror`, `decal`.
   static const tileMode = PropDef<TileMode>('tileMode', EnumCodec(TileMode.values), TileMode.clamp);
   static const image = PropDef<ImagePaint?>(
     'image',
@@ -282,13 +307,22 @@ List<PropDef<Object?>> paintFields() => PaintFields.all;
 // --- Effect ------------------------------------------------------------------
 
 abstract final class EffectFields {
+  /// The effect: `dropShadow`, `innerShadow`, `layerBlur` (blurs the node) or `backgroundBlur` (blurs what is
+  /// behind it: frosted glass). Required: an effect without a type is dropped.
   static const type = PropDef<EffectType>('type', EnumCodec(EffectType.values), EffectType.dropShadow);
+  /// An id a binding can select the effect by (`decoration.effects.glow.color`).
   static const id = PropDef<String?>('id', Codecs.optionalString, null);
+  /// False keeps the effect but does not draw it.
   static const visible = PropDef<bool>('visible', Codecs.bool, true);
+  /// The shadow's colour.
   static const color = PropDef<Color>('color', Codecs.color, Color(0x40000000));
+  /// The shadow's offset `[dx, dy]` in pixels.
   static const offset = PropDef<Offset>('offset', Codecs.offset, Offset.zero);
+  /// How soft the shadow or blur is, in pixels.
   static const blurRadius = PropDef<double>('blurRadius', Codecs.positive, 0);
+  /// How far the shadow grows past the box before blurring, in pixels.
   static const spreadRadius = PropDef<double>('spreadRadius', Codecs.double, 0);
+  /// How the effect blends with what is under it.
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
 
   /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
@@ -306,8 +340,14 @@ List<PropDef<Object?>> effectFields() => EffectFields.all;
 /// [aspectRatio] are the node's own box; [margin] is its outer spacing;
 /// the rest only mean something under a given parent ([parentData]).
 abstract final class LayoutFields {
+  /// The node's width: a number (fixed), `{"hug": n}` (its content), `{"fill": n}` (the room its parent gives) or
+  /// `{"flexible": n}` (up to n). n is the design size. Without one the node is 0 wide.
   static const width = PropDef<AxisSize>('width', ValueCodec(_sizeIn, _out, axisSizeType), AxisSize.fixed(0));
+  /// The node's height: a number (fixed), `{"hug": n}`, `{"fill": n}` or `{"flexible": n}`, as `width`. Without one
+  /// the node is 0 high.
   static const height = PropDef<AxisSize>('height', ValueCodec(_sizeIn, _out, axisSizeType), AxisSize.fixed(0));
+  /// `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`: limits on the size, whatever the mode (Flutter's
+  /// `ConstrainedBox`). A fill width with `maxWidth` grows with its parent up to the cap.
   static const constraints = PropDef<BoxConstraints>('constraints', Codecs.constraints, BoxConstraints.none);
   static const margin = PropDef<EdgeInsets>('margin', Codecs.insets, EdgeInsets.zero);
   static const padding = PropDef<EdgeInsets>('padding', Codecs.insets, EdgeInsets.zero);
@@ -353,17 +393,26 @@ abstract final class LayoutFields {
 
 /// A node's [Decoration], field by field (JSON under `decoration`).
 abstract final class DecorationFields {
+  /// Paints for the box, bottom to top: a colour, a gradient, an image or noise.
   static const fills = PropDef<List<Paint>>('fills', Codecs.paints, []);
   static const foregroundFills = PropDef<List<Paint>>('foregroundFills', Codecs.paints, []);
+  /// Paints for the border, drawn `strokeWidth` wide.
   static const strokes = PropDef<List<Paint>>('strokes', Codecs.paints, []);
+  /// The border's width in pixels. Without `strokes` it draws nothing.
   static const strokeWidth = PropDef<double>('strokeWidth', Codecs.positive, 1);
+  /// Where the border sits on the box's edge: `inside`, `center` or `outside`.
   static const strokeAlign = PropDef<StrokeAlign>('strokeAlign', EnumCodec(StrokeAlign.values), StrokeAlign.inside);
+  /// Which sides the border is drawn on: `all`, `top`, `bottom`, `left`, `right`, `topBottom`, `leftRight`...
   static const strokeSides = PropDef<StrokeSides>('strokeSides', EnumCodec(StrokeSides.values), StrokeSides.all);
+  /// The ends of a dashed border's dashes.
   static const strokeCap = PropDef<StrokeCap>('strokeCap', EnumCodec(StrokeCap.values), StrokeCap.butt);
   static const dashPattern = PropDef<List<double>>('dashPattern', ListCodec(Codecs.positive), []);
+  /// The corners' radius: a number, `[x, y]`, or `[topLeft, topRight, bottomRight, bottomLeft]`.
   static const radius = PropDef<BorderRadius>('radius', Codecs.radius, BorderRadius.zero);
+  /// Shadows and blurs: each `{"type": "dropShadow" | "innerShadow" | "layerBlur" | "backgroundBlur", ...}`.
   static const effects = PropDef<List<Effect>>('effects', Codecs.effects, []);
   static const clip = PropDef<Clip>('clip', EnumCodec(Clip.values), Clip.none);
+  /// How the node's paint blends with what is under it (CSS `mix-blend-mode`).
   static const blendMode = PropDef<BlendMode>('blendMode', EnumCodec(BlendMode.values), BlendMode.srcOver);
   /// A rectangle (rounded by radius) or a circle (BoxShape.circle).
   static const shape = PropDef<DecorationShape>('shape', EnumCodec(DecorationShape.values), DecorationShape.rectangle);
@@ -377,7 +426,10 @@ abstract final class DecorationFields {
 
 /// A node's own top-level fields.
 abstract final class NodeFields {
+  /// False hides the node. Hidden by a binding, a condition or a media rule it takes no room; written `false` with
+  /// nothing to show it, it keeps its room empty.
   static const visible = PropDef<bool>('visible', Codecs.bool, true);
+  /// The node's opacity, 0 to 1, with its children (Flutter's `Opacity`).
   static const opacity = PropDef<double>('opacity', DoubleCodec(min: 0, max: 1), 1);
   static const List<PropDef<Object?>> all = [visible, opacity];
 }

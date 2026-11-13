@@ -12,6 +12,7 @@ abstract final class IconProps {
       doc: 'Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form '
           'to write everywhere (an icon node, an input\'s `prefixIcon`). Also read: an image URL, and the object forms '
           'of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`).');
+  /// The glyph's colour (`"#AARRGGBB"` or a theme colour's name).
   static const color = PropDef<Color?>('color', Codecs.optionalColor, null);
 
   /// Flutter's `Icon.size`: the glyph's extent (square).

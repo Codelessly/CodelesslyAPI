@@ -10,6 +10,8 @@ enum ScaleMode { responsive, autoScale }
 
 /// A screen (`Scaffold`): its `body` slot is the page content.
 abstract final class CanvasProps {
+  /// How the canvas fits a screen of another size than its design size: lays out at the screen's size, or scales
+  /// the design.
   static const scaleMode = PropDef<ScaleMode>('scaleMode', EnumCodec(ScaleMode.values), ScaleMode.responsive);
 
   /// While true, going back (the system or browser back button, a back
