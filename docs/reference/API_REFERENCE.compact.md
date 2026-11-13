@@ -4504,18 +4504,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `returnDuration`: int = unset
 - `returnCurve`: [AnimationCurve](#enum-AnimationCurve) = unset
 - `returnSpring`: [Spring](#type-Spring) = unset
-- `restX`: double = `0`
-- `restY`: double = `0`
-- `xVariable`: String = `""`
-- `yVariable`: String = `""`
-- `flyOutRotate`: double = `0`
-- `rotateFactor`: double = `0`
-- `originX`: double = `0`
-- `originY`: double = `0`
-- `shakeWhenDisabled`: bool = `false`
-- `disabledFollow`: double = `0`
-- `shareAs`: String = `""`
-- `follow`: bool = `true`
 
 <a id="type-DragSource"></a>
 ### DragSource
@@ -4545,9 +4533,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `slot`: [DropSlot](#enum-DropSlot) = `"gap"` (`none`, `gap`, `node`)
 - `slotNodeId`: String = `""`
 - `slotSize`: [DropSlotSize](#enum-DropSlotSize) = `"dragged"` (`dragged`, `node`, `inGap`)
-- `slotWhenRefused`: bool = `true`
-- `hoverDelay`: int = `0` (≥ 0)
-- `fullIf`: String = `""`
 - `enabled`: bool = `true`
 
 <a id="type-Effect"></a>
@@ -4609,7 +4594,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `points`: List<[Offset](#type-Offset)> = `[]`
 - `gridX`: double = `0` (≥ 0)
 - `gridY`: double = `0` (≥ 0)
-- `projectVelocity`: bool = `true`
 
 <a id="type-HeroTag"></a>
 ### HeroTag
@@ -4891,13 +4875,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `maxX`: double = unset
 - `minY`: double = unset
 - `maxY`: double = unset
-- `rotateFactor`: double = `0`
-- `originX`: double = `0`
-- `originY`: double = `0`
-- `shakeWhenDisabled`: bool = `false`
-- `disabledFollow`: double = `0`
-- `shareAs`: String = `""`
-- `follow`: bool = `true`
 
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter
@@ -4933,9 +4910,7 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `path`: String = `""`
 - `viewBox`: List<double> = `[]`
 - `progress`: double = `0`
-- `orient`: [PathOrient](#enum-PathOrient) = `"none"` (`none`, `tangent`, `upright`, `uprightFlip`)
-- `pacing`: [PathPacing](#enum-PathPacing) = `"length"` (`length`, `area`)
-- `focus`: List<double> = `[0,0]`
+- `orient`: [PathOrient](#enum-PathOrient) = `"none"` (`none`, `tangent`, `upright`)
 
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
@@ -5217,15 +5192,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `settleSpring`: [Spring](#type-Spring) = `{}`
 - `snap`: int = `0` (≥ 0)
 - `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
-- `defaultValue`: double = unset
-- `doubleTapValues`: List<double> = `[]`
-- `parkedProgress`: double = unset
-- `fineStep`: double = `0` (≥ 0)
-- `finePixelsPerRange`: double = `0` (≥ 0)
-- `fineHold`: int = `380` (≥ 0)
-- `fineVariable`: String = `""`
-- `smooth`: bool = `false`
-- `gain`: double = `1`
 
 <a id="type-TransformGesture"></a>
 ### TransformGesture
@@ -5240,7 +5206,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `bounds`: [GestureBounds](#enum-GestureBounds) = `"cover"` (`none`, `contain`, `cover`)
 - `doubleTapScale`: double = `2.5`
 - `wheel`: [WheelZoom](#enum-WheelZoom) = `"ctrlZoom"` (`none`, `ctrlZoom`, `zoom`, `pan`)
-- `rotationSnap`: double = `0`
 - `physics`: [GesturePhysics](#type-GesturePhysics) = unset
 - `xVariable`: String = `""`
 - `yVariable`: String = `""`
@@ -5284,7 +5249,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `spring`: [Spring](#type-Spring) = unset
 - `keyframes`: List<[Keyframe](#type-Keyframe)> = `[]`
 - `interpolation`: [KeyframeInterpolation](#enum-KeyframeInterpolation) = `"linear"` (`linear`, `monotoneCubic`)
-- `arc`: double = `0`
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -5779,12 +5743,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-PathOrient"></a>
 ### PathOrient
 
-`none`, `tangent`, `upright`, `uprightFlip`
-
-<a id="enum-PathPacing"></a>
-### PathPacing
-
-`length`, `area`
+`none`, `tangent`, `upright`
 
 <a id="enum-PathUnit"></a>
 ### PathUnit
@@ -6089,7 +6048,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-TriggerType"></a>
 ### TriggerType
 
-`click`, `doubleTap`, `longPress`, `hold`, `secondaryClick`, `pointerDown`, `pointerUp`, `hover`, `cursorEnter`, `cursorExit`, `swipeLeft`, `swipeRight`, `swipeUp`, `swipeDown`, `drag`, `dragEnd`, `wheel`, `pinch`, `changed`, `changeEnd`, `submitted`, `editingComplete`, `focusGained`, `focusLost`, `load`, `imageLoading`, `imageLoaded`, `imageError`, `backPressed`, `valueChanged`, `timer`, `frame`, `keyDown`, `keyUp`, `scroll`, `scrollEnd`, `enterViewport`, `exitViewport`, `dragStart`, `dragCancel`, `dragCompleted`, `drop`, `dragEnter`, `dragExit`, `dragHover`, `dropRejected`, `dropFull`, `reorder`, `refresh`, `swipeAction`, `rowTap`, `actionError`, `event`
+`click`, `doubleTap`, `longPress`, `hold`, `secondaryClick`, `pointerDown`, `pointerUp`, `hover`, `cursorEnter`, `cursorExit`, `swipeLeft`, `swipeRight`, `swipeUp`, `swipeDown`, `drag`, `dragEnd`, `wheel`, `pinch`, `changed`, `changeEnd`, `submitted`, `editingComplete`, `focusGained`, `focusLost`, `load`, `imageLoading`, `imageLoaded`, `imageError`, `backPressed`, `valueChanged`, `timer`, `frame`, `keyDown`, `keyUp`, `scroll`, `scrollEnd`, `enterViewport`, `exitViewport`, `dragStart`, `dragCancel`, `dragCompleted`, `drop`, `dragEnter`, `dragExit`, `dropRejected`, `reorder`, `refresh`, `swipeAction`, `rowTap`, `actionError`, `event`
 
 <a id="enum-VariableType"></a>
 ### VariableType
@@ -6299,9 +6258,7 @@ A reaction (`"actions": [{"trigger": {...}, "actions": [...]}]` on a node) start
 | <a id="trigger-drop"></a>`drop` |  |
 | <a id="trigger-dragEnter"></a>`dragEnter` |  |
 | <a id="trigger-dragExit"></a>`dragExit` |  |
-| <a id="trigger-dragHover"></a>`dragHover` |  |
 | <a id="trigger-dropRejected"></a>`dropRejected` |  |
-| <a id="trigger-dropFull"></a>`dropFull` |  |
 | <a id="trigger-reorder"></a>`reorder` |  |
 | <a id="trigger-refresh"></a>`refresh` |  |
 | <a id="trigger-swipeAction"></a>`swipeAction` |  |
@@ -6366,7 +6323,6 @@ Fields holding nested action chains (a list of actions): `then`, `else`, `action
 - `barrierDismissible`: bool = `true`
 - `barrierColor`: [Color](#type-Color) = unset
 - `barrierBlur`: double = `0`
-- `showCloseButton`: bool = `false`
 - `showDragHandle`: bool = `false`
 - `alignment`: List<double> = `[0,0]`
 - `anchor`: [ModalAnchor](#enum-ModalAnchor) = `"none"` (`none`, `trigger`, `pointer`, `node`)
@@ -6381,7 +6337,6 @@ Fields holding nested action chains (a list of actions): `then`, `else`, `action
 - `sheetRadius`: double = unset
 - `sheetBelow`: String = `""`
 - `maxHeightFactor`: double = `1`
-- `fullHeight`: bool = `false`
 - `cover`: bool = `false`
 - `enterScale`: double = `1`
 - `routeTransition`: [RouteTransition](#type-RouteTransition) = unset
