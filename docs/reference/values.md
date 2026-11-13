@@ -1109,7 +1109,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `color` | [Color](values.md#type-Color) | unset |  | Solid text color. |
 | `foreground` | [Paint](values.md#type-Paint) | unset |  | A gradient or image paint for the glyphs, used instead of `color`. |
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
-| `height` | double | unset | ≥ 0 | Line height, as a multiple of the font size. |
+| `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](values.md#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` |  |
 | `decorationColor` | [Color](values.md#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](values.md#type-Color) | unset |  | Painted behind the glyphs. |
@@ -1119,7 +1119,6 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `fontFeatures` | List<[FontFeature](values.md#type-FontFeature)> | `[]` |  | OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`). |
 | `leadingDistribution` | [TextLeadingDistribution](values.md#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
 | `shadows` | List<[Effect](values.md#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
-| `naturalHeight` | bool | unset |  | With no height, the font's own line height instead of the base style's. |
 
 <a id="type-Tilt"></a>
 ### Tilt

@@ -11215,7 +11215,7 @@
         "kind": "value",
         "default": 0,
         "nullable": false,
-        "doc": "Space between the node's box and its content."
+        "doc": "Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there)."
       },
       {
         "key": "rotation",
@@ -11878,6 +11878,15 @@
           "rtl"
         ],
         "doc": "Null inherits."
+      },
+      {
+        "key": "defaultTextStyle",
+        "type": "TextStyle",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "TextStyle",
+        "doc": "The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height."
       },
       {
         "key": "flip",
@@ -20245,7 +20254,7 @@
           "default": null,
           "nullable": true,
           "min": 0.0,
-          "doc": "Line height, as a multiple of the font size."
+          "doc": "Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal)."
         },
         {
           "key": "decoration",
@@ -20343,14 +20352,6 @@
           "itemKind": "object",
           "item_object": "Effect",
           "doc": "Text shadows (drop shadows only)."
-        },
-        {
-          "key": "naturalHeight",
-          "type": "bool",
-          "kind": "boolean",
-          "default": null,
-          "nullable": true,
-          "doc": "With no height, the font's own line height instead of the base style's."
         }
       ]
     },
