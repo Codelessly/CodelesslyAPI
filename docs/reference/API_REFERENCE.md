@@ -2116,6 +2116,7 @@ batch of ops; every change after it is a few more.
 | `remove` | `ids` (required) | Remove the nodes `ids` and everything under them; their parents stop listing them. | `{"op":"remove","ids":["promoBanner"]}` |
 | `vars` | `scope` (required), `set`, `remove` | Variables of `scope` (a canvas id, or "page_variables"): `set` maps a name to its new value, or to a full variable object (`{"type": "boolean", "value": false}`) to declare it; `remove` lists names to remove. Bindings that read them update at once. | `{"op":"vars","scope":"pricing","set":{"annual":true}}` |
 | `roots` | `roots` (required) | Set the document's canvases, in order. A root may name a canvas that arrives in a later op. | `{"op":"roots","roots":["home"]}` |
+| `scripts` | `set`, `remove` | The document's scripts (sandboxed JavaScript, where allowed): `set` maps a name to {"source", "params", "capabilities", "timeoutMs"}; `remove` lists names. A reaction runs one ({"type": "runScript", "script": name}), a formula calls it (script.name(...)). | `{"op":"scripts","set":{"clamp":{"params":["v"],"source":"return Math.max(0, Math.min(9, v));"}}}` |
 
 Rules:
 
@@ -2333,6 +2334,24 @@ compact tools that is ≈ 3,500 tokens at 3.5 characters per token, ≈ 5,100 at
 full prompt (60,225 characters of starter and 7,813 of tools: 28,768 tokens). `ui_read {"types": [...]}` describes
 any other allowed type on demand (`describeTypes`), and validation does the rest.
 
+The runtime starter is a **base set plus a link to the full reference**. The base (`runtimeStarter`) covers what a
+chat card or a small screen uses: layout, decoration and text essentials, one table of the base node types (what
+takes children, slots or none; the props that matter: the button family, `textField`, `checkbox`, `switch`, `radio`,
+`slider`, `dropdown`, `segmentedButton`, `listView`, `gridView`...), state, bindings and reactions, the op rules and
+two examples that apply cleanly (one with a selectable list and a labelled button). It ends with the index of the
+third tool, `ui_docs {"topic": ...}` (`uiTools(catalog, compact: true, docs: true)`), which answers one topic at a
+time, sized for a tool result (`docsTopic`): any node type, action type, trigger or behavior, generated from the
+declarations, and the feature areas (theme, responsive, lists, forms, reactions, animation, gestures, customPaint,
+components, scripts...), the guide's own sections trimmed (`guide_topics.g.dart`, written by the reference
+generator). The trust profile decides what may be *used*: a topic outside it says it is not available here.
+`docsIndex` writes the index; the three functions are the base, the topic page and the index of any
+base-plus-links reference.
+
+`TrustProfile.agentApps` is `agent` plus the document's own sandboxed scripts, for apps and games an agent builds:
+the `scripts` op (name → `{"source", "params", "capabilities", "timeoutMs"}`, validated by `ScriptDef.validate()`,
+`invalid_script`), `runScript` and `script.name(...)` in formulas, with capabilities limited to `variables.read`,
+`variables.write` and `clock`. Everything else stays as `agent`'s.
+
 ### The trust profile
 
 `TrustProfile` is what an edited document may use: node types and action types (a restricted catalog,
@@ -2349,7 +2368,7 @@ session delivers it to the app, which sends it to the model.
 
 | Code | Rejects the op | Meaning |
 |---|---|---|
-| `invalid_op` | yes | An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots). |
+| `invalid_op` | yes | An op that is not an object, or names no known "op" (set, patch, move, remove, vars, roots, scripts). |
 | `missing_field` | yes | An op without a field it needs ("id", "node", "patch", "parent", "ids", "scope", "roots"). |
 | `wrong_type` | yes | A field of an op with the wrong JSON type (an id that is not text, a node that is not an object). |
 | `unknown_id` | yes | A patch, move or remove of a node the document does not have, or a set or move under a parent it does not have. |
@@ -2376,6 +2395,7 @@ session delivers it to the app, which sends it to the model.
 | `low_contrast` | no (a warning) | Text drawn in (nearly) the colour of the fill behind it, or with no colour (the default near-black) over a dark fill. |
 | `missing_glyph` | no (a warning) | Text with characters the loaded fonts do not have (an arrow, a symbol): they draw as empty boxes. Use an icon node. Reported by a renderer that knows its fonts. |
 | `no_size` | no (a warning) | A node that has content but was laid out with no width or no height, so nothing of it shows. Reported by a renderer. |
+| `invalid_script` | yes | A scripts op whose script cannot be stored: a name or parameter that is not a JavaScript identifier, no source, limits out of range. |
 
 ---
 

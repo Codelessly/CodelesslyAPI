@@ -185,6 +185,29 @@
                   }
                 },
                 "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "description": "The document's scripts (sandboxed JavaScript, where allowed): `set` maps a name to {\"source\", \"params\", \"capabilities\", \"timeoutMs\"}; `remove` lists names. A reaction runs one ({\"type\": \"runScript\", \"script\": name}), a formula calls it (script.name(...)).",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "scripts"
+                  },
+                  "set": {
+                    "type": "object",
+                    "description": "Script name → {\"source\", \"params\", \"capabilities\", \"timeoutMs\"}."
+                  },
+                  "remove": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "additionalProperties": false
               }
             ]
           }
