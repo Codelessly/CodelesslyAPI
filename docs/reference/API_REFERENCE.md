@@ -160,7 +160,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `media` | `List<MediaRule>` | The node's own fields by screen size, as CSS media queries: `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `defaultTextStyle`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -4580,7 +4580,7 @@ size is fixed 0: a node without a width and a height draws nothing.
 | `height` | [AxisSize](#type-AxisSize) | `0` |  |  |
 | `constraints` | [BoxConstraints](#type-BoxConstraints) | `{}` |  |  |
 | `margin` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space around the node, outside its box. |
-| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content. |
+| `padding` | [EdgeInsets](#type-EdgeInsets) | `0` |  | Space between the node's box and its content (Flutter's `Padding`). A text's padding sits around its lines, as `Padding(child: Text(...))`: a hugging text grows by it (schema 3; schema 2 ignored it on a text, and the migration drops it there). |
 | `rotation` | double | `0` |  | Degrees, clockwise. |
 | `aspectRatio` | double | unset | ≥ 0 | Width / height the node keeps when its parent resizes it. |
 | `flex` | int | `1` | ≥ 0 | Under a row/column: share of the free space (`Expanded.flex`). |
@@ -5878,7 +5878,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `color` | [Color](#type-Color) | unset |  | Solid text color. |
 | `foreground` | [Paint](#type-Paint) | unset |  | A gradient or image paint for the glyphs, used instead of `color`. |
 | `letterSpacing` | double | unset |  | Logical pixels between letters. |
-| `height` | double | unset | ≥ 0 | Line height, as a multiple of the font size. |
+| `height` | double | unset | ≥ 0 | Line height as a multiple of the font size. Unset: the inherited defaultTextStyle's, else the font's own (Flutter's height: null, CSS line-height: normal). |
 | `decoration` | [TextDecoration](#enum-TextDecoration) | unset | `none`, `underline`, `overline`, `lineThrough` |  |
 | `decorationColor` | [Color](#type-Color) | unset |  |  |
 | `backgroundColor` | [Color](#type-Color) | unset |  | Painted behind the glyphs. |
@@ -5888,7 +5888,6 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 | `fontFeatures` | List<[FontFeature](#type-FontFeature)> | `[]` |  | OpenType feature settings (`"lnum"`, `"ss01"`, `"liga=0"`). |
 | `leadingDistribution` | [TextLeadingDistribution](#enum-TextLeadingDistribution) | unset | `proportional`, `even` | Where a line's extra (or missing) height goes (`TextStyle .leadingDistribution`); null is Flutter's default, proportional. |
 | `shadows` | List<[Effect](#type-Effect)> | `[]` |  | Text shadows (drop shadows only). |
-| `naturalHeight` | bool | unset |  | With no height, the font's own line height instead of the base style's. |
 
 <a id="type-Tilt"></a>
 ### Tilt
@@ -7598,6 +7597,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-typewriter"></a>
 <a id="behavior-particles"></a>
 <a id="behavior-textDirection"></a>
+<a id="behavior-defaultTextStyle"></a>
 <a id="behavior-flip"></a>
 <a id="behavior-tilt"></a>
 <a id="behavior-transformGesture"></a>
@@ -7631,6 +7631,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `typewriter` | [Typewriter](#type-Typewriter) | unset |  | A text that types itself out in a running app. |
 | `particles` | [ParticleEmitter](#type-ParticleEmitter) | unset |  |  |
 | `textDirection` | [TextDirection](#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
+| `defaultTextStyle` | [TextStyle](#type-TextStyle) | unset |  | The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height. |
 | `flip` | [FlipCard](#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
 | `transformGesture` | [TransformGesture](#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles. |
@@ -7639,7 +7640,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `measure` | [Measure](#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transition](#type-Transition), [Shimmer](#type-Shimmer), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transition](#type-Transition), [Shimmer](#type-Shimmer), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [TextStyle](#type-TextStyle), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
 
 ---
 
@@ -8458,7 +8459,7 @@ A formula gives the value as the field is written in JSON: a number, `true`/`fal
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, `order`, `basis`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `defaultTextStyle`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 

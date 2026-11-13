@@ -32,6 +32,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-typewriter"></a>
 <a id="behavior-particles"></a>
 <a id="behavior-textDirection"></a>
+<a id="behavior-defaultTextStyle"></a>
 <a id="behavior-flip"></a>
 <a id="behavior-tilt"></a>
 <a id="behavior-transformGesture"></a>
@@ -65,6 +66,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `typewriter` | [Typewriter](values.md#type-Typewriter) | unset |  | A text that types itself out in a running app. |
 | `particles` | [ParticleEmitter](values.md#type-ParticleEmitter) | unset |  |  |
 | `textDirection` | [TextDirection](values.md#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
+| `defaultTextStyle` | [TextStyle](values.md#type-TextStyle) | unset |  | The text style every text style of this node and its descendants is merged over (Flutter's DefaultTextStyle); the nearest one wins ({} gives Flutter's defaults back). Unset everywhere: Flutter's defaults, the font's own line height. |
 | `flip` | [FlipCard](values.md#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](values.md#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
 | `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles. |
@@ -73,5 +75,5 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transition](values.md#type-Transition), [Shimmer](values.md#type-Shimmer), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [Track](values.md#type-Track), [DismissibleBehavior](values.md#type-DismissibleBehavior), [Pan](values.md#type-Pan), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transition](values.md#type-Transition), [Shimmer](values.md#type-Shimmer), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [Track](values.md#type-Track), [DismissibleBehavior](values.md#type-DismissibleBehavior), [Pan](values.md#type-Pan), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [TextStyle](values.md#type-TextStyle), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 
