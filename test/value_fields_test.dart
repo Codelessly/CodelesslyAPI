@@ -81,6 +81,8 @@ Object? sample(PropType type, [PropDef<Object?>? def]) {
         'NodePatches' => {
           'n1': {'opacity': 0.5},
         },
+        // A draw op (a union on `op`; its fields: DrawOpSpecs).
+        'DrawOp' => {'op': 'circle', 'c': [1, 2], 'radius': 3},
         _ => {'a': 1},
       };
   }
@@ -253,7 +255,7 @@ void main() {
         'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
         'EffectAnimation', 'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'FlipSpring', 'Tilt', 'TransformGesture', 'TransformHandles',
-        'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'TransitionSpring',
+        'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'TransitionSpring', 'CustomPaint',
       ]),
     );
   });

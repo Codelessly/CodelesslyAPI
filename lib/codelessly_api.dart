@@ -9,6 +9,8 @@ export 'src/action_fields.dart';
 export 'src/actions.dart';
 export 'src/components.dart';
 export 'src/conditions.dart';
+export 'src/custom_paint.dart';
+export 'src/custom_paint_fields.dart';
 export 'src/decoration.dart';
 export 'src/document.dart';
 export 'src/json.dart';
