@@ -361,6 +361,33 @@ void main() {
     });
   });
 
+  test("the guide's §20 examples apply: the build rebuilds the minimal document, the edits apply cleanly", () {
+    final guide = File('docs/reference/index.md').readAsStringSync();
+    final section = guide.substring(guide.indexOf('<a id="guide-edit"></a>'));
+    final blocks = [
+      for (final m in RegExp(r'```json\n(.*?)\n```(.{0,80})', dotAll: true).allMatches(section))
+        if (m[1]!.contains('"ops"')) (json: jsonDecode(m[1]!), rejected: m[2]!.contains('The result')),
+    ];
+    expect(blocks.length, 3);
+    final minimal = LayoutDocument.fromJson(jsonDecode(File('tool/reference/examples/minimal.json').readAsStringSync()), catalog: Catalog.core);
+    var doc = LayoutDocument(catalog: Catalog.core);
+    for (final b in blocks.where((b) => !b.rejected)) {
+      final r = applyOps(doc, b.json, catalog: Catalog.core, check: strictEditCheck(), profile: TrustProfile.agent);
+      expect(r.errors, isEmpty, reason: '${b.json}');
+      doc = r.document;
+      if (identical(b, blocks.first)) {
+        for (final id in minimal.nodes.keys) {
+          expect(doc[id], minimal[id], reason: id);
+        }
+      }
+    }
+    expect(doc['page']!.children, ['cta', 'title']);
+    expect(endOfStream(doc), isEmpty);
+    expect(validateEdited(doc).where((d) => d.isError), isEmpty);
+    // The rejected example's result is what applyOps gives (it is generated).
+    expect(blocks.where((b) => b.rejected), hasLength(1));
+  });
+
   group('outline and tools', () {
     test('the outline is a fraction of the document', () {
       for (final name in ['restaurant_menu', 'saas_pricing']) {

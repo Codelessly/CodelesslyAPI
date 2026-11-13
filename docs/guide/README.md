@@ -25,5 +25,6 @@ understand, build, check or transform layouts as data.
 | 8 | [Animation](08-animation.md) | `AnimationController` and `Tween` as data: `animations`, tracks, presets, `animate`, `frame`, `Spring`, the legacy keys |
 | 9 | [Catalogs, libraries and plugins](09-catalogs-and-plugins.md) | `Catalog`, the core and feature libraries, native plugins, catalog JSON, hosted plugins as data |
 | 10 | [Gestures](10-gestures.md) | `track` (Flutter's `Slider` on any path), `dismissible`, `pan`, `draggable`/`dropTarget`, the control actions, the legacy `drag` |
+| 11 | [Edit operations and streaming](11-edit-ops-and-streaming.md) | Six id-addressed ops, per-op validation, revisions and undo, streaming tool input, the outline, the two LLM tools, the trust profile |
 
 For contributors, [`DESIGN.md`](../../DESIGN.md) is the full design of the format.
