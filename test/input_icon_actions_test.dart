@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 
 void main() {
   Json doc(Object? actions) => {
-        'schema': 3,
+        'schema': 4,
         'roots': ['c'],
         'nodes': {
           'c': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'search'}},

@@ -28,7 +28,7 @@ ThemeTokens theme([Json extra = const {}]) => ThemeTokens.fromJson({
     });
 
 LayoutDocument doc() => LayoutDocument.fromJson({
-      'schema': 3,
+      'schema': 4,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas', 'slots': {'body': 'col'}, 'layout': {'width': 390, 'height': 800}},

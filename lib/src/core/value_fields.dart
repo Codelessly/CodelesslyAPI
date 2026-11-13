@@ -335,8 +335,8 @@ List<PropDef<Object?>> effectFields() => EffectFields.all;
 
 /// A node's [Layout], field by field (JSON under `layout`).
 ///
-/// [width], [height], [constraints], [padding], [rotation] and
-/// [aspectRatio] are the node's own box; [margin] is its outer spacing;
+/// [width], [height], [constraints], [padding] and [aspectRatio] are the
+/// node's own box; [margin] is its outer spacing;
 /// the rest only mean something under a given parent ([parentData]).
 abstract final class LayoutFields {
   /// The node's width: a number (fixed), `{"hug": n}` (its content), `{"fill": n}` (the room its parent gives) or
@@ -351,8 +351,6 @@ abstract final class LayoutFields {
   static const margin = PropDef<EdgeInsets>('margin', Codecs.insets, EdgeInsets.zero);
   static const padding = PropDef<EdgeInsets>('padding', Codecs.insets, EdgeInsets.zero);
 
-  /// Degrees, clockwise.
-  static const rotation = PropDef<double>('rotation', Codecs.double, 0);
   static const aspectRatio = PropDef<double?>('aspectRatio', OptionalDoubleCodec(min: 0, ratio: true), null);
 
   /// Under a row/column: share of the free space (`Expanded.flex`).
@@ -381,7 +379,7 @@ abstract final class LayoutFields {
           '(`flex: 1 1 280px`). Cards with `basis: 280` sit three across at 900 px, two at 600, one at 390, with no breakpoints.');
 
   /// The node's own box.
-  static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, rotation, aspectRatio];
+  static const List<PropDef<Object?>> box = [width, height, constraints, margin, padding, aspectRatio];
 
   /// What a parent reads (Flutter's parent data).
   static const List<PropDef<Object?>> parentData = [flex, squeezable, x, y, align, order, basis];

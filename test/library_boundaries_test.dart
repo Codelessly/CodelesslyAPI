@@ -123,7 +123,7 @@ void main() {
 
   test('with only the core catalog, feature types are kept whole and write back byte for byte', () {
     final json = {
-      'schema': 3,
+      'schema': 4,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas', 'children': ['v'], 'layout': {}},

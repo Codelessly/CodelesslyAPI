@@ -12,9 +12,13 @@ import 'diagnostic.dart';
 /// Why [path] isn't a bindable path of a node of [spec] (null: it is),
 /// with the nearest valid key at the step that failed.
 ({String message, String? suggestion, bool reserved})? bindPathProblem(String path, WidgetSpec? spec, String type) {
-  // A schema-2 path (one an action names is not migrated): what to write.
+  // An older schema's path (one set from outside the document is not
+  // migrated): what to write.
   if (schema2PathHint(path) case final String hint) {
-    return (message: '"$path" is a schema-2 path, which schema 3 does not read: write $hint.', suggestion: null, reserved: false);
+    return (message: '"$path" is a schema-2 path, which schema 4 does not read: write $hint.', suggestion: null, reserved: false);
+  }
+  if (schema3PathHint(path) case final String hint) {
+    return (message: '"$path" is a schema-3 path, which schema 4 does not read: write $hint.', suggestion: null, reserved: false);
   }
   final keys = BindPaths.parse(path);
   if (keys.isEmpty) return (message: '"$path" is not a binding path.', suggestion: null, reserved: false);

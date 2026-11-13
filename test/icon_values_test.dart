@@ -18,7 +18,7 @@ void main() {
   });
   test('a text field\'s prefixIcon as a name validates', () {
     final d = {
-      'schema': 3,
+      'schema': 4,
       'roots': ['c'],
       'nodes': {
         'c': {'type': 'canvas', 'layout': {'width': 390, 'height': 844}, 'slots': {'body': 'f'}},
