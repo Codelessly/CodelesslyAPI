@@ -22,6 +22,7 @@ import 'json.dart';
 import 'logic.dart';
 import 'node.dart';
 import 'props.dart';
+import 'theme.dart';
 import 'variables.dart';
 
 /// Where a definition places what a call passes: the `children` slot (the
@@ -280,6 +281,7 @@ final class SiteManifest {
     this.components = const [],
     this.variables = const [],
     this.breakpoints,
+    this.theme = ThemeTokens.none,
     this.extra = const {},
   });
 
@@ -299,10 +301,17 @@ final class SiteManifest {
   /// defaults.
   final Object? breakpoints;
 
-  /// Keys it doesn't model (theme, fonts...), kept.
+  /// The project's theme: its named colors and text styles (the type scale
+  /// and palette every page and component names: `"color": "ember"`,
+  /// `"style": "title"`), its roles (`primary`, `surface`...) and the media
+  /// rules that change them by screen size. Published as the project's
+  /// theme.
+  final ThemeTokens theme;
+
+  /// Keys it doesn't model (fonts...), kept.
   final Json extra;
 
-  static const Set<String> keys = {'schema', 'pages', 'components', 'variables', 'breakpoints'};
+  static const Set<String> keys = {'schema', 'pages', 'components', 'variables', 'breakpoints', 'theme'};
 
   static SiteManifest fromJson(Object? json) {
     final m = readMap(json) ?? const {};
@@ -311,6 +320,7 @@ final class SiteManifest {
       components: readStrings(m['components']),
       variables: Variable.listFromJson(m['variables']),
       breakpoints: m['breakpoints'],
+      theme: ThemeTokens.fromJson(m['theme']),
       extra: {
         for (final e in m.entries)
           if (!keys.contains(e.key)) e.key: e.value,
@@ -324,6 +334,7 @@ final class SiteManifest {
     if (components.isNotEmpty) 'components': components,
     if (variables.isNotEmpty) 'variables': [for (final v in variables) v.toJson()],
     'breakpoints': ?breakpoints,
+    if (!theme.isEmpty) 'theme': theme.toJson(),
     ...extra,
   };
 }

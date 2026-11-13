@@ -141,6 +141,10 @@ abstract final class Codes {
       'A canvas, variant or media rule names a breakpoint the project does not define.');
   static const invalidMedia = DiagnosticCode('invalid_media', Severity.error,
       'A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size.');
+  static const unknownThemeName = DiagnosticCode('unknown_theme_name', Severity.error,
+      'A color or text style names a color or text style the project\'s theme (the site manifest\'s "theme") does not have: it would show transparent or unstyled.');
+  static const invalidTheme = DiagnosticCode('invalid_theme', Severity.error,
+      'The site manifest\'s "theme" is not of the right shape: colors are "#AARRGGBB" (or another color\'s name), text styles are TextStyle objects, media rules patch colors and textStyles.');
   static const mediaOverridden = DiagnosticCode('media_overridden', Severity.warning,
       'A media rule patches a field the node also binds: the binding wins, so the patch never shows.');
   static const duplicateBreakpointCanvas = DiagnosticCode('duplicate_breakpoint_canvas', Severity.error,
@@ -182,7 +186,7 @@ abstract final class Codes {
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
-    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, duplicateBreakpointCanvas,
+    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, unknownThemeName, invalidTheme, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
     unknownComponent, duplicateComponent, componentCycle, componentIdMismatch, invalidComponent, missingProp, unknownEvent,
     callFieldNotAllowed, slotOutsideComponent, rootPlacementBound,

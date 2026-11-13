@@ -29,7 +29,7 @@ List<Color?>? _colorsIn(Object? j) {
     final String s => s.split(RegExp(r'[\s,;]+')).where((e) => e.isNotEmpty).toList(),
     _ => null,
   };
-  return items?.map((e) => Color.fromJson(e is String ? e.trim() : e)).toList();
+  return items?.map((e) => Color.fromHex(e is String ? e.trim() : e)).toList();
 }
 
 Object? _colorsOut(List<Color?> v) => [for (final c in v) c?.toJson()];

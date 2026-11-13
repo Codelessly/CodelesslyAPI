@@ -90,8 +90,14 @@ abstract final class TextStyleFields {
   /// With no height, the font's own line height instead of the base style's.
   static const naturalHeight = PropDef<bool?>('naturalHeight', Codecs.optionalBool, null);
 
+  /// The project's named text style this one starts from.
+  static const from = PropDef<String?>('from', Codecs.optionalString, null,
+      doc: 'The name of one of the project\'s text styles (the site manifest\'s `theme.textStyles`) this style starts from, '
+          'as `Theme.of(context).textTheme.titleLarge.merge(...)`: the fields written here change it. '
+          '`"style": "title"` is short for `{"from": "title"}`.');
+
   static const List<PropDef<Object?>> all = [
-    fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
+    from, fontFamily, fontWeight, fontStyle, fontSize, color, foreground, letterSpacing, height, decoration, //
     decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, fontFeatures, leadingDistribution,
     shadows, naturalHeight,
   ];

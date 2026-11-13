@@ -59,7 +59,7 @@ Flutter's `BoxConstraints`, where a missing bound means unconstrained.
 
 JSON: "#AARRGGBB" or "#RRGGBB" (hex, alpha first).
 
-A 32-bit ARGB color, as Flutter's `Color`. JSON: `"#AARRGGBB"` (`"#RRGGBB"` and ints also read).
+A 32-bit ARGB color, as Flutter's `Color`. JSON: `"#AARRGGBB"` (`"#RRGGBB"` and ints also read), or the name of one of the project's theme colors (`"ember"`: `ThemeTokens.colors`, resolved before the document renders; see `resolveThemeRefs`).
 
 <a id="type-EdgeInsets"></a>
 ### EdgeInsets
@@ -1126,6 +1126,7 @@ Flutter's `TextStyle`. Every field is optional: a span's style is merged over it
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
+| `from` | String | unset |  | The name of one of the project's text styles (the site manifest's `theme.textStyles`) this style starts from, as `Theme.of(context).textTheme.titleLarge.merge(...)`: the fields written here change it. `"style": "title"` is short for `{"from": "title"}`. |
 | `fontFamily` | String | unset |  |  |
 | `fontWeight` | [FontWeight](values.md#type-FontWeight) | unset |  | Flutter's `FontWeight`: 100–900, in hundreds. |
 | `fontStyle` | [FontStyle](values.md#enum-FontStyle) | unset | `normal`, `italic` |  |

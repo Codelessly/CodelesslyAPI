@@ -58,7 +58,7 @@ void main() {
 
   test('every code has a test below', () {
     // Keep this list in step with Codes.all.
-    expect(Codes.all.length, 65); // invalid_media, media_overridden: test/media_test.dart; components: test/sections_test.dart
+    expect(Codes.all.length, 67); // invalid_media, media_overridden: test/media_test.dart; unknown_theme_name, invalid_theme: test/theme_refs_test.dart; components: test/sections_test.dart
   });
 
   group('document', () {

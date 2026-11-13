@@ -29,9 +29,20 @@ final class TextStyle {
     this.leadingDistribution,
     this.shadows = const [],
     this.naturalHeight,
+    this.from,
   });
 
   static const TextStyle empty = TextStyle();
+
+  /// The project's named text style this one starts from
+  /// (`ThemeTokens.textStyles`), as `Theme.of(context).textTheme.titleLarge
+  /// .merge(this)`: its fields over the named style's. JSON: `"style":
+  /// "title"`, or `{"from": "title", "color": "#FF..."}` to change some of
+  /// its fields. Resolved before rendering (`resolveThemeRefs`).
+  final String? from;
+
+  /// This style without [from].
+  TextStyle withoutFrom() => from == null ? this : TextStyle.fromJson(toJson()..remove('from'));
 
   final String? fontFamily;
   final List<String> fontFamilyFallback;
@@ -108,10 +119,13 @@ final class TextStyle {
       leadingDistribution: other.leadingDistribution ?? leadingDistribution,
       shadows: other.shadows.isNotEmpty ? other.shadows : shadows,
       naturalHeight: other.naturalHeight ?? naturalHeight,
+      from: other.from ?? from,
     );
   }
 
+  /// A map, or a named style's name (`"title"`: `{"from": "title"}`).
   static TextStyle fromJson(Object? json) {
+    if (json is String) return json.trim().isEmpty ? empty : TextStyle(from: json.trim());
     final m = readMap(json);
     if (m == null) return empty;
     final weight = readInt(m['fontWeight']);
@@ -140,10 +154,12 @@ final class TextStyle {
           : readEnum(TextLeadingDistribution.values, m['leadingDistribution'], TextLeadingDistribution.proportional),
       shadows: Effect.listFromJson(m['shadows']),
       naturalHeight: readBool(m['naturalHeight']),
+      from: readString(m['from']).let((f) => f == null || f.trim().isEmpty ? null : f.trim()),
     );
   }
 
   Json toJson() => {
+        if (from != null) 'from': from,
         if (fontFamily != null) 'fontFamily': fontFamily,
         if (fontFamilyFallback.isNotEmpty) 'fontFamilyFallback': fontFamilyFallback,
         if (fontWeight != null) 'fontWeight': fontWeight,
@@ -187,10 +203,11 @@ final class TextStyle {
       listEquals(other.fontFeatures, fontFeatures) &&
       other.leadingDistribution == leadingDistribution &&
       listEquals(other.shadows, shadows) &&
-      other.naturalHeight == naturalHeight;
+      other.naturalHeight == naturalHeight &&
+      other.from == from;
 
   @override
-  int get hashCode => Object.hash(fontFamily, Object.hashAll(fontFamilyFallback), fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
+  int get hashCode => Object.hash(from, fontFamily, Object.hashAll(fontFamilyFallback), fontWeight, fontStyle, fontSize, color, foreground, letterSpacing,
       height, decoration, decorationColor, backgroundColor, decorationStyle, decorationThickness, tabularFigures, Object.hashAll(fontFeatures), leadingDistribution, naturalHeight);
 
   @override

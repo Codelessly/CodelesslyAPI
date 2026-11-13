@@ -312,13 +312,13 @@ void main() {
         'breakpoints': [
           {'id': 'mobile', 'minWidth': 0},
         ],
-        'theme': {'x': 1},
+        'fonts': {'x': 1},
       };
       final m = SiteManifest.fromJson(json);
       expect(m.pages, ['pages/pricing.json']);
       expect(m.variables.single.name, 'plans');
       expect(m.extra, {
-        'theme': {'x': 1},
+        'fonts': {'x': 1},
       });
       expect(m.toJson(), json);
       expect(SiteManifest.fromJson('nonsense').pages, isEmpty);

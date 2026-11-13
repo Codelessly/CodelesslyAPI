@@ -261,6 +261,7 @@ Flutter `Icon` (font icons) or an SVG/image icon.
 |---|---|---|---|---|
 | `icon` | [IconData](values.md#type-IconData) | `{}` |  | Which glyph: a Material icon name, `"check_circle"` (a style by suffix: `"search_rounded"`), the one form to write everywhere (an icon node, an input's `prefixIcon`). Also read: an image URL, and the object forms of older documents (`{"type": "MATERIAL_ICON", "name", "style"}`, `{"type": "CUPERTINO_ICON", "codepoint"}`). |
 | `color` | [Color](values.md#type-Color) | unset |  |  |
+| `size` | double | unset | ≥ 0 | Flutter `Icon.size`: the glyph's width and height. Unset, the glyph fills the node's box (contained, centred), as before. Set, the glyph is drawn at this size, centred in the node's box (at most the box), and a hugging axis of the node takes it (`{"hug": 24}` with `"size": 18` is 18 wide). |
 
 <a id="node-spacer"></a>
 ## `spacer`
