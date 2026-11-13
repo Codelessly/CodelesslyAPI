@@ -217,10 +217,11 @@ flat in the node's JSON. Every key is optional and sparse.
 
 | Key | Value | Flutter / meaning |
 |---|---|---|
-| `motion` | `Motion` | A transform over the layout (translate, scale, rotate, 3D, shift, origin, opacity, blur, path), and how it moves: transitions to new values (bent by `arc`), an entrance (`enter`, `enterFrom`), a loop (`restart`, `reverse`, `swing` around rest; from `phase`; held by `paused`), a spin, keyframes, a `shimmer` band. A path is followed from the node's own place (offsets from the path's start point); it can be paced by `length` or by `area` about (`pathFocusX`, `pathFocusY`), wrap (`pathWrap`) and keep `orientUpright` (with `uprightMirror`, heading left mirrors the node so its front leads). Its values are the rest pose; values its JSON names at their defaults are kept (an `enterFrom` of `{"opacity": 1}`). |
+| `motion` | `Motion` | Flutter's `Transform` over the layout, nothing temporal (docs/design/03-motion.md): `translateX/Y`, `shiftX/Y` (the node's size), `scale` times `scaleX/Y`, `rotate`, `rotateX/Y` with `perspective`, about `alignment`; `backfaceHidden`; `path` (`PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/`upright`/`uprightFlip`; a closed path wraps its progress). A path is followed from the node's own place (offsets from its start point), or in a `viewBox` over the parent. Its values are the rest pose; how they move is the node's `animations` and `transitions`. The legacy flat keys read: the pose's (`originX/Y`, the `path*` keys), `opacity` and `blur` as the node's opacity and a `motionBlur` layer blur, and the timing, entrance, loop, spin, keyframes and shimmer as transitions and animations (guide chapter 8). |
 | `scale` | number | `Transform.scale` about the center; layout unchanged. |
 | `animations` | `[NodeAnimation]` | Flutter's `AnimationController` as data, outermost first (guide chapter 8): `id`, `duration`/`reverseDuration`, `delay`, `curve`, `repeat` (`{reverse, count}`), `autoplay`, `playKey`, `paused`, `phase`, `spring`, `progress` (an expression instead of a clock), `alignment`, `previewAt`, and `tracks` (`Tween`/`TweenSequence`/`Interval`/`CurveTween` on a binding `path` of the node or of `node`, or on a `variable`; `blend` `replace`, `add` or `multiply`; `wave`s). `preset` with `params` is a short form (`pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker`, `shake`, `bounce`, `pop`, `wiggle`, `jelly`, `flash`, `keyframes`, `enter`). Its state reads as `${animation.<id>.value}`, `.status`, `.isAnimating` in the node and the nodes inside it. The legacy `loops` and `effectAnimations` (and `motion.pulseKey`) read as these. |
-| `transitions` | `{style, opacity, size}` | Implicit animations (`AnimatedOpacity`, `AnimatedSize`): `style` for opacity, scale, fills and visibility; `opacity` over it; `size`. |
+| `transitions` | `[Transition]` | Implicit animations (`AnimatedContainer`, `AnimatedOpacity`), one per `property` path or prefix (`motion`, `motion.rotate`, `opacity`, `*`): `duration`, `delay`, `curve` or `spring`, `keyframes` (a prefix's as poses) with `interpolation`. A change there tweens from what is shown; the longest match wins; a prefix moves as one; a path an animation plays isn't transitioned. The legacy `{style, opacity, size}` object reads (`style` as `opacity`, `scale`, `decoration.fills`, `visible`; `size` as `layout`). |
+| `shimmer` | `Shimmer` | A band of light over what the node paints (`ShaderMask`): `color`, `strength`, `width`, `angle`, `position`; the `shimmer` animation preset sweeps it. |
 | `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
 | `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
@@ -240,7 +241,7 @@ flat in the node's JSON. Every key is optional and sparse.
 
 A spring is one value wherever it is: `Spring`, Flutter's
 `SpringDescription` (`{stiffness, damping, mass}`, or `{duration, bounce}`
-for `withDurationAndBounce`), on an animation, a motion's `spring` curve, a
+for `withDurationAndBounce`), on an animation, a transition, a
 drag source's return, a drag track's `settleSpring`, a flip card and a
 route's dismiss; each owner's legacy flat keys read as it. A release's
 motion is one model wherever it is: `GesturePhysics` (a fling with
@@ -362,8 +363,10 @@ codelessly_sdk/lib/src/
 ```
 
 A node's behaviors are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
-track pose → transform gesture → motion → shimmer → flip face → tilt → flip
-card → scale → rotation → (drag source → drop target → reactions →
+track pose → transform gesture → motion (one matrix: the path's offset,
+translate, shift, then about its alignment scale, rotate, rotateX, rotateY) →
+shimmer → flip face → tilt → flip card → scale → rotation → (drag source →
+drop target → reactions →
 hover/press tracking) → animations → opacity → blurs → stroke path → content. A
 drag's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
@@ -374,9 +377,12 @@ cards by tap, drag and variable; navigation flies shared elements (`hero`,
 animations. One player plays every animation (`render/animations.dart`): a
 clock per animation (Flutter's `AnimationController`) ticking inside the
 node's render object; adding and multiplying tracks pose that layer, tracks
-that replace a `motion.*` value set the motion layer, other paths patch the
-node as shown (`RenderTree.setAnimatedValues`), variable tracks write
-through the render-owned `BoundValues`. A design canvas draws them at rest (the motion's values, an
+that replace a `motion.*` value set the motion layer, `shimmer.position` the
+shimmer, other paths patch the node as shown (`RenderTree.setAnimatedValues`),
+variable tracks write through the render-owned `BoundValues`. The same player
+plays the node's `transitions` (a tween per eased path, from what is drawn)
+and starts an animation that waits to be in view (`visibleFraction`). A design
+canvas draws them at rest (the motion's values, an
 animation at its `previewAt` only — a loop's first frame —, a track at its variable's value); a running app
 (`NodeView(interactive: true)`) plays them with tickers in the render objects
 and applies interaction state patches to the nodes they target.
@@ -477,7 +483,7 @@ effect id for the item with that id, and `*` for every item.
 | `props.<prop>.<field>` | a field of a structured prop |
 | `props.style.<field>` (text) | the base style and every run's |
 | `data` | the items a list, grid or page view builds one per (its item count follows) |
-| `scale`, `textDirection`, `motion.<field>`, `flightKey`, `tooltip`... | a behavior (§4.1); `motion.paused` reads loosely, `motion.keyframes` a list or its JSON text |
+| `scale`, `textDirection`, `motion.<field>`, `motion.path.progress`, `flightKey`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text; a legacy motion's bound timing keys are rewritten to the animations and `transitions[i]` they became |
 | `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload |
 | `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at |
 | `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...); the legacy `loops[i].*` and `effectAnimations[i].*` keys are rewritten to these when a node decodes (a loop's `phase` and `lag` into one `phase` formula) |
@@ -557,7 +563,7 @@ the scroll views along it), `speak`, `playSound`, `paywall`,
 last, refresh, retry, setPageSize).
 `navigate` and `openModal` take a `routeTransition` (`RouteTransition`,
 `lib/src/core/route_transition.dart`; or a bare preset name): the incoming
-screen's `enter` and the covered one's `exit` sides (a `Motion`, a
+screen's `enter` and the covered one's `exit` sides (a `Pose`: a `Motion` with `opacity` and `blur`, a
 `reveal` clip, a curve, `delayMs`, `durationMs`), `popEnter`/`popExit`
 for closing, `durationMs`, `barrierColor`, `opaque`, `swipeBack`, a
 `dismiss` drag; a `preset` (`iosPush`, `sharedAxisX`, `cube`...) fills in

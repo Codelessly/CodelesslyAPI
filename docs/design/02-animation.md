@@ -485,23 +485,36 @@ and `physics/spring_simulation.dart`; the SDK's controller is tested against a r
     node by `RenderTree.setAnimatedValues` and applied over the node as shown, before the frame lays out (a
     microtask), not through `NodeBindings` itself.
 
+14. **The temporal half of `motion` plays on the player** (doc 03): `enter`/`enterFrom`/`replayKey`/`enterHeld`/
+    `revealOnScroll` are the `enter` preset (`params.from`, `params.frames`: the legacy keyframes on one monotone
+    cubic; `paused` the hold, `visibleFraction` the reveal), `loop`/`repeat`/`phase`/`paused` the `loop` preset
+    (`params.mode: swing`; a reverse loop's `phase` halved, as it was a share of one way), `spin`/`spinRamp` the
+    `spin` preset (`params.perSecond`, `ramp`), `shimmer` the `shimmer` preset, the implicit timing a `motion`
+    transition. `rotateCurve` and `fadeShare` are per-track curves and intervals (`params.curve`, `rotateCurve`,
+    `fadeShare` on the preset; the animation's own curve is then linear). A counted loop with bound values
+    replays when they change (a generated `playKey` binding), as the motion restarted it.
+15. **`NodeAnimation.ramp` and `visibleFraction`**, **`AnimationTrack.interpolation`**, swings as waves on a
+    replacing track, overshooting numbers, Flutter's ends for a counted repeat: doc 03's deviations 9–13.
+16. **`setVariable.animateMs` reads as `animate {variable, command: animateTo}`** for `set`, `add` and `subtract`
+    (the target `${= name + (value)}` read when the action runs); a path into a variable, another op or a
+    templated value stays a `setVariable` glide. An `animateTo` on a variable is a glide: a plain set takes over
+    from it (`controller.value =` stops a Flutter controller), and it stops with its chain. Before, a plain set
+    didn't stop an `animateVariable` play. A `spring` on `animate {variable}` runs a `SpringSimulation`.
+17. **A repeat with no duration holds still** (a spin at 0 turns a second; with a ramp it slows to a stop).
+
 ## Not yet migrated
 
 Kept readable and working exactly as before; each still has its own code in the SDK.
 
-- **The temporal half of `motion`**: `enter`, `enterFrom`, `replayKey`, `loop`/`repeat`/`phase`/`paused`, `spin`/
-  `spinRamp`, `keyframes` (monotone-cubic, not a `TweenSequence`), `shimmer`, `rotateCurve`, `fadeShare`, `arc`,
-  `enterHeld`, `revealOnScroll`/`revealFraction`, and the implicit `duration`/`delay`/`curve`. They are played by
-  `RenderMotion` as before. Their mapping to the `enter`/`loop`/`spin`/`keyframes`/`shimmer` presets needs the
-  monotone keyframe interpolation, the swing loop and `spinRamp`'s ramp, and the `transitions` table of doc 03.
-- **`setVariable.animateMs`**: still a glide on `VariableAnimator` (a plain set stops a glide, not an `animate`
-  timeline, and `add`/`subtract` need the value at the time the action runs).
-- **`strokePath.draw*`, `typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own.
+- **`strokePath.draw*`, `typewriter`, text `countUp`, `flip`'s turn**: their clocks are their own (the second
+  wave did doc 03's steps 1–3 first; their presets are the next step).
 - **`progress` with a `spring`** reads the value directly; easing toward each new value is not built.
 - **Legacy binding paths set at run time** (`setValue` with `loops[0].phase` or `effectAnimations[1].playKey`):
   only a node's `bind` map is rewritten when it decodes.
-- **A `spring` on an `animate {variable}`** is ignored (the variable's timeline is duration-based).
 - **Effects now sit inside the motion and rotation layers** (where loops were), not outside them; an effect on a
   node that also scales or rotates through `motion` or `layout.rotation` moves in that frame. Two effects playing
   at once compose first-outermost (they composed last-outermost), and a keyframes effect's scale and rotation
   compose scale-then-rotate. None of the SDK's tests or fixtures has such a node.
+- **A legacy spin turns in the player's layer** (about the motion's old origin), like the `spin` preset: inside
+  the flip, tilt, `scale` and `layout.rotation` layers rather than inside the motion's matrix, so a spinning node
+  that also turns in 3D (`rotateX/Y`, a flip) composes the spin last. No reference build source combines them.
