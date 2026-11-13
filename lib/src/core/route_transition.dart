@@ -3,7 +3,7 @@
 // data; the SDK builds the route (DESIGN.md §5.2).
 import 'package:meta/meta.dart';
 
-import 'behaviors.dart' show AnimationCurve, DragDirection, Motion;
+import 'behaviors.dart' show AnimationCurve, DragDirection, Motion, Spring;
 import 'json.dart';
 import 'values/color.dart';
 
@@ -197,38 +197,6 @@ final class TransitionSide {
   int get hashCode => jsonEquality.hash(toJson());
 }
 
-/// The spring a released interactive transition settles with (Flutter's
-/// `SpringDescription`).
-@immutable
-final class TransitionSpring {
-  const TransitionSpring({this.stiffness = 380, this.damping = 36, this.mass = 1});
-
-  final double stiffness, damping, mass;
-
-  static TransitionSpring? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    return TransitionSpring(
-      stiffness: readDouble(m['stiffness']) ?? 380,
-      damping: readDouble(m['damping']) ?? 36,
-      mass: readDouble(m['mass']) ?? 1,
-    );
-  }
-
-  Json toJson() => {
-        if (stiffness != 380) 'stiffness': writeDouble(stiffness),
-        if (damping != 36) 'damping': writeDouble(damping),
-        if (mass != 1) 'mass': writeDouble(mass),
-      };
-
-  @override
-  bool operator ==(Object other) =>
-      other is TransitionSpring && other.stiffness == stiffness && other.damping == damping && other.mass == mass;
-
-  @override
-  int get hashCode => Object.hash(stiffness, damping, mass);
-}
-
 /// A drag anywhere on a screen that closes it interactively: the drag runs
 /// the transition backwards, and on release the pop completes or cancels
 /// with [spring].
@@ -238,7 +206,7 @@ final class RouteDismiss {
     this.direction = DragDirection.down,
     this.distance = 0.25,
     this.velocity = 700,
-    this.spring = const TransitionSpring(),
+    this.spring = RouteDismiss.defaultSpring,
   });
 
   /// The way the screen is dragged to close it.
@@ -249,7 +217,8 @@ final class RouteDismiss {
 
   /// A fling faster than this (px/s) toward [direction] closes it.
   final double velocity;
-  final TransitionSpring spring;
+  final Spring spring;
+  static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 36);
 
   static RouteDismiss? fromJson(Object? json) {
     final m = readMap(json);
@@ -258,7 +227,7 @@ final class RouteDismiss {
       direction: readEnum(DragDirection.values, m['direction'], DragDirection.down),
       distance: readDouble(m['distance']) ?? 0.25,
       velocity: readDouble(m['velocity']) ?? 700,
-      spring: TransitionSpring.fromJson(m['spring']) ?? const TransitionSpring(),
+      spring: Spring.fromJson(m['spring'], fallback: defaultSpring) ?? defaultSpring,
     );
   }
 
@@ -266,7 +235,7 @@ final class RouteDismiss {
         if (direction != DragDirection.down) 'direction': direction.name,
         if (distance != 0.25) 'distance': writeDouble(distance),
         if (velocity != 700) 'velocity': writeDouble(velocity),
-        if (spring != const TransitionSpring()) 'spring': spring.toJson(),
+        if (spring != defaultSpring) 'spring': spring.toJsonOver(defaultSpring),
       };
 
   @override

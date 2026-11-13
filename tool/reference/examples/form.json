@@ -1,0 +1,32 @@
+{
+  "schema": 2,
+  "roots": ["contact"],
+  "nodes": {
+    "contact": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 500},
+                "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["email", "emailError", "send", "thanks"],
+            "layout": {"width": {"fill": 390}, "height": {"fill": 500}, "padding": 24},
+            "props": {"spacing": 8, "crossAxisAlignment": "start"}},
+    "email": {"type": "textField", "layout": {"width": {"fill": 342}, "height": 56},
+              "props": {"decoration": {"labelText": "Email", "hintText": "you@example.com"}, "keyboardType": "emailAddress"},
+              "actions": [{"trigger": {"type": "changed"},
+                           "actions": [{"type": "setVariable", "variable": "email", "value": "${result}"}]}]},
+    "emailError": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 18}},
+                   "props": {"text": "Enter a valid email address.", "style": {"fontSize": 13, "color": "#FFDC2626"}},
+                   "bind": {"visible": "${= tried && !contains(email, '@')}"}},
+    "send": {"type": "elevatedButton", "layout": {"width": {"hug": 120}, "height": 44},
+             "props": {"label": "Send"},
+             "actions": [{"trigger": {"type": "click"},
+                          "actions": [{"type": "setVariable", "variable": "tried", "value": "true"},
+                                      {"type": "if", "condition": {"left": "${= contains(email, '@')}", "op": "isTrue"},
+                                       "then": [{"type": "setVariable", "variable": "sent", "value": "true"}]}]}]},
+    "thanks": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+               "props": {"text": "Thanks! We'll reply within a day.", "style": {"fontSize": 15, "color": "#FF16A34A"}},
+               "bind": {"visible": "${sent}"}}
+  },
+  "variables": {"contact": [
+    {"name": "email", "type": "text", "value": ""},
+    {"name": "tried", "type": "boolean", "value": false},
+    {"name": "sent", "type": "boolean", "value": false}
+  ]}
+}

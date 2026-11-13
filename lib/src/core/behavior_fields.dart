@@ -41,7 +41,12 @@ const _curve = AnimationCurveCodec();
 
 const motionType = PropType.object('Motion', motionFields);
 const motionKeyframeType = PropType.object('MotionKeyframe', motionKeyframeFields);
-const loopAnimationType = PropType.object('LoopAnimation', loopAnimationFields);
+const nodeAnimationType = PropType.object('NodeAnimation', nodeAnimationFields);
+const animationTrackType = PropType.object('AnimationTrack', animationTrackFields);
+const keyframeType = PropType.object('Keyframe', keyframeFields);
+const waveType = PropType.object('Wave', waveFields);
+const animationRepeatType = PropType.object('AnimationRepeat', animationRepeatFields);
+const springType = PropType.object('Spring', springFields);
 const transitionType = PropType.object('Transition', transitionFields);
 const transitionsType = PropType.object('Transitions', transitionsFields);
 const inkWellStyleType = PropType.object('InkWellStyle', inkWellStyleFields);
@@ -57,19 +62,30 @@ const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
 const measureType = PropType.object('Measure', measureFields);
 const strokePathType = PropType.object('StrokePath', strokePathFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
-const effectAnimationType = PropType.object('EffectAnimation', effectAnimationFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
 const flightType = PropType.object('Flight', flightFields);
 const motionShimmerType = PropType.object('MotionShimmer', motionShimmerFields);
 const gesturePhysicsType = PropType.object('GesturePhysics', gesturePhysicsFields);
 const gestureSnapType = PropType.object('GestureSnap', gestureSnapFields);
 const flipCardType = PropType.object('FlipCard', flipCardFields);
-const flipSpringType = PropType.object('FlipSpring', flipSpringFields);
 const tiltType = PropType.object('Tilt', tiltFields);
 const transformGestureType = PropType.object('TransformGesture', transformGestureFields);
 const transformHandlesType = PropType.object('TransformHandles', transformHandlesFields);
 
 const _physics = ValueCodec(GesturePhysics.fromJson, _out, gesturePhysicsType);
+
+/// A [Spring] codec over its owner's default (what the model writes).
+Spring? _springIn(Object? j) => Spring.fromJson(j);
+Spring? _motionSpringIn(Object? j) => Spring.fromJson(j, fallback: Motion.defaultSpring);
+Object? _motionSpringOut(Spring s) => s.toJsonOver(Motion.defaultSpring);
+Spring? _dragSpringIn(Object? j) => Spring.fromJson(j, fallback: DragSource.defaultSpring);
+Object? _dragSpringOut(Spring s) => s.toJsonOver(DragSource.defaultSpring);
+Spring? _settleSpringIn(Object? j) => Spring.fromJson(j, fallback: DragTrack.defaultSettleSpring);
+Object? _settleSpringOut(Spring s) => s.toJsonOver(DragTrack.defaultSettleSpring);
+Spring? _physicsSpringIn(Object? j) => Spring.fromJson(j, fallback: GesturePhysics.defaultSpring);
+Object? _physicsSpringOut(Spring s) => s.toJsonOver(GesturePhysics.defaultSpring);
+Spring? _flipSpringIn(Object? j) => Spring.fromJson(j, fallback: FlipCard.defaultSpring);
+Object? _flipSpringOut(Spring s) => s.toJsonOver(FlipCard.defaultSpring);
 
 /// One interaction state's patches: node id → a merge patch of that node's
 /// JSON (see [StateStyles]). Free-form: a patch can touch any node key.
@@ -139,8 +155,8 @@ abstract final class MotionFields {
 
   /// The share of the duration in which the opacity arrives (easing out).
   static const fadeShare = PropDef<double>('fadeShare', DoubleCodec(min: 0, max: 1), 1);
-  static const springStiffness = PropDef<double>('springStiffness', Codecs.double, 380);
-  static const springDamping = PropDef<double>('springDamping', Codecs.double, 20);
+  /// The spring of the `spring` curve.
+  static const spring = PropDef<Spring>('spring', ValueCodec(_motionSpringIn, _motionSpringOut, springType), Motion.defaultSpring);
   static const spinRamp = PropDef<int>('spinRamp', _ms, 800);
   static const loop = PropDef<MotionLoop>('loop', EnumCodec(MotionLoop.values), MotionLoop.none);
 
@@ -159,7 +175,6 @@ abstract final class MotionFields {
     ListCodec(ValueCodec(MotionKeyframe.fromJson, _out, motionKeyframeType)),
     [],
   );
-  static const pulseKey = PropDef<String?>('pulseKey', Codecs.optionalString, null);
   static const revealOnScroll = PropDef<bool>('revealOnScroll', Codecs.bool, false);
 
   /// Holds the entrance at its start while true (bindable).
@@ -205,8 +220,8 @@ abstract final class MotionFields {
   static const List<PropDef<Object?>> all = [
     translateX, translateY, scale, scaleX, scaleY, shiftX, shiftY, opacity, rotate, rotateX, rotateY, spin, //
     pathProgress, blur, perspective, originX, originY, duration, delay, curve, rotateCurve, fadeShare,
-    springStiffness, springDamping, spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path,
-    orientToPath, keyframes, pulseKey, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc,
+    spring, spinRamp, loop, repeat, enter, enterFrom, replayKey, backfaceHidden, path,
+    orientToPath, keyframes, revealOnScroll, enterHeld, revealFraction, orientUpright, uprightMirror, arc,
     paused, phase, pathPacing, pathFocusX, pathFocusY, pathWrap, pathViewBox, shimmer,
   ];
 }
@@ -249,37 +264,133 @@ abstract final class MotionKeyframeFields {
 
 List<PropDef<Object?>> motionKeyframeFields() => MotionKeyframeFields.all;
 
-// --- loops --------------------------------------------------------------------
+// --- animations -----------------------------------------------------------------
 
-abstract final class LoopAnimationFields {
-  static const type = PropDef<LoopAnimationType>('type', EnumCodec(LoopAnimationType.values), LoopAnimationType.pulse);
+/// [NodeAnimation]: an `AnimationController` and its tracks.
+abstract final class NodeAnimationFields {
+  /// Unique on the node; what `animate` and `${animation.<id>}` name.
+  static const id = PropDef<String>('id', Codecs.string, '');
+
+  /// A short form ([AnimationPresets]); its params below.
+  static const preset = PropDef<String?>('preset', Codecs.optionalString, null);
+  static const params = PropDef<Object?>('params', Codecs.any, null);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
-  static const duration = PropDef<int>('duration', _ms, 1000);
+
+  /// Milliseconds; empty: the preset's, else 300.
+  static const duration = PropDef<int?>('duration', Codecs.optionalInt, null);
+  static const reverseDuration = PropDef<int?>('reverseDuration', Codecs.optionalInt, null);
   static const delay = PropDef<int>('delay', _ms, 0);
-  static const reverse = PropDef<bool>('reverse', Codecs.bool, false);
-  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
-  static const scaleFrom = PropDef<double>('scaleFrom', Codecs.double, 1);
-  static const scaleTo = PropDef<double>('scaleTo', Codecs.double, 1);
-  static const opacityFrom = PropDef<double>('opacityFrom', Codecs.double, 1);
-  static const opacityTo = PropDef<double>('opacityTo', Codecs.double, 1);
-  static const turns = PropDef<double>('turns', Codecs.double, 1);
-  static const distance = PropDef<double>('distance', Codecs.double, 10);
+  static const curve = PropDef<AnimationCurve?>('curve', OptionalEnumCodec(AnimationCurve.values), null);
+  static const repeat = PropDef<AnimationRepeat?>(
+    'repeat',
+    ValueCodec(AnimationRepeat.fromJson, _out, animationRepeatType),
+    null,
+  );
+  static const autoplay = PropDef<bool?>('autoplay', Codecs.optionalBool, null);
 
-  /// Degrees each way.
-  static const angle = PropDef<double>('angle', Codecs.double, 4);
+  /// A change plays it from the start (bindable).
+  static const playKey = PropDef<String?>('playKey', Codecs.optionalString, null);
+  static const paused = PropDef<bool>('paused', Codecs.bool, false);
 
-  /// Where in its whole loop it starts (0–1).
+  /// Where a play starts in its cycle (0–1).
   static const phase = PropDef<double>('phase', DoubleCodec(min: 0, max: 1), 0);
+  static const spring = PropDef<Spring?>('spring', ValueCodec(_springIn, _out, springType), null);
 
-  /// Milliseconds it runs behind (a phase in time; it doesn't wait).
-  static const lag = PropDef<int>('lag', Codecs.int, 0);
+  /// An expression giving its value (0–1) instead of a clock.
+  static const progress = PropDef<String?>('progress', Codecs.optionalString, null);
+  static const alignment = PropDef<Alignment?>('alignment', Codecs.optionalAlignment, null);
+  static const tracks = PropDef<List<AnimationTrack>>(
+    'tracks',
+    ListCodec(ValueCodec(AnimationTrack.fromJson, _out, animationTrackType)),
+    [],
+  );
+
+  /// Where the design canvas draws it (a share of a cycle); empty: not
+  /// applied there.
+  static const previewAt = PropDef<double?>('previewAt', Codecs.optionalDouble, null);
   static const List<PropDef<Object?>> all = [
-    type, enabled, duration, delay, reverse, curve, scaleFrom, scaleTo, opacityFrom, opacityTo, turns, //
-    distance, angle, phase, lag,
+    id, preset, params, enabled, duration, reverseDuration, delay, curve, repeat, autoplay, playKey, paused, phase, //
+    spring, progress, alignment, tracks, previewAt,
   ];
 }
 
-List<PropDef<Object?>> loopAnimationFields() => LoopAnimationFields.all;
+List<PropDef<Object?>> nodeAnimationFields() => NodeAnimationFields.all;
+
+/// [AnimationTrack]: one tween.
+abstract final class AnimationTrackFields {
+  static const id = PropDef<String>('id', Codecs.string, '');
+
+  /// A binding path (`motion.rotate`, `opacity`, `decoration.fills[0].color`).
+  static const path = PropDef<String>('path', Codecs.string, '');
+  static const node = PropDef<String>('node', Codecs.string, '');
+  static const variable = PropDef<String>('variable', Codecs.string, '');
+
+  /// A number, a color or an expression; empty: the property's own value.
+  static const from = PropDef<Object?>('from', Codecs.any, null);
+  static const to = PropDef<Object?>('to', Codecs.any, null);
+  static const keyframes = PropDef<List<Keyframe>>(
+    'keyframes',
+    ListCodec(ValueCodec(Keyframe.fromJson, _out, keyframeType)),
+    [],
+  );
+  static const wave = PropDef<List<Wave>>('wave', ListCodec(ValueCodec(Wave.fromJson, _out, waveType)), []);
+
+  /// `Interval(begin, end)`.
+  static const interval = PropDef<List<double>>('interval', Codecs.doubles, [0, 1]);
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
+  static const blend = PropDef<TrackBlend>('blend', EnumCodec(TrackBlend.values), TrackBlend.replace);
+  static const List<PropDef<Object?>> all = [id, path, node, variable, from, to, keyframes, wave, interval, curve, blend];
+}
+
+List<PropDef<Object?>> animationTrackFields() => AnimationTrackFields.all;
+
+/// [Keyframe]: a `TweenSequence` stop.
+abstract final class KeyframeFields {
+  static const at = PropDef<double>('at', DoubleCodec(min: 0, max: 1), 0);
+  static const value = PropDef<Object?>('value', Codecs.any, null);
+  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
+  static const List<PropDef<Object?>> all = [at, value, curve];
+}
+
+List<PropDef<Object?>> keyframeFields() => KeyframeFields.all;
+
+/// [Wave]: a sine added to a track.
+abstract final class WaveFields {
+  static const cycles = PropDef<double>('cycles', Codecs.double, 1);
+  static const amplitude = PropDef<double>('amplitude', Codecs.double, 1);
+  static const phase = PropDef<double>('phase', Codecs.double, 0);
+  static const decay = PropDef<double>('decay', Codecs.double, 0);
+  static const rectify = PropDef<bool>('rectify', Codecs.bool, false);
+  static const List<PropDef<Object?>> all = [cycles, amplitude, phase, decay, rectify];
+}
+
+List<PropDef<Object?>> waveFields() => WaveFields.all;
+
+/// [AnimationRepeat]: `repeat(reverse:, count:)`.
+abstract final class AnimationRepeatFields {
+  static const reverse = PropDef<bool>('reverse', Codecs.bool, false);
+
+  /// 0: forever.
+  static const count = PropDef<int>('count', IntCodec(min: 0), 0);
+  static const List<PropDef<Object?>> all = [reverse, count];
+}
+
+List<PropDef<Object?>> animationRepeatFields() => AnimationRepeatFields.all;
+
+/// [Spring]: Flutter's `SpringDescription`, physical or by duration and
+/// bounce.
+abstract final class SpringFields {
+  static const stiffness = PropDef<double?>('stiffness', Codecs.optionalDouble, null);
+  static const damping = PropDef<double?>('damping', Codecs.optionalDouble, null);
+  static const mass = PropDef<double>('mass', Codecs.double, 1);
+
+  /// `withDurationAndBounce`: ms, and 0 (none) to 1.
+  static const duration = PropDef<int>('duration', IntCodec(min: 1), 500);
+  static const bounce = PropDef<double>('bounce', Codecs.double, 0);
+  static const List<PropDef<Object?>> all = [stiffness, damping, mass, duration, bounce];
+}
+
+List<PropDef<Object?>> springFields() => SpringFields.all;
 
 // --- transitions --------------------------------------------------------------
 
@@ -373,8 +484,7 @@ abstract final class DragSourceFields {
   /// The node drawn under the pointer instead of this one.
   static const feedbackNodeId = PropDef<String>('feedbackNodeId', Codecs.string, '');
   static const returnSpring = PropDef<bool>('returnSpring', Codecs.bool, true);
-  static const springStiffness = PropDef<double>('springStiffness', Codecs.double, 260);
-  static const springDamping = PropDef<double>('springDamping', Codecs.double, 14);
+  static const spring = PropDef<Spring>('spring', ValueCodec(_dragSpringIn, _dragSpringOut, springType), DragSource.defaultSpring);
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
   static const feedbackAnchor = PropDef<FeedbackAnchor>(
     'feedbackAnchor',
@@ -386,7 +496,7 @@ abstract final class DragSourceFields {
   static const physics = PropDef<GesturePhysics?>('physics', _physics, null);
   static const List<PropDef<Object?>> all = [
     group, data, start, axis, whileDragging, ghostOpacity, feedbackRotation, feedbackScale, feedbackOpacity, //
-    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, springStiffness, springDamping, enabled, physics,
+    feedbackElevation, feedbackNodeId, feedbackAnchor, returnSpring, spring, enabled, physics,
   ];
 }
 
@@ -453,8 +563,11 @@ abstract final class DragTrackFields {
   static const overscroll = PropDef<double>('overscroll', DoubleCodec(min: 0, max: 1), 0);
   static const settle = PropDef<int>('settle', _ms, 0);
   static const settleCurve = PropDef<AnimationCurve>('settleCurve', _curve, AnimationCurve.easeOutCubic);
-  static const settleStiffness = PropDef<double>('settleStiffness', Codecs.double, 380);
-  static const settleDamping = PropDef<double>('settleDamping', Codecs.double, 20);
+  static const settleSpring = PropDef<Spring>(
+    'settleSpring',
+    ValueCodec(_settleSpringIn, _settleSpringOut, springType),
+    DragTrack.defaultSettleSpring,
+  );
 
   /// Where it parks while the value is out of range or empty.
   static const parkedProgress = PropDef<double?>('parkedProgress', Codecs.optionalDouble, null);
@@ -488,7 +601,7 @@ abstract final class DragTrackFields {
   static const List<PropDef<Object?>> all = [
     variable, shape, min, max, step, defaultValue, input, pixelsPerRange, x1, y1, x2, y2, startAngle, endAngle, //
     pivotX, pivotY, rotate, path, orientToPath, jumpOnTap, wheel, value, orientUpright, detent, overscroll, settle,
-    settleCurve, settleStiffness, settleDamping, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
+    settleCurve, settleSpring, parkedProgress, keyboard, viewBoxWidth, viewBoxHeight, relative,
     wheelStep, doubleTapValues, keyStep, hitArea, units, fineStep, finePixelsPerRange, fineHold, fineVariable, snap,
     snapCurve, write, endless, momentum, friction, smooth, gain,
   ];
@@ -561,13 +674,11 @@ List<PropDef<Object?>> dragMotionFields() => DragMotionFields.all;
 /// [GesturePhysics]: the release a drag, a drag source's return and a
 /// transform gesture share.
 abstract final class GesturePhysicsFields {
-  static const stiffness = PropDef<double>('stiffness', Codecs.double, 380);
-  static const damping = PropDef<double>('damping', Codecs.double, 32);
-  static const mass = PropDef<double>('mass', Codecs.double, 1);
-
-  /// The spring as a bounce and a settle time, over stiffness and damping.
-  static const bounce = PropDef<double?>('bounce', Codecs.optionalDouble, null);
-  static const duration = PropDef<int?>('duration', Codecs.optionalInt, null);
+  static const spring = PropDef<Spring>(
+    'spring',
+    ValueCodec(_physicsSpringIn, _physicsSpringOut, springType),
+    GesturePhysics.defaultSpring,
+  );
   static const fling = PropDef<bool>('fling', Codecs.bool, true);
 
   /// The share of a fling's speed lost per second.
@@ -576,10 +687,7 @@ abstract final class GesturePhysicsFields {
   static const maxFlingVelocity = PropDef<double>('maxFlingVelocity', Codecs.double, 8000);
   static const overscroll = PropDef<double>('overscroll', DoubleCodec(min: 0, max: 1), 0.5);
   static const snap = PropDef<GestureSnap?>('snap', ValueCodec(GestureSnap.fromJson, _out, gestureSnapType), null);
-  static const List<PropDef<Object?>> all = [
-    stiffness, damping, mass, bounce, duration, fling, friction, minFlingVelocity, maxFlingVelocity, overscroll, //
-    snap,
-  ];
+  static const List<PropDef<Object?>> all = [spring, fling, friction, minFlingVelocity, maxFlingVelocity, overscroll, snap];
 }
 
 List<PropDef<Object?>> gesturePhysicsFields() => GesturePhysicsFields.all;
@@ -610,24 +718,12 @@ abstract final class FlipCardFields {
 
   /// A boolean variable it follows and writes.
   static const variable = PropDef<String>('variable', Codecs.string, '');
-  static const spring = PropDef<FlipSpring>(
-    'spring',
-    ValueCodec(FlipSpring.fromJson, _out, flipSpringType),
-    FlipSpring(),
-  );
+  static const spring = PropDef<Spring>('spring', ValueCodec(_flipSpringIn, _flipSpringOut, springType), FlipCard.defaultSpring);
   static const List<PropDef<Object?>> all = [axis, flipped, tapToFlip, dragToFlip, variable, spring];
 }
 
 List<PropDef<Object?>> flipCardFields() => FlipCardFields.all;
 
-abstract final class FlipSpringFields {
-  static const stiffness = PropDef<double>('stiffness', Codecs.double, 380);
-  static const damping = PropDef<double>('damping', Codecs.double, 36);
-  static const mass = PropDef<double>('mass', Codecs.double, 1);
-  static const List<PropDef<Object?>> all = [stiffness, damping, mass];
-}
-
-List<PropDef<Object?>> flipSpringFields() => FlipSpringFields.all;
 
 abstract final class TiltFields {
   /// The motion values at the edges.
@@ -712,40 +808,6 @@ abstract final class TransformHandlesFields {
 }
 
 List<PropDef<Object?>> transformHandlesFields() => TransformHandlesFields.all;
-
-// --- one-shot effects ---------------------------------------------------------
-
-abstract final class EffectAnimationFields {
-  /// The name an action plays it by.
-  static const name = PropDef<String>('name', Codecs.string, '');
-  static const type = PropDef<EffectAnimationType>(
-    'type',
-    EnumCodec(EffectAnimationType.values),
-    EffectAnimationType.shake,
-  );
-  static const duration = PropDef<int>('duration', _ms, 520);
-  static const delay = PropDef<int>('delay', _ms, 0);
-  static const amount = PropDef<double>('amount', Codecs.double, 1);
-  static const originX = PropDef<double>('originX', Codecs.double, 0);
-  static const originY = PropDef<double>('originY', Codecs.double, 0);
-  static const playOnAppear = PropDef<bool>('playOnAppear', Codecs.bool, false);
-
-  /// Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own.
-  static const cycles = PropDef<double>('cycles', Codecs.positive, 0);
-
-  /// A `keyframes` effect's poses at times 0–1 (from rest, back to rest).
-  static const keyframes = PropDef<List<MotionKeyframe>>(
-    'keyframes',
-    ListCodec(ValueCodec(MotionKeyframe.fromJson, _out, motionKeyframeType)),
-    [],
-  );
-  static const curve = PropDef<AnimationCurve>('curve', _curve, AnimationCurve.linear);
-  static const List<PropDef<Object?>> all = [
-    name, type, duration, delay, amount, originX, originY, playOnAppear, cycles, keyframes, curve, //
-  ];
-}
-
-List<PropDef<Object?>> effectAnimationFields() => EffectAnimationFields.all;
 
 abstract final class ParticleEmitterFields {
   static const count = PropDef<int>('count', IntCodec(min: 0), 40);
@@ -968,9 +1030,11 @@ abstract final class BehaviorFields {
 
   /// `Transform.scale` about the center; a value not above 0 reads as 1.
   static const scale = PropDef<double>('scale', Codecs.positive, 1);
-  static const loops = PropDef<List<LoopAnimation>>(
-    'loops',
-    ListCodec(ValueCodec(LoopAnimation.fromJson, _out, loopAnimationType)),
+  /// Its animation controllers (the legacy `loops` and `effectAnimations`
+  /// read as these).
+  static const animations = PropDef<List<NodeAnimation>>(
+    'animations',
+    ListCodec(ValueCodec(NodeAnimation.fromJson, _out, nodeAnimationType)),
     [],
   );
   static const transitions = PropDef<Transitions>(
@@ -1017,11 +1081,6 @@ abstract final class BehaviorFields {
     ValueCodec(Typewriter.fromJson, _out, typewriterType),
     null,
   );
-  static const effectAnimations = PropDef<List<EffectAnimation>>(
-    'effectAnimations',
-    ListCodec(ValueCodec(EffectAnimation.fromJson, _out, effectAnimationType)),
-    [],
-  );
   static const particles = PropDef<ParticleEmitter?>(
     'particles',
     ValueCodec(ParticleEmitter.fromJson, _out, particleEmitterType),
@@ -1062,8 +1121,8 @@ abstract final class BehaviorFields {
 
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
-    motion, scale, loops, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
-    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, effectAnimations, particles,
+    motion, scale, animations, transitions, inkWell, states, tooltip, ignorePointer, zoomable, floating, hero, //
+    flightKey, flight, draggable, dropTarget, drag, reveal, strokePath, typewriter, particles,
     textDirection, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

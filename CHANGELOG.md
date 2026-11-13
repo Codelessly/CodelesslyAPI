@@ -1,5 +1,52 @@
 ## Unreleased
 
+**New: animation as data** (docs/design/02-animation.md; guide chapter 8)
+
+- `animations` (`Behaviors.animations`, `NodeAnimation`): Flutter's `AnimationController` as data, with
+  `AnimationTrack`s (`Tween`/`TweenSequence` via `Keyframe`/`Interval`/`CurveTween` on any binding `path`, of the
+  node or another `node`, or on a `variable`; `TrackBlend` `replace`/`add`/`multiply`; `Wave`s), `AnimationRepeat`,
+  `playKey`, `paused`, `phase`, `spring`, `progress`, `alignment`, `previewAt`, and `preset` + `params` short forms
+  (`AnimationPresets`: `pulse`, `fade`, `scale`, `spin`, `bob`, `sway`, `flicker`, `shake`, `bounce`, `pop`,
+  `wiggle`, `jelly`, `flash`, `keyframes`, `enter`; `NodeAnimation.expanded`). Declared as
+  `BehaviorFields.animations`, `NodeAnimationFields`, `AnimationTrackFields`, `KeyframeFields`, `WaveFields`,
+  `AnimationRepeatFields`.
+- `AnimateAction` (`animate`, `AnimateCommand`, `AnimateFields`): `forward`, `reverse`, `toggle`, `repeat`,
+  `stop`, `reset`, `animateTo`, `animateBack`, `set` on a node's animation or a number variable.
+- `TriggerType.frame`: a `Ticker` (`${result.dt}`, `${result.elapsed}`, `${result.frame}`) guarded by `when`.
+- `Spring` (`SpringFields`): Flutter's `SpringDescription`, physical or `withDurationAndBounce`; `toJsonOver`
+  writes it sparse over an owner's default. `Trigger.intervalMsOf`.
+
+**JSON compatibility.** `"schema": 2` is unchanged and every document written before loads and plays the same.
+The decoders read the legacy keys and return the new model; the encoders write only the new shape:
+`loops` and `effectAnimations` become `animations` (presets of their type; ids `loop<i>` and the effect's name),
+their bindings (`loops[i].*`, `effectAnimations[i].*`) are rewritten to `animations.<id>.*`, `motion.pulseKey`
+becomes the animation `pulse`; `playAnimation` and `animateVariable` read as `animate`; the `clock` trigger reads
+as `timer` (`every` → `intervalMs`, `runWhen` → `when`); `FlipSpring`/`TransitionSpring` JSON, `motion`'s
+`springStiffness`/`springDamping`, `draggable`'s `springStiffness`/`springDamping`, `drag.track`'s
+`settleStiffness`/`settleDamping` and `GesturePhysics`' flat `stiffness`/`damping`/`mass`/`bounce`/`duration`
+read as a `spring` (`settleSpring`) with their old defaults.
+
+**Breaking changes for Dart callers**
+
+- Removed: `LoopAnimation`, `LoopAnimationType`, `LoopPose`, `LoopAnimationFields`, `loopAnimationType`,
+  `Behaviors.loops` (use `Behaviors.animations`); `EffectAnimation`, `EffectAnimationType`,
+  `EffectAnimationFields`, `effectAnimationType`, `Behaviors.effectAnimations`, `BehaviorFields.loops`,
+  `BehaviorFields.effectAnimations`; `PlayAnimationAction`, `PlayAnimationFields`, `AnimateVariableAction`,
+  `AnimateVariableMode`, `AnimateVariableFields` (use `AnimateAction`; `ActionDef.types` lists `animate` and no
+  longer the two legacy types, which still decode); `TriggerType.clock`, `Trigger.every`, `Trigger.runWhen`,
+  `TriggerFields.every`, `TriggerFields.runWhen`; `FlipSpring`, `FlipSpringFields`, `flipSpringType`,
+  `TransitionSpring`, `TransitionSpringFields`, `transitionSpringType` (use `Spring`, `springType`);
+  `Motion.pulseKey`, `MotionFields.pulseKey`.
+- Changed: `Trigger.intervalMs` is an `Expr<int>` (`TriggerFields.intervalMs` an `ExprCodec`), and
+  `effectiveIntervalMs` is null for an expression; `GesturePhysics` takes `spring` (a `Spring`) instead of
+  `stiffness`, `damping`, `mass`, `bounce`, `duration` and loses `usesBounce`; `Motion.springStiffness`/
+  `springDamping` → `Motion.spring`; `DragSource.springStiffness`/`springDamping` → `DragSource.spring`;
+  `DragTrack.settleStiffness`/`settleDamping` → `DragTrack.settleSpring`; `FlipCard.spring` and
+  `RouteDismiss.spring` are `Spring`s; the matching `*Fields` entries follow (`GesturePhysicsFields.spring`,
+  `MotionFields.spring`, `DragSourceFields.spring`, `DragTrackFields.settleSpring`).
+- `Behaviors.legacyKeys` (`loops`, `effectAnimations`) and `Behaviors.migrateBind` are new; `Node.fromJson` keeps
+  the legacy keys out of `extra`.
+
 **New**
 
 - `customPaint`, a behavior on any node (`Behaviors.customPaint`, `CustomPaint`): Flutter's `CustomPaint` as

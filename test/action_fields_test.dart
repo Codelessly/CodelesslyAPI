@@ -57,6 +57,7 @@ Object? _sample(String type, PropDef<Object?> def) {
       'durationMs': 500,
     };
   }
+  if (def.type.name == 'Spring') return {'duration': 400, 'bounce': 0.2};
   if (codec is AnimationCurveCodec) return def.defaultValue == AnimationCurve.linear ? 'easeOut' : 'linear';
   if (codec is OptionalEnumCodec) return codec.values.last.name;
   if (codec is EnumCodec) {
