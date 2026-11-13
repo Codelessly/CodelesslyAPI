@@ -52,11 +52,12 @@ String? defaultChildFits(Node parent, SizeFit fit, bool horizontal) => switch (f
 /// A row or column: Flexible along its main axis only; no Fill or Flexible
 /// along the main axis when it wraps or scrolls.
 String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
-  final main = (parent.type == 'row') == horizontal;
+  final main = (flexAxisOf(parent) == Axis.horizontal) == horizontal;
   final wraps = parent.props.get(FlexProps.wrap);
   if (fit == SizeFit.flexible && !main) return _flexOnly;
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && main && wraps) {
-    return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it.';
+    return 'A wrapping ${parent.type} lays its children out in runs: they keep their own size along it, unless they set '
+        'layout.basis (CSS flex-basis): then a filling child grows to share its line.';
   }
   if ((fit == SizeFit.fill || fit == SizeFit.flexible) && _scrollsAlong(parent, horizontal)) {
     return 'The ${parent.type} scrolls: its content has no end to fill to.';
@@ -67,6 +68,9 @@ String? flexChildFits(Node parent, SizeFit fit, bool horizontal) {
 /// A list: its items fill across it; along it, they size themselves unless
 /// the list gives each the same extent (then they fill it).
 String? listChildFits(Node parent, SizeFit fit, bool horizontal) {
+  // A wrapping list lays its items out in runs, as Wrap: each keeps its own
+  // size on both axes (a filling one takes its design size).
+  if (parent.props.get(ListViewProps.wrap)) return fit == SizeFit.flexible ? _flexOnly : null;
   final along = (parent.props.get(CollectionScrollProps.scrollDirection) == Axis.horizontal) == horizontal;
   final extent = parent.props.get(ListViewProps.itemExtent) != null;
   if (!along) return fit == SizeFit.fill ? null : 'Items in a list always fill across it.';

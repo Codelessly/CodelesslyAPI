@@ -40,6 +40,7 @@ final class Pages {
         'bindings.md': bindings(),
         'formulas.md': formulas(),
         'variables-conditions-scripts.md': variablesConditionsScripts(),
+        'STARTER.md': starter(),
       };
 
   // --- links ------------------------------------------------------------------
@@ -251,7 +252,13 @@ final class Pages {
 
   // --- pages ----------------------------------------------------------------------
 
-  String index() => '${[_generatedNote(), anchor('page-index'), template('index.md')].join('\n')}\n';
+  String index() => '${[_generatedNote(), anchor('page-index'), _only(template('index.md'), keep: 'guide-only', drop: 'starter-only')].join('\n')}\n';
+
+  /// [text] without its `<!-- drop -->...<!-- /drop -->` parts and the
+  /// markers of its [keep] parts.
+  static String _only(String text, {required String keep, required String drop}) => text
+      .replaceAll(RegExp('<!-- $drop -->.*?<!-- /$drop -->\\n?', dotAll: true), '')
+      .replaceAll(RegExp('<!-- /?$keep -->\\n?'), '');
 
   String nodes() {
     final b = StringBuffer()
@@ -260,7 +267,59 @@ final class Pages {
       ..writeln(_nodeTypeSummary())
       ..writeln();
     for (final e in (catalog['nodeTypes'] as Map).entries) {
-      final t = e.value as Json;
+      b.write(_nodeSection(e.key as String, e.value as Json));
+    }
+    return b.toString();
+  }
+
+  /// The core node types the starter covers, in its order.
+  static const starterTypes = ['canvas', 'row', 'column', 'flex', 'stack', 'box', 'text', 'icon', 'spacer'];
+
+  /// The starter: the document, the core node types, layout, decoration,
+  /// text, responsive design, variables, checking and the pitfalls, from the
+  /// guide and the declarations (docs/reference/STARTER.md).
+  String starter() {
+    final guide = _only(template('index.md'), keep: 'starter-only', drop: 'guide-only');
+    final included = <String>{};
+    String section(String id) {
+      final start = guide.indexOf('<a id="$id"></a>');
+      if (start < 0) throw StateError('STARTER.md: no guide section $id');
+      final next = guide.indexOf('<a id="guide-', start + 10);
+      included.add(id);
+      return guide.substring(start, next < 0 ? guide.length : next).trimRight();
+    }
+
+    var text = template('STARTER.md', {
+      'starterFiles': () => _table(['You need', 'Read'], [
+            ['Several screens and links between them; a canvas per breakpoint', '`index.md` section 6, and 7 for when to use one'],
+            ['Conditions; every binding path', '`index.md` section 9, `bindings.md`, `variables-conditions-scripts.md`'],
+            ['Every formula function (filter, sum, money, dates...)', '`formulas.md`'],
+            ['Taps and other triggers, and what they run (set a variable, navigate, open a modal, show a toast)', '`index.md` section 10, `triggers.md`, `actions.md`'],
+            ['Hover and pressed styles', '`index.md` section 11'],
+            ['Scrolling, lists, grids and repeated data', '`index.md` sections 12 and 13'],
+            ['Buttons, text fields, checkboxes, switches, sliders, dropdowns, tabs, tables, charts and every other node type', '`nodes.md` (one section per type), `index.md` section 14'],
+            ['Modals and toasts; images, icons and fonts', '`index.md` sections 15 and 16'],
+            ['Every layout and decoration field; every value type (colors, paints, gradients, text styles, borders)', '`layout.md`, `decoration.md`, `values.md`'],
+            ['Animation, gestures, sticky and floating nodes, drag and drop, custom drawing', '`behaviors.md`'],
+            ['The whole reference as one file, or as data', '`API_REFERENCE.md`, `catalog.json`, `document.schema.json`'],
+          ]),
+      'coreNodes': () => [
+            for (final type in starterTypes)
+              if ((catalog['nodeTypes'] as Map)[type] case final Json t) _nodeSection(type, t, heading: '##'),
+          ].join(),
+    });
+    text = text.replaceAllMapped(RegExp(r'\{\{guide:([\w-]+)\}\}'), (m) => section(m[1]!));
+    // Links to guide sections the starter leaves out go to the guide; node
+    // sections it leaves out, to nodes.md.
+    text = text.replaceAllMapped(RegExp(r'\]\(#(guide-[\w-]+)\)'), (m) => included.contains(m[1]) ? m[0]! : '](index.md#${m[1]})');
+    text = text.replaceAllMapped(RegExp(r'\]\(nodes\.md#node-([\w-]+)\)'), (m) => starterTypes.contains(m[1]) ? '](#node-${m[1]})' : m[0]!);
+    return '${[_generatedNote(), text].join('\n')}\n';
+  }
+
+  String _nodeSection(String type, Json t, {String heading = '##'}) {
+    final b = StringBuffer();
+    final e = (key: type, value: t);
+    {
       b
         ..writeln(anchor('node-${e.key}'))
         ..writeln('## `${e.key}`')

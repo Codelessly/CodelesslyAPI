@@ -166,6 +166,8 @@ final class Layout {
     this.aspectRatio,
     this.widthFactor,
     this.heightFactor,
+    this.order = 0,
+    this.basis,
   });
 
   final AxisSize width;
@@ -202,6 +204,15 @@ final class Layout {
   /// its track. Null: sized by [width] / [height]. Bindable (`layout.widthFactor`).
   final double? widthFactor, heightFactor;
 
+  /// CSS `order`: under a row, column or flex, children are laid out (and
+  /// painted) by ascending order, those with the same order as listed.
+  final int order;
+
+  /// CSS `flex-basis`: under a wrapping row, column or flex, the main size
+  /// the child takes when lines are broken; a child that fills the main
+  /// axis then grows by its [flex] share of what its line leaves.
+  final double? basis;
+
   AxisSize along(bool horizontal) => horizontal ? width : height;
 
   Layout copyWith({
@@ -219,6 +230,8 @@ final class Layout {
     double? Function()? aspectRatio,
     double? Function()? widthFactor,
     double? Function()? heightFactor,
+    int? order,
+    double? Function()? basis,
   }) =>
       Layout(
         width: width ?? this.width,
@@ -235,6 +248,8 @@ final class Layout {
         aspectRatio: aspectRatio == null ? this.aspectRatio : aspectRatio(),
         widthFactor: widthFactor == null ? this.widthFactor : widthFactor(),
         heightFactor: heightFactor == null ? this.heightFactor : heightFactor(),
+        order: order ?? this.order,
+        basis: basis == null ? this.basis : basis(),
       );
 
   static Layout fromJson(Object? json) {
@@ -256,6 +271,8 @@ final class Layout {
       aspectRatio: ratio != null && ratio > 0 ? ratio : null,
       widthFactor: _factor(m['widthFactor']),
       heightFactor: _factor(m['heightFactor']),
+      order: readInt(m['order']) ?? 0,
+      basis: _factor(m['basis']),
     );
   }
 
@@ -281,6 +298,8 @@ final class Layout {
     if (aspectRatio != null) j['aspectRatio'] = writeRatio(aspectRatio!);
     if (widthFactor != null) j['widthFactor'] = writeDouble(widthFactor!);
     if (heightFactor != null) j['heightFactor'] = writeDouble(heightFactor!);
+    if (order != 0) j['order'] = order;
+    if (basis != null) j['basis'] = writeDouble(basis!);
     return j;
   }
 
@@ -300,9 +319,11 @@ final class Layout {
       other.rotation == rotation &&
       other.aspectRatio == aspectRatio &&
       other.widthFactor == widthFactor &&
-      other.heightFactor == heightFactor;
+      other.heightFactor == heightFactor &&
+      other.order == order &&
+      other.basis == basis;
 
   @override
   int get hashCode =>
-      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, rotation, aspectRatio, widthFactor, heightFactor);
+      Object.hash(width, height, flex, squeezable, constraints, margin, padding, x, y, align, rotation, aspectRatio, widthFactor, heightFactor, order, basis);
 }

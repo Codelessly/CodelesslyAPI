@@ -103,6 +103,7 @@ Every node has a `type` (one of the [node types](nodes.md)). Its keys:
 | `bind` | `Map<String, String>` | Bound properties: a binding path (`visible`, `props.text`, `layout.width`, `decoration.fills.<paintId>`; see `BindPaths` and DESIGN.md §5.1) → an expression (`${user.name}`, `${= qty * 2}`). |
 | `actions` | `List<Reaction>` | Reactions: `{"trigger": {...}, "actions": [...]}` (see triggers, actions). |
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
+| `media` | `List<MediaRule>` | The node's own fields by screen size, as CSS media queries: `[{"maxWidth": 599, "patch": {"props": {"direction": "vertical"}}}]`. A rule has `minWidth` and/or `maxWidth` (px, inclusive, or a breakpoint name: from its min width / up to the next one) and/or `orientation`, and a `patch` (`props`, `layout`, `decoration`, `visible`, `opacity`) merged over the node while all its conditions hold; rules apply in order, the later winning (see the guide, Responsive design). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
 | behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](behaviors.md)). |
@@ -112,7 +113,9 @@ Every node has a `type` (one of the [node types](nodes.md)). Its keys:
 - `children` is an ordered list of ids, for the types that take children: `row`, `column`, `stack`, `listView`,
   `gridView`, `pageView`, `variance` and a few more (the "Children" column below).
 - `slots` maps a slot name to one id, for types with named places: a `canvas` has `body`, `appBar`,
-  `floatingActionButton` and `bottomNavigationBar`; a `listTile` has `leading`, `title`, `subtitle`, `trailing`.
+  `floatingActionButton` and `bottomNavigationBar` (placed as Flutter's `Scaffold` places them: the app bar across
+  the top at its own height, the bottom bar across the bottom, the body between, the button 16 px from the right
+  and above the bottom bar); a `listTile` has `leading`, `title`, `subtitle`, `trailing`.
 - Every node except a canvas has exactly one parent. A node listed under two parents, or not listed under any,
   is an error or a warning in validation. To show the same thing twice, write two nodes with their own ids.
 - `roots` lists the canvases. A canvas is never a child.
@@ -128,6 +131,7 @@ a fill, a radius and padding, not three nested widgets.
 | [`box`](nodes.md#node-box) | `Container` | none | yes |
 | [`row`](nodes.md#node-row) | `Row` | `children` | yes |
 | [`column`](nodes.md#node-column) | `Column` | `children` | yes |
+| [`flex`](nodes.md#node-flex) | `Flex` | `children` | yes |
 | [`text`](nodes.md#node-text) | `Text.rich` | none | blurs only |
 | [`icon`](nodes.md#node-icon) | `Icon` | none | blurs only |
 | [`spacer`](nodes.md#node-spacer) | `Spacer` | none | blurs only |
@@ -268,10 +272,12 @@ node both, except a `canvas` (its size is the screen's) and a `spacer`.
 In this example the text hugs its content, the red box fills the column's width, and in the row the green box
 and the blue box share the free space 1 : 2 (`flex`) beside a fixed grey box.
 
-### Rows and columns
+### Rows, columns and flex
 
-`row` and `column` lay their children along their **main axis** (horizontal for a row, vertical for a column)
-with these props: `mainAxisAlignment` (default `start`), `crossAxisAlignment` (default **`center`**: children are
+`row` and `column` lay their children along their **main axis** (horizontal for a row, vertical for a column).
+`flex` is Flutter's `Flex`, the widget both extend: the same props plus `direction` (`horizontal` | `vertical`),
+which a media rule or a binding can change, so the same children become a column at a width. They take
+these props: `mainAxisAlignment` (default `start`), `crossAxisAlignment` (default **`center`**: children are
 centered across the axis unless you say `start`, `end` or `stretch`), `spacing` (gap between children, default
 0), `wrap` (flow onto new lines, like `Wrap`; `runSpacing` between lines), `squeezeChildren` (default true: if
 the children do not fit, they shrink toward their content size instead of overflowing).
@@ -281,11 +287,27 @@ Under a row or column a child may also set, in its own `layout`:
 - `flex`: its share of the free space when its main-axis size is `fill` or `flexible` (default 1);
 - `align`: its alignment within its slot, as `[x, y]` from -1 to 1 or a name (`"centerRight"`); the node's box
   then spans the slot and its content sits at that alignment;
-- `squeezable`: a hugging child that may shrink below its content when room runs out.
+- `squeezable`: a hugging child that may shrink below its content when room runs out;
+- `order` (CSS `order`): children are laid out and painted by ascending order, equal orders as listed;
+- `basis` (CSS `flex-basis`, in a **wrapping** row, column or flex): the main size the child counts when lines are
+  broken; a child that also fills the main axis (`{"fill": n}`) then grows by its `flex` share of what its line
+  leaves. `"width": {"fill": 300}, "basis": 280` is CSS `flex: 1 1 280px`: three across at 1000 px, two at 700, one
+  at 390 ([section 7](#guide-responsive)). Without `basis`, children of a wrapping row keep their own size. In a
+wrapping row `crossAxisAlignment: stretch` makes the children of each line as tall as its tallest (CSS
+`align-items: stretch`: equal-height cards per line).
+
+A child hidden by a binding, a condition or a media rule takes no room and no slot: `spaceBetween` spreads the
+children that show (CSS `display: none`; in Flutter, leaving it out of the list). A node written with
+`"visible": false` and nothing that shows it keeps its room empty.
+
+A `spacer` is Flutter's `Spacer`: in a row or column it takes the free space (`flex` shares it) unless it is given
+a fixed size along the main axis; in a row whose width hugs its children there is no free space to take.
 
 ### Padding, margin, constraints, aspect ratio
 
-- `padding` is space inside the node's box, around its content and children; `margin` is space outside it.
+- `padding` is space inside the node's box, around its content and children; `margin` is space outside it. A
+  `text` has no padding (its box is its lines; validation warns): use `margin`, or a row with the padding around it. A negative margin does not overlap neighbours (Flutter has none):
+  overlap in a stack with a negative offset.
   Both are a number (all sides) or a list of **four** numbers `[left, top, right, bottom]`. A list of two is not
   read (it becomes 0 on every side; validation reports it).
 - `constraints`: `{"minWidth", "maxWidth", "minHeight", "maxHeight"}`, each optional. A `fill` width with
@@ -308,7 +330,10 @@ margin box. Each axis takes one of:
 | `{"relative": 300}` | 300 from the start at the stack's design size, keeping its share of the free space as the stack resizes |
 
 `x`, `y` mean nothing under a row or column, and `flex`, `align` nothing under a stack: validation warns
-(`layout_field_ignored`). Children paint in order: later ones on top.
+(`layout_field_ignored`). Children paint in order: later ones on top. A child may sit partly outside a stack with
+a fixed or fill size (a negative `start`, as Flutter's `Positioned(top: -40)`); it is clipped only if the stack's
+`decoration.clip` says so. A stack that hugs its children grows to hold them, so there a negative offset is 0
+(`layout_clamped`).
 
 ```json
 {
@@ -375,10 +400,15 @@ Which modes each parent allows (from the parents' own rules):
 `decoration` paints the node's box (types with "box decoration" above). Full list: [decoration](decoration.md).
 
 - `fills`: a list of paints, bottom to top. `{"color": "#FF2563EB"}` is a solid color. A gradient is
-  `{"type": "linear" | "radial" | "sweep" | "diamond", "stops": [{"position": 0, "color": ...}, {"position": 1, "color": ...}]}`;
-  a linear gradient runs left to right unless it has `"begin"` and `"end"` (alignments, `[0, -1]` to `[0, 1]` is
-  top to bottom) or a `transform`. An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`. A paint
-  without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
+  `{"type": "linear" | "radial" | "sweep" | "diamond", "stops": [{"position": 0, "color": ...}, {"position": 1, "color": ...}]}`.
+  As Flutter's `LinearGradient`, a linear one runs from `"begin"` to `"end"` (alignments; default left to right;
+  `[0, -1]` to `[0, 1]` is top to bottom), with `"tileMode": "repeated"` repeating it past them (thin stripes:
+  `"begin": [-1, 0], "end": [-0.96, 0]`). As `RadialGradient`, a radial one has a `"center"` (alignment, default
+  the middle) and a `"radius"` (a share of the box's shortest side; default half its width); past the last stop
+  it keeps that stop's color, so end a glow on a transparent stop. `transform` is the general form
+  ([Paint](values.md#type-Paint)). An image is `{"type": "image", "image": {"url": "...", "fit": "cover"}}`.
+  A paint without `type` is an image if it has `image`, a linear gradient if it has `stops`, else a solid color.
+  There is no noise or texture paint: a grain needs an image file (a repeated image fill, `"repeat": "repeat"`).
 - `strokes`: paints for the border, with `strokeWidth` (default 1), `strokeAlign` (`inside`, `center`,
   `outside`), `strokeSides` (`all`, `bottom`, `topBottom`...) and `dashPattern` (`[6, 4]`). `strokeWidth` without
   `strokes` draws nothing.
@@ -456,6 +486,9 @@ What a text looks like when the style leaves something out:
 
 Sizing: a single line `{"hug": n}` × `{"hug": n}`; a paragraph `{"fill": n}` wide (it wraps) × `{"hug": n}` high.
 A fixed height shorter than the lines clips them (the render command reports `text_clipped`).
+
+Characters the font has no glyph for (✦, ✳ in Roboto) are drawn as empty boxes; the render command reports
+them (`missing_glyph`). Draw a small mark with an `icon` or a `box` with a `path` instead.
 
 `runs` style parts of the text: `[{"start": 0, "end": 5, "style": {"fontWeight": 700}}]` (character offsets, end
 exclusive), merged over `style`; a run may carry a `"link"` URL. `text` may contain expressions:
@@ -583,6 +616,47 @@ is the entry screen.
 <a id="guide-responsive"></a>
 ## 7. Responsive design
 
+Responsive layout works as on the web: flexbox and grid lay content out so it fits any width, and media queries
+change what must change at a width. Use these, in this order:
+
+1. **Intrinsic layout, no breakpoints.** A wrapping row (CSS `flex-wrap: wrap`) whose children set
+   `layout.basis` (CSS `flex-basis`) and fill the main axis: lines break by the basis, and the children on each line
+   grow (by `flex`, CSS `flex-grow`) to share it. Three `{"fill": n}` cards with `"basis": 280` sit three across at
+   1000 px, two at 700 and one at 390; a text and a photo with `"basis": 320` sit side by side, then stack. For
+   repeated data, a `gridView` with `minCrossAxisExtent` (CSS `repeat(auto-fit, minmax(280px, 1fr))`) makes as many
+   equal columns as fit. A content column capped and centered (CSS `max-width` + `margin: auto`) is a `{"fill": n}`
+   width with `constraints.maxWidth`, centered by its parent's `crossAxisAlignment` (`center`, the default). A
+   share of the parent (CSS `width: 60%`) is `layout.widthFactor: 0.6`.
+2. **Media rules** for what must change at a width: direction, order, visibility, type size, padding. A node's
+   `media` is a list of rules, each a CSS media query over the node itself:
+   `{"minWidth": "tablet", "patch": {"props": {"style": {"fontSize": 40}}}}` is
+   `@media (min-width: 600px) { #title { font-size: 40px } }`. `minWidth` and `maxWidth` are pixels (inclusive, as in
+   CSS) or a breakpoint name (`minWidth: "tablet"`: from tablet's min width; `maxWidth: "tablet"`: up to the next
+   breakpoint, so tablet and narrower); `orientation` is `portrait` or `landscape`; all conditions of a rule must
+   hold. The `patch` is shaped like the node (`props`, `layout`, `decoration`, `visible`, `opacity`) and merged over
+   it (objects merge, `null` removes). Rules apply in order, a later one winning where two set the same field (the
+   CSS cascade): write the node for phones and add `minWidth` rules for wider screens (mobile first), or the other
+   way round with `maxWidth`. Validation checks every patched value as the node's own.
+   - **A row that becomes a column**: a `flex` node (Flutter `Flex`) with `"direction": "horizontal"` and a rule
+     patching `"direction": "vertical"`. Its children stay the same nodes, keeping their state.
+   - **Another order at a width**: each child's `layout.order` (CSS `order`; ascending, equal orders as listed),
+     patched in the child's own rule: `{"maxWidth": "mobile", "patch": {"layout": {"order": -1}}}` puts it first.
+   - **Hidden at a width**: `{"maxWidth": "tablet", "patch": {"visible": false}}`. A hidden node takes no room and
+     no slot (CSS `display: none`).
+   - Precedence: the node's own values, then its media rules, then an active interaction state's patch
+     ([section 11](#guide-states)), then its bindings, then conditions. A field both patched and bound shows the
+     binding (validation warns: `media_overridden`).
+3. **Bindings on `${screen}`** for values computed from the size, the escape hatch:
+   `"bind": {"layout.width": "${= min(screen.width - 32, 760)}"}`. `${screen}` has `width`, `height`,
+   `breakpoint` (the id), `is.<name>` and `atLeast.<name>` (`${= screen.atLeast.tablet ? 3 : 1}`), and
+   `isMobile`/`isTablet`/`isDesktop` (one per breakpoint id). `${screen.width}` prints a decimal (`390.0`);
+   `${= screen.width}` prints `390`. Nothing can check such a formula's result type: prefer media rules.
+4. **A canvas per breakpoint**, only for screens that are genuinely different designs. Canvases with the same
+   `props.screen` are one screen; each sets `props.breakpoint` to the breakpoint it is for. At a given width the
+   screen shows the canvas whose breakpoint's `minWidth` is the highest at or below the width, else its narrowest.
+   Each canvas has its own nodes; share state with `page_variables` ([section 8](#guide-variables)). A `variance`
+   node does the same for one part of a screen.
+
 The project's **breakpoints** name size classes by minimum width. Unless a document's `breakpoints` key says
 otherwise they are:
 
@@ -592,22 +666,175 @@ otherwise they are:
 | `tablet` | Tablet | 600 | 834 × 1112 |
 | `desktop` | Desktop | 1024 | 1440 × 900 |
 
-There are three tools, which combine:
+This page uses all four web patterns: a header whose links collapse to a menu icon below desktop (media rules on
+`visible`), a 3 → 2 → 1 card grid from data with no breakpoint (`minCrossAxisExtent`), a text-and-photo section
+that stacks with the photo first on phones (`basis` in a wrapping row, the photo's `order` patched), and a title
+whose size steps up with the width (media rules on `fontSize`), inside a content column capped at 1200 and
+centered:
 
-1. **Fluid layout inside one canvas**: `fill` widths, `constraints.maxWidth`, `wrap` rows. Good for small
-   differences.
-2. **A canvas per breakpoint.** Canvases with the same `props.screen` are one screen; each sets
-   `props.breakpoint` to the breakpoint it is the design for. At a given window width the screen shows the canvas
-   whose breakpoint's `minWidth` is the highest at or below the width, else its narrowest. So with mobile and
-   desktop canvases only, an 834 wide tablet shows the mobile canvas. Each canvas has its own nodes (its own ids);
-   share state between them with `page_variables` ([section 8](#guide-variables)).
-3. **A `variance` node**: one node whose `props.variants` each list children for a breakpoint
-   (`{"id", "name", "breakpoint", "children": [...]}`); it shows the variant of the current breakpoint, else of the
-   widest narrower one, else the narrowest. Its `children` lists every variant's children.
+```json
+{
+  "schema": 2,
+  "roots": ["home"],
+  "nodes": {
+    "home": {
+      "type": "canvas",
+      "slots": {"body": "page"},
+      "layout": {"width": 1440, "height": 900},
+      "decoration": {"fills": [{"color": "#FFFFFFFF"}]}
+    },
+    "page": {
+      "type": "column",
+      "children": ["header", "content"],
+      "layout": {"width": {"fill": 1440}, "height": {"fill": 900}},
+      "props": {"scrollable": true}
+    },
+    "header": {
+      "type": "row",
+      "children": ["logo", "nav", "menu"],
+      "layout": {"width": {"fill": 1440}, "height": 64, "padding": [16, 0, 16, 0]},
+      "props": {"mainAxisAlignment": "spaceBetween"},
+      "decoration": {"fills": [{"color": "#FF111827"}]},
+      "media": [{"minWidth": "desktop", "patch": {"layout": {"padding": [32, 0, 32, 0]}}}]
+    },
+    "logo": {
+      "type": "text",
+      "layout": {"width": {"hug": 80}, "height": {"hug": 24}},
+      "props": {"text": "Relay", "style": {"fontSize": 20, "fontWeight": 700, "color": "#FFFFFFFF"}}
+    },
+    "nav": {
+      "type": "row",
+      "children": ["nav-1", "nav-2", "nav-3"],
+      "visible": false,
+      "layout": {"width": {"hug": 300}, "height": {"hug": 20}},
+      "props": {"spacing": 32},
+      "media": [{"minWidth": "desktop", "patch": {"visible": true}}]
+    },
+    "nav-1": {
+      "type": "text",
+      "layout": {"width": {"hug": 60}, "height": {"hug": 20}},
+      "props": {"text": "Product", "style": {"fontSize": 15, "color": "#FFD1D5DB"}}
+    },
+    "nav-2": {
+      "type": "text",
+      "layout": {"width": {"hug": 60}, "height": {"hug": 20}},
+      "props": {"text": "Pricing", "style": {"fontSize": 15, "color": "#FFFFFFFF"}}
+    },
+    "nav-3": {
+      "type": "text",
+      "layout": {"width": {"hug": 60}, "height": {"hug": 20}},
+      "props": {"text": "Docs", "style": {"fontSize": 15, "color": "#FFD1D5DB"}}
+    },
+    "menu": {
+      "type": "icon",
+      "layout": {"width": 28, "height": 28},
+      "props": {"icon": "menu", "color": "#FFFFFFFF"},
+      "media": [{"minWidth": "desktop", "patch": {"visible": false}}]
+    },
+    "content": {
+      "type": "column",
+      "children": ["title", "plans", "split"],
+      "layout": {
+        "width": {"fill": 1440},
+        "height": {"hug": 800},
+        "padding": [16, 24, 16, 24],
+        "constraints": {"maxWidth": 1200}
+      },
+      "props": {"crossAxisAlignment": "stretch", "spacing": 24},
+      "media": [{"minWidth": "tablet", "patch": {"layout": {"padding": [32, 48, 32, 48]}, "props": {"spacing": 32}}}]
+    },
+    "title": {
+      "type": "text",
+      "layout": {"width": {"fill": 1136}, "height": {"hug": 64}},
+      "props": {
+        "text": "Plans that scale with your team",
+        "style": {"fontSize": 32, "fontWeight": 700, "height": 1.1, "color": "#FF111827"}
+      },
+      "media": [
+        {"minWidth": "tablet", "patch": {"props": {"style": {"fontSize": 40}}}},
+        {"minWidth": "desktop", "patch": {"props": {"style": {"fontSize": 56}}}}
+      ]
+    },
+    "plans": {
+      "type": "gridView",
+      "children": ["plan"],
+      "layout": {"width": {"fill": 1136}, "height": {"hug": 200}},
+      "props": {
+        "physics": "never",
+        "minCrossAxisExtent": 280,
+        "shrinkWrapRows": true,
+        "crossAxisSpacing": 24,
+        "mainAxisSpacing": 24
+      },
+      "bind": {"data": "${plans}"}
+    },
+    "plan": {
+      "type": "column",
+      "children": ["plan-name", "plan-price"],
+      "layout": {"width": {"fill": 360}, "height": {"fill": 160}, "padding": 24},
+      "props": {"crossAxisAlignment": "start", "spacing": 8},
+      "decoration": {"fills": [{"color": "#FFF3F4F6"}], "radius": 12}
+    },
+    "plan-name": {
+      "type": "text",
+      "layout": {"width": {"fill": 312}, "height": {"hug": 24}},
+      "props": {"text": "${item.name}", "style": {"fontSize": 18, "fontWeight": 600, "color": "#FF111827"}}
+    },
+    "plan-price": {
+      "type": "text",
+      "layout": {"width": {"fill": 312}, "height": {"hug": 40}},
+      "props": {"text": "${item.price}", "style": {"fontSize": 32, "fontWeight": 700, "color": "#FF2563EB"}}
+    },
+    "split": {
+      "type": "row",
+      "children": ["split-text", "split-photo"],
+      "layout": {"width": {"fill": 1136}, "height": {"hug": 240}},
+      "props": {"wrap": true, "spacing": 48, "runSpacing": 16, "crossAxisAlignment": "center"}
+    },
+    "split-text": {
+      "type": "text",
+      "layout": {"width": {"fill": 544}, "height": {"hug": 60}, "basis": 320},
+      "props": {
+        "text": "Every plan includes on-call schedules, escalation policies and status pages.",
+        "style": {"fontSize": 18, "height": 1.5, "color": "#FF374151"}
+      }
+    },
+    "split-photo": {
+      "type": "box",
+      "layout": {"width": {"fill": 544}, "height": 240, "basis": 320},
+      "decoration": {"fills": [{"color": "#FF93C5FD"}], "radius": 12},
+      "media": [{"maxWidth": "mobile", "patch": {"layout": {"order": -1}}}]
+    }
+  },
+  "variables": {
+    "home": [
+      {
+        "name": "plans",
+        "type": "list",
+        "value": [
+          {"name": "Starter", "price": "$0"},
+          {"name": "Team", "price": "$29"},
+          {"name": "Enterprise", "price": "Talk to us"}
+        ]
+      }
+    ]
+  }
+}
+```
 
-`${screen}` describes the window in expressions: `screen.width`, `screen.height`, `screen.breakpoint` (the id),
-`screen.isMobile`, `screen.isTablet`, `screen.isDesktop` (one per breakpoint id), `screen.atLeast.tablet`,
-`screen.is.mobile`. `${screen.width}` prints a decimal (`390.0`); `${= screen.width}` prints `390`.
+The same page in CSS:
+
+```css
+#nav { display: none } @media (min-width: 1024px) { #nav { display: flex } #menu { display: none } }
+#plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px }
+#split { display: flex; flex-wrap: wrap; gap: 16px 48px } #split > * { flex: 1 1 320px }
+@media (max-width: 599px) { #split-photo { order: -1 } }
+#title { font-size: 32px } @media (min-width: 600px) { #title { font-size: 40px } }
+@media (min-width: 1024px) { #title { font-size: 56px } }
+#content { max-width: 1200px; margin: 0 auto }
+```
+
+Older documents use a canvas per breakpoint:
 
 ```json
 {
@@ -758,6 +985,24 @@ Types: | Value | Meaning |
 | `choice` | One of `Variable.options`, stored as the option's value. |. `value` is written as the type holds it in JSON: `3`, `2.5`, `true`, `"text"`,
 `"#FF2563EB"`, `[...]`, `{...}`.
 
+**Computed variables** define a value once: a variable with a `formula` (what goes in `${= ...}`) is read-only and
+follows what it reads. **Function variables** add `parameters` and are called by name from any formula. Declare
+them in `page_variables` to share them with every canvas of the document (a screen's breakpoint canvases too):
+
+```json
+"variables": {"page_variables": [
+  {"name": "query", "type": "text", "value": ""},
+  {"name": "dishes", "type": "list", "value": [{"name": "Lamb", "vegan": false}, {"name": "Squash", "vegan": true}]},
+  {"name": "shown", "type": "list", "formula": "filter(dishes, d => contains(lower(d.name), lower(query)))"},
+  {"name": "count", "type": "integer", "formula": "length(shown)"},
+  {"name": "usd", "type": "text", "parameters": ["n"], "formula": "'$' + round(n)"}
+]}
+```
+
+`${shown}` feeds a list, `${count}` a label, `${= usd(price * 12)}` any text, wherever they are needed: write a
+filter or a rule once, not in every binding. A function variable's name must not be a formula function's
+([formula functions](formulas.md)): the built-in one wins.
+
 **Expressions** are text that reads values:
 
 - `${name}` or `${path}` reads a value: `${count}`, `${user.name}`, `${items[0].price}`, `${item.title}`.
@@ -777,6 +1022,9 @@ value whenever the names it reads change:
 ```json
 "bind": {"props.text": "${= 'Total: ' + money(count * price, '$')}", "visible": "${= count > 0}"}
 ```
+
+Literals are not names: `${false}` reads a variable called `false`; write `${= false}` (or just `false` in the
+field, without a binding).
 
 Paths: `visible`, `opacity`, `layout.<field>` (`layout.width`), `decoration.fills[0].color`,
 `decoration.radius`, `props.<prop>` and `props.<prop>.<field>` (`props.style.color`), `data` (a list's items),
@@ -1062,6 +1310,13 @@ A `listView` (or `gridView`, `pageView`) repeats its **first child** once per it
 its position from 0. A list in a scrolling page sets `"scrollable": false` so it lays out every item at its full
 height; `spacing` separates items. Items fill the list's width.
 
+For cards in columns from one list, inside a scrolling page, use a `gridView` with `minCrossAxisExtent` (CSS
+`repeat(auto-fit, minmax(280px, 1fr))`: as many equal columns as fit), `"shrinkWrapRows": true` (each row as tall
+as its tallest card, the cards stretched to it: equal heights) and `"physics": "never"` (it lays out every item and
+the page scrolls), as in [section 7](#guide-responsive). A `listView` with `"wrap": true` lays its items out at
+their own sizes in runs along its `scrollDirection`: with the default `vertical` they flow top to bottom into
+columns (`vertical_wrap`); set `"scrollDirection": "horizontal"` for chips side by side.
+
 ```json
 {
   "schema": 2,
@@ -1148,8 +1403,12 @@ Validate with variables: keep the values, set a `tried` flag on submit, and show
 bindings (or bind `props.decoration.errorText`). The `validator` prop of a text field is declared but not applied
 by the SDK, and `inputFormatter` only applies `{"type": "regex", "pattern": ..., "allow": true}`. An outlined
 field (`"border": {"type": "outline", ...}`) needs `"contentPadding": [14, 16, 14, 16]` in its decoration to keep
-its text off the border. A text field is not bound to its variable: setting the variable does not change the
-text shown.
+its text off the border.
+
+**A text field bound to a variable**: bind its `props.initialValue` to the variable (`"bind": {"props.initialValue": "${query}"}`).
+That is a two-way binding, as a Flutter `TextEditingController` held in state: typing sets the variable (its
+`changed` reaction also runs), and setting the variable elsewhere (a clear button, `--set`) changes the text, keeping
+the caret. The render command types with `--type <id>=<text>`.
 
 ```json
 {
@@ -1244,7 +1503,10 @@ See the navigation example in [section 6](#guide-screens).
   inlines it; a real publish needs the image uploaded and its URL. The render command does not fetch network
   images: it reports them (`image_network`) and leaves them blank.
 - **Icons**: an `icon` node with `props.icon` set to a Material icon name (`"check_circle"`, `"menu"`,
-  `"arrow_forward"`; `_outlined`, `_rounded`, `_sharp` suffixes pick the style) and `props.color`.
+  `"arrow_forward"`, `"north_east"`; any name at fonts.google.com/icons; `_outlined`, `_rounded`, `_sharp` suffixes
+  pick the style) and `props.color`. An icon is written the same way everywhere: a text field's
+  `decoration.prefixIcon` is `{"icon": "search", "size": 18}`. A name the renderer does not know draws nothing
+  (`icon_not_drawn`).
 - **Fonts**: `style.fontFamily` names a family (`"Inter"`), with `fontWeight` choosing the file. An app fetches
   Google Fonts by name. The render command uses font files from `--fonts <dir>` (read by their real family and
   weight) plus Roboto, and reports a family it does not have (`font_fallback`).
@@ -1309,10 +1571,15 @@ tool/render/render.sh site/ --out shots/ --sizes 390x844,834x1112,1440x900 --ful
 
 It validates every document strictly, renders each screen with the SDK at each size, writes
 `shots/<screen>@<w>x<h>.png` and `shots/diagnostics.json`, and prints one line per problem with a code, the
-JSON pointer of the value (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 when there are
-errors. Interactions before the capture: `--tap <id>` (scrolled into view first; `<id>#<n>` for the n-th copy
-of a list item), `--hover <id>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`,
-`--navigate <canvas id>`, `--wait <ms>`, with `--label <name>` to keep the screenshots apart. Look at the screenshots: validation cannot tell you that a page is ugly.
+JSON pointer of the value (`/nodes/hero-title/props/style/fontSize`) or the node, and what to do. It exits 1 when
+there are errors. Interactions before the capture, in order: `--tap <id>` (`<id>#<n>` for the n-th copy of a list
+item; a node out of view or under an overlay is scrolled to the middle first, and a tap that would land on another
+node is reported, not made), `--hover <id>`, `--focus <id>`, `--type <id>=<text>`, `--set <variable>=<json>`,
+`--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`. A step may name a node by its `name`
+too: give the matching nodes of a screen's breakpoint canvases the same `name` and one step reaches whichever is
+shown. `--label <name>` keeps the screenshots and `diagnostics-<name>.json` of each state apart. `--full-page`
+captures the page's own scroll height, with content fixed to the window drawn in the first window.
+Look at the screenshots: validation cannot tell you that a page is ugly.
 
 Validation codes (from `package:codelessly_api/validate.dart`):
 
@@ -1348,6 +1615,8 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `layout_field_ignored` | warning | A layout field the node's parent does not read (x/y outside a stack, flex/align outside a row or column). |
 | `fit_not_allowed` | warning | A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column). |
 | `zero_size` | warning | A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible. |
+| `vertical_wrap` | warning | A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side. |
+| `layout_clamped` | warning | A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks). |
 | `unknown_bind_path` | error | A "bind" key that names no bindable field of the node. |
 | `reserved_bind_path` | warning | A binding path that is kept but not applied yet. |
 | `expression_syntax` | error | A "${" that is not closed, or an empty ${}. |
@@ -1364,13 +1633,16 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `duplicate_variable` | error | Two variables of the same name in one scope. |
 | `unknown_scope` | error | Variables or conditions keyed by an id that is not a canvas of the document (nor page_variables). |
 | `invalid_condition` | error | A condition, branch, predicate or set entry of the wrong shape. |
-| `unknown_breakpoint` | error | A canvas or variant names a breakpoint id the project does not define. |
+| `unknown_breakpoint` | error | A canvas, variant or media rule names a breakpoint the project does not define. |
+| `invalid_media` | error | A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size. |
+| `media_overridden` | warning | A media rule patches a field the node also binds: the binding wins, so the patch never shows. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
 | `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
 
-The render step adds what only rendering shows: `render_exception`, `action_error`, `interaction_failed`,
-`layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `font_fallback`,
+The render step adds what only rendering shows: `render_exception` (naming the node), `action_error`,
+`interaction_failed`, `tap_no_reaction`, `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`,
+`text_no_color`, `missing_glyph`, `icon_not_drawn`, `expression_not_evaluated`, `path_overflow`, `font_fallback`,
 `image_failed`, `image_network`, `empty_screen`, `invalid_json`; formulas are parsed by the SDK's own parser
 there, so formula syntax errors and unknown names in formulas are reported only by the render command.
 
@@ -1390,3 +1662,14 @@ there, so formula syntax errors and unknown names in formulas are reported only 
 10. Per-breakpoint canvases have separate nodes: shared state lives in `page_variables`.
 11. `fill` takes all the room it is given; cap it with `constraints.maxWidth`.
 12. A backslash inside a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.
+13. `${...}` reads a name; a literal value is a formula: `${= false}`, not `${false}`.
+14. A node hidden by a binding, condition or media rule takes no room or slot; `"visible": false` written on the
+    node with nothing to show it keeps its room.
+15. A `path` (and a box's `path`) is drawn in its box's own pixels from the top left and is not clipped to the box
+    (as Flutter's `CustomPaint`): give a `path` node a `viewBox` to scale it, or clip an ancestor.
+16. A `spacer` takes the free space only in a row or column with room to spare (a `fill` or fixed main size).
+17. Where CSS and Flutter differ, the model follows Flutter, except where it says so: rows and columns shrink
+    children that do not fit toward their content (`squeezeChildren`, default true, as CSS flex items shrink; false
+    is Flutter's overflow); `basis`, `order` and `minCrossAxisExtent` are CSS's; a negative margin is not CSS's.
+18. Repeated content from data: a `gridView` with `minCrossAxisExtent` for columns, a `listView` for a list; a
+    wrapping `listView` runs along its `scrollDirection`.

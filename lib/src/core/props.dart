@@ -330,9 +330,25 @@ Json? _iconNamed(String s) {
   return materialIconNamed(name);
 }
 
-Json? _iconIn(Object? j) => j is String ? _iconNamed(j) : readMap(j).let((m) => m == null || m['image'] != null || m['imageUrl'] is! String
-    ? m
-    : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']});
+Json? _iconIn(Object? j) => j is String ? _iconNamed(j) : readMap(j).let((m) => m == null
+    ? null
+    : _untypedMaterial(m) ??
+        (m['image'] != null || m['imageUrl'] is! String
+            ? m
+            : {for (final e in m.entries) if (e.key != 'imageUrl') e.key: e.value, 'image': m['imageUrl']}));
+
+/// `{"name": "search"}` with no type or source: the Material icon it names
+/// (as the name string reads), keeping its other keys.
+Json? _untypedMaterial(Json m) {
+  if (m.containsKey('type') || m.containsKey('source') || m.containsKey('image') || m.containsKey('imageUrl') || m.containsKey('svg')) {
+    return null;
+  }
+  final name = m['name'];
+  if (name is! String) return null;
+  final named = materialIconNamed(name);
+  if (named == null) return null;
+  return {...m, ...named, if (m['style'] is String) 'style': m['style']};
+}
 
 /// The Material icon [name] names (`check_circle`, `lock_open_rounded`):
 /// a suffix (`_outlined`, `_rounded`, `_sharp`) sets its style. Null when

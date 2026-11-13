@@ -144,7 +144,11 @@ abstract final class ListViewProps {
   static const itemPosition = PropDef<Offset?>('itemPosition', Codecs.optionalOffset, null);
 
   /// Flows the items onto further runs (`Wrap`) instead of one line.
-  static const wrap = PropDef<bool>('wrap', Codecs.bool, false);
+  static const wrap = PropDef<bool>('wrap', Codecs.bool, false,
+      doc: 'Lays every item out in runs, as Flutter `Wrap`, each item at its own size. The runs go along `scrollDirection`: '
+          'with the default `vertical` the items flow top to bottom and wrap into columns; for items side by side that wrap onto '
+          'new rows set `"scrollDirection": "horizontal"`. For cards in equal columns from data, a `gridView` with '
+          '`minCrossAxisExtent` is usually what is wanted.');
   static const wrapSpacing = PropDef<double>('wrapSpacing', Codecs.positive, 0);
   static const runSpacing = PropDef<double>('runSpacing', Codecs.positive, 0);
   static const wrapAlignment = PropDef<WrapAlignment>(
@@ -210,6 +214,15 @@ abstract final class ListViewProps {
 abstract final class GridViewProps {
   static const crossAxisCount = PropDef<int>('crossAxisCount', IntCodec(min: 1), 2);
   static const maxCrossAxisExtent = PropDef<double?>('maxCrossAxisExtent', _optionalPositive, null);
+
+  /// CSS grid's `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal
+  /// columns as fit at least this wide (with [crossAxisSpacing] between),
+  /// never more than there are items; wins over [crossAxisCount] and
+  /// [maxCrossAxisExtent].
+  static const minCrossAxisExtent = PropDef<double?>('minCrossAxisExtent', _optionalPositive, null,
+      doc: 'CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with '
+          '`crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. '
+          '`280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints.');
   static const mainAxisSpacing = PropDef<double>('mainAxisSpacing', Codecs.double, 0);
   static const crossAxisSpacing = PropDef<double>('crossAxisSpacing', Codecs.double, 0);
   static const childAspectRatio = PropDef<double>('childAspectRatio', DoubleCodec(min: 0.0001, ratio: true), 1);
@@ -239,7 +252,7 @@ abstract final class GridViewProps {
   static const spec = WidgetSpec(
     'gridView',
     props: [
-      ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
+      ...CollectionScrollProps.all, crossAxisCount, maxCrossAxisExtent, minCrossAxisExtent, mainAxisSpacing, crossAxisSpacing, //
       childAspectRatio, mainAxisExtent, shrinkWrapRows, masonry, masonryPlacement, pagination, reorder,
     ],
     slots: CollectionSlots.grid,

@@ -17,6 +17,7 @@ const List<WidgetSpec> coreWidgetSpecs = [
   BoxProps.spec,
   FlexProps.row,
   FlexProps.column,
+  FlexProps.flex,
   TextProps.spec,
   IconProps.spec,
   SpacerProps.spec,

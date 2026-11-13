@@ -3123,6 +3123,20 @@
             }
           ]
         },
+        "order": {
+          "type": "integer"
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0.0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "widthFactor": {
           "type": "number",
           "minimum": 0
@@ -4539,7 +4553,9 @@
     "model.InputIcon": {
       "type": "object",
       "properties": {
-        "icon": {},
+        "icon": {
+          "$ref": "#/$defs/value.IconData"
+        },
         "size": {
           "type": "number",
           "minimum": 0.0
@@ -5185,6 +5201,36 @@
               "items": {
                 "type": "number"
               }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "begin": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "end": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "center": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value.Alignment"
             },
             {
               "type": "null"
@@ -7053,6 +7099,7 @@
             "box",
             "row",
             "column",
+            "flex",
             "text",
             "icon",
             "spacer",
@@ -7160,6 +7207,57 @@
         },
         "component": {
           "type": "object"
+        },
+        "media": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "minWidth": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "maxWidth": {
+                "type": [
+                  "number",
+                  "string"
+                ]
+              },
+              "orientation": {
+                "enum": [
+                  "portrait",
+                  "landscape"
+                ]
+              },
+              "patch": {
+                "type": "object",
+                "properties": {
+                  "props": {
+                    "type": "object"
+                  },
+                  "layout": {
+                    "type": "object"
+                  },
+                  "decoration": {
+                    "type": "object"
+                  },
+                  "visible": {
+                    "type": "boolean"
+                  },
+                  "opacity": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "patch"
+            ],
+            "additionalProperties": false
+          }
         },
         "visible": {
           "type": "boolean"
@@ -7764,6 +7862,73 @@
           "if": {
             "properties": {
               "type": {
+                "const": "flex"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "props": {
+                "type": "object",
+                "properties": {
+                  "direction": {
+                    "$ref": "#/$defs/enum.Axis"
+                  },
+                  "mainAxisAlignment": {
+                    "$ref": "#/$defs/enum.MainAxisAlignment"
+                  },
+                  "crossAxisAlignment": {
+                    "$ref": "#/$defs/enum.CrossAxisAlignment"
+                  },
+                  "spacing": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "wrap": {
+                    "type": "boolean"
+                  },
+                  "runSpacing": {
+                    "type": "number",
+                    "minimum": 0.0
+                  },
+                  "squeezeChildren": {
+                    "type": "boolean"
+                  },
+                  "scrollable": {
+                    "type": "boolean"
+                  },
+                  "scrollDirection": {
+                    "$ref": "#/$defs/enum.Axis"
+                  },
+                  "reverse": {
+                    "type": "boolean"
+                  },
+                  "physics": {
+                    "$ref": "#/$defs/enum.ScrollPhysicsType"
+                  },
+                  "alwaysScroll": {
+                    "type": "boolean"
+                  },
+                  "clipBehavior": {
+                    "$ref": "#/$defs/enum.Clip"
+                  },
+                  "fillViewport": {
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "slots": {
+                "type": "object",
+                "maxProperties": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
                 "const": "text"
               }
             }
@@ -8200,6 +8365,17 @@
                     "minimum": 1
                   },
                   "maxCrossAxisExtent": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0.0
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "minCrossAxisExtent": {
                     "anyOf": [
                       {
                         "type": "number",

@@ -91,6 +91,10 @@ abstract final class Codes {
       'A layout field the node\'s parent does not read (x/y outside a stack, flex/align outside a row or column).');
   static const fitNotAllowed = DiagnosticCode('fit_not_allowed', Severity.warning,
       'A width or height mode the parent cannot honor (fill along a scrolling axis, flexible outside a row/column).');
+  static const layoutClamped = DiagnosticCode('layout_clamped', Severity.warning,
+      'A layout value that cannot take effect as written: a negative offset in a stack that hugs its children (clamped to 0), or a negative margin (Flutter has none: the box shrinks).');
+  static const verticalWrap = DiagnosticCode('vertical_wrap', Severity.warning,
+      'A wrapping list that scrolls vertically: its items flow top to bottom and wrap into columns, not side by side.');
   static const zeroSize = DiagnosticCode('zero_size', Severity.warning,
       'A fixed width or height of 0 (often a missing "width"/"height"): the node is invisible.');
 
@@ -132,7 +136,11 @@ abstract final class Codes {
   static const invalidCondition = DiagnosticCode('invalid_condition', Severity.error,
       'A condition, branch, predicate or set entry of the wrong shape.');
   static const unknownBreakpoint = DiagnosticCode('unknown_breakpoint', Severity.error,
-      'A canvas or variant names a breakpoint id the project does not define.');
+      'A canvas, variant or media rule names a breakpoint the project does not define.');
+  static const invalidMedia = DiagnosticCode('invalid_media', Severity.error,
+      'A "media" rule of the wrong shape: no condition (minWidth, maxWidth, orientation), a width that is neither px nor a breakpoint name, a minWidth above its maxWidth, or a patch key that cannot vary by screen size.');
+  static const mediaOverridden = DiagnosticCode('media_overridden', Severity.warning,
+      'A media rule patches a field the node also binds: the binding wins, so the patch never shows.');
   static const duplicateBreakpointCanvas = DiagnosticCode('duplicate_breakpoint_canvas', Severity.error,
       'Two canvases of one screen are the design for the same breakpoint.');
   static const screenWithoutBreakpoint = DiagnosticCode('screen_without_breakpoint', Severity.warning,
@@ -146,11 +154,11 @@ abstract final class Codes {
     invalidNode, unknownNodeType, unknownNodeKey, unknownProp, unknownLayoutKey, unknownDecorationKey, unknownField,
     wrongType, looseValue, invalidEnum, outOfRange, decorationIgnored,
     danglingChild, danglingSlot, multipleParents, cycle, unreachableNode, unknownSlot, childrenNotAllowed, slotsNotAllowed,
-    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize,
+    canvasAsChild, layoutFieldIgnored, fitNotAllowed, zeroSize, verticalWrap, layoutClamped,
     unknownBindPath, reservedBindPath, expressionSyntax, unknownName,
     unknownTrigger, unknownTriggerKey, unknownActionType, unknownActionKey, unknownTargetNode, unknownScreen,
     unknownVariable, invalidReaction,
-    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, duplicateBreakpointCanvas,
+    invalidVariable, duplicateVariable, unknownScope, invalidCondition, unknownBreakpoint, invalidMedia, mediaOverridden, duplicateBreakpointCanvas,
     screenWithoutBreakpoint, duplicateId,
   ];
 }
