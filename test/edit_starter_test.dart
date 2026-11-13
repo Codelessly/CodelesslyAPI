@@ -49,7 +49,7 @@ void main() {
     }
     for (final op in EditOp.specs) {
       if (op.op == ScriptsOp.opName) {
-        expect(s, isNot(contains('`scripts`')));
+        expect(s, isNot(contains('- `scripts` (')));
         expect(runtimeStarter(profile: TrustProfile.agentApps, kind: 'app'), allOf(contains('`scripts`'), contains('cannot draw')));
       } else {
         expect(s, contains('`${op.op}`'));
@@ -57,29 +57,23 @@ void main() {
     }
     // A type the profile does not allow is not offered.
     final narrow = runtimeStarter(profile: TrustProfile.agent.copyWith(widgets: {'canvas', 'column', 'row', 'text', 'box'}), docsTool: false);
-    expect(narrow, isNot(contains('| `filledButton`')));
-    expect(narrow, isNot(contains('slider')));
+    expect(narrow, isNot(contains('[`filledButton`]')));
+    expect(narrow, isNot(contains('[`slider`]')));
     // The rules live generations showed models need.
     expect(s, allOf(contains('balanced'), contains('must be defined'), contains('icon nodes'), contains('visible label')));
     expect(runtimeStarter(kind: 'page'), contains('1440'));
   });
 
-  test('budget: the compact starter and tools are within 6k tokens; the full tools are not compact', () {
+  test('budget: the base is within ~6k words in its runtime form; the compact tools are a third of the full', () {
     final starter = runtimeStarter();
     final compact = jsonEncode(uiTools(slice, compact: true, docs: true));
     final full = jsonEncode(uiTools(slice));
-    final total = _tokens(starter) + _tokens(compact);
+    final words = RegExp(r'\S+').allMatches(starter).length;
     // ignore: avoid_print
-    print('runtime starter ${starter.length} chars, compact tools ${compact.length}, full tools ${full.length}: '
-        '≈ $total tokens at 3.5 characters per token');
-    final measured = _measuredTokens(starter) + _measuredTokens(compact);
-    // ignore: avoid_print
-    print('≈ $measured tokens at the 2.37 characters per token the API counted for the full prompt');
-    // The base set with the interactive components' tables: within 6k at
-    // 3.5 characters per token; at the measured ratio it is reported (the
-    // owner's call: keep the tables rather than cut them).
-    expect(total, lessThan(6000));
-    expect(measured, lessThan(7500));
+    print('runtime base $words words, ${starter.length} chars (≈ ${_tokens(starter)} tokens at 3.5 characters per token, '
+        '≈ ${_measuredTokens(starter)} at 2.37); compact tools ${compact.length} chars, full tools ${full.length}');
+    // The owner's direction: one base for files and runtime, ≤ ~6k words.
+    expect(words, lessThan(6200));
     expect(compact.length, lessThan(full.length ~/ 3));
   });
 
@@ -95,24 +89,27 @@ void main() {
   test('ui_docs: every topic the index names resolves; the profile decides what is available', () {
     for (final profile in [TrustProfile.agent, TrustProfile.agentApps]) {
       final index = docsIndex(profile: profile);
-      final named = RegExp(r'"(\w+)"').allMatches(index.split('- Node types')[0]).map((m) => m[1]!).where((t) => t != 'topic');
-      final listed = [
-        ...named,
-        for (final line in index.split('\n').where((l) => l.startsWith('- Node types') || l.startsWith('- Action') || l.startsWith('- Behaviors')))
-          ...line.substring(line.indexOf(':') + 1).split(RegExp(r'[,;.]')).map((t) => t.trim()).where((t) => RegExp(r'^\w+$').hasMatch(t)),
-      ];
-      expect(listed.length, greaterThan(60));
+      final listed = {
+        for (final m in RegExp(r'"([\w.-]+)"').allMatches(index)) m[1]!,
+        for (final line in index.split('\n').where((l) => l.contains('Documents ')))
+          ...line.substring(line.indexOf('Documents ') + 10).split(RegExp(r'[,.]')).map((t) => t.trim()).where((t) => RegExp(r'^\w+$').hasMatch(t)),
+      }..remove('topic');
+      expect(listed.length, greaterThan(200));
       for (final t in listed) {
         final page = docsTopic(t, profile: profile);
         expect(page, isNot(startsWith('No topic')), reason: t);
         expect(page.length, lessThan(4200), reason: '$t: ${page.length} characters');
       }
     }
-    // Areas the app briefs need.
-    for (final t in ['lists', 'forms', 'reactions', 'animation', 'gestures', 'customPaint', 'scripts', 'draggable', 'track', 'timer']) {
+    // Areas the app briefs need, and names kept from earlier versions.
+    for (final t in ['lists', 'forms', 'reactions', 'animation', 'gestures', 'customPaint', 'scripts', 'draggable', 'track', 'timer', 'responsive', 'theme']) {
       expect(docsTopic(t, profile: TrustProfile.agentApps), isNot(startsWith('No topic')), reason: t);
     }
+    // A page answers with its When to use, minimal example and pitfalls, and lists its sections.
+    expect(docsTopic('forms'), allOf(contains('Buttons, forms and inputs'), contains('forms-validation-and-an-error-state')));
+    expect(docsTopic('forms-validation-and-an-error-state'), contains('errorText'));
     expect(docsTopic('slider'), contains('`value`'));
+    expect(docsTopic('node-slider'), contains('`value`'));
     expect(docsTopic('runScript'), contains('Not available here'));
     expect(docsTopic('runScript', profile: TrustProfile.agentApps), isNot(contains('Not available here')));
     expect(docsTopic('nope'), startsWith('No topic'));

@@ -1,6 +1,15 @@
-// The reference pages, rendered from the catalog (catalog.dart) and the
-// guide templates (tool/reference/templates). Tables come only from the
-// catalog; prose only from templates.
+// The reference pages, rendered from the catalog (catalog.dart), the page
+// assignment (areas.dart) and the templates (tool/reference/templates).
+// Tables come only from the catalog; prose only from templates.
+//
+// Template syntax:
+// * `{{name}}` a generated table or list (the fills below);
+// * `{{example:path}}` an example document (tool/reference/examples/<path>.json),
+//   verified by test/reference_test.dart;
+// * `[text](@anchor)` a link to the page that defines `anchor`, wherever it is;
+// * every `#`, `##` and `###` heading gets a stable anchor: `page-<page>` for
+//   the title, `<page>-<slug of the heading>` for the others, unless an
+//   `<a id>` line already precedes it.
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,109 +17,410 @@ import 'package:codelessly_api/codelessly_api.dart'
     show Catalog, EditCodes, EditOp, Json, LayoutDocument, TrustProfile, applyOps, opsFromDocument, uiTools;
 import 'package:codelessly_api/validate.dart' show valueForms;
 
-/// How links are written: across page files, or within one file.
+import 'areas.dart';
+import 'introspect.dart';
+
+/// How links are written: across page files, or within one file
+/// (API_REFERENCE.md).
 enum LinkMode { pages, single }
 
-final class Pages {
-  Pages(this.catalog, this.root, {this.mode = LinkMode.pages, this.compact = false});
+final class Renderer {
+  Renderer(this.catalog, this.root, this.assignment);
 
   /// The catalog (catalog.dart), read dynamically.
   final Map<String, dynamic> catalog;
   final String root;
-  final LinkMode mode;
-
-  /// Terse tables without long docs (API_REFERENCE.compact.md).
-  final bool compact;
+  final Assignment assignment;
 
   String get _templates => '$root/tool/reference/templates';
 
-  /// The pages, by file name, in reading order.
-  static const order = [
-    'index.md', 'nodes.md', 'layout.md', 'decoration.md', 'values.md', 'behaviors.md', 'triggers.md', 'actions.md', //
-    'bindings.md', 'formulas.md', 'variables-conditions-scripts.md',
-  ];
+  /// Every anchor, by the file that defines it (filled as pages render).
+  final Map<String, String> anchors = {};
 
-  Map<String, String> render() => {
-        'index.md': index(),
-        'nodes.md': nodes(),
-        'layout.md': layout(),
-        'decoration.md': decoration(),
-        'values.md': values(),
-        'behaviors.md': behaviors(),
-        'triggers.md': triggers(),
-        'actions.md': actions(),
-        'bindings.md': bindings(),
-        'formulas.md': formulas(),
-        'variables-conditions-scripts.md': variablesConditionsScripts(),
-        'STARTER.md': starter(),
-      };
+  // --- templates ------------------------------------------------------------------
 
-  // --- links ------------------------------------------------------------------
-
-  String link(String page, String anchor, String text) =>
-      mode == LinkMode.single ? '[$text](#$anchor)' : '[$text]($page#$anchor)';
-  String pageLink(String page, String text) =>
-      mode == LinkMode.single ? '[$text](#page-${page.replaceAll('.md', '')})' : '[$text]($page)';
-  static String anchor(String id) => '<a id="$id"></a>';
-
-  // --- shared pieces ------------------------------------------------------------
-
-  String template(String name, [Map<String, String Function()> fills = const {}]) {
-    var text = File('$_templates/$name').readAsStringSync();
-    text = text.replaceAllMapped(RegExp(r'\{\{example:([\w/-]+)\}\}'), (m) => '```json\n${_example(m[1]!)}\n```');
-    text = text.replaceAllMapped(RegExp(r'\{\{link:([\w.-]+)#([\w.-]+)\|([^}]+)\}\}'), (m) => link(m[1]!, m[2]!, m[3]!));
-    text = text.replaceAllMapped(RegExp(r'\{\{page:([\w.-]+)\|([^}]+)\}\}'), (m) => pageLink(m[1]!, m[2]!));
+  /// Template [name] with its fills and examples applied; fills named in
+  /// [keep] are left for a later step.
+  String template(String name, {Map<String, String Function()> fills = const {}, Set<String> keep = const {}}) {
+    // `\{{` is a literal `{{`.
+    var text = File('$_templates/$name').readAsStringSync().replaceAll(r'\{{', '\u0000');
+    text = text.replaceAllMapped(RegExp(r'\{\{example:([\w/-]+)\}\}'), (m) => '```json\n${example(m[1]!)}\n```');
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
+      if (keep.contains(m[1])) return m[0]!;
       final f = fills[m[1]] ?? _fills[m[1]];
       if (f == null) throw StateError('Template $name: no fill for {{${m[1]}}}');
       return f();
     });
-    return text.trimRight();
+    return text.replaceAll('\u0000', '{{').trimRight();
   }
+
+  String example(String name) => prettyJson(jsonDecode(File('$root/tool/reference/examples/$name.json').readAsStringSync()));
+
+  /// [text] with an anchor before every heading: `page-[page]` for the
+  /// title, `[prefix]-<slug>` for the others.
+  static String anchorHeadings(String text, String page, {String? prefix}) {
+    final lines = text.split('\n');
+    final out = <String>[];
+    final seen = <String>{};
+    var fence = false;
+    for (final l in lines) {
+      if (l.startsWith('```')) fence = !fence;
+      final m = fence ? null : RegExp(r'^(#{1,4}) (.+)$').firstMatch(l);
+      if (m != null && !(out.isNotEmpty && out.last.startsWith('<a id='))) {
+        final id = m[1] == '#' ? 'page-$page' : '${prefix ?? page}-${slug(m[2]!)}';
+        if (!seen.add(id)) throw StateError('$page: two headings make the anchor $id');
+        out.add('<a id="$id"></a>');
+      }
+      out.add(l);
+    }
+    return out.join('\n');
+  }
+
+  /// A heading's anchor slug: lower case, words joined by `-`.
+  static String slug(String heading) => heading
+      .replaceAll(RegExp(r'\[([^\]]*)\]\([^)]*\)'), r'$1')
+      .replaceAll(RegExp(r'[`*]'), '')
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9]+'), '-')
+      .replaceAll(RegExp(r'^-+|-+$'), '');
+
+  /// Records the anchors [file] defines.
+  void collect(String file, String text) {
+    for (final m in RegExp(r'<a id="([^"]+)"></a>').allMatches(text)) {
+      final had = anchors[m[1]!];
+      if (had != null && had != file) throw StateError('anchor ${m[1]} defined in $had and $file');
+      anchors[m[1]!] = file;
+    }
+  }
+
+  /// [text] with `(@anchor)` links resolved to the file defining the anchor.
+  String resolve(String text, String self) {
+    final unknown = <String>{};
+    final out = text.replaceAllMapped(RegExp(r'\]\(@([\w.-]+)\)'), (m) {
+      final file = anchors[m[1]!];
+      if (file == null) {
+        unknown.add(m[1]!);
+        return m[0]!;
+      }
+      return file == self ? '](#${m[1]})' : ']($file#${m[1]})';
+    });
+    if (unknown.isNotEmpty) throw StateError('$self: links to unknown anchors: ${unknown.join(', ')}');
+    return out;
+  }
+
+  /// [text] (a page of the folder) with its links made to work inside one
+  /// file holding every page.
+  static String singleFile(String text) => text
+      .replaceAllMapped(RegExp(r'\]\((?:[\w-]+|STARTER|RUNTIME_STARTER)\.md#([\w.-]+)\)'), (m) => '](#${m[1]})')
+      .replaceAllMapped(RegExp(r'\]\(([\w-]+)\.md\)'), (m) => switch (m[1]) {
+            'STARTER' => '](#page-base)',
+            'RUNTIME_STARTER' || 'README' => m[0]!,
+            _ => '](#page-${m[1]})',
+          });
+
+  // --- links ------------------------------------------------------------------------
+
+  String pageOf(ItemKind kind, String name) => assignment[kind]![name] ?? valuesPage;
+
+  String itemLink(ItemKind kind, String name, [String? text]) =>
+      '[${text ?? '`$name`'}](${pageOf(kind, name)}.md#${kind.anchor(name)})';
+
+  /// A field's type, linked to where its type is described.
+  String _type(Json f) {
+    String one(String name, String k) => switch (k) {
+          'object' => itemLink(ItemKind.model, name, name),
+          'value' => itemLink(ItemKind.valueType, name, name),
+          'enumeration' => itemLink(ItemKind.enumeration, name, name),
+          _ => name,
+        };
+    if (f['kind'] == 'list') return 'List<${one('${f['item']}', '${f['itemKind']}')}>';
+    return one('${f['type']}', '${f['kind']}');
+  }
+
+  // --- tables -------------------------------------------------------------------------
+
+  static String cell(String s) => s.replaceAll('|', r'\|').replaceAll('\n\n', '<br><br>').replaceAll('\n', ' ');
+
+  static String table(List<String> head, List<List<String>> rows) {
+    final b = StringBuffer()
+      ..writeln('| ${head.join(' | ')} |')
+      ..writeln('|${head.map((_) => '---').join('|')}|');
+    for (final r in rows) {
+      b.writeln('| ${r.map(cell).join(' | ')} |');
+    }
+    return b.toString().trimRight();
+  }
+
+  static String _jsonInline(Object? v) {
+    final s = jsonEncode(v);
+    return s.length > 60 ? '${s.substring(0, 57)}...' : s;
+  }
+
+  static String _default(Json f) {
+    final d = f['default'];
+    if (d == null) return 'unset';
+    if (d is List && d.isEmpty) return '`[]`';
+    if (d is Map && d.isEmpty) return '`{}`';
+    return '`${_jsonInline(d)}`';
+  }
+
+  static String _num(Object? n) => n is double && n == n.roundToDouble() ? '${n.toInt()}' : '$n';
+
+  /// Allowed values / bounds for a field.
+  static String _allowed(Json f) {
+    final parts = <String>[];
+    final values = (f['values'] ?? f['item_values']) as List?;
+    if (values != null) parts.add(values.map((v) => '`$v`').join(', '));
+    if (f['min'] != null || f['max'] != null) {
+      parts.add('${f['min'] == null ? '' : '≥ ${_num(f['min'])}'}${f['min'] != null && f['max'] != null ? ', ' : ''}'
+          '${f['max'] == null ? '' : '≤ ${_num(f['max'])}'}');
+    }
+    return parts.join('; ');
+  }
+
+  String fieldTable(List fields) {
+    if (fields.isEmpty) return '_No fields._';
+    return table(['Key', 'Type', 'Default', 'Allowed', 'Description'], [
+      for (final f in fields.cast<Json>()) ['`${f['key']}`', _type(f), _default(f), _allowed(f), '${f['doc']}'],
+    ]);
+  }
+
+  String enumTable(String name) {
+    final values = (catalog['enums'] as Map)[name] as List?;
+    if (values == null) return '';
+    final documented = values.any((v) => (v['doc'] as String).isNotEmpty);
+    if (!documented) return values.map((v) => '`${v['value']}`').join(', ');
+    return table(['Value', 'Meaning'], [for (final v in values) ['`${v['value']}`', '${v['doc']}']]);
+  }
+
+  String _childrenRule(Json t) {
+    final slots = [for (final s in t['slots'] as List) '`$s`'].join(', ');
+    return switch (t['children']) {
+      'list' => (t['slots'] as List).isEmpty ? '`children`' : '`children` and slots: $slots',
+      'slots' => 'slots: $slots',
+      _ => 'none',
+    };
+  }
+
+  String breakpointDefaults() => table(['id', 'name', 'minWidth', 'design width × height'], [
+        for (final b in catalog['breakpoints']['defaults'] as List)
+          ['`${b['id']}`', '${b['name'] ?? ''}', '${b['minWidth'] ?? 0}', '${b['width']} × ${b['height']}'],
+      ]);
+
+  String _childFits() {
+    String describe(Map axis) => [
+          for (final e in axis.entries)
+            if (e.value == null)
+              e.key
+            else if (e.key == 'fill' && '${e.value}'.contains('basis'))
+              'fill (with `basis`)',
+        ].join(', ');
+    return table(['Parent', 'Width may be', 'Height may be'], [
+      for (final p in catalog['layout']['childFits'] as List)
+        [
+          '`${p['parent']}`${(p['props'] as Map).isEmpty ? '' : ' with ${jsonEncode(p['props'])}'}',
+          describe(p['width'] as Map),
+          describe(p['height'] as Map),
+        ],
+    ]);
+  }
+
+  String _childFitReasons() {
+    final reasons = <String>{};
+    for (final p in catalog['layout']['childFits'] as List) {
+      for (final axis in const ['width', 'height']) {
+        for (final r in (p[axis] as Map).values) {
+          if (r != null) reasons.add('$r');
+        }
+      }
+    }
+    return [for (final r in reasons) '- $r'].join('\n');
+  }
+
+  /// A class's documented fields (no PropDefs), for models read by their
+  /// class: `| key | meaning |`.
+  String _classFields(String cls, List<String> keys) {
+    final docs = DocIndex.instance.fieldDocs[cls] ?? const {};
+    return table(['Key', 'Meaning'], [for (final k in keys) ['`$k`', docs[k] ?? '']]);
+  }
+
+  // --- reference sections of items --------------------------------------------------------
+
+  final Set<String> _modelsShown = {};
+
+  String nodeSection(String type) {
+    final t = (catalog['nodeTypes'] as Map)[type] as Json;
+    final b = StringBuffer()
+      ..writeln('<a id="${ItemKind.node.anchor(type)}"></a>')
+      ..writeln('### `$type`')
+      ..writeln();
+    if ('${t['doc']}'.isNotEmpty) b..writeln(t['doc'])..writeln();
+    b.writeln('- Children: ${_childrenRule(t)}.');
+    b.writeln('- Decoration: ${t['decorated'] == true ? 'box decoration (fills, strokes, radius, shadows, clip)' : 'none: only blur effects in `decoration.effects` apply'}.');
+    final childFields = t['childFields'] as List;
+    if (childFields.isNotEmpty) {
+      b.writeln('- Reads from each child\'s layout: ${[for (final f in childFields) '[`$f`](layout.md#layout-$f)'].join(', ')}.');
+    }
+    b
+      ..writeln()
+      ..writeln((t['props'] as List).isEmpty ? '_No props._' : fieldTable(t['props'] as List))
+      ..writeln();
+    return b.toString();
+  }
+
+  String modelSection(String name, {String level = '###'}) {
+    final t = (catalog['objectTypes'] as Map)[name] as Json?;
+    if (t == null || !_modelsShown.add(name)) return '';
+    final b = StringBuffer()
+      ..writeln('<a id="${ItemKind.model.anchor(name)}"></a>')
+      ..writeln('$level $name')
+      ..writeln();
+    if ('${t['doc']}'.isNotEmpty) b..writeln(t['doc'])..writeln();
+    b
+      ..writeln(fieldTable(t['fields'] as List))
+      ..writeln();
+    return b.toString();
+  }
+
+  String behaviorSection(String key) {
+    final f = (catalog['behaviors']['fields'] as List).cast<Json>().firstWhere((f) => f['key'] == key);
+    final b = StringBuffer()
+      ..writeln('<a id="${ItemKind.behavior.anchor(key)}"></a>')
+      ..writeln('### `$key` (behavior)')
+      ..writeln()
+      ..writeln('A node key (beside `layout` and `props`). Type: ${_type(f)}. Default: ${_default(f)}.${_allowed(f).isEmpty ? '' : ' Allowed: ${_allowed(f)}.'}')
+      ..writeln();
+    if ('${f['doc']}'.isNotEmpty) b..writeln(f['doc'])..writeln();
+    final model = (f['object'] ?? f['item_object']) as String?;
+    if (model != null && pageOf(ItemKind.model, model) == pageOf(ItemKind.behavior, key)) {
+      b.write(modelSection(model, level: '####'));
+    }
+    return b.toString();
+  }
+
+  String triggerTable(List<String> types) {
+    final all = {for (final t in (catalog['triggers']['types'] as List).cast<Json>()) t['type'] as String: t};
+    return table(['Trigger', 'When it fires'], [
+      for (final t in types) ['<a id="${ItemKind.trigger.anchor(t)}"></a>`$t`', '${all[t]!['doc']}'],
+    ]);
+  }
+
+  String actionSection(String type) {
+    final a = (catalog['actions']['types'] as Map)[type] as Json;
+    final b = StringBuffer()
+      ..writeln('<a id="${ItemKind.action.anchor(type)}"></a>')
+      ..writeln('### `$type` (action): ${a['label']}')
+      ..writeln();
+    if ('${a['doc']}'.isNotEmpty) b..writeln(a['doc'])..writeln();
+    b
+      ..writeln(fieldTable(a['fields'] as List))
+      ..writeln();
+    return b.toString();
+  }
+
+  /// The Reference section's items for page [p]: node types, behaviors,
+  /// triggers, actions and the models the page claims, in that order.
+  String reference(PageDef p) {
+    final nodes = [
+      ...p.nodes,
+      if (p.library case final lib?) for (final w in lib.widgets) w.type,
+    ];
+    final actions = [
+      ...p.actions,
+      if (p.library case final lib?) for (final a in lib.actions) a.type,
+    ];
+    final b = StringBuffer();
+    for (final n in nodes) {
+      b.write(nodeSection(n));
+    }
+    for (final k in p.behaviors) {
+      b.write(behaviorSection(k));
+    }
+    if (p.triggers.isNotEmpty) {
+      b
+        ..writeln('<a id="${p.id}-triggers"></a>')
+        ..writeln('### Triggers')
+        ..writeln()
+        ..writeln('Written as `"trigger": {"type": "<trigger>", ...}` in a reaction ([trigger fields](interaction.md#interaction-trigger-fields)).')
+        ..writeln()
+        ..writeln(triggerTable(p.triggers))
+        ..writeln();
+    }
+    for (final a in actions) {
+      b.write(actionSection(a));
+    }
+    for (final e in assignment[ItemKind.model]!.entries) {
+      if (e.value == p.id && p.models.contains(e.key)) b.write(modelSection(e.key));
+    }
+    return b.toString().trimRight();
+  }
+
+  // --- the fills ----------------------------------------------------------------------------
 
   late final Map<String, String Function()> _fills = {
     'version': () => '${catalog['version']}',
-    'nodeTypeList': () => [
-          for (final e in (catalog['nodeTypes'] as Map).entries)
-            link('nodes.md', 'node-${e.key}', '`${e.key}`'),
-        ].join(', '),
-    'nodeTypeSummary': () => _nodeTypeSummary(),
-    'breakpointDefaults': () => _breakpointDefaults(),
-    'scopes': () => [for (final s in catalog['scopes'] as List) '`$s`'].join(', '),
-    'diagnosticCodes': () => _table(['Code', 'Severity', 'Meaning'], [
-          for (final d in catalog['diagnostics'] as List) ['`${d['code']}`', '${d['severity']}', '${d['meaning']}'],
-        ]),
-    'childFits': () => _childFits(),
-    'triggerTypeList': () => [for (final t in catalog['triggers']['types'] as List) '`${t['type']}`'].join(', '),
-    'actionTypeList': () => [
-          for (final e in (catalog['actions']['types'] as Map).entries) link('actions.md', 'action-${e.key}', '`${e.key}`'),
-        ].join(', '),
-    'behaviorKeyList': () => [
-          for (final f in catalog['behaviors']['fields'] as List) link('behaviors.md', 'behavior-${f['key']}', '`${f['key']}`'),
-        ].join(', '),
-    'valueForms': () => _table(['Type', 'JSON forms'], [
-          for (final e in (catalog['valueTypes'] as Map).entries) [link('values.md', 'type-${e.key}', e.key), '${e.value['forms']}'],
-        ]),
-    'documentKeys': () => _table(['Key', 'Meaning'], [
+    'documentKeys': () => table(['Key', 'Meaning'], [
           for (final k in catalog['document']['keys'] as List) ['`${k['key']}`', '${k['doc']}'],
         ]),
-    'nodeKeys': () => _table(['Key', 'Type', 'Meaning'], [
-          for (final k in catalog['node']['structural'] as List) ['`${k['key']}`', '`${k['type']}`', _cell('${k['doc']}')],
-          for (final f in catalog['node']['fields'] as List)
-            ['`${f['key']}`', _type(f), 'Default ${_default(f)}. ${_cell('${f['doc']}')}'],
-          [
-            'behaviors',
-            '',
-            'Flat keys for what a node does beyond layout and paint: ${[for (final f in catalog['behaviors']['fields'] as List) '`${f['key']}`'].join(', ')} (${pageLink('behaviors.md', 'behaviors')}).',
-          ],
+    'nodeKeys': () => table(['Key', 'Type', 'Meaning'], [
+          for (final k in catalog['node']['structural'] as List) ['`${k['key']}`', '`${k['type']}`', '${k['doc']}'],
+          for (final f in catalog['node']['fields'] as List) ['`${f['key']}`', _type(f), 'Default ${_default(f)}. ${f['doc']}'],
+          ['behavior keys', '', 'What a node does beyond layout and paint (`states`, `motion`, `sticky`...): the [A–Z](index.md#index-a-z) lists each.'],
         ]),
-    'layoutFields': () => _fieldTable(catalog['layout']['fields'] as List, long: true),
-    'conditionOps': () => _table(['op', 'Reads right', 'Meaning'], [
-          for (final o in catalog['conditions']['ops'] as List) ['`${o['op']}`', o['takesRight'] == true ? 'yes' : 'no', _cell('${o['doc']}')],
+    'breakpointDefaults': breakpointDefaults,
+    'breakpointFields': () => fieldTable(catalog['breakpoints']['fields'] as List),
+    'childFits': _childFits,
+    'childFitReasons': _childFitReasons,
+    'layoutFields': () => [
+          for (final f in (catalog['layout']['fields'] as List).cast<Json>()) '<a id="layout-${f['key']}"></a>',
+          fieldTable(catalog['layout']['fields'] as List),
+          '',
+          'Read by decoding but not declared as fields: ${[for (final k in catalog['layout']['undeclared'] as List) '`$k`'].join(', ')}. '
+              '${catalog['layout']['undeclaredDoc']}',
+        ].join('\n'),
+    'mediaRuleFields': () => _classFields('MediaRule', const ['minWidth', 'maxWidth', 'orientation', 'patch']),
+    'themeKeys': () => _classFields('ThemeTokens', const [
+          'colors', 'textStyles', 'dark', 'media', 'primary', 'onPrimary', 'surface', 'onSurface', 'error', 'success', 'warning', //
+          'fontFamily', 'titleFontFamily', 'radius', 'buttonRadius', 'naturalLineHeight',
         ]),
-    'variableTypes': () => _enumTable('VariableType'),
-    // The edit layer, from its declarations.
-    'editOps': () => _table(['Op', 'Fields', 'Means', 'Example'], [
+    'decorationFields': () => fieldTable(catalog['decoration']['fields'] as List),
+    'variableFields': () => table(['Key', 'Example', 'Meaning'], [
+          for (final v in (catalog['variables']['fields'] as List).cast<Json>()) ['`${v['key']}`', '`${jsonEncode(v['example'])}`', '${v['doc']}'],
+        ]),
+    'variableTypes': () => enumTable('VariableType'),
+    'scopes': () => [for (final s in catalog['scopes'] as List) '`$s`'].join(', '),
+    'conditionOps': () => table(['op', 'Reads right', 'Meaning'], [
+          for (final o in catalog['conditions']['ops'] as List) ['`${o['op']}`', o['takesRight'] == true ? 'yes' : 'no', '${o['doc']}'],
+        ]),
+    'conditionParts': () {
+      final c = catalog['conditions'] as Json;
+      return [
+        '${c['conditionDoc']}',
+        '',
+        '- Branch: ${c['branchDoc']}',
+        '- Set entry: ${c['setDoc']}',
+        '- Comparison: ${c['comparisonDoc']}',
+        '- Junction: ${c['junctionDoc']}',
+        '- Operand: ${c['operandDoc']}',
+      ].join('\n');
+    },
+    'scriptFields': () => fieldTable(catalog['scripts']['fields'] as List),
+    'bindingPaths': _bindingPaths,
+    'bindableFields': _bindableFields,
+    'namedPaths': () => table(['Path', 'Meaning'], [
+          for (final c in (catalog['bindings']['constants'] as List).cast<Json>()) ['`${c['path']}`', '${c['doc']}'],
+        ]),
+    'formulaFunctions': _formulaFunctions,
+    'triggerFields': () => fieldTable(catalog['triggers']['fields'] as List),
+    'actionCommonFields': () => [
+          fieldTable(catalog['actions']['common'] as List),
+          '',
+          'Fields holding nested action chains (a list of actions): ${[for (final k in catalog['actions']['nestedChainKeys'] as List) '`$k`'].join(', ')}.',
+        ].join('\n'),
+    'diagnosticCodes': () => table(['Code', 'Severity', 'Meaning'], [
+          for (final d in catalog['diagnostics'] as List) ['`${d['code']}`', '${d['severity']}', '${d['meaning']}'],
+        ]),
+    'editOps': () => table(['Op', 'Fields', 'Means', 'Example'], [
           for (final o in EditOp.specs)
             [
               '`${o.op}`',
@@ -119,19 +429,28 @@ final class Pages {
               '`${jsonEncode(o.example)}`',
             ],
         ]),
-    'editCodes': () => _table(['Code', 'Rejects the op', 'Meaning'], [
+    'editCodes': () => table(['Code', 'Rejects the op', 'Meaning'], [
           for (final c in EditCodes.all) ['`${c.name}`', c.error ? 'yes' : 'no (a warning)', c.meaning],
         ]),
     'uiTools': () => '```json\n${prettyJson(uiTools(TrustProfile.agent.restrict(Catalog.core)).map((t) => {...t, 'input_schema': '(see ui_tools.json)'}).toList())}\n```',
-    'editRejected': () => _editRejected(),
-    'editBuild': () => '```json\n${prettyJson({'ops': [for (final o in opsFromDocument(LayoutDocument.fromJson(jsonDecode(File('$root/tool/reference/examples/minimal.json').readAsStringSync()), catalog: Catalog.core))) o.toJson()]})}\n```',
+    'editRejected': _editRejected,
+    'editBuild': () => '```json\n${prettyJson({'ops': [for (final o in opsFromDocument(_minimal())) o.toJson()]})}\n```',
+    'publishClasses': () => table(['Class', 'What it is'], [
+          for (final c in const [
+            'PublishModel', 'PublishLayout', 'PublishComponent', 'PublishComponentInfo', 'AppIdentity', 'PageIdentity', //
+            'StyleSheet', 'NamedTextStyle', 'CanvasBreakpoint', 'PluginRef', 'Automation',
+          ])
+            ['`$c`', DocIndex.instance.classDocs[c] ?? ''],
+        ]),
   };
+
+  LayoutDocument _minimal() =>
+      LayoutDocument.fromJson(jsonDecode(File('$root/tool/reference/examples/minimal.json').readAsStringSync()), catalog: Catalog.core);
 
   /// A batch with a rejected op, applied for real: the tool result a model
   /// reads.
   String _editRejected() {
-    final doc = LayoutDocument.fromJson(jsonDecode(File('$root/tool/reference/examples/minimal.json').readAsStringSync()),
-        catalog: Catalog.core);
+    final doc = _minimal();
     final title = doc.nodes.values.firstWhere((n) => n.type == 'text').id;
     final ops = {
       'ops': [
@@ -143,442 +462,8 @@ final class Pages {
     return '```json\n${prettyJson(ops)}\n```\n\nThe result (`EditResult.toModelJson()`, the tool result):\n\n```json\n${prettyJson(r.toModelJson())}\n```';
   }
 
-  String _example(String name) {
-    final f = File('$root/tool/reference/examples/$name.json');
-    return prettyJson(jsonDecode(f.readAsStringSync()));
-  }
-
-  String _cell(String s) => s.replaceAll('|', r'\|').replaceAll('\n\n', '<br><br>').replaceAll('\n', ' ');
-
-  String _table(List<String> head, List<List<String>> rows) {
-    final b = StringBuffer()
-      ..writeln('| ${head.join(' | ')} |')
-      ..writeln('|${head.map((_) => '---').join('|')}|');
-    for (final r in rows) {
-      b.writeln('| ${r.map(_cell).join(' | ')} |');
-    }
-    return b.toString().trimRight();
-  }
-
-  String _jsonInline(Object? v) {
-    final s = jsonEncode(v);
-    return s.length > 60 ? '${s.substring(0, 57)}...' : s;
-  }
-
-  String _default(Json f) {
-    if (f['default'] == null) return 'unset';
-    final d = f['default'];
-    if (d is List && d.isEmpty) return '`[]`';
-    if (d is Map && d.isEmpty) return '`{}`';
-    return '`${_jsonInline(d)}`';
-  }
-
-  /// A field's type, linked to where its type is described.
-  String _type(Json f) {
-    final kind = f['kind'];
-    String one(String name, String k, Json info) => switch (k) {
-          'object' => link('values.md', 'type-$name', name),
-          'value' => link('values.md', 'type-$name', name),
-          'enumeration' => link('values.md', 'enum-$name', name),
-          _ => name,
-        };
-    if (kind == 'list') {
-      final item = '${f['item']}';
-      final inner = one(item, '${f['itemKind']}', f);
-      return 'List<$inner>';
-    }
-    return one('${f['type']}', '$kind', f);
-  }
-
-  /// Allowed values / bounds for a field.
-  String _allowed(Json f) {
-    final parts = <String>[];
-    final values = (f['values'] ?? f['item_values']) as List?;
-    if (values != null) parts.add(values.map((v) => '`$v`').join(', '));
-    if (f['min'] != null || f['max'] != null) {
-      parts.add('${f['min'] == null ? '' : '≥ ${_num(f['min'])}'}${f['min'] != null && f['max'] != null ? ', ' : ''}${f['max'] == null ? '' : '≤ ${_num(f['max'])}'}');
-    }
-    return parts.join('; ');
-  }
-
-  static String _num(Object? n) => n is double && n == n.roundToDouble() ? '${n.toInt()}' : '$n';
-
-  String _fieldTable(List fields, {bool long = false}) {
-    if (fields.isEmpty) return '_No fields._';
-    if (compact) {
-      return [
-        for (final f in fields.cast<Json>())
-          '- `${f['key']}`: ${_type(f)} = ${_default(f)}${_allowed(f).isEmpty ? '' : ' (${_allowed(f)})'}',
-      ].join('\n');
-    }
-    return _table(['Key', 'Type', 'Default', 'Allowed', 'Description'], [
-      for (final f in fields.cast<Json>()) ['`${f['key']}`', _type(f), _default(f), _allowed(f), '${f['doc']}'],
-    ]);
-  }
-
-  String _nodeTypeSummary() => _table(['Type', 'Flutter', 'Children', 'Decoration'], [
-        for (final e in (catalog['nodeTypes'] as Map).entries)
-          [
-            link('nodes.md', 'node-${e.key}', '`${e.key}`'),
-            e.value['flutter'] == null ? '' : '`${e.value['flutter']}`',
-            _childrenRule(e.value as Json),
-            e.value['decorated'] == true ? 'yes' : 'blurs only',
-          ],
-      ]);
-
-  String _childrenRule(Json t) => switch (t['children']) {
-        'list' => '`children`',
-        'slots' => 'slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}',
-        _ => (t['slots'] as List).isEmpty ? 'none' : 'slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}',
-      } +
-      ((t['children'] == 'list' && (t['slots'] as List).isNotEmpty) ? ' and slots: ${[for (final s in t['slots'] as List) '`$s`'].join(', ')}' : '');
-
-  String _breakpointDefaults() => _table(['id', 'name', 'minWidth', 'design width × height'], [
-        for (final b in catalog['breakpoints']['defaults'] as List)
-          ['`${b['id']}`', '${b['name'] ?? ''}', '${b['minWidth'] ?? 0}', '${b['width']} × ${b['height']}'],
-      ]);
-
-  String _childFits() {
-    String describe(Map axis) {
-      final allowed = [
-        for (final e in axis.entries)
-          if (e.value == null)
-            e.key
-          // Allowed on a condition the rule names (a wrapping row's child
-          // fills its line's share when it sets a basis).
-          else if (e.key == 'fill' && '${e.value}'.contains('basis'))
-            'fill (with `basis`)',
-      ];
-      return allowed.join(', ');
-    }
-
-    return _table(['Parent', 'Width may be', 'Height may be'], [
-      for (final p in catalog['layout']['childFits'] as List)
-        [
-          '`${p['parent']}`${(p['props'] as Map).isEmpty ? '' : ' with ${jsonEncode(p['props'])}'}',
-          describe(p['width'] as Map),
-          describe(p['height'] as Map),
-        ],
-    ]);
-  }
-
-  String _enumTable(String name) {
-    final values = (catalog['enums'] as Map)[name] as List?;
-    if (values == null) return '';
-    final documented = values.any((v) => (v['doc'] as String).isNotEmpty);
-    if (!documented || compact) return values.map((v) => '`${v['value']}`').join(', ');
-    return _table(['Value', 'Meaning'], [
-      for (final v in values) ['`${v['value']}`', '${v['doc']}'],
-    ]);
-  }
-
-  String _header(String title, String intro) => '${anchor('page-$title')}\n'
-      '# ${_titles[title]}\n\n$intro\n';
-
-  static const _titles = {
-    'index': 'Codelessly layout documents: a guide for authors',
-    'nodes': 'Node types',
-    'layout': 'Layout',
-    'decoration': 'Decoration',
-    'values': 'Value types, models and enums',
-    'behaviors': 'Behaviors',
-    'triggers': 'Triggers',
-    'actions': 'Actions',
-    'bindings': 'Bindings and expressions',
-    'formulas': 'Formula functions',
-    'variables-conditions-scripts': 'Variables, conditions and scripts',
-  };
-
-  String _generatedNote() => '<!-- Generated by tool/reference/generate.dart from the declarations of codelessly_api '
-      '${catalog['version']}. Do not edit: edit the declarations or tool/reference/templates. -->';
-
-  // --- pages ----------------------------------------------------------------------
-
-  String index() => '${[_generatedNote(), anchor('page-index'), _only(template('index.md'), keep: 'guide-only', drop: 'starter-only')].join('\n')}\n';
-
-  /// [text] without its `<!-- drop -->...<!-- /drop -->` parts and the
-  /// markers of its [keep] parts.
-  static String _only(String text, {required String keep, required String drop}) => text
-      .replaceAll(RegExp('<!-- $drop -->.*?<!-- /$drop -->\\n?', dotAll: true), '')
-      .replaceAll(RegExp('<!-- /?$keep -->\\n?'), '');
-
-  String nodes() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('nodes', template('nodes.md')))
-      ..writeln(_nodeTypeSummary())
-      ..writeln();
-    for (final e in (catalog['nodeTypes'] as Map).entries) {
-      b.write(_nodeSection(e.key as String, e.value as Json));
-    }
-    return b.toString();
-  }
-
-  /// The core node types the starter covers, in its order.
-  static const starterTypes = ['canvas', 'row', 'column', 'flex', 'stack', 'box', 'text', 'icon', 'spacer'];
-
-  /// The starter: the document, the core node types, layout, decoration,
-  /// text, responsive design, variables, checking and the pitfalls, from the
-  /// guide and the declarations (docs/reference/STARTER.md).
-  String starter() {
-    final guide = _only(template('index.md'), keep: 'starter-only', drop: 'guide-only');
-    final included = <String>{};
-    String section(String id) {
-      final start = guide.indexOf('<a id="$id"></a>');
-      if (start < 0) throw StateError('STARTER.md: no guide section $id');
-      final next = guide.indexOf('<a id="guide-', start + 10);
-      included.add(id);
-      return guide.substring(start, next < 0 ? guide.length : next).trimRight();
-    }
-
-    var text = template('STARTER.md', {
-      'starterFiles': () => _table(['You need', 'Read'], [
-            ['Several screens and links between them; a canvas per breakpoint', '`index.md` section 6, and 7 for when to use one'],
-            ['Conditions; every binding path', '`index.md` section 9, `bindings.md`, `variables-conditions-scripts.md`'],
-            ['Every formula function (filter, sum, money, dates...)', '`formulas.md`'],
-            ['Taps and other triggers, and what they run (set a variable, navigate, open a modal, show a toast)', '`index.md` section 10, `triggers.md`, `actions.md`'],
-            ['Hover and pressed styles', '`index.md` section 11'],
-            ['Scrolling, lists, grids and repeated data', '`index.md` sections 12 and 13'],
-            ['Buttons, text fields, checkboxes, switches, sliders, dropdowns, tabs, tables, charts and every other node type', '`nodes.md` (one section per type), `index.md` section 14'],
-            ['Modals and toasts; images, icons and fonts', '`index.md` sections 15 and 16'],
-            ['Every layout and decoration field; every value type (colors, paints, gradients, text styles, borders)', '`layout.md`, `decoration.md`, `values.md`'],
-            ['Animation, gestures, sticky and floating nodes, drag and drop, custom drawing', '`behaviors.md`'],
-            ['The whole reference as one file, or as data', '`API_REFERENCE.md`, `catalog.json`, `document.schema.json`'],
-          ]),
-      'coreNodes': () => [
-            for (final type in starterTypes)
-              if ((catalog['nodeTypes'] as Map)[type] case final Json t) _nodeSection(type, t, heading: '##'),
-          ].join(),
-    });
-    text = text.replaceAllMapped(RegExp(r'\{\{guide:([\w-]+)\}\}'), (m) => section(m[1]!));
-    // Links to guide sections the starter leaves out go to the guide; node
-    // sections it leaves out, to nodes.md.
-    text = text.replaceAllMapped(RegExp(r'\]\(#(guide-[\w-]+)\)'), (m) => included.contains(m[1]) ? m[0]! : '](index.md#${m[1]})');
-    text = text.replaceAllMapped(RegExp(r'\]\(nodes\.md#node-([\w-]+)\)'), (m) => starterTypes.contains(m[1]) ? '](#node-${m[1]})' : m[0]!);
-    return '${[_generatedNote(), text].join('\n')}\n';
-  }
-
-  String _nodeSection(String type, Json t, {String heading = '##'}) {
-    final b = StringBuffer();
-    final e = (key: type, value: t);
-    {
-      b
-        ..writeln(anchor('node-${e.key}'))
-        ..writeln('## `${e.key}`')
-        ..writeln();
-      if (!compact && '${t['doc']}'.isNotEmpty) b..writeln(t['doc'])..writeln();
-      if (compact && t['flutter'] != null) b..writeln('Flutter `${t['flutter']}`.')..writeln();
-      b.writeln('- Children: ${_childrenRule(t)}.');
-      b.writeln('- Decoration: ${t['decorated'] == true ? 'box decoration (fills, strokes, radius, shadows, clip)' : 'none: only blur effects in `decoration.effects` apply'}.');
-      final childFields = t['childFields'] as List;
-      if (childFields.isNotEmpty) {
-        b.writeln('- Reads from each child\'s layout: ${[for (final f in childFields) link('layout.md', 'layout-$f', '`$f`')].join(', ')}.');
-      }
-      b.writeln();
-      b
-        ..writeln((t['props'] as List).isEmpty ? '_No props._' : _fieldTable(t['props'] as List))
-        ..writeln();
-    }
-    return b.toString();
-  }
-
-  String layout() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('layout', template('layout.md')));
-    b
-      ..writeln('## Fields')
-      ..writeln();
-    for (final f in (catalog['layout']['fields'] as List).cast<Json>()) {
-      b.writeln(anchor('layout-${f['key']}'));
-    }
-    b
-      ..writeln(_fieldTable(catalog['layout']['fields'] as List))
-      ..writeln()
-      ..writeln('Read by decoding but not declared as fields: ${[for (final k in catalog['layout']['undeclared'] as List) '`$k`'].join(', ')}. '
-          '${catalog['layout']['undeclaredDoc']}')
-      ..writeln()
-      ..writeln('## Which sizing modes each parent allows')
-      ..writeln()
-      ..writeln(_childFits())
-      ..writeln()
-      ..writeln('Why a mode is not allowed, as the declarations say it:')
-      ..writeln();
-    final reasons = <String>{};
-    for (final p in catalog['layout']['childFits'] as List) {
-      for (final axis in const ['width', 'height']) {
-        for (final r in (p[axis] as Map).values) {
-          if (r != null) reasons.add('$r');
-        }
-      }
-    }
-    for (final r in reasons) {
-      b.writeln('- $r');
-    }
-    return b.toString();
-  }
-
-  String decoration() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('decoration', template('decoration.md')))
-      ..writeln('## Fields')
-      ..writeln()
-      ..writeln(_fieldTable(catalog['decoration']['fields'] as List))
-      ..writeln();
-    for (final t in const ['Paint', 'ColorStop', 'ImagePaint', 'Effect']) {
-      b.writeln(_objectSection(t, level: 2));
-    }
-    for (final e in const ['PaintType', 'EffectType', 'StrokeSides', 'StrokeAlign', 'DecorationShape', 'Clip']) {
-      b
-        ..writeln('### $e')
-        ..writeln()
-        ..writeln(_enumTable(e))
-        ..writeln();
-    }
-    return b.toString();
-  }
-
-  String _objectSection(String name, {int level = 2}) {
-    final t = (catalog['objectTypes'] as Map)[name] as Json?;
-    if (t == null) return '';
-    final b = StringBuffer()
-      ..writeln('${'#' * level} $name')
-      ..writeln();
-    if (!compact && '${t['doc']}'.isNotEmpty) b..writeln(t['doc'])..writeln();
-    b
-      ..writeln(_fieldTable(t['fields'] as List))
-      ..writeln();
-    return b.toString();
-  }
-
-  String values() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('values', template('values.md')))
-      ..writeln('## Value types')
-      ..writeln();
-    for (final e in (catalog['valueTypes'] as Map).entries) {
-      b
-        ..writeln(anchor('type-${e.key}'))
-        ..writeln('### ${e.key}')
-        ..writeln()
-        ..writeln('JSON: ${e.value['forms']}.')
-        ..writeln();
-      if (!compact && '${e.value['doc']}'.isNotEmpty) b..writeln(e.value['doc'])..writeln();
-    }
-    b
-      ..writeln('## Models')
-      ..writeln()
-      ..writeln('Objects with declared fields. Keys not listed are reported by validation (`unknown_field`).')
-      ..writeln();
-    for (final name in (catalog['objectTypes'] as Map).keys) {
-      b
-        ..writeln(anchor('type-$name'))
-        ..write(_objectSection('$name', level: 3));
-    }
-    b
-      ..writeln('## Enums')
-      ..writeln()
-      ..writeln('Written as the value\'s name, a JSON string (`"center"`).')
-      ..writeln();
-    for (final name in (catalog['enums'] as Map).keys) {
-      b
-        ..writeln(anchor('enum-$name'))
-        ..writeln('### $name')
-        ..writeln()
-        ..writeln(_enumTable('$name'))
-        ..writeln();
-    }
-    return b.toString();
-  }
-
-  String behaviors() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('behaviors', template('behaviors.md')))
-      ..writeln('## Keys')
-      ..writeln();
-    for (final f in (catalog['behaviors']['fields'] as List).cast<Json>()) {
-      b.writeln(anchor('behavior-${f['key']}'));
-    }
-    b
-      ..writeln(_fieldTable(catalog['behaviors']['fields'] as List))
-      ..writeln()
-      ..writeln('The models these keys hold (and the models inside them) are in ${pageLink('values.md', 'Value types, models and enums')}: '
-          '${{for (final f in (catalog['behaviors']['fields'] as List).cast<Json>()) if (f['object'] != null || f['item_object'] != null) link('values.md', 'type-${f['object'] ?? f['item_object']}', '${f['object'] ?? f['item_object']}')}.join(', ')}.')
-      ..writeln();
-    return b.toString();
-  }
-
-  String triggers() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('triggers', template('triggers.md')))
-      ..writeln('## Trigger types')
-      ..writeln();
-    final groups = <String, String>{'pointer': 'On a node: pointer', 'input': 'On an input', 'screen': 'On a screen (fire while it shows, wherever they are set)', 'other': 'Scrolling, viewport, images, drag and drop, lists'};
-    for (final g in groups.entries) {
-      b
-        ..writeln('### ${g.value}')
-        ..writeln();
-      final rows = [
-        for (final t in (catalog['triggers']['types'] as List).cast<Json>())
-          if (t['group'] == g.key) ['${anchor('trigger-${t['type']}')}`${t['type']}`', compact ? '' : '${t['doc']}'],
-      ];
-      b
-        ..writeln(_table(['type', 'When'], rows))
-        ..writeln();
-    }
-    b
-      ..writeln('## Trigger fields')
-      ..writeln()
-      ..writeln('A trigger is `{"type": "<type>", ...these}`, or just the type as a string (`"click"`).')
-      ..writeln()
-      ..writeln(_fieldTable(catalog['triggers']['fields'] as List));
-    return b.toString();
-  }
-
-  String actions() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('actions', template('actions.md')))
-      ..writeln('## Fields every action has')
-      ..writeln()
-      ..writeln(_fieldTable(catalog['actions']['common'] as List))
-      ..writeln()
-      ..writeln('Fields holding nested action chains (a list of actions): ${[for (final k in catalog['actions']['nestedChainKeys'] as List) '`$k`'].join(', ')}.')
-      ..writeln();
-    for (final e in (catalog['actions']['types'] as Map).entries) {
-      final a = e.value as Json;
-      b
-        ..writeln(anchor('action-${e.key}'))
-        ..writeln('## `${e.key}`: ${a['label']}')
-        ..writeln();
-      if (!compact && '${a['doc']}'.isNotEmpty) b..writeln(a['doc'])..writeln();
-      b
-        ..writeln(_fieldTable(a['fields'] as List))
-        ..writeln();
-    }
-    return b.toString();
-  }
-
-  String bindings() {
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('bindings', template('bindings.md')))
-      ..writeln('## Named paths')
-      ..writeln()
-      ..writeln(_table(['Path', 'Meaning'], [
-        for (final c in (catalog['bindings']['constants'] as List).cast<Json>()) ['`${c['path']}`', '${c['doc']}'],
-      ]))
-      ..writeln()
-      ..writeln('## What each path expects')
-      ..writeln()
-      ..writeln('A formula gives the value as the field is written in JSON: a number, `true`/`false`, a name for an enum, '
-          'a list or an object for the fields written that way. A value of another shape is not read and the field keeps its value.')
-      ..writeln()
-      ..writeln(_table(['Path', 'Type', 'A formula gives'], [
+  /// The value each binding path expects.
+  String _bindingPaths() => table(['Path', 'Type', 'A formula gives'], [
         for (final (path, type, kind) in [
           ('visible', 'bool', 'boolean'), ('opacity', 'double', 'number'), ('selected', 'bool', 'boolean'),
           ('disabled', 'bool', 'boolean'), ('data', 'List', 'list'),
@@ -586,27 +471,16 @@ final class Pages {
           for (final f in (catalog['decoration']['fields'] as List).cast<Json>()) ('decoration.${f['key']}', '${f['type']}', '${f['kind']}'),
         ])
           ['`$path`', '`$type`', _bindForm(type, kind)],
-      ]))
-      ..writeln()
-      ..writeln('`props.<prop>` takes what the prop\'s type is written as ([node types](nodes.md), [value types](values.md)): '
-          '`"\${= open ? \'vertical\' : \'horizontal\'}"` for `props.direction`, a TextStyle object or a theme style\'s name for `props.style`. '
-          'A theme color\'s name is not read from a formula: give `\${theme.colors.ember}` (its value).')
-      ..writeln()
-      ..writeln('## Every bindable field')
-      ..writeln()
-      ..writeln('- `layout.<field>`: ${[for (final f in catalog['layout']['fields'] as List) '`${f['key']}`'].join(', ')}, and `widthFactor`, `heightFactor`.')
-      ..writeln('- `decoration.<field>`: ${[for (final f in catalog['decoration']['fields'] as List) '`${f['key']}`'].join(', ')}. '
-          'Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of '
-          '${link('values.md', 'type-Paint', 'Paint')} or ${link('values.md', 'type-Effect', 'Effect')} (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).')
-      ..writeln('- `props.<prop>`: any prop of the node\'s type (${pageLink('nodes.md', 'node types')}), and `props.<prop>.<field>` for a field of a model prop.')
-      ..writeln('- `<behavior>` and `<behavior>.<field>`: ${[for (final f in catalog['behaviors']['fields'] as List) '`${f['key']}`'].join(', ')}.')
-      ..writeln()
-      ..writeln('## Scopes')
-      ..writeln()
-      ..writeln('Names an expression may start with besides the screen\'s variables: ${[for (final s in catalog['scopes'] as List) '`$s`'].join(', ')}.')
-      ..writeln();
-    return b.toString();
-  }
+      ]);
+
+  String _bindableFields() => [
+        '- `layout.<field>`: ${[for (final f in catalog['layout']['fields'] as List) '`${f['key']}`'].join(', ')}, and `widthFactor`, `heightFactor`.',
+        '- `decoration.<field>`: ${[for (final f in catalog['decoration']['fields'] as List) '`${f['key']}`'].join(', ')}. '
+            'Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of '
+            '${itemLink(ItemKind.model, 'Paint', 'Paint')} or ${itemLink(ItemKind.model, 'Effect', 'Effect')} (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).',
+        '- `props.<prop>`: any prop of the node\'s type, and `props.<prop>.<field>` for a field of a model prop.',
+        '- `<behavior>` and `<behavior>.<field>`: ${[for (final f in catalog['behaviors']['fields'] as List) itemLink(ItemKind.behavior, '${f['key']}')].join(', ')}.',
+      ].join('\n');
 
   /// How a formula writes a value of [type] (its JSON form).
   String _bindForm(String type, String kind) {
@@ -618,74 +492,103 @@ final class Pages {
       'integer' => 'a whole number',
       'number' => 'a number',
       'string' => 'text',
-      'enumeration' => 'one of its names (${link('values.md', 'enum-$type', type)})',
+      'enumeration' => 'one of its names (${itemLink(ItemKind.enumeration, type, type)})',
       'list' => 'a list',
       'object' => 'a $type object',
       _ => type,
     };
   }
 
-  String formulas() {
-    final f = catalog['formulas'] as Json;
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('formulas', template('formulas.md')))
-      ..writeln('Source: ${f['source'] ?? 'tool/reference/data/formulas.json'}.')
-      ..writeln()
-      ..writeln(_table(['Function', 'Signature', 'Example'], [
-        for (final fn in (f['functions'] as List).cast<Json>()) ['`${fn['name']}`', '`${fn['signature']}`', '`${fn['example']}`'],
-      ]))
-      ..writeln();
-    final undocumented = f['undocumented'] as List? ?? const [];
-    if (undocumented.isNotEmpty) {
-      b.writeln('Functions without an entry in the table: ${undocumented.map((u) => '`$u`').join(', ')}.');
+  String _formulaFunctions() {
+    final fns = (catalog['formulas']['functions'] as List).cast<Json>();
+    final b = StringBuffer();
+    final anchored = <String>{};
+    for (final g in formulaGroups.entries) {
+      b
+        ..writeln('#### ${g.key}')
+        ..writeln()
+        ..writeln(table(['Function', 'Signature', 'Example'], [
+          for (final name in g.value)
+            for (final fn in fns.where((f) => f['name'] == name))
+              ['${anchored.add(name) ? '<a id="${ItemKind.function.anchor(name)}"></a>' : ''}`$name`', '`${fn['signature']}`', '`${fn['example']}`'],
+        ]))
+        ..writeln();
     }
-    return b.toString();
+    final undocumented = catalog['formulas']['undocumented'] as List? ?? const [];
+    if (undocumented.isNotEmpty) b.writeln('Functions without an entry in the table: ${undocumented.map((u) => '`$u`').join(', ')}.');
+    return b.toString().trimRight();
   }
 
-  String variablesConditionsScripts() {
-    final c = catalog['conditions'] as Json;
-    final b = StringBuffer()
-      ..writeln(_generatedNote())
-      ..writeln(_header('variables-conditions-scripts', template('variables-conditions-scripts.md')))
-      ..writeln('## Variable fields')
-      ..writeln()
-      ..writeln(_table(['Key', 'Example', 'Meaning'], [
-        for (final v in (catalog['variables']['fields'] as List).cast<Json>()) ['`${v['key']}`', '`${jsonEncode(v['example'])}`', '${v['doc']}'],
-      ]))
-      ..writeln()
-      ..writeln('### Variable types')
-      ..writeln()
-      ..writeln(_enumTable('VariableType'))
-      ..writeln()
-      ..writeln('## Conditions')
-      ..writeln()
-      ..writeln(c['conditionDoc'])
-      ..writeln()
-      ..writeln('- Branch: ${c['branchDoc']}')
-      ..writeln('- Set entry: ${c['setDoc']}')
-      ..writeln('- Comparison: ${c['comparisonDoc']}')
-      ..writeln('- Junction: ${c['junctionDoc']}')
-      ..writeln('- Operand: ${c['operandDoc']}')
-      ..writeln()
-      ..writeln('### Comparison ops')
-      ..writeln()
-      ..writeln(_table(['op', 'Reads right', 'Meaning'], [
-        for (final o in (c['ops'] as List).cast<Json>()) ['`${o['op']}`', o['takesRight'] == true ? 'yes' : 'no', '${o['doc']}'],
-      ]))
-      ..writeln()
-      ..writeln('## Scripts')
-      ..writeln()
-      ..writeln(_fieldTable(catalog['scripts']['fields'] as List))
-      ..writeln()
-      ..writeln('## Breakpoints')
-      ..writeln()
-      ..writeln(_fieldTable(catalog['breakpoints']['fields'] as List))
-      ..writeln()
-      ..writeln('Defaults:')
-      ..writeln()
-      ..writeln(_breakpointDefaults());
-    return b.toString();
+  // --- pages ---------------------------------------------------------------------------------
+
+  String generatedNote() => '<!-- Generated by tool/reference/generate.dart from the declarations of codelessly_api '
+      '${catalog['version']}. Do not edit: edit the declarations or tool/reference/templates. -->';
+
+  /// A feature page, links unresolved.
+  String featurePage(PageDef p) {
+    final text = template('pages/${p.id}.md', fills: {'reference': () => reference(p)});
+    return '${generatedNote()}\n${anchorHeadings(text, p.id)}\n';
+  }
+
+  /// values.md: value types, enums and the models no page claims.
+  String valuesPageText() {
+    final text = template('pages/values.md', fills: {
+      'valueTypes': () => [
+            for (final e in (catalog['valueTypes'] as Map).entries)
+              '<a id="${ItemKind.valueType.anchor(e.key)}"></a>\n### ${e.key}\n\nJSON: ${e.value['forms']}.'
+                  '${'${e.value['doc']}'.isEmpty ? '' : '\n\n${e.value['doc']}'}\n',
+          ].join('\n'),
+      'models': () => [
+            for (final e in assignment[ItemKind.model]!.entries)
+              if (e.value == valuesPage) modelSection(e.key),
+          ].join(),
+      'enums': () => [
+            for (final name in (catalog['enums'] as Map).keys) '<a id="${ItemKind.enumeration.anchor(name)}"></a>\n### $name\n\n${enumTable('$name')}\n',
+          ].join('\n'),
+    });
+    return '${generatedNote()}\n${anchorHeadings(text, valuesPage)}\n';
+  }
+
+  /// The A–Z of every item and the page that documents it.
+  String az() {
+    final entries = <(String, String)>[];
+    for (final kind in ItemKind.values) {
+      for (final e in assignment[kind]!.entries) {
+        final label = switch (kind) {
+          ItemKind.node => 'node type',
+          ItemKind.behavior => 'behavior',
+          ItemKind.trigger => 'trigger',
+          ItemKind.action => 'action',
+          ItemKind.valueType => 'value type',
+          ItemKind.model => 'model',
+          ItemKind.enumeration => 'enum',
+          ItemKind.function => 'formula function',
+        };
+        entries.add((e.key, '[`${e.key}`](${e.value}.md#${kind.anchor(e.key)}) $label'));
+      }
+    }
+    entries.sort((a, b) {
+      final c = a.$1.toLowerCase().compareTo(b.$1.toLowerCase());
+      return c != 0 ? c : a.$2.compareTo(b.$2);
+    });
+    final b = StringBuffer();
+    String? letter;
+    final line = <String>[];
+    void flush() {
+      if (letter != null) b.writeln('**$letter** · ${line.join(' · ')}\n');
+      line.clear();
+    }
+
+    for (final (name, link) in entries) {
+      final l = name[0].toUpperCase();
+      if (l != letter) {
+        flush();
+        letter = l;
+      }
+      line.add(link);
+    }
+    flush();
+    return b.toString().trimRight();
   }
 }
 

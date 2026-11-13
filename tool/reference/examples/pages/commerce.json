@@ -1,0 +1,16 @@
+{
+  "schema": 3,
+  "roots": ["upgrade"],
+  "nodes": {
+    "upgrade": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 200},
+                "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["buy", "restore"], "layout": {"width": {"fill": 390}, "height": {"fill": 200}, "padding": 24},
+            "props": {"spacing": 12}},
+    "buy": {"type": "filledButton", "layout": {"width": {"fill": 342}, "height": 48},
+            "props": {"label": "Start free trial", "style": {"backgroundColor": "#FF2563EB", "foregroundColor": "#FFFFFFFF"}},
+            "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "paywall", "operation": "purchase"}]}]},
+    "restore": {"type": "textButton", "layout": {"width": {"fill": 342}, "height": 40},
+                "props": {"label": "Restore purchases"},
+                "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "paywall", "operation": "restore"}]}]}
+  }
+}

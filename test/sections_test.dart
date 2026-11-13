@@ -631,8 +631,7 @@ void main() {
     final manifest = SiteManifest.fromJson(read('site.json'));
     final docs = {for (final f in ['pages/home.json', ...manifest.components]) f: read(f)};
     expect(validateProject(docs, manifest: manifest).map((d) => '$d'), isEmpty);
-    final guide = File('docs/reference/index.md').readAsStringSync();
-    final section = guide.substring(guide.indexOf('<a id="guide-components">'));
+    final section = File('docs/reference/components.md').readAsStringSync();
     final blocks = RegExp(r'```json\n(.*?)\n```', dotAll: true).allMatches(section).map((m) => m[1]!).toList();
     expect(jsonDecode(blocks[0]), read('components/Chip.json'));
     final calls = (jsonDecode('{${blocks[1]}}') as Map)['nodes'] as Map;

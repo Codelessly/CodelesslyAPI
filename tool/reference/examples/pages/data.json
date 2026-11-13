@@ -1,0 +1,17 @@
+{
+  "schema": 3,
+  "roots": ["prefs"],
+  "nodes": {
+    "prefs": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 200},
+              "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["saved", "save"], "layout": {"width": {"fill": 390}, "height": {"fill": 200}, "padding": 24},
+            "props": {"crossAxisAlignment": "start", "spacing": 12}},
+    "saved": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+              "props": {"text": "Saved theme: ${storage.theme}", "style": {"fontSize": 15, "color": "#FF111827"}}},
+    "save": {"type": "filledButton", "layout": {"width": 160, "height": 44},
+             "props": {"label": "Use dark", "style": {"backgroundColor": "#FF111827", "foregroundColor": "#FFFFFFFF"}},
+             "actions": [{"trigger": {"type": "click"},
+                          "actions": [{"type": "setStorage", "key": "theme", "value": "dark"},
+                                      {"type": "showToast", "message": "Saved", "style": "success"}]}]}
+  }
+}
