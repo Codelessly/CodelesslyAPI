@@ -8,6 +8,7 @@ import '../actions.dart';
 import '../catalog.dart';
 import '../json.dart';
 import '../props.dart';
+import '../scripts.dart';
 import 'diagnostics.dart';
 
 /// Where navigation may go.
@@ -40,6 +41,7 @@ final class TrustProfile {
     this.maxDepth,
     this.maxTextLength,
     this.maxOpsPerCall,
+    this.scriptCapabilities,
   });
 
   /// Node types allowed; null: every type of the catalog.
@@ -60,6 +62,10 @@ final class TrustProfile {
   final Set<String>? imageHosts;
   final NavigationLimit navigation;
   final int? maxNodes, maxDepth, maxTextLength, maxOpsPerCall;
+
+  /// With [scripts]: the capabilities a script of the document may ask for;
+  /// null: any.
+  final Set<ScriptCapability>? scriptCapabilities;
 
   /// No restriction.
   static const TrustProfile none = TrustProfile();
@@ -93,6 +99,18 @@ final class TrustProfile {
     maxOpsPerCall: 2000,
   );
 
+  /// [agent] for apps and games an agent builds: the same, plus the
+  /// document's own sandboxed scripts (the scripts op, `runScript`,
+  /// `script.name(...)` in formulas), limited to what a local app needs:
+  /// reading and writing variables and the clock. No APIs, cloud data,
+  /// navigation or actions from scripts; no links, host functions or
+  /// feature libraries.
+  static final TrustProfile agentApps = agent.copyWith(
+    scripts: true,
+    actions: {...agentActions, RunScriptAction.typeName},
+    scriptCapabilities: {ScriptCapability.variablesRead, ScriptCapability.variablesWrite, ScriptCapability.clock},
+  );
+
   /// [agent] with links to [linkHosts], and other changes.
   TrustProfile copyWith({
     Set<String>? widgets,
@@ -105,6 +123,7 @@ final class TrustProfile {
     int? maxDepth,
     int? maxTextLength,
     int? maxOpsPerCall,
+    Set<ScriptCapability>? scriptCapabilities,
   }) =>
       TrustProfile(
         widgets: widgets ?? this.widgets,
@@ -117,6 +136,7 @@ final class TrustProfile {
         maxDepth: maxDepth ?? this.maxDepth,
         maxTextLength: maxTextLength ?? this.maxTextLength,
         maxOpsPerCall: maxOpsPerCall ?? this.maxOpsPerCall,
+        scriptCapabilities: scriptCapabilities ?? this.scriptCapabilities,
       );
 
   /// [catalog] restricted to what this profile allows: the catalog an

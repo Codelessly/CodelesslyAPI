@@ -78,7 +78,7 @@ sealed class EditOp {
   }
 
   /// Every op's declaration, in the order the reference lists them.
-  static const List<EditOpSpec> specs = [SetOp.spec, PatchOp.spec, MoveOp.spec, RemoveOp.spec, VarsOp.spec, RootsOp.spec];
+  static const List<EditOpSpec> specs = [SetOp.spec, PatchOp.spec, MoveOp.spec, RemoveOp.spec, VarsOp.spec, RootsOp.spec, ScriptsOp.spec];
 
   static EditOpSpec? specOf(String op) {
     for (final s in specs) {
@@ -321,6 +321,46 @@ final class RootsOp extends EditOp {
   Json toJson() => {'op': op, 'roots': roots};
 }
 
+/// Define, change or remove the document's scripts by name (sandboxed
+/// JavaScript: `ScriptDef`). Allowed only where the trust profile allows
+/// scripts.
+final class ScriptsOp extends EditOp {
+  const ScriptsOp({this.set = const {}, this.remove = const []});
+
+  static const opName = 'scripts';
+  @override
+  String get op => opName;
+
+  /// Name → `{"source", "params", "capabilities", "timeoutMs", "description"}`
+  /// (`params`: names, or `{"name", "default"}` objects).
+  final Json set;
+  final List<String> remove;
+
+  static const spec = EditOpSpec(
+    opName,
+    doc: 'The document\'s scripts (sandboxed JavaScript, where allowed): `set` maps a name to {"source", "params", '
+        '"capabilities", "timeoutMs"}; `remove` lists names. A reaction runs one ({"type": "runScript", "script": name}), '
+        'a formula calls it (script.name(...)).',
+    fields: [
+      EditOpField('op', EditFieldKind.string, required: true),
+      EditOpField('set', EditFieldKind.object, doc: 'Script name → {"source", "params", "capabilities", "timeoutMs"}.'),
+      EditOpField('remove', EditFieldKind.strings),
+    ],
+    example: {
+      'op': 'scripts',
+      'set': {
+        'clamp': {
+          'params': ['v'],
+          'source': 'return Math.max(0, Math.min(9, v));',
+        },
+      },
+    },
+  );
+
+  @override
+  Json toJson() => {'op': op, if (set.isNotEmpty) 'set': set, if (remove.isNotEmpty) 'remove': remove};
+}
+
 /// A batch of ops read from a tool input: each op with the index of the
 /// input op it came from (a `set` with `nodes` gives several), and what
 /// could not be read.
@@ -540,6 +580,14 @@ List<EditOp> _decodeOne(Object? json, int i, List<EditDiagnostic> out) {
       final remove = strings('remove') ?? const [];
       if (!ok || scope == null) return const [];
       return [VarsOp(scope, set: set, remove: remove)];
+    case ScriptsOp.opName:
+      final set = object('set') ?? const {};
+      final remove = strings('remove') ?? const [];
+      if (set.isEmpty && remove.isEmpty && m['set'] == null && m['remove'] == null) {
+        problem(EditCodes.missingField, 'set', 'A scripts op needs "set" (name → script) or "remove" (names).');
+      }
+      if (!ok) return const [];
+      return [ScriptsOp(set: set, remove: remove)];
     case RootsOp.opName:
       final roots = strings('roots');
       if (roots == null && m['roots'] == null) problem(EditCodes.missingField, 'roots', 'A roots op needs "roots": the canvas ids, in order.');
@@ -552,7 +600,7 @@ List<EditOp> _decodeOne(Object? json, int i, List<EditDiagnostic> out) {
 /// Names models write for an op, read as it.
 const Map<String, String> _aliases = {
   'add': 'set', 'upsert': 'set', 'create': 'set', 'replace': 'set', 'update': 'patch', 'merge': 'patch', //
-  'delete': 'remove', 'variables': 'vars', 'setvars': 'vars',
+  'delete': 'remove', 'variables': 'vars', 'setvars': 'vars', 'script': 'scripts',
 };
 
 Json _withoutId(Json node) => node.containsKey('id') ? ({...node}..remove('id')) : node;
