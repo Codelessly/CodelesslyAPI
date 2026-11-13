@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:codelessly_api/codelessly_api.dart' show Json;
+import 'package:codelessly_api/validate.dart' show valueForms;
 
 /// How links are written: across page files, or within one file.
 enum LinkMode { pages, single }
@@ -55,7 +56,7 @@ final class Pages {
 
   String template(String name, [Map<String, String Function()> fills = const {}]) {
     var text = File('$_templates/$name').readAsStringSync();
-    text = text.replaceAllMapped(RegExp(r'\{\{example:([\w-]+)\}\}'), (m) => '```json\n${_example(m[1]!)}\n```');
+    text = text.replaceAllMapped(RegExp(r'\{\{example:([\w/-]+)\}\}'), (m) => '```json\n${_example(m[1]!)}\n```');
     text = text.replaceAllMapped(RegExp(r'\{\{link:([\w.-]+)#([\w.-]+)\|([^}]+)\}\}'), (m) => link(m[1]!, m[2]!, m[3]!));
     text = text.replaceAllMapped(RegExp(r'\{\{page:([\w.-]+)\|([^}]+)\}\}'), (m) => pageLink(m[1]!, m[2]!));
     text = text.replaceAllMapped(RegExp(r'\{\{(\w+)\}\}'), (m) {
@@ -206,7 +207,15 @@ final class Pages {
 
   String _childFits() {
     String describe(Map axis) {
-      final allowed = [for (final e in axis.entries) if (e.value == null) e.key];
+      final allowed = [
+        for (final e in axis.entries)
+          if (e.value == null)
+            e.key
+          // Allowed on a condition the rule names (a wrapping row's child
+          // fills its line's share when it sets a basis).
+          else if (e.key == 'fill' && '${e.value}'.contains('basis'))
+            'fill (with `basis`)',
+      ];
       return allowed.join(', ');
     }
 
@@ -531,6 +540,25 @@ final class Pages {
         for (final c in (catalog['bindings']['constants'] as List).cast<Json>()) ['`${c['path']}`', '${c['doc']}'],
       ]))
       ..writeln()
+      ..writeln('## What each path expects')
+      ..writeln()
+      ..writeln('A formula gives the value as the field is written in JSON: a number, `true`/`false`, a name for an enum, '
+          'a list or an object for the fields written that way. A value of another shape is not read and the field keeps its value.')
+      ..writeln()
+      ..writeln(_table(['Path', 'Type', 'A formula gives'], [
+        for (final (path, type, kind) in [
+          ('visible', 'bool', 'boolean'), ('opacity', 'double', 'number'), ('selected', 'bool', 'boolean'),
+          ('disabled', 'bool', 'boolean'), ('data', 'List', 'list'),
+          for (final f in (catalog['layout']['fields'] as List).cast<Json>()) ('layout.${f['key']}', '${f['type']}', '${f['kind']}'),
+          for (final f in (catalog['decoration']['fields'] as List).cast<Json>()) ('decoration.${f['key']}', '${f['type']}', '${f['kind']}'),
+        ])
+          ['`$path`', '`$type`', _bindForm(type, kind)],
+      ]))
+      ..writeln()
+      ..writeln('`props.<prop>` takes what the prop\'s type is written as ([node types](nodes.md), [value types](values.md)): '
+          '`"\${= open ? \'vertical\' : \'horizontal\'}"` for `props.direction`, a TextStyle object or a theme style\'s name for `props.style`. '
+          'A theme color\'s name is not read from a formula: give `\${theme.colors.ember}` (its value).')
+      ..writeln()
       ..writeln('## Every bindable field')
       ..writeln()
       ..writeln('- `layout.<field>`: ${[for (final f in catalog['layout']['fields'] as List) '`${f['key']}`'].join(', ')}, and `widthFactor`, `heightFactor`.')
@@ -545,6 +573,23 @@ final class Pages {
       ..writeln('Names an expression may start with besides the screen\'s variables: ${[for (final s in catalog['scopes'] as List) '`$s`'].join(', ')}.')
       ..writeln();
     return b.toString();
+  }
+
+  /// How a formula writes a value of [type] (its JSON form).
+  String _bindForm(String type, String kind) {
+    final forms = valueForms[type];
+    if (forms != null) return forms;
+    if (type.startsWith('List<')) return 'a list of ${type.substring(5, type.length - 1)} objects';
+    return switch (kind) {
+      'boolean' => '`true` or `false`',
+      'integer' => 'a whole number',
+      'number' => 'a number',
+      'string' => 'text',
+      'enumeration' => 'one of its names (${link('values.md', 'enum-$type', type)})',
+      'list' => 'a list',
+      'object' => 'a $type object',
+      _ => type,
+    };
   }
 
   String formulas() {
