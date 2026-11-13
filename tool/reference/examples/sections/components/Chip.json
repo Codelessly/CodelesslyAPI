@@ -1,5 +1,5 @@
 {
- "schema": 3,
+ "schema": 4,
  "id": "Chip",
  "roots": [
   "chip"

@@ -54,7 +54,7 @@ flat map:
 
 | Key | Meaning |
 |---|---|
-| `schema` | Always 3 (`kSchemaVersion`). A schema-2 document (or one with none) loads, migrated in memory (`migrate2to3`). |
+| `schema` | Always 4 (`kSchemaVersion`). A schema-2 or schema-3 document (or one with none) loads, migrated in memory (`migrate2to3`, `migrate3to4`). |
 | `id` | The layout's id (optional). |
 | `roots` | Canvas ids, in order: the screens of this page. |
 | `nodes` | Every node, by id: `{"<id>": {"type": ..., ...}}`. A node's id is its key here. |
@@ -68,7 +68,7 @@ its default.
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -196,7 +196,7 @@ under a stack (`layout_field_ignored`).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["board"],
   "nodes": {
     "board": {"type": "canvas", "slots": {"body": "stage"}, "layout": {"width": 400, "height": 300}},
@@ -257,7 +257,7 @@ decoration (ui_docs "decoration").
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -585,7 +585,7 @@ Look up anything below with ui_docs {"topic": "<topic>"}: a page, a section, or 
 - "navigation": Screens, navigation, modals and toasts. Documents appBar, navigationBar, bottomNavigationBar, tabs, tabBar, accordion, expansionTile, modal, load, backPressed, navigate, openModal, closeModal, showToast, confirm.
 - "state": State and logic. Documents valueChanged, actionError, setVariable, setValue, setVariant, if, forEach, delay, retryFailed.
 - "interaction": Interaction: reactions, states and gestures. Documents states, inkWell, tooltip, ignorePointer, draggable, dropTarget, track, dismissible, pan, transformGesture, click, doubleTap, longPress, hold, secondaryClick, pointerDown, pointerUp, hover, cursorEnter, cursorExit, swipeLeft, swipeRight, swipeUp, swipeDown, drag, dragEnd, wheel, pinch, dragStart, dragCancel, dragCompleted, drop, dragEnter, dragExit, dropRejected, haptic.
-- "animation": Animation and motion. Documents motion, scale, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, flightKey, flight, viewProgress, timer, frame, animate.
+- "animation": Animation and motion. Documents motion, animations, transitions, shimmer, reveal, typewriter, particles, flip, tilt, hero, viewProgress, timer, frame, animate.
 - "components": Components and sections. Documents slot, external, placeholder, singlePlaceholder, event, componentEvent.
 - "charts": Charts, gauges and indicators. Documents progressBar, circularProgressIndicator, activityIndicator, badge, radialGauge, gaugeMeter, chart, barChart, lineChart, plotChart, barcode.
 - "data": Data: APIs, cloud data, storage and form submission.

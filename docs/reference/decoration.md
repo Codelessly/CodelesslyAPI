@@ -15,7 +15,7 @@ A card with a solid fill, a border, rounded corners and a shadow, and a gradient
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["deco"],
   "nodes": {
     "deco": {
@@ -343,7 +343,7 @@ fetch network images (`image_network`).
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["gallery"],
   "nodes": {
     "gallery": {

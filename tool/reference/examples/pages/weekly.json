@@ -1,4 +1,4 @@
-{"schema": 3, "roots": ["home"],
+{"schema": 4, "roots": ["home"],
  "nodes": {
   "home": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 400}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
   "col": {"type": "column", "children": ["habitList"], "layout": {"width": {"fill": 390}, "height": {"fill": 400}, "padding": 24}},

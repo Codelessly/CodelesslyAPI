@@ -16,7 +16,7 @@ The smallest document, and the command that checks it at three sizes:
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["home"],
   "nodes": {
     "home": {
@@ -91,9 +91,9 @@ From `package:codelessly_api/validate.dart`:
 | Code | Severity | Meaning |
 |---|---|---|
 | `invalid_document` | error | The document is not a JSON object, or a top-level key has the wrong shape (nodes not an object, roots not a list). |
-| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2 and 3, and writes 3). |
-| `schema_outdated` | info | A schema-2 document: it loads, migrated to schema 3 in memory (`migrate2to3`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
-| `legacy_value` | warning | A `legacy.<name>` key the schema-3 migration kept: a value that had no schema-3 form and is no longer read. |
+| `schema_version` | warning | The document has no "schema", or one this package does not read (it reads 2, 3 and 4, and writes 4). |
+| `schema_outdated` | info | A schema-2 or schema-3 document: it loads, migrated to schema 4 in memory (`migrate2to3`, `migrate3to4`; `dart run tool/migrate.dart` rewrites the file). The other diagnostics are of the migrated document. |
+| `legacy_value` | warning | A `legacy.<name>` key a schema migration kept: a value that had no form in the newer schema and is no longer read. |
 | `unknown_document_key` | error | A top-level key of the document that nothing reads. |
 | `dangling_root` | error | A root id that names no node. |
 | `root_not_canvas` | warning | A root that is not a canvas: it is never shown as a screen. |

@@ -13,7 +13,7 @@ playing sounds, printing, capturing a screenshot, downloading a file and preload
 
 ```json
 {
-  "schema": 3,
+  "schema": 4,
   "roots": ["watch"],
   "nodes": {
     "watch": {

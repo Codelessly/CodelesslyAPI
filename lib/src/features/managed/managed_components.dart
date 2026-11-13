@@ -456,7 +456,7 @@ final class ManagedComponentContract {
 /// One immutable release of a managed component
 /// (`managed_components/{id}/versions/{n}`).
 ///
-/// JSON as stored: `{"schema": 3, "id": "sign_in", "version": 3, "semver":
+/// JSON as stored: `{"schema": 4, "id": "sign_in", "version": 3, "semver":
 /// "1.1.0", "minSdk": "22.0.0", "payload": "{\"definition\": …, \"contract\":
 /// …}", "digest": "9f2c…", "changelog": "…", "createdAt": ms, "createdBy":
 /// uid}`: `payload` is the JSON text of the definition and contract and
