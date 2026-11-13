@@ -5339,6 +5339,16 @@ Written as the value's name, a JSON string (`"center"`).
 | `rectangle` | The box, its corners rounded by `Decoration.radius`. |
 | `circle` | A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`. |
 
+<a id="enum-DismissCommand"></a>
+### DismissCommand
+
+| Value | Meaning |
+|---|---|
+| `dismiss` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `returnFrom` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `reset` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `shake` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+
 <a id="enum-DragAnchor"></a>
 ### DragAnchor
 
@@ -5351,19 +5361,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### DragAxis
 
 `free`, `horizontal`, `vertical`
-
-<a id="enum-DragCommand"></a>
-### DragCommand
-
-| Value | Meaning |
-|---|---|
-| `fling` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `returnFrom` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `reset` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `shake` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `step` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `zoom` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `pose` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
 
 <a id="enum-DragDirection"></a>
 ### DragDirection
@@ -6204,6 +6201,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `add` | Added to the property's own: a translation or rotation nested inside the node's (`SlideTransition`, `RotationTransition` around it). |
 | `multiply` | Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it). |
 
+<a id="enum-TrackCommand"></a>
+### TrackCommand
+
+| Value | Meaning |
+|---|---|
+| `step` | What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`. |
+| `animateTo` | What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`. |
+
 <a id="enum-TrackHitArea"></a>
 ### TrackHitArea
 
@@ -6238,6 +6243,15 @@ Written as the value's name, a JSON string (`"center"`).
 |---|---|
 | `pixels` | What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
 | `parent` | What a `Track`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
+
+<a id="enum-TransformCommand"></a>
+### TransformCommand
+
+| Value | Meaning |
+|---|---|
+| `reset` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
+| `scaleBy` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
+| `animateTo` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
 
 <a id="enum-TransformPan"></a>
 ### TransformPan
@@ -6872,18 +6886,39 @@ Focuses text field `node` (selecting its text with `selectAll`), or takes the fo
 | `unfocus` | bool | `false` |  |  |
 | `selectAll` | bool | `false` |  |  |
 
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
+<a id="action-controlTrack"></a>
+## `controlTrack`: Control track
 
-Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.
+Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it). The legacy `controlDrag` `step` reads as it.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  | A draggable node. |
-| `command` | [DragCommand](#enum-DragCommand) | `"fling"` | `fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose` |  |
-| `direction` | [DragDirection](#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
+| `node` | String | `""` |  | A node with a track. |
+| `command` | [TrackCommand](#enum-TrackCommand) | `"step"` | `step`, `animateTo` |  |
 | `steps` | String | `"1"` |  | Step: how many steps (an expression). |
-| `value` | String | `""` |  | Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression). |
+| `value` | String | `""` |  | animateTo: the value (an expression). |
+
+<a id="action-controlDismissible"></a>
+## `controlDismissible`: Control dismissible
+
+Dismisses, brings back or resets node `node` (several ids: comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and `shake` read as it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A dismissible (or pan) node. |
+| `command` | [DismissCommand](#enum-DismissCommand) | `"dismiss"` | `dismiss`, `returnFrom`, `reset`, `shake` |  |
+| `direction` | [DragDirection](#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
+
+<a id="action-controlTransform"></a>
+## `controlTransform`: Control transform
+
+Resets, zooms or poses the transform gesture of node `node`. The legacy `controlDrag` `reset`, `zoom` and `pose` read as it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A node with a transform gesture. |
+| `command` | [TransformCommand](#enum-TransformCommand) | `"reset"` | `reset`, `scaleBy`, `animateTo` |  |
+| `value` | String | `""` |  | scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression). |
 
 <a id="action-scrollTo"></a>
 ## `scrollTo`: Scroll to

@@ -155,7 +155,9 @@
             "copyToClipboard",
             "editText",
             "focus",
-            "controlDrag",
+            "controlTrack",
+            "controlDismissible",
+            "controlTransform",
             "scrollTo",
             "animate",
             "haptic",
@@ -757,7 +759,7 @@
           "if": {
             "properties": {
               "type": {
-                "const": "controlDrag"
+                "const": "controlTrack"
               }
             }
           },
@@ -767,13 +769,54 @@
                 "type": "string"
               },
               "command": {
-                "$ref": "#/$defs/enum.DragCommand"
-              },
-              "direction": {
-                "$ref": "#/$defs/enum.DragDirection"
+                "$ref": "#/$defs/enum.TrackCommand"
               },
               "steps": {
                 "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "controlDismissible"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.DismissCommand"
+              },
+              "direction": {
+                "$ref": "#/$defs/enum.DragDirection"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "controlTransform"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "node": {
+                "type": "string"
+              },
+              "command": {
+                "$ref": "#/$defs/enum.TransformCommand"
               },
               "value": {
                 "type": "string"
@@ -2005,6 +2048,14 @@
         "circle"
       ]
     },
+    "enum.DismissCommand": {
+      "enum": [
+        "dismiss",
+        "returnFrom",
+        "reset",
+        "shake"
+      ]
+    },
     "enum.DragAnchor": {
       "enum": [
         "child",
@@ -2016,17 +2067,6 @@
         "free",
         "horizontal",
         "vertical"
-      ]
-    },
-    "enum.DragCommand": {
-      "enum": [
-        "fling",
-        "returnFrom",
-        "reset",
-        "shake",
-        "step",
-        "zoom",
-        "pose"
       ]
     },
     "enum.DragDirection": {
@@ -2832,6 +2872,12 @@
         "multiply"
       ]
     },
+    "enum.TrackCommand": {
+      "enum": [
+        "step",
+        "animateTo"
+      ]
+    },
     "enum.TrackHitArea": {
       "enum": [
         "self",
@@ -2857,6 +2903,13 @@
       "enum": [
         "pixels",
         "parent"
+      ]
+    },
+    "enum.TransformCommand": {
+      "enum": [
+        "reset",
+        "scaleBy",
+        "animateTo"
       ]
     },
     "enum.TransformPan": {
