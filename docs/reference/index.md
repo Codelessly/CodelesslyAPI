@@ -210,8 +210,9 @@ Each axis has a **mode** and a **number**:
 | `{"flexible": 120}` | flexible | Up to 120, less if a row or column runs out of room (only along a row's or column's main axis). |
 
 The number is the **design size**: the size of a fixed node, and the size used when a mode cannot apply (a fill
-inside something that scrolls on that axis, for instance). For `hug` and `fill` it does not limit the size; write
-a sensible value (the size you expect) and use `constraints` for limits.
+inside something that scrolls on that axis, for instance). For `hug` and `fill` it does not limit the size:
+`{"fill": 760}` in a 1300 wide column is 1300 wide. Write the size you expect, and use
+`"constraints": {"maxWidth": 760}` to cap it.
 
 **A node without `width` or `height` is fixed at 0 and draws nothing.** Validation warns (`zero_size`). Give every
 node both, except a `canvas` (its size is the screen's) and a `spacer`.
@@ -961,7 +962,7 @@ a misspelled key is dropped silently by the runtime and reported by validation (
 JSON merged over that node (objects merge, other values replace, `null` removes).
 
 `selected` and `disabled` follow bindings: `"bind": {"selected": "${= tab == 'pricing'}"}` puts the node in its
-`selected` state. A pointer's hover and press are tracked when the node has `states` or reactions.
+`selected` state. `hovered` needs a mouse: on touch screens it never happens, so do not hide anything behind it.
 
 ```json
 {
@@ -1144,7 +1145,11 @@ variable with `setVariable`. A text field's label and hint are in `props.decorat
 `fillColor`, `border`...).
 
 Validate with variables: keep the values, set a `tried` flag on submit, and show error texts with `visible`
-bindings. (The `validator` prop of a text field is declared but not applied by the SDK yet.)
+bindings (or bind `props.decoration.errorText`). The `validator` prop of a text field is declared but not applied
+by the SDK, and `inputFormatter` only applies `{"type": "regex", "pattern": ..., "allow": true}`. An outlined
+field (`"border": {"type": "outline", ...}`) needs `"contentPadding": [14, 16, 14, 16]` in its decoration to keep
+its text off the border. A text field is not bound to its variable: setting the variable does not change the
+text shown.
 
 ```json
 {
@@ -1305,9 +1310,9 @@ tool/render/render.sh site/ --out shots/ --sizes 390x844,834x1112,1440x900 --ful
 It validates every document strictly, renders each screen with the SDK at each size, writes
 `shots/<screen>@<w>x<h>.png` and `shots/diagnostics.json`, and prints one line per problem with a code, the
 JSON pointer of the value (`/nodes/hero-title/props/style/fontSize`) and what to do. It exits 1 when there are
-errors. Interactions before the capture: `--tap <id>`, `--hover <id>`, `--set <variable>=<json>`,
-`--scroll <id or screen>=<px>`, `--navigate <canvas id>`, `--wait <ms>`, with `--label <name>` to keep the
-screenshots apart. Look at the screenshots: validation cannot tell you that a page is ugly.
+errors. Interactions before the capture: `--tap <id>` (scrolled into view first; `<id>#<n>` for the n-th copy
+of a list item), `--hover <id>`, `--set <variable>=<json>`, `--scroll <id or screen>=<px>`,
+`--navigate <canvas id>`, `--wait <ms>`, with `--label <name>` to keep the screenshots apart. Look at the screenshots: validation cannot tell you that a page is ugly.
 
 Validation codes (from `package:codelessly_api/validate.dart`):
 
@@ -1362,7 +1367,7 @@ Validation codes (from `package:codelessly_api/validate.dart`):
 | `unknown_breakpoint` | error | A canvas or variant names a breakpoint id the project does not define. |
 | `duplicate_breakpoint_canvas` | error | Two canvases of one screen are the design for the same breakpoint. |
 | `screen_without_breakpoint` | warning | A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest. |
-| `duplicate_id` | error | The same node id in two documents of one project. |
+| `duplicate_id` | warning | The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id. |
 
 The render step adds what only rendering shows: `render_exception`, `action_error`, `interaction_failed`,
 `layout_overflow`, `offscreen`, `text_clipped`, `text_truncated`, `text_no_color`, `font_fallback`,
@@ -1383,3 +1388,5 @@ there, so formula syntax errors and unknown names in formulas are reported only 
 8. `x`/`y` only work under a `stack`; `flex`/`align` only under a `row` or `column`.
 9. Ids are map keys; a child is listed in exactly one parent; canvases are only in `roots`.
 10. Per-breakpoint canvases have separate nodes: shared state lives in `page_variables`.
+11. `fill` takes all the room it is given; cap it with `constraints.maxWidth`.
+12. A backslash inside a formula is written twice in JSON: `"${= matches(code, '^\\d{4}$')}"`.

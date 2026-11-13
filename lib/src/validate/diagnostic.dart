@@ -137,8 +137,8 @@ abstract final class Codes {
       'Two canvases of one screen are the design for the same breakpoint.');
   static const screenWithoutBreakpoint = DiagnosticCode('screen_without_breakpoint', Severity.warning,
       'A canvas grouped into a screen (props.screen) that names no breakpoint: it shows only below the narrowest.');
-  static const duplicateId = DiagnosticCode('duplicate_id', Severity.error,
-      'The same node id in two documents of one project.');
+  static const duplicateId = DiagnosticCode('duplicate_id', Severity.warning,
+      'The same node id in two documents of one project: each document keeps its own, but reports and the render command\'s steps name nodes by id.');
 
   /// Every code, in the order above.
   static const List<DiagnosticCode> all = [

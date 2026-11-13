@@ -25715,8 +25715,8 @@
     },
     {
       "code": "duplicate_id",
-      "severity": "error",
-      "meaning": "The same node id in two documents of one project."
+      "severity": "warning",
+      "meaning": "The same node id in two documents of one project: each document keeps its own, but reports and the render command's steps name nodes by id."
     }
   ]
 }
