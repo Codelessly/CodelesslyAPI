@@ -2255,6 +2255,12 @@
         "onDrag"
       ]
     },
+    "enum.KeyframeInterpolation": {
+      "enum": [
+        "linear",
+        "monotoneCubic"
+      ]
+    },
     "enum.LineChartXLabelAnchor": {
       "enum": [
         "edgeClamped",
@@ -2333,20 +2339,6 @@
         "fullScreen",
         "popover",
         "banner"
-      ]
-    },
-    "enum.MotionLoop": {
-      "enum": [
-        "none",
-        "restart",
-        "reverse",
-        "swing"
-      ]
-    },
-    "enum.MotionPathPacing": {
-      "enum": [
-        "length",
-        "area"
       ]
     },
     "enum.NavigationDestinationLabelBehavior": {
@@ -2455,7 +2447,14 @@
       "enum": [
         "none",
         "tangent",
-        "upright"
+        "upright",
+        "uprightFlip"
+      ]
+    },
+    "enum.PathPacing": {
+      "enum": [
+        "length",
+        "area"
       ]
     },
     "enum.PathUnit": {
@@ -3188,6 +3187,9 @@
         },
         "blend": {
           "$ref": "#/$defs/enum.TrackBlend"
+        },
+        "interpolation": {
+          "$ref": "#/$defs/enum.KeyframeInterpolation"
         }
       },
       "additionalProperties": false
@@ -4751,6 +4753,12 @@
         "translateY": {
           "type": "number"
         },
+        "shiftX": {
+          "type": "number"
+        },
+        "shiftY": {
+          "type": "number"
+        },
         "scale": {
           "type": "number"
         },
@@ -4759,17 +4767,6 @@
         },
         "scaleY": {
           "type": "number"
-        },
-        "shiftX": {
-          "type": "number"
-        },
-        "shiftY": {
-          "type": "number"
-        },
-        "opacity": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
         },
         "rotate": {
           "type": "number"
@@ -4780,87 +4777,11 @@
         "rotateY": {
           "type": "number"
         },
-        "spin": {
-          "type": "number"
-        },
-        "pathProgress": {
-          "type": "number"
-        },
-        "blur": {
-          "type": "number",
-          "minimum": 0.0
-        },
         "perspective": {
           "type": "number"
         },
-        "originX": {
-          "type": "number"
-        },
-        "originY": {
-          "type": "number"
-        },
-        "duration": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "delay": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "curve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "rotateCurve": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/enum.AnimationCurve"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "fadeShare": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "spring": {
-          "$ref": "#/$defs/model.Spring"
-        },
-        "spinRamp": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "loop": {
-          "$ref": "#/$defs/enum.MotionLoop"
-        },
-        "repeat": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "enter": {
-          "type": "boolean"
-        },
-        "enterFrom": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Motion"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "replayKey": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ]
+        "alignment": {
+          "$ref": "#/$defs/value.Alignment"
         },
         "backfaceHidden": {
           "type": "boolean"
@@ -4868,208 +4789,21 @@
         "path": {
           "anyOf": [
             {
-              "type": "string"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.PathFollow"
+                },
+                {
+                  "type": [
+                    "string"
+                  ]
+                }
+              ]
             },
             {
               "type": "null"
             }
           ]
-        },
-        "orientToPath": {
-          "type": "boolean"
-        },
-        "keyframes": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/model.MotionKeyframe"
-          }
-        },
-        "revealOnScroll": {
-          "type": "boolean"
-        },
-        "enterHeld": {
-          "type": "boolean"
-        },
-        "revealFraction": {
-          "type": "number"
-        },
-        "orientUpright": {
-          "type": "boolean"
-        },
-        "uprightMirror": {
-          "type": "boolean"
-        },
-        "arc": {
-          "type": "number"
-        },
-        "paused": {
-          "type": "boolean"
-        },
-        "phase": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "pathPacing": {
-          "$ref": "#/$defs/enum.MotionPathPacing"
-        },
-        "pathFocusX": {
-          "type": "number"
-        },
-        "pathFocusY": {
-          "type": "number"
-        },
-        "pathWrap": {
-          "type": "boolean"
-        },
-        "pathViewBox": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "shimmer": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.MotionShimmer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.MotionKeyframe": {
-      "type": "object",
-      "properties": {
-        "t": {
-          "type": "number"
-        },
-        "translateX": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "translateY": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "scale": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "scaleX": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "scaleY": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "opacity": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "rotate": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "rotateX": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "rotateY": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "pathProgress": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.MotionShimmer": {
-      "type": "object",
-      "properties": {
-        "color": {
-          "$ref": "#/$defs/value.Color"
-        },
-        "strength": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "width": {
-          "type": "number"
-        },
-        "duration": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "angle": {
-          "type": "number"
         }
       },
       "additionalProperties": false
@@ -5281,6 +5015,20 @@
           }
         },
         "previewAt": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ramp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visibleFraction": {
           "anyOf": [
             {
               "type": "number"
@@ -5701,6 +5449,15 @@
         },
         "orient": {
           "$ref": "#/$defs/enum.PathOrient"
+        },
+        "pacing": {
+          "$ref": "#/$defs/enum.PathPacing"
+        },
+        "focus": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
         }
       },
       "additionalProperties": false
@@ -5869,6 +5626,79 @@
         },
         "axisLabel": {
           "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.Pose": {
+      "type": "object",
+      "properties": {
+        "translateX": {
+          "type": "number"
+        },
+        "translateY": {
+          "type": "number"
+        },
+        "shiftX": {
+          "type": "number"
+        },
+        "shiftY": {
+          "type": "number"
+        },
+        "scale": {
+          "type": "number"
+        },
+        "scaleX": {
+          "type": "number"
+        },
+        "scaleY": {
+          "type": "number"
+        },
+        "rotate": {
+          "type": "number"
+        },
+        "rotateX": {
+          "type": "number"
+        },
+        "rotateY": {
+          "type": "number"
+        },
+        "perspective": {
+          "type": "number"
+        },
+        "alignment": {
+          "$ref": "#/$defs/value.Alignment"
+        },
+        "backfaceHidden": {
+          "type": "boolean"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/model.PathFollow"
+                },
+                {
+                  "type": [
+                    "string"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "blur": {
+          "type": "number",
+          "minimum": 0.0
         }
       },
       "additionalProperties": false
@@ -6060,6 +5890,29 @@
               "type": "null"
             }
           ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "model.Shimmer": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "$ref": "#/$defs/value.Color"
+        },
+        "strength": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "width": {
+          "type": "number"
+        },
+        "angle": {
+          "type": "number"
+        },
+        "position": {
+          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6955,12 +6808,41 @@
     "model.Transition": {
       "type": "object",
       "properties": {
+        "property": {
+          "type": "string"
+        },
         "duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "delay": {
           "type": "integer",
           "minimum": 0
         },
         "curve": {
           "$ref": "#/$defs/enum.AnimationCurve"
+        },
+        "spring": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/model.Spring"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "keyframes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.Keyframe"
+          }
+        },
+        "interpolation": {
+          "$ref": "#/$defs/enum.KeyframeInterpolation"
+        },
+        "arc": {
+          "type": "number"
         }
       },
       "additionalProperties": false
@@ -6990,7 +6872,7 @@
       "type": "object",
       "properties": {
         "motion": {
-          "$ref": "#/$defs/model.Motion"
+          "$ref": "#/$defs/model.Pose"
         },
         "reveal": {
           "anyOf": [
@@ -7013,42 +6895,6 @@
           "anyOf": [
             {
               "type": "integer"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.Transitions": {
-      "type": "object",
-      "properties": {
-        "style": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Transition"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "opacity": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Transition"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "size": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.Transition"
             },
             {
               "type": "null"
@@ -7344,16 +7190,18 @@
           }
         },
         "transitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/model.Transition"
+          }
+        },
+        "shimmer": {
           "anyOf": [
             {
-              "$ref": "#/$defs/model.Transitions"
+              "$ref": "#/$defs/model.Shimmer"
             },
             {
-              "type": [
-                "string",
-                "boolean",
-                "number"
-              ]
+              "type": "null"
             }
           ]
         },
@@ -8500,7 +8348,7 @@
                   "pageMotion": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/model.Motion"
+                        "$ref": "#/$defs/model.Pose"
                       },
                       {
                         "type": "null"
@@ -8510,7 +8358,7 @@
                   "pageMotionBefore": {
                     "anyOf": [
                       {
-                        "$ref": "#/$defs/model.Motion"
+                        "$ref": "#/$defs/model.Pose"
                       },
                       {
                         "type": "null"
