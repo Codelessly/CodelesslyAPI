@@ -7,8 +7,13 @@ import 'scroll.dart';
 
 /// `Row` and `Column`: the same props, different main axis.
 abstract final class FlexProps {
+  /// How the children are placed along the main axis (horizontal in a row, vertical in a column), Flutter's
+  /// `MainAxisAlignment`: `start`, `end`, `center`, `spaceBetween`, `spaceAround`, `spaceEvenly`.
   static const mainAxisAlignment = PropDef<MainAxisAlignment>(
       'mainAxisAlignment', EnumCodec(MainAxisAlignment.values), MainAxisAlignment.start);
+  /// How the children are placed across the main axis, Flutter's `CrossAxisAlignment`. The default `center` centers
+  /// them: write `start` for left-aligned (or top-aligned) content, `stretch` to make every child as wide (or tall)
+  /// as the node.
   static const crossAxisAlignment = PropDef<CrossAxisAlignment>(
       'crossAxisAlignment', EnumCodec(CrossAxisAlignment.values), CrossAxisAlignment.center);
 

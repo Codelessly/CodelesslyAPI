@@ -124,9 +124,13 @@ final class InputBorder extends FieldValue {
 }
 
 abstract final class InputBorderFields {
+  /// `outline` (a box), `underline` (a line under the text) or `none`.
   static const type = PropDef<InputBorderType>('type', EnumCodec(InputBorderType.values), InputBorderType.outline);
+  /// The line: its colour and width.
   static const borderSide = PropDef<BorderSide>('borderSide', _sideCodec, BorderSide.standard);
+  /// The corners' radius.
   static const borderRadius = PropDef<BorderRadius>('borderRadius', InputCodecs.radius, BorderRadius.circular(4));
+  /// The gap around a floating label in an outline border.
   static const gapPadding = PropDef<double>('gapPadding', Codecs.positive, 4);
   static const spec =
       WidgetSpec('InputBorder', props: [type, borderSide, borderRadius, gapPadding], doc: 'Flutter `InputBorder`.');
@@ -171,8 +175,11 @@ Object? _actionsOut(List<Reaction> v) => [for (final r in v) r.toJson()];
 abstract final class InputIconFields {
   static const icon = PropDef<Json>('icon', Codecs.icon, {},
       doc: 'The glyph, written as the `icon` node\'s `props.icon`: a Material icon name (`"search"`) or `{"type": "MATERIAL_ICON", "name": "search"}`.');
+  /// The glyph's size.
   static const size = PropDef<double>('size', Codecs.positive, 24);
+  /// The glyph's colour.
   static const color = PropDef<Color?>('color', Codecs.color, null);
+  /// Reactions, as a node's: a tap on the icon (`{"trigger": {"type": "click"}, "actions": [...]}`).
   static const actions = PropDef<List<Reaction>>('actions', ValueCodec(_actionsIn, _actionsOut, PropType.list(PropType.json('Reaction'))), []);
   static const spec = WidgetSpec('Icon', props: [icon, size, color, actions], doc: 'Flutter `Icon`.');
 }
@@ -246,54 +253,95 @@ final class InputDecoration extends FieldValue {
 }
 
 abstract final class InputDecorationFields {
+  /// An icon before the field, outside its border.
   static const icon = PropDef<InputIcon?>('icon', InputCodecs.icon, null);
+  /// The label: inside the empty field, floating above it when focused or filled.
   static const labelText = PropDef<String?>('labelText', Codecs.string, null);
+  /// The label's style.
   static const labelStyle = PropDef<TextStyle>('labelStyle', Codecs.textStyle, TextStyle.empty);
+  /// The label's style when it floats above the field.
   static const floatingLabelStyle = PropDef<TextStyle>('floatingLabelStyle', Codecs.textStyle, TextStyle.empty);
+  /// A line of help under the field.
   static const helperText = PropDef<String?>('helperText', Codecs.string, null);
+  /// The helper text's style.
   static const helperStyle = PropDef<TextStyle>('helperStyle', Codecs.textStyle, TextStyle.empty);
+  /// At most this many lines of helper text.
   static const helperMaxLines = PropDef<int?>('helperMaxLines', OptionalIntCodec(), null);
+  /// Shown in the empty field (a placeholder).
   static const hintText = PropDef<String?>('hintText', Codecs.string, null);
+  /// The hint's style.
   static const hintStyle = PropDef<TextStyle>('hintStyle', Codecs.textStyle, TextStyle.empty);
+  /// At most this many lines of hint.
   static const hintMaxLines = PropDef<int?>('hintMaxLines', OptionalIntCodec(), null);
   /// The error under the field. Bound to a yes/no (SDK 8.x's error
   /// switch), `true` puts the field in error without a message
   /// ([kErrorWithoutMessage]: the error border only) and `false` clears it.
   static const errorText = PropDef<String?>('errorText', ErrorTextCodec(), null);
+  /// The error text's style.
   static const errorStyle = PropDef<TextStyle>('errorStyle', Codecs.textStyle, TextStyle.empty);
+  /// At most this many lines of error text.
   static const errorMaxLines = PropDef<int?>('errorMaxLines', OptionalIntCodec(), null);
+  /// When the label floats above the field: `auto`, `always`, `never`.
   static const floatingLabelBehavior =
       PropDef<FloatingLabelBehavior?>('floatingLabelBehavior', EnumCodec(FloatingLabelBehavior.values), null);
+  /// No padding and no room for a label: the field is as small as its text.
   static const isCollapsed = PropDef<bool>('isCollapsed', Codecs.bool, false);
+  /// Less vertical padding.
   static const isDense = PropDef<bool?>('isDense', Codecs.bool, null);
+  /// Space between the border and the text: a number or `[left, top, right, bottom]`. An outlined field needs some
+  /// (`[14, 16, 14, 16]`) to keep the text off the border.
   static const contentPadding = PropDef<EdgeInsets?>('contentPadding', Codecs.insets, null);
+  /// An icon inside the border, before the text: `{"icon": "search", "size": 18}`; it may take reactions.
   static const prefixIcon = PropDef<InputIcon?>('prefixIcon', InputCodecs.icon, null);
+  /// The prefix icon's size limits.
   static const prefixIconConstraints =
       PropDef<BoxConstraints>('prefixIconConstraints', InputCodecs.constraints, BoxConstraints.none);
+  /// Text before the typed text (`$`).
   static const prefixText = PropDef<String?>('prefixText', Codecs.string, null);
+  /// The prefix text's style.
   static const prefixStyle = PropDef<TextStyle>('prefixStyle', Codecs.textStyle, TextStyle.empty);
+  /// An icon inside the border, after the text: a clear (`close`) or show-password button; it may take reactions.
   static const suffixIcon = PropDef<InputIcon?>('suffixIcon', InputCodecs.icon, null);
+  /// The suffix icon's size limits.
   static const suffixIconConstraints =
       PropDef<BoxConstraints>('suffixIconConstraints', InputCodecs.constraints, BoxConstraints.none);
+  /// Text after the typed text (`kg`).
   static const suffixText = PropDef<String?>('suffixText', Codecs.string, null);
+  /// The suffix text's style.
   static const suffixStyle = PropDef<TextStyle>('suffixStyle', Codecs.textStyle, TextStyle.empty);
 
   /// Replaces the character counter; `""` hides it.
   static const counterText = PropDef<String?>('counterText', Codecs.string, null);
+  /// The character counter's style.
   static const counterStyle = PropDef<TextStyle>('counterStyle', Codecs.textStyle, TextStyle.empty);
+  /// Paints `fillColor` behind the field.
   static const filled = PropDef<bool?>('filled', Codecs.bool, null);
+  /// The field's background, drawn when `filled` is true.
   static const fillColor = PropDef<Color?>('fillColor', Codecs.color, null);
+  /// The fill while the field has the focus.
   static const focusColor = PropDef<Color?>('focusColor', Codecs.color, null);
+  /// The fill while a mouse is over the field.
   static const hoverColor = PropDef<Color?>('hoverColor', Codecs.color, null);
+  /// The border while the field shows an error (`errorText` set).
   static const errorBorder = PropDef<InputBorder?>('errorBorder', InputCodecs.inputBorder, null);
+  /// The border while the field has the focus.
   static const focusedBorder = PropDef<InputBorder?>('focusedBorder', InputCodecs.inputBorder, null);
+  /// The border while the field has the focus and shows an error.
   static const focusedErrorBorder = PropDef<InputBorder?>('focusedErrorBorder', InputCodecs.inputBorder, null);
+  /// The border while the field is disabled.
   static const disabledBorder = PropDef<InputBorder?>('disabledBorder', InputCodecs.inputBorder, null);
+  /// The border while the field is enabled and not focused.
   static const enabledBorder = PropDef<InputBorder?>('enabledBorder', InputCodecs.inputBorder, null);
+  /// The border used for any state without its own (`{"type": "outline", "borderSide": {...}, "borderRadius": 8}`,
+  /// `underline` or `none`).
   static const border = PropDef<InputBorder?>('border', InputCodecs.inputBorder, null);
+  /// False draws the field disabled.
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+  /// What a screen reader says for the counter.
   static const semanticCounterText = PropDef<String?>('semanticCounterText', Codecs.string, null);
+  /// Aligns the label with the hint in a multi-line field.
   static const alignLabelWithHint = PropDef<bool?>('alignLabelWithHint', Codecs.bool, null);
+  /// Size limits for the decorated field.
   static const constraints = PropDef<BoxConstraints>('constraints', InputCodecs.constraints, BoxConstraints.none);
 
   /// Space around the prefix icon inside its box: places it at a set inset

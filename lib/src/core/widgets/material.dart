@@ -61,6 +61,7 @@ enum FloatingActionButtonLocation {
 /// label with an optional icon (their `.icon` constructors), styled by a
 /// `ButtonStyle`.
 abstract final class ButtonProps {
+  /// The button's text (not `text`). Its colour, size and weight are in `style`.
   static const label = PropDef<String>('label', Codecs.string, '');
   static const textAlign = PropDef<TextAlign>('textAlign', EnumCodec(TextAlign.values), TextAlign.start);
 
@@ -74,6 +75,8 @@ abstract final class ButtonProps {
 
   /// False is a disabled button (`onPressed: null`).
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true);
+  /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the label and icon),
+  /// `textStyle`, `shape`, `side`, `padding`. A button's colours are here, not in `decoration`.
   static const style = PropDef<ButtonStyle>('style', ButtonStyleFields.codec, ButtonStyle.empty);
 
   /// `FilledButton.tonal`.
@@ -89,8 +92,10 @@ abstract final class ButtonProps {
 
 /// `IconButton`: an icon, styled by a `ButtonStyle`.
 abstract final class IconButtonProps {
+  /// The icon shown: a Material icon name (`"close"`, `"menu"`).
   static const icon = PropDef<IconGlyph>('icon', _glyph, {});
   static const enabled = ButtonProps.enabled;
+  /// The button's look (Flutter's `ButtonStyle`): `backgroundColor`, `foregroundColor` (the icon), `shape`, `side`.
   static const style = ButtonProps.style;
   static const spec = WidgetSpec('iconButton', props: [icon, enabled, style], doc: 'Flutter `IconButton`.');
 }
@@ -330,6 +335,7 @@ abstract final class NavigationBarProps {
 
 /// `Divider` and `VerticalDivider`: a line across the node's box.
 abstract final class DividerProps {
+  /// The line's thickness in pixels, drawn centered in the node's height (Flutter's `Divider.thickness`).
   static const thickness = PropDef<double>('thickness', Codecs.positive, 1);
 
   /// Null is the theme's outline variant.

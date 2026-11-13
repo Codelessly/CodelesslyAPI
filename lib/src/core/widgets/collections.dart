@@ -212,6 +212,8 @@ abstract final class ListViewProps {
 /// [maxCrossAxisExtent] is set, a maximum cell extent
 /// (`SliverGridDelegateWithMaxCrossAxisExtent`).
 abstract final class GridViewProps {
+  /// A fixed number of columns (of rows when the grid scrolls sideways). For as many columns as fit, use
+  /// `minCrossAxisExtent` instead.
   static const crossAxisCount = PropDef<int>('crossAxisCount', IntCodec(min: 1), 2);
   static const maxCrossAxisExtent = PropDef<double?>('maxCrossAxisExtent', _optionalPositive, null);
 
@@ -223,7 +225,9 @@ abstract final class GridViewProps {
       doc: 'CSS grid `repeat(auto-fit, minmax(<min>, 1fr))`: as many equal columns as fit at least this wide (with '
           '`crossAxisSpacing` between), never more than there are items. Wins over `crossAxisCount` and `maxCrossAxisExtent`. '
           '`280` puts three cards across at 900 px, two at 600 and one at 390, with no breakpoints.');
+  /// The gap between rows (along the scrolling axis), in pixels.
   static const mainAxisSpacing = PropDef<double>('mainAxisSpacing', Codecs.double, 0);
+  /// The gap between columns, in pixels.
   static const crossAxisSpacing = PropDef<double>('crossAxisSpacing', Codecs.double, 0);
   static const childAspectRatio = PropDef<double>('childAspectRatio', DoubleCodec(min: 0.0001, ratio: true), 1);
   static const mainAxisExtent = PropDef<double?>('mainAxisExtent', _optionalPositive, null);
