@@ -21,6 +21,10 @@ Json _extra(PropType type, String field) => switch (type.name) {
   'Paint' when field == 'image' => {'type': 'image'},
   // A hero needs its tag.
   'HeroTag' when field != 'tag' => {'tag': 't'},
+  // A track's gain is kept only round an arc it follows by angle.
+  'Track' when field == 'gain' => {'shape': 'arc'},
+  // A path needs its SVG data.
+  'PathFollow' when field != 'path' => {'path': 'M0 0 L10 0'},
   _ => {},
 };
 
@@ -83,6 +87,8 @@ Object? sample(PropType type, [PropDef<Object?>? def]) {
         },
         // A draw op (a union on `op`; its fields: DrawOpSpecs).
         'DrawOp' => {'op': 'circle', 'c': [1, 2], 'radius': 3},
+        // A dismissible's thresholds: direction → share of its size.
+        'DismissThresholds' => {'up': 0.25},
         _ => {'a': 1},
       };
   }
@@ -253,7 +259,7 @@ void main() {
       containsAll([
         'Motion', 'PathFollow', 'Pose', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
         'Spring', 'Transition', 'InkWellStyle', 'StateStyles',
-        'HeroTag', 'DragSource', 'DropTarget', 'DragMotion', 'DragTrack', 'Reveal', 'StrokePath',
+        'HeroTag', 'DragSource', 'DropTarget', 'Track', 'DismissibleBehavior', 'Pan', 'Reveal', 'StrokePath',
         'ParticleEmitter', 'Shimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'Tilt', 'TransformGesture', 'TransformHandles',
         'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'CustomPaint',

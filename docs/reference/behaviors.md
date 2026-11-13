@@ -12,19 +12,20 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-scale"></a>
 <a id="behavior-animations"></a>
 <a id="behavior-transitions"></a>
-<a id="behavior-shimmer"></a>
 <a id="behavior-inkWell"></a>
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
 <a id="behavior-ignorePointer"></a>
-<a id="behavior-zoomable"></a>
 <a id="behavior-floating"></a>
 <a id="behavior-hero"></a>
 <a id="behavior-flightKey"></a>
 <a id="behavior-flight"></a>
 <a id="behavior-draggable"></a>
 <a id="behavior-dropTarget"></a>
-<a id="behavior-drag"></a>
+<a id="behavior-track"></a>
+<a id="behavior-dismissible"></a>
+<a id="behavior-pan"></a>
+<a id="behavior-reorderHandle"></a>
 <a id="behavior-reveal"></a>
 <a id="behavior-strokePath"></a>
 <a id="behavior-typewriter"></a>
@@ -39,23 +40,24 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-customPaint"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout (Flutter's `Transform`). |
+| `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
 | `scale` | double | `1` | ≥ 0 | Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`. |
 | `animations` | List<[NodeAnimation](values.md#type-NodeAnimation)> | `[]` |  | Its animation controllers (the legacy `loops` and `effectAnimations` read as these). |
-| `transitions` | List<[Transition](values.md#type-Transition)> | `[]` |  | How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these). |
-| `shimmer` | [Shimmer](values.md#type-Shimmer) | unset |  | A band of light over what it paints. |
+| `transitions` | [Transitions](values.md#type-Transitions) | `{}` |  |  |
 | `inkWell` | [InkWellStyle](values.md#type-InkWellStyle) | unset |  | Ink: ripples, and hover/focus/press overlays. |
 | `states` | [StateStyles](values.md#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
 | `tooltip` | String | `""` |  | Shown on hover or long press; may hold `${...}` data. |
 | `ignorePointer` | bool | `false` |  | Lets pointer events through to what's under the node (Flutter's `IgnorePointer`). |
-| `zoomable` | bool | `false` |  | Pinch, scroll and double-tap zoom and pan (Flutter's `InteractiveViewer`). |
 | `floating` | bool | `false` |  | Drawn above everything else at runtime (a menu under a field), still taking its place in the layout. The design canvas draws it in place. |
 | `hero` | [HeroTag](values.md#type-HeroTag) | unset |  |  |
 | `flightKey` | String | `""` |  | Flies the node in from where the node with the same key just was. |
 | `flight` | [Flight](values.md#type-Flight) | unset |  | How it flies there (`flightKey`); null flies on the node's spring. |
 | `draggable` | [DragSource](values.md#type-DragSource) | unset |  |  |
 | `dropTarget` | [DropTarget](values.md#type-DropTarget) | unset |  |  |
-| `drag` | [DragMotion](values.md#type-DragMotion) | unset |  |  |
+| `track` | [Track](values.md#type-Track) | unset |  | A value set by dragging (Flutter's `Slider`, along any path). |
+| `dismissible` | [DismissibleBehavior](values.md#type-DismissibleBehavior) | unset |  | Swiped away (Flutter's `Dismissible`). |
+| `pan` | [Pan](values.md#type-Pan) | unset |  | Follows the pointer. |
+| `reorderHandle` | bool | `false` |  | A reorderable list row's drag handle (`ReorderableDragStartListener`). |
 | `reveal` | [Reveal](values.md#type-Reveal) | unset |  |  |
 | `strokePath` | [StrokePath](values.md#type-StrokePath) | unset |  |  |
 | `typewriter` | [Typewriter](values.md#type-Typewriter) | unset |  | A text that types itself out in a running app. |
@@ -63,11 +65,11 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `textDirection` | [TextDirection](values.md#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
 | `flip` | [FlipCard](values.md#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
 | `tilt` | [Tilt](values.md#type-Tilt) | unset |  | Tilts in 3D toward the pointer. |
-| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (over `zoomable`: see `effectiveTransformGesture`). |
+| `transformGesture` | [TransformGesture](values.md#type-TransformGesture) | unset |  | Pinch, pan and rotate, with fling physics and optional handles (the legacy `zoomable: true` reads as `TransformGesture.zoomable`). |
 | `sticky` | [Sticky](values.md#type-Sticky) | unset |  | Pinned in its scrolling view while its parent is in view. |
 | `viewProgress` | [ViewProgress](values.md#type-ViewProgress) | unset |  | `${view.progress}` through the viewport. |
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transition](values.md#type-Transition), [Shimmer](values.md#type-Shimmer), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [Track](values.md#type-Track), [DismissibleBehavior](values.md#type-DismissibleBehavior), [Pan](values.md#type-Pan), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 

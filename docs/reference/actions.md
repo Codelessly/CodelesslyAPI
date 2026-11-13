@@ -245,18 +245,39 @@ Focuses text field `node` (selecting its text with `selectAll`), or takes the fo
 | `unfocus` | bool | `false` |  |  |
 | `selectAll` | bool | `false` |  |  |
 
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
+<a id="action-controlTrack"></a>
+## `controlTrack`: Control track
 
-Flings, returns, resets or shakes draggable node `node` (a swipe card), or steps a drag track.
+Turns the `Track` of node `node` (several ids: comma-separated, the first on screen takes it). The legacy `controlDrag` `step` reads as it.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `node` | String | `""` |  | A draggable node. |
-| `command` | [DragCommand](values.md#enum-DragCommand) | `"fling"` | `fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose` |  |
-| `direction` | [DragDirection](values.md#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
+| `node` | String | `""` |  | A node with a track. |
+| `command` | [TrackCommand](values.md#enum-TrackCommand) | `"step"` | `step`, `animateTo` |  |
 | `steps` | String | `"1"` |  | Step: how many steps (an expression). |
-| `value` | String | `""` |  | Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression). |
+| `value` | String | `""` |  | animateTo: the value (an expression). |
+
+<a id="action-controlDismissible"></a>
+## `controlDismissible`: Control dismissible
+
+Dismisses, brings back or resets node `node` (several ids: comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and `shake` read as it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A dismissible (or pan) node. |
+| `command` | [DismissCommand](values.md#enum-DismissCommand) | `"dismiss"` | `dismiss`, `returnFrom`, `reset`, `shake` |  |
+| `direction` | [DragDirection](values.md#enum-DragDirection) | `"right"` | `left`, `right`, `up`, `down` |  |
+
+<a id="action-controlTransform"></a>
+## `controlTransform`: Control transform
+
+Resets, zooms or poses the transform gesture of node `node`. The legacy `controlDrag` `reset`, `zoom` and `pose` read as it.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `node` | String | `""` |  | A node with a transform gesture. |
+| `command` | [TransformCommand](values.md#enum-TransformCommand) | `"reset"` | `reset`, `scaleBy`, `animateTo` |  |
+| `value` | String | `""` |  | scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression). |
 
 <a id="action-scrollTo"></a>
 ## `scrollTo`: Scroll to

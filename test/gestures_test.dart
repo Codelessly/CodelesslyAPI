@@ -116,10 +116,12 @@ void main() {
       'dropTarget': {'slotSize': 'node', 'slotWhenRefused': false},
     });
     final b = n.behaviors;
-    expect(b.drag!.hasBounds, isTrue);
-    expect(b.drag!.minY, -560);
-    expect(b.drag!.effectivePhysics!.spring.duration, 420);
-    expect(b.draggable!.feedbackAnchor, FeedbackAnchor.center);
+    // A drag that stays is a pan.
+    expect(b.pan!.release, PanRelease.stay);
+    expect(b.pan!.hasBounds, isTrue);
+    expect(b.pan!.minY, -560);
+    expect(b.pan!.physics!.spring.duration, 420);
+    expect(b.draggable!.dragAnchor, DragAnchor.center);
     expect(b.dropTarget!.slotSize, DropSlotSize.node);
     expect(b.dropTarget!.slotWhenRefused, isFalse);
     expect(_node(n.toJson()), n);
@@ -127,27 +129,25 @@ void main() {
     final bar = Node.fromJson({'type': 'box', 'dropTarget': {'slot': 'node', 'slotNodeId': 'bar', 'slotSize': 'inGap'}}, id: 'n')!;
     expect(bar.behaviors.dropTarget!.slotSize, DropSlotSize.inGap);
     expect(_node(bar.toJson()), bar);
-    // A spring snap back is a spring.
-    expect(const DragMotion().effectivePhysics!.spring.bounce, 0.25);
-    expect(const DragSource(returnSpring: false).effectivePhysics, isNull);
+    expect(const DragSource(returnSpring: null).effectivePhysics, isNull);
   });
 
   test('drag track: new settings, parked, endless, double tap', () {
-    const t = DragTrack(
-      shape: DragTrackShape.arc,
+    const t = Track(
+      shape: TrackShape.arc,
       min: 1,
       max: 5,
       step: 1,
       parkedProgress: -0.125,
       doubleTapValues: [5, 3],
-      endless: false,
+      clamp: true,
     );
     expect(t.restProgressOf(double.nan), -0.125);
     expect(t.restProgressOf(0), -0.125);
     expect(t.restProgressOf(3), 0.5);
     expect(t.doubleTapTarget(5), 3);
     expect(t.doubleTapTarget(2), 5);
-    const e = DragTrack(shape: DragTrackShape.arc, max: 40, endless: true, step: 1);
+    const e = Track(shape: TrackShape.arc, max: 40, clamp: false, step: 1);
     expect(e.progressOf(80), 2);
     expect(e.snapValue(81.4), 81);
     final j = {
@@ -174,10 +174,35 @@ void main() {
       'overscroll': 0.35,
       'value': 3,
     };
-    final track = DragTrack.fromJson(j)!;
-    expect(track.toJson(), j);
+    final track = Track.fromJson(j)!;
+    // Read into the new shape (docs/design/04-drag-and-track.md): gain folds
+    // into pixelsPerRange, momentum is physics, keyboard off is keyStep 0,
+    // write off drops the variable (a bound value shows it), a view box
+    // without a path draws nothing.
+    expect(track.toJson(), {
+      'value': 3,
+      'input': 'both',
+      'hitArea': 'parent',
+      'pixelsPerRange': 400,
+      'keyStep': 0,
+      'relative': true,
+      'units': 'parent',
+      'detent': 0.35,
+      'overscroll': 0.35,
+      'physics': {'friction': 0.9257},
+      'settle': 250,
+      'settleCurve': 'spring',
+      'snap': 120,
+      'snapCurve': 'elasticOut',
+      'fineStep': 0.1,
+      'fineHold': 500,
+      'fineVariable': 'fine',
+      'smooth': true,
+    });
+    expect(Track.fromJson(track.toJson()), track);
     expect(track.effectiveKeyStep, isNull);
-    expect(track.usesViewBox, isTrue);
+    expect(track.usesViewBox, isFalse);
+    expect(Track.fromJson({'path': 'M0 0 L10 0', 'viewBoxWidth': 100, 'viewBoxHeight': 50})!.usesViewBox, isTrue);
   });
 
   test('flip, tilt, transform gesture, hero placeholder, node key', () {
@@ -223,12 +248,14 @@ void main() {
 
   test('a bound switch of a drag, a drag source and a drop target reads loosely', () {
     for (final (v, on) in [(0, false), (1, true), ('true', true), ('off', false), ('?', true)]) {
-      expect(DragMotion.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+      expect(Pan.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+      expect(DismissibleBehavior.fromJson({'enabled': v})!.enabled, on, reason: '$v');
+      expect(Track.fromJson({'enabled': v})!.enabled, on, reason: '$v');
       expect(DragSource.fromJson({'enabled': v})!.enabled, on, reason: '$v');
       expect(DropTarget.fromJson({'enabled': v})!.enabled, on, reason: '$v');
     }
-    final n = BindPaths.apply(_node({'drag': <String, Object?>{}}), 'drag.enabled', 0);
-    expect(n.behaviors.drag!.enabled, isFalse);
-    expect(BindPaths.apply(n, 'drag.restX', '40').behaviors.drag!.restX, 40);
+    final n = BindPaths.apply(_node({'pan': <String, Object?>{}}), 'pan.enabled', 0);
+    expect(n.behaviors.pan!.enabled, isFalse);
+    expect(BindPaths.apply(n, 'pan.x', '40').behaviors.pan!.x, 40);
   });
 }

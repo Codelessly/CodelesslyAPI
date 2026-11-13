@@ -366,15 +366,31 @@ abstract final class FocusFields {
   static const List<PropDef<Object?>> all = [node, unfocus, selectAll];
 }
 
-/// [ControlDragAction].
-abstract final class ControlDragFields {
-  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A draggable node.');
-  static const command = PropDef<DragCommand>('command', EnumCodec(DragCommand.values), DragCommand.fling);
-  static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
+/// [ControlTrackAction].
+abstract final class ControlTrackFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A node with a track.');
+  static const command = PropDef<TrackCommand>('command', EnumCodec(TrackCommand.values), TrackCommand.step);
   static const steps = PropDef<String>('steps', Codecs.string, '1', doc: 'Step: how many steps (an expression).');
+  static const value = PropDef<String>('value', Codecs.string, '', doc: 'animateTo: the value (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, steps, value];
+}
+
+/// [ControlDismissibleAction].
+abstract final class ControlDismissibleFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A dismissible (or pan) node.');
+  static const command = PropDef<DismissCommand>('command', EnumCodec(DismissCommand.values), DismissCommand.dismiss);
+  static const direction = PropDef<DragDirection>('direction', EnumCodec(DragDirection.values), DragDirection.right);
+  static const List<PropDef<Object?>> all = [node, command, direction];
+}
+
+/// [ControlTransformAction].
+abstract final class ControlTransformFields {
+  static const node = PropDef<String>('node', Codecs.string, '', doc: 'A node with a transform gesture.');
+  static const command =
+      PropDef<TransformCommand>('command', EnumCodec(TransformCommand.values), TransformCommand.reset);
   static const value = PropDef<String>('value', Codecs.string, '',
-      doc: 'Zoom: the factor (1.5 in, 0.67 out). Pose: {x, y, scale, rotation} (an expression).');
-  static const List<PropDef<Object?>> all = [node, command, direction, steps, value];
+      doc: 'scaleBy: the factor (1.5 in, 0.67 out). animateTo: {x, y, scale, rotation} (an expression).');
+  static const List<PropDef<Object?>> all = [node, command, value];
 }
 
 /// [ScrollToAction].

@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -757,7 +757,7 @@ Types: `integer`, `text`, `decimal`, `boolean`, `color`, `list`, `map`, `image`,
 - A text that is exactly one expression gives its value with its type (a number stays a number, a list a list);
   any other text with `${...}` is text with the values inserted.
 
-Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
+Names an expression can start with: the screen's variables and `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`. `screen` and `route` are described
 above; `item` and `index` exist inside a list's item ([section 13](#guide-lists)); `result` is what the previous
 action of a chain gave.
 
@@ -1704,8 +1704,8 @@ Flutter `PageView`.
 - `allowImplicitScrolling`: bool = `false`
 - `animationDuration`: int = `0` (≥ 0)
 - `animationCurve`: String = `"easeOutCubic"`
-- `pageMotion`: [Pose](#type-Pose) = unset
-- `pageMotionBefore`: [Pose](#type-Pose) = unset
+- `pageMotion`: [Motion](#type-Motion) = unset
+- `pageMotionBefore`: [Motion](#type-Motion) = unset
 - `paintOrder`: [PagePaintOrder](#enum-PagePaintOrder) = `"forward"` (`forward`, `reverse`)
 
 <a id="node-tabs"></a>
@@ -3427,7 +3427,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `interval`: List<double> = `[0,1]`
 - `curve`: [AnimationCurve](#enum-AnimationCurve) = `"linear"`
 - `blend`: [TrackBlend](#enum-TrackBlend) = `"replace"` (`replace`, `add`, `multiply`)
-- `interpolation`: [KeyframeInterpolation](#enum-KeyframeInterpolation) = `"linear"` (`linear`, `monotoneCubic`)
 
 <a id="type-BorderSide"></a>
 ### BorderSide
@@ -3504,42 +3503,32 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `isComplex`: bool = `false`
 - `willChange`: bool = `false`
 
-<a id="type-DragMotion"></a>
-### DragMotion
+<a id="type-DismissibleBehavior"></a>
+### DismissibleBehavior
 
+- `enabled`: bool = `true`
+- `directions`: List<[DragDirection](#enum-DragDirection)> = `["left","right"]` (`left`, `right`, `up`, `down`)
 - `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
-- `release`: [DragRelease](#enum-DragRelease) = `"snapBack"` (`snapBack`, `stay`, `dismiss`)
-- `directions`: List<[DragDirection](#enum-DragDirection)> = `["left","right","up","down"]` (`left`, `right`, `up`, `down`)
-- `distanceThreshold`: double = `0.35`
-- `verticalThreshold`: double = unset
-- `velocityThreshold`: double = `800`
+- `dismissThresholds`: DismissThresholds = `{}`
+- `flingVelocity`: double = `700` (≥ 0)
+- `resistance`: double = `0` (≥ 0, ≤ 1)
+- `movementDuration`: int = `200` (≥ 0)
+- `curve`: [AnimationCurve](#enum-AnimationCurve) = `"linear"`
+- `returnDuration`: int = unset
+- `returnCurve`: [AnimationCurve](#enum-AnimationCurve) = unset
+- `returnSpring`: [Spring](#type-Spring) = unset
+- `restX`: double = `0`
+- `restY`: double = `0`
+- `xVariable`: String = `""`
+- `yVariable`: String = `""`
+- `flyOutRotate`: double = `0`
 - `rotateFactor`: double = `0`
 - `originX`: double = `0`
 - `originY`: double = `0`
-- `resistance`: double = `0`
-- `snapBack`: int = `450` (≥ 0)
-- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"spring"`
-- `flyOut`: int = `320` (≥ 0)
-- `flyOutCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeIn"`
-- `flyOutDistance`: double = unset
-- `flyOutRotate`: double = `0`
-- `enabled`: bool = `true`
 - `shakeWhenDisabled`: bool = `false`
 - `disabledFollow`: double = `0`
 - `shareAs`: String = `""`
-- `restX`: double = `0`
-- `restY`: double = `0`
-- `track`: [DragTrack](#type-DragTrack) = unset
-- `reorder`: bool = `false`
 - `follow`: bool = `true`
-- `xVariable`: String = `""`
-- `yVariable`: String = `""`
-- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
-- `bounds`: [GestureBounds](#enum-GestureBounds) = `"none"` (`none`, `contain`, `cover`)
-- `minX`: double = unset
-- `maxX`: double = unset
-- `minY`: double = unset
-- `maxY`: double = unset
 
 <a id="type-DragSource"></a>
 ### DragSource
@@ -3548,72 +3537,16 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `data`: String = `""`
 - `start`: [DragStart](#enum-DragStart) = `"auto"` (`press`, `longPress`, `auto`)
 - `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
-- `whileDragging`: [DragSourceStyle](#enum-DragSourceStyle) = `"ghost"` (`ghost`, `hidden`, `keep`)
+- `childWhenDragging`: [DragSourceStyle](#enum-DragSourceStyle) = `"ghost"` (`ghost`, `hidden`, `keep`)
 - `ghostOpacity`: double = `0.35`
+- `feedback`: String = `""`
+- `dragAnchor`: [DragAnchor](#enum-DragAnchor) = `"child"` (`child`, `center`)
 - `feedbackRotation`: double = `-2`
 - `feedbackScale`: double = `1`
 - `feedbackOpacity`: double = `1`
 - `feedbackElevation`: double = `24`
-- `feedbackNodeId`: String = `""`
-- `feedbackAnchor`: [FeedbackAnchor](#enum-FeedbackAnchor) = `"grab"` (`grab`, `center`)
-- `returnSpring`: bool = `true`
-- `spring`: [Spring](#type-Spring) = `{}`
+- `returnSpring`: [Spring](#type-Spring) = `{}`
 - `enabled`: bool = `true`
-- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
-
-<a id="type-DragTrack"></a>
-### DragTrack
-
-- `variable`: String = `""`
-- `shape`: [DragTrackShape](#enum-DragTrackShape) = `"line"` (`line`, `arc`, `path`)
-- `min`: double = `0`
-- `max`: double = `1`
-- `step`: double = `0`
-- `defaultValue`: double = unset
-- `input`: [DragTrackInput](#enum-DragTrackInput) = `"follow"` (`follow`, `vertical`, `horizontal`, `both`)
-- `pixelsPerRange`: double = `200`
-- `x1`: double = `0`
-- `y1`: double = `0`
-- `x2`: double = `0`
-- `y2`: double = `-100`
-- `startAngle`: double = `-135`
-- `endAngle`: double = `135`
-- `pivotX`: double = `0`
-- `pivotY`: double = `0`
-- `rotate`: bool = `true`
-- `path`: String = unset
-- `orientToPath`: bool = `false`
-- `jumpOnTap`: bool = `false`
-- `wheel`: bool = `true`
-- `value`: double = unset
-- `orientUpright`: bool = `false`
-- `detent`: double = `0` (≥ 0, ≤ 1)
-- `overscroll`: double = `0` (≥ 0, ≤ 1)
-- `settle`: int = `0` (≥ 0)
-- `settleCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
-- `settleSpring`: [Spring](#type-Spring) = `{}`
-- `parkedProgress`: double = unset
-- `keyboard`: bool = `true`
-- `viewBoxWidth`: double = `0` (≥ 0)
-- `viewBoxHeight`: double = `0` (≥ 0)
-- `relative`: bool = `false`
-- `wheelStep`: double = unset
-- `doubleTapValues`: List<double> = `[]`
-- `keyStep`: double = unset
-- `hitArea`: [DragTrackHitArea](#enum-DragTrackHitArea) = `"self"` (`self`, `parent`)
-- `units`: [DragTrackUnits](#enum-DragTrackUnits) = `"pixels"` (`pixels`, `parent`)
-- `fineStep`: double = `0` (≥ 0)
-- `finePixelsPerRange`: double = `0` (≥ 0)
-- `fineHold`: int = `380` (≥ 0)
-- `fineVariable`: String = `""`
-- `snap`: int = `0` (≥ 0)
-- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
-- `write`: bool = `true`
-- `endless`: bool = `false`
-- `momentum`: bool = `false`
-- `friction`: double = `2.6`
-- `smooth`: bool = `false`
-- `gain`: double = `1`
 
 <a id="type-DropTarget"></a>
 ### DropTarget
@@ -3851,18 +3784,75 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 
 - `translateX`: double = `0`
 - `translateY`: double = `0`
-- `shiftX`: double = `0`
-- `shiftY`: double = `0`
 - `scale`: double = `1`
 - `scaleX`: double = `1`
 - `scaleY`: double = `1`
+- `shiftX`: double = `0`
+- `shiftY`: double = `0`
+- `opacity`: double = `1` (≥ 0, ≤ 1)
 - `rotate`: double = `0`
 - `rotateX`: double = `0`
 - `rotateY`: double = `0`
+- `spin`: double = `0`
+- `pathProgress`: double = `0`
+- `blur`: double = `0` (≥ 0)
 - `perspective`: double = `1`
-- `alignment`: [Alignment](#type-Alignment) = `[0,0]`
+- `originX`: double = `0`
+- `originY`: double = `0`
+- `duration`: int = `0` (≥ 0)
+- `delay`: int = `0` (≥ 0)
+- `curve`: [AnimationCurve](#enum-AnimationCurve) = `"easeInOut"`
+- `rotateCurve`: [AnimationCurve](#enum-AnimationCurve) = unset
+- `fadeShare`: double = `1` (≥ 0, ≤ 1)
+- `spring`: [Spring](#type-Spring) = `{}`
+- `spinRamp`: int = `800` (≥ 0)
+- `loop`: [MotionLoop](#enum-MotionLoop) = `"none"` (`none`, `restart`, `reverse`, `swing`)
+- `repeat`: int = `0` (≥ 0)
+- `enter`: bool = `false`
+- `enterFrom`: [Motion](#type-Motion) = unset
+- `replayKey`: String = unset
 - `backfaceHidden`: bool = `false`
-- `path`: [PathFollow](#type-PathFollow) = unset
+- `path`: String = unset
+- `orientToPath`: bool = `false`
+- `keyframes`: List<[MotionKeyframe](#type-MotionKeyframe)> = `[]`
+- `revealOnScroll`: bool = `false`
+- `enterHeld`: bool = `false`
+- `revealFraction`: double = `0.15`
+- `orientUpright`: bool = `false`
+- `uprightMirror`: bool = `false`
+- `arc`: double = `0`
+- `paused`: bool = `false`
+- `phase`: double = `0` (≥ 0, ≤ 1)
+- `pathPacing`: [MotionPathPacing](#enum-MotionPathPacing) = `"length"` (`length`, `area`)
+- `pathFocusX`: double = `0`
+- `pathFocusY`: double = `0`
+- `pathWrap`: bool = `false`
+- `pathViewBox`: List<double> = `[]`
+- `shimmer`: [MotionShimmer](#type-MotionShimmer) = unset
+
+<a id="type-MotionKeyframe"></a>
+### MotionKeyframe
+
+- `t`: double = `0`
+- `translateX`: double = unset
+- `translateY`: double = unset
+- `scale`: double = unset
+- `scaleX`: double = unset
+- `scaleY`: double = unset
+- `opacity`: double = unset
+- `rotate`: double = unset
+- `rotateX`: double = unset
+- `rotateY`: double = unset
+- `pathProgress`: double = unset
+
+<a id="type-MotionShimmer"></a>
+### MotionShimmer
+
+- `color`: [Color](#type-Color) = `"#FFFFFFFF"`
+- `strength`: double = `0.8` (≥ 0, ≤ 1)
+- `width`: double = `0.44`
+- `duration`: int = `1400` (≥ 0)
+- `angle`: double = `0`
 
 <a id="type-NavigationDestination"></a>
 ### NavigationDestination
@@ -3897,8 +3887,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `alignment`: [Alignment](#type-Alignment) = unset
 - `tracks`: List<[AnimationTrack](#type-AnimationTrack)> = `[]`
 - `previewAt`: double = unset
-- `ramp`: int = `0` (≥ 0)
-- `visibleFraction`: double = unset
 
 <a id="type-Pagination"></a>
 ### Pagination
@@ -3940,6 +3928,32 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `gradientPerSubpath`: bool = `false`
 - `radius`: double = unset (≥ 0)
 
+<a id="type-Pan"></a>
+### Pan
+
+- `enabled`: bool = `true`
+- `axis`: [DragAxis](#enum-DragAxis) = `"free"` (`free`, `horizontal`, `vertical`)
+- `release`: [PanRelease](#enum-PanRelease) = `"snapBack"` (`snapBack`, `stay`)
+- `returnDuration`: int = `450` (≥ 0)
+- `returnCurve`: [AnimationCurve](#enum-AnimationCurve) = `"spring"`
+- `x`: double = `0`
+- `y`: double = `0`
+- `xVariable`: String = `""`
+- `yVariable`: String = `""`
+- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
+- `bounds`: [GestureBounds](#enum-GestureBounds) = `"none"` (`none`, `contain`, `cover`)
+- `minX`: double = unset
+- `maxX`: double = unset
+- `minY`: double = unset
+- `maxY`: double = unset
+- `rotateFactor`: double = `0`
+- `originX`: double = `0`
+- `originY`: double = `0`
+- `shakeWhenDisabled`: bool = `false`
+- `disabledFollow`: double = `0`
+- `shareAs`: String = `""`
+- `follow`: bool = `true`
+
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter
 
@@ -3974,9 +3988,7 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `path`: String = `""`
 - `viewBox`: List<double> = `[]`
 - `progress`: double = `0`
-- `orient`: [PathOrient](#enum-PathOrient) = `"none"` (`none`, `tangent`, `upright`, `uprightFlip`)
-- `pacing`: [PathPacing](#enum-PathPacing) = `"length"` (`length`, `area`)
-- `focus`: List<double> = `[0,0]`
+- `orient`: [PathOrient](#enum-PathOrient) = `"none"` (`none`, `tangent`, `upright`)
 
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
@@ -4026,26 +4038,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `labelBackground`: [Color](#type-Color) = unset
 - `axisLabel`: String = `""`
 
-<a id="type-Pose"></a>
-### Pose
-
-- `translateX`: double = `0`
-- `translateY`: double = `0`
-- `shiftX`: double = `0`
-- `shiftY`: double = `0`
-- `scale`: double = `1`
-- `scaleX`: double = `1`
-- `scaleY`: double = `1`
-- `rotate`: double = `0`
-- `rotateX`: double = `0`
-- `rotateY`: double = `0`
-- `perspective`: double = `1`
-- `alignment`: [Alignment](#type-Alignment) = `[0,0]`
-- `backfaceHidden`: bool = `false`
-- `path`: [PathFollow](#type-PathFollow) = unset
-- `opacity`: double = `1` (≥ 0, ≤ 1)
-- `blur`: double = `0` (≥ 0)
-
 <a id="type-ProgressBand"></a>
 ### ProgressBand
 
@@ -4090,15 +4082,6 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `type`: [ShapeBorderType](#enum-ShapeBorderType) = `"roundedRectangle"` (`roundedRectangle`, `circle`, `stadium`, `continuousRectangle`, `beveledRectangle`, `roundedSuperellipse`)
 - `borderRadius`: [BorderRadius](#type-BorderRadius) = `0`
 - `side`: [BorderSide](#type-BorderSide) = unset
-
-<a id="type-Shimmer"></a>
-### Shimmer
-
-- `color`: [Color](#type-Color) = `"#FFFFFFFF"`
-- `strength`: double = `0.8` (≥ 0, ≤ 1)
-- `width`: double = `0.44`
-- `angle`: double = `0`
-- `position`: double = `0.5`
 
 <a id="type-Spring"></a>
 ### Spring
@@ -4220,6 +4203,53 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 - `reset`: int = `400` (≥ 0)
 - `curve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
 
+<a id="type-Track"></a>
+### Track
+
+- `enabled`: bool = `true`
+- `variable`: String = `""`
+- `value`: double = unset
+- `min`: double = `0`
+- `max`: double = `1`
+- `step`: double = `0` (≥ 0)
+- `clamp`: bool = `true`
+- `input`: [TrackInput](#enum-TrackInput) = `"follow"` (`follow`, `vertical`, `horizontal`, `both`)
+- `allowedInteraction`: [TrackInteraction](#enum-TrackInteraction) = `"slideThumb"` (`slideThumb`, `tapAndSlide`)
+- `hitArea`: [TrackHitArea](#enum-TrackHitArea) = `"self"` (`self`, `parent`)
+- `pixelsPerRange`: double = `200`
+- `wheelStep`: double = unset
+- `keyStep`: double = unset
+- `shape`: [TrackShape](#enum-TrackShape) = `"line"` (`line`, `arc`, `path`)
+- `x1`: double = `0`
+- `y1`: double = `0`
+- `x2`: double = `0`
+- `y2`: double = `-100`
+- `relative`: bool = `false`
+- `units`: [TrackUnits](#enum-TrackUnits) = `"pixels"` (`pixels`, `parent`)
+- `startAngle`: double = `-135`
+- `sweepAngle`: double = `270`
+- `pivotX`: double = `0`
+- `pivotY`: double = `0`
+- `rotate`: bool = `true`
+- `path`: [PathFollow](#type-PathFollow) = unset
+- `detent`: double = `0` (≥ 0, ≤ 1)
+- `overscroll`: double = `0` (≥ 0, ≤ 1)
+- `physics`: [GesturePhysics](#type-GesturePhysics) = unset
+- `settle`: int = `0` (≥ 0)
+- `settleCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutCubic"`
+- `settleSpring`: [Spring](#type-Spring) = `{}`
+- `snap`: int = `0` (≥ 0)
+- `snapCurve`: [AnimationCurve](#enum-AnimationCurve) = `"easeOutBack"`
+- `defaultValue`: double = unset
+- `doubleTapValues`: List<double> = `[]`
+- `parkedProgress`: double = unset
+- `fineStep`: double = `0` (≥ 0)
+- `finePixelsPerRange`: double = `0` (≥ 0)
+- `fineHold`: int = `380` (≥ 0)
+- `fineVariable`: String = `""`
+- `smooth`: bool = `false`
+- `gain`: double = `1`
+
 <a id="type-TransformGesture"></a>
 ### TransformGesture
 
@@ -4270,14 +4300,8 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 <a id="type-Transition"></a>
 ### Transition
 
-- `property`: String = `""`
 - `duration`: int = `0` (≥ 0)
-- `delay`: int = `0` (≥ 0)
 - `curve`: [AnimationCurve](#enum-AnimationCurve) = `"linear"`
-- `spring`: [Spring](#type-Spring) = unset
-- `keyframes`: List<[Keyframe](#type-Keyframe)> = `[]`
-- `interpolation`: [KeyframeInterpolation](#enum-KeyframeInterpolation) = `"linear"` (`linear`, `monotoneCubic`)
-- `arc`: double = `0`
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -4291,11 +4315,18 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 <a id="type-TransitionSide"></a>
 ### TransitionSide
 
-- `motion`: [Pose](#type-Pose) = `{}`
+- `motion`: [Motion](#type-Motion) = `{}`
 - `reveal`: [TransitionReveal](#type-TransitionReveal) = unset
 - `curve`: [AnimationCurve](#enum-AnimationCurve) = `"fastOutSlowIn"`
 - `delayMs`: int = `0` (≥ 0)
 - `durationMs`: int = unset
+
+<a id="type-Transitions"></a>
+### Transitions
+
+- `style`: [Transition](#type-Transition) = unset
+- `opacity`: [Transition](#type-Transition) = unset
+- `size`: [Transition](#type-Transition) = unset
 
 <a id="type-Typewriter"></a>
 ### Typewriter
@@ -4514,25 +4545,25 @@ Written as the value's name, a JSON string (`"center"`).
 
 `rectangle`, `circle`
 
+<a id="enum-DismissCommand"></a>
+### DismissCommand
+
+`dismiss`, `returnFrom`, `reset`, `shake`
+
+<a id="enum-DragAnchor"></a>
+### DragAnchor
+
+`child`, `center`
+
 <a id="enum-DragAxis"></a>
 ### DragAxis
 
 `free`, `horizontal`, `vertical`
 
-<a id="enum-DragCommand"></a>
-### DragCommand
-
-`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`
-
 <a id="enum-DragDirection"></a>
 ### DragDirection
 
 `left`, `right`, `up`, `down`
-
-<a id="enum-DragRelease"></a>
-### DragRelease
-
-`snapBack`, `stay`, `dismiss`
 
 <a id="enum-DragSourceStyle"></a>
 ### DragSourceStyle
@@ -4543,26 +4574,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### DragStart
 
 `press`, `longPress`, `auto`
-
-<a id="enum-DragTrackHitArea"></a>
-### DragTrackHitArea
-
-`self`, `parent`
-
-<a id="enum-DragTrackInput"></a>
-### DragTrackInput
-
-`follow`, `vertical`, `horizontal`, `both`
-
-<a id="enum-DragTrackShape"></a>
-### DragTrackShape
-
-`line`, `arc`, `path`
-
-<a id="enum-DragTrackUnits"></a>
-### DragTrackUnits
-
-`pixels`, `parent`
 
 <a id="enum-DropSlot"></a>
 ### DropSlot
@@ -4588,11 +4599,6 @@ Written as the value's name, a JSON string (`"center"`).
 ### EmbeddedVideoSource
 
 `youtube`, `vimeo`
-
-<a id="enum-FeedbackAnchor"></a>
-### FeedbackAnchor
-
-`grab`, `center`
 
 <a id="enum-FlipAxis"></a>
 ### FlipAxis
@@ -4674,11 +4680,6 @@ Written as the value's name, a JSON string (`"center"`).
 
 `manual`, `onDrag`
 
-<a id="enum-KeyframeInterpolation"></a>
-### KeyframeInterpolation
-
-`linear`, `monotoneCubic`
-
 <a id="enum-LineChartXLabelAnchor"></a>
 ### LineChartXLabelAnchor
 
@@ -4729,6 +4730,16 @@ Written as the value's name, a JSON string (`"center"`).
 
 `dialog`, `bottomSheet`, `adaptive`, `sideSheet`, `fullScreen`, `popover`, `banner`
 
+<a id="enum-MotionLoop"></a>
+### MotionLoop
+
+`none`, `restart`, `reverse`, `swing`
+
+<a id="enum-MotionPathPacing"></a>
+### MotionPathPacing
+
+`length`, `area`
+
 <a id="enum-NavigationDestinationLabelBehavior"></a>
 ### NavigationDestinationLabelBehavior
 
@@ -4774,6 +4785,11 @@ Written as the value's name, a JSON string (`"center"`).
 
 `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
 
+<a id="enum-PanRelease"></a>
+### PanRelease
+
+`snapBack`, `stay`
+
 <a id="enum-ParticleShape"></a>
 ### ParticleShape
 
@@ -4787,12 +4803,7 @@ Written as the value's name, a JSON string (`"center"`).
 <a id="enum-PathOrient"></a>
 ### PathOrient
 
-`none`, `tangent`, `upright`, `uprightFlip`
-
-<a id="enum-PathPacing"></a>
-### PathPacing
-
-`length`, `area`
+`none`, `tangent`, `upright`
 
 <a id="enum-PathUnit"></a>
 ### PathUnit
@@ -5049,6 +5060,41 @@ Written as the value's name, a JSON string (`"center"`).
 
 `replace`, `add`, `multiply`
 
+<a id="enum-TrackCommand"></a>
+### TrackCommand
+
+`step`, `animateTo`
+
+<a id="enum-TrackHitArea"></a>
+### TrackHitArea
+
+`self`, `parent`
+
+<a id="enum-TrackInput"></a>
+### TrackInput
+
+`follow`, `vertical`, `horizontal`, `both`
+
+<a id="enum-TrackInteraction"></a>
+### TrackInteraction
+
+`slideThumb`, `tapAndSlide`
+
+<a id="enum-TrackShape"></a>
+### TrackShape
+
+`line`, `arc`, `path`
+
+<a id="enum-TrackUnits"></a>
+### TrackUnits
+
+`pixels`, `parent`
+
+<a id="enum-TransformCommand"></a>
+### TransformCommand
+
+`reset`, `scaleBy`, `animateTo`
+
 <a id="enum-TransformPan"></a>
 ### TransformPan
 
@@ -5135,19 +5181,20 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-scale"></a>
 <a id="behavior-animations"></a>
 <a id="behavior-transitions"></a>
-<a id="behavior-shimmer"></a>
 <a id="behavior-inkWell"></a>
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
 <a id="behavior-ignorePointer"></a>
-<a id="behavior-zoomable"></a>
 <a id="behavior-floating"></a>
 <a id="behavior-hero"></a>
 <a id="behavior-flightKey"></a>
 <a id="behavior-flight"></a>
 <a id="behavior-draggable"></a>
 <a id="behavior-dropTarget"></a>
-<a id="behavior-drag"></a>
+<a id="behavior-track"></a>
+<a id="behavior-dismissible"></a>
+<a id="behavior-pan"></a>
+<a id="behavior-reorderHandle"></a>
 <a id="behavior-reveal"></a>
 <a id="behavior-strokePath"></a>
 <a id="behavior-typewriter"></a>
@@ -5163,20 +5210,21 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 - `motion`: [Motion](#type-Motion) = unset
 - `scale`: double = `1` (≥ 0)
 - `animations`: List<[NodeAnimation](#type-NodeAnimation)> = `[]`
-- `transitions`: List<[Transition](#type-Transition)> = `[]`
-- `shimmer`: [Shimmer](#type-Shimmer) = unset
+- `transitions`: [Transitions](#type-Transitions) = `{}`
 - `inkWell`: [InkWellStyle](#type-InkWellStyle) = unset
 - `states`: [StateStyles](#type-StateStyles) = `{}`
 - `tooltip`: String = `""`
 - `ignorePointer`: bool = `false`
-- `zoomable`: bool = `false`
 - `floating`: bool = `false`
 - `hero`: [HeroTag](#type-HeroTag) = unset
 - `flightKey`: String = `""`
 - `flight`: [Flight](#type-Flight) = unset
 - `draggable`: [DragSource](#type-DragSource) = unset
 - `dropTarget`: [DropTarget](#type-DropTarget) = unset
-- `drag`: [DragMotion](#type-DragMotion) = unset
+- `track`: [Track](#type-Track) = unset
+- `dismissible`: [DismissibleBehavior](#type-DismissibleBehavior) = unset
+- `pan`: [Pan](#type-Pan) = unset
+- `reorderHandle`: bool = `false`
 - `reveal`: [Reveal](#type-Reveal) = unset
 - `strokePath`: [StrokePath](#type-StrokePath) = unset
 - `typewriter`: [Typewriter](#type-Typewriter) = unset
@@ -5190,7 +5238,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 - `measure`: [Measure](#type-Measure) = unset
 - `customPaint`: [CustomPaint](#type-CustomPaint) = unset
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transition](#type-Transition), [Shimmer](#type-Shimmer), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [DragMotion](#type-DragMotion), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
 
 ---
 
@@ -5473,13 +5521,26 @@ _No fields._
 - `unfocus`: bool = `false`
 - `selectAll`: bool = `false`
 
-<a id="action-controlDrag"></a>
-## `controlDrag`: Control drag
+<a id="action-controlTrack"></a>
+## `controlTrack`: Control track
 
 - `node`: String = `""`
-- `command`: [DragCommand](#enum-DragCommand) = `"fling"` (`fling`, `returnFrom`, `reset`, `shake`, `step`, `zoom`, `pose`)
-- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
+- `command`: [TrackCommand](#enum-TrackCommand) = `"step"` (`step`, `animateTo`)
 - `steps`: String = `"1"`
+- `value`: String = `""`
+
+<a id="action-controlDismissible"></a>
+## `controlDismissible`: Control dismissible
+
+- `node`: String = `""`
+- `command`: [DismissCommand](#enum-DismissCommand) = `"dismiss"` (`dismiss`, `returnFrom`, `reset`, `shake`)
+- `direction`: [DragDirection](#enum-DragDirection) = `"right"` (`left`, `right`, `up`, `down`)
+
+<a id="action-controlTransform"></a>
+## `controlTransform`: Control transform
+
+- `node`: String = `""`
+- `command`: [TransformCommand](#enum-TransformCommand) = `"reset"` (`reset`, `scaleBy`, `animateTo`)
 - `value`: String = `""`
 
 <a id="action-scrollTo"></a>
@@ -5759,11 +5820,11 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `zoomable`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `drag`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 
-Names an expression may start with besides the screen's variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`.
+Names an expression may start with besides the screen's variables: `data`, `route`, `storage`, `screen`, `theme`, `item`, `index`, `parent`, `result`, `loop`, `auth`, `drag`, `perf`, `track`, `dismiss`, `pan`, `transform`, `flip`, `tilt`, `view`, `sticky`, `script`, `speech`, `pageOffset`.
 
 ---
 

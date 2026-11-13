@@ -1,7 +1,15 @@
 // A place along an SVG path (docs/design/03-motion.md §3.1): what a node's
 // `motion.path` sits on, and what a drag track's path (doc 04) follows.
-// Flutter: `PathMetric.getTangentForOffset`.
-part of 'behaviors.dart';
+// Flutter: `PathMetric.getTangentForOffset`. A library of its own (the
+// track's and the motion's models import it).
+import 'dart:math' as math;
+
+import 'package:meta/meta.dart';
+
+import 'json.dart';
+
+/// [m]'s numbers at [k] (a list), or none.
+List<double> _doubles(Json m, String k) => [...?readList(m[k])?.map(readDouble).nonNulls];
 
 /// How a node on a [PathFollow] turns with the path.
 enum PathOrient {
@@ -42,7 +50,7 @@ enum PathPacing {
 /// JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5,
 /// "orient": "tangent"}`; a bare string reads as [path].
 @immutable
-final class PathFollow extends _Value {
+final class PathFollow {
   const PathFollow({
     required this.path,
     this.viewBox = const [],
@@ -77,6 +85,14 @@ final class PathFollow extends _Value {
   bool get hasPath => path.trim().isNotEmpty;
 
   /// [viewBox] when it is a usable size.
+  /// The view box's width and height (`[w, h]`, or the last two of `[x, y,
+  /// w, h]`), or null when it has none (or one not above 0).
+  (double, double)? get viewBoxSize {
+    if (viewBox.length < 2) return null;
+    final (w, h) = viewBox.length >= 4 ? (viewBox[2], viewBox[3]) : (viewBox[0], viewBox[1]);
+    return w > 0 && h > 0 ? (w, h) : null;
+  }
+
   List<double>? get effectiveViewBox => viewBox.length >= 2 && viewBox[0] > 0 && viewBox[1] > 0 ? viewBox : null;
 
   bool get pacedByArea => pacing == PathPacing.area;
@@ -120,15 +136,14 @@ final class PathFollow extends _Value {
     if (json is String) return json.trim().isEmpty ? null : PathFollow(path: json);
     final m = readMap(json);
     if (m == null) return null;
-    final r = _R(m);
-    final box = r.doubles('viewBox');
-    final focus = r.doubles('focus');
+    final box = _doubles(m, 'viewBox');
+    final focus = _doubles(m, 'focus');
     return PathFollow(
-      path: r.s('path'),
+      path: readString(m['path']) ?? '',
       viewBox: box,
-      progress: r.d('progress', 0),
-      orient: r.e(PathOrient.values, 'orient', PathOrient.none),
-      pacing: r.e(PathPacing.values, 'pacing', PathPacing.length),
+      progress: readDouble(m['progress']) ?? 0,
+      orient: readEnum(PathOrient.values, m['orient'], PathOrient.none),
+      pacing: readEnum(PathPacing.values, m['pacing'], PathPacing.length),
       focus: focus.isEmpty ? const [0, 0] : focus,
     );
   }
@@ -145,17 +160,18 @@ final class PathFollow extends _Value {
       'pathFocusY',
     ];
     if (!keys.any(m.containsKey)) return base;
-    final r = _R(m);
-    final box = r.doubles('pathViewBox');
+    double d(String k, double fallback) => readDouble(m[k]) ?? fallback;
+    bool b(String k, bool fallback) => readBool(m[k]) ?? fallback;
+    final box = _doubles(m, 'pathViewBox');
     final orient = base?.orient ?? PathOrient.none;
-    final tangent = r.b('orientToPath', orient != PathOrient.none);
-    final upright = r.b('orientUpright', orient == PathOrient.upright || orient == PathOrient.uprightFlip);
-    final flip = r.b('uprightMirror', orient == PathOrient.uprightFlip);
+    final tangent = b('orientToPath', orient != PathOrient.none);
+    final upright = b('orientUpright', orient == PathOrient.upright || orient == PathOrient.uprightFlip);
+    final flip = b('uprightMirror', orient == PathOrient.uprightFlip);
     final focus = [...?base?.focus, 0.0, 0.0];
     return PathFollow(
       path: base?.path ?? '',
       viewBox: box.isNotEmpty ? box : base?.viewBox ?? const [],
-      progress: r.d('pathProgress', base?.progress ?? 0),
+      progress: d('pathProgress', base?.progress ?? 0),
       orient: !tangent
           ? PathOrient.none
           : !upright
@@ -163,22 +179,27 @@ final class PathFollow extends _Value {
               : flip
                   ? PathOrient.uprightFlip
                   : PathOrient.upright,
-      pacing: r.e(PathPacing.values, 'pathPacing', base?.pacing ?? PathPacing.length),
-      focus: [r.d('pathFocusX', focus[0]), r.d('pathFocusY', focus[1])],
+      pacing: readEnum(PathPacing.values, m['pathPacing'], base?.pacing ?? PathPacing.length),
+      focus: [d('pathFocusX', focus[0]), d('pathFocusY', focus[1])],
     );
   }
 
   Json toJson() {
     final j = <String, Object?>{'path': path};
     if (viewBox.isNotEmpty) j['viewBox'] = viewBox.map(writeDouble).toList();
-    j
-      ..d('progress', progress, 0)
-      ..e('orient', orient, PathOrient.none)
-      ..e('pacing', pacing, PathPacing.length);
+    if (progress != 0) j['progress'] = writeDouble(progress);
+    if (orient != PathOrient.none) j['orient'] = orient.name;
+    if (pacing != PathPacing.length) j['pacing'] = pacing.name;
     if (focus.any((v) => v != 0)) j['focus'] = focus.map(writeDouble).toList();
     return j;
   }
 
+  List<Object?> get _props => [path, viewBox, progress, orient, pacing, focus];
+
   @override
-  List<Object?> get props => [path, viewBox, progress, orient, pacing, focus];
+  bool operator ==(Object other) =>
+      identical(this, other) || other is PathFollow && jsonEquality.equals(other._props, _props);
+
+  @override
+  int get hashCode => jsonEquality.hash(_props);
 }

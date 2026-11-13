@@ -224,10 +224,18 @@ flat in the node's JSON. Every key is optional and sparse.
 | `shimmer` | `Shimmer` | A band of light over what the node paints (`ShaderMask`): `color`, `strength`, `width`, `angle`, `position`; the `shimmer` animation preset sweeps it. |
 | `inkWell` | `InkWellStyle` | `InkWell` colors: `overlayColor`, `splashColor`, `highlightColor`, `hoverColor`, `focusColor`. |
 | `states` | `{WidgetState: {nodeId: patch}}` | What the node and its descendants change to while `hovered`, `focused`, `pressed`, `selected`, `disabled`, `dragged`: a JSON merge patch over each target's JSON (`Node.patched`). |
-| `tooltip`, `ignorePointer`, `zoomable`, `floating` | | `Tooltip`, `IgnorePointer`, `InteractiveViewer`, drawn above the screen at runtime. |
+| `tooltip`, `ignorePointer`, `floating` | | `Tooltip`, `IgnorePointer`, drawn above the screen at runtime. |
 | `hero`, `flightKey` | tag or `{tag, flight, placeholder}`; string | `Hero` (`flight`: `standard`, `morphCorners`, `arc`, `morph`, `fadeThrough`, `containerTransform`; `placeholder: source` keeps the source drawn until the destination's image loads); flying in from where the node with the same key was. |
-| `draggable`, `dropTarget`, `drag` | `DragSource`, `DropTarget`, `DragMotion` | `Draggable` (`feedbackAnchor`, a `physics` return), `DragTarget` (`slotSize`, `slotWhenRefused`); a node that follows the pointer (swipe, spring back; `physics`, `bounds`, `minX`...`maxY`), or with a `DragTrack` a value control (knob, fader, dial: detents, fine mode, momentum, settle, keyboard, parked, relative or parent units, viewBox paths). |
-| `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. `zoomable` is its first form. |
+| `draggable`, `dropTarget` | `DragSource`, `DropTarget` | `Draggable`/`LongPressDraggable` (`childWhenDragging`, `feedback`, `dragAnchor`, a `returnSpring`), `DragTarget` (`accepts`, `acceptIf`; list insertion `listNodeId`, `slot`, `slotSize`, `slotWhenRefused`; `fullIf`). |
+| `track` | `Track` | Flutter's `Slider` along a line, an arc or a `path` (`PathFollow`): `variable`/`value`, `min`, `max`, `step`, `clamp`, `input`, `allowedInteraction`, `hitArea`, `pixelsPerRange`, `wheelStep`/`keyStep` (0 off), `detent`, `overscroll`, `physics` (a coasting fling), settle and snap; guide chapter 10. |
+| `dismissible` | `DismissibleBehavior` | Flutter's `Dismissible`: `directions`, `dismissThresholds`, `flingVelocity`, `resistance`, `movementDuration`/`curve`, a return (`returnDuration`/`returnCurve` or `returnSpring`). |
+| `pan` | `Pan` | Follows the pointer and springs back or stays: `axis`, `release`, rest `x`/`y`, `xVariable`/`yVariable`, `physics`, `bounds`, `minX`...`maxY` (a bottom sheet). |
+| `reorderHandle` | bool | A reorderable list row's drag handle (`ReorderableDragStartListener`). |
+| `transformGesture` | `TransformGesture` | Pinch, pan and rotate (`InteractiveViewer` and more) with `physics`, `bounds`, wheel and double-tap zoom, two-way pose variables and `handles`. |
+
+The legacy `drag` reads as `track` (its `track`), `reorderHandle` (`reorder: true`), `dismissible` (`release:
+dismiss`, its old defaults written out) or `pan`; `zoomable: true` as `transformGesture`'s zoomable form. Only
+the new keys are written (docs/design/04-drag-and-track.md).
 | `flip`, `tilt` | `FlipCard`, `Tilt` | A two-sided card turning over (first child front, second back; a runtime 3D turn, not the editor's mirror); a 3D tilt toward the pointer. |
 | `reveal`, `strokePath`, `particles`, `textDirection` | | Scroll into view; a line through points; confetti; `Directionality`. |
 | `flight` | `Flight` | How a `flightKey` node flies in from where the node with the same key was: a spring, or a curve over a duration with lift, swell, turns and a trail. |
@@ -242,12 +250,13 @@ flat in the node's JSON. Every key is optional and sparse.
 A spring is one value wherever it is: `Spring`, Flutter's
 `SpringDescription` (`{stiffness, damping, mass}`, or `{duration, bounce}`
 for `withDurationAndBounce`), on an animation, a transition, a
-drag source's return, a drag track's `settleSpring`, a flip card and a
+drag source's `returnSpring`, a track's `settleSpring`, a dismissible's
+`returnSpring`, a flip card and a
 route's dismiss; each owner's legacy flat keys read as it. A release's
 motion is one model wherever it is: `GesturePhysics` (a fling with
 `friction`, `overscroll` past `bounds`, a `spring`, a `snap` to points, a
 grid or the edges; `{"preset": "bouncy"}` reads as a preset) for
-`drag.physics`, `draggable.physics` and `transformGesture.physics`.
+`pan.physics`, `track.physics` (its coast) and `transformGesture.physics`.
 
 Blur effects (`layerBlur`, `backgroundBlur`) stay in `decoration.effects`, which
 a type without a box decoration (text, icon) keeps for its blurs only: they act
@@ -362,13 +371,13 @@ codelessly_sdk/lib/src/
   app/       Codelessly, CodelesslyWidget, controllers, navigation
 ```
 
-A node's behaviors are layers of its render chain, outermost first: (a running app's drag follow) → margin → constraints →
+A node's behaviors are layers of its render chain, outermost first: (a running app's dismissible or pan) → margin → constraints →
 track pose → transform gesture → motion (one matrix: the path's offset,
 translate, shift, then about its alignment scale, rotate, rotateX, rotateY) →
 shimmer → flip face → tilt → flip card → scale → rotation → (drag source →
 drop target → reactions →
 hover/press tracking) → animations → opacity → blurs → stroke path → content. A
-drag's follow and release physics and drag and drop run in
+dismissible's and pan's follow and release physics and drag and drop run in
 `runtime/gestures` (one release physics, `physics.dart`, for every
 gesture). A running app drags a track (its variable written, `changed` /
 `dragEnd` / `changeEnd` fired), runs transform gestures and turns flip
@@ -448,8 +457,9 @@ run. Names come from scopes: the screen's variables, the list item (`item`,
 `storage`, `auth`, `data`, `drag`: the layout's drag and drop session,
 `perf`: the app's frame timings `{frameMs, buildMs, rasterMs, fps}`, read
 from the engine only while something watches it...),
-and what a node gives itself and the nodes inside it: a dragged node's live
-`drag` values over the session's (a `LocalScope`), a drag track's `track`
+and what a node gives itself and the nodes inside it: a dismissible's live
+`dismiss` and a pan's `pan` values (and both as the legacy `drag`, over the
+session's; a `LocalScope`), a track's `track`
 (`value`, `progress`, `dragging`, `fine`, `focused`), a transform gesture's
 `transform` (the pose, `active`, `selected`), a flip card's `flip`
 (`flipped`, `progress`) and a tilt's `tilt` (`x`, `y`, `active`).
@@ -484,8 +494,8 @@ effect id for the item with that id, and `*` for every item.
 | `props.style.<field>` (text) | the base style and every run's |
 | `data` | the items a list, grid or page view builds one per (its item count follows) |
 | `scale`, `textDirection`, `motion.<field>`, `motion.path.progress`, `flightKey`, `tooltip`... | a behavior (§4.1); `animations.<id>.paused` reads loosely, `animations.<id>.params.frames` a list or its JSON text; a legacy motion's bound timing keys are rewritten to the animations and `transitions[i]` they became |
-| `drag.enabled`, `drag.restX`, `drag.restY`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a drag's switch (read loosely) and resting offset; a drag source's or drop target's switch; the payload |
-| `drag.track.<field>`, `drag.track.value` | a drag track's setting or geometry (a number written as is reads); the value it's drawn at |
+| `dismissible.<field>`, `pan.<field>`, `draggable.enabled`, `dropTarget.enabled`, `draggable.data` | a dismissible's or pan's setting (`enabled` read loosely, `pan.x`/`pan.y` its rest); a drag source's or drop target's switch; the payload |
+| `track.<field>`, `track.value` | a track's setting or geometry (a number written as is reads); the value it's drawn at. The legacy `drag.track.*` and `drag.*` paths are rewritten to these when a node decodes (`drag.enabled` → the behavior's `enabled`, `drag.restX` → `pan.x`...) |
 | `animations.<id>.<field>` | an animation's field (`paused`, `phase`, `playKey`, `enabled`, `params.<p>`, `tracks.<trackId>.from`...); the legacy `loops[i].*` and `effectAnimations[i].*` keys are rewritten to these when a node decodes (a loop's `phase` and `lag` into one `phase` formula) |
 | `transformGesture.<pose>`, `flip.flipped` | the pose from data (`x`, `y`, `scale`, `rotation`...), `enabled`; the card's face |
 | `hero.tag` | a shared element's tag (`pass-${item.id}`; the hero is then always the object form) |
@@ -557,7 +567,10 @@ waiting), `animate` (an `AnimationController` command — `forward`,
 by closing with `{confirmed: true, ...values}`, the values its actions'
 `${result}`), `copyToClipboard`, `editText`, `focus`, `scrollTo` (`axis`: only
 the scroll views along it), `speak`, `playSound`, `paywall`,
-`controlDrag` (`step` turns a drag track `steps`),
+`controlTrack` (`step` a track by `steps`, `animateTo` a `value`),
+`controlDismissible` (`dismiss`, `returnFrom`, `reset` toward a `direction`),
+`controlTransform` (`reset`, `scaleBy`, `animateTo` a pose; the legacy
+`controlDrag` reads as the one its command names),
 `haptic` (`HapticFeedback`: selection, light, medium, heavy, vibrate),
 `paginate` (a list's pagination by name: next, previous, goTo, first,
 last, refresh, retry, setPageSize).

@@ -119,9 +119,7 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 
 One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.
 
-The value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers interpolate and, as `Tween<double>` does, carry on past the ends on a curve that overshoots (`elasticOut`); colors interpolate; any other value switches at the end.
-
-On a replacing track a wave's amplitude is a share of the way from `from` to `to` (the property's own value when `to` is omitted): `{"from": 0, "wave": [{}]}` swings a property between its own value and as far the other way, once a run (a pendulum). On an adding or multiplying track it is in the property's own units.
+The value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -136,7 +134,6 @@ On a replacing track a wave's amplitude is a share of the way from `from` to `to
 | `interval` | List<double> | `[0,1]` |  | `Interval(begin, end)`. |
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
 | `blend` | [TrackBlend](values.md#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
-| `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` | How `keyframes` are joined. |
 
 <a id="type-BorderSide"></a>
 ### BorderSide
@@ -243,130 +240,60 @@ Flutter's `CustomPaint` on a node: `painter` drawn behind the node's content (it
 | `isComplex` | bool | `false` |  | Raster cache hint: the drawing is costly. |
 | `willChange` | bool | `false` |  | Raster cache hint: the drawing changes often. |
 
-<a id="type-DragMotion"></a>
-### DragMotion
+<a id="type-DismissibleBehavior"></a>
+### DismissibleBehavior
 
-Makes the node follow the pointer: it tilts, and on release springs back, stays, or flies off past a threshold (a swiped card); with a `track` it's a value control.
+Swiped away past a threshold (node key `dismissible`): Flutter's `Dismissible`. The node follows the pointer toward its `directions` (held back by `resistance` the other ways); let go past its `dismissThresholds` share of its size, or faster than `flingVelocity`, it flies off over `movementDuration` and fires the swipe of that direction (`swipeLeft`...; `Dismissible.onDismissed`), then shows its next content back at rest. Otherwise it returns: on `returnSpring`, else over `returnDuration` along `returnCurve`. A swipe card.
+
+Inside it `${dismiss.dx}`, `${dismiss.dy}`, `${dismiss.progress}` (0–1 toward the threshold, `Dismissible.onUpdate`), `${dismiss.direction}`, `${dismiss.dragging}` can be read (and the same as the legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` with `release: dismiss` reads as this, with its old defaults written out.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` |  |
-| `release` | [DragRelease](values.md#enum-DragRelease) | `"snapBack"` | `snapBack`, `stay`, `dismiss` |  |
-| `directions` | List<[DragDirection](values.md#enum-DragDirection)> | `["left","right","up","down"]` | `left`, `right`, `up`, `down` | The directions it flies off in. |
-| `distanceThreshold` | double | `0.35` |  | A fraction of its size. |
-| `verticalThreshold` | double | unset |  |  |
-| `velocityThreshold` | double | `800` |  | Pixels per second. |
-| `rotateFactor` | double | `0` |  |  |
+| `enabled` | bool | `true` |  | Bindable as `dismissible.enabled`: off, a drag doesn't move it. |
+| `directions` | List<[DragDirection](values.md#enum-DragDirection)> | `["left","right"]` | `left`, `right`, `up`, `down` | The directions it can be dismissed in. |
+| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | The axis it moves on (`Draggable.axis`); free moves it both ways, the ones it can't be dismissed in held back by `resistance`. |
+| `dismissThresholds` | DismissThresholds | `{}` |  | Per direction, the share of the node's size to travel (0.4 when not named). |
+| `flingVelocity` | double | `700` | ≥ 0 | Pixels per second. |
+| `resistance` | double | `0` | ≥ 0, ≤ 1 | 0–1: how much of the pointer's travel toward a direction it can't be dismissed in is ignored (1 none follows; below 1 a rubber band). |
+| `movementDuration` | int | `200` | ≥ 0 | The fly-off (ms, `Dismissible.movementDuration`) and its curve. |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
+| `returnDuration` | int | unset |  | Null: `movementDuration` and `curve`. |
+| `returnCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  |  |
+| `returnSpring` | [Spring](values.md#type-Spring) | unset |  | The spring it returns on, carrying the release's speed; null returns over `returnDuration`. |
+| `restX` | double | `0` |  | Deprecated: where it rests, from its layout's place. |
+| `restY` | double | `0` |  | Where it rests, from where its layout puts it (pixels); a new value moves it there. Deprecated (one app): a `motion.translateX` binding. |
+| `xVariable` | String | `""` |  | Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`. |
+| `yVariable` | String | `""` |  | Number variables its offset is written to (rounded to hundredths) as it moves. Deprecated: a `drag` reaction writing `${result.dx}`. |
+| `flyOutRotate` | double | `0` |  | Deprecated: degrees it turns while flying off. |
+| `rotateFactor` | double | `0` |  | Deprecated: degrees of tilt per the node's width of travel. |
 | `originX` | double | `0` |  |  |
 | `originY` | double | `0` |  |  |
-| `resistance` | double | `0` |  |  |
-| `snapBack` | int | `450` | ≥ 0 | Spring-back and fly-off times (ms) and curves. |
-| `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"spring"` |  |  |
-| `flyOut` | int | `320` | ≥ 0 |  |
-| `flyOutCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeIn"` |  |  |
-| `flyOutDistance` | double | unset |  |  |
-| `flyOutRotate` | double | `0` |  |  |
-| `enabled` | bool | `true` |  |  |
-| `shakeWhenDisabled` | bool | `false` |  |  |
-| `disabledFollow` | double | `0` |  |  |
-| `shareAs` | String | `""` |  | A variable the live drag values are written to. |
-| `restX` | double | `0` |  |  |
-| `restY` | double | `0` |  |  |
-| `track` | [DragTrack](values.md#type-DragTrack) | unset |  |  |
-| `reorder` | bool | `false` |  |  |
-| `follow` | bool | `true` |  |  |
-| `xVariable` | String | `""` |  |  |
-| `yVariable` | String | `""` |  |  |
-| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | The release's fling, spring and snap points. |
-| `bounds` | [GestureBounds](values.md#enum-GestureBounds) | `"none"` | `none`, `contain`, `cover` | What it's kept inside of while dragged and flung, narrowed by the offsets from rest `minX`...`maxY` (null: no limit). A bottom sheet opening 560px: `minY: -560, maxY: 0`. |
-| `minX` | double | unset |  | Offsets from rest it stays within (pixels; null no limit). |
-| `maxX` | double | unset |  |  |
-| `minY` | double | unset |  |  |
-| `maxY` | double | unset |  |  |
+| `shakeWhenDisabled` | bool | `false` |  | Deprecated: wiggles when a disabled drag is tried. |
+| `disabledFollow` | double | `0` |  | Deprecated: the share of the travel a disabled drag follows. |
+| `shareAs` | String | `""` |  | Deprecated: a variable the live drag values are written to. |
+| `follow` | bool | `true` |  | Deprecated: off, the node only reports its drag. |
 
 <a id="type-DragSource"></a>
 ### DragSource
 
-Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`).
+Lets the user pick the node up and drop it on a `DropTarget` that takes its `group` (Flutter's `Draggable`; `LongPressDraggable` with `start` `longPress`).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `group` | String | `""` |  |  |
-| `data` | String | `""` |  |  |
-| `start` | [DragStart](values.md#enum-DragStart) | `"auto"` | `press`, `longPress`, `auto` |  |
-| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` |  |
-| `whileDragging` | [DragSourceStyle](values.md#enum-DragSourceStyle) | `"ghost"` | `ghost`, `hidden`, `keep` |  |
-| `ghostOpacity` | double | `0.35` |  |  |
-| `feedbackRotation` | double | `-2` |  |  |
-| `feedbackScale` | double | `1` |  |  |
-| `feedbackOpacity` | double | `1` |  |  |
-| `feedbackElevation` | double | `24` |  |  |
-| `feedbackNodeId` | String | `""` |  | The node drawn under the pointer instead of this one. |
-| `feedbackAnchor` | [FeedbackAnchor](values.md#enum-FeedbackAnchor) | `"grab"` | `grab`, `center` |  |
-| `returnSpring` | bool | `true` |  |  |
-| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it). |
-| `enabled` | bool | `true` |  |  |
-| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | The return spring (over `returnSpring` and its settings). |
-
-<a id="type-DragTrack"></a>
-### DragTrack
-
-Makes a dragged node a value control (a knob, a fader): it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable (unless `write` is off); a double tap goes to `defaultValue` (or through `doubleTapValues`), the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read.
-
-Its settings and geometry are bindable as `drag.track.<field>` (`drag.track.x2`: `${= parent.width - 26}`); `drag.track.value` gives the value the node is drawn at in place of reading `variable`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `variable` | String | `""` |  | The variable the control sets. |
-| `shape` | [DragTrackShape](values.md#enum-DragTrackShape) | `"line"` | `line`, `arc`, `path` |  |
-| `min` | double | `0` |  |  |
-| `max` | double | `1` |  |  |
-| `step` | double | `0` |  |  |
-| `defaultValue` | double | unset |  | What a double tap resets to (bindable as `drag.track.defaultValue`). |
-| `input` | [DragTrackInput](values.md#enum-DragTrackInput) | `"follow"` | `follow`, `vertical`, `horizontal`, `both` |  |
-| `pixelsPerRange` | double | `200` |  |  |
-| `x1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `y1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `x2` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `y2` | double | `-100` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
-| `startAngle` | double | `-135` |  | Degrees about the pivot. |
-| `endAngle` | double | `135` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `pivotX` | double | `0` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `pivotY` | double | `0` |  | An arc's angles (degrees, clockwise, 0 up) about the pivot (from the node's center). |
-| `rotate` | bool | `true` |  | Turns the node with the arc. |
-| `path` | String | unset |  |  |
-| `orientToPath` | bool | `false` |  |  |
-| `jumpOnTap` | bool | `false` |  | Pressing anywhere along the track (or the `hitArea`) moves the node there, then the drag goes on (only for `DragTrackInput.follow`). |
-| `wheel` | bool | `true` |  | Whether the mouse wheel steps the value. |
-| `value` | double | unset |  | The value it's drawn at, from a binding; null reads `variable`. |
-| `orientUpright` | bool | `false` |  | With `orientToPath`, never upside down (as `Motion.orientUpright`). |
-| `detent` | double | `0` | ≥ 0, ≤ 1 | How magnetic the steps are while dragging (0–1). |
-| `overscroll` | double | `0` | ≥ 0, ≤ 1 | How far past an end it stretches (0–1). |
-| `settle` | int | `0` | ≥ 0 | The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed. |
-| `settleCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
-| `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it). |
-| `parkedProgress` | double | unset |  | Where it parks while the value is out of range or empty. |
-| `keyboard` | bool | `true` |  | Takes keyboard focus: arrows step by `keyStep` (else `step`, else 1% of the range), Page Up/Down by 10 steps, Home and End to the ends. |
-| `viewBoxWidth` | double | `0` | ≥ 0 | With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size. |
-| `viewBoxHeight` | double | `0` | ≥ 0 | With both above 0, `path` is drawn in the box of the frame the node sits in, in these units, stretched to the frame's size. |
-| `relative` | bool | `false` |  | A line's ends are multiples of the node's size. |
-| `wheelStep` | double | unset |  | One wheel notch, one arrow key (null: `step`, else 1% of the range). |
-| `doubleTapValues` | List<double> | `[]` |  | Values a double tap moves between, in order (empty: `defaultValue`). |
-| `keyStep` | double | unset |  | One wheel notch, one arrow key (null: `step`, else 1% of the range). |
-| `hitArea` | [DragTrackHitArea](values.md#enum-DragTrackHitArea) | `"self"` | `self`, `parent` |  |
-| `units` | [DragTrackUnits](values.md#enum-DragTrackUnits) | `"pixels"` | `pixels`, `parent` |  |
-| `fineStep` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. |
-| `finePixelsPerRange` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. |
-| `fineHold` | int | `380` | ≥ 0 |  |
-| `fineVariable` | String | `""` |  |  |
-| `snap` | int | `0` | ≥ 0 | Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps. |
-| `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutBack"` |  |  |
-| `write` | bool | `true` |  | Whether dragging writes `variable`; off, it only shows it and its reactions set what changes from `${result.value}`. |
-| `endless` | bool | `false` |  | An arc that keeps turning past its ends, the value unbounded (a combination dial). |
-| `momentum` | bool | `false` |  | Let go while moving, it coasts, slowing by `friction` per second, then settles on a `step`. |
-| `friction` | double | `2.6` |  |  |
-| `smooth` | bool | `false` |  | Draws the node between `step`s while dragged or coasting, springing onto the nearest when it rests (the variable only holds steps). |
-| `gain` | double | `1` |  | How far the node moves per pointer movement (0.5 fine, 2 coarse). |
+| `group` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
+| `data` | String | `""` |  | The drag group a `DropTarget` `DropTarget.accepts`, and the data it hands over (`Draggable.data`; may hold `${...}`). |
+| `start` | [DragStart](values.md#enum-DragStart) | `"auto"` | `press`, `longPress`, `auto` | How a drag starts: press, long press (`LongPressDraggable`), or long press on touch and press with a mouse. |
+| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | `Draggable.axis`: the feedback moves only along it. |
+| `childWhenDragging` | [DragSourceStyle](values.md#enum-DragSourceStyle) | `"ghost"` | `ghost`, `hidden`, `keep` | What stays where it was picked up. |
+| `ghostOpacity` | double | `0.35` |  | The opacity of a `DragSourceStyle.ghost`. |
+| `feedback` | String | `""` |  | The node drawn under the pointer instead of this one. |
+| `dragAnchor` | [DragAnchor](values.md#enum-DragAnchor) | `"child"` | `child`, `center` | The legacy `feedbackAnchor` reads as it. |
+| `feedbackRotation` | double | `-2` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackScale` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackOpacity` | double | `1` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `feedbackElevation` | double | `24` |  | The feedback's tilt (degrees), scale, opacity and shadow while it follows the pointer. Not yet a `states.dragged` patch: their defaults (−2°, a 24 shadow) can't change under existing documents. |
+| `returnSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring an unaccepted drop flies home on; `false`: none. |
+| `enabled` | bool | `true` |  | Bindable as `draggable.enabled`. |
 
 <a id="type-DropTarget"></a>
 ### DropTarget
@@ -674,28 +601,91 @@ Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in 
 <a id="type-Motion"></a>
 ### Motion
 
-A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.
+How a node moves: a transform drawn over its layout (CSS-like: it doesn't move anything else), the transitions between its values when they change, an entrance, a loop and a spin. Its values are the node's rest pose; the design canvas draws the node there.
 
-One matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{"translateY": -4, "scale": 1.02, "alignment": [0, 1]}`.
-
-Reads the legacy keys too: `originX`/`originY` as `alignment`; the flat path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as `path`. Its other legacy keys belong to the node (`Node.fromJson`: `opacity`, `blur`) or to its animations and transitions (`Behaviors.fromJson`: the timing, entrance, loop, spin, keyframes and shimmer).
+The transform, in order: `translateX`/`translateY` (pixels), `scale` times `scaleX`/`scaleY`, `rotate` (degrees, plus the spin), then `rotateX`/`rotateY` in 3D with `perspective`, about the point (`originX`, `originY`) in the box (-1–1, 0 the center); then a shift by `shiftX`/`shiftY` times the node's size. `opacity` and `blur` apply on top of the node's own.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `translateX` | double | `0` |  | Pixels. |
-| `translateY` | double | `0` |  | Pixels (`Transform.translate(offset:)`). |
-| `shiftX` | double | `0` |  | Times the node's size (`FractionalTranslation`). |
-| `shiftY` | double | `0` |  | Multiples of the node's own size (`FractionalTranslation`). |
-| `scale` | double | `1` |  | The axis factors multiply `scale`. |
-| `scaleX` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `scaleY` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `rotate` | double | `0` |  | Degrees, about z. |
-| `rotateX` | double | `0` |  | Degrees, in 3D. |
-| `rotateY` | double | `0` |  | Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat). |
-| `perspective` | double | `1` |  | How strongly a 3D rotation is seen in depth (0 flat). |
-| `alignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  | The point scale and rotation are about (`Transform.alignment`). |
-| `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
-| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path the node sits on. |
+| `translateY` | double | `0` |  |  |
+| `scale` | double | `1` |  |  |
+| `scaleX` | double | `1` |  |  |
+| `scaleY` | double | `1` |  |  |
+| `shiftX` | double | `0` |  | Times the node's size. |
+| `shiftY` | double | `0` |  |  |
+| `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
+| `rotate` | double | `0` |  | Degrees. |
+| `rotateX` | double | `0` |  |  |
+| `rotateY` | double | `0` |  |  |
+| `spin` | double | `0` |  | Turns per second. |
+| `pathProgress` | double | `0` |  |  |
+| `blur` | double | `0` | ≥ 0 |  |
+| `perspective` | double | `1` |  |  |
+| `originX` | double | `0` |  | The transform's origin in the box (-1–1, 0 the center). |
+| `originY` | double | `0` |  |  |
+| `duration` | int | `0` | ≥ 0 | A transition's length and its wait (ms). |
+| `delay` | int | `0` | ≥ 0 | A transition's length and its wait (ms). |
+| `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeInOut"` |  |  |
+| `rotateCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | unset |  | The rotation's own curve; null follows `curve`. |
+| `fadeShare` | double | `1` | ≥ 0, ≤ 1 | The share of the duration in which the opacity arrives (easing out). |
+| `spring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of the `spring` curve. |
+| `spinRamp` | int | `800` | ≥ 0 |  |
+| `loop` | [MotionLoop](values.md#enum-MotionLoop) | `"none"` | `none`, `restart`, `reverse`, `swing` | Plays between the start (`enterFrom`, else rest) and the values. |
+| `repeat` | int | `0` | ≥ 0 | Loop runs (0: forever). |
+| `enter` | bool | `false` |  | Plays an entrance when the node appears: from `enterFrom`, or from rest to the values when null. |
+| `enterFrom` | [Motion](values.md#type-Motion) | unset |  |  |
+| `replayKey` | String | unset |  | A change of this text replays the entrance. |
+| `backfaceHidden` | bool | `false` |  | Hidden while its back faces the viewer. |
+| `path` | String | unset |  | An SVG path the node moves along. |
+| `orientToPath` | bool | `false` |  | Turns with the path's direction. |
+| `keyframes` | List<[MotionKeyframe](values.md#type-MotionKeyframe)> | `[]` |  |  |
+| `revealOnScroll` | bool | `false` |  | Waits to enter until `revealFraction` of the node scrolls into view. |
+| `enterHeld` | bool | `false` |  | Holds the entrance at its start while true (bindable). |
+| `revealFraction` | double | `0.15` |  |  |
+| `orientUpright` | bool | `false` |  | With `orientToPath`: never upside down. |
+| `uprightMirror` | bool | `false` |  | With `orientUpright`: heading left mirrors the node, so its front leads. |
+| `arc` | double | `0` |  | A change of position bends this share of its distance off the line. |
+| `paused` | bool | `false` |  | Freezes the loop and the spin where they are. |
+| `phase` | double | `0` | ≥ 0, ≤ 1 | Where the loop starts in its cycle (0–1). |
+| `pathPacing` | [MotionPathPacing](values.md#enum-MotionPathPacing) | `"length"` | `length`, `area` | How `pathProgress` maps to a point on `path`: by length or by area swept about (`pathFocusX`, `pathFocusY`). |
+| `pathFocusX` | double | `0` |  | The focus of area pacing, in the path's coordinates. |
+| `pathFocusY` | double | `0` |  |  |
+| `pathWrap` | bool | `false` |  | Reads the progress modulo 1. |
+| `pathViewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels. |
+| `shimmer` | [MotionShimmer](values.md#type-MotionShimmer) | unset |  | A band of light sweeping across the node; null for none. |
+
+<a id="type-MotionKeyframe"></a>
+### MotionKeyframe
+
+The values a `Motion` passes through at `t` (0–1) between its start and its values; null values follow the curve.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `t` | double | `0` |  |  |
+| `translateX` | double | unset |  |  |
+| `translateY` | double | unset |  |  |
+| `scale` | double | unset |  |  |
+| `scaleX` | double | unset |  |  |
+| `scaleY` | double | unset |  |  |
+| `opacity` | double | unset |  |  |
+| `rotate` | double | unset |  |  |
+| `rotateX` | double | unset |  |  |
+| `rotateY` | double | unset |  |  |
+| `pathProgress` | double | unset |  |  |
+
+<a id="type-MotionShimmer"></a>
+### MotionShimmer
+
+A band of light sweeping across what the node paints, over and over (a loading skeleton's shimmer). Blended over the node's own pixels only. The design canvas draws it still, halfway across.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `color` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
+| `strength` | double | `0.8` | ≥ 0, ≤ 1 | How strongly the band's center blends the color in (0–1). |
+| `width` | double | `0.44` |  | A share of the node's size along the sweep. |
+| `duration` | int | `1400` | ≥ 0 | One sweep across (ms). |
+| `angle` | double | `0` |  | Degrees: 0 left to right, 90 top to bottom. |
 
 <a id="type-NavigationDestination"></a>
 ### NavigationDestination
@@ -744,8 +734,6 @@ Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forw
 | `alignment` | [Alignment](values.md#type-Alignment) | unset |  | The point the scale and rotation of its adding and multiplying tracks are about (`ScaleTransition(alignment:)`); null: the preset's, else the center. |
 | `tracks` | List<[AnimationTrack](values.md#type-AnimationTrack)> | `[]` |  |  |
 | `previewAt` | double | unset |  | Where the design canvas draws it (a share of a cycle); empty: not applied there. |
-| `ramp` | int | `0` | ≥ 0 | Ms to speed up from still, and to slow to a stop when paused. |
-| `visibleFraction` | double | unset |  | Waits to start until this share of the node is in view. |
 
 <a id="type-Pagination"></a>
 ### Pagination
@@ -795,6 +783,38 @@ A fill or stroke paint: a solid color, a gradient or an image. Several paints st
 | `gradientPerSubpath` | bool | `false` |  | A path paints the gradient in each of its shapes. |
 | `radius` | double | unset | ≥ 0 | Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: the transform's. |
 
+<a id="type-Pan"></a>
+### Pan
+
+Follows the pointer (node key `pan`): `GestureDetector(onPanUpdate:)` moving a `Transform.translate`. On release it springs back to rest or stays (`release`), with `physics` a fling that slows by friction, a spring and snap points within `bounds` and the limits `minX`...`maxY` (a bottom sheet: `{"axis": "vertical", "release": "stay", "minY": -560, "maxY": 0, "physics": {"snap": {"points": [[0, 0], [0, -560]]}}}`). Its offset binds two-way to `xVariable` and `yVariable`; `x` and `y` (bindable) place its rest.
+
+Inside it `${pan.dx}`, `${pan.dy}`, `${pan.dragging}`, `${pan.settling}`, `${pan.snapIndex}` can be read (and the same as the legacy `${drag.*}`). It fires `drag` and `dragEnd`. The legacy `drag` that is neither a track, a reorder handle nor dismissing reads as this.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `enabled` | bool | `true` |  | Bindable as `pan.enabled`. |
+| `axis` | [DragAxis](values.md#enum-DragAxis) | `"free"` | `free`, `horizontal`, `vertical` | The axis it moves on (`Draggable.axis`, `InteractiveViewer.panAxis`). |
+| `release` | [PanRelease](values.md#enum-PanRelease) | `"snapBack"` | `snapBack`, `stay` |  |
+| `returnDuration` | int | `450` | ≥ 0 | The spring back without physics. |
+| `returnCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"spring"` |  |  |
+| `x` | double | `0` |  | Its rest, from its layout's place (pixels). |
+| `y` | double | `0` |  | Where it rests, from where its layout puts it (pixels; bindable as `pan.x`, `pan.y`): it springs back here, and a new value moves it. |
+| `xVariable` | String | `""` |  | Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves. |
+| `yVariable` | String | `""` |  | Number variables its offset from where its layout puts it is written to (rounded to hundredths) as it moves. |
+| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | The release's fling, spring and snap points. |
+| `bounds` | [GestureBounds](values.md#enum-GestureBounds) | `"none"` | `none`, `contain`, `cover` | What it's kept inside of while dragged and flung, narrowed by the offsets from rest `minX`...`maxY` (null: no limit). |
+| `minX` | double | unset |  | Offsets from rest it stays within (pixels; null no limit). |
+| `maxX` | double | unset |  |  |
+| `minY` | double | unset |  |  |
+| `maxY` | double | unset |  |  |
+| `rotateFactor` | double | `0` |  | Deprecated: degrees of tilt per the node's width of travel. |
+| `originX` | double | `0` |  |  |
+| `originY` | double | `0` |  |  |
+| `shakeWhenDisabled` | bool | `false` |  | Deprecated: wiggles when a disabled drag is tried. |
+| `disabledFollow` | double | `0` |  | Deprecated: the share of the travel a disabled drag follows. |
+| `shareAs` | String | `""` |  | Deprecated: a variable the live drag values are written to. |
+| `follow` | bool | `true` |  | Deprecated: off, the node only reports its drag. |
+
 <a id="type-ParticleEmitter"></a>
 ### ParticleEmitter
 
@@ -832,20 +852,14 @@ Each particle leaves from the origin at `speed` (55–115%) in a direction withi
 <a id="type-PathFollow"></a>
 ### PathFollow
 
-A place along an SVG path: `progress` (0–1) of the way along `path`'s length, turned with it as `orient` says. Shared by `motion.path` and a drag track's path.
-
-Values of `progress` outside 0–1 wrap round a closed path (one that ends where it starts) and clamp to the ends of an open one.
-
-JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5, "orient": "tangent"}`; a bare string reads as `path`.
+A place along an SVG path. Shared by `motion.path` and `track.path`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `path` | String | `""` |  | SVG path data. |
-| `viewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place. |
-| `progress` | double | `0` |  | 0–1 of its length; wraps on a closed path. |
-| `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright`, `uprightFlip` |  |
-| `pacing` | [PathPacing](values.md#enum-PathPacing) | `"length"` | `length`, `area` | Deprecated: `area` pacing (one app). |
-| `focus` | List<double> | `[0,0]` |  | Deprecated: the focus `[x, y]` of `area` pacing. |
+| `viewBox` | List<double> | `[]` |  | `[width, height]` stretched over the parent; empty: pixels. |
+| `progress` | double | `0` |  | Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one. |
+| `orient` | [PathOrient](values.md#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright` | `none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down. |
 
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
@@ -915,30 +929,6 @@ A horizontal line across a plot chart at `y`: a grid line, or a reference such a
 | `labelBackground` | [Color](values.md#type-Color) | unset |  |  |
 | `axisLabel` | String | `""` |  |  |
 
-<a id="type-Pose"></a>
-### Pose
-
-A `Motion` drawn with a fade and a blur: the pose a page of a page view (`pageMotion`) or a side of a route transition is drawn at. Flutter: a `Transform` in an `Opacity` in an `ImageFiltered`. JSON: `motion`'s keys with `opacity` and `blur` beside them, flat (`{"shiftX": -1, "opacity": 0.5}`).
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `translateX` | double | `0` |  | Pixels. |
-| `translateY` | double | `0` |  | Pixels (`Transform.translate(offset:)`). |
-| `shiftX` | double | `0` |  | Times the node's size (`FractionalTranslation`). |
-| `shiftY` | double | `0` |  | Multiples of the node's own size (`FractionalTranslation`). |
-| `scale` | double | `1` |  | The axis factors multiply `scale`. |
-| `scaleX` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `scaleY` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
-| `rotate` | double | `0` |  | Degrees, about z. |
-| `rotateX` | double | `0` |  | Degrees, in 3D. |
-| `rotateY` | double | `0` |  | Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat). |
-| `perspective` | double | `1` |  | How strongly a 3D rotation is seen in depth (0 flat). |
-| `alignment` | [Alignment](values.md#type-Alignment) | `[0,0]` |  |  |
-| `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
-| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path the node sits on. |
-| `opacity` | double | `1` | ≥ 0, ≤ 1 | 0–1. |
-| `blur` | double | `0` | ≥ 0 | A layer blur's radius. |
-
 <a id="type-ProgressBand"></a>
 ### ProgressBand
 
@@ -1003,19 +993,6 @@ One of Flutter's `OutlinedBorder`s: its kind, corner radius and side. JSON: `{"t
 | `type` | [ShapeBorderType](values.md#enum-ShapeBorderType) | `"roundedRectangle"` | `roundedRectangle`, `circle`, `stadium`, `continuousRectangle`, `beveledRectangle`, `roundedSuperellipse` |  |
 | `borderRadius` | [BorderRadius](values.md#type-BorderRadius) | `0` |  | Corner radii (rectangle types). |
 | `side` | [BorderSide](values.md#type-BorderSide) | unset |  | The outline; null draws none. |
-
-<a id="type-Shimmer"></a>
-### Shimmer
-
-A band of light across what the node paints (a loading skeleton's shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended over the node's own pixels only. `position` places it; the `shimmer` animation preset sweeps it across, over and over. JSON (sparse): `{"color": "#FFFFFFFF", "strength": 0.8, "width": 0.44, "angle": 0, "position": 0.5}`.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `color` | [Color](values.md#type-Color) | `"#FFFFFFFF"` |  |  |
-| `strength` | double | `0.8` | ≥ 0, ≤ 1 | How strongly the band's center blends the color in (0–1). |
-| `width` | double | `0.44` |  | A share of the node's size along the sweep. |
-| `angle` | double | `0` |  | Degrees: 0 left to right, 90 top to bottom. |
-| `position` | double | `0.5` |  | 0 off the start side, 1 off the end (the `shimmer` preset sweeps it). |
 
 <a id="type-Spring"></a>
 ### Spring
@@ -1179,12 +1156,65 @@ Tilts the node in 3D toward the pointer while it hovers or drags over it. `max` 
 | `reset` | int | `400` | ≥ 0 | The settle back when the pointer leaves (ms) and its curve. |
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
 
+<a id="type-Track"></a>
+### Track
+
+A value the user sets by dragging (node key `track`): Flutter's `Slider` (`value`, `min`, `max`, divisions as `step`, `onChanged` as the `changed` reaction, `onChangeEnd` as `changeEnd`), generalised from a straight bar to a line, an arc or any path. The node carrying it is the thumb: it moves along the track as variable `variable` goes from `min` to `max`, and the design canvas draws it at the variable's value. Dragging it writes the variable; the wheel and arrow keys step it. Inside it `${track.value}`, `${track.progress}`, `${track.dragging}`, `${track.fine}` and `${track.focused}` can be read; it fires `changed` (`${result.value}`, `from`, `direction`, `crossed`), `dragEnd` and `changeEnd`.
+
+Its settings and geometry are bindable as `track.<field>` (`track.x2`: `${= parent.width - 26}`); `track.value` gives the value the node is drawn at in place of reading `variable`. The legacy `drag.track` (and its `drag.track.*` binding paths) reads as this: see `fromJson` for its renamed keys.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `enabled` | bool | `true` |  | Off, it takes no pointer, wheel or keys. |
+| `variable` | String | `""` |  | The variable the control sets. |
+| `value` | double | unset |  | The value it's drawn at, from a binding; null reads `variable`. |
+| `min` | double | `0` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `max` | double | `1` |  | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `step` | double | `0` | ≥ 0 | The range and its step (`Slider.divisions` = (max − min) / step; 0 is continuous). |
+| `clamp` | bool | `true` |  | Off, an arc turns past its ends (a combination dial). |
+| `input` | [TrackInput](values.md#enum-TrackInput) | `"follow"` | `follow`, `vertical`, `horizontal`, `both` |  |
+| `allowedInteraction` | [TrackInteraction](values.md#enum-TrackInteraction) | `"slideThumb"` | `slideThumb`, `tapAndSlide` | The legacy `jumpOnTap: true` reads as `TrackInteraction.tapAndSlide`. |
+| `hitArea` | [TrackHitArea](values.md#enum-TrackHitArea) | `"self"` | `self`, `parent` | With `TrackHitArea.parent` the node's parent takes the pointer too. |
+| `pixelsPerRange` | double | `200` |  | Pixels of drag for the whole range (`TrackInput.vertical`, `TrackInput.horizontal`, `TrackInput.both`; the legacy `gain` divides it). |
+| `wheelStep` | double | unset |  | Null: the step (else 1% of the range); 0: off. |
+| `keyStep` | double | unset |  | One wheel notch, one arrow key: null `step`, else 1% of the range; 0 turns the wheel (the legacy `wheel: false`) or the keys (`keyboard: false`) off. With the keys on it takes focus: arrows step, Page Up/Down by 10 steps, Home and End to the ends. |
+| `shape` | [TrackShape](values.md#enum-TrackShape) | `"line"` | `line`, `arc`, `path` | Inferred from `path` when not given. |
+| `x1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
+| `y1` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
+| `x2` | double | `0` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
+| `y2` | double | `-100` |  | A line's ends, from the node's place (pixels, or with `relative` multiples of the node's size, with `units` parent of the parent's). |
+| `relative` | bool | `false` |  | A line's ends are multiples of the node's size. |
+| `units` | [TrackUnits](values.md#enum-TrackUnits) | `"pixels"` | `pixels`, `parent` |  |
+| `startAngle` | double | `-135` |  | Degrees: the arc's start, and its turn to the end. |
+| `sweepAngle` | double | `270` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `pivotX` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `pivotY` | double | `0` |  | An arc: the angle of `min` (degrees, clockwise, 0 up) and the turn to `max` (the legacy `endAngle` is `startAngle + sweepAngle`), about the pivot (from the node's center); the node orbits it on the circle through its place, turning with it (`rotate`). A pivot at the center is a knob that turns in place. |
+| `rotate` | bool | `true` |  |  |
+| `path` | [PathFollow](values.md#type-PathFollow) | unset |  | A path's SVG data, view box and orientation. |
+| `detent` | double | `0` | ≥ 0, ≤ 1 | How magnetic the steps are while dragging (0–1). |
+| `overscroll` | double | `0` | ≥ 0, ≤ 1 | How far past an end it stretches (0–1). |
+| `physics` | [GesturePhysics](values.md#type-GesturePhysics) | unset |  | A fling's coast (fling, friction); null stops where let go. |
+| `settle` | int | `0` | ≥ 0 | The glide to its value's place when not following the pointer (ms; 0 jumps), its curve, and the spring of `AnimationCurve.spring` (mass 1), which a release mid-fling starts at the pointer's speed. |
+| `settleCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutCubic"` |  |  |
+| `settleSpring` | [Spring](values.md#type-Spring) | `{}` |  | The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it). |
+| `snap` | int | `0` | ≥ 0 | Animates the node to each new value over `snap` ms along `snapCurve` (a knob clicking from detent to detent); 0 jumps. |
+| `snapCurve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"easeOutBack"` |  |  |
+| `defaultValue` | double | unset |  | Deprecated: what a double tap resets to, or moves between. |
+| `doubleTapValues` | List<double> | `[]` |  |  |
+| `parkedProgress` | double | unset |  | Deprecated: where it parks while the value is out of range or empty. |
+| `fineStep` | double | `0` | ≥ 0 | Deprecated: fine mode. |
+| `finePixelsPerRange` | double | `0` | ≥ 0 | A finer step while Shift is held or after the pointer is held still `fineHold` ms (0: hold doesn't), `finePixelsPerRange` pixels for the range (0: 4 × `pixelsPerRange`); 0 has no fine mode. `fineVariable`, a boolean variable, is kept true while fine. Deprecated: a boolean variable set by key and hold reactions, bound to `track.step` and `track.pixelsPerRange`. |
+| `fineHold` | int | `380` | ≥ 0 |  |
+| `fineVariable` | String | `""` |  |  |
+| `smooth` | bool | `false` |  | Deprecated: drawn between steps while moving. |
+| `gain` | double | `1` |  | Deprecated: the turn per degree round an arc followed by angle. |
+
 <a id="type-TransformGesture"></a>
 ### TransformGesture
 
 Makes the node pannable, zoomable and rotatable by touch, mouse and trackpad (Flutter's `InteractiveViewer`, and more): pinch and ctrl+wheel zoom about the focal point, one finger pans, two rotate, a double tap zooms to a point; a release flings and settles by `physics` within `bounds` and `minScale`–`maxScale`. The pose binds two-way to variables (`xVariable`...); inside it reads as `${transform.x}`, `${transform.scale}`... Each change runs the node's `changed` reactions, the end of a gesture its `changeEnd` ones.
 
-`Behaviors.zoomable` is its first form: `zoomable`.
+The legacy `zoomable: true` reads as its first form: `zoomable`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -1239,22 +1269,12 @@ On-canvas handles that make a node an editable object (a sticker, a collage): co
 <a id="type-Transition"></a>
 ### Transition
 
-How a change of `property` animates (Flutter's implicit animations: `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`, `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes (a binding, a condition, a state style), the node tweens from what it shows to the new value over `duration` after `delay` on `curve`, or on `spring`. A change mid-flight carries on from where it is. A behavior key, a list: `"transitions": [{"property": "motion", "duration": 240, "curve": "easeOutCubic"}, {"property": "opacity", "duration": 120}]`.
-
-`property` is a binding path or a prefix of one; the longest that matches wins (`motion.rotate` over `motion`), `*` matches every path. A prefix eases what's under it as one value, as `AnimatedContainer` does its `transform`: a change of any of its numbers starts them together, and `keyframes` are passed through each time. A path an animation track is playing isn't transitioned. The design canvas shows new values at once.
-
-Reads the legacy `{"style", "opacity", "size"}` object: `style` as `opacity`, `scale`, `decoration.fills` and `visible`; `size` as `layout`. A map from property to timing reads too.
+An implicit animation's `duration` (ms) and `curve`, as Flutter's `AnimatedOpacity(duration:, curve:)`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `property` | String | `""` |  | A binding path or a prefix of one (`motion`, `motion.rotate`, `opacity`); `*` for every path. |
-| `duration` | int | `0` | ≥ 0 | Milliseconds. |
-| `delay` | int | `0` | ≥ 0 | Milliseconds. |
+| `duration` | int | `0` | ≥ 0 |  |
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"linear"` |  |  |
-| `spring` | [Spring](values.md#type-Spring) | unset |  | Replaces `duration` and `curve`. |
-| `keyframes` | List<[Keyframe](values.md#type-Keyframe)> | `[]` |  | Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{"at": 0.5, "value": {"scale": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says. |
-| `interpolation` | [KeyframeInterpolation](values.md#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` |  |
-| `arc` | double | `0` |  | Deprecated: bends position changes off the straight line. |
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -1272,15 +1292,26 @@ A clip that reveals a screen as a transition plays: a circle or rectangle growin
 <a id="type-TransitionSide"></a>
 ### TransitionSide
 
-How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion` (a `Pose`: a transform, `shiftX`/`shiftY` in screen sizes, with an opacity and a blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.
+How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion`. Only the motion's values are used (the 3D ones, `shiftX`/`shiftY` in screen sizes, opacity, blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `motion` | [Pose](values.md#type-Pose) | `{}` |  | The values it moves from (entering) or to (leaving). |
+| `motion` | [Motion](values.md#type-Motion) | `{}` |  | The values it moves from (entering) or to (leaving). |
 | `reveal` | [TransitionReveal](values.md#type-TransitionReveal) | unset |  |  |
 | `curve` | [AnimationCurve](values.md#enum-AnimationCurve) | `"fastOutSlowIn"` |  |  |
 | `delayMs` | int | `0` | ≥ 0 | Milliseconds into the transition this side starts. |
 | `durationMs` | int | unset |  | Null: to the end. |
+
+<a id="type-Transitions"></a>
+### Transitions
+
+How changes to a node animate at runtime. The design canvas shows the new values at once.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `style` | [Transition](values.md#type-Transition) | unset |  | Changes of opacity, `Behaviors.scale` and solid fills; a node shown or hidden by a binding grows open and shrinks closed. |
+| `opacity` | [Transition](values.md#type-Transition) | unset |  | Opacity changes (over `style`'s). |
+| `size` | [Transition](values.md#type-Transition) | unset |  | Size changes: on an axis the node hugs, its box grows or shrinks and clips; on others it's laid out at each size in between. |
 
 <a id="type-Typewriter"></a>
 ### Typewriter
@@ -1652,46 +1683,47 @@ Written as the value's name, a JSON string (`"center"`).
 | `rectangle` | The box, its corners rounded by `Decoration.radius`. |
 | `circle` | A circle the box's shortest side across, in its middle: painted (fill and stroke) as circles, as Flutter's `BoxShape.circle`. |
 
+<a id="enum-DismissCommand"></a>
+### DismissCommand
+
+| Value | Meaning |
+|---|---|
+| `dismiss` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `returnFrom` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `reset` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+| `shake` | What a `ControlDismissibleAction` does to a `DismissibleBehavior` (or a `Pan`): `dismiss` flies it off toward the direction as if swiped (and fires that swipe: removing the item); `returnFrom` brings it back from off-screen on that side (re-inserting it; a card built in the next frame, an undo's, starts there); `reset` springs it back to rest. `shake` wiggles it once (deprecated: the `shake` animation preset). |
+
+<a id="enum-DragAnchor"></a>
+### DragAnchor
+
+| Value | Meaning |
+|---|---|
+| `child` | Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it. |
+| `center` | Which point of the copy that follows the pointer sits under it (`Draggable.dragAnchorStrategy`): where it was grabbed (`childDragAnchorStrategy`), or its center (a feedback node of another size). The legacy `feedbackAnchor` (`grab`, `center`) reads as it. |
+
 <a id="enum-DragAxis"></a>
 ### DragAxis
 
 `free`, `horizontal`, `vertical`
 
-<a id="enum-DragCommand"></a>
-### DragCommand
-
-| Value | Meaning |
-|---|---|
-| `fling` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `returnFrom` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `reset` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `shake` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `step` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `zoom` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-| `pose` | What a `ControlDragAction` does to a draggable node. `step` turns a drag track control by `ControlDragAction.steps` of its step, as if dragged there (a dial's nudge buttons and arrow keys). On a node with a transform gesture (a map, a photo): `reset` springs it to its rest pose, `zoom` scales it by `ControlDragAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows (zoom buttons), and `pose` springs it to the pose `ControlDragAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
-
 <a id="enum-DragDirection"></a>
 ### DragDirection
 
-`left`, `right`, `up`, `down`
-
-<a id="enum-DragRelease"></a>
-### DragRelease
-
 | Value | Meaning |
 |---|---|
-| `snapBack` | What a dragged node does when let go. |
-| `stay` | What a dragged node does when let go. |
-| `dismiss` | What a dragged node does when let go. |
+| `left` | A direction a node is dragged or dismissed in. |
+| `right` | A direction a node is dragged or dismissed in. |
+| `up` | A direction a node is dragged or dismissed in. |
+| `down` | A direction a node is dragged or dismissed in. |
 
 <a id="enum-DragSourceStyle"></a>
 ### DragSourceStyle
 
 | Value | Meaning |
 |---|---|
-| `ghost` | What the node shows where it was picked up while dragged. |
-| `hidden` | What the node shows where it was picked up while dragged. |
-| `keep` | What the node shows where it was picked up while dragged. |
+| `ghost` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
+| `hidden` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
+| `keep` | What the node shows where it was picked up while dragged (`Draggable.childWhenDragging`): a faded copy, nothing, or itself. |
 
 <a id="enum-DragStart"></a>
 ### DragStart
@@ -1701,41 +1733,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `press` | How a node starts a drag: on press, on long press, or long press on touch and press with a mouse. |
 | `longPress` | How a node starts a drag: on press, on long press, or long press on touch and press with a mouse. |
 | `auto` | How a node starts a drag: on press, on long press, or long press on touch and press with a mouse. |
-
-<a id="enum-DragTrackHitArea"></a>
-### DragTrackHitArea
-
-| Value | Meaning |
-|---|---|
-| `self` | Where a `DragTrack`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box). |
-| `parent` | Where a `DragTrack`'s node takes the pointer: on itself, or anywhere in its parent (a knob turned from anywhere in its box). |
-
-<a id="enum-DragTrackInput"></a>
-### DragTrackInput
-
-| Value | Meaning |
-|---|---|
-| `follow` | How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `vertical` | How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `horizontal` | How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-| `both` | How the pointer moves along a `DragTrack`: following it, or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
-
-<a id="enum-DragTrackShape"></a>
-### DragTrackShape
-
-| Value | Meaning |
-|---|---|
-| `line` | The shape of a `DragTrack`. |
-| `arc` | The shape of a `DragTrack`. |
-| `path` | The shape of a `DragTrack`. |
-
-<a id="enum-DragTrackUnits"></a>
-### DragTrackUnits
-
-| Value | Meaning |
-|---|---|
-| `pixels` | What a `DragTrack`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
-| `parent` | What a `DragTrack`'s geometry is measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
 
 <a id="enum-DropSlot"></a>
 ### DropSlot
@@ -1780,14 +1777,6 @@ Written as the value's name, a JSON string (`"center"`).
 |---|---|
 | `youtube` | Where an embedded video is hosted. |
 | `vimeo` | Where an embedded video is hosted. |
-
-<a id="enum-FeedbackAnchor"></a>
-### FeedbackAnchor
-
-| Value | Meaning |
-|---|---|
-| `grab` | Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size). |
-| `center` | Which point of the copy that follows the pointer sits under it: where it was grabbed, or its center (a feedback node of another size). |
 
 <a id="enum-FlipAxis"></a>
 ### FlipAxis
@@ -1919,14 +1908,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `manual` | When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`). |
 | `onDrag` | When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`). |
 
-<a id="enum-KeyframeInterpolation"></a>
-### KeyframeInterpolation
-
-| Value | Meaning |
-|---|---|
-| `linear` | Straight segments, each on its keyframe's curve (`TweenSequence`). |
-| `monotoneCubic` | One smooth curve through every keyframe that never overshoots one (monotone cubic, Fritsch–Carlson): a lift that swells and settles. The keyframes' own curves are not used. |
-
 <a id="enum-LineChartXLabelAnchor"></a>
 ### LineChartXLabelAnchor
 
@@ -2013,6 +1994,24 @@ Written as the value's name, a JSON string (`"center"`).
 | `fullScreen` | The whole screen. |
 | `popover` | A popover next to the node that opened it (or the pointer). |
 | `banner` | A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog. |
+
+<a id="enum-MotionLoop"></a>
+### MotionLoop
+
+| Value | Meaning |
+|---|---|
+| `none` | Plays once. |
+| `restart` | From the start again. |
+| `reverse` | Back and forth. |
+| `swing` | Swings around rest on a sine, to its values and as far the other way, one swing per `Motion.duration`: a pendulum, a needle sweeping a gauge. It rests at rest, not at an end. |
+
+<a id="enum-MotionPathPacing"></a>
+### MotionPathPacing
+
+| Value | Meaning |
+|---|---|
+| `length` | The share of the path's length: even speed along the curve. |
+| `area` | The share of the area swept by a line from the focus (`Motion.pathFocusX`, `Motion.pathFocusY`, in the path's coordinates) to the node: Kepler's second law, an orbit that speeds up near its Sun. |
 
 <a id="enum-NavigationDestinationLabelBehavior"></a>
 ### NavigationDestinationLabelBehavior
@@ -2101,6 +2100,14 @@ Written as the value's name, a JSON string (`"center"`).
 
 `solid`, `linear`, `radial`, `sweep`, `diamond`, `image`
 
+<a id="enum-PanRelease"></a>
+### PanRelease
+
+| Value | Meaning |
+|---|---|
+| `snapBack` | What a `Pan` does when let go: springs back to rest, or stays where it is (settling by its physics: a fling, snap points). |
+| `stay` | What a `Pan` does when let go: springs back to rest, or stays where it is (settling by its physics: a fling, snap points). |
+
 <a id="enum-ParticleShape"></a>
 ### ParticleShape
 
@@ -2130,18 +2137,9 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `none` | It keeps its own rotation. |
-| `tangent` | Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`). |
-| `upright` | The same, folded into −90…90 degrees so it is never upside down. |
-| `uprightFlip` | `upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish. |
-
-<a id="enum-PathPacing"></a>
-### PathPacing
-
-| Value | Meaning |
-|---|---|
-| `length` | The share of the path's length: even speed along the curve. |
-| `area` | The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun). |
+| `none` | It doesn't. |
+| `tangent` | With the path's direction. |
+| `upright` | With the path's direction, folded into −90…90 degrees so it is never upside down. |
 
 <a id="enum-PathUnit"></a>
 ### PathUnit
@@ -2555,6 +2553,66 @@ Written as the value's name, a JSON string (`"center"`).
 | `replace` | The value is the property's (a `Tween` driving it). |
 | `add` | Added to the property's own: a translation or rotation nested inside the node's (`SlideTransition`, `RotationTransition` around it). |
 | `multiply` | Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it). |
+
+<a id="enum-TrackCommand"></a>
+### TrackCommand
+
+| Value | Meaning |
+|---|---|
+| `step` | What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`. |
+| `animateTo` | What a `ControlTrackAction` does to a `Track`: `step` turns it by `ControlTrackAction.steps` of its step, as if dragged there (crossing each step, then settling: a dial's nudge buttons); `animateTo` moves it to `ControlTrackAction.value` (`Slider.onChanged(value)`), reporting `changed`, `dragEnd` and `changeEnd`. |
+
+<a id="enum-TrackHitArea"></a>
+### TrackHitArea
+
+| Value | Meaning |
+|---|---|
+| `self` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box). |
+| `parent` | Where a `Track`'s node takes the pointer: on itself, or anywhere in its parent too (a knob turned from anywhere in its box). |
+
+<a id="enum-TrackInput"></a>
+### TrackInput
+
+| Value | Meaning |
+|---|---|
+| `follow` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `vertical` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `horizontal` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+| `both` | How the pointer moves along a `Track`: following it (along the line or path, round the arc), or dragging up/down, left/right, or either (up or right raises it: dx − dy). |
+
+<a id="enum-TrackInteraction"></a>
+### TrackInteraction
+
+| Value | Meaning |
+|---|---|
+| `slideThumb` | How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only). |
+| `tapAndSlide` | How the pointer may move a `Track`'s value (Flutter's `SliderInteraction`, the two it has of four): only by dragging the thumb (`slideThumb`), or also by pressing the track, which moves the thumb there before the drag goes on (`tapAndSlide`; `TrackInput.follow` only). |
+
+<a id="enum-TrackShape"></a>
+### TrackShape
+
+| Value | Meaning |
+|---|---|
+| `line` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
+| `arc` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
+| `path` | The shape of a `Track`: a straight line, an arc about a pivot, or an SVG path (`Track.path`). |
+
+<a id="enum-TrackUnits"></a>
+### TrackUnits
+
+| Value | Meaning |
+|---|---|
+| `pixels` | What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
+| `parent` | What a `Track`'s line and pivot are measured in: pixels, or fractions of the parent's size (x values of its width, y of its height). |
+
+<a id="enum-TransformCommand"></a>
+### TransformCommand
+
+| Value | Meaning |
+|---|---|
+| `reset` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
+| `scaleBy` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
+| `animateTo` | What a `ControlTransformAction` does to a `TransformGesture` (a map, a photo; `transformationController.value = ...`): `reset` springs it to its rest pose (on a node without one, its dismissible or pan: the legacy `controlDrag` `reset`, whose target JSON can't tell); `scaleBy` scales it by `ControlTransformAction.value` (a factor: `1.5` in, `0.67` out) about the middle of what its viewport shows; `animateTo` springs it to the pose `ControlTransformAction.value` gives (`{x, y, scale, rotation}`, keys left out kept: "fit to route"). |
 
 <a id="enum-TransformPan"></a>
 ### TransformPan
