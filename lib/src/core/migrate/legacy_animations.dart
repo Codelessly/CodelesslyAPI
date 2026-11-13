@@ -276,7 +276,7 @@ abstract final class LegacyAnimations {
           } case final Json values when values.isNotEmpty)
             Keyframe(at: (readDouble(f['t']) ?? 0).clamp(0.0, 1.0), value: values),
       ];
-      Transition of(String property, {int? ms, AnimationCurve? ease, List<Keyframe> keyframes = const [], double arc = 0}) =>
+      Transition of(String property, {int? ms, AnimationCurve? ease, List<Keyframe> keyframes = const []}) =>
           Transition(
             property: property,
             duration: ms ?? duration,
@@ -285,9 +285,9 @@ abstract final class LegacyAnimations {
             spring: springy ? spring : null,
             keyframes: keyframes,
             interpolation: keyframes.isEmpty ? KeyframeInterpolation.linear : KeyframeInterpolation.monotoneCubic,
-            arc: arc,
           );
-      transitions.add(of('motion', keyframes: poseFrames, arc: r.d('arc', 0)));
+      // (`arc` is kept on the `motion` transition's JSON by the step.)
+      transitions.add(of('motion', keyframes: poseFrames));
       if (rotateCurve != null) transitions.add(of('motion.rotate', ease: rotateCurve));
       if (motion.containsKey('opacity') || bound('opacity') || keyed('opacity') || patchesOpacity) {
         final opacityFrames = fadeShare < 1

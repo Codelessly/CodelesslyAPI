@@ -66,7 +66,19 @@ final motionLegacyStep = MigrationStep(
     if (!jsonEquality.equals(animations, _animationsOf(n))) {
       putKey(n, 'animations', animations.isEmpty ? null : [for (final a in animations) a.toJson()], s);
     }
-    final transitionsJson = transitions.isEmpty ? null : [for (final t in transitions) t.toJson()];
+    // The deprecated `arc` (dropped by transition.arc): the own
+    // transitions' and the motion's, on the transitions they are now.
+    final arcs = <String, Object?>{
+      for (final t in readList(n['transitions']) ?? const [])
+        if (readMap(t) case final Json m when m['arc'] != null) '${m['property']}': m['arc'],
+      if (fromMotion?.transitions.any((t) => t.property == 'motion') ?? false)
+        if (readDouble(motion?['arc']) case final double a when a != 0) 'motion': jsonNum(a),
+    };
+    final transitionsJson = transitions.isEmpty
+        ? null
+        : [
+            for (final t in transitions) {...t.toJson(), 'arc': ?arcs[t.property]},
+          ];
     if (!jsonEquality.equals(transitions, Transition.listFromJson(n['transitions'])) || n['transitions'] is Map) {
       putKey(n, 'transitions', transitionsJson, s);
     }
@@ -87,7 +99,7 @@ final motionLegacyStep = MigrationStep(
       ];
       putKey(n, 'decoration', decoration, s);
     }
-    if (legacyMotion) putKey(n, 'motion', LegacyMotion.read(motion).toJson(), s);
+    if (legacyMotion) putKey(n, 'motion', LegacyMotion.json(motion), s);
     putBind(n, bind, s);
   },
 );
@@ -158,7 +170,7 @@ final trackLegacyStep = MigrationStep(
     if (LegacyTrack.readsOnly(t) && !bind.containsKey('track.value')) {
       putBind(n, {...bind, 'track.value': '\${${readString(t['variable'])!.trim()}}'}, s);
     }
-    putKey(n, 'track', LegacyTrack.read(t).toJson(), s);
+    putKey(n, 'track', LegacyTrack.read(t), s);
   },
 );
 
@@ -215,7 +227,10 @@ final transitionsLegacyStep = MigrationStep(
   node: (n, s) {
     final list = LegacyTransitions.read(n['transitions']);
     if (list == null) return;
-    putKey(n, 'transitions', list.isEmpty ? null : [for (final t in list) t.toJson()], s);
+    // A map entry's deprecated `arc` stays on its transition (transition.arc
+    // drops it).
+    final raw = readMap(n['transitions']) ?? const <String, Object?>{};
+    putKey(n, 'transitions', list.isEmpty ? null : [for (final t in list) {...t.toJson(), 'arc': ?readMap(raw[t.property])?['arc']}], s);
   },
 );
 
@@ -358,3 +373,4 @@ Json _statePatchOpacity(Json patch) {
 
 final _silentReport = <MigrationStep, MigrationScope>{};
 MigrationScope _silent(MigrationStep step) => _silentReport[step] ??= MigrationScope.silent(step);
+

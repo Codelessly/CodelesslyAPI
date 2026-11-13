@@ -37,9 +37,10 @@ void main() {
         'pathViewBox': [760, 420],
         'pathWrap': true,
       })!;
-      expect(m.path, const PathFollow(path: 'M0 0 L100 0', progress: 0.25, orient: PathOrient.uprightFlip, viewBox: [760, 420]));
+      // uprightMirror (uprightFlip) is upright in schema 3.
+      expect(m.path, const PathFollow(path: 'M0 0 L100 0', progress: 0.25, orient: PathOrient.upright, viewBox: [760, 420]));
       expect(m.toJson(), {
-        'path': {'path': 'M0 0 L100 0', 'viewBox': [760, 420], 'progress': 0.25, 'orient': 'uprightFlip'},
+        'path': {'path': 'M0 0 L100 0', 'viewBox': [760, 420], 'progress': 0.25, 'orient': 'upright'},
       });
       expect(Motion.fromJson(m.toJson()), m);
       expect(legacyMotion({'path': 'M0 0', 'orientToPath': true})!.path!.orient, PathOrient.tangent);
@@ -102,7 +103,7 @@ void main() {
         'motion': {'duration': 240, 'delay': 30, 'curve': 'easeOutCubic', 'opacity': 0.5, 'blur': 1, 'arc': 0.2},
       });
       expect(n.behaviors.transitions, [
-        const Transition(property: 'motion', duration: 240, delay: 30, curve: AnimationCurve.easeOutCubic, arc: 0.2),
+        const Transition(property: 'motion', duration: 240, delay: 30, curve: AnimationCurve.easeOutCubic),
         const Transition(property: 'opacity', duration: 240, delay: 30, curve: AnimationCurve.easeOutCubic),
         const Transition(property: 'decoration.effects.motionBlur.blurRadius', duration: 240, delay: 30, curve: AnimationCurve.easeOutCubic),
       ]);

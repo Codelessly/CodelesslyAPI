@@ -132,7 +132,7 @@ enum TriggerType {
   exitViewport,
 
   /// Drag and drop: on a draggable (start, cancel, completed) and on a drop
-  /// target (drop, enter, exit, hover, rejected; full: [dropFull]).
+  /// target (drop, enter, exit, rejected).
   /// `${result}` and `${drag}` hold the drag. A list with a `reorder` fires
   /// `dragStart` when a row is picked up and `dragCompleted` when it is let
   /// go (moved or not), with `${result.index}` and `${result.item}`: a list
@@ -147,13 +147,7 @@ enum TriggerType {
   drop,
   dragEnter,
   dragExit,
-  dragHover,
   dropRejected,
-
-  /// On a drop target that is full (its `fullIf` holds) when a drag of a
-  /// group it accepts is let go on it: the drag springs back and these
-  /// run, reading the drop as [drop] does; `${drag.full}` is true.
-  dropFull,
 
   /// A data list row was dragged to a new place by this node, its reorder
   /// handle (`${result.from}`, `${result.to}`). A list with a `reorder`

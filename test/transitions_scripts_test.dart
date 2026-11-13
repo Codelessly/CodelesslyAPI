@@ -175,9 +175,9 @@ void main() {
     });
   });
 
-  test('back pressed and drop full triggers; the canvas blocks back', () {
+  test('back pressed trigger (dropFull is gone in schema 3); the canvas blocks back', () {
     expect(Trigger.fromJson({'type': 'backPressed'})!.type, TriggerType.backPressed);
-    expect(Trigger.fromJson({'type': 'dropFull'})!.type, TriggerType.dropFull);
+    expect(Trigger.fromJson({'type': 'dropFull'}), isNull);
     expect(TriggerType.screen, contains(TriggerType.backPressed));
     expect(CanvasProps.spec.props, contains(CanvasProps.blockBack));
     final canvas = Node.fromJson({

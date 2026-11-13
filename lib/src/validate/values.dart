@@ -1,6 +1,8 @@
 // Checks one JSON value against a declaration's PropType (and codec): the
 // strict reading of what the lenient decoders accept. Every rule here
 // mirrors a decoder: what it reads, what it silently replaces.
+import '../core/custom_paint.dart' show Expr;
+import '../core/custom_paint_fields.dart' show ExprCodec;
 import '../core/json.dart';
 import '../core/props.dart';
 import '../core/values/geometry.dart';
@@ -88,6 +90,8 @@ final class ValueChecker {
 
   void check(PropType type, Object? json, String path, {PropCodec<Object?>? codec, PropDef<Object?>? def}) {
     if (json == null) return; // null is "unset": the default.
+    // A field that takes an expression inline (ExprCodec) takes `${...}`.
+    if (codec is ExprCodec && json is String && Expr.isSource(json.trim())) return;
     switch (type.kind) {
       case PropKind.boolean:
         if (json is bool) return;

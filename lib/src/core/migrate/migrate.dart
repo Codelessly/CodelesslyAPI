@@ -153,7 +153,7 @@ void _guarded(Json json, MigrationStep step, String nodeId, MigrationReport? rep
       document: report.document,
       node: nodeId,
       message: 'The step could not run here ($e); left as it was.',
-      instead: 'Rewrite it by hand in the schema-3 form (docs/guide/migrating-to-schema-3.md).',
+      instead: 'Rewrite it by hand in the schema-3 form (docs/guide/12-migrating-to-schema-3.md).',
     ));
   }
 }

@@ -84,7 +84,6 @@ void main() {
     'draggable': {'group': 'tiles', 'data': 'a'},
     'dropTarget': {
       'accepts': ['tiles'],
-      'hoverDelay': 200
     },
     'drag': {
       'release': 'dismiss',
