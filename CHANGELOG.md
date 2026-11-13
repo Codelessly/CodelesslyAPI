@@ -1,3 +1,14 @@
+## Unreleased
+
+**Breaking changes**
+
+*Removed* (fields the SDK never read: setting them changed nothing at runtime)
+
+- `Trigger.lookaheadMs` (`TriggerFields.lookaheadMs`, the `lookaheadMs` key of a `clock` trigger): no runtime
+  read it. JSON that carries the key still decodes; the key is dropped on re-encode.
+- `CloudDataAction.deleteSubcollections` (`CloudDataFields.deleteSubcollections`): no runtime read it. JSON that carries the key still decodes; the key is dropped on re-encode, and
+  `ActionSpecs.unknownKeys` now reports it.
+
 ## 24.0.0
 
 **Breaking changes**

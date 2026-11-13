@@ -1437,7 +1437,6 @@ final class CloudDataAction extends ActionDef {
     this.limit,
     this.aggregateField = '',
     this.loadRelated = const [],
-    this.deleteSubcollections = const [],
     this.resultVariable = '',
     super.enabled,
     super.nonBlocking,
@@ -1457,7 +1456,6 @@ final class CloudDataAction extends ActionDef {
   final int? limit;
   final String aggregateField;
   final List<String> loadRelated;
-  final List<String> deleteSubcollections;
   final String resultVariable;
 
   static CloudDataAction _fromJson(Json m, _Common c) => CloudDataAction(
@@ -1470,7 +1468,6 @@ final class CloudDataAction extends ActionDef {
     limit: readInt(m['limit']),
     aggregateField: _s(m, 'aggregateField'),
     loadRelated: readStrings(m['loadRelated']),
-    deleteSubcollections: readStrings(m['deleteSubcollections']),
     resultVariable: _s(m, 'resultVariable'),
     enabled: c.enabled,
     nonBlocking: c.nonBlocking,
@@ -1488,7 +1485,6 @@ final class CloudDataAction extends ActionDef {
     'limit': ?limit,
     if (aggregateField.isNotEmpty) 'aggregateField': aggregateField,
     if (loadRelated.isNotEmpty) 'loadRelated': loadRelated,
-    if (deleteSubcollections.isNotEmpty) 'deleteSubcollections': deleteSubcollections,
     if (resultVariable.isNotEmpty) 'resultVariable': resultVariable,
   };
 }

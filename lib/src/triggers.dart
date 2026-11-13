@@ -216,7 +216,6 @@ final class Trigger {
     this.holdMs = kDefaultHoldMs,
     this.every = '',
     this.runWhen = '',
-    this.lookaheadMs = 100,
     this.visibleFraction = kDefaultVisibleFraction,
     this.repeat = false,
     this.visibleMs = 0,
@@ -250,9 +249,6 @@ final class Trigger {
 
   /// [TriggerType.clock]: runs while this formula is true; empty: always.
   final String runWhen;
-
-  /// [TriggerType.clock]: how early each tick's actions run.
-  final int lookaheadMs;
 
   /// Viewport triggers: the visible share (0–1) that counts as in view.
   final double visibleFraction;
@@ -297,7 +293,6 @@ final class Trigger {
       holdMs: readInt(m['holdMs']) ?? kDefaultHoldMs,
       every: m['every'] == null ? '' : '${m['every']}',
       runWhen: readString(m['runWhen']) ?? '',
-      lookaheadMs: readInt(m['lookaheadMs']) ?? 100,
       visibleFraction: (readDouble(m['visibleFraction']) ?? kDefaultVisibleFraction).clamp(0, 1).toDouble(),
       repeat: m['repeat'] == true,
       visibleMs: (readInt(m['visibleMs']) ?? 0).clamp(0, 600000),
@@ -323,7 +318,6 @@ final class Trigger {
         if (holdMs != kDefaultHoldMs) 'holdMs': holdMs,
         if (every.isNotEmpty) 'every': every,
         if (runWhen.isNotEmpty) 'runWhen': runWhen,
-        if (lookaheadMs != 100) 'lookaheadMs': lookaheadMs,
         if (visibleFraction != kDefaultVisibleFraction) 'visibleFraction': writeDouble(visibleFraction),
         if (repeat) 'repeat': true,
         if (visibleMs != 0) 'visibleMs': visibleMs,

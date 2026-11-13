@@ -498,8 +498,8 @@ pressed while the canvas's `props.blockBack` holds, usually bound to
 never blocked), scrolling and viewport (`scroll`, `scrollEnd`,
 `enterViewport`, `exitViewport`), drag and drop (`dropFull`: let go on a
 target whose `fullIf` holds) and `reorder`. Settings are sparse: `debounceMs`, `variable`, `intervalMs`,
-`key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`/
-`lookaheadMs`, `visibleFraction`. A list fires `refresh` (pulled to
+`key` (`KeyCombo`: `Meta+Enter`), `when`, `holdMs`, `every`/`runWhen`,
+`visibleFraction`. A list fires `refresh` (pulled to
 refresh) and `swipeAction` (`${result.action}`, `${result.item}`).
 
 **Actions** (`ActionDef`, sealed, one immutable class per type,
