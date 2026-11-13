@@ -70,8 +70,8 @@ List<Diagnostic> validateDocument(Object? json, {ValidateOptions options = const
   final r = Reporter();
   try {
     _Validator(r, options).document(json);
-  } catch (e, s) {
-    r.add(Codes.invalidDocument, '', 'Validation stopped on an unexpected value: $e\n$s');
+  } catch (e) {
+    r.add(Codes.invalidDocument, '', 'Validation stopped on an unexpected value: ${'$e'.split('\n').first}');
   }
   return r.out;
 }
@@ -433,7 +433,7 @@ final class _Validator {
     for (final k in n.extra.keys) {
       if (n.type == CanvasProps.spec.type && canvasRouteKeys.contains(k)) continue;
       r.add(Codes.unknownNodeKey, pointer(at, k), _unknownNodeKeyMessage(k, spec),
-          suggestion: nearest(k, nodeKeys) ?? _whereKeyBelongs(k, spec));
+          suggestion: _whereKeyBelongs(k, spec) ?? nearest(k, nodeKeys));
     }
     for (final k in const ['name', 'key']) {
       if (raw[k] != null && raw[k] is! String) r.add(Codes.wrongType, pointer(at, k), '"$k" is text, got ${describe(raw[k])}.');
@@ -909,7 +909,11 @@ final class _Validator {
           continue;
         }
         // Check the patched node, reporting only what the patch sets.
-        final merged = mergePatch(readMap(nodesJson[t.key])!, patch);
+        final base = {...readMap(nodesJson[t.key])!};
+        // The target's own states and reactions are checked where it is.
+        if (!patch.containsKey('states')) base.remove('states');
+        if (!patch.containsKey('actions')) base.remove('actions');
+        final merged = mergePatch(base, patch);
         final sub = Reporter()..node = n.id;
         final v = _Validator(sub, options)
           ..nodes = nodes
