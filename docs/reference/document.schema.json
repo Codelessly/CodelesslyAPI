@@ -2454,25 +2454,11 @@
         "emoji"
       ]
     },
-    "enum.PathCurve": {
-      "enum": [
-        "straight",
-        "vertical",
-        "horizontal",
-        "quadratic"
-      ]
-    },
     "enum.PathOrient": {
       "enum": [
         "none",
         "tangent",
         "upright"
-      ]
-    },
-    "enum.PathUnit": {
-      "enum": [
-        "fraction",
-        "pixels"
       ]
     },
     "enum.PaywallOperation": {
@@ -5255,9 +5241,6 @@
             }
           ]
         },
-        "gradientPerSubpath": {
-          "type": "boolean"
-        },
         "radius": {
           "anyOf": [
             {
@@ -6001,77 +5984,6 @@
       "properties": {
         "offset": {
           "type": "number"
-        }
-      },
-      "additionalProperties": false
-    },
-    "model.StrokePath": {
-      "type": "object",
-      "properties": {
-        "points": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/value.Offset"
-          }
-        },
-        "xUnit": {
-          "$ref": "#/$defs/enum.PathUnit"
-        },
-        "yUnit": {
-          "$ref": "#/$defs/enum.PathUnit"
-        },
-        "curve": {
-          "$ref": "#/$defs/enum.PathCurve"
-        },
-        "color": {
-          "$ref": "#/$defs/value.Color"
-        },
-        "width": {
-          "type": "number"
-        },
-        "progress": {
-          "type": "number",
-          "minimum": 0.0,
-          "maximum": 1.0
-        },
-        "dashPattern": {
-          "type": "array",
-          "items": {
-            "type": "number"
-          }
-        },
-        "cap": {
-          "$ref": "#/$defs/enum.StrokeCap"
-        },
-        "inFront": {
-          "type": "boolean"
-        },
-        "drawMs": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "drawDelayMs": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "drawCurve": {
-          "$ref": "#/$defs/enum.AnimationCurve"
-        },
-        "drawKey": {
-          "type": "string"
-        },
-        "fillColor": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/value.Color"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "untilWidth": {
-          "type": "boolean"
         }
       },
       "additionalProperties": false
@@ -7347,16 +7259,6 @@
             }
           ]
         },
-        "strokePath": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/model.StrokePath"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "typewriter": {
           "anyOf": [
             {
@@ -7631,18 +7533,7 @@
             "properties": {
               "props": {
                 "type": "object",
-                "properties": {
-                  "path": {
-                    "type": "string"
-                  },
-                  "strokeJoin": {
-                    "$ref": "#/$defs/enum.StrokeJoin"
-                  },
-                  "strokeMiterLimit": {
-                    "type": "number",
-                    "minimum": 0.0
-                  }
-                },
+                "properties": {},
                 "additionalProperties": false
               },
               "children": {
@@ -15462,12 +15353,6 @@
                   "strokeMiterLimit": {
                     "type": "number",
                     "minimum": 0.0
-                  },
-                  "subpathColors": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/$defs/value.Color"
-                    }
                   }
                 },
                 "additionalProperties": false

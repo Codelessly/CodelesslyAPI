@@ -199,7 +199,6 @@ final class Paint {
     this.transform,
     this.tileMode = TileMode.clamp,
     this.image,
-    this.gradientPerSubpath = false,
     this.radius,
     this.begin,
     this.end,
@@ -216,7 +215,6 @@ final class Paint {
         transform = null,
         tileMode = TileMode.clamp,
         image = null,
-        gradientPerSubpath = false,
         radius = null,
         begin = null,
         end = null,
@@ -245,15 +243,6 @@ final class Paint {
 
   /// Image (type `image`).
   final ImagePaint? image;
-
-  /// **Schema 3 only**: schema 4 draws each shape as a `customPaint` path op
-  /// with this gradient as its shader (`paint.perShape` in
-  /// migrate/steps_paint4.dart).
-  ///
-  /// A gradient laid out in each shape of a path (every closed subpath,
-  /// with the holes inside it) instead of across the box: one path of many
-  /// cells shades each alike. Only paths paint per shape.
-  final bool gradientPerSubpath;
 
   /// A radial gradient's radius as a share of the box's shortest side,
   /// centered (Flutter's `RadialGradient(radius:)`), in place of the one
@@ -349,7 +338,6 @@ final class Paint {
           (type == PaintType.radial || type == PaintType.diamond || type == PaintType.sweep ? centerTransform(Alignment.fromJson(m['center'])) : null),
       tileMode: readEnum(TileMode.values, m['tileMode'], TileMode.clamp),
       image: type == PaintType.image ? ImagePaint.fromJson(imageJson) : null,
-      gradientPerSubpath: readBool(m['gradientPerSubpath']) ?? false,
       radius: switch (readDouble(m['radius'])) { final double r when r > 0 && r.isFinite => r, _ => null },
       begin: Alignment.fromJson(m['begin']),
       end: Alignment.fromJson(m['end']),
@@ -379,7 +367,6 @@ final class Paint {
     put(j, 'center', center?.toJson());
     put(j, 'tileMode', tileMode.name, TileMode.clamp.name);
     put(j, 'image', image?.toJson());
-    put(j, 'gradientPerSubpath', gradientPerSubpath, false);
     put(j, 'radius', radius == null ? null : writeDouble(radius!));
     put(j, 'length', length == null ? null : writeDouble(length!));
     if (noise case final n?) j['noise'] = n.toJson();
@@ -399,7 +386,6 @@ final class Paint {
       _listEq(other.transform, transform) &&
       other.tileMode == tileMode &&
       other.image == image &&
-      other.gradientPerSubpath == gradientPerSubpath &&
       other.radius == radius &&
       other.begin == begin &&
       other.end == end &&
@@ -409,7 +395,7 @@ final class Paint {
 
   @override
   int get hashCode =>
-      Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, gradientPerSubpath, radius, length, noise);
+      Object.hash(type, id, visible, opacity, blendMode, color, Object.hashAll(stops), tileMode, image, radius, length, noise);
 }
 
 enum EffectType { dropShadow, innerShadow, layerBlur, backgroundBlur }

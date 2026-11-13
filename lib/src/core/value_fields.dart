@@ -238,9 +238,6 @@ abstract final class PaintFields {
     ValueCodec(_imageIn, _out, PropType.object('ImagePaint', imagePaintFields)),
     null,
   );
-  /// A path paints the gradient in each of its shapes.
-  /// Schema 3 only ([Paint.gradientPerSubpath]).
-  static const gradientPerSubpath = PropDef<bool>('gradientPerSubpath', Codecs.bool, false);
   /// A radial gradient's radius as a share of the box's shortest side.
   static const radius = PropDef<double?>('radius', Codecs.optionalPositive, null,
       doc: "Radial: the radius as a share of the box's shortest side (Flutter's RadialGradient); null: half the box's width "
@@ -279,7 +276,6 @@ abstract final class PaintFields {
     center,
     tileMode,
     image,
-    gradientPerSubpath,
     radius,
     length,
     noise,

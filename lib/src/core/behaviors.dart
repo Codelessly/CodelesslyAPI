@@ -1829,183 +1829,6 @@ final class Flight extends _Value {
   List<Object?> get props => [duration, curve, lift, liftShare, swell, turns, trail, trailColor];
 }
 
-// --- paint and scroll -------------------------------------------------------------
-
-/// The unit of a [StrokePath] coordinate.
-enum PathUnit { fraction, pixels }
-
-/// How a [StrokePath] joins its points.
-enum PathCurve {
-  straight,
-  vertical,
-  horizontal,
-
-  /// Quadratic Béziers: after the first point the points come in pairs, a
-  /// control point and an end point (a hand-drawn outline exactly as a
-  /// painter's `quadraticBezierTo` draws it, not sampled into lines). A
-  /// last point without its pair is a straight line to it.
-  quadratic,
-}
-
-/// **Schema 3 only.** Schema 4 draws it as a `customPaint` path op
-/// (`paint.strokePath` in migrate/steps_paint4.dart), which is what renders
-/// a migrated document; this stays readable until schema 4's version gate
-/// removes it.
-///
-/// A line drawn through [points] in the node's box (a dotted trail, a
-/// connector), behind its content or [inFront] of it. x and y are fractions
-/// of the box or pixels, per [xUnit]/[yUnit].
-///
-/// With [drawMs] a running app draws the line along its length, like a pen
-/// (a map's passages inking in, a route tracing itself): over [drawMs] ms
-/// after [drawDelayMs], eased by [drawCurve], up to [progress]; when the
-/// node first shows, again from nothing when [drawKey] changes, and from
-/// where it is when [progress] changes. The design canvas draws it at
-/// [progress].
-@immutable
-final class StrokePath extends _Value {
-  const StrokePath({
-    this.points = const [],
-    this.xUnit = PathUnit.fraction,
-    this.yUnit = PathUnit.pixels,
-    this.curve = PathCurve.straight,
-    this.color = Color.white,
-    this.width = 4,
-    this.progress = 1,
-    this.dashPattern = const [],
-    this.cap = StrokeCap.round,
-    this.inFront = false,
-    this.drawMs = 0,
-    this.drawDelayMs = 0,
-    this.drawCurve = AnimationCurve.easeInOut,
-    this.drawKey = '',
-    this.fillColor,
-    this.untilWidth = false,
-  });
-
-  final List<Offset> points;
-  final PathUnit xUnit, yUnit;
-
-  /// The shape the points enclose (the path closed), filled behind the
-  /// line: a hand-drawn box with its own wobble. It fades in as the line
-  /// draws (its alpha times [progress]). Null: no fill.
-  final PathCurve curve;
-  final Color color;
-  final double width;
-
-  /// Fraction of the stroke drawn, measured along its length.
-  final double progress;
-
-  /// Dash and gap lengths, alternating; empty is solid.
-  final List<double> dashPattern;
-  final StrokeCap cap;
-  final bool inFront;
-
-  /// How long (ms) a running app takes to draw the line; 0 shows it at once.
-  final int drawMs;
-
-  /// How long (ms) it waits before drawing.
-  final int drawDelayMs;
-
-  /// How the drawing eases.
-  final AnimationCurve drawCurve;
-
-  /// A cue: the line draws again from nothing each time it changes (bindable
-  /// as `strokePath.drawKey`, e.g. `${route.id}`).
-  final String drawKey;
-
-  final Color? fillColor;
-
-  /// Draws only the segments that start within the box's width, as a
-  /// painter's loop `for (x = 0; x <= width; ...)` does: a long run of
-  /// points (a hand-ruled line) rules any width, its last segment running
-  /// past the edge as the painter's does.
-  final bool untilWidth;
-
-  /// Whether a running app animates it.
-  bool get draws => drawMs > 0;
-
-  StrokePath copyWith({double? progress}) => StrokePath(
-        points: points,
-        xUnit: xUnit,
-        yUnit: yUnit,
-        curve: curve,
-        color: color,
-        width: width,
-        progress: progress ?? this.progress,
-        dashPattern: dashPattern,
-        cap: cap,
-        inFront: inFront,
-        drawMs: drawMs,
-        drawDelayMs: drawDelayMs,
-        drawCurve: drawCurve,
-        drawKey: drawKey,
-        fillColor: fillColor,
-        untilWidth: untilWidth,
-      );
-
-  static StrokePath? fromJson(Object? json) {
-    final m = readMap(json);
-    if (m == null) return null;
-    final r = _R(m);
-    return StrokePath(
-      points: [...?readList(m['points'])?.map(_pathPoint).nonNulls],
-      xUnit: r.e(PathUnit.values, 'xUnit', PathUnit.fraction),
-      yUnit: r.e(PathUnit.values, 'yUnit', PathUnit.pixels),
-      curve: r.e(PathCurve.values, 'curve', PathCurve.straight),
-      color: r.color('color') ?? Color.white,
-      width: r.d('width', 4),
-      progress: r.d('progress', 1).clamp(0, 1).toDouble(),
-      dashPattern: r.doubles('dashPattern'),
-      cap: r.e(StrokeCap.values, 'cap', StrokeCap.round),
-      inFront: r.b('inFront', false),
-      drawMs: r.ms('drawMs', 0),
-      drawDelayMs: r.ms('drawDelayMs', 0),
-      drawCurve: r.curve('drawCurve', AnimationCurve.easeInOut),
-      drawKey: readString(m['drawKey']) ?? (m['drawKey'] == null ? '' : '${m['drawKey']}'),
-      fillColor: r.color('fillColor'),
-      untilWidth: r.b('untilWidth', false),
-    );
-  }
-
-  /// A point as `[x, y]` or `{"x", "y"}` (the form Firestore can store, and
-  /// what data bound to `strokePath.points` may give).
-  static Offset? _pathPoint(Object? p) {
-    final l = readList(p);
-    if (l != null) return l.length == 2 ? Offset.fromJson(l) : null;
-    final m = readMap(p);
-    final x = readDouble(m?['x']), y = readDouble(m?['y']);
-    return x == null || y == null ? null : Offset(x, y);
-  }
-
-  Json toJson() {
-    final j =
-        <String, Object?>{
-            'points': [for (final p in points) p.toJson()],
-          }
-          ..e('xUnit', xUnit, PathUnit.fraction)
-          ..e('yUnit', yUnit, PathUnit.pixels)
-          ..e('curve', curve, PathCurve.straight);
-    if (color != Color.white) j['color'] = color.toJson();
-    j.d('width', width, 4);
-    j.d('progress', progress, 1);
-    if (dashPattern.isNotEmpty) j['dashPattern'] = dashPattern.map(writeDouble).toList();
-    j
-      ..e('cap', cap, StrokeCap.round)
-      ..b('inFront', inFront, false)
-      ..i('drawMs', drawMs, 0)
-      ..i('drawDelayMs', drawDelayMs, 0)
-      ..e('drawCurve', drawCurve, AnimationCurve.easeInOut);
-    if (drawKey.isNotEmpty) j['drawKey'] = drawKey;
-    if (fillColor != null) j['fillColor'] = fillColor!.toJson();
-    j.b('untilWidth', untilWidth, false);
-    return j;
-  }
-
-  @override
-  List<Object?> get props => [points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, drawMs, drawDelayMs, drawCurve, drawKey, fillColor, untilWidth];
-}
-
 /// Text that types itself out in a running app, like a typewriter or a
 /// terminal: [charsPerSecond] characters a second after [delayMs], with a
 /// blinking block [caret] after the last one while it types. It types when
@@ -2470,7 +2293,6 @@ final class Behaviors extends _Value {
     this.pan,
     this.reorderHandle = false,
     this.reveal,
-    this.strokePath,
     this.typewriter,
     this.particles,
     this.textDirection,
@@ -2539,7 +2361,6 @@ final class Behaviors extends _Value {
   /// `ReorderableDragStartListener`).
   final bool reorderHandle;
   final Reveal? reveal;
-  final StrokePath? strokePath;
 
   /// A text that types itself out in a running app.
   final Typewriter? typewriter;
@@ -2583,7 +2404,7 @@ final class Behaviors extends _Value {
   static const Set<String> keys = {
     'motion', 'animations', 'transitions', 'shimmer', 'inkWell', 'states', 'tooltip', 'ignorePointer', //
     'floating', 'hero', 'draggable', 'dropTarget', 'track', 'dismissible',
-    'pan', 'reorderHandle', 'reveal', 'strokePath', 'typewriter',
+    'pan', 'reorderHandle', 'reveal', 'typewriter',
     'particles', 'textDirection', 'defaultTextStyle', 'flip', 'tilt', 'transformGesture', 'sticky', 'viewProgress', 'measure',
     'customPaint',
   };
@@ -2612,7 +2433,6 @@ final class Behaviors extends _Value {
       pan: Pan.fromJson(m['pan']),
       reorderHandle: r.b('reorderHandle', false),
       reveal: Reveal.fromJson(m['reveal']),
-      strokePath: StrokePath.fromJson(m['strokePath']),
       typewriter: Typewriter.fromJson(m['typewriter']),
       particles: ParticleEmitter.fromJson(m['particles']),
       textDirection: m['textDirection'] is String
@@ -2649,7 +2469,6 @@ final class Behaviors extends _Value {
     if (pan != null) j['pan'] = pan!.toJson();
     j.b('reorderHandle', reorderHandle, false);
     if (reveal != null) j['reveal'] = reveal!.toJson();
-    if (strokePath != null) j['strokePath'] = strokePath!.toJson();
     if (typewriter != null) j['typewriter'] = typewriter!.toJson();
     if (particles != null) j['particles'] = particles!.toJson();
     if (textDirection != null) j['textDirection'] = textDirection!.name;
@@ -2681,7 +2500,6 @@ final class Behaviors extends _Value {
     Pan? pan,
     bool? reorderHandle,
     Reveal? reveal,
-    StrokePath? strokePath,
     Typewriter? typewriter,
     ParticleEmitter? particles,
     TextDirection? textDirection,
@@ -2711,7 +2529,6 @@ final class Behaviors extends _Value {
     pan: pan ?? this.pan,
     reorderHandle: reorderHandle ?? this.reorderHandle,
     reveal: reveal ?? this.reveal,
-    strokePath: strokePath ?? this.strokePath,
     typewriter: typewriter ?? this.typewriter,
     particles: particles ?? this.particles,
     textDirection: textDirection ?? this.textDirection,
@@ -2728,7 +2545,7 @@ final class Behaviors extends _Value {
   @override
   List<Object?> get props => [
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
-    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

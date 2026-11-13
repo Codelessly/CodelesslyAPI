@@ -236,17 +236,6 @@ void main() {
     expect(at(bob, 'translateY', 0.5), closeTo(-10, 1e-9));
   });
 
-  test('a drawn path reads its points as pairs or as x and y', () {
-    final a = StrokePath.fromJson({
-      'points': [
-        [0, 1],
-        {'x': 2, 'y': 3},
-        {'x': 'bad'},
-      ],
-    })!;
-    expect(a.points, const [Offset(0, 1), Offset(2, 3)]);
-  });
-
   test('a flicker wavers between its values and loops without a jump', () {
     final glow = legacyLoop(
         {'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1, 'opacityFrom': 0.6, 'opacityTo': 1}, 0)!.expanded;

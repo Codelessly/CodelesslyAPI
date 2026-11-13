@@ -482,35 +482,6 @@ final class _Validator {
 
   // --- one node ------------------------------------------------------------
 
-  /// The schema-3 paint fields schema 4 moves onto `customPaint` and the
-  /// path node (steps_paint4.dart): noted, not errors, while they draw.
-  void _replacedPaint(Node n, Json raw, String at) {
-    void note(String path, String message) => r.add(Codes.deprecatedKey, path, message);
-    if (raw['strokePath'] != null) {
-      note(pointer(at, 'strokePath'),
-          '"strokePath" is drawn by a "customPaint" path op in schema 4: {"customPaint": {"painter": [{"op": "path", "points": [...], '
-          '"paint": {"style": "stroke", "strokeWidth": 4, "strokeCap": "round", "strokeJoin": "round"}}]}} ("foregroundPainter" for inFront).');
-    }
-    final props = readMap(raw['props']);
-    if (n.type == 'box' && (readString(props?['path'])?.trim().isNotEmpty ?? false)) {
-      note(pointer(pointer(at, 'props'), 'path'), 'A box drawn as an SVG path is a "path" node in schema 4: "type": "path" with the path as "props.data".');
-    }
-    if (n.type == 'path' && props?['subpathColors'] != null) {
-      note(pointer(pointer(at, 'props'), 'subpathColors'),
-          'Per-shape colors are "customPaint" path ops in schema 4: one {"op": "path", "d": <the shapes of a color>, "paint": <color>} per color.');
-    }
-    final decoration = readMap(raw['decoration']);
-    for (final key in const ['fills', 'strokes', 'foregroundFills']) {
-      final list = readList(decoration?[key]) ?? const [];
-      for (var i = 0; i < list.length; i++) {
-        if (readMap(list[i])?['gradientPerSubpath'] == true) {
-          note('${pointer(pointer(at, 'decoration'), key)}/$i/gradientPerSubpath',
-              'A gradient per shape is one "customPaint" path op per shape in schema 4, the gradient as its paint\'s "shader".');
-        }
-      }
-    }
-  }
-
   void _node(Node n, Json raw, String at) {
     final spec = n.spec;
     if (spec == null && isComponentTypeName(n.type)) {
@@ -542,7 +513,6 @@ final class _Validator {
     for (final k in const ['name', 'key']) {
       if (raw[k] != null && raw[k] is! String) r.add(Codes.wrongType, pointer(at, k), '"$k" is text, got ${describe(raw[k])}.');
     }
-    _replacedPaint(n, raw, at);
     if (raw['id'] != null && raw['id'] != n.id) {
       r.add(Codes.wrongType, pointer(at, 'id'), 'The node\'s id is its key in "nodes" ("${n.id}"); "id": ${describe(raw['id'])} is ignored. Leave it out.');
     }
@@ -601,6 +571,17 @@ final class _Validator {
     'scale': 'it is "motion": {"scale": ...} (Flutter\'s Transform.scale; schema 3 multiplied the two)',
     'flightKey': 'it is "hero": {"tag": ..., "flies": "inPlace"} (one shared element, Flutter\'s Hero)',
     'flight': 'it is the hero\'s "flight" ("hero": {"tag": ..., "flies": "inPlace", "flight": {...}})',
+    'strokePath': 'a line through points is a "customPaint" path op ({"customPaint": {"painter": [{"op": "path", '
+        '"points": [...], "paint": {"style": "stroke", "strokeWidth": 4}}]}}; "foregroundPainter" draws it in front)',
+  };
+
+  /// Schema 3's props that schema 4 moved, by node type, and where.
+  static const _propsMovedInSchema4 = {
+    ('box', 'path'): 'a shape is a "path" node: "type": "path" with the path as "props.data"',
+    ('box', 'strokeJoin'): 'it belongs to a "path" node (a box drawn as a path is one)',
+    ('box', 'strokeMiterLimit'): 'it belongs to a "path" node (a box drawn as a path is one)',
+    ('path', 'subpathColors'): 'shapes in different colors are "customPaint" path ops, one per color '
+        '({"op": "path", "d": <the shapes of that color>, "paint": <the color>})',
   };
 
   /// Where a misplaced key goes: `props.text`, `layout.width`...
@@ -1034,6 +1015,10 @@ final class _Validator {
       final def = spec.prop(e.key);
       final p = pointer(at, e.key);
       if (def == null) {
+        if (_propsMovedInSchema4[(n.type, e.key)] case final String moved) {
+          r.add(Codes.unknownProp, p, 'A ${n.type} has no prop "${e.key}" since schema 4: $moved.');
+          continue;
+        }
         final where = LayoutFields.all.any((f) => f.key == e.key)
             ? 'layout.${e.key}'
             : DecorationFields.all.any((f) => f.key == e.key)

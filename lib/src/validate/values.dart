@@ -321,6 +321,12 @@ final class ValueChecker {
       final p = pointer(path, e.key);
       if (f == null) {
         if (codec != null && readsKey(codec, m, e.key)) continue; // read by the model, though undeclared
+        if (type.name == 'Paint' && e.key == 'gradientPerSubpath') {
+          r.add(Codes.unknownField, p,
+              'A Paint has no "gradientPerSubpath" since schema 4: a gradient in each shape is one "customPaint" path op '
+              'per shape, the gradient as its paint\'s "shader".');
+          continue;
+        }
         r.add(Codes.unknownField, p, '${type.name} has no "${e.key}". It takes: ${_list(fields.keys)}.',
             suggestion: nearest(e.key, fields.keys));
         continue;

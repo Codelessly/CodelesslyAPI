@@ -62,7 +62,6 @@ const revealType = PropType.object('Reveal', revealFields);
 const stickyType = PropType.object('Sticky', stickyFields);
 const viewProgressType = PropType.object('ViewProgress', viewProgressFields);
 const measureType = PropType.object('Measure', measureFields);
-const strokePathType = PropType.object('StrokePath', strokePathFields);
 const typewriterType = PropType.object('Typewriter', typewriterFields);
 const particleEmitterType = PropType.object('ParticleEmitter', particleEmitterFields);
 const flightType = PropType.object('Flight', flightFields);
@@ -869,51 +868,6 @@ List<PropDef<Object?>> flightFields() => FlightFields.all;
 
 List<PropDef<Object?>> particleEmitterFields() => ParticleEmitterFields.all;
 
-// --- paint and scroll ---------------------------------------------------------
-
-/// **Schema 3 only** ([StrokePath]): schema 4 writes a `customPaint` path op.
-abstract final class StrokePathFields {
-  /// In the box: fractions or pixels per [xUnit] / [yUnit].
-  static const points = PropDef<List<Offset>>(
-    'points',
-    ListCodec(ValueCodec<Offset>(_offsetIn, _out, PropTypes.offset)),
-    [],
-  );
-  static const xUnit = PropDef<PathUnit>('xUnit', EnumCodec(PathUnit.values), PathUnit.fraction);
-  static const yUnit = PropDef<PathUnit>('yUnit', EnumCodec(PathUnit.values), PathUnit.pixels);
-  static const curve = PropDef<PathCurve>('curve', EnumCodec(PathCurve.values), PathCurve.straight);
-  static const color = PropDef<Color>('color', Codecs.color, Color.white);
-  static const width = PropDef<double>('width', Codecs.double, 4);
-  static const progress = PropDef<double>('progress', DoubleCodec(min: 0, max: 1), 1, doc: 'Fraction of the stroke drawn along its length.');
-
-  /// Dash and gap lengths, alternating; empty is solid.
-  static const dashPattern = PropDef<List<double>>('dashPattern', Codecs.doubles, []);
-  static const cap = PropDef<StrokeCap>('cap', EnumCodec(StrokeCap.values), StrokeCap.round);
-  static const inFront = PropDef<bool>('inFront', Codecs.bool, false);
-
-  /// How long a running app takes to draw the line along its length (when
-  /// it shows, when [drawKey] changes, when [progress] changes); 0 shows it.
-  static const drawMs = PropDef<int>('drawMs', _ms, 0, doc: 'Draw-on time (ms) in a running app; 0 shows it at once.');
-  static const drawDelayMs = PropDef<int>('drawDelayMs', _ms, 0, doc: 'Wait (ms) before drawing.');
-  static const drawCurve = PropDef<AnimationCurve>(
-    'drawCurve',
-    EnumCodec(AnimationCurve.values),
-    AnimationCurve.easeInOut,
-    doc: 'How the drawing eases.',
-  );
-  static const drawKey = PropDef<String>('drawKey', Codecs.string, '', doc: 'Draws again from nothing when it changes.');
-  static const fillColor = PropDef<Color?>('fillColor', Codecs.color, null,
-      doc: 'Fills the shape the points enclose, behind the line (fading in as it draws).');
-  static const untilWidth = PropDef<bool>('untilWidth', Codecs.bool, false,
-      doc: 'Draws only the segments that start within the box width (a long ruled line fits any width).');
-  static const List<PropDef<Object?>> all = [
-    points, xUnit, yUnit, curve, color, width, progress, dashPattern, cap, inFront, //
-    drawMs, drawDelayMs, drawCurve, drawKey, fillColor, untilWidth,
-  ];
-}
-
-List<PropDef<Object?>> strokePathFields() => StrokePathFields.all;
-
 abstract final class TypewriterFields {
   static const enabled = PropDef<bool>('enabled', Codecs.bool, true, doc: 'Off, the whole text shows.');
   static const charsPerSecond = PropDef<double>('charsPerSecond', DoubleCodec(min: 0), 40, doc: 'Typing speed.');
@@ -1061,11 +1015,6 @@ abstract final class BehaviorFields {
   /// A reorderable list row's drag handle (`ReorderableDragStartListener`).
   static const reorderHandle = PropDef<bool>('reorderHandle', Codecs.bool, false);
   static const reveal = PropDef<Reveal?>('reveal', ValueCodec(Reveal.fromJson, _out, revealType), null);
-  static const strokePath = PropDef<StrokePath?>(
-    'strokePath',
-    ValueCodec(StrokePath.fromJson, _out, strokePathType),
-    null,
-  );
   static const typewriter = PropDef<Typewriter?>(
     'typewriter',
     ValueCodec(Typewriter.fromJson, _out, typewriterType),
@@ -1117,7 +1066,7 @@ abstract final class BehaviorFields {
   /// In [Behaviors.keys]' order.
   static const List<PropDef<Object?>> all = [
     motion, animations, transitions, shimmer, inkWell, states, tooltip, ignorePointer, floating, hero, //
-    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, strokePath, typewriter,
+    draggable, dropTarget, track, dismissible, pan, reorderHandle, reveal, typewriter,
     particles, textDirection, defaultTextStyle, flip, tilt, transformGesture, sticky, viewProgress, measure, customPaint,
   ];
 }

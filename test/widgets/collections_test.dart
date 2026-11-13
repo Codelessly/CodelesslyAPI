@@ -4,16 +4,6 @@ import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('switch, page view, paints, paths', () {
-
-    test('a path\'s per-shape colors read from a list or from text, and non-colors are kept as gaps', () {
-      expect(PathProps.subpathColors.decode(['#FF0000', 'x', '#80000000']),
-          [const Color(0xFFFF0000), null, const Color(0x80000000)]);
-      expect(PathProps.subpathColors.decode('#FF0000, #00FF00'), [const Color(0xFFFF0000), const Color(0xFF00FF00)]);
-    });
-
-  });
-
   group('lists and new widget types', () {
 
     test('a pagination bar shortens long page ranges with ellipses that never hide a single page', () {

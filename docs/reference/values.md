@@ -1096,16 +1096,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `squiggle` | A wavy ribbon (stroked). |
 | `emoji` | The emitter's `ParticleEmitter.glyph` (an emoji or any text), drawn at the particle's size. |
 
-<a id="enum-PathCurve"></a>
-### PathCurve
-
-| Value | Meaning |
-|---|---|
-| `straight` |  |
-| `vertical` |  |
-| `horizontal` |  |
-| `quadratic` | Quadratic Béziers: after the first point the points come in pairs, a control point and an end point (a hand-drawn outline exactly as a painter's `quadraticBezierTo` draws it, not sampled into lines). A last point without its pair is a straight line to it. |
-
 <a id="enum-PathOrient"></a>
 ### PathOrient
 
@@ -1114,14 +1104,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `none` | It keeps its own rotation. |
 | `tangent` | Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`). |
 | `upright` | The same, folded into −90…90 degrees so it is never upside down. |
-
-<a id="enum-PathUnit"></a>
-### PathUnit
-
-| Value | Meaning |
-|---|---|
-| `fraction` | The unit of a `StrokePath` coordinate. |
-| `pixels` | The unit of a `StrokePath` coordinate. |
 
 <a id="enum-PaywallOperation"></a>
 ### PaywallOperation
