@@ -1,7 +1,8 @@
 # API design proposals
 
-Five proposals for `codelessly_api`, written after the audit of the model
-that grew while about 60 reference apps were rebuilt. Each is meant to be
+Proposals for `codelessly_api`. The first five were written after the audit
+of the model that grew while about 60 reference apps were rebuilt; the sixth
+after the m05 authoring experiments. Each is meant to be
 approved or changed by the product owner, then implemented from. Breaking
 changes behind migration are accepted.
 
@@ -35,6 +36,7 @@ them.
 | 3 | [Motion](03-motion.md) | `Motion` from 50 fields to a 14-field transform plus a shared `PathFollow`; `transitions` per property; one way to scale and rotate |
 | 4 | [Drag and track](04-drag-and-track.md) | `drag` splits into `dismissible`, `track`, pan in `transformGesture`, and the list's `reorder`. 162 fields to 69. `controlDrag` becomes three typed actions. Transform handles become a component |
 | 5 | [Plugins and layers](05-plugins-and-layers.md) | A `Catalog` passed to decode; `ActionSpec`; hosted plugins as data on the managed-component machinery; native plugins as the second tier; the core/feature library split with an import-boundary test; catalog and JSON Schema export with strict validation |
+| 6 | [Sections and components](06-sections-and-components.md) | A page composed of component documents by reference: a call is one node whose `type` is the component id; parameters (`${props.x}`, PropDef-declared), slots, events, per-instance state; document-local ids with instance-keyed boxes; no overrides; one mechanism at document, project and hosted scope replacing copies, managed snapshots and plugin islands; project variables; the render command per component |
 
 ## AI authoring
 
