@@ -99,8 +99,7 @@ final class GestureSnap extends _Value {
 /// [DragMotion], a [DragSource]'s return and a [TransformGesture]: a fling
 /// that slows by [friction] (Flutter's `FrictionSimulation`), a stretch of
 /// [overscroll] past the bounds, and a [spring] onto the [snap] target
-/// nearest to where the fling would stop. The legacy flat spring keys
-/// (`stiffness`, `damping`, `mass`, `bounce`, `duration`) read as [spring].
+/// nearest to where the fling would stop.
 @immutable
 final class GesturePhysics extends _Value {
   const GesturePhysics({
@@ -157,34 +156,13 @@ final class GesturePhysics extends _Value {
     return position - v / math.log(frictionDrag);
   }
 
-  /// The legacy flat spring of [m]: `bounce`/`duration` (withDurationAndBounce)
-  /// over `stiffness`/`damping`, with [base]'s for what it leaves out.
-  static Spring? _legacySpring(Json m, Spring base) {
-    const keys = ['stiffness', 'damping', 'mass', 'bounce', 'duration'];
-    if (!keys.any(m.containsKey)) return null;
-    final r = _R(m);
-    final mass = r.d('mass', base.mass);
-    if (readDouble(m['bounce']) != null || readInt(m['duration']) != null || !base.isPhysical) {
-      return Spring(
-        duration: math.max(1, readInt(m['duration']) ?? (base.isPhysical ? 500 : base.duration)),
-        bounce: readDouble(m['bounce']) ?? (base.isPhysical ? 0 : base.bounce),
-        mass: mass,
-      );
-    }
-    return Spring(
-      stiffness: r.d('stiffness', base.isPhysical ? base.stiffness! : 380),
-      damping: r.d('damping', base.isPhysical ? base.damping! : 32),
-      mass: mass,
-    );
-  }
-
   static GesturePhysics? fromJson(Object? json) {
     final m = readMap(json);
     if (m == null) return null;
     final preset = presets[m['preset']] ?? standard;
     final r = _R(m);
     return GesturePhysics(
-      spring: Spring.fromJson(m['spring'], fallback: preset.spring) ?? _legacySpring(m, preset.spring) ?? preset.spring,
+      spring: Spring.fromJson(m['spring'], fallback: preset.spring) ?? preset.spring,
       fling: r.b('fling', preset.fling),
       friction: r.d('friction', preset.friction),
       minFlingVelocity: r.d('minFlingVelocity', preset.minFlingVelocity),
@@ -508,7 +486,6 @@ final class TransformHandles extends _Value {
 /// `${transform.scale}`... Each change runs the node's `changed`
 /// reactions, the end of a gesture its `changeEnd` ones.
 ///
-/// The legacy `zoomable: true` reads as its first form: [zoomable].
 @immutable
 final class TransformGesture extends _Value {
   const TransformGesture({
@@ -538,13 +515,6 @@ final class TransformGesture extends _Value {
     this.scaleX,
     this.scaleY,
   });
-
-  /// What the legacy `zoomable: true` amounts to: the content zooms inside the
-  /// node up to 4×, pans once zoomed, a double tap zooms 2.5×.
-  static const TransformGesture zoomable = TransformGesture(
-    target: TransformTarget.content,
-    pan: TransformPan.whenZoomed,
-  );
 
   /// Bindable as `transformGesture.enabled`.
   final bool enabled;

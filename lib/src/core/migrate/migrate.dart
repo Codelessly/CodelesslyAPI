@@ -41,6 +41,11 @@ final class MigrationStep {
 final class MigrationScope {
   MigrationScope._(this._report, this.step, this.nodeId);
 
+  /// A scope that reports nothing (a step run to compute a value).
+  MigrationScope.silent(this.step)
+      : _report = null,
+        nodeId = '';
+
   final MigrationReport? _report;
 
   /// The step running.
@@ -98,7 +103,9 @@ List<MigrationStep> get schema3Steps => migrationSteps2to3;
 /// document).
 Json migrate2to3(Json document, {MigrationReport? report, List<MigrationStep>? steps}) {
   if (schemaOf(document) >= 3) return document;
-  report?.documents.add(report.document);
+  if (report != null && (report.documents.isEmpty || report.documents.last != report.document)) {
+    report.documents.add(report.document);
+  }
   final out = copyJson(document) as Json;
   final raw = readMap(out['nodes']);
   final nodes = raw == null ? null : <String, Object?>{for (final e in raw.entries) e.key: e.value};
@@ -117,14 +124,15 @@ Json migrate2to3(Json document, {MigrationReport? report, List<MigrationStep>? s
 }
 
 /// A node's JSON alone (outside a document) upgraded as [migrate2to3]
-/// upgrades the nodes of a document; document steps don't run. Returns a
-/// new map; never throws.
+/// upgrades the nodes of a document (its state and media patches on
+/// itself included). Returns a new map; never throws.
 Json migrateNode2to3(Json node, {MigrationReport? report, String id = ''}) {
-  final out = copyJson(node) as Json;
-  for (final step in migrationSteps2to3) {
-    if (step.node != null) _guarded(out, step, id.isEmpty ? (readString(node['id']) ?? '') : id, report, step.node!);
-  }
-  return out;
+  final key = id.isEmpty ? (readString(node['id']) ?? 'node') : id;
+  final doc = migrate2to3({
+    'schema': kOldestSchemaVersion,
+    'nodes': {key: node},
+  }, report: report);
+  return readMap(readMap(doc['nodes'])?[key]) ?? copyJson(node) as Json;
 }
 
 /// Runs [apply] on [json]; on an exception restores it and reports the step

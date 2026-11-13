@@ -148,42 +148,6 @@ final class PathFollow {
     );
   }
 
-  /// The legacy flat path keys of motion JSON [m] (`path` text,
-  /// `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`,
-  /// `pathViewBox`, `pathPacing`, `pathFocusX/Y`), over its `path` (text or
-  /// object) when it has one; null when it names no path at all. `pathWrap`
-  /// isn't read: a closed path wraps by definition.
-  static PathFollow? fromLegacy(Json m) {
-    final base = fromJson(m['path']);
-    const keys = [
-      'pathProgress', 'orientToPath', 'orientUpright', 'uprightMirror', 'pathViewBox', 'pathPacing', 'pathFocusX', //
-      'pathFocusY',
-    ];
-    if (!keys.any(m.containsKey)) return base;
-    double d(String k, double fallback) => readDouble(m[k]) ?? fallback;
-    bool b(String k, bool fallback) => readBool(m[k]) ?? fallback;
-    final box = _doubles(m, 'pathViewBox');
-    final orient = base?.orient ?? PathOrient.none;
-    final tangent = b('orientToPath', orient != PathOrient.none);
-    final upright = b('orientUpright', orient == PathOrient.upright || orient == PathOrient.uprightFlip);
-    final flip = b('uprightMirror', orient == PathOrient.uprightFlip);
-    final focus = [...?base?.focus, 0.0, 0.0];
-    return PathFollow(
-      path: base?.path ?? '',
-      viewBox: box.isNotEmpty ? box : base?.viewBox ?? const [],
-      progress: d('pathProgress', base?.progress ?? 0),
-      orient: !tangent
-          ? PathOrient.none
-          : !upright
-              ? PathOrient.tangent
-              : flip
-                  ? PathOrient.uprightFlip
-                  : PathOrient.upright,
-      pacing: readEnum(PathPacing.values, m['pathPacing'], base?.pacing ?? PathPacing.length),
-      focus: [d('pathFocusX', focus[0]), d('pathFocusY', focus[1])],
-    );
-  }
-
   Json toJson() {
     final j = <String, Object?>{'path': path};
     if (viewBox.isNotEmpty) j['viewBox'] = viewBox.map(writeDouble).toList();

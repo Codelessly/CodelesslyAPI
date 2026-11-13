@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
+import 'legacy_support.dart';
+
 void main() {
   test('keyframes at the ends give the values there (a 0 -> 1 path run with no keyframe between)', () {
     // A legacy motion's keyframes, replayed by a key: a track per property
     // they name, through them on one monotone cubic.
-    final a = Behaviors.fromJson({
+    final a = migratedBehaviors({
       'motion': {
         'path': 'M0 0 L100 0',
         'duration': 400,
@@ -110,7 +112,7 @@ void main() {
   };
 
   test('behaviors round-trip, flat in the node', () {
-    final n = Node.fromJson(nodeJson)!;
+    final n = migratedNode(nodeJson)!;
     final b = n.behaviors;
     expect(b.motion!.rotate, -3.5);
     // The legacy loops, effect and the motion's entrance read as animations.
@@ -182,16 +184,16 @@ void main() {
     expect(written['track'], {'variable': 'volume', 'shape': 'arc', 'max': 10});
     // zoomable: true is the transform gesture's zoomable form.
     expect(written['transformGesture'], {'target': 'content', 'pan': 'whenZoomed'});
-    expect(b.transformGesture, TransformGesture.zoomable);
+    expect(b.transformGesture, zoomableGesture);
     expect({...written}..removeWhere((k, _) => const {'animations', 'motion', 'transitions', 'track', 'transformGesture'}.contains(k)),
         jsonDecode(jsonEncode(legacy)));
-    expect(Node.fromJson(n.toJson()), n);
+    expect(migratedNode(n.toJson()), n);
   });
 
   test('defaults are omitted; bad values fall back', () {
     expect(const Behaviors().isNone, isTrue);
-    expect(Node.fromJson({'type': 'box'})!.behaviors, Behaviors.none);
-    final n = Node.fromJson({
+    expect(migratedNode({'type': 'box'})!.behaviors, Behaviors.none);
+    final n = migratedNode({
       'type': 'box',
       'motion': {'rotate': 'x', 'curve': 'nope', 'duration': -5},
       'scale': -1,
@@ -214,11 +216,11 @@ void main() {
     // LoopAnimation.poseAt is gone: the loop is the preset's tracks.
     double at(NodeAnimation a, String id, double v) =>
         readDouble(a.expanded.tracks.firstWhere((t) => t.id == id).valueAt(v))!;
-    final halo = AnimationPresets.fromLoop({'type': 'pulse', 'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 0)!;
+    final halo = legacyLoop({'type': 'pulse', 'scaleFrom': 0.65, 'opacityFrom': 0.35, 'opacityTo': 0}, 0)!;
     expect((at(halo, 'scale', 0), at(halo, 'opacity', 0)), (0.65, 0.35));
     expect(at(halo, 'scale', 1), 1);
-    expect(AnimationPresets.fromLoop({'type': 'scale', 'scaleFrom': 0.5, 'enabled': false}, 0)!.enabled, isFalse);
-    final bob = AnimationPresets.fromLoop({'type': 'bob', 'distance': 10}, 0)!;
+    expect(legacyLoop({'type': 'scale', 'scaleFrom': 0.5, 'enabled': false}, 0)!.enabled, isFalse);
+    final bob = legacyLoop({'type': 'bob', 'distance': 10}, 0)!;
     expect(at(bob, 'translateY', 0.5), closeTo(-10, 1e-9));
   });
 
@@ -234,7 +236,7 @@ void main() {
   });
 
   test('a flicker wavers between its values and loops seamlessly', () {
-    final glow = AnimationPresets.fromLoop(
+    final glow = legacyLoop(
         {'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1, 'opacityFrom': 0.6, 'opacityTo': 1}, 0)!.expanded;
     double value(String id, double t) => readDouble(glow.tracks.firstWhere((x) => x.id == id).valueAt(t))!;
     final samples = [for (var i = 0; i <= 100; i++) (scale: value('scale', i / 100), opacity: value('opacity', i / 100))];
@@ -254,7 +256,7 @@ void main() {
     for (var i = 0; i <= 100; i++) {
       expect(samples[i].opacity, closeTo(0.6 + 0.4 * flickerAt(i / 100), 1e-12));
     }
-    final short = AnimationPresets.fromLoop({'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1}, 0)!;
+    final short = legacyLoop({'type': 'flicker', 'scaleFrom': 0.9, 'scaleTo': 1.1}, 0)!;
     expect(NodeAnimation.fromJson(short.toJson()), short);
   });
 
@@ -264,13 +266,13 @@ void main() {
     expect(Motion.none.hasTransform, isFalse);
     // An entrance from enterFrom: the opacity starts at 0, the rotation at
     // its own value (no track).
-    final enter = Behaviors.fromJson({
+    final enter = migratedBehaviors({
       'motion': {'rotate': 30, 'translateX': 10, 'duration': 300, 'enterFrom': {'opacity': 0}},
     }).animations.single.expanded;
     expect([for (final t in enter.tracks) (t.path, t.from)], [('opacity', 0)]);
     expect(Motion.lerp(Motion.none, m, 0.5).rotate, 15);
     // Keyframes pass through their values.
-    final k = Behaviors.fromJson({
+    final k = migratedBehaviors({
       'motion': {'scale': 2, 'duration': 300, 'enter': true, 'keyframes': [{'t': 0.5, 'scale': 3}]},
     }).animations.single.expanded.tracks.single;
     expect(k.valueAt(0.5, own: 2), 3);
@@ -279,7 +281,7 @@ void main() {
   });
 
   test('state patches merge into a node', () {
-    final n = Node.fromJson({
+    final n = migratedNode({
       'id': 't',
       'type': 'text',
       'props': {'text': 'A', 'maxLines': 2}
@@ -296,7 +298,7 @@ void main() {
   });
 
   test('a type without a box decoration keeps its blurs only', () {
-    final t = Node.fromJson({
+    final t = migratedNode({
       'type': 'text',
       'decoration': {
         'fills': [
@@ -313,7 +315,7 @@ void main() {
   });
 
   test('bound hero tags and effect and particle cues', () {
-    final n = Node.fromJson({
+    final n = migratedNode({
       'type': 'box',
       'hero': {'tag': '', 'flight': 'arc'},
       'effectAnimations': [

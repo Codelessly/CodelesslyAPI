@@ -3,6 +3,8 @@
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
+import 'legacy_support.dart';
+
 void main() {
   group('switch, page view, paints, paths', () {
     test('a switch: thumb shadows and inset', () {
@@ -34,8 +36,8 @@ void main() {
     });
 
     test('paint: gradientPerSubpath, also from gradientUnits', () {
-      expect(Paint.fromJson({'type': 'linear', 'gradientUnits': 'Subpath'})!.gradientPerSubpath, isTrue);
-      expect(Paint.fromJson({'type': 'linear', 'gradientUnits': 'box'})!.gradientPerSubpath, isFalse);
+      expect(legacyPaint({'type': 'linear', 'gradientUnits': 'Subpath'}).gradientPerSubpath, isTrue);
+      expect(legacyPaint({'type': 'linear', 'gradientUnits': 'box'}).gradientPerSubpath, isFalse);
       final p = Paint.fromJson({'type': 'radial', 'gradientPerSubpath': true})!;
       expect(p.toJson(), {'type': 'radial', 'gradientPerSubpath': true});
       expect(p == Paint.fromJson({'type': 'radial'}), isFalse);

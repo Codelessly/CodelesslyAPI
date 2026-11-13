@@ -7,7 +7,9 @@ import 'dart:math' as math;
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
-Node _node(Json j) => Node.fromJson({'id': 'n', 'type': 'box', ...j})!;
+import 'legacy_support.dart';
+
+Node _node(Json j) => legacyNode(j);
 
 NodeAnimation _animation(Node n, String id) => n.behaviors.animations.firstWhere((a) => a.id == id);
 
@@ -17,16 +19,16 @@ void _stable(Node n) => expect(Node.fromJson(n.toJson()), n);
 void main() {
   group('the pose', () {
     test('originX/Y read as alignment; the pose keys stay', () {
-      final m = Motion.fromJson({'translateX': 4, 'rotateY': 30, 'perspective': 1.5, 'originX': -1, 'originY': 0.5})!;
+      final m = legacyMotion({'translateX': 4, 'rotateY': 30, 'perspective': 1.5, 'originX': -1, 'originY': 0.5})!;
       expect(m, const Motion(translateX: 4, rotateY: 30, perspective: 1.5, alignment: Alignment(-1, 0.5)));
       expect(m.toJson(), {'translateX': 4, 'rotateY': 30, 'perspective': 1.5, 'alignment': [-1, 0.5]});
       expect(Motion.fromJson(m.toJson()), m);
       // A legacy origin set over the new shape (a state style) wins on its axis.
-      expect(Motion.fromJson({'alignment': [1, 1], 'originY': 0})!.alignment, const Alignment(1, 0));
+      expect(legacyMotion({'alignment': [1, 1], 'originY': 0})!.alignment, const Alignment(1, 0));
     });
 
     test('the flat path keys read as a PathFollow', () {
-      final m = Motion.fromJson({
+      final m = legacyMotion({
         'path': 'M0 0 L100 0',
         'pathProgress': 0.25,
         'orientToPath': true,
@@ -40,12 +42,12 @@ void main() {
         'path': {'path': 'M0 0 L100 0', 'viewBox': [760, 420], 'progress': 0.25, 'orient': 'uprightFlip'},
       });
       expect(Motion.fromJson(m.toJson()), m);
-      expect(Motion.fromJson({'path': 'M0 0', 'orientToPath': true})!.path!.orient, PathOrient.tangent);
-      expect(Motion.fromJson({'path': 'M0 0', 'orientToPath': true, 'orientUpright': true})!.path!.orient, PathOrient.upright);
+      expect(legacyMotion({'path': 'M0 0', 'orientToPath': true})!.path!.orient, PathOrient.tangent);
+      expect(legacyMotion({'path': 'M0 0', 'orientToPath': true, 'orientUpright': true})!.path!.orient, PathOrient.upright);
       // Orientation without a path yet (the path is bound): kept for it.
-      expect(Motion.fromJson({'orientToPath': true})!.path, const PathFollow(path: '', orient: PathOrient.tangent));
+      expect(legacyMotion({'orientToPath': true})!.path, const PathFollow(path: '', orient: PathOrient.tangent));
       // A legacy progress over the new shape.
-      expect(Motion.fromJson({'path': {'path': 'M0 0 L1 0', 'progress': 0.1}, 'pathProgress': 0.6})!.path!.progress, 0.6);
+      expect(legacyMotion({'path': {'path': 'M0 0 L1 0', 'progress': 0.1}, 'pathProgress': 0.6})!.path!.progress, 0.6);
     });
 
     test('path bindings', () {
@@ -53,10 +55,11 @@ void main() {
         'motion': {'orientToPath': true},
         'bind': {'motion.path': r'${plan.path}', 'motion.pathProgress': r'${p}', 'motion.originX': r'${o}'},
       });
-      expect(n.bind, {'motion.path.path': r'${plan.path}', 'motion.path.progress': r'${p}', 'motion.originX': r'${o}'});
+      // A bound origin binds the alignment.
+      expect(n.bind, {'motion.path.path': r'${plan.path}', 'motion.path.progress': r'${p}', 'motion.alignment': r'${= [o, 0]}'});
       final bound = BindPaths.apply(BindPaths.apply(n, 'motion.path.path', 'M0 0 L10 0'), 'motion.path.progress', 0.5);
       expect(bound.behaviors.motion!.path, const PathFollow(path: 'M0 0 L10 0', progress: 0.5, orient: PathOrient.tangent));
-      expect(BindPaths.apply(n, 'motion.originX', 1).behaviors.motion!.alignment, const Alignment(1, 0));
+      expect(BindPaths.apply(n, 'motion.alignment', [1, 0]).behaviors.motion!.alignment, const Alignment(1, 0));
     });
 
     test('opacity is the node\'s: multiplied in, bindings and state styles too', () {
@@ -125,14 +128,14 @@ void main() {
     });
 
     test('the legacy transitions object and a property map read as the list', () {
-      expect(Transition.listFromJson({'style': {'duration': 120}, 'size': {'duration': 300, 'curve': 'easeInOut'}}), [
+      expect(legacyTransitions({'style': {'duration': 120}, 'size': {'duration': 300, 'curve': 'easeInOut'}}), [
         const Transition(property: 'opacity', duration: 120),
         const Transition(property: 'scale', duration: 120),
         const Transition(property: 'decoration.fills', duration: 120),
         const Transition(property: 'visible', duration: 120),
         const Transition(property: 'layout', duration: 300, curve: AnimationCurve.easeInOut),
       ]);
-      expect(Transition.listFromJson({'motion': {'duration': 160}, 'motion.rotate': {'spring': {'bounce': 0.3}}}), [
+      expect(legacyTransitions({'motion': {'duration': 160}, 'motion.rotate': {'spring': {'bounce': 0.3}}}), [
         const Transition(property: 'motion', duration: 160),
         const Transition(property: 'motion.rotate', spring: Spring(bounce: 0.3)),
       ]);
@@ -388,7 +391,7 @@ void main() {
 
   group('setVariable.animateMs', () {
     test('a glide is animate animateTo on the variable', () {
-      ActionDef read(Json j) => ActionDef.fromJson({'type': 'setVariable', ...j})!;
+      ActionDef read(Json j) => legacyAction({'type': 'setVariable', ...j});
       expect(read({'variable': 'total', 'value': r'${sum}', 'animateMs': '800', 'curve': 'easeOutCubic'}).toJson(), {
         'type': 'animate',
         'variable': 'total',
