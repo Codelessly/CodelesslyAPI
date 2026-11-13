@@ -11444,15 +11444,15 @@
         "doc": "Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`."
       },
       {
-        "key": "loops",
-        "type": "List<LoopAnimation>",
+        "key": "animations",
+        "type": "List<NodeAnimation>",
         "kind": "list",
         "default": [],
         "nullable": false,
-        "item": "LoopAnimation",
+        "item": "NodeAnimation",
         "itemKind": "object",
-        "item_object": "LoopAnimation",
-        "doc": "Animations repeating while shown, outermost first."
+        "item_object": "NodeAnimation",
+        "doc": "Its animation controllers (the legacy `loops` and `effectAnimations` read as these)."
       },
       {
         "key": "transitions",
@@ -11592,17 +11592,6 @@
         "nullable": true,
         "object": "Typewriter",
         "doc": "A text that types itself out in a running app."
-      },
-      {
-        "key": "effectAnimations",
-        "type": "List<EffectAnimation>",
-        "kind": "list",
-        "default": [],
-        "nullable": false,
-        "item": "EffectAnimation",
-        "itemKind": "object",
-        "item_object": "EffectAnimation",
-        "doc": ""
       },
       {
         "key": "particles",
@@ -11845,12 +11834,12 @@
       },
       {
         "type": "timer",
-        "doc": "Every `Trigger.intervalMs` while the screen shows.",
+        "doc": "Every `Trigger.intervalMs` while the screen shows (`Timer.periodic`) and `Trigger.when` holds; `${result.tick}` counts. The legacy `clock` (`every`, `runWhen`) reads as this.",
         "group": "screen"
       },
       {
-        "type": "clock",
-        "doc": "A steady audio clock: ticks every `Trigger.every` ms while `Trigger.runWhen` holds (`${result.tick}`, `${result.at}`, `${result.waitMs}`).",
+        "type": "frame",
+        "doc": "Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks.",
         "group": "screen"
       },
       {
@@ -11986,7 +11975,7 @@
         "kind": "integer",
         "default": 1000,
         "nullable": false,
-        "doc": "`TriggerType.timer`: how often it fires."
+        "doc": "Timer: ms between ticks (a number or an expression)."
       },
       {
         "key": "key",
@@ -12002,7 +11991,7 @@
         "kind": "string",
         "default": "",
         "nullable": false,
-        "doc": "Key triggers: a formula; they run (and take the key) only while it's true. Empty: always."
+        "doc": "A formula; the reaction runs only while it's true (key triggers take the key only then; a timer or a frame ticker runs only then). Empty: always."
       },
       {
         "key": "holdMs",
@@ -12011,22 +12000,6 @@
         "default": 1200,
         "nullable": false,
         "doc": "`TriggerType.hold`: how long the press is held."
-      },
-      {
-        "key": "every",
-        "type": "String",
-        "kind": "string",
-        "default": "",
-        "nullable": false,
-        "doc": "`TriggerType.clock`: milliseconds between ticks, a number or formula."
-      },
-      {
-        "key": "runWhen",
-        "type": "String",
-        "kind": "string",
-        "default": "",
-        "nullable": false,
-        "doc": "`TriggerType.clock`: runs while this formula is true; empty: always."
       },
       {
         "key": "visibleFraction",
@@ -14325,10 +14298,10 @@
           }
         ]
       },
-      "playAnimation": {
-        "label": "Play animation",
-        "class": "PlayAnimationAction",
-        "doc": "Plays node `node`'s one-shot animation (or particles) named `animation`.",
+      "animate": {
+        "label": "Animate",
+        "class": "AnimateAction",
+        "doc": "Drives an animation (Flutter's `AnimationController` methods): node `node`'s `animation` (`NodeAnimation`), or the number variable `variable` (an unbounded controller the screen keeps for it). JSON: `{\"type\": \"animate\", \"node\": \"card\", \"animation\": \"pop\", \"command\": \"forward\", \"from\": \"0\"}`, `{\"type\": \"animate\", \"variable\": \"shownTotal\", \"command\": \"animateTo\", \"target\": \"${total}\", \"duration\": \"800\", \"curve\": \"easeOutCubic\"}`. The chain waits for it to end (`TickerFuture`) unless it's `nonBlocking`; a repeat ends when its count does.\n\nReads the legacy `playAnimation` (`forward` from 0) and `animateVariable` (play → `animateTo`, pause and stop → `stop`, resume → `forward`, seek → `set`).",
         "fields": [
           {
             "key": "node",
@@ -14336,7 +14309,7 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": ""
+            "doc": "A node id or key; empty: the reacting node."
           },
           {
             "key": "animation",
@@ -14344,36 +14317,33 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A one-shot animation (or particles)."
-          }
-        ]
-      },
-      "animateVariable": {
-        "label": "Animate variable",
-        "class": "AnimateVariableAction",
-        "doc": "Animates number variable `variable` over time: plays it from `from` to `to` over `durationMs` (or `duration`, an expression giving milliseconds) along `curve`, or pauses, resumes, stops or seeks the animation it runs. A play (or a resume) completes when its timeline ends: make it non-blocking to go on at once. Resume with nothing paused plays from where the value is.",
-        "fields": [
+            "doc": "The animation's id on the node."
+          },
           {
             "key": "variable",
             "type": "String",
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "A number variable."
+            "doc": "Instead of a node: a number variable."
           },
           {
-            "key": "mode",
-            "type": "AnimateVariableMode",
+            "key": "command",
+            "type": "AnimateCommand",
             "kind": "enumeration",
-            "default": "play",
+            "default": "forward",
             "nullable": false,
-            "enum": "AnimateVariableMode",
+            "enum": "AnimateCommand",
             "values": [
-              "play",
-              "pause",
-              "resume",
+              "forward",
+              "reverse",
+              "toggle",
+              "repeat",
               "stop",
-              "seek"
+              "reset",
+              "animateTo",
+              "animateBack",
+              "set"
             ],
             "doc": ""
           },
@@ -14383,23 +14353,15 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "Play: the start (empty: the value now)."
+            "doc": "Where forward/reverse start (an expression)."
           },
           {
-            "key": "to",
+            "key": "target",
             "type": "String",
             "kind": "string",
-            "default": "1",
+            "default": "",
             "nullable": false,
-            "doc": "Play: the end; seek: the value to jump to."
-          },
-          {
-            "key": "durationMs",
-            "type": "int",
-            "kind": "integer",
-            "default": 1000,
-            "nullable": false,
-            "doc": ""
+            "doc": "animateTo, animateBack, set (an expression)."
           },
           {
             "key": "duration",
@@ -14407,16 +14369,25 @@
             "kind": "string",
             "default": "",
             "nullable": false,
-            "doc": "An expression giving milliseconds."
+            "doc": "Milliseconds (an expression); empty: the animation's."
           },
           {
             "key": "curve",
             "type": "AnimationCurve",
             "kind": "enumeration",
-            "default": "linear",
-            "nullable": false,
+            "default": null,
+            "nullable": true,
             "enum": "AnimationCurve",
-            "doc": ""
+            "doc": "Null: the animation's (linear for a variable)."
+          },
+          {
+            "key": "spring",
+            "type": "Spring",
+            "kind": "object",
+            "default": null,
+            "nullable": true,
+            "object": "Spring",
+            "doc": "`animateWith(SpringSimulation)` toward `target` instead of a duration."
           }
         ]
       },
@@ -15051,6 +15022,139 @@
     }
   },
   "objectTypes": {
+    "AnimationRepeat": {
+      "doc": "`controller.repeat(reverse:, count:)`. `count` 0 repeats forever; a count ends at the end of its last run. JSON: `{}` (forever), `{\"reverse\": true, \"count\": 3}`; `true` and a bare count read too.",
+      "fields": [
+        {
+          "key": "reverse",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "count",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "0: forever."
+        }
+      ]
+    },
+    "AnimationTrack": {
+      "doc": "One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.\n\nThe value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.",
+      "fields": [
+        {
+          "key": "id",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Stable within its animation, so an edit can address it (`animations.enter.tracks.fade.from`). Optional."
+        },
+        {
+          "key": "path",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "A binding path (`motion.rotate`, `opacity`, `decoration.fills[0].color`)."
+        },
+        {
+          "key": "node",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "The target node's id or key; empty: the node the animation is on."
+        },
+        {
+          "key": "variable",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Instead of `path`: a number variable the value is written to."
+        },
+        {
+          "key": "from",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "A number, a color or an expression; empty: the property's own value."
+        },
+        {
+          "key": "to",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": "`Tween(begin:, end:)`: numbers, colors, or `${...}` expressions read when a play starts."
+        },
+        {
+          "key": "keyframes",
+          "type": "List<Keyframe>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Keyframe",
+          "itemKind": "object",
+          "item_object": "Keyframe",
+          "doc": ""
+        },
+        {
+          "key": "wave",
+          "type": "List<Wave>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Wave",
+          "itemKind": "object",
+          "item_object": "Wave",
+          "doc": ""
+        },
+        {
+          "key": "interval",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [
+            0,
+            1
+          ],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "`Interval(begin, end)`."
+        },
+        {
+          "key": "curve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "linear",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        },
+        {
+          "key": "blend",
+          "type": "TrackBlend",
+          "kind": "enumeration",
+          "default": "replace",
+          "nullable": false,
+          "enum": "TrackBlend",
+          "values": [
+            "replace",
+            "add",
+            "multiply"
+          ],
+          "doc": ""
+        }
+      ]
+    },
     "BorderSide": {
       "doc": "Flutter's `BorderSide`. A null `color` is unset: the widget's theme default where it has one, else Flutter's black.",
       "fields": [
@@ -15943,20 +16047,13 @@
           "doc": ""
         },
         {
-          "key": "springStiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 260,
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "springDamping",
-          "type": "double",
-          "kind": "number",
-          "default": 14,
-          "nullable": false,
-          "doc": ""
+          "object": "Spring",
+          "doc": "The spring it returns on with `returnSpring` (JSON `spring`; the legacy `springStiffness`/`springDamping` read as it)."
         },
         {
           "key": "enabled",
@@ -16216,20 +16313,13 @@
           "doc": ""
         },
         {
-          "key": "settleStiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 380,
+          "key": "settleSpring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "settleDamping",
-          "type": "double",
-          "kind": "number",
-          "default": 20,
-          "nullable": false,
-          "doc": ""
+          "object": "Spring",
+          "doc": "The spring of a `spring` `settleCurve` (JSON `settleSpring`; the legacy `settleStiffness`/`settleDamping` read as it)."
         },
         {
           "key": "parkedProgress",
@@ -16617,117 +16707,6 @@
         }
       ]
     },
-    "EffectAnimation": {
-      "doc": "A one-shot effect the node plays on cue (an action, a bound play key, or when it appears).",
-      "fields": [
-        {
-          "key": "name",
-          "type": "String",
-          "kind": "string",
-          "default": "",
-          "nullable": false,
-          "doc": "The name an action plays it by."
-        },
-        {
-          "key": "type",
-          "type": "EffectAnimationType",
-          "kind": "enumeration",
-          "default": "shake",
-          "nullable": false,
-          "enum": "EffectAnimationType",
-          "values": [
-            "shake",
-            "bounce",
-            "pop",
-            "wiggle",
-            "jelly",
-            "flash",
-            "spin",
-            "keyframes"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "duration",
-          "type": "int",
-          "kind": "integer",
-          "default": 520,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "delay",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "amount",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "originX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "originY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "playOnAppear",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "cycles",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": "Swings of a shake, wiggle or jelly (blinks of a flash); 0 the type's own."
-        },
-        {
-          "key": "keyframes",
-          "type": "List<MotionKeyframe>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "MotionKeyframe",
-          "itemKind": "object",
-          "item_object": "MotionKeyframe",
-          "doc": "A `keyframes` effect's poses at times 0–1 (from rest, back to rest)."
-        },
-        {
-          "key": "curve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "linear",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": "How a `keyframes` effect's time runs (the keyframes' times are on it)."
-        }
-      ]
-    },
     "Flight": {
       "doc": "How a node with a `Behaviors.flightKey` flies in from where the node with the same key was: on a spring by default, or, with a `duration`, along a curve that rises `lift` (or `liftShare` of the distance, the larger) above the higher end, swelling to `swell` at the middle and spinning `turns` times (toward the way it flies), trailing `trail` fading dots.",
       "fields": [
@@ -16851,41 +16830,12 @@
         },
         {
           "key": "spring",
-          "type": "FlipSpring",
+          "type": "Spring",
           "kind": "object",
           "default": {},
           "nullable": false,
-          "object": "FlipSpring",
+          "object": "Spring",
           "doc": "The spring it settles with after a drag."
-        }
-      ]
-    },
-    "FlipSpring": {
-      "doc": "A spring (mass, stiffness, damping), as Flutter's `SpringDescription`.",
-      "fields": [
-        {
-          "key": "stiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 380,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "damping",
-          "type": "double",
-          "kind": "number",
-          "default": 36,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "mass",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
         }
       ]
     },
@@ -16919,47 +16869,16 @@
       ]
     },
     "GesturePhysics": {
-      "doc": "How a node moves on its own once the pointer lets go, the same for a `DragMotion`, a `DragSource`'s return and a `TransformGesture`: a fling that slows by `friction`, a stretch of `overscroll` past the bounds, and a spring (`stiffness`, `damping`, `mass`; or `bounce` and `duration`, as Flutter's `SpringDescription.withDurationAndBounce`) onto the `snap` target nearest to where the fling would stop.",
+      "doc": "How a node moves on its own once the pointer lets go, the same for a `DragMotion`, a `DragSource`'s return and a `TransformGesture`: a fling that slows by `friction` (Flutter's `FrictionSimulation`), a stretch of `overscroll` past the bounds, and a `spring` onto the `snap` target nearest to where the fling would stop. The legacy flat spring keys (`stiffness`, `damping`, `mass`, `bounce`, `duration`) read as `spring`.",
       "fields": [
         {
-          "key": "stiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 380,
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "damping",
-          "type": "double",
-          "kind": "number",
-          "default": 32,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "mass",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "bounce",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": "The spring as a bounce and a settle time, over stiffness and damping."
-        },
-        {
-          "key": "duration",
-          "type": "int",
-          "kind": "integer",
-          "default": null,
-          "nullable": true,
-          "doc": ""
+          "object": "Spring",
+          "doc": "The spring it settles on."
         },
         {
           "key": "fling",
@@ -17794,6 +17713,38 @@
         }
       ]
     },
+    "Keyframe": {
+      "doc": "One stop of a `TweenSequence`: the track's `value` at `at` (0–1 of the track's run), reached on `curve` from the stop before it.",
+      "fields": [
+        {
+          "key": "at",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": ""
+        },
+        {
+          "key": "value",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "curve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": "linear",
+          "nullable": false,
+          "enum": "AnimationCurve",
+          "doc": ""
+        }
+      ]
+    },
     "ListReorder": {
       "doc": "Dragging a list's items to a new place, within the list and, with a `group`, into other lists of the group (a Kanban board). A drop runs the list's `reorder` reactions with `${result.from}`, `${result.to}`, `${result.item}`, `${result.fromList}` and `${result.toList}`.",
       "fields": [
@@ -18062,146 +18013,6 @@
         }
       ]
     },
-    "LoopAnimation": {
-      "doc": "An animation that repeats while the node is shown (a pulsing halo, a spinning icon). A run takes `duration` ms, eased by `curve`, from the `from` values to the `to` ones (and back with `reverse`). The design canvas draws its first frame.",
-      "fields": [
-        {
-          "key": "type",
-          "type": "LoopAnimationType",
-          "kind": "enumeration",
-          "default": "pulse",
-          "nullable": false,
-          "enum": "LoopAnimationType",
-          "values": [
-            "pulse",
-            "fade",
-            "scale",
-            "spin",
-            "bob",
-            "sway",
-            "flicker"
-          ],
-          "doc": ""
-        },
-        {
-          "key": "enabled",
-          "type": "bool",
-          "kind": "boolean",
-          "default": true,
-          "nullable": false,
-          "doc": "Off, it holds the node still (bindable as `loops.enabled`)."
-        },
-        {
-          "key": "duration",
-          "type": "int",
-          "kind": "integer",
-          "default": 1000,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "delay",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "reverse",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "curve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "linear",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "scaleFrom",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "scaleTo",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "opacityFrom",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "opacityTo",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "turns",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "distance",
-          "type": "double",
-          "kind": "number",
-          "default": 10,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "angle",
-          "type": "double",
-          "kind": "number",
-          "default": 4,
-          "nullable": false,
-          "doc": "Degrees each way."
-        },
-        {
-          "key": "phase",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "Where in its whole loop it starts (0–1)."
-        },
-        {
-          "key": "lag",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "doc": "Milliseconds it runs behind (a phase in time; it doesn't wait)."
-        }
-      ]
-    },
     "Measure": {
       "doc": "Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in pixels, to a variable as layout changes: in the coordinates of the ancestor node `relativeTo` (empty: the screen), under `key` when the variable is a map. Other nodes then follow it: a marker travelling to the chip of the reader's layer on a timeline whose chips are laid out by data. The design canvas measures too.",
       "fields": [
@@ -18420,20 +18231,13 @@
           "doc": "The share of the duration in which the opacity arrives (easing out)."
         },
         {
-          "key": "springStiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 380,
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": {},
           "nullable": false,
-          "doc": "The spring of `AnimationCurve.spring` (mass 1)."
-        },
-        {
-          "key": "springDamping",
-          "type": "double",
-          "kind": "number",
-          "default": 20,
-          "nullable": false,
-          "doc": "The spring of `AnimationCurve.spring` (mass 1)."
+          "object": "Spring",
+          "doc": "The spring of the `spring` curve."
         },
         {
           "key": "spinRamp",
@@ -18527,14 +18331,6 @@
           "itemKind": "object",
           "item_object": "MotionKeyframe",
           "doc": ""
-        },
-        {
-          "key": "pulseKey",
-          "type": "String",
-          "kind": "string",
-          "default": null,
-          "nullable": true,
-          "doc": "A change of this text plays the transition there and back."
         },
         {
           "key": "revealOnScroll",
@@ -18869,6 +18665,164 @@
           "item": "Reaction",
           "itemKind": "json",
           "doc": ""
+        }
+      ]
+    },
+    "NodeAnimation": {
+      "doc": "One `AnimationController` on a node and the tweens it drives (behavior key `animations`, a list). A screen-wide one sits on the canvas node.\n\nIts value runs 0 → 1 over `duration` (back over `reverseDuration`), after `delay`, eased by `curve` (`CurvedAnimation`), `repeat`ed or once; on a `spring` instead of the clock; or follows `progress` (an expression) with no clock at all. Each track maps that value to its property (`AnimationTrack`).\n\n`preset` names a short form (`pulse`, `shake`, `spin`... see `AnimationPresets`) whose tracks and timing it stands for, with `params`; fields given here override the preset's (`expanded`).\n\nRead as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forward`, `reverse`, `completed`) and `.isAnimating` by the node and the nodes inside it; driven by the `animate` action.",
+      "fields": [
+        {
+          "key": "id",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "Unique on the node; what `animate` and `${animation.<id>}` name."
+        },
+        {
+          "key": "preset",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "A short form (`AnimationPresets`); its params below."
+        },
+        {
+          "key": "params",
+          "type": "Object",
+          "kind": "json",
+          "default": null,
+          "nullable": true,
+          "doc": ""
+        },
+        {
+          "key": "enabled",
+          "type": "bool",
+          "kind": "boolean",
+          "default": true,
+          "nullable": false,
+          "doc": "Off, it applies nothing and doesn't run (the node shows its own values). Bindable."
+        },
+        {
+          "key": "duration",
+          "type": "int",
+          "kind": "integer",
+          "default": null,
+          "nullable": true,
+          "doc": "Milliseconds; empty: the preset's, else 300."
+        },
+        {
+          "key": "reverseDuration",
+          "type": "int",
+          "kind": "integer",
+          "default": null,
+          "nullable": true,
+          "doc": "`AnimationController.duration` / `reverseDuration` (ms); null: the preset's, else 300."
+        },
+        {
+          "key": "delay",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Waits this long (ms) before each play starts; the value holds at its start meanwhile."
+        },
+        {
+          "key": "curve",
+          "type": "AnimationCurve",
+          "kind": "enumeration",
+          "default": null,
+          "nullable": true,
+          "enum": "AnimationCurve",
+          "doc": "Applied to the controller's value before every track; null: the preset's, else linear."
+        },
+        {
+          "key": "repeat",
+          "type": "AnimationRepeat",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "AnimationRepeat",
+          "doc": "`repeat(reverse:, count:)`; null: the preset's, else plays once."
+        },
+        {
+          "key": "autoplay",
+          "type": "bool",
+          "kind": "boolean",
+          "default": null,
+          "nullable": true,
+          "doc": "Plays when the node appears; false waits for `playKey` or an action. Null: the preset's, else true."
+        },
+        {
+          "key": "playKey",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "A change plays it from the start (bindable)."
+        },
+        {
+          "key": "paused",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Holds the controller where it is (`stop()`) while true; it carries on when false. Held before it starts, it waits at its start. Bindable."
+        },
+        {
+          "key": "phase",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "Where a play starts in its cycle (0–1)."
+        },
+        {
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Spring",
+          "doc": "Runs on this spring instead of `duration` and `curve`: `animateWith(SpringSimulation(spring, 0, 1, 0))`."
+        },
+        {
+          "key": "progress",
+          "type": "String",
+          "kind": "string",
+          "default": null,
+          "nullable": true,
+          "doc": "An expression giving its value (0–1) instead of a clock."
+        },
+        {
+          "key": "alignment",
+          "type": "Alignment",
+          "kind": "value",
+          "default": null,
+          "nullable": true,
+          "doc": "The point the scale and rotation of its adding and multiplying tracks are about (`ScaleTransition(alignment:)`); null: the preset's, else the center."
+        },
+        {
+          "key": "tracks",
+          "type": "List<AnimationTrack>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "AnimationTrack",
+          "itemKind": "object",
+          "item_object": "AnimationTrack",
+          "doc": ""
+        },
+        {
+          "key": "previewAt",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Where the design canvas draws it (a share of a cycle); empty: not applied there."
         }
       ]
     },
@@ -19795,11 +19749,11 @@
         },
         {
           "key": "spring",
-          "type": "TransitionSpring",
+          "type": "Spring",
           "kind": "object",
           "default": {},
           "nullable": false,
-          "object": "TransitionSpring",
+          "object": "Spring",
           "doc": ""
         }
       ]
@@ -19958,6 +19912,52 @@
           "nullable": true,
           "object": "BorderSide",
           "doc": "The outline; null draws none."
+        }
+      ]
+    },
+    "Spring": {
+      "doc": "Flutter's `SpringDescription`: either the physical triple (`SpringDescription(mass:, stiffness:, damping:)`, when `stiffness` and `damping` are both given) or `SpringDescription.withDurationAndBounce` (`duration` ms, `bounce`). The one spring value of the model: transitions, animations, gestures, a flip card's settle and a route's dismiss all take it. JSON: `{\"stiffness\": 380, \"damping\": 36}` or `{\"duration\": 500, \"bounce\": 0.3}` (sparse; `{}` is `withDurationAndBounce()`'s defaults).",
+      "fields": [
+        {
+          "key": "stiffness",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "The physical spring's constants; both null: `duration` and `bounce`."
+        },
+        {
+          "key": "damping",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "The physical spring's constants; both null: `duration` and `bounce`."
+        },
+        {
+          "key": "mass",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "duration",
+          "type": "int",
+          "kind": "integer",
+          "default": 500,
+          "nullable": false,
+          "min": 1,
+          "doc": "`withDurationAndBounce`: ms, and 0 (none) to 1."
+        },
+        {
+          "key": "bounce",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
         }
       ]
     },
@@ -21177,35 +21177,6 @@
         }
       ]
     },
-    "TransitionSpring": {
-      "doc": "The spring a released interactive transition settles with (Flutter's `SpringDescription`).",
-      "fields": [
-        {
-          "key": "stiffness",
-          "type": "double",
-          "kind": "number",
-          "default": 380,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "damping",
-          "type": "double",
-          "kind": "number",
-          "default": 36,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "mass",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        }
-      ]
-    },
     "Transitions": {
       "doc": "How changes to a node animate at runtime. The design canvas shows the new values at once.",
       "fields": [
@@ -21443,29 +21414,90 @@
           "doc": ""
         }
       ]
+    },
+    "Wave": {
+      "doc": "A sine added to a track's value: `amplitude * sin(2π(cycles·t + phase))`, fading by `1 − decay·t` (a shake dies out with decay 1), folded to its absolute value with `rectify` (a ball's hops). Flutter has no counterpart; a list of them is a Fourier series: a wobble, a sway, a flame's flicker.",
+      "fields": [
+        {
+          "key": "cycles",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "amplitude",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "phase",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "decay",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "rectify",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": ""
+        }
+      ]
     }
   },
   "enums": {
-    "AnimateVariableMode": [
+    "AnimateCommand": [
       {
-        "value": "play",
-        "doc": "Animates from `AnimateVariableAction.from` (empty: the current value) to `AnimateVariableAction.to`, restarting one already running."
+        "value": "forward",
+        "doc": "`forward(from:)`: plays to the end; on a variable, carries on toward `AnimateAction.target` (from where it is, or from `AnimateAction.from`)."
       },
       {
-        "value": "pause",
-        "doc": "Holds the running animation where it is."
+        "value": "reverse",
+        "doc": "`reverse(from:)`: plays back to the start."
       },
       {
-        "value": "resume",
-        "doc": "Goes on with a paused animation."
+        "value": "toggle",
+        "doc": "Forward when at (or heading to) the start, else back."
+      },
+      {
+        "value": "repeat",
+        "doc": "`repeat()`, as the animation's own `NodeAnimation.repeat` says (forever when it says nothing)."
       },
       {
         "value": "stop",
-        "doc": "Ends the animation, leaving the variable where it is."
+        "doc": "`stop()`: holds where it is."
       },
       {
-        "value": "seek",
-        "doc": "Sets the variable to `AnimateVariableAction.to`; its timeline goes on from there (or stays paused there)."
+        "value": "reset",
+        "doc": "`reset()`: back to the start, stopped."
+      },
+      {
+        "value": "animateTo",
+        "doc": "`animateTo(target)`: from where it is to `AnimateAction.target` (0–1; on a variable, any number) over `AnimateAction.duration`."
+      },
+      {
+        "value": "animateBack",
+        "doc": "`animateBack(target)`."
+      },
+      {
+        "value": "set",
+        "doc": "`value = target`: jumps there; a running animation carries on from it."
       }
     ],
     "AnimationCurve": [
@@ -22388,40 +22420,6 @@
         "doc": "What an `EditTextAction` does to its text field."
       }
     ],
-    "EffectAnimationType": [
-      {
-        "value": "shake",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "bounce",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "pop",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "wiggle",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "jelly",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "flash",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "spin",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      },
-      {
-        "value": "keyframes",
-        "doc": "A one-shot effect's shape. `keyframes` plays the effect's own `EffectAnimation.keyframes` (a hop with squash and stretch, a fly-away and back) from rest and back to rest."
-      }
-    ],
     "EffectType": [
       {
         "value": "dropShadow",
@@ -22830,36 +22828,6 @@
       {
         "value": "bottom",
         "doc": ""
-      }
-    ],
-    "LoopAnimationType": [
-      {
-        "value": "pulse",
-        "doc": "Scales and fades."
-      },
-      {
-        "value": "fade",
-        "doc": ""
-      },
-      {
-        "value": "scale",
-        "doc": ""
-      },
-      {
-        "value": "spin",
-        "doc": "Turns `LoopAnimation.turns` times per run."
-      },
-      {
-        "value": "bob",
-        "doc": "Hops up `LoopAnimation.distance` and back, once per run."
-      },
-      {
-        "value": "sway",
-        "doc": "Swings `LoopAnimation.angle` degrees each way, once per run."
-      },
-      {
-        "value": "flicker",
-        "doc": "A candle flame or a lamp's glow: scales and fades between the `from` and `to` values along an uneven, wavering path (three detuned waves), not a steady pulse. A run loops seamlessly."
       }
     ],
     "MainAxisAlignment": [
@@ -24160,6 +24128,20 @@
         "doc": "A toast's look."
       }
     ],
+    "TrackBlend": [
+      {
+        "value": "replace",
+        "doc": "The value is the property's (a `Tween` driving it)."
+      },
+      {
+        "value": "add",
+        "doc": "Added to the property's own: a translation or rotation nested inside the node's (`SlideTransition`, `RotationTransition` around it)."
+      },
+      {
+        "value": "multiply",
+        "doc": "Multiplies the property's own: a scale or opacity nested inside the node's (`ScaleTransition`, `FadeTransition` around it)."
+      }
+    ],
     "TransformPan": [
       {
         "value": "always",
@@ -24311,11 +24293,11 @@
       },
       {
         "value": "timer",
-        "doc": "Every `Trigger.intervalMs` while the screen shows."
+        "doc": "Every `Trigger.intervalMs` while the screen shows (`Timer.periodic`) and `Trigger.when` holds; `${result.tick}` counts. The legacy `clock` (`every`, `runWhen`) reads as this."
       },
       {
-        "value": "clock",
-        "doc": "A steady audio clock: ticks every `Trigger.every` ms while `Trigger.runWhen` holds (`${result.tick}`, `${result.at}`, `${result.waitMs}`)."
+        "value": "frame",
+        "doc": "Every frame while the node is on stage and `Trigger.when` holds (a `Ticker`): `${result.dt}` (ms since the tick this chain last got), `${result.elapsed}` (ms since it started), `${result.frame}`. A frame that comes while the chain still runs is skipped; its time goes to the next `dt`. A design canvas never ticks."
       },
       {
         "value": "keyDown",

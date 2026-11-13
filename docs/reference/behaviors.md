@@ -10,7 +10,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 
 <a id="behavior-motion"></a>
 <a id="behavior-scale"></a>
-<a id="behavior-loops"></a>
+<a id="behavior-animations"></a>
 <a id="behavior-transitions"></a>
 <a id="behavior-inkWell"></a>
 <a id="behavior-states"></a>
@@ -27,7 +27,6 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 <a id="behavior-reveal"></a>
 <a id="behavior-strokePath"></a>
 <a id="behavior-typewriter"></a>
-<a id="behavior-effectAnimations"></a>
 <a id="behavior-particles"></a>
 <a id="behavior-textDirection"></a>
 <a id="behavior-flip"></a>
@@ -41,7 +40,7 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 |---|---|---|---|---|
 | `motion` | [Motion](values.md#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
 | `scale` | double | `1` | ≥ 0 | Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`. |
-| `loops` | List<[LoopAnimation](values.md#type-LoopAnimation)> | `[]` |  | Animations repeating while shown, outermost first. |
+| `animations` | List<[NodeAnimation](values.md#type-NodeAnimation)> | `[]` |  | Its animation controllers (the legacy `loops` and `effectAnimations` read as these). |
 | `transitions` | [Transitions](values.md#type-Transitions) | `{}` |  |  |
 | `inkWell` | [InkWellStyle](values.md#type-InkWellStyle) | unset |  | Ink: ripples, and hover/focus/press overlays. |
 | `states` | [StateStyles](values.md#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
@@ -58,7 +57,6 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `reveal` | [Reveal](values.md#type-Reveal) | unset |  |  |
 | `strokePath` | [StrokePath](values.md#type-StrokePath) | unset |  |  |
 | `typewriter` | [Typewriter](values.md#type-Typewriter) | unset |  | A text that types itself out in a running app. |
-| `effectAnimations` | List<[EffectAnimation](values.md#type-EffectAnimation)> | `[]` |  |  |
 | `particles` | [ParticleEmitter](values.md#type-ParticleEmitter) | unset |  |  |
 | `textDirection` | [TextDirection](values.md#enum-TextDirection) | unset | `ltr`, `rtl` | Null inherits. |
 | `flip` | [FlipCard](values.md#type-FlipCard) | unset |  | A two-sided card that turns over (a runtime 3D turn, not a mirror). |
@@ -69,5 +67,5 @@ guide's [states](index.md#guide-states) section shows `states`, the most used on
 | `measure` | [Measure](values.md#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](values.md#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [LoopAnimation](values.md#type-LoopAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [EffectAnimation](values.md#type-EffectAnimation), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](values.md): [Motion](values.md#type-Motion), [NodeAnimation](values.md#type-NodeAnimation), [Transitions](values.md#type-Transitions), [InkWellStyle](values.md#type-InkWellStyle), [StateStyles](values.md#type-StateStyles), [HeroTag](values.md#type-HeroTag), [Flight](values.md#type-Flight), [DragSource](values.md#type-DragSource), [DropTarget](values.md#type-DropTarget), [DragMotion](values.md#type-DragMotion), [Reveal](values.md#type-Reveal), [StrokePath](values.md#type-StrokePath), [Typewriter](values.md#type-Typewriter), [ParticleEmitter](values.md#type-ParticleEmitter), [FlipCard](values.md#type-FlipCard), [Tilt](values.md#type-Tilt), [TransformGesture](values.md#type-TransformGesture), [Sticky](values.md#type-Sticky), [ViewProgress](values.md#type-ViewProgress), [Measure](values.md#type-Measure), [CustomPaint](values.md#type-CustomPaint).
 
