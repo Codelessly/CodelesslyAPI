@@ -230,7 +230,7 @@ abstract final class AnimationPresets {
     const keys = {'scaleFrom': 1.0, 'scaleTo': 1.0, 'opacityFrom': 1.0, 'opacityTo': 1.0, 'turns': 1.0, 'distance': 10.0, 'angle': 4.0};
     final params = <String, Object?>{
       for (final e in keys.entries)
-        if (readDouble(m[e.key]) case final double v when v != e.value) e.key: writeDouble(v),
+        if (readDouble(m[e.key]) case final double v when v != e.value) e.key: _num(v),
     };
     return NodeAnimation(
       id: 'loop$index',
@@ -262,8 +262,8 @@ abstract final class AnimationPresets {
       id: name.isEmpty ? 'effect$index' : name,
       preset: type,
       params: {
-        if (spin) 'turns': writeDouble(amount) else if (amount != 1) 'amount': writeDouble(amount),
-        if (cycles > 0) 'cycles': writeDouble(cycles),
+        if (spin) 'turns': _num(amount) else if (amount != 1) 'amount': _num(amount),
+        if (cycles > 0) 'cycles': _num(cycles),
         if (type == 'keyframes' && frames != null) 'frames': frames,
       },
       // A spin effect turns once, on a cue, easing in and out.
@@ -284,8 +284,8 @@ abstract final class AnimationPresets {
   /// A motion's `pulseKey`, which no player ever read: now an animation
   /// `pulse` that plays the motion's keyframes from its values and back to
   /// them (rest → pose → rest) each time the key changes.
-  static NodeAnimation? fromPulseKey(Json motion) {
-    final key = motion['pulseKey']?.toString();
+  static NodeAnimation? fromPulseKey(Json motion, {bool bound = false}) {
+    final key = motion['pulseKey']?.toString() ?? (bound ? '' : null);
     if (key == null) return null;
     final frames = [...?readList(_jsonText(motion['keyframes']))?.map(readMap).nonNulls];
     const props = [
@@ -295,7 +295,7 @@ abstract final class AnimationPresets {
     return NodeAnimation(
       id: 'pulse',
       autoplay: false,
-      playKey: key,
+      playKey: key.isEmpty ? null : key,
       duration: r.ms('duration', 0) > 0 ? r.ms('duration', 0) : 300,
       curve: AnimationCurve.parse(motion['curve']) ?? AnimationCurve.easeInOut,
       tracks: [
@@ -314,5 +314,8 @@ abstract final class AnimationPresets {
     );
   }
 }
+
+/// [v] for a params map: whole numbers as ints, others unrounded.
+num _num(double v) => v == v.roundToDouble() && v.abs() < 1e15 ? v.toInt() : v;
 
 String _type(Object? v, List<String> names, String fallback) => v is String && names.contains(v) ? v : fallback;
