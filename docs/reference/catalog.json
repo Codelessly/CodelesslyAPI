@@ -25702,6 +25702,11 @@
       "meaning": "A prop that has no effect with another the node sets (a grid's mainAxisExtent while shrinkWrapRows sizes its rows): one of them is ignored."
     },
     {
+      "code": "state_no_effect",
+      "severity": "warning",
+      "meaning": "A bound \"selected\" with no \"states.selected\" style: the node is selected, but nothing changes how it looks."
+    },
+    {
       "code": "unknown_bind_path",
       "severity": "error",
       "meaning": "A \"bind\" key that names no bindable field of the node."
