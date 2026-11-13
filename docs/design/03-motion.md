@@ -454,3 +454,15 @@ the set of states), with `scale` composing multiplicatively and `rotate` additiv
 pose and the winning state; then migrate `scale`/`layout.rotation` (only exact with a centered alignment and
 no 3D turn, else kept as legacy). Blocked on that rule and its proof against the pressed/hover tests; not
 started.
+
+*Survey for the fold (schema 3 part two, 2026-11-13; still not done).* The precedence rule already exists:
+`StateStyles.patchFor` merges the active states' patches in `WidgetState` order, so per key the later wins:
+dragged > disabled > selected > pressed > focused > hovered (Flutter's `WidgetStateProperty.resolve` picks one value
+the same way). Over the 106-document corpus: 330 state patches set the node `scale` (cheers, ninefold, rota, the
+SDK's event_desktop fixtures), none beside a state `motion.scale` on the same target, so `scale` → `motion.scale`
+(times the node's own `motion.scale`) would be exact there; 6 nodes have their own `motion.scale`; 172 have a
+`layout.rotation` (6 bound), none with an off-centre or 3D motion. What still blocks it: (1) a `transitions` entry
+on `scale` and one on `motion` time the two separately today, and one key can carry only one timing, so the fold
+must pick or report; (2) node `scale` turns about the centre and `motion.scale` about `motion.alignment`, exact only
+when centred; (3) `layout.rotation` is part of the editor's Figma-shaped envelope (the editor reads and writes it in
+about ten files), so removing it from `Layout` needs the editor changed in the same release.
