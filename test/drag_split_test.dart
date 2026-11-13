@@ -1,6 +1,9 @@
 // The legacy `drag` key split into `track`, `dismissible`, `pan` and
 // `reorderHandle` (docs/design/04-drag-and-track.md): old JSON in, the new
 // model out, written only in the new shape; legacy binding paths rewritten.
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:test/test.dart';
 
@@ -295,5 +298,30 @@ void main() {
       'bind': {'drag.track.value': r'${= v * 2}'},
     });
     expect(bound.bind, {'track.value': r'${= v * 2}'});
+  });
+
+  test("the guide's gesture samples read and write back as shown", () {
+    final text = File('docs/guide/10-gestures.md').readAsStringSync();
+    final blocks = RegExp(r'```json( legacy)?\n([\s\S]*?)```').allMatches(text).toList();
+    expect(blocks.length, greaterThanOrEqualTo(15));
+    Json written(Json j) {
+      if (j['type'] is String && j.length > 1 && !j.containsKey('bind')) {
+        return ActionDef.fromJson(j, catalog: standardCatalog)!.toJson();
+      }
+      return Node.fromJson({'type': 'box', ...j}, id: 'n', catalog: standardCatalog)!.toJson()
+        ..remove('id')
+        ..remove('type')
+        ..remove('layout');
+    }
+
+    for (var i = 0; i < blocks.length; i++) {
+      final json = jsonDecode(blocks[i][2]!) as Json;
+      if (blocks[i][1] != null) {
+        expect(written(json), jsonDecode(blocks[i + 1][2]!), reason: blocks[i][2]);
+        continue;
+      }
+      expect(written(json), json, reason: blocks[i][2]);
+      expect(written(json), isNot(contains('drag')));
+    }
   });
 }

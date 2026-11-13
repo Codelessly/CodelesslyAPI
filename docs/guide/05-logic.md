@@ -90,7 +90,7 @@ of an app are in `PublishModel.variables`.
 | `props.<prop>`, `props.<prop>.<field>` | A widget prop, by its declaration's codec |
 | `props.style.<field>` (text) | The base text style and every run's |
 | `data` | The items a list, grid or page view builds one child per |
-| `motion.<field>`, `scale`, `hero.tag`, `drag.*`... | Behaviors |
+| `motion.<field>`, `scale`, `hero.tag`, `track.*`, `dismissible.*`, `pan.*`... | Behaviors |
 
 `[i]` is a list index, a paint or effect id selects that item, and `*` every item. `BindPaths` (in
 `bindings.dart`) has the constants and helpers. Values are read loosely (`"12"` is a number, `"#F00F00"` a
@@ -135,7 +135,7 @@ color); a value that can't be read leaves the property as it was.
 | `callApi`, `loadCloudData`, `cloudData`, `cloudDocuments`, `cloudBatch`, `cloudFiles`, `paginate` | Data |
 | `auth`, `paywall` | Accounts and purchases |
 | `showToast`, `haptic`, `playSound`, `speak`, `copyToClipboard` | Feedback |
-| `submitForm`, `editText`, `focus`, `scrollTo`, `playAnimation`, `controlDrag` | Inputs and motion |
+| `submitForm`, `editText`, `focus`, `scrollTo`, `playAnimation`, `controlTrack`, `controlDismissible`, `controlTransform` | Inputs and motion |
 | `captureScreenshot` | Capture (`${result.image}`, a PNG `data:` URL) |
 
 Every action has `enabled`, `nonBlocking` (not awaited) and `when` (a predicate). An unknown `type` decodes as
