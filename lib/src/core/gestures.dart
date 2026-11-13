@@ -259,8 +259,9 @@ final class FlipCard extends _Value {
   final Spring spring;
   static const Spring defaultSpring = Spring.physical(stiffness: 380, damping: 36);
 
-  /// How long a turn takes (ms): [motion]'s duration, else 600.
-  static int durationOf(Motion? motion) => (motion?.duration ?? 0) > 0 ? motion!.duration : 600;
+  /// How long a turn takes (ms): the node's [transition] of its motion
+  /// (`Transition.of(transitions, 'motion.rotateY')`), else 600.
+  static int durationOf(Transition? transition) => (transition?.duration ?? 0) > 0 ? transition!.duration : 600;
 
   static FlipCard? fromJson(Object? json) {
     final m = readMap(json);

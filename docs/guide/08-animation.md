@@ -186,7 +186,93 @@ the new one; the encoders write only the new one:
  "bind": {"animations.nudge.playKey": "${hits}"}}
 ```
 
-Not yet moved (they keep their keys and behave as before): the temporal half of `motion` (`enter`,
-`enterFrom`, `loop`, `spin`, `keyframes`, `replayKey`, `shimmer`, its transition `duration`/`curve`),
-`setVariable.animateMs`, `strokePath`'s drawing, `typewriter` and text `countUp`; see
-[docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated".
+A motion's timing, entrance, loop, spin and shimmer read as transitions and animations (below); not yet
+moved: `strokePath`'s drawing, `typewriter` and text `countUp` (see
+[docs/design/02-animation.md](../design/02-animation.md), "Not yet migrated").
+
+## `motion`: a transform, and `transitions`
+
+`motion` is Flutter's `Transform` over the node's layout, nothing temporal: `translateX`/`translateY` (pixels),
+`shiftX`/`shiftY` (the node's size, `FractionalTranslation`), `scale` times `scaleX`/`scaleY`, `rotate` (degrees),
+`rotateX`/`rotateY` with `perspective`, `alignment` (`[x, y]`, what scale and rotation are about),
+`backfaceHidden`, and `path` (a `PathFollow`: `path`, `viewBox`, `progress`, `orient` `none`/`tangent`/
+`upright`/`uprightFlip`). One matrix, outermost first: the path's offset, the translations, then about
+`alignment` the scale, the rotation (and the path's turn), `rotateX`, `rotateY`. A closed path wraps its
+`progress`; an open one stops at its ends.
+
+How a value gets there is the node's `animations`, and its `transitions`: Flutter's implicit animations
+(`AnimatedContainer`, `AnimatedOpacity`), one entry per property path. When the value there changes (a binding,
+a state style), the node tweens from what it shows to it; the longest `property` that matches wins, `*` matches
+every path, and a prefix (`motion`) moves the numbers under it as one, through its `keyframes`. A path an
+animation is playing isn't transitioned; the design canvas shows new values at once.
+
+```json
+{"states": {"hovered": {"n": {"motion": {"translateY": -4, "scale": 1.02}}}},
+ "transitions": [{"property": "motion", "duration": 160, "curve": "easeOut"},
+                 {"property": "motion.rotate", "spring": {"duration": 600, "bounce": 0.3}}]}
+```
+
+A motion's legacy keys read as what they are now. Its pose keys stay (`originX/Y` read as `alignment`, the flat
+path keys as `path`); its `opacity` is the node's (multiplied in), its `blur` a `motionBlur` layer blur;
+`duration`, `delay`, `curve` (and the `spring` curve) a `motion` transition (with the opacity and blur it eased);
+`enter`, `enterFrom`, `replayKey`, `enterHeld`, `revealOnScroll` the animation `enter` (preset `enter`,
+`playKey`, `paused`, `visibleFraction`); `loop`, `repeat`, `phase`, `paused` the animation `loop`; `spin`,
+`spinRamp` the animation `spin` (preset `spin`, `ramp`); `shimmer` the `shimmer` behavior and its animation. Bound
+keys are rewritten to the paths they address (`motion.replayKey` → `animations.enter.playKey`,
+`motion.pathProgress` → `motion.path.progress`, `motion.delay` → the animation's and the transitions' delay).
+
+```json legacy
+{"motion": {"translateY": -4, "scale": 1.02, "originY": 1, "duration": 160, "curve": "easeOut",
+            "enter": true, "enterFrom": {"translateY": 24, "opacity": 0}, "replayKey": "${step}"}}
+```
+
+```json
+{"motion": {"translateY": -4, "scale": 1.02, "alignment": [0, 1]},
+ "animations": [{"id": "enter", "preset": "enter", "params": {"from": {"translateY": 24, "opacity": 0}},
+                 "duration": 160, "curve": "easeOut", "autoplay": true, "playKey": "${step}"}],
+ "transitions": [{"property": "motion", "duration": 160, "curve": "easeOut"}]}
+```
+
+A swing around rest and a spin that speeds up (`ramp`), slows to a stop while paused:
+
+```json legacy
+{"motion": {"rotate": 8, "loop": "swing", "duration": 1200, "spin": 0.5, "spinRamp": 400}}
+```
+
+```json
+{"motion": {"rotate": 8},
+ "animations": [{"id": "loop", "preset": "loop", "params": {"from": {"rotate": 0}, "mode": "swing"},
+                 "duration": 1200, "curve": "linear", "repeat": {}},
+                {"id": "spin", "preset": "spin", "params": {"perSecond": 0.5}, "ramp": 400}],
+ "transitions": [{"property": "motion", "duration": 1200, "curve": "easeInOut"}]}
+```
+
+A train on its route, upright and facing the way it goes, faded and blurred, entering when it scrolls into view:
+
+```json legacy
+{"motion": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "pathProgress": 1, "orientToPath": true,
+            "orientUpright": true, "uprightMirror": true, "opacity": 0.8, "blur": 2,
+            "revealOnScroll": true, "duration": 600}}
+```
+
+```json
+{"opacity": 0.8,
+ "decoration": {"effects": [{"type": "layerBlur", "id": "motionBlur", "blurRadius": 2}]},
+ "motion": {"path": {"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 1, "orient": "uprightFlip"}},
+ "animations": [{"id": "enter", "preset": "enter", "params": {"from": {"opacity": 0, "pathProgress": 0, "blur": 0}},
+                 "duration": 600, "curve": "easeInOut", "autoplay": true, "visibleFraction": 0.15}],
+ "transitions": [{"property": "motion", "duration": 600, "curve": "easeInOut"},
+                 {"property": "opacity", "duration": 600, "curve": "easeInOut"},
+                 {"property": "decoration.effects.motionBlur.blurRadius", "duration": 600, "curve": "easeInOut"}]}
+```
+
+A `setVariable` glide is the `animate` variable driver:
+
+```json legacy
+{"type": "setVariable", "variable": "total", "op": "add", "value": "5", "animateMs": "800", "curve": "easeOutCubic"}
+```
+
+```json
+{"type": "animate", "variable": "total", "command": "animateTo", "target": "${= total + (5)}", "duration": "800",
+ "curve": "easeOutCubic"}
+```

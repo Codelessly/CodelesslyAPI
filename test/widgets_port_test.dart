@@ -30,7 +30,7 @@ void main() {
 
     test('a page view: page motion', () {
       final m = Props.fromJson(PageViewProps.spec, {'pageMotion': {'rotateY': -50}}).get(PageViewProps.pageMotion);
-      expect(m?.rotateY, -50);
+      expect(m?.motion.rotateY, -50);
     });
 
     test('paint: gradientPerSubpath, also from gradientUnits', () {

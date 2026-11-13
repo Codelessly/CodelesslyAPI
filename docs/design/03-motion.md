@@ -369,20 +369,67 @@ After doc 02's player is in:
 
 ## Deviations from the proposal
 
-Doc 03 is not implemented in this wave; only what doc 02 needed from it landed:
+Implemented in `lib/src/core/behaviors.dart` (`Motion`, `Pose`, `Shimmer`, `Transition`),
+`lib/src/core/path_follow.dart` (`PathFollow`), `animation_presets.dart` (`AnimationPresets.fromMotion`, the
+`enter`, `loop`, `spin`, `shimmer` presets), `node.dart` (opacity and blur); SDK: `render/behaviors.dart`
+(`RenderMotion` is the matrix and the path), `render/animations.dart` (the one player, now with the transitions).
+`Motion` has the 14 fields of §3.1 (50 before). Every legacy key is read (old JSON in, new model out:
+`test/motion_migration_test.dart`); encoders write only the new shape; the SDK's existing motion tests pass with
+their assertions (the changes are listed in the changelog).
 
-1. **`Motion.springStiffness`/`springDamping` became `Motion.spring`** (the one `Spring`, doc 02), the legacy keys
-   read with their 380/20 defaults. It stays on `Motion` until `transitions` per property exists.
-2. **`Motion.pulseKey` left `Motion`**: it reads as the animation `pulse` (doc 02 §9), which now plays (it never
-   did).
-3. **A track that replaces a `motion.*` value overrides it in `RenderMotion`** (drawn over the motion's own
-   value, its transitions starting from what is drawn); a node whose animations set motion values gets a motion
-   layer even without a `motion`.
+1. **`transitions` is a list with a `property` per entry**, not a map: list entries are addressed by a key of
+   their own everywhere else, and a map key with dots (`motion.rotate`) can't be a binding path. The proposal's
+   map and the legacy `{style, opacity, size}` object both read. A **prefix** (`motion`) eases what's under it
+   as one value, as `AnimatedContainer` eases its `transform`: a change of any number starts them together, a
+   change mid-flight restarts the others from where they are, and its `keyframes` (a pose per keyframe:
+   `{"at": 0.5, "value": {"scale": 1.05}}`) run on every change. That is what the legacy `motion.duration` did
+   (flashcards' card swells as it turns over); per-property easing (`AnimatedScale`) is a longer key.
+2. **`Transition.keyframes`/`interpolation` and `KeyframeInterpolation.monotoneCubic`** were added: the legacy
+   keyframes were a monotone cubic (never past a keyframe), not a `TweenSequence`; tracks take the same option.
+3. **`Transition.arc` is kept, deprecated** (lineup): bending a position change isn't expressible as two curves
+   exactly (the bend is perpendicular to the way it goes). Played by the player's transition table.
+4. **`PathOrient.uprightFlip`** replaces `uprightMirror` instead of the binding recipe: `${path.angle}` would
+   lag a frame behind the turn and needs a binder, which the design canvas doesn't have. `PathFollow.pacing`
+   and `focus` (area pacing, orrery) are kept, deprecated: a formula on `progress` needs the orrery's Kepler
+   function, which is by hand.
+5. **`Pose`** (a `Motion` with `opacity` and `blur`, flat JSON) is the value of a route transition's sides and
+   a page view's `pageMotion`/`pageMotionBefore`: those draw a fade with the transform and have no node
+   opacity to move it to. Their JSON is unchanged.
+6. **Folding the node `scale` and `layout.rotation` into `motion` was not done** (see below).
+7. **`opacity` moves to the node's `opacity`** (multiplied in; a bound one becomes the product formula); a
+   state style's `motion.opacity` is that state's node `opacity` (exact when the node's own opacity is 1).
+   **`blur`** is a `layerBlur` effect with id `motionBlur` (bound as `decoration.effects.motionBlur.blurRadius`).
+   A node whose motion set either keeps a transition on it.
+8. **Scroll reveal is `NodeAnimation.visibleFraction`**, played by the player itself (it checks the node's
+   visible share after each frame while it waits, per object: no process-wide watcher), not a generated
+   `enterViewport` reaction: reactions need the actions runtime, which a bare `NodeTree` (and the reveal's
+   test) doesn't have.
+9. **`NodeAnimation.ramp`** (ms) plays a spin's ramp: a repeating animation speeds up over it, slows to a stop
+   when paused and eases to a new pace, exactly as `spinRamp` did (its default 800 ms applied to every spin, so
+   removing it would have changed 12 apps). Stated by its pace, not by a curve.
+10. **A swing** is a track whose `wave` is a share of `to − from` (the property's own value when `to` is
+    omitted) on a replacing track: `{"from": 0, "wave": [{}]}` rocks between its own value and as far the other
+    way, linear in time, as `loop: swing` did.
+11. **Track numbers carry on past their ends** on an overshooting curve (`Tween<double>`); they were clamped,
+    which flattened `elasticOut`/`easeOutBack` entrances.
+12. **A counted repeat ends as Flutter's `repeat(count:)` does** (a restart at its start, a reverse at the end of
+    its last way) and is `completed`/`dismissed` by its direction; it ended at its last run's end.
+13. **A play asked for before the player's ticker starts counts from that frame**, as the motion's own ticker
+    did (an entrance was a tick late on the player).
 
 ## Not yet migrated
 
-All of §3 and §6 except the two rows above: `Motion` keeps its 50 fields (`opacity`, `blur`, `originX/Y`, path
-pacing, wrap, mirror, `arc`, the entrance/loop/spin/keyframe keys), `PathFollow` and `${path.*}` don't exist,
-`transitions` is still `{style, opacity, size}`, and the node `scale` behavior and `layout.rotation` are still
-their own chain layers. Removing `opacity`/`blur` from `Motion` was not attempted: route transitions
-(`TransitionSide.motion`) use `Motion.opacity`, and the lossless-migration condition the owner set wasn't shown.
+- **The node `scale` behavior and `layout.rotation`** stay their own chain layers (and `_stateScales` its
+  workaround). Folding them is a product (`motion.scale × scale`, `rotate + rotation`), and state styles are
+  JSON merge patches over the node: a hovered `motion.scale` and a pressed `scale` both active (pressing a
+  hovered button) compose by multiplication today, which a patch can't say once both are one key. They also sit
+  inside the flip and tilt layers, so a fold changes the picture of a node with a 3D turn or an off-center
+  alignment. Needs patches that compose (or a per-state pose) first.
+- **`${path.*}`** (the path's angle and point in the node's scope) isn't published.
+- **`pathWrap` on an open path** and its short-way-round transition: a closed path wraps, an open one clamps.
+- **Legacy `motion.*` paths set at run time** (`setValue` with `motion.duration`): only a node's `bind` map is
+  rewritten when it decodes; the pose paths and `motion.originX/Y`, `motion.pathProgress` still apply.
+- **Bound motion keys with no counterpart** are dropped: `rotateCurve`, `fadeShare`, `arc`, `spring*`,
+  `revealOnScroll`, `revealFraction`, `pathWrap`, and a loop's or entrance's keys on a motion that has none.
+- **Keyframes on a reverse loop** run backwards on the way back (the curve too, as `CurvedAnimation` over
+  `repeat(reverse: true)` does); they ran forward on both ways.

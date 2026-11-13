@@ -17,6 +17,7 @@ final class AnimationPreset {
     this.repeat,
     this.autoplay,
     this.previewAt,
+    this.durationOf,
   });
 
   final String name;
@@ -32,6 +33,10 @@ final class AnimationPreset {
   final AnimationRepeat? repeat;
   final bool? autoplay;
   final double? previewAt;
+
+  /// The duration for params (over [defaults]), when it depends on them
+  /// (a spin's turns per second); null: [duration].
+  final int? Function(Json params)? durationOf;
 }
 
 /// The presets an animation's `preset` names. Loops (`pulse`, `fade`,
@@ -84,11 +89,26 @@ abstract final class AnimationPresets {
       _loop('pulse', _loopDefaults, (p) => [_scale(p), _opacity(p)]),
       _loop('fade', const {'opacityFrom': 1, 'opacityTo': 1}, (p) => [_opacity(p)]),
       _loop('scale', const {'scaleFrom': 1, 'scaleTo': 1}, (p) => [_scale(p)]),
-      _loop('spin', const {'turns': 1}, (p) {
-        final perSecond = readDouble(p['perSecond']);
-        final turns = perSecond != null && perSecond != 0 ? perSecond.sign : _p(p, 'turns', 1);
-        return [AnimationTrack(id: 'rotate', path: 'motion.rotate', blend: TrackBlend.add, from: 0, to: 360 * turns)];
-      }),
+      AnimationPreset(
+        name: 'spin',
+        defaults: const {'turns': 1},
+        duration: 1000,
+        curve: AnimationCurve.linear,
+        repeat: AnimationRepeat.forever,
+        autoplay: true,
+        previewAt: 0,
+        // `perSecond` turns a second: one turn a run, a run 1000 / |perSecond|
+        // ms; 0 holds still (a repeat with no duration).
+        durationOf: (p) => switch (readDouble(p['perSecond'])) {
+          null => null,
+          final double s => s == 0 ? 0 : math.max(1, (1000 / s.abs()).round()),
+        },
+        tracks: (p) {
+          final perSecond = readDouble(p['perSecond']);
+          final turns = perSecond != null ? (perSecond < 0 ? -1.0 : 1.0) : _p(p, 'turns', 1);
+          return [AnimationTrack(id: 'rotate', path: 'motion.rotate', blend: TrackBlend.add, from: 0, to: 360 * turns)];
+        },
+      ),
       _loop('bob', const {'distance': 10}, (p) => [
             AnimationTrack(
                 id: 'translateY', path: 'motion.translateY', blend: TrackBlend.add, wave: [Wave(cycles: 0.5, amplitude: -_p(p, 'distance', 10))]),
@@ -154,14 +174,109 @@ abstract final class AnimationPresets {
         duration: 300,
         curve: AnimationCurve.easeOutCubic,
         autoplay: true,
-        tracks: (p) => [
-          for (final e in (readMap(p['from']) ?? const <String, Object?>{}).entries)
-            AnimationTrack(id: e.key, path: e.key == 'opacity' ? 'opacity' : 'motion.${e.key}', from: e.value),
-        ],
+        tracks: (p) => _poseTracks(p, swing: false),
+      ),
+      AnimationPreset(
+        name: 'loop',
+        defaults: const {'from': <String, Object?>{}},
+        duration: 1000,
+        curve: AnimationCurve.linear,
+        repeat: AnimationRepeat.forever,
+        autoplay: true,
+        // The design canvas draws the node's own values (a motion's loop
+        // ran from its start to them).
+        tracks: (p) => _poseTracks(p, swing: p['mode'] == 'swing'),
+      ),
+      AnimationPreset(
+        name: 'shimmer',
+        defaults: const {},
+        duration: 1400,
+        curve: AnimationCurve.linear,
+        repeat: AnimationRepeat.forever,
+        autoplay: true,
+        tracks: (p) => const [AnimationTrack(id: 'position', path: 'shimmer.position', from: 0, to: 1)],
       ),
     ])
       p.name: p,
   };
+
+  /// The tracks of the `enter` and `loop` presets: one per property its
+  /// `from` names (from that value to the node's own) or its `frames`
+  /// name (legacy motion keyframes, `{"t": 0.5, "scale": 1.2}`: through
+  /// them on one monotone cubic). Property names are a motion's (`opacity`
+  /// is the node's, `blur` its `motionBlur` layer blur, `pathProgress` its
+  /// path's progress), or binding paths. With `curve` given, each track
+  /// eases on it, except the rotation on `rotateCurve` and the opacity on
+  /// `easeOut` in the first `fadeShare` of the run. A `swing` rocks each
+  /// `from` property around it on a sine, to its own value and as far the
+  /// other way, one swing a run.
+  static List<AnimationTrack> _poseTracks(Json p, {required bool swing}) {
+    final from = readMap(_jsonText(p['from'])) ?? const <String, Object?>{};
+    final frames = [...?readList(_jsonText(p['frames']))?.map(readMap).nonNulls];
+    final curve = AnimationCurve.parse(p['curve']);
+    final rotateCurve = AnimationCurve.parse(p['rotateCurve']);
+    final share = (readDouble(p['fadeShare']) ?? 1).clamp(0.01, 1.0);
+    List<Keyframe> keyframesOf(String key) => [
+          for (final f in frames)
+            if (readDouble(f[key]) case final double v when v.isFinite)
+              Keyframe(at: (readDouble(f['t']) ?? readDouble(f['at']) ?? 0).clamp(0.0, 1.0), value: v),
+        ];
+    final keys = <String>[
+      ...from.keys,
+      if (!swing)
+        for (final k in legacyKeyframeProperties)
+          if (!from.containsKey(k) && keyframesOf(k).isNotEmpty) k,
+    ];
+    return [
+      for (final key in keys)
+        () {
+          final fades = key == 'opacity' && share < 1 && curve != null;
+          final turns = key == 'rotate' && rotateCurve != null && curve != null;
+          final keyframes = swing || fades || turns ? const <Keyframe>[] : keyframesOf(key);
+          return AnimationTrack(
+            id: key,
+            path: legacyMotionPath(key),
+            from: from[key],
+            keyframes: keyframes,
+            wave: swing ? const [Wave()] : const [],
+            interpolation: keyframes.isEmpty ? KeyframeInterpolation.linear : KeyframeInterpolation.monotoneCubic,
+            interval: fades ? [0, share] : const [0, 1],
+            curve: fades ? AnimationCurve.easeOut : (turns ? rotateCurve : (swing ? null : curve)) ?? AnimationCurve.linear,
+          );
+        }(),
+    ];
+  }
+
+  /// The properties a legacy motion keyframe could name.
+  static const legacyKeyframeProperties = [
+    'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', 'rotateY', 'pathProgress', //
+  ];
+
+  /// The properties of a legacy motion that animated.
+  static const legacyMotionProperties = [
+    'translateX', 'translateY', 'scale', 'shiftX', 'shiftY', 'scaleX', 'scaleY', 'opacity', 'rotate', 'rotateX', //
+    'rotateY', 'pathProgress', 'blur',
+  ];
+
+  /// The id of the layer blur a legacy `motion.blur` became.
+  static const motionBlurId = 'motionBlur';
+
+  /// The binding path of legacy motion property [key] now: `opacity` is the
+  /// node's, `blur` its [motionBlurId] layer blur's radius, `pathProgress`
+  /// its path's progress, the rest `motion.<key>`; a key with a dot is a
+  /// binding path already.
+  static String legacyMotionPath(String key) => switch (key) {
+        'opacity' => 'opacity',
+        'blur' => 'decoration.effects.$motionBlurId.blurRadius',
+        'pathProgress' => 'motion.path.progress',
+        _ when key.contains('.') => key,
+        _ => 'motion.$key',
+      };
+
+  static double _restOf(String key) => key == 'opacity' ? 1 : Motion.restOf(key);
+
+  /// The spring of a legacy motion's `spring` curve.
+  static const Spring legacyMotionSpring = Spring.physical(stiffness: 380, damping: 20);
 
   static double _cycles(Json p, double usual) {
     final c = _p(p, 'cycles', 0);
@@ -279,6 +394,222 @@ abstract final class AnimationPresets {
       playKey: m['playKey']?.toString(),
       alignment: ox != 0 || oy != 0 ? Alignment(ox, oy) : null,
     );
+  }
+
+  /// The legacy temporal keys of a node's motion JSON [motion] (with the
+  /// node's [bind] map, and whether its state styles set the motion's
+  /// opacity or blur, [patchesOpacity], [patchesBlur]) as what they are
+  /// now:
+  ///
+  /// * `duration`, `delay`, `curve` (and `spring` for the `spring` curve)
+  ///   → a `motion` [Transition], `rotateCurve` → a `motion.rotate` one;
+  ///   `opacity` and `blur` changes keep easing (`opacity`, the layer
+  ///   blur's radius), the opacity in the first `fadeShare`; `keyframes`
+  ///   are passed through; `arc` is kept (deprecated).
+  /// * `enter`, `enterFrom`, `replayKey`, `enterHeld`, `revealOnScroll`,
+  ///   `revealFraction` (and `keyframes` replayed by a key) → the animation
+  ///   `enter` (preset `enter`): autoplaying, `playKey` the replay key,
+  ///   `paused` the hold, `visibleFraction` the reveal.
+  /// * `loop`, `repeat`, `phase`, `paused` → the animation `loop` (preset
+  ///   `loop`); a counted loop replays when a bound motion value changes.
+  /// * `spin`, `spinRamp`, `paused` → the animation `spin` (preset `spin`,
+  ///   its `ramp`).
+  /// * `shimmer` → the [Shimmer] and the animation `shimmer`.
+  ///
+  /// Their bound keys are rewritten by [Behaviors.migrateBind], which also
+  /// adds [bind]'s entries (what replays a counted loop).
+  static ({List<NodeAnimation> animations, List<Transition> transitions, Shimmer? shimmer, Map<String, String> bind})
+      fromMotion(
+    Json motion, {
+    Map<String, String> bind = const {},
+    bool patchesOpacity = false,
+    bool patchesBlur = false,
+  }) {
+    final r = _R(motion);
+    final duration = r.ms('duration', 0), delay = r.ms('delay', 0);
+    final curve = r.curve('curve', AnimationCurve.easeInOut);
+    final springy = curve == AnimationCurve.spring;
+    final spring = Spring.fromJson(motion['spring'], fallback: legacyMotionSpring) ??
+        Spring.legacy(motion, 'springStiffness', 'springDamping', fallback: legacyMotionSpring) ??
+        legacyMotionSpring;
+    final timed = duration > 0 || springy;
+    final rotateCurve = springy ? null : AnimationCurve.parse(motion['rotateCurve']);
+    final fadeShare = springy ? 1.0 : r.d('fadeShare', 1).clamp(0.01, 1.0).toDouble();
+    final perTrack = rotateCurve != null || fadeShare < 1;
+    bool bound(String key) => bind.containsKey('motion.$key');
+    double own(String key) => readDouble(motion[key]) ?? _restOf(key);
+    bool moves(String key) => own(key) != _restOf(key) || bound(key);
+    final hasPath = (motion['path'] is String && (motion['path'] as String).trim().isNotEmpty) || bound('path');
+    final frames = readList(_jsonText(motion['keyframes'])) ?? const [];
+    final frameMaps = [...frames.map(readMap).nonNulls];
+    bool keyed(String key) => frameMaps.any((f) => readDouble(f[key]) != null);
+    final framesBound = bound('keyframes');
+    final enterFrom = readMap(motion['enterFrom']);
+    final enter = _loose(motion['enter']) ?? false;
+    final reveal = r.b('revealOnScroll', false);
+    final hasEntrance = enter || enterFrom != null || reveal;
+    final loopMode = legacyLoopMode(motion['loop'], bind['motion.loop']);
+    final loops = loopMode != null && duration > 0;
+    final replays = motion['replayKey'] != null || bound('replayKey');
+    final animations = <NodeAnimation>[];
+    final transitions = <Transition>[];
+    final extraBind = <String, String>{};
+    Shimmer? shimmer;
+
+    // Where an entrance or a loop starts.
+    Map<String, Object?> starts({required bool entrance}) {
+      final from = <String, Object?>{};
+      if (enterFrom != null) {
+        for (final key in legacyMotionProperties) {
+          final v = readDouble(enterFrom[key]);
+          // An entrance starts at every value its enterFrom names; a loop
+          // at those away from rest.
+          if (v != null && (entrance || v != _restOf(key))) from[key] = _num(v);
+        }
+        if (hasPath && !from.containsKey('pathProgress')) from['pathProgress'] = 0;
+      } else {
+        for (final key in legacyMotionProperties) {
+          if (moves(key)) from[key] = _num(_restOf(key));
+        }
+        if (entrance && reveal && !enter && !bound('enter')) from['opacity'] = 0;
+      }
+      // A start the node already has (and no binding moves) changes nothing.
+      from.removeWhere((k, v) => readDouble(v) == own(k) && !bound(k) && !keyed(k));
+      return from;
+    }
+
+    Json timing(Json params) => {
+          ...params,
+          if (frames.isNotEmpty) 'frames': frames,
+          if (perTrack) 'curve': curve.name,
+          if (rotateCurve != null) 'rotateCurve': rotateCurve.name,
+          if (fadeShare < 1) 'fadeShare': _num(fadeShare),
+        };
+
+    if (timed && loops) {
+      final from = starts(entrance: false);
+      final count = math.max(0, r.i('repeat', 0));
+      final reverse = loopMode == 'reverse';
+      final phase = r.d('phase', 0);
+      // A counted loop that's done plays again when a bound value moves.
+      final movedBy = [
+        for (final key in legacyMotionProperties)
+          if (bind['motion.$key'] case final String e) Behaviors._formula(e) ?? '',
+      ]..removeWhere((f) => f.isEmpty);
+      animations.add(NodeAnimation(
+        id: 'loop',
+        preset: 'loop',
+        params: timing({'from': from, if (loopMode == 'swing') 'mode': 'swing'}),
+        duration: duration,
+        delay: delay,
+        curve: loopMode == 'swing' || perTrack ? AnimationCurve.linear : curve,
+        repeat: AnimationRepeat(reverse: reverse, count: count),
+        enabled: bind['motion.loop'] == null || legacyLoopMode(motion['loop'], null) != null,
+        paused: _loose(motion['paused']) ?? false,
+        // A reverse loop's phase was a share of one way.
+        phase: reverse ? phase / 2 : phase,
+      ));
+      if (count > 0 && movedBy.isNotEmpty) {
+        extraBind['animations.loop.playKey'] = "\${= 'loop|' + ${movedBy.map((f) => '($f)').join(" + '|' + ")}}";
+      }
+    } else if (timed && (hasEntrance || bound('enter') || (replays && (frames.isNotEmpty || framesBound)))) {
+      final from = starts(entrance: true);
+      if (from.isNotEmpty || frames.isNotEmpty || framesBound) {
+        animations.add(NodeAnimation(
+          id: 'enter',
+          preset: 'enter',
+          params: timing({'from': from}),
+          enabled: hasEntrance || !bound('enter'),
+          duration: duration == 0 ? null : duration,
+          delay: delay,
+          curve: springy ? AnimationCurve.linear : (perTrack ? AnimationCurve.linear : curve),
+          spring: springy ? spring : null,
+          autoplay: hasEntrance || bound('enter'),
+          playKey: motion['replayKey']?.toString(),
+          paused: hasEntrance && (_loose(motion['enterHeld']) ?? false),
+          visibleFraction: reveal && hasEntrance ? r.d('revealFraction', 0.15).clamp(0.0, 1.0).toDouble() : null,
+        ));
+      }
+    }
+
+    final spin = r.d('spin', 0);
+    if (spin != 0 || bound('spin')) {
+      final origin = Alignment(r.d('originX', 0), r.d('originY', 0));
+      animations.add(NodeAnimation(
+        id: 'spin',
+        preset: 'spin',
+        params: {'perSecond': _num(spin)},
+        ramp: r.ms('spinRamp', 800),
+        paused: _loose(motion['paused']) ?? false,
+        alignment: origin == Alignment.center ? null : origin,
+      ));
+    }
+
+    if (readMap(motion['shimmer']) case final Json sm) {
+      final old = _R(sm);
+      shimmer = Shimmer(
+        color: old.color('color') ?? Color.white,
+        strength: old.d('strength', 0.8),
+        width: old.d('width', 0.44),
+        angle: old.d('angle', 0),
+      );
+      final ms = old.ms('duration', 1400);
+      animations.add(NodeAnimation(id: 'shimmer', preset: 'shimmer', duration: ms == 1400 ? null : ms));
+    }
+
+    if (timed) {
+      const pose = [
+        'translateX', 'translateY', 'scale', 'scaleX', 'scaleY', 'rotate', 'rotateX', 'rotateY', 'pathProgress', //
+      ];
+      final poseFrames = <Keyframe>[
+        for (final f in frameMaps)
+          if ({
+            for (final key in pose)
+              if (!(key == 'rotate' && rotateCurve != null))
+                if (readDouble(f[key]) case final double v when v.isFinite) key == 'pathProgress' ? 'path.progress' : key: _num(v),
+          } case final Json values when values.isNotEmpty)
+            Keyframe(at: (readDouble(f['t']) ?? 0).clamp(0.0, 1.0), value: values),
+      ];
+      Transition of(String property, {int? ms, AnimationCurve? ease, List<Keyframe> keyframes = const [], double arc = 0}) =>
+          Transition(
+            property: property,
+            duration: ms ?? duration,
+            delay: delay,
+            curve: springy ? AnimationCurve.linear : (ease ?? curve),
+            spring: springy ? spring : null,
+            keyframes: keyframes,
+            interpolation: keyframes.isEmpty ? KeyframeInterpolation.linear : KeyframeInterpolation.monotoneCubic,
+            arc: arc,
+          );
+      transitions.add(of('motion', keyframes: poseFrames, arc: r.d('arc', 0)));
+      if (rotateCurve != null) transitions.add(of('motion.rotate', ease: rotateCurve));
+      if (motion.containsKey('opacity') || bound('opacity') || keyed('opacity') || patchesOpacity) {
+        final opacityFrames = fadeShare < 1
+            ? const <Keyframe>[]
+            : [
+                for (final f in frameMaps)
+                  if (readDouble(f['opacity']) case final double v when v.isFinite)
+                    Keyframe(at: (readDouble(f['t']) ?? 0).clamp(0.0, 1.0), value: _num(v)),
+              ];
+        transitions.add(fadeShare < 1
+            ? of('opacity', ms: (duration * fadeShare).round(), ease: AnimationCurve.easeOut)
+            : of('opacity', keyframes: opacityFrames));
+      }
+      if (motion.containsKey('blur') || bound('blur') || patchesBlur) transitions.add(of(legacyMotionPath('blur')));
+    }
+    return (animations: animations, transitions: transitions, shimmer: shimmer, bind: extraBind);
+  }
+
+  /// A legacy motion's `loop` mode (`restart`, `reverse`, `swing`), or the
+  /// one a bound expression [bound] names; null for none.
+  static String? legacyLoopMode(Object? value, String? bound) {
+    const modes = ['restart', 'reverse', 'swing'];
+    if (value is String && modes.contains(value)) return value;
+    if (bound != null) {
+      final named = [for (final m in modes) if (bound.contains(m)) m];
+      if (named.length == 1) return named.single;
+    }
+    return null;
   }
 
   /// A motion's `pulseKey`, which no player ever read: now an animation

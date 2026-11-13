@@ -13,10 +13,10 @@ void main() {
     });
 
     test('resolved fills in the preset and keeps given sides', () {
-      const side = TransitionSide(motion: Motion(opacity: 0), durationMs: 120);
+      const side = TransitionSide(motion: Pose(opacity: 0), durationMs: 120);
       final t = const RouteTransition(preset: RouteTransitionPreset.iosModal, enter: side).resolved;
       expect(t.enter, side);
-      expect(t.exit!.motion, const Motion(scale: 0.93, translateY: 12));
+      expect(t.exit!.motion, const Pose(motion: Motion(scale: 0.93, translateY: 12)));
       expect(t.opaque, isFalse);
       expect(t.barrierColor, const Color(0x33000000));
       expect(t.dismiss!.direction, DragDirection.down);

@@ -105,7 +105,7 @@ Every node has a `type` (one of the [node types](#page-nodes)). Its keys:
 | `component` | `ComponentLink` | The component this node is the main node of, or the top node of an instance of (DESIGN.md §4.2). |
 | `visible` | bool | Default `true`.  |
 | `opacity` | double | Default `1`.  |
-| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
+| behaviors |  | Flat keys for what a node does beyond layout and paint: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint` ([behaviors](#page-behaviors)). |
 
 **The tree is made of ids.** A parent lists its children's ids; a child does not name its parent:
 
@@ -1762,8 +1762,8 @@ Flutter `PageView`: its first child repeated per page.
 | `allowImplicitScrolling` | bool | `false` |  |  |
 | `animationDuration` | int | `0` | ≥ 0 | How long a change of the bound page index animates, in ms (0 jumps). |
 | `animationCurve` | String | `"easeOutCubic"` |  | The curve of that animation, by `Curves` name. |
-| `pageMotion` | [Motion](#type-Motion) | unset |  | A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY`, `originX` change sign). Null: flat pages. |
-| `pageMotionBefore` | [Motion](#type-Motion) | unset |  | The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored. |
+| `pageMotion` | [Pose](#type-Pose) | unset |  | A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY` and the alignment's x change sign). A `Pose`: a transform with an opacity and a blur. Null: flat pages. |
+| `pageMotionBefore` | [Pose](#type-Pose) | unset |  | The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored. |
 | `paintOrder` | [PagePaintOrder](#enum-PagePaintOrder) | `"forward"` | `forward`, `reverse` | Which pages draw on top where they overlap: `forward` (Flutter's order: later pages over earlier ones) or `reverse` (earlier pages on top, so a page turning away covers the one it reveals). Taps reach the page on top first. |
 
 <a id="node-tabs"></a>
@@ -3779,7 +3779,9 @@ Objects with declared fields. Keys not listed are reported by validation (`unkno
 
 One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.
 
-The value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.
+The value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers interpolate and, as `Tween<double>` does, carry on past the ends on a curve that overshoots (`elasticOut`); colors interpolate; any other value switches at the end.
+
+On a replacing track a wave's amplitude is a share of the way from `from` to `to` (the property's own value when `to` is omitted): `{"from": 0, "wave": [{}]}` swings a property between its own value and as far the other way, once a run (a pendulum). On an adding or multiplying track it is in the property's own units.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
@@ -3794,6 +3796,7 @@ The value at the controller's value `v` (after the animation's curve): `u` is `v
 | `interval` | List<double> | `[0,1]` |  | `Interval(begin, end)`. |
 | `curve` | [AnimationCurve](#enum-AnimationCurve) | `"linear"` |  |  |
 | `blend` | [TrackBlend](#enum-TrackBlend) | `"replace"` | `replace`, `add`, `multiply` |  |
+| `interpolation` | [KeyframeInterpolation](#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` | How `keyframes` are joined. |
 
 <a id="type-BorderSide"></a>
 ### BorderSide
@@ -4261,91 +4264,28 @@ Writes where the node is laid out, `{x, y, width, height, centerX, centerY}` in 
 <a id="type-Motion"></a>
 ### Motion
 
-How a node moves: a transform drawn over its layout (CSS-like: it doesn't move anything else), the transitions between its values when they change, an entrance, a loop and a spin. Its values are the node's rest pose; the design canvas draws the node there.
+A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.
 
-The transform, in order: `translateX`/`translateY` (pixels), `scale` times `scaleX`/`scaleY`, `rotate` (degrees, plus the spin), then `rotateX`/`rotateY` in 3D with `perspective`, about the point (`originX`, `originY`) in the box (-1–1, 0 the center); then a shift by `shiftX`/`shiftY` times the node's size. `opacity` and `blur` apply on top of the node's own.
+One matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{"translateY": -4, "scale": 1.02, "alignment": [0, 1]}`.
+
+Reads the legacy keys too: `originX`/`originY` as `alignment`; the flat path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as `path`. Its other legacy keys belong to the node (`Node.fromJson`: `opacity`, `blur`) or to its animations and transitions (`Behaviors.fromJson`: the timing, entrance, loop, spin, keyframes and shimmer).
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `translateX` | double | `0` |  | Pixels. |
-| `translateY` | double | `0` |  |  |
-| `scale` | double | `1` |  |  |
-| `scaleX` | double | `1` |  |  |
-| `scaleY` | double | `1` |  |  |
-| `shiftX` | double | `0` |  | Times the node's size. |
-| `shiftY` | double | `0` |  |  |
-| `opacity` | double | `1` | ≥ 0, ≤ 1 |  |
-| `rotate` | double | `0` |  | Degrees. |
-| `rotateX` | double | `0` |  |  |
-| `rotateY` | double | `0` |  |  |
-| `spin` | double | `0` |  | Turns per second. |
-| `pathProgress` | double | `0` |  |  |
-| `blur` | double | `0` | ≥ 0 |  |
-| `perspective` | double | `1` |  |  |
-| `originX` | double | `0` |  | The transform's origin in the box (-1–1, 0 the center). |
-| `originY` | double | `0` |  |  |
-| `duration` | int | `0` | ≥ 0 | A transition's length and its wait (ms). |
-| `delay` | int | `0` | ≥ 0 | A transition's length and its wait (ms). |
-| `curve` | [AnimationCurve](#enum-AnimationCurve) | `"easeInOut"` |  |  |
-| `rotateCurve` | [AnimationCurve](#enum-AnimationCurve) | unset |  | The rotation's own curve; null follows `curve`. |
-| `fadeShare` | double | `1` | ≥ 0, ≤ 1 | The share of the duration in which the opacity arrives (easing out). |
-| `spring` | [Spring](#type-Spring) | `{}` |  | The spring of the `spring` curve. |
-| `spinRamp` | int | `800` | ≥ 0 |  |
-| `loop` | [MotionLoop](#enum-MotionLoop) | `"none"` | `none`, `restart`, `reverse`, `swing` | Plays between the start (`enterFrom`, else rest) and the values. |
-| `repeat` | int | `0` | ≥ 0 | Loop runs (0: forever). |
-| `enter` | bool | `false` |  | Plays an entrance when the node appears: from `enterFrom`, or from rest to the values when null. |
-| `enterFrom` | [Motion](#type-Motion) | unset |  |  |
-| `replayKey` | String | unset |  | A change of this text replays the entrance. |
-| `backfaceHidden` | bool | `false` |  | Hidden while its back faces the viewer. |
-| `path` | String | unset |  | An SVG path the node moves along. |
-| `orientToPath` | bool | `false` |  | Turns with the path's direction. |
-| `keyframes` | List<[MotionKeyframe](#type-MotionKeyframe)> | `[]` |  |  |
-| `revealOnScroll` | bool | `false` |  | Waits to enter until `revealFraction` of the node scrolls into view. |
-| `enterHeld` | bool | `false` |  | Holds the entrance at its start while true (bindable). |
-| `revealFraction` | double | `0.15` |  |  |
-| `orientUpright` | bool | `false` |  | With `orientToPath`: never upside down. |
-| `uprightMirror` | bool | `false` |  | With `orientUpright`: heading left mirrors the node, so its front leads. |
-| `arc` | double | `0` |  | A change of position bends this share of its distance off the line. |
-| `paused` | bool | `false` |  | Freezes the loop and the spin where they are. |
-| `phase` | double | `0` | ≥ 0, ≤ 1 | Where the loop starts in its cycle (0–1). |
-| `pathPacing` | [MotionPathPacing](#enum-MotionPathPacing) | `"length"` | `length`, `area` | How `pathProgress` maps to a point on `path`: by length or by area swept about (`pathFocusX`, `pathFocusY`). |
-| `pathFocusX` | double | `0` |  | The focus of area pacing, in the path's coordinates. |
-| `pathFocusY` | double | `0` |  |  |
-| `pathWrap` | bool | `false` |  | Reads the progress modulo 1. |
-| `pathViewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels. |
-| `shimmer` | [MotionShimmer](#type-MotionShimmer) | unset |  | A band of light sweeping across the node; null for none. |
-
-<a id="type-MotionKeyframe"></a>
-### MotionKeyframe
-
-The values a `Motion` passes through at `t` (0–1) between its start and its values; null values follow the curve.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `t` | double | `0` |  |  |
-| `translateX` | double | unset |  |  |
-| `translateY` | double | unset |  |  |
-| `scale` | double | unset |  |  |
-| `scaleX` | double | unset |  |  |
-| `scaleY` | double | unset |  |  |
-| `opacity` | double | unset |  |  |
-| `rotate` | double | unset |  |  |
-| `rotateX` | double | unset |  |  |
-| `rotateY` | double | unset |  |  |
-| `pathProgress` | double | unset |  |  |
-
-<a id="type-MotionShimmer"></a>
-### MotionShimmer
-
-A band of light sweeping across what the node paints, over and over (a loading skeleton's shimmer). Blended over the node's own pixels only. The design canvas draws it still, halfway across.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `color` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
-| `strength` | double | `0.8` | ≥ 0, ≤ 1 | How strongly the band's center blends the color in (0–1). |
-| `width` | double | `0.44` |  | A share of the node's size along the sweep. |
-| `duration` | int | `1400` | ≥ 0 | One sweep across (ms). |
-| `angle` | double | `0` |  | Degrees: 0 left to right, 90 top to bottom. |
+| `translateY` | double | `0` |  | Pixels (`Transform.translate(offset:)`). |
+| `shiftX` | double | `0` |  | Times the node's size (`FractionalTranslation`). |
+| `shiftY` | double | `0` |  | Multiples of the node's own size (`FractionalTranslation`). |
+| `scale` | double | `1` |  | The axis factors multiply `scale`. |
+| `scaleX` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
+| `scaleY` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
+| `rotate` | double | `0` |  | Degrees, about z. |
+| `rotateX` | double | `0` |  | Degrees, in 3D. |
+| `rotateY` | double | `0` |  | Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat). |
+| `perspective` | double | `1` |  | How strongly a 3D rotation is seen in depth (0 flat). |
+| `alignment` | [Alignment](#type-Alignment) | `[0,0]` |  | The point scale and rotation are about (`Transform.alignment`). |
+| `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
+| `path` | [PathFollow](#type-PathFollow) | unset |  | A path the node sits on. |
 
 <a id="type-NavigationDestination"></a>
 ### NavigationDestination
@@ -4394,6 +4334,8 @@ Read as `${animation.<id>.value}` (after `curve`), `.status` (`dismissed`, `forw
 | `alignment` | [Alignment](#type-Alignment) | unset |  | The point the scale and rotation of its adding and multiplying tracks are about (`ScaleTransition(alignment:)`); null: the preset's, else the center. |
 | `tracks` | List<[AnimationTrack](#type-AnimationTrack)> | `[]` |  |  |
 | `previewAt` | double | unset |  | Where the design canvas draws it (a share of a cycle); empty: not applied there. |
+| `ramp` | int | `0` | ≥ 0 | Ms to speed up from still, and to slow to a stop when paused. |
+| `visibleFraction` | double | unset |  | Waits to start until this share of the node is in view. |
 
 <a id="type-Pagination"></a>
 ### Pagination
@@ -4512,14 +4454,20 @@ Each particle leaves from the origin at `speed` (55–115%) in a direction withi
 <a id="type-PathFollow"></a>
 ### PathFollow
 
-A place along an SVG path. Shared by `motion.path` and `track.path`.
+A place along an SVG path: `progress` (0–1) of the way along `path`'s length, turned with it as `orient` says. Shared by `motion.path` and a drag track's path.
+
+Values of `progress` outside 0–1 wrap round a closed path (one that ends where it starts) and clamp to the ends of an open one.
+
+JSON: `{"path": "M0 0 C 40 -60, 120 -60, 160 0", "progress": 0.5, "orient": "tangent"}`; a bare string reads as `path`.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
 | `path` | String | `""` |  | SVG path data. |
-| `viewBox` | List<double> | `[]` |  | `[width, height]` stretched over the parent; empty: pixels. |
-| `progress` | double | `0` |  | Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one. |
-| `orient` | [PathOrient](#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright` | `none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down. |
+| `viewBox` | List<double> | `[]` |  | The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place. |
+| `progress` | double | `0` |  | 0–1 of its length; wraps on a closed path. |
+| `orient` | [PathOrient](#enum-PathOrient) | `"none"` | `none`, `tangent`, `upright`, `uprightFlip` |  |
+| `pacing` | [PathPacing](#enum-PathPacing) | `"length"` | `length`, `area` | Deprecated: `area` pacing (one app). |
+| `focus` | List<double> | `[0,0]` |  | Deprecated: the focus `[x, y]` of `area` pacing. |
 
 <a id="type-PlotChartLabel"></a>
 ### PlotChartLabel
@@ -4589,6 +4537,30 @@ A horizontal line across a plot chart at `y`: a grid line, or a reference such a
 | `labelBackground` | [Color](#type-Color) | unset |  |  |
 | `axisLabel` | String | `""` |  |  |
 
+<a id="type-Pose"></a>
+### Pose
+
+A `Motion` drawn with a fade and a blur: the pose a page of a page view (`pageMotion`) or a side of a route transition is drawn at. Flutter: a `Transform` in an `Opacity` in an `ImageFiltered`. JSON: `motion`'s keys with `opacity` and `blur` beside them, flat (`{"shiftX": -1, "opacity": 0.5}`).
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `translateX` | double | `0` |  | Pixels. |
+| `translateY` | double | `0` |  | Pixels (`Transform.translate(offset:)`). |
+| `shiftX` | double | `0` |  | Times the node's size (`FractionalTranslation`). |
+| `shiftY` | double | `0` |  | Multiples of the node's own size (`FractionalTranslation`). |
+| `scale` | double | `1` |  | The axis factors multiply `scale`. |
+| `scaleX` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
+| `scaleY` | double | `1` |  | `Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`. |
+| `rotate` | double | `0` |  | Degrees, about z. |
+| `rotateX` | double | `0` |  | Degrees, in 3D. |
+| `rotateY` | double | `0` |  | Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat). |
+| `perspective` | double | `1` |  | How strongly a 3D rotation is seen in depth (0 flat). |
+| `alignment` | [Alignment](#type-Alignment) | `[0,0]` |  |  |
+| `backfaceHidden` | bool | `false` |  | Not painted while its back faces the viewer (through every transform above it too). |
+| `path` | [PathFollow](#type-PathFollow) | unset |  |  |
+| `opacity` | double | `1` | ≥ 0, ≤ 1 | 0–1. |
+| `blur` | double | `0` | ≥ 0 | A layer blur's radius. |
+
 <a id="type-ProgressBand"></a>
 ### ProgressBand
 
@@ -4653,6 +4625,19 @@ One of Flutter's `OutlinedBorder`s: its kind, corner radius and side. JSON: `{"t
 | `type` | [ShapeBorderType](#enum-ShapeBorderType) | `"roundedRectangle"` | `roundedRectangle`, `circle`, `stadium`, `continuousRectangle`, `beveledRectangle`, `roundedSuperellipse` |  |
 | `borderRadius` | [BorderRadius](#type-BorderRadius) | `0` |  | Corner radii (rectangle types). |
 | `side` | [BorderSide](#type-BorderSide) | unset |  | The outline; null draws none. |
+
+<a id="type-Shimmer"></a>
+### Shimmer
+
+A band of light across what the node paints (a loading skeleton's shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended over the node's own pixels only. `position` places it; the `shimmer` animation preset sweeps it across, over and over. JSON (sparse): `{"color": "#FFFFFFFF", "strength": 0.8, "width": 0.44, "angle": 0, "position": 0.5}`.
+
+| Key | Type | Default | Allowed | Description |
+|---|---|---|---|---|
+| `color` | [Color](#type-Color) | `"#FFFFFFFF"` |  |  |
+| `strength` | double | `0.8` | ≥ 0, ≤ 1 | How strongly the band's center blends the color in (0–1). |
+| `width` | double | `0.44` |  | A share of the node's size along the sweep. |
+| `angle` | double | `0` |  | Degrees: 0 left to right, 90 top to bottom. |
+| `position` | double | `0.5` |  | 0 off the start side, 1 off the end (the `shimmer` preset sweeps it). |
 
 <a id="type-Spring"></a>
 ### Spring
@@ -4929,12 +4914,22 @@ On-canvas handles that make a node an editable object (a sticker, a collage): co
 <a id="type-Transition"></a>
 ### Transition
 
-An implicit animation's `duration` (ms) and `curve`, as Flutter's `AnimatedOpacity(duration:, curve:)`.
+How a change of `property` animates (Flutter's implicit animations: `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`, `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes (a binding, a condition, a state style), the node tweens from what it shows to the new value over `duration` after `delay` on `curve`, or on `spring`. A change mid-flight carries on from where it is. A behavior key, a list: `"transitions": [{"property": "motion", "duration": 240, "curve": "easeOutCubic"}, {"property": "opacity", "duration": 120}]`.
+
+`property` is a binding path or a prefix of one; the longest that matches wins (`motion.rotate` over `motion`), `*` matches every path. A prefix eases what's under it as one value, as `AnimatedContainer` does its `transform`: a change of any of its numbers starts them together, and `keyframes` are passed through each time. A path an animation track is playing isn't transitioned. The design canvas shows new values at once.
+
+Reads the legacy `{"style", "opacity", "size"}` object: `style` as `opacity`, `scale`, `decoration.fills` and `visible`; `size` as `layout`. A map from property to timing reads too.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `duration` | int | `0` | ≥ 0 |  |
+| `property` | String | `""` |  | A binding path or a prefix of one (`motion`, `motion.rotate`, `opacity`); `*` for every path. |
+| `duration` | int | `0` | ≥ 0 | Milliseconds. |
+| `delay` | int | `0` | ≥ 0 | Milliseconds. |
 | `curve` | [AnimationCurve](#enum-AnimationCurve) | `"linear"` |  |  |
+| `spring` | [Spring](#type-Spring) | unset |  | Replaces `duration` and `curve`. |
+| `keyframes` | List<[Keyframe](#type-Keyframe)> | `[]` |  | Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{"at": 0.5, "value": {"scale": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says. |
+| `interpolation` | [KeyframeInterpolation](#enum-KeyframeInterpolation) | `"linear"` | `linear`, `monotoneCubic` |  |
+| `arc` | double | `0` |  | Deprecated: bends position changes off the straight line. |
 
 <a id="type-TransitionReveal"></a>
 ### TransitionReveal
@@ -4952,26 +4947,15 @@ A clip that reveals a screen as a transition plays: a circle or rectangle growin
 <a id="type-TransitionSide"></a>
 ### TransitionSide
 
-How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion`. Only the motion's values are used (the 3D ones, `shiftX`/`shiftY` in screen sizes, opacity, blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.
+How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion` (a `Pose`: a transform, `shiftX`/`shiftY` in screen sizes, with an opacity and a blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.
 
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `motion` | [Motion](#type-Motion) | `{}` |  | The values it moves from (entering) or to (leaving). |
+| `motion` | [Pose](#type-Pose) | `{}` |  | The values it moves from (entering) or to (leaving). |
 | `reveal` | [TransitionReveal](#type-TransitionReveal) | unset |  |  |
 | `curve` | [AnimationCurve](#enum-AnimationCurve) | `"fastOutSlowIn"` |  |  |
 | `delayMs` | int | `0` | ≥ 0 | Milliseconds into the transition this side starts. |
 | `durationMs` | int | unset |  | Null: to the end. |
-
-<a id="type-Transitions"></a>
-### Transitions
-
-How changes to a node animate at runtime. The design canvas shows the new values at once.
-
-| Key | Type | Default | Allowed | Description |
-|---|---|---|---|---|
-| `style` | [Transition](#type-Transition) | unset |  | Changes of opacity, `Behaviors.scale` and solid fills; a node shown or hidden by a binding grows open and shrinks closed. |
-| `opacity` | [Transition](#type-Transition) | unset |  | Opacity changes (over `style`'s). |
-| `size` | [Transition](#type-Transition) | unset |  | Size changes: on an axis the node hugs, its box grows or shrinks and clips; on others it's laid out at each size in between. |
 
 <a id="type-Typewriter"></a>
 ### Typewriter
@@ -5568,6 +5552,14 @@ Written as the value's name, a JSON string (`"center"`).
 | `manual` | When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`). |
 | `onDrag` | When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`). |
 
+<a id="enum-KeyframeInterpolation"></a>
+### KeyframeInterpolation
+
+| Value | Meaning |
+|---|---|
+| `linear` | Straight segments, each on its keyframe's curve (`TweenSequence`). |
+| `monotoneCubic` | One smooth curve through every keyframe that never overshoots one (monotone cubic, Fritsch–Carlson): a lift that swells and settles. The keyframes' own curves are not used. |
+
 <a id="enum-LineChartXLabelAnchor"></a>
 ### LineChartXLabelAnchor
 
@@ -5654,24 +5646,6 @@ Written as the value's name, a JSON string (`"center"`).
 | `fullScreen` | The whole screen. |
 | `popover` | A popover next to the node that opened it (or the pointer). |
 | `banner` | A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog. |
-
-<a id="enum-MotionLoop"></a>
-### MotionLoop
-
-| Value | Meaning |
-|---|---|
-| `none` | Plays once. |
-| `restart` | From the start again. |
-| `reverse` | Back and forth. |
-| `swing` | Swings around rest on a sine, to its values and as far the other way, one swing per `Motion.duration`: a pendulum, a needle sweeping a gauge. It rests at rest, not at an end. |
-
-<a id="enum-MotionPathPacing"></a>
-### MotionPathPacing
-
-| Value | Meaning |
-|---|---|
-| `length` | The share of the path's length: even speed along the curve. |
-| `area` | The share of the area swept by a line from the focus (`Motion.pathFocusX`, `Motion.pathFocusY`, in the path's coordinates) to the node: Kepler's second law, an orbit that speeds up near its Sun. |
 
 <a id="enum-NavigationDestinationLabelBehavior"></a>
 ### NavigationDestinationLabelBehavior
@@ -5797,9 +5771,18 @@ Written as the value's name, a JSON string (`"center"`).
 
 | Value | Meaning |
 |---|---|
-| `none` | It doesn't. |
-| `tangent` | With the path's direction. |
-| `upright` | With the path's direction, folded into −90…90 degrees so it is never upside down. |
+| `none` | It keeps its own rotation. |
+| `tangent` | Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`). |
+| `upright` | The same, folded into −90…90 degrees so it is never upside down. |
+| `uprightFlip` | `upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish. |
+
+<a id="enum-PathPacing"></a>
+### PathPacing
+
+| Value | Meaning |
+|---|---|
+| `length` | The share of the path's length: even speed along the curve. |
+| `area` | The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun). |
 
 <a id="enum-PathUnit"></a>
 ### PathUnit
@@ -6493,6 +6476,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-scale"></a>
 <a id="behavior-animations"></a>
 <a id="behavior-transitions"></a>
+<a id="behavior-shimmer"></a>
 <a id="behavior-inkWell"></a>
 <a id="behavior-states"></a>
 <a id="behavior-tooltip"></a>
@@ -6521,10 +6505,11 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 <a id="behavior-customPaint"></a>
 | Key | Type | Default | Allowed | Description |
 |---|---|---|---|---|
-| `motion` | [Motion](#type-Motion) | unset |  | The transform over the layout, its transitions, entrance and spin. |
+| `motion` | [Motion](#type-Motion) | unset |  | The transform over the layout (Flutter's `Transform`). |
 | `scale` | double | `1` | ≥ 0 | Drawn at this size around its center; layout unchanged (Flutter's `Transform.scale`). Bindable as `scale`. |
 | `animations` | List<[NodeAnimation](#type-NodeAnimation)> | `[]` |  | Its animation controllers (the legacy `loops` and `effectAnimations` read as these). |
-| `transitions` | [Transitions](#type-Transitions) | `{}` |  |  |
+| `transitions` | List<[Transition](#type-Transition)> | `[]` |  | How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these). |
+| `shimmer` | [Shimmer](#type-Shimmer) | unset |  | A band of light over what it paints. |
 | `inkWell` | [InkWellStyle](#type-InkWellStyle) | unset |  | Ink: ripples, and hover/focus/press overlays. |
 | `states` | [StateStyles](#type-StateStyles) | `{}` |  | Property overrides per interaction state. |
 | `tooltip` | String | `""` |  | Shown on hover or long press; may hold `${...}` data. |
@@ -6552,7 +6537,7 @@ guide's [states](#guide-states) section shows `states`, the most used one.
 | `measure` | [Measure](#type-Measure) | unset |  | Its laid-out box, written to a variable. |
 | `customPaint` | [CustomPaint](#type-CustomPaint) | unset |  | Flutter's `CustomPaint`: draw lists behind and over the content. |
 
-The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transitions](#type-Transitions), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
+The models these keys hold (and the models inside them) are in [Value types, models and enums](#page-values): [Motion](#type-Motion), [NodeAnimation](#type-NodeAnimation), [Transition](#type-Transition), [Shimmer](#type-Shimmer), [InkWellStyle](#type-InkWellStyle), [StateStyles](#type-StateStyles), [HeroTag](#type-HeroTag), [Flight](#type-Flight), [DragSource](#type-DragSource), [DropTarget](#type-DropTarget), [Track](#type-Track), [DismissibleBehavior](#type-DismissibleBehavior), [Pan](#type-Pan), [Reveal](#type-Reveal), [StrokePath](#type-StrokePath), [Typewriter](#type-Typewriter), [ParticleEmitter](#type-ParticleEmitter), [FlipCard](#type-FlipCard), [Tilt](#type-Tilt), [TransformGesture](#type-TransformGesture), [Sticky](#type-Sticky), [ViewProgress](#type-ViewProgress), [Measure](#type-Measure), [CustomPaint](#type-CustomPaint).
 
 ---
 
@@ -7320,7 +7305,7 @@ one ([formula functions](#page-formulas)). A binding that is exactly one express
 - `layout.<field>`: `width`, `height`, `constraints`, `margin`, `padding`, `rotation`, `aspectRatio`, `flex`, `squeezable`, `x`, `y`, `align`, and `widthFactor`, `heightFactor`.
 - `decoration.<field>`: `fills`, `strokes`, `strokeWidth`, `strokeAlign`, `strokeSides`, `strokeCap`, `dashPattern`, `radius`, `effects`, `clip`, `blendMode`, `foregroundFills`, `shape`. Inside `fills`, `strokes`, `foregroundFills` and `effects`, select an item by `[index]`, by its `id`, or every item by `*`, then a field of [Paint](#type-Paint) or [Effect](#type-Effect) (`decoration.fills[0].color`, `decoration.effects.*.color`, `.offset.dx`).
 - `props.<prop>`: any prop of the node's type ([node types](#page-nodes)), and `props.<prop>.<field>` for a field of a model prop.
-- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
+- `<behavior>` and `<behavior>.<field>`: `motion`, `scale`, `animations`, `transitions`, `shimmer`, `inkWell`, `states`, `tooltip`, `ignorePointer`, `floating`, `hero`, `flightKey`, `flight`, `draggable`, `dropTarget`, `track`, `dismissible`, `pan`, `reorderHandle`, `reveal`, `strokePath`, `typewriter`, `particles`, `textDirection`, `flip`, `tilt`, `transformGesture`, `sticky`, `viewProgress`, `measure`, `customPaint`.
 
 ## Scopes
 

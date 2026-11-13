@@ -257,10 +257,10 @@ void main() {
     expect(
       seen,
       containsAll([
-        'Motion', 'MotionKeyframe', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
-        'Spring', 'Transitions', 'Transition', 'InkWellStyle', 'StateStyles',
+        'Motion', 'PathFollow', 'Pose', 'NodeAnimation', 'AnimationTrack', 'Keyframe', 'Wave', 'AnimationRepeat', //
+        'Spring', 'Transition', 'InkWellStyle', 'StateStyles',
         'HeroTag', 'DragSource', 'DropTarget', 'Track', 'DismissibleBehavior', 'Pan', 'Reveal', 'StrokePath',
-        'ParticleEmitter', 'MotionShimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
+        'ParticleEmitter', 'Shimmer', 'GesturePhysics', 'GestureSnap', 'FlipCard',
         'Tilt', 'TransformGesture', 'TransformHandles',
         'RouteTransition', 'TransitionSide', 'TransitionReveal', 'RouteDismiss', 'CustomPaint',
       ]),
