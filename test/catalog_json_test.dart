@@ -7,8 +7,8 @@ import 'package:test/test.dart';
 Json _plugin() => jsonDecode(File('test/fixtures/acme_stars_plugin.json').readAsStringSync()) as Json;
 
 void main() {
-  group('Catalog.toJson', () {
-    test('lists every node type, action type, trigger and value type, as JSON', () {
+  group('exporting a catalog', () {
+    test('the export lists every node type, action type, trigger and value type as plain JSON', () {
       final json = standardCatalog.toJson();
       expect(jsonDecode(jsonEncode(json)), json, reason: 'plain JSON');
       final widgets = [for (final w in json['widgets'] as List) (w as Map)['type']];
@@ -26,7 +26,7 @@ void main() {
       expect((json['node'] as Map).keys, containsAll(['layout', 'decoration', 'behaviors']));
     });
 
-    test('compact keeps a prop to key, type and default', () {
+    test('the compact export gives each prop only its key, type and default', () {
       final json = Catalog.core.toJson(compact: true);
       final row = (json['widgets'] as List).cast<Map>().firstWhere((w) => w['type'] == 'row');
       final spacing = (row['props'] as List).cast<Map>().firstWhere((p) => p['key'] == 'spacing');
@@ -36,8 +36,8 @@ void main() {
     });
   });
 
-  group('Catalog.fromJson', () {
-    test('reads its own export back: the same types and props', () {
+  group('reading a catalog', () {
+    test('a catalog read from its own export has the same types and props', () {
       final back = Catalog.fromJson(standardCatalog.toJson());
       expect([for (final w in back.widgets) w.type], [for (final w in standardCatalog.widgets) w.type]);
       for (final w in standardCatalog.widgets) {
@@ -49,7 +49,7 @@ void main() {
       expect(spacing.defaultValue, 0);
     });
 
-    test('a plugin declared as data decodes typed values', () {
+    test('a plugin declared as JSON decodes its nodes and actions with typed values', () {
       final acme = Catalog.fromJson(_plugin()['catalog']);
       final spec = acme.widget('acme.rating')!;
       final node = Node.fromJson({
@@ -69,7 +69,7 @@ void main() {
   });
 
   group('hosted plugins', () {
-    test('a package round-trips and declares its types', () {
+    test('a plugin package round-trips and declares its types', () {
       final p = PluginPackage.fromJson(_plugin())!;
       expect(p.id, 'acme.stars');
       expect(p.catalog.widget('acme.rating'), isNotNull);
@@ -79,7 +79,7 @@ void main() {
       expect(p.problems(standardCatalog), isEmpty);
     });
 
-    test('a package using what the host lacks, or more than it requires, is refused', () {
+    test('a plugin package that uses what the app lacks, or more than it asks for, is refused', () {
       final json = _plugin();
       final impl = json['implementation'] as Map;
       ((impl['actions'] as Map)['acme.cheer'] as Map)['chain'] = [
@@ -98,7 +98,7 @@ void main() {
           contains(contains('requires "api"')));
     });
 
-    test('versions, refs and the managed rules', () {
+    test('a plugin updates to the newest version of its major the SDK can run, or to its pin', () {
       final p = PluginPackage.fromJson(_plugin())!;
       final v = PluginVersion.of(p, version: 3, digest: 'abc');
       final back = PluginVersion.fromJson(v.toJson())!;

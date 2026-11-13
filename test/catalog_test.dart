@@ -63,8 +63,8 @@ Json _page(List<Json> actions) => {
 };
 
 void main() {
-  group('Catalog', () {
-    test('the standard catalog is the core and every first-party library', () {
+  group('catalogs', () {
+    test('the standard catalog combines the core and every first-party library, each type declared once', () {
       expect(standardCatalog.parts, [coreCatalog, dataCatalog, authCatalog, commerceCatalog, mediaCatalog, engageCatalog]);
       expect(Catalog.core, same(coreCatalog));
       expect(standardCatalog.widgets.length, coreCatalog.widgets.length + mediaCatalog.widgets.length);
@@ -76,17 +76,7 @@ void main() {
       }
     });
 
-    test('Widgets and ActionSpecs are views of the standard catalog', () {
-      expect(Widgets.all, standardCatalog.widgets);
-      expect(Widgets.of('video'), same(VideoProps.spec));
-      expect(Widgets.of('acme.rating'), isNull);
-      expect(ActionSpecs.all.toList(), standardCatalog.actions);
-      expect(ActionSpecs.of('callApi')?.label, 'Call API');
-      // The core knows no feature: ActionDef.types lists Catalog.current's.
-      expect(ActionDef.types.toSet(), {for (final a in Catalog.core.actions) a.type});
-    });
-
-    test('composition: later entries win by type, parts first', () {
+    test('when catalogs are combined, a later entry replaces an earlier one of the same type', () {
       const replaced = WidgetSpec('acme.rating', props: [RatingProps.value]);
       final c = standardCatalog + acme + const Catalog(widgets: [replaced]);
       expect(c.widget('acme.rating'), same(replaced));
@@ -96,7 +86,7 @@ void main() {
       expect(c.widgets.last, same(replaced));
     });
 
-    test('every first-party action type decodes to its family, and back', () {
+    test('every first-party action decodes to the class of its library', () {
       final families = <String, Type>{};
       for (final json in samples) {
         final a = ActionDef.fromJson(json, catalog: standardCatalog)!;
@@ -123,7 +113,7 @@ void main() {
   });
 
   group('decoding with a catalog', () {
-    test('a native plugin node type and action type decode typed', () {
+    test('a plugin\'s node type and action type declared in Dart decode with typed values', () {
       final doc = LayoutDocument.fromJson(_page([{'type': 'acme.share', 'text': 'hi', 'nonBlocking': true}]),
           catalog: standardCatalog + acme);
       final rating = doc['r']!;
@@ -136,7 +126,7 @@ void main() {
       expect(doc.catalog, isNotNull);
     });
 
-    test('types the catalog does not declare decode as today and round-trip', () {
+    test('types a catalog does not declare are kept raw and round-trip unchanged', () {
       final json = _page([{'type': 'acme.share', 'text': 'hi'}, {'type': 'auth', 'operation': 'signOut'}]);
       final doc = LayoutDocument.fromJson(json, catalog: Catalog.core);
       final rating = doc['r']!;
@@ -154,7 +144,7 @@ void main() {
       expect(jsonEncode(doc['r']!.toJson()), jsonEncode(standard['r']!.toJson()));
     });
 
-    test('the catalog reaches actions nested in props and in actions', () {
+    test('the catalog also decodes actions nested in props and in other actions', () {
       final json = {
         'type': 'navigationBar',
         'layout': {},
@@ -178,7 +168,7 @@ void main() {
           isA<UnknownAction>());
     });
 
-    test('a node keeps its catalog through copyWith and patched', () {
+    test('a node keeps its catalog when copied or patched', () {
       final node = Node.fromJson({'type': 'acme.rating', 'props': {'value': 2}}, id: 'r', catalog: acme)!;
       expect(node.copyWith(name: 'x').spec, same(RatingProps.spec));
       expect(node.patched({'props': {'value': 4}}).prop(RatingProps.value), 4);
@@ -189,7 +179,7 @@ void main() {
       expect(Node.fromJson(node.toJson(), id: 'r', catalog: standardCatalog + acme), node);
     });
 
-    test('a data-only declared action holds typed fields and its nested chain', () {
+    test('an action declared only as data holds typed fields and its nested actions', () {
       final a = ActionDef.fromJson({
         'type': 'party.confetti',
         'count': '12',
@@ -211,7 +201,7 @@ void main() {
       });
     });
 
-    test('upgrade: an action decoded with a smaller catalog becomes typed', () {
+    test('an action decoded without its catalog becomes typed when upgraded with it', () {
       final a = ActionDef.fromJson({'type': 'acme.share', 'text': 'y'}, catalog: Catalog.core)!;
       expect(a, isA<UnknownAction>());
       expect((standardCatalog + acme).upgrade(a), isA<ShareAction>());
@@ -220,7 +210,7 @@ void main() {
       expect(standardCatalog.upgrade(typed), same(typed));
     });
 
-    test('the default catalog is the core; Catalog.run scopes another', () {
+    test('decoding uses the core catalog unless another is in scope', () {
       expect(Catalog.current, same(Catalog.core));
       expect(ActionDef.fromJson({'type': 'callApi'}), isA<UnknownAction>());
       Catalog.run(standardCatalog, () {

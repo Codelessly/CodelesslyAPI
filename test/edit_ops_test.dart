@@ -42,8 +42,8 @@ List<EditOp> _small() => [
     ];
 
 void main() {
-  group('decode', () {
-    test('each op from its JSON, and back', () {
+  group('reading edit operations', () {
+    test('each edit operation reads from its JSON and writes back', () {
       for (final spec in EditOp.specs) {
         final d = decodeOps({'ops': [spec.example]});
         expect(d.diagnostics.where((x) => x.error), isEmpty, reason: spec.op);
@@ -52,7 +52,7 @@ void main() {
       }
     });
 
-    test('lenient: aliases, remove by id, a type-less op with a node, numbers as text, a node carrying its id', () {
+    test('loosely written operations are read: aliases, removal by id, an operation without a type, numbers as text', () {
       final d = decodeOps([
         {'op': 'delete', 'id': 'x'},
         {'op': 'Update', 'id': 'y', 'patch': {'visible': false}},
@@ -67,7 +67,7 @@ void main() {
       expect((d.ops[4].$2 as SetOp).node.containsKey('id'), isFalse);
     });
 
-    test('malformed ops: typed diagnostics with the op index, the rest decode', () {
+    test('a malformed operation is reported with its index, and the rest still read', () {
       final d = decodeOps({
         'ops': [
           'nope',
@@ -95,7 +95,7 @@ void main() {
     });
   });
 
-  group('apply', () {
+  group('applying edit operations', () {
     test('a stream of sets builds the UI; children listed early are pending until they arrive', () {
       var doc = _empty;
       final pendings = <Set<String>>[];
@@ -170,7 +170,7 @@ void main() {
       expect(r.document['b'], base['b']);
     });
 
-    test('atomic: one bad op rejects the batch', () {
+    test('in an atomic batch, one bad operation rejects the whole batch', () {
       final base = applyOps(_empty, _small(), catalog: Catalog.core).document;
       final r = applyOps(base, {
         'atomic': true,
@@ -200,7 +200,7 @@ void main() {
       doc = r.document;
     });
 
-    test('vars: set a value, declare, remove; a value its type cannot hold is rejected', () {
+    test('variables can be set, declared and removed, and a value of the wrong type is rejected', () {
       var r = applyOps(_empty, [
         ..._small(),
         const VarsOp('home', set: {
@@ -250,7 +250,7 @@ void main() {
       expect(back.document.extra, page.extra);
     });
 
-    test('baseRev: a field another author changed since is stale_rev; disjoint fields merge', () {
+    test('an edit to a field another author changed since is stale, while edits to different fields merge', () {
       var r = applyOps(_empty, _small(), catalog: Catalog.core, author: 'agent');
       final readAt = r.rev;
       r = applyOps(r.document, [
@@ -266,7 +266,7 @@ void main() {
       expect(mine.rev, r.rev + 1);
     });
 
-    test('opsFromDocument rebuilds real pages exactly, top-down, with no rejected op', () {
+    test('real pages rebuilt from their own edit operations come out exactly the same', () {
       for (final name in ['restaurant_menu', 'saas_pricing']) {
         final page = _page(name);
         final ops = opsFromDocument(page);
@@ -293,8 +293,8 @@ void main() {
     });
   });
 
-  group('strict check', () {
-    test('the validator on what the op touched: its codes and suggestions', () {
+  group('strict checking', () {
+    test('strict checking validates what an operation touched and reports codes with suggestions', () {
       final base = applyOps(_empty, _small(), catalog: Catalog.core).document;
       final r = applyOps(base, [
         const PatchOp('a', {'decoration': {'fill': []}}),
@@ -310,7 +310,7 @@ void main() {
     });
   });
 
-  group('trust profile', () {
+  group('trust profiles', () {
     test('the agent profile rejects scripts, links, feature types and navigation off the document', () {
       final base = applyOps(_empty, _small(), catalog: standardCatalog).document;
       Json tap(Json action) => {
@@ -387,8 +387,8 @@ void main() {
     expect(blocks.where((b) => b.rejected), hasLength(1));
   });
 
-  group('outline and tools', () {
-    test('the outline is a fraction of the document', () {
+  group('the outline and the tools', () {
+    test('a document\'s outline is a fraction of its size', () {
       for (final name in ['restaurant_menu', 'saas_pricing']) {
         final page = _page(name);
         final o = outline(page, rev: 3);
@@ -402,7 +402,7 @@ void main() {
       }
     });
 
-    test('ui_read returns nodes, missing ids and the outline on request', () {
+    test('reading the UI returns the nodes asked for, the ids not found and the outline on request', () {
       final doc = applyOps(_empty, _small(), catalog: Catalog.core).document;
       final r = readUi(doc, {'ids': ['a', 'zz']}, rev: 2);
       expect((r['nodes']! as Map).keys, ['a']);
@@ -424,7 +424,7 @@ void main() {
       expect(jsonEncode(tools).length, lessThan(12000));
     });
 
-    test('the tool result a model reads', () {
+    test('the tool result tells the model which operations applied and why others were rejected', () {
       final r = applyOps(_empty, [..._small(), const PatchOp('zz', {'visible': false})], catalog: Catalog.core);
       final j = r.toModelJson();
       expect(j['applied'], [0, 1, 2, 3, 4]);
