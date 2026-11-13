@@ -11,6 +11,12 @@ takes the expression's value. Paths: `visible`, `opacity`, `layout.<field>`, `de
 Expressions: `${path}` reads a value (`user.name`, `items[0].price`, `pal[item.kind]`), `${= formula}` computes
 one ([formula functions](formulas.md)). A binding that is exactly one expression keeps the value's type.
 
+A text's `props.text` may hold expressions directly. A literal `$` right before one is text: `"$${price}"` shows
+`$47`. There is no escape for a literal `${`.
+
+A media rule's patch may bind too (`"patch": {"bind": {"visible": "${= !open}"}}`): the binding holds at the
+rule's sizes only, and `null` drops one of the node's own there.
+
 ## Named paths
 
 | Path | Meaning |
@@ -32,6 +38,47 @@ one ([formula functions](formulas.md)). A binding that is exactly one expression
 | `decoration.strokeWidth` |  |
 | `scale` |  |
 | `textDirection` |  |
+
+## What each path expects
+
+A formula gives the value as the field is written in JSON: a number, `true`/`false`, a name for an enum, a list or an object for the fields written that way. A value of another shape is not read and the field keeps its value.
+
+| Path | Type | A formula gives |
+|---|---|---|
+| `visible` | `bool` | `true` or `false` |
+| `opacity` | `double` | a number |
+| `selected` | `bool` | `true` or `false` |
+| `disabled` | `bool` | `true` or `false` |
+| `data` | `List` | a list |
+| `layout.width` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
+| `layout.height` | `AxisSize` | a number (fixed) or {"fill"\|"flexible"\|"hug"\|"fixed": number} |
+| `layout.constraints` | `BoxConstraints` | {"minWidth", "maxWidth", "minHeight", "maxHeight"} (each optional, numbers >= 0) |
+| `layout.margin` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
+| `layout.padding` | `EdgeInsets` | a number (all sides) or [left, top, right, bottom] |
+| `layout.rotation` | `double` | a number |
+| `layout.aspectRatio` | `double` | a number |
+| `layout.flex` | `int` | a whole number |
+| `layout.squeezable` | `bool` | `true` or `false` |
+| `layout.x` | `AxisPosition` | a number (distance from the start) or {"start": d}, {"end": d}, {"start": a, "end": b}, {"align": -1..1}, {"relative": d} |
+| `layout.y` | `AxisPosition` | a number (distance from the start) or {"start": d}, {"end": d}, {"start": a, "end": b}, {"align": -1..1}, {"relative": d} |
+| `layout.align` | `Alignment` | [x, y] from -1 to 1, or a name: topLeft, topCenter, topRight, centerLeft, center, centerRight, bottomLeft, bottomCenter, bottomRight |
+| `layout.order` | `int` | a whole number |
+| `layout.basis` | `double` | a number |
+| `decoration.fills` | `List<Paint>` | a list of Paint objects |
+| `decoration.strokes` | `List<Paint>` | a list of Paint objects |
+| `decoration.strokeWidth` | `double` | a number |
+| `decoration.strokeAlign` | `StrokeAlign` | one of its names ([StrokeAlign](values.md#enum-StrokeAlign)) |
+| `decoration.strokeSides` | `StrokeSides` | one of its names ([StrokeSides](values.md#enum-StrokeSides)) |
+| `decoration.strokeCap` | `StrokeCap` | one of its names ([StrokeCap](values.md#enum-StrokeCap)) |
+| `decoration.dashPattern` | `List<double>` | a list of double objects |
+| `decoration.radius` | `BorderRadius` | a number (every corner), [x, y] (every corner elliptical) or [topLeft, topRight, bottomRight, bottomLeft] (each a number or [x, y]) |
+| `decoration.effects` | `List<Effect>` | a list of Effect objects |
+| `decoration.clip` | `Clip` | one of its names ([Clip](values.md#enum-Clip)) |
+| `decoration.blendMode` | `BlendMode` | one of its names ([BlendMode](values.md#enum-BlendMode)) |
+| `decoration.foregroundFills` | `List<Paint>` | a list of Paint objects |
+| `decoration.shape` | `DecorationShape` | one of its names ([DecorationShape](values.md#enum-DecorationShape)) |
+
+`props.<prop>` takes what the prop's type is written as ([node types](nodes.md), [value types](values.md)): `"${= open ? 'vertical' : 'horizontal'}"` for `props.direction`, a TextStyle object or a theme style's name for `props.style`. A theme color's name is not read from a formula: give `${theme.colors.ember}` (its value).
 
 ## Every bindable field
 

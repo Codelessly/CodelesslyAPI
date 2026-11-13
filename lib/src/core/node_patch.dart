@@ -111,6 +111,19 @@ Json _mergeMaps(Json base, Json patch, Map<String, PropType>? fields, bool keepN
       }
       continue;
     }
+    // A text style that starts from another named style than the one
+    // written replaces it as a whole (switching `"style": "title"` to
+    // `"caption"` at a size); one naming none changes the fields it gives.
+    if (v is Map && type != null && type.kind == PropKind.object && type.name == 'TextStyle') {
+      final cm = cur is String ? <String, Object?>{'from': cur} : (cur is Map ? readMap(cur)! : null);
+      final vf = v['from'];
+      if (cm == null || (vf != null && vf != cm['from'])) {
+        out[e.key] = keepNulls ? v : _withoutNulls(v);
+      } else {
+        out[e.key] = _mergeMaps(cm, readMap(v)!, {for (final f in type.fields) f.key: f.type}, keepNulls);
+      }
+      continue;
+    }
     if (v is Map && type != null && isUnionType(type) && _replaces(type, cur, v)) {
       out[e.key] = keepNulls ? v : _withoutNulls(v);
       continue;

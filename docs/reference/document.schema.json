@@ -6330,6 +6330,16 @@
     "model.TextStyle": {
       "type": "object",
       "properties": {
+        "from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "fontFamily": {
           "anyOf": [
             {
@@ -8103,6 +8113,17 @@
                     "anyOf": [
                       {
                         "$ref": "#/$defs/value.Color"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "size": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "minimum": 0.0
                       },
                       {
                         "type": "null"

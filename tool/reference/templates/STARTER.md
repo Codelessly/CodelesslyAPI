@@ -25,6 +25,8 @@ Start with what is on this page. Everything else is in the full reference, in th
 
 {{guide:guide-document}}
 
+{{guide:guide-theme}}
+
 ## Nodes, ids and children
 
 `nodes` maps each node's **id** (the map key; do not repeat it inside the node) to the node. A parent lists its

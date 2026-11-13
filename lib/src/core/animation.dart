@@ -445,7 +445,7 @@ final class AnimationTrack extends _Value {
     if (x != null && y != null) return t == 0 ? a : (t == 1 ? b : x + (y - x) * t);
     if (t <= 0 && a != null) return a;
     if (t >= 1 && b != null) return b;
-    final ca = a is Color ? a : Color.fromJson(a), cb = b is Color ? b : Color.fromJson(b);
+    final ca = a is Color ? a : Color.fromHex(a), cb = b is Color ? b : Color.fromHex(b);
     if (ca != null && cb != null) {
       int ch(int p, int q) => (p + (q - p) * t).round().clamp(0, 255);
       return Color.fromARGB(ch(ca.alpha, cb.alpha), ch(ca.red, cb.red), ch(ca.green, cb.green), ch(ca.blue, cb.blue));

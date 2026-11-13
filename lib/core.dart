@@ -43,6 +43,7 @@ export 'src/core/route_transition.dart';
 export 'src/core/scripts.dart';
 export 'src/core/sections.dart';
 export 'src/core/theme.dart';
+export 'src/core/theme_refs.dart';
 export 'src/core/triggers.dart';
 export 'src/core/value_fields.dart';
 export 'src/core/values/border.dart';
