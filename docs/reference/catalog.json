@@ -1586,21 +1586,21 @@
         },
         {
           "key": "pageMotion",
-          "type": "Motion",
+          "type": "Pose",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "Motion",
-          "doc": "A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY`, `originX` change sign). Null: flat pages."
+          "object": "Pose",
+          "doc": "A 3D look for the pages as they scroll (coverflow, cube, carousel): the motion a page has one page after the current one. The current page is at rest, pages between are interpolated by their distance (clamped to two pages) and pages before are mirrored (`translateX`, `shiftX`, `rotate`, `rotateY` and the alignment's x change sign). A `Pose`: a transform with an opacity and a blur. Null: flat pages."
         },
         {
           "key": "pageMotionBefore",
-          "type": "Motion",
+          "type": "Pose",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "Motion",
-          "doc": "The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, originX: -1}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored."
+          "object": "Pose",
+          "doc": "The motion a page has one page *before* the current one, when the two sides differ (a book: the page leaving turns over about the spine, `{shiftX: 1, rotateY: -100, alignment: [-1, 0]}`, while the next one lies still beneath it, `pageMotion: {shiftX: -1}`). Interpolated by distance like `pageMotion` and not mirrored. Null: `pageMotion` mirrored."
         },
         {
           "key": "paintOrder",
@@ -11432,7 +11432,7 @@
         "default": null,
         "nullable": true,
         "object": "Motion",
-        "doc": "The transform over the layout, its transitions, entrance and spin."
+        "doc": "The transform over the layout (Flutter's `Transform`)."
       },
       {
         "key": "scale",
@@ -11456,12 +11456,23 @@
       },
       {
         "key": "transitions",
-        "type": "Transitions",
-        "kind": "object",
-        "default": {},
+        "type": "List<Transition>",
+        "kind": "list",
+        "default": [],
         "nullable": false,
-        "object": "Transitions",
-        "doc": ""
+        "item": "Transition",
+        "itemKind": "object",
+        "item_object": "Transition",
+        "doc": "How changes animate, one per property path (the legacy `{style, opacity, size}` reads as these)."
+      },
+      {
+        "key": "shimmer",
+        "type": "Shimmer",
+        "kind": "object",
+        "default": null,
+        "nullable": true,
+        "object": "Shimmer",
+        "doc": "A band of light over what it paints."
       },
       {
         "key": "inkWell",
@@ -15127,7 +15138,7 @@
       ]
     },
     "AnimationTrack": {
-      "doc": "One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.\n\nThe value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers and colors interpolate; any other value switches at the end.",
+      "doc": "One tween a `NodeAnimation` drives: a property at a binding `path` of a node, or a `variable`.\n\nThe value at the controller's value `v` (after the animation's curve): `u` is `v` inside `interval` (`Interval(begin, end)`), eased by `curve` (`CurveTween`); then `wave`s added to `from`, else the `keyframes` (`TweenSequence`), else `Tween(begin: from, end: to)` at `u`. A missing `from` or `to` is the property's own value (an entrance gives only `from`), or `blend`'s identity when the track adds or multiplies. Numbers interpolate and, as `Tween<double>` does, carry on past the ends on a curve that overshoots (`elasticOut`); colors interpolate; any other value switches at the end.\n\nOn a replacing track a wave's amplitude is a share of the way from `from` to `to` (the property's own value when `to` is omitted): `{\"from\": 0, \"wave\": [{}]}` swings a property between its own value and as far the other way, once a run (a pendulum). On an adding or multiplying track it is in the property's own units.",
       "fields": [
         {
           "key": "id",
@@ -15234,6 +15245,19 @@
             "multiply"
           ],
           "doc": ""
+        },
+        {
+          "key": "interpolation",
+          "type": "KeyframeInterpolation",
+          "kind": "enumeration",
+          "default": "linear",
+          "nullable": false,
+          "enum": "KeyframeInterpolation",
+          "values": [
+            "linear",
+            "monotoneCubic"
+          ],
+          "doc": "How `keyframes` are joined."
         }
       ]
     },
@@ -17571,7 +17595,7 @@
       ]
     },
     "Motion": {
-      "doc": "How a node moves: a transform drawn over its layout (CSS-like: it doesn't move anything else), the transitions between its values when they change, an entrance, a loop and a spin. Its values are the node's rest pose; the design canvas draws the node there.\n\nThe transform, in order: `translateX`/`translateY` (pixels), `scale` times `scaleX`/`scaleY`, `rotate` (degrees, plus the spin), then `rotateX`/`rotateY` in 3D with `perspective`, about the point (`originX`, `originY`) in the box (-1–1, 0 the center); then a shift by `shiftX`/`shiftY` times the node's size. `opacity` and `blur` apply on top of the node's own.",
+      "doc": "A transform painted over the node's layout (Flutter's `Transform`): it moves nothing else. Its values are the node's rest pose; how it gets there is the node's `animations` and `transitions`.\n\nOne matrix, outermost first: a translation (the `path`'s offset, then `translateX`/`translateY` in pixels, then `shiftX`/`shiftY` times the node's size, `FractionalTranslation`), then about `alignment`: the scale (`scale` times `scaleX`/`scaleY`), the rotation `rotate` (degrees, about z, plus the path's turn), then `rotateX` and `rotateY` (3D, seen with `perspective`). JSON (sparse): `{\"translateY\": -4, \"scale\": 1.02, \"alignment\": [0, 1]}`.\n\nReads the legacy keys too: `originX`/`originY` as `alignment`; the flat path keys (`path` text, `pathProgress`, `orientToPath`, `orientUpright`, `uprightMirror`, `pathViewBox`, `pathPacing`, `pathFocusX/Y`) as `path`. Its other legacy keys belong to the node (`Node.fromJson`: `opacity`, `blur`) or to its animations and transitions (`Behaviors.fromJson`: the timing, entrance, loop, spin, keyframes and shimmer).",
       "fields": [
         {
           "key": "translateX",
@@ -17587,31 +17611,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "scale",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "scaleX",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "scaleY",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "doc": ""
+          "doc": "Pixels (`Transform.translate(offset:)`)."
         },
         {
           "key": "shiftX",
@@ -17619,7 +17619,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Times the node's size."
+          "doc": "Times the node's size (`FractionalTranslation`)."
         },
         {
           "key": "shiftY",
@@ -17627,17 +17627,31 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Multiples of the node's own size (`FractionalTranslation`)."
         },
         {
-          "key": "opacity",
+          "key": "scale",
           "type": "double",
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": ""
+          "doc": "The axis factors multiply `scale`."
+        },
+        {
+          "key": "scaleX",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
+        },
+        {
+          "key": "scaleY",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
         },
         {
           "key": "rotate",
@@ -17645,7 +17659,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Degrees."
+          "doc": "Degrees, about z."
         },
         {
           "key": "rotateX",
@@ -17653,7 +17667,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
+          "doc": "Degrees, in 3D."
         },
         {
           "key": "rotateY",
@@ -17661,32 +17675,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "spin",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Turns per second."
-        },
-        {
-          "key": "pathProgress",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "blur",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "doc": ""
+          "doc": "Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat)."
         },
         {
           "key": "perspective",
@@ -17694,136 +17683,18 @@
           "kind": "number",
           "default": 1,
           "nullable": false,
-          "doc": ""
+          "doc": "How strongly a 3D rotation is seen in depth (0 flat)."
         },
         {
-          "key": "originX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "The transform's origin in the box (-1–1, 0 the center)."
-        },
-        {
-          "key": "originY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "duration",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "A transition's length and its wait (ms)."
-        },
-        {
-          "key": "delay",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
-          "nullable": false,
-          "min": 0,
-          "doc": "A transition's length and its wait (ms)."
-        },
-        {
-          "key": "curve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": "easeInOut",
-          "nullable": false,
-          "enum": "AnimationCurve",
-          "doc": ""
-        },
-        {
-          "key": "rotateCurve",
-          "type": "AnimationCurve",
-          "kind": "enumeration",
-          "default": null,
-          "nullable": true,
-          "enum": "AnimationCurve",
-          "doc": "The rotation's own curve; null follows `curve`."
-        },
-        {
-          "key": "fadeShare",
-          "type": "double",
-          "kind": "number",
-          "default": 1,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "The share of the duration in which the opacity arrives (easing out)."
-        },
-        {
-          "key": "spring",
-          "type": "Spring",
-          "kind": "object",
-          "default": {},
-          "nullable": false,
-          "object": "Spring",
-          "doc": "The spring of the `spring` curve."
-        },
-        {
-          "key": "spinRamp",
-          "type": "int",
-          "kind": "integer",
-          "default": 800,
-          "nullable": false,
-          "min": 0,
-          "doc": ""
-        },
-        {
-          "key": "loop",
-          "type": "MotionLoop",
-          "kind": "enumeration",
-          "default": "none",
-          "nullable": false,
-          "enum": "MotionLoop",
-          "values": [
-            "none",
-            "restart",
-            "reverse",
-            "swing"
+          "key": "alignment",
+          "type": "Alignment",
+          "kind": "value",
+          "default": [
+            0,
+            0
           ],
-          "doc": "Plays between the start (`enterFrom`, else rest) and the values."
-        },
-        {
-          "key": "repeat",
-          "type": "int",
-          "kind": "integer",
-          "default": 0,
           "nullable": false,
-          "min": 0,
-          "doc": "Loop runs (0: forever)."
-        },
-        {
-          "key": "enter",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Plays an entrance when the node appears: from `enterFrom`, or from rest to the values when null."
-        },
-        {
-          "key": "enterFrom",
-          "type": "Motion",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "Motion",
-          "doc": ""
-        },
-        {
-          "key": "replayKey",
-          "type": "String",
-          "kind": "string",
-          "default": null,
-          "nullable": true,
-          "doc": "A change of this text replays the entrance."
+          "doc": "The point scale and rotation are about (`Transform.alignment`)."
         },
         {
           "key": "backfaceHidden",
@@ -17831,297 +17702,16 @@
           "kind": "boolean",
           "default": false,
           "nullable": false,
-          "doc": "Hidden while its back faces the viewer."
+          "doc": "Not painted while its back faces the viewer (through every transform above it too)."
         },
         {
           "key": "path",
-          "type": "String",
-          "kind": "string",
-          "default": null,
-          "nullable": true,
-          "doc": "An SVG path the node moves along."
-        },
-        {
-          "key": "orientToPath",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Turns with the path's direction."
-        },
-        {
-          "key": "keyframes",
-          "type": "List<MotionKeyframe>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "MotionKeyframe",
-          "itemKind": "object",
-          "item_object": "MotionKeyframe",
-          "doc": ""
-        },
-        {
-          "key": "revealOnScroll",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Waits to enter until `revealFraction` of the node scrolls into view."
-        },
-        {
-          "key": "enterHeld",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Holds the entrance at its start while true (bindable)."
-        },
-        {
-          "key": "revealFraction",
-          "type": "double",
-          "kind": "number",
-          "default": 0.15,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "orientUpright",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "With `orientToPath`: never upside down."
-        },
-        {
-          "key": "uprightMirror",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "With `orientUpright`: heading left mirrors the node, so its front leads."
-        },
-        {
-          "key": "arc",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "A change of position bends this share of its distance off the line."
-        },
-        {
-          "key": "paused",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Freezes the loop and the spin where they are."
-        },
-        {
-          "key": "phase",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "Where the loop starts in its cycle (0–1)."
-        },
-        {
-          "key": "pathPacing",
-          "type": "MotionPathPacing",
-          "kind": "enumeration",
-          "default": "length",
-          "nullable": false,
-          "enum": "MotionPathPacing",
-          "values": [
-            "length",
-            "area"
-          ],
-          "doc": "How `pathProgress` maps to a point on `path`: by length or by area swept about (`pathFocusX`, `pathFocusY`)."
-        },
-        {
-          "key": "pathFocusX",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "The focus of area pacing, in the path's coordinates."
-        },
-        {
-          "key": "pathFocusY",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "pathWrap",
-          "type": "bool",
-          "kind": "boolean",
-          "default": false,
-          "nullable": false,
-          "doc": "Reads the progress modulo 1."
-        },
-        {
-          "key": "pathViewBox",
-          "type": "List<double>",
-          "kind": "list",
-          "default": [],
-          "nullable": false,
-          "item": "double",
-          "itemKind": "number",
-          "doc": "The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels."
-        },
-        {
-          "key": "shimmer",
-          "type": "MotionShimmer",
+          "type": "PathFollow",
           "kind": "object",
           "default": null,
           "nullable": true,
-          "object": "MotionShimmer",
-          "doc": "A band of light sweeping across the node; null for none."
-        }
-      ]
-    },
-    "MotionKeyframe": {
-      "doc": "The values a `Motion` passes through at `t` (0–1) between its start and its values; null values follow the curve.",
-      "fields": [
-        {
-          "key": "t",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "translateX",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "translateY",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "scale",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "scaleX",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "scaleY",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "opacity",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "rotate",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "rotateX",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "rotateY",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        },
-        {
-          "key": "pathProgress",
-          "type": "double",
-          "kind": "number",
-          "default": null,
-          "nullable": true,
-          "doc": ""
-        }
-      ]
-    },
-    "MotionShimmer": {
-      "doc": "A band of light sweeping across what the node paints, over and over (a loading skeleton's shimmer). Blended over the node's own pixels only. The design canvas draws it still, halfway across.",
-      "fields": [
-        {
-          "key": "color",
-          "type": "Color",
-          "kind": "value",
-          "default": "#FFFFFFFF",
-          "nullable": false,
-          "doc": ""
-        },
-        {
-          "key": "strength",
-          "type": "double",
-          "kind": "number",
-          "default": 0.8,
-          "nullable": false,
-          "min": 0.0,
-          "max": 1.0,
-          "doc": "How strongly the band's center blends the color in (0–1)."
-        },
-        {
-          "key": "width",
-          "type": "double",
-          "kind": "number",
-          "default": 0.44,
-          "nullable": false,
-          "doc": "A share of the node's size along the sweep."
-        },
-        {
-          "key": "duration",
-          "type": "int",
-          "kind": "integer",
-          "default": 1400,
-          "nullable": false,
-          "min": 0,
-          "doc": "One sweep across (ms)."
-        },
-        {
-          "key": "angle",
-          "type": "double",
-          "kind": "number",
-          "default": 0,
-          "nullable": false,
-          "doc": "Degrees: 0 left to right, 90 top to bottom."
+          "object": "PathFollow",
+          "doc": "A path the node sits on."
         }
       ]
     },
@@ -18351,6 +17941,23 @@
           "default": null,
           "nullable": true,
           "doc": "Where the design canvas draws it (a share of a cycle); empty: not applied there."
+        },
+        {
+          "key": "ramp",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Ms to speed up from still, and to slow to a stop when paused."
+        },
+        {
+          "key": "visibleFraction",
+          "type": "double",
+          "kind": "number",
+          "default": null,
+          "nullable": true,
+          "doc": "Waits to start until this share of the node is in view."
         }
       ]
     },
@@ -19110,7 +18717,7 @@
       ]
     },
     "PathFollow": {
-      "doc": "A place along an SVG path. Shared by `motion.path` and `track.path`.",
+      "doc": "A place along an SVG path: `progress` (0–1) of the way along `path`'s length, turned with it as `orient` says. Shared by `motion.path` and a drag track's path.\n\nValues of `progress` outside 0–1 wrap round a closed path (one that ends where it starts) and clamp to the ends of an open one.\n\nJSON: `{\"path\": \"M0 0 C 40 -60, 120 -60, 160 0\", \"progress\": 0.5, \"orient\": \"tangent\"}`; a bare string reads as `path`.",
       "fields": [
         {
           "key": "path",
@@ -19128,7 +18735,7 @@
           "nullable": false,
           "item": "double",
           "itemKind": "number",
-          "doc": "`[width, height]` stretched over the parent; empty: pixels."
+          "doc": "The path's coordinate space `[width, height]`, stretched over the node's parent; empty: pixels from the node's place."
         },
         {
           "key": "progress",
@@ -19136,7 +18743,7 @@
           "kind": "number",
           "default": 0,
           "nullable": false,
-          "doc": "Where along the path's length, 0–1. Values outside wrap on a closed path and clamp on an open one."
+          "doc": "0–1 of its length; wraps on a closed path."
         },
         {
           "key": "orient",
@@ -19148,9 +18755,36 @@
           "values": [
             "none",
             "tangent",
-            "upright"
+            "upright",
+            "uprightFlip"
           ],
-          "doc": "`none`; `tangent`: turned with the path's direction; `upright`: the same, folded into −90…90 degrees so it is never upside down."
+          "doc": ""
+        },
+        {
+          "key": "pacing",
+          "type": "PathPacing",
+          "kind": "enumeration",
+          "default": "length",
+          "nullable": false,
+          "enum": "PathPacing",
+          "values": [
+            "length",
+            "area"
+          ],
+          "doc": "Deprecated: `area` pacing (one app)."
+        },
+        {
+          "key": "focus",
+          "type": "List<double>",
+          "kind": "list",
+          "default": [
+            0,
+            0
+          ],
+          "nullable": false,
+          "item": "double",
+          "itemKind": "number",
+          "doc": "Deprecated: the focus `[x, y]` of `area` pacing."
         }
       ]
     },
@@ -19416,6 +19050,146 @@
           "default": "",
           "nullable": false,
           "doc": ""
+        }
+      ]
+    },
+    "Pose": {
+      "doc": "A `Motion` drawn with a fade and a blur: the pose a page of a page view (`pageMotion`) or a side of a route transition is drawn at. Flutter: a `Transform` in an `Opacity` in an `ImageFiltered`. JSON: `motion`'s keys with `opacity` and `blur` beside them, flat (`{\"shiftX\": -1, \"opacity\": 0.5}`).",
+      "fields": [
+        {
+          "key": "translateX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Pixels."
+        },
+        {
+          "key": "translateY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Pixels (`Transform.translate(offset:)`)."
+        },
+        {
+          "key": "shiftX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Times the node's size (`FractionalTranslation`)."
+        },
+        {
+          "key": "shiftY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Multiples of the node's own size (`FractionalTranslation`)."
+        },
+        {
+          "key": "scale",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "The axis factors multiply `scale`."
+        },
+        {
+          "key": "scaleX",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
+        },
+        {
+          "key": "scaleY",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "`Transform.scale(scale:, scaleX:, scaleY:)`: the axis factors multiply `scale`."
+        },
+        {
+          "key": "rotate",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Degrees, about z."
+        },
+        {
+          "key": "rotateX",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Degrees, in 3D."
+        },
+        {
+          "key": "rotateY",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Degrees. `rotate` turns about z (`Transform.rotate`); `rotateX` and `rotateY` turn in 3D, seen with `perspective` (0 flat)."
+        },
+        {
+          "key": "perspective",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "doc": "How strongly a 3D rotation is seen in depth (0 flat)."
+        },
+        {
+          "key": "alignment",
+          "type": "Alignment",
+          "kind": "value",
+          "default": [
+            0,
+            0
+          ],
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "backfaceHidden",
+          "type": "bool",
+          "kind": "boolean",
+          "default": false,
+          "nullable": false,
+          "doc": "Not painted while its back faces the viewer (through every transform above it too)."
+        },
+        {
+          "key": "path",
+          "type": "PathFollow",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "PathFollow",
+          "doc": ""
+        },
+        {
+          "key": "opacity",
+          "type": "double",
+          "kind": "number",
+          "default": 1,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "0–1."
+        },
+        {
+          "key": "blur",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "min": 0.0,
+          "doc": "A layer blur's radius."
         }
       ]
     },
@@ -19686,6 +19460,53 @@
           "nullable": true,
           "object": "BorderSide",
           "doc": "The outline; null draws none."
+        }
+      ]
+    },
+    "Shimmer": {
+      "doc": "A band of light across what the node paints (a loading skeleton's shimmer: Flutter's `ShaderMask` with a moving `LinearGradient`), blended over the node's own pixels only. `position` places it; the `shimmer` animation preset sweeps it across, over and over. JSON (sparse): `{\"color\": \"#FFFFFFFF\", \"strength\": 0.8, \"width\": 0.44, \"angle\": 0, \"position\": 0.5}`.",
+      "fields": [
+        {
+          "key": "color",
+          "type": "Color",
+          "kind": "value",
+          "default": "#FFFFFFFF",
+          "nullable": false,
+          "doc": ""
+        },
+        {
+          "key": "strength",
+          "type": "double",
+          "kind": "number",
+          "default": 0.8,
+          "nullable": false,
+          "min": 0.0,
+          "max": 1.0,
+          "doc": "How strongly the band's center blends the color in (0–1)."
+        },
+        {
+          "key": "width",
+          "type": "double",
+          "kind": "number",
+          "default": 0.44,
+          "nullable": false,
+          "doc": "A share of the node's size along the sweep."
+        },
+        {
+          "key": "angle",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Degrees: 0 left to right, 90 top to bottom."
+        },
+        {
+          "key": "position",
+          "type": "double",
+          "kind": "number",
+          "default": 0.5,
+          "nullable": false,
+          "doc": "0 off the start side, 1 off the end (the `shimmer` preset sweeps it)."
         }
       ]
     },
@@ -21217,8 +21038,16 @@
       ]
     },
     "Transition": {
-      "doc": "An implicit animation's `duration` (ms) and `curve`, as Flutter's `AnimatedOpacity(duration:, curve:)`.",
+      "doc": "How a change of `property` animates (Flutter's implicit animations: `AnimatedContainer(duration:, curve:)`, `AnimatedOpacity`, `AnimatedScale`, `TweenAnimationBuilder`): when the value there changes (a binding, a condition, a state style), the node tweens from what it shows to the new value over `duration` after `delay` on `curve`, or on `spring`. A change mid-flight carries on from where it is. A behavior key, a list: `\"transitions\": [{\"property\": \"motion\", \"duration\": 240, \"curve\": \"easeOutCubic\"}, {\"property\": \"opacity\", \"duration\": 120}]`.\n\n`property` is a binding path or a prefix of one; the longest that matches wins (`motion.rotate` over `motion`), `*` matches every path. A prefix eases what's under it as one value, as `AnimatedContainer` does its `transform`: a change of any of its numbers starts them together, and `keyframes` are passed through each time. A path an animation track is playing isn't transitioned. The design canvas shows new values at once.\n\nReads the legacy `{\"style\", \"opacity\", \"size\"}` object: `style` as `opacity`, `scale`, `decoration.fills` and `visible`; `size` as `layout`. A map from property to timing reads too.",
       "fields": [
+        {
+          "key": "property",
+          "type": "String",
+          "kind": "string",
+          "default": "",
+          "nullable": false,
+          "doc": "A binding path or a prefix of one (`motion`, `motion.rotate`, `opacity`); `*` for every path."
+        },
         {
           "key": "duration",
           "type": "int",
@@ -21226,7 +21055,16 @@
           "default": 0,
           "nullable": false,
           "min": 0,
-          "doc": ""
+          "doc": "Milliseconds."
+        },
+        {
+          "key": "delay",
+          "type": "int",
+          "kind": "integer",
+          "default": 0,
+          "nullable": false,
+          "min": 0,
+          "doc": "Milliseconds."
         },
         {
           "key": "curve",
@@ -21236,6 +21074,47 @@
           "nullable": false,
           "enum": "AnimationCurve",
           "doc": ""
+        },
+        {
+          "key": "spring",
+          "type": "Spring",
+          "kind": "object",
+          "default": null,
+          "nullable": true,
+          "object": "Spring",
+          "doc": "Replaces `duration` and `curve`."
+        },
+        {
+          "key": "keyframes",
+          "type": "List<Keyframe>",
+          "kind": "list",
+          "default": [],
+          "nullable": false,
+          "item": "Keyframe",
+          "itemKind": "object",
+          "item_object": "Keyframe",
+          "doc": "Values passed through on the way (`Keyframe`s, `at` 0–1 of the run): a number for a single property; for a prefix, an object of the numbers under it (`{\"at\": 0.5, \"value\": {\"scale\": 1.05}}`: a card that swells as it turns over). Joined as `interpolation` says."
+        },
+        {
+          "key": "interpolation",
+          "type": "KeyframeInterpolation",
+          "kind": "enumeration",
+          "default": "linear",
+          "nullable": false,
+          "enum": "KeyframeInterpolation",
+          "values": [
+            "linear",
+            "monotoneCubic"
+          ],
+          "doc": ""
+        },
+        {
+          "key": "arc",
+          "type": "double",
+          "kind": "number",
+          "default": 0,
+          "nullable": false,
+          "doc": "Deprecated: bends position changes off the straight line."
         }
       ]
     },
@@ -21297,15 +21176,15 @@
       ]
     },
     "TransitionSide": {
-      "doc": "How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion`. Only the motion's values are used (the 3D ones, `shiftX`/`shiftY` in screen sizes, opacity, blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.",
+      "doc": "How one screen moves during a `RouteTransition`: an entering screen starts at `motion` and comes to rest; a leaving one starts at rest and ends at `motion` (a `Pose`: a transform, `shiftX`/`shiftY` in screen sizes, with an opacity and a blur); this side's `curve`, `delayMs` and `durationMs` time it inside the route's duration.",
       "fields": [
         {
           "key": "motion",
-          "type": "Motion",
+          "type": "Pose",
           "kind": "object",
           "default": {},
           "nullable": false,
-          "object": "Motion",
+          "object": "Pose",
           "doc": "The values it moves from (entering) or to (leaving)."
         },
         {
@@ -21342,38 +21221,6 @@
           "default": null,
           "nullable": true,
           "doc": "Null: to the end."
-        }
-      ]
-    },
-    "Transitions": {
-      "doc": "How changes to a node animate at runtime. The design canvas shows the new values at once.",
-      "fields": [
-        {
-          "key": "style",
-          "type": "Transition",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "Transition",
-          "doc": "Changes of opacity, `Behaviors.scale` and solid fills; a node shown or hidden by a binding grows open and shrinks closed."
-        },
-        {
-          "key": "opacity",
-          "type": "Transition",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "Transition",
-          "doc": "Opacity changes (over `style`'s)."
-        },
-        {
-          "key": "size",
-          "type": "Transition",
-          "kind": "object",
-          "default": null,
-          "nullable": true,
-          "object": "Transition",
-          "doc": "Size changes: on an axis the node hugs, its box grows or shrinks and clips; on others it's laid out at each size in between."
         }
       ]
     },
@@ -22824,6 +22671,16 @@
         "doc": "When a view's keyboard is dismissed (`ScrollViewKeyboardDismissBehavior`)."
       }
     ],
+    "KeyframeInterpolation": [
+      {
+        "value": "linear",
+        "doc": "Straight segments, each on its keyframe's curve (`TweenSequence`)."
+      },
+      {
+        "value": "monotoneCubic",
+        "doc": "One smooth curve through every keyframe that never overshoots one (monotone cubic, Fritsch–Carlson): a lift that swells and settles. The keyframes' own curves are not used."
+      }
+    ],
     "LineChartXLabelAnchor": [
       {
         "value": "edgeClamped",
@@ -23002,34 +22859,6 @@
       {
         "value": "banner",
         "doc": "A banner along the top edge of the screen (the bottom edge when `OpenModalAction.alignment`'s y is above 0), with no barrier: the app behind stays usable. It slides in, a swipe dismisses it when `OpenModalAction.barrierDismissible`, and its screen closes it with a `CloseModalAction` (after a `delay`, for one that goes by itself). A runtime that doesn't know it shows a dialog."
-      }
-    ],
-    "MotionLoop": [
-      {
-        "value": "none",
-        "doc": "Plays once."
-      },
-      {
-        "value": "restart",
-        "doc": "From the start again."
-      },
-      {
-        "value": "reverse",
-        "doc": "Back and forth."
-      },
-      {
-        "value": "swing",
-        "doc": "Swings around rest on a sine, to its values and as far the other way, one swing per `Motion.duration`: a pendulum, a needle sweeping a gauge. It rests at rest, not at an end."
-      }
-    ],
-    "MotionPathPacing": [
-      {
-        "value": "length",
-        "doc": "The share of the path's length: even speed along the curve."
-      },
-      {
-        "value": "area",
-        "doc": "The share of the area swept by a line from the focus (`Motion.pathFocusX`, `Motion.pathFocusY`, in the path's coordinates) to the node: Kepler's second law, an orbit that speeds up near its Sun."
       }
     ],
     "NavigationDestinationLabelBehavior": [
@@ -23275,15 +23104,29 @@
     "PathOrient": [
       {
         "value": "none",
-        "doc": "It doesn't."
+        "doc": "It keeps its own rotation."
       },
       {
         "value": "tangent",
-        "doc": "With the path's direction."
+        "doc": "Turned with the path's direction (`Transform.rotate(angle: tangent.angle)`)."
       },
       {
         "value": "upright",
-        "doc": "With the path's direction, folded into −90…90 degrees so it is never upside down."
+        "doc": "The same, folded into −90…90 degrees so it is never upside down."
+      },
+      {
+        "value": "uprightFlip",
+        "doc": "`upright`, and mirrored (`Transform.flip(flipX: true)`) while the path heads left, so its front still leads: a train, a car, a fish."
+      }
+    ],
+    "PathPacing": [
+      {
+        "value": "length",
+        "doc": "The share of the path's length: even speed along the curve."
+      },
+      {
+        "value": "area",
+        "doc": "The share of the area swept about `PathFollow.focus` (Kepler's second law: an orbit speeding up near its Sun)."
       }
     ],
     "PathUnit": [
