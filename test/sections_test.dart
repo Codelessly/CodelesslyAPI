@@ -504,6 +504,12 @@ void main() {
       expect(ds.single.file, 'PlanCard.json');
     });
 
+    test('a slot has no box of its own: no size needed', () {
+      final card = planCard();
+      ((card['nodes'] as Map)['foot'] as Map).remove('layout');
+      expect(project(docs(card: card)), isEmpty);
+    });
+
     test('root_placement_bound', () {
       final card = planCard();
       (((card['nodes'] as Map)['card'] as Map)['bind'] as Map)['layout.width'] = r'${= props.price}';

@@ -727,6 +727,8 @@ final class _Validator {
   }
 
   void _sizes(Node n, Json? m, String at) {
+    // A slot is replaced by what it places: it has no box of its own.
+    if (n.type == SlotProps.spec.type) return;
     final parentId = parents[n.id];
     final parent = parentId == null ? null : nodes[parentId];
     final l = n.layout;
