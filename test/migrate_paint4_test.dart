@@ -8,6 +8,7 @@ import 'dart:convert';
 
 import 'package:codelessly_api/codelessly_api.dart';
 import 'package:codelessly_api/src/core/migrate/legacy_svg.dart';
+import 'package:codelessly_api/validate.dart';
 import 'package:test/test.dart';
 
 /// Schema-3 [nodes] migrated to schema 4 (`migrate3to4`, whose last steps
@@ -399,6 +400,25 @@ void main() {
       }), id: 'n');
       expect(n['type'], 'path');
       expect(((n['media'] as List).single as Map)['patch'], {'props': {'data': 'M0 0 L20 20'}});
+    });
+  });
+
+  group('what schema 4 keeps as legacy', () {
+    test('a kept draw-on animation is a legacy_value warning, is not read, and round-trips', () {
+      final doc = migrateDocument({
+        'schema': 3,
+        'roots': ['c'],
+        'nodes': {
+          'c': {'type': 'canvas', 'layout': {'width': 100, 'height': 100}, 'slots': {'body': 'n'}},
+          'n': _box({'strokePath': {'points': [[0, 0], [1, 1]], 'drawMs': 600}}),
+        },
+      });
+      final found = validateDocument(doc).where((d) => d.severity != Severity.info).toList();
+      expect(found.map((d) => (d.code, d.path)), [(Codes.legacyValue, '/nodes/n/legacy.strokePath.draw')]);
+      expect(found.single.severity, Severity.warning);
+      final n = LayoutDocument.fromJson(doc).nodes['n']!;
+      expect(n.extra, {'legacy.strokePath.draw': {'drawMs': 600}});
+      expect(n.toJson()['legacy.strokePath.draw'], {'drawMs': 600});
     });
   });
 
