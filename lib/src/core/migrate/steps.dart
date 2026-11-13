@@ -3,11 +3,13 @@
 import 'migrate.dart';
 import 'steps_actions.dart';
 import 'steps_behaviors.dart';
+import 'steps_pose.dart';
 
 /// The node steps, in order: the legacy readers of schema 2, moved out of
 /// the model.
 final List<MigrationStep> _legacyNodeSteps = [
   motionLegacyStep,
+  poseLegacyStep,
   dragSplitStep,
   trackLegacyStep,
   zoomableStep,
