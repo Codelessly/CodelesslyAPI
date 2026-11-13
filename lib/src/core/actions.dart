@@ -680,9 +680,8 @@ final class ValueWrite {
 
 /// Changes variable [variable] (of the screen, or the app): [write]. JSON:
 /// `{"type": "setVariable", "variable": "count", "op": "add", "value": "1"}`.
-/// A computed variable can't be set. A number can glide to its new value
-/// ([animateMs], [curve]): the variable changes every frame (what's bound
-/// to it moves with it), and the chain goes on when it arrives.
+/// A computed variable can't be set. To glide a number to a new value,
+/// [AnimateAction] it (`animateTo`).
 final class SetVariableAction extends CoreAction {
   const SetVariableAction({
     this.variable = '',
@@ -1177,7 +1176,7 @@ final class FocusAction extends CoreAction {
 enum TrackCommand { step, animateTo }
 
 /// Turns the [Track] of node [node] (several ids: comma-separated, the
-/// first on screen takes it). The legacy `controlDrag` `step` reads as it.
+/// first on screen takes it).
 final class ControlTrackAction extends CoreAction {
   const ControlTrackAction({
     this.node = '',
@@ -1231,8 +1230,7 @@ final class ControlTrackAction extends CoreAction {
 enum DismissCommand { dismiss, returnFrom, reset, shake }
 
 /// Dismisses, brings back or resets node [node] (several ids:
-/// comma-separated). The legacy `controlDrag` `fling`, `returnFrom` and
-/// `shake` read as it.
+/// comma-separated).
 final class ControlDismissibleAction extends CoreAction {
   const ControlDismissibleAction({
     this.node = '',
@@ -1270,16 +1268,14 @@ final class ControlDismissibleAction extends CoreAction {
 
 /// What a [ControlTransformAction] does to a [TransformGesture] (a map, a
 /// photo; `transformationController.value = ...`): [reset] springs it to its
-/// rest pose (on a node without one, its dismissible or pan: the legacy
-/// `controlDrag` `reset`, whose target JSON can't tell); [scaleBy] scales it
+/// rest pose (on a node without one, its dismissible or pan); [scaleBy] scales it
 /// by [ControlTransformAction.value] (a factor: `1.5` in, `0.67` out) about
 /// the middle of what its viewport shows; [animateTo] springs it to the pose
 /// [ControlTransformAction.value] gives (`{x, y, scale, rotation}`, keys left
 /// out kept: "fit to route").
 enum TransformCommand { reset, scaleBy, animateTo }
 
-/// Resets, zooms or poses the transform gesture of node [node]. The legacy
-/// `controlDrag` `reset`, `zoom` and `pose` read as it.
+/// Resets, zooms or poses the transform gesture of node [node].
 final class ControlTransformAction extends CoreAction {
   const ControlTransformAction({
     this.node = '',

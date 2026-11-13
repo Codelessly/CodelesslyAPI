@@ -433,3 +433,22 @@ their assertions (the changes are listed in the changelog).
   `revealOnScroll`, `revealFraction`, `pathWrap`, and a loop's or entrance's keys on a motion that has none.
 - **Keyframes on a reverse loop** run backwards on the way back (the curve too, as `CurvedAnimation` over
   `repeat(reverse: true)` does); they ran forward on both ways.
+
+## Done in schema 3
+
+Migrated, not read by the model any more (steps `motion.legacy`, `pose.legacy`, `transitions.legacy`):
+`originX/Y`, the flat path keys, motion `opacity`/`blur`, the timing, entrance, loop, spin, keyframes and
+shimmer keys, the transitions object and map, and the pose keys of `pageMotion` and route transition sides;
+a bound `motion.originX/Y` binds `motion.alignment`. **Removed** (dropped by the migration, the value kept as
+`legacy.<name>` and reported): `Transition.arc` (lineup), `PathOrient.uprightFlip` (now `upright`;
+lineworks_v2), `PathFollow.pacing`/`focus` (orrery).
+
+**Not done in schema 3: folding the node `scale` and `layout.rotation` into `motion`** (and with it the
+SDK's `_stateScales`). It needs the state-composition rule this section asks for: state patches are JSON
+merge patches, and a hovered `motion.scale` with a pressed node `scale` (both active) multiply today; one
+`motion.scale` key would let the later state replace the earlier. The rule to build: active states resolve
+each `motion` number by `WidgetState` precedence (as Flutter's `WidgetStateProperty` resolves one value from
+the set of states), with `scale` composing multiplicatively and `rotate` additively across the node's own
+pose and the winning state; then migrate `scale`/`layout.rotation` (only exact with a centered alignment and
+no 3D turn, else kept as legacy). Blocked on that rule and its proof against the pressed/hover tests; not
+started.

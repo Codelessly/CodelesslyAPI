@@ -273,9 +273,6 @@ abstract final class AnimationPresets {
         _ => 'motion.$key',
       };
 
-  /// The spring of a legacy motion's `spring` curve.
-  static const Spring legacyMotionSpring = Spring.physical(stiffness: 380, damping: 20);
-
   static double _cycles(Json p, double usual) {
     final c = _p(p, 'cycles', 0);
     return c > 0 ? c : usual;

@@ -10,8 +10,9 @@
 
 ### Versioned
 
-Every document carries `"schema": 3` (`kSchemaVersion`). Decoders upgrade any older schema on load
-(`LayoutDocument.migrateSchema`, `schemaMigrations`), so the format can evolve without breaking stored data.
+Every document carries `"schema": 3` (`kSchemaVersion`). A schema-2 document (or one with no `schema`) is
+migrated once, in memory, when it is read (`LayoutDocument.migrateSchema`, `migrate2to3`), so stored data
+keeps working; the decoders know only the schema-3 shape. Chapter 12 is the migration guide.
 
 ### Total decoding
 
@@ -96,7 +97,7 @@ to 4 decimals, and integral ones are written as integers.
 
 | Key | |
 |---|---|
-| `schema` | `2` |
+| `schema` | `3` |
 | `id` | The layout's id |
 | `roots` | Canvas ids, in order |
 | `nodes` | `{id: node}`. A node's `id` is its key. |

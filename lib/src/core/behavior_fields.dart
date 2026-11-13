@@ -994,15 +994,13 @@ abstract final class BehaviorFields {
 
   /// `Transform.scale` about the center; a value not above 0 reads as 1.
   static const scale = PropDef<double>('scale', Codecs.positive, 1);
-  /// Its animation controllers (the legacy `loops` and `effectAnimations`
-  /// read as these).
+  /// Its animation controllers.
   static const animations = PropDef<List<NodeAnimation>>(
     'animations',
     ListCodec(ValueCodec(NodeAnimation.fromJson, _out, nodeAnimationType)),
     [],
   );
-  /// How changes animate, one per property path (the legacy
-  /// `{style, opacity, size}` reads as these).
+  /// How changes animate, one per property path.
   static const transitions = PropDef<List<Transition>>(
     'transitions',
     ListCodec(ValueCodec(Transition.fromJson, _out, transitionType)),
