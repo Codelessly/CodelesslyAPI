@@ -1,0 +1,19 @@
+{
+  "schema": 3,
+  "roots": ["habit"],
+  "nodes": {
+    "habit": {"type": "canvas", "slots": {"body": "row"}, "layout": {"width": 390, "height": 120},
+              "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "row": {"type": "row", "children": ["check", "label"], "layout": {"width": {"fill": 390}, "height": {"fill": 120}, "padding": 24},
+            "props": {"spacing": 12}},
+    "check": {"type": "box", "layout": {"width": 32, "height": 32}, "decoration": {"fills": [{"color": "#FFE5E7EB"}], "radius": 16},
+              "bind": {"decoration.fills[0].color": "${= done ? '#FF16A34A' : '#FFE5E7EB'}", "motion.scale": "${= done ? 1.15 : 1}"},
+              "transitions": [{"property": "motion", "duration": 250, "curve": "easeOutBack"},
+                              {"property": "decoration", "duration": 200}],
+              "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "setVariable", "variable": "done", "op": "toggle"}]}]},
+    "label": {"type": "text", "layout": {"width": {"fill": 280}, "height": {"hug": 22}},
+              "props": {"text": "Drink water", "style": {"fontSize": 17, "color": "#FF111827"}},
+              "bind": {"opacity": "${= done ? 0.5 : 1}"}, "transitions": [{"property": "opacity", "duration": 200}]}
+  },
+  "variables": {"habit": [{"name": "done", "type": "boolean", "value": false}]}
+}

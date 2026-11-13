@@ -1,0 +1,15 @@
+{
+  "schema": 3,
+  "roots": ["watch"],
+  "nodes": {
+    "watch": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 320},
+              "decoration": {"fills": [{"color": "#FF000000"}]}},
+    "col": {"type": "column", "children": ["clip", "read"], "layout": {"width": {"fill": 390}, "height": {"fill": 320}},
+            "props": {"spacing": 12}},
+    "clip": {"type": "video", "layout": {"width": {"fill": 390}, "height": 220},
+             "props": {"url": "https://example.com/intro.mp4", "showControls": true, "fit": "cover"}},
+    "read": {"type": "textButton", "layout": {"width": 200, "height": 40},
+             "props": {"label": "Read aloud", "style": {"foregroundColor": "#FFFFFFFF"}},
+             "actions": [{"trigger": {"type": "click"}, "actions": [{"type": "speak", "text": "Welcome to the tour."}]}]}
+  }
+}

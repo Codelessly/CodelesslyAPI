@@ -361,9 +361,8 @@ void main() {
     });
   });
 
-  test("the guide's §20 examples apply: the build rebuilds the minimal document, the edits apply cleanly", () {
-    final guide = File('docs/reference/index.md').readAsStringSync();
-    final section = guide.substring(guide.indexOf('<a id="guide-edit"></a>'));
+  test("the edit-ops page's examples apply: the build rebuilds the minimal document, the edits apply cleanly", () {
+    final section = File('docs/reference/edit-ops.md').readAsStringSync();
     final blocks = [
       for (final m in RegExp(r'```json\n(.*?)\n```(.{0,80})', dotAll: true).allMatches(section))
         if (m[1]!.contains('"ops"')) (json: jsonDecode(m[1]!), rejected: m[2]!.contains('The result')),

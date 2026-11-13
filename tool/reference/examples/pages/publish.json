@@ -1,0 +1,11 @@
+{
+  "schema": 3,
+  "id": "pricing",
+  "roots": ["pricing"],
+  "nodes": {
+    "pricing": {"type": "canvas", "name": "Pricing", "path": "pricing", "slots": {"body": "title"},
+                "layout": {"width": 390, "height": 200}, "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "title": {"type": "text", "layout": {"width": {"fill": 390}, "height": {"hug": 34}, "margin": 24},
+              "props": {"text": "Pricing", "style": {"fontSize": 28, "fontWeight": 700, "color": "#FF111827"}}}
+  }
+}

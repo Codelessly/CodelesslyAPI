@@ -1,0 +1,12 @@
+{
+  "schema": 3,
+  "roots": ["done"],
+  "nodes": {
+    "done": {"type": "canvas", "slots": {"body": "finish"}, "layout": {"width": 390, "height": 120},
+             "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "finish": {"type": "filledButton", "layout": {"width": 200, "height": 48},
+               "props": {"label": "Finish lesson", "style": {"backgroundColor": "#FF2563EB", "foregroundColor": "#FFFFFFFF"}},
+               "actions": [{"trigger": {"type": "click"},
+                            "actions": [{"type": "emitEvent", "event": "lessonFinished", "props": {"lesson": "intro"}}]}]}
+  }
+}

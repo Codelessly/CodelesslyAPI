@@ -1,0 +1,18 @@
+{
+  "schema": 3,
+  "roots": ["stats"],
+  "nodes": {
+    "stats": {"type": "canvas", "slots": {"body": "col"}, "layout": {"width": 390, "height": 300},
+              "decoration": {"fills": [{"color": "#FFFFFFFF"}]}},
+    "col": {"type": "column", "children": ["goal", "bar", "week"], "layout": {"width": {"fill": 390}, "height": {"fill": 300}, "padding": 24},
+            "props": {"crossAxisAlignment": "start", "spacing": 12}},
+    "goal": {"type": "text", "layout": {"width": {"fill": 342}, "height": {"hug": 20}},
+             "props": {"text": "${done} of 7 days", "style": {"fontSize": 15, "color": "#FF111827"}}},
+    "bar": {"type": "progressBar", "layout": {"width": {"fill": 342}, "height": 10},
+            "props": {"max": 7, "color": "#FF16A34A", "backgroundColor": "#FFE5E7EB", "borderRadius": 5},
+            "bind": {"props.value": "${done}"}},
+    "week": {"type": "barChart", "layout": {"width": {"fill": 342}, "height": 160},
+             "props": {"values": [1, 1, 0, 1, 1, 0, 0], "labels": ["M", "T", "W", "T", "F", "S", "S"], "color": "#FF16A34A"}}
+  },
+  "variables": {"stats": [{"name": "done", "type": "integer", "value": 4}]}
+}
