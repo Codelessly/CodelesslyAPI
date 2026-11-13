@@ -22,6 +22,7 @@ import '../widgets/canvas.dart';
 import 'catalog_check.dart';
 import 'diagnostics.dart';
 import 'edit_ops.dart';
+import 'explain.dart';
 import 'trust.dart';
 
 /// What an [EditCheck] is asked to check: the nodes an op touched, as JSON
@@ -131,16 +132,74 @@ final class EditResult {
   List<EditDiagnostic> get warnings => [for (final d in diagnostics) if (!d.error) d];
 
   /// The tool result a model reads (`ui_apply`'s): the revision, the ops
-  /// that applied, the rejected ones with their codes, warnings and the
-  /// pending ids.
-  Json toModelJson() => {
-        'rev': rev,
-        'applied': applied,
-        'rejected': [for (final d in diagnostics) if (d.error) d.toJson()],
-        'warnings': [for (final d in diagnostics) if (!d.error) d.toJson()],
-        if (pending.isNotEmpty) 'pending': [...pending],
-      };
+  /// that applied (by index, and the node ids they set, patched, moved and
+  /// removed), the rejected ones with their codes, paths, what was expected
+  /// and a suggestion, warnings (at most [maxWarnings]), the pending ids,
+  /// the document's roots and size, and, when anything was rejected or is
+  /// pending, `next`: how to fix it (patch the document as it is now; never
+  /// start over).
+  Json toModelJson({int maxWarnings = 20}) {
+    final warnings = [for (final d in diagnostics) if (!d.error) d.toJson()];
+    final rejected = [for (final d in diagnostics) if (d.error) d.toJson()];
+    final ids = <String, List<String>>{};
+    void add(String kind, String id) => (ids[kind] ??= []).contains(id) ? null : ids[kind]!.add(id);
+    for (final op in appliedOps) {
+      switch (op) {
+        case SetOp(:final id):
+          add('set', id);
+        case PatchOp(:final id):
+          add('patched', id);
+        case MoveOp(:final id):
+          add('moved', id);
+        case RemoveOp(:final ids):
+          for (final id in ids) {
+            add('removed', id);
+          }
+        case VarsOp(:final scope):
+          add('vars', scope);
+        case RootsOp():
+          break;
+      }
+    }
+    return {
+      'rev': rev,
+      'applied': applied,
+      if (ids.isNotEmpty) 'ids': ids,
+      'rejected': rejected,
+      'warnings': warnings.length > maxWarnings
+          ? [...warnings.take(maxWarnings), {'code': 'more', 'message': '${warnings.length - maxWarnings} more warnings not listed.'}]
+          : warnings,
+      if (pending.isNotEmpty) 'pending': [...pending],
+      'document': {'roots': document.roots, 'nodes': document.nodes.length},
+      if (rejected.isNotEmpty || pending.isNotEmpty) 'next': fixInstruction(rev: rev, pending: pending),
+    };
+  }
+
+  /// This result with [extra] diagnostics (render-time ones a host adds).
+  EditResult withDiagnostics(List<EditDiagnostic> extra) => extra.isEmpty
+      ? this
+      : EditResult(
+          document: document,
+          applied: applied,
+          rejected: rejected,
+          appliedOps: appliedOps,
+          inverse: inverse,
+          diagnostics: [...diagnostics, ...extra],
+          pending: pending,
+          rev: rev,
+          revisions: revisions,
+          changed: changed,
+          created: created,
+        );
 }
+
+/// What a tool result tells a model to do about rejected ops and pending
+/// ids: fix the document as it is now, by patching it.
+String fixInstruction({required int rev, Set<String> pending = const {}}) =>
+    'The UI exists as described (rev $rev): fix it by patching it, in one ui_apply call. Resend only the rejected '
+    'ops, corrected, with the same ids; '
+    '${pending.isEmpty ? '' : 'send a set for each pending id (${pending.take(12).join(', ')}${pending.length > 12 ? '...' : ''}) under the node that lists it, or drop it from that node\'s children; '}'
+    'patch fields of nodes that exist. Never start over: no new roots, no new canvas, no re-sending nodes that applied.';
 
 /// Applies [ops] to [document] in order and returns the result. Never
 /// throws.
@@ -165,6 +224,7 @@ EditResult applyOps(
   int? baseRev,
   String author = 'agent',
   bool incomplete = false,
+  bool protectRoots = false,
 }) {
   final List<(int, EditOp)> list;
   final decodeProblems = <EditDiagnostic>[];
@@ -180,7 +240,7 @@ EditResult applyOps(
     atomic = atomic || d.atomic;
   }
   final c = catalog ?? document.catalog ?? Catalog.current;
-  return _Batch(document, c, profile, check, revisions, baseRev, author, atomic, incomplete).run(list, decodeProblems);
+  return _Batch(document, c, profile, check, revisions, baseRev, author, atomic, incomplete, protectRoots).run(list, decodeProblems);
 }
 
 /// What is wrong with [document] once a stream has ended: every child,
@@ -241,7 +301,8 @@ Set<String> pendingIds(LayoutDocument document) => {
 // --- the batch ----------------------------------------------------------------
 
 class _Batch {
-  _Batch(this.start, this.catalog, this.profile, this.check, this.revisions, this.baseRev, this.author, this.atomic, this.incomplete)
+  _Batch(this.start, this.catalog, this.profile, this.check, this.revisions, this.baseRev, this.author, this.atomic, this.incomplete,
+      this.protectRoots)
       : nodes = {...start.nodes},
         roots = [...start.roots],
         extra = {...start.extra} {
@@ -265,6 +326,10 @@ class _Batch {
   /// All or none; the structure is checked once, at the end.
   final bool atomic;
   final bool incomplete;
+
+  /// The document's existing roots may not be replaced, nor a new canvas
+  /// created: an edit patches what is there ([EditCodes.startOver]).
+  final bool protectRoots;
 
   final Map<String, Node> nodes;
   List<String> roots;
@@ -433,7 +498,29 @@ class _Batch {
 
   // --- one op -------------------------------------------------------------------
 
+  /// The roots of the document being edited, when [protectRoots] holds and
+  /// it has any.
+  List<String> get _protected => protectRoots ? [for (final r in start.roots) if (start.nodes.containsKey(r)) r] : const [];
+
+  void _startOver(String what) {
+    final roots = _protected;
+    _error(EditCodes.startOver,
+        '$what, but the UI already exists: root ${roots.map((r) => '"$r"').join(', ')} with ${start.nodes.length} nodes (rev ${revisions.rev}). '
+        'Do not start over: fix the existing document by patching it (patch fields, set missing nodes under their existing parents '
+        'with the same ids, remove what is wrong).',
+        path: '/ops/$_op');
+  }
+
   void _applyOp(EditOp op) {
+    final protected = _protected;
+    if (protected.isNotEmpty) {
+      if (op is RootsOp && protected.any((r) => !op.roots.contains(r))) {
+        return _startOver('This roots op replaces ${protected.map((r) => '"$r"').join(', ')}');
+      }
+      if (op is SetOp && !nodes.containsKey(op.id) && readString(op.node['type']) == CanvasProps.spec.type) {
+        return _startOver('This set creates a new canvas "${op.id}"');
+      }
+    }
     switch (op) {
       case SetOp():
         _set(op);
@@ -496,7 +583,9 @@ class _Batch {
       final dropped = [for (final c in existing.childIds) if (!kept.contains(c) && nodes.containsKey(c)) c];
       if (dropped.isNotEmpty) {
         _error(EditCodes.wouldOrphan,
-            'Replacing "$id" drops its children ${dropped.map((c) => '"$c"').join(', ')}: keep them in "children", remove or move them first, or patch the node instead.',
+            'Replacing "$id" drops its children ${dropped.map((c) => '"$c"').join(', ')}, which exist: they would be left under no parent. '
+            'To change "$id", patch it ({"op": "patch", "id": "$id", "patch": {...}}: it keeps its children); to replace it, '
+            'keep them in "children" (or move or remove them first).',
             path: editPointer(at, 'children'), nodeId: id, expected: dropped);
       }
     }
@@ -522,7 +611,9 @@ class _Batch {
           path: '/ops/$_op/parent', nodeId: id, suggestion: nearestName(parentId, nodes.keys));
     }
     if (nodes[id]?.type == CanvasProps.spec.type) {
-      return _error(EditCodes.canvasAsChild, 'Canvas "$id" cannot be placed under "$parentId": canvases are only roots.', path: at, nodeId: id);
+      return _error(EditCodes.canvasAsChild,
+          'Canvas "$id" cannot be placed under "$parentId": a canvas is a screen, only ever a root. Put content in a column (or row, stack) instead.',
+          path: at, nodeId: id);
     }
     final spec = p.spec;
     if (slot != null) {
@@ -534,7 +625,8 @@ class _Batch {
       return _error(EditCodes.invalidParent,
           spec.slots.isNotEmpty
               ? 'A ${p.type} takes no children list: give a "slot" (${spec.slots.join(', ')}).'
-              : 'A ${p.type} takes no children: place "$id" under a row, column or stack.',
+              : 'A ${p.type} takes no children: place "$id" under a ${containerTypes(catalog).take(4).join(', ')}. For a filled box with '
+                  'content (a button, a tag), make the box a row or column with the decoration and padding.',
           path: '/ops/$_op/parent', nodeId: parentId, expected: spec.slots.isEmpty ? null : spec.slots);
     }
     // Where it is now.
@@ -759,14 +851,18 @@ class _Batch {
               path: at, nodeId: c);
         }
         if (nodes[c]?.type == CanvasProps.spec.type) {
-          _error(EditCodes.canvasAsChild, 'Canvas "$c" cannot be a child of "$id": canvases are only roots.', path: at, nodeId: c);
+          _error(EditCodes.canvasAsChild,
+              'Canvas "$c" cannot be a child (or slot) of "$id": a canvas is a screen, only ever a root. ${n.type == CanvasProps.spec.type ? 'Canvases do not nest: give "$id" a column as its body and put the content there.' : 'Use a column (or row, stack) for content.'}',
+              path: at, nodeId: c);
         }
         if (c == id || (nodes.containsKey(c) && _isWithin(id, c))) {
           _error(EditCodes.cycle, '"$c" would contain itself (through "$id").', path: at, nodeId: c);
         }
       }
       if (n.type == CanvasProps.spec.type && (listers[id]?.isNotEmpty ?? false)) {
-        _error(EditCodes.canvasAsChild, 'Canvas "$id" cannot be a child of "${listers[id]!.first}".', path: at, nodeId: id);
+        _error(EditCodes.canvasAsChild,
+            'Canvas "$id" cannot be a child (or slot) of "${listers[id]!.first}": a canvas is a screen, only ever a root. Make "$id" a column (or row, stack) instead.',
+            path: at, nodeId: id);
       }
     }
     for (final c in lost) {
@@ -803,7 +899,7 @@ class _Batch {
       final doc = LayoutDocument(id: start.id, roots: roots, nodes: nodes, extra: extra, catalog: start.catalog ?? catalog);
       _diags.addAll([
         for (final d in ch(EditCheckInput(document: doc, nodes: live, op: _op, catalog: catalog, screens: screens, incomplete: incomplete)))
-          d.atOp(_op),
+          explainDiagnostic(d.atOp(_op), catalog: catalog, node: d.nodeId == null ? null : live[d.nodeId]),
       ]);
     }
   }
